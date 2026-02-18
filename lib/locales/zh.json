@@ -1,0 +1,77 @@
+{
+    "common": {
+        "cancel": "取消",
+        "save": "保存",
+        "delete": "删除",
+        "edit": "编辑",
+        "create": "创建",
+        "loading": "加载中...",
+        "error": "出了点问题",
+        "empty": "这里还没有内容",
+        "plants": "株植物",
+        "beds": "个苗床"
+    },
+    "tabs": {
+        "planning": "规划",
+        "growing": "生长",
+        "garden": "花园",
+        "reminder": "提醒",
+        "library": "图书馆"
+    },
+    "garden": {
+        "title": "花园",
+        "subtitle_count": "{{count}} 个花园",
+        "subtitle_count_plural": "{{count}} 个花园",
+        "subtitle_empty": "管理您的花园",
+        "empty_title": "还没有花园",
+        "empty_desc": "创建您的第一个花园，开始管理您的植物",
+        "create_button": "创建花园",
+        "create_title": "新建花园",
+        "name_label": "花园名称",
+        "name_placeholder": "例如：阳台花园、后院...",
+        "size_label": "大小",
+        "size_selected": "已选择：{{label}} · {{desc}}",
+        "create_action": "创建花园",
+        "creating": "创建中...",
+        "error_name": "请输入花园名称",
+        "beds_count": "{{count}} 个苗床",
+        "beds_count_plural": "{{count}} 个苗床",
+        "size_mini": "迷你",
+        "size_small": "小",
+        "size_medium": "中",
+        "size_large": "大",
+        "size_wide": "宽敞",
+        "size_farm": "农场"
+    },
+    "planning": {
+        "title": "规划",
+        "subtitle": "规划您的种植日历",
+        "add_plant": "添加植物",
+        "plant_name": "植物名称",
+        "plant_placeholder": "例如：番茄、罗勒...",
+        "no_plants": "没有计划的植物",
+        "no_plants_desc": "添加您的第一株植物开始"
+    },
+    "growing": {
+        "title": "生长",
+        "active_count": "{{count}} 株植物正在生长",
+        "active_count_plural": "{{count}} 株植物正在生长",
+        "subtitle": "您的植物正在生长",
+        "no_plants": "没有活跃的植物",
+        "no_plants_desc": "前往规划添加新植物",
+        "harvest": "收获",
+        "auth_warning": "您需要登录才能更新植物状态。"
+    },
+    "reminder": {
+        "title": "提醒",
+        "today": "今天",
+        "no_reminders": "没有提醒",
+        "no_reminders_desc": "创建提醒，不要忘记照顾您的植物"
+    },
+    "library": {
+        "title": "图书馆",
+        "search_placeholder": "搜索植物...",
+        "no_results": "未找到植物",
+        "filter_all": "全部"
+    }
+}

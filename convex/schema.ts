@@ -59,6 +59,25 @@ export default defineSchema({
     .index("by_email", ["email"]),
 
   // ==========================================
+  // Gardens (top-level unit: Garden → Bed → Plant)
+  // ==========================================
+  gardens: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+
+    // Size
+    areaM2: v.optional(v.number()),
+
+    // Environment
+    locationType: v.string(), // "indoor", "outdoor", "greenhouse", "balcony"
+    description: v.optional(v.string()),
+
+    // Soft delete
+    isDeleted: v.optional(v.boolean()),
+  })
+    .index("by_user", ["userId"]),
+
+  // ==========================================
   // Master Data: Plant Database
   // ==========================================
   plantsMaster: defineTable({
@@ -102,10 +121,11 @@ export default defineSchema({
     .index("by_group", ["group"]),
 
   // ==========================================
-  // User's Garden: Beds
+  // Beds (belong to a Garden)
   // ==========================================
   beds: defineTable({
     userId: v.id("users"),
+    gardenId: v.optional(v.id("gardens")), // belongs to garden
     name: v.string(),
 
     // Dimensions
@@ -130,7 +150,8 @@ export default defineSchema({
     }))),
   })
     .index("by_user", ["userId"])
-    .index("by_user_location", ["userId", "locationType"]),
+    .index("by_user_location", ["userId", "locationType"])
+    .index("by_garden", ["gardenId"]),
 
   // ==========================================
   // User's Plants

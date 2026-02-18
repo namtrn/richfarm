@@ -1,11 +1,11 @@
-import { TamaguiProvider } from 'tamagui';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
-import { config } from '../tamagui.config';
 import { Slot, useRouter, useSegments } from 'expo-router';
-import { useColorScheme, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../lib/i18n';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
 import { useAppReady } from '../hooks/useAppReady';
@@ -21,15 +21,7 @@ function AuthGuard() {
 
   useEffect(() => {
     if (!isReady) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-
-    // If you later add auth screens, you can enforce redirects here.
-    // if (!currentUser && !inAuthGroup) {
-    //   router.replace('/(auth)/sign-in');
-    // } else if (currentUser && inAuthGroup) {
-    //   router.replace('/(tabs)');
-    // }
+    // Auth redirect logic can go here
   }, [isReady, currentUser, segments, router]);
 
   if (!isReady) {
@@ -40,37 +32,34 @@ function AuthGuard() {
 }
 
 function AppShell({ children }: { children: ReactNode }) {
-  const colorScheme = useColorScheme();
-
   return (
-    <TamaguiProvider config={config} defaultTheme={colorScheme === 'dark' ? 'dark' : 'light'}>
-      <SafeAreaProvider>
-        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-          {children}
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </TamaguiProvider>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+        {children}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   if (!convex) {
-    // No Convex URL, avoid rendering screens that rely on Convex hooks.
     return (
-      <AppShell>
-        <OfflineScreen />
-      </AppShell>
+      <I18nextProvider i18n={i18n}>
+        <AppShell>
+          <OfflineScreen />
+        </AppShell>
+      </I18nextProvider>
     );
   }
 
   return (
-    <ConvexProvider client={convex}>
-      <AppShell>
-        <AuthGuard />
-      </AppShell>
-    </ConvexProvider>
+    <I18nextProvider i18n={i18n}>
+      <ConvexProvider client={convex}>
+        <AppShell>
+          <AuthGuard />
+        </AppShell>
+      </ConvexProvider>
+    </I18nextProvider>
   );
 }
 

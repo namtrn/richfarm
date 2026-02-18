@@ -1,0 +1,77 @@
+{
+    "common": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "create": "Create",
+        "loading": "Loading...",
+        "error": "Something went wrong",
+        "empty": "Nothing here yet",
+        "plants": "plants",
+        "beds": "beds"
+    },
+    "tabs": {
+        "planning": "Planning",
+        "growing": "Growing",
+        "garden": "Garden",
+        "reminder": "Reminder",
+        "library": "Library"
+    },
+    "garden": {
+        "title": "Garden",
+        "subtitle_count": "{{count}} garden",
+        "subtitle_count_plural": "{{count}} gardens",
+        "subtitle_empty": "Manage your gardens",
+        "empty_title": "No gardens yet",
+        "empty_desc": "Create your first garden to start managing your plants",
+        "create_button": "Create Garden",
+        "create_title": "New Garden",
+        "name_label": "Garden name",
+        "name_placeholder": "e.g. Balcony Garden, Backyard...",
+        "size_label": "Size",
+        "size_selected": "Selected: {{label}} · {{desc}}",
+        "create_action": "Create Garden",
+        "creating": "Creating...",
+        "error_name": "Please enter a garden name",
+        "beds_count": "{{count}} bed",
+        "beds_count_plural": "{{count}} beds",
+        "size_mini": "Mini",
+        "size_small": "Small",
+        "size_medium": "Medium",
+        "size_large": "Large",
+        "size_wide": "Wide",
+        "size_farm": "Farm"
+    },
+    "planning": {
+        "title": "Planning",
+        "subtitle": "Plan your planting schedule",
+        "add_plant": "Add Plant",
+        "plant_name": "Plant name",
+        "plant_placeholder": "e.g. Tomato, Basil...",
+        "no_plants": "No plants planned",
+        "no_plants_desc": "Add your first plant to get started"
+    },
+    "growing": {
+        "title": "Growing",
+        "active_count": "{{count}} plant growing",
+        "active_count_plural": "{{count}} plants growing",
+        "subtitle": "Your plants are growing",
+        "no_plants": "No active plants",
+        "no_plants_desc": "Go to Planning to add new plants",
+        "harvest": "Harvest",
+        "auth_warning": "You need to log in to update plant status."
+    },
+    "reminder": {
+        "title": "Reminder",
+        "today": "Today",
+        "no_reminders": "No reminders",
+        "no_reminders_desc": "Create reminders so you don't forget to care for your plants"
+    },
+    "library": {
+        "title": "Library",
+        "search_placeholder": "Search plants...",
+        "no_results": "No plants found",
+        "filter_all": "All"
+    }
+}

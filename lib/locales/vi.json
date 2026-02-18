@@ -1,0 +1,77 @@
+{
+    "common": {
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "delete": "Xóa",
+        "edit": "Sửa",
+        "create": "Tạo",
+        "loading": "Đang tải...",
+        "error": "Có lỗi xảy ra",
+        "empty": "Chưa có gì",
+        "plants": "cây",
+        "beds": "luống"
+    },
+    "tabs": {
+        "planning": "Kế hoạch",
+        "growing": "Đang trồng",
+        "garden": "Vườn",
+        "reminder": "Nhắc nhở",
+        "library": "Thư viện"
+    },
+    "garden": {
+        "title": "Vườn",
+        "subtitle_count": "{{count}} khu vườn",
+        "subtitle_count_plural": "{{count}} khu vườn",
+        "subtitle_empty": "Quản lý vườn của bạn",
+        "empty_title": "Chưa có vườn nào",
+        "empty_desc": "Tạo vườn đầu tiên để bắt đầu quản lý cây trồng",
+        "create_button": "Tạo Vườn",
+        "create_title": "Tạo Vườn mới",
+        "name_label": "Tên vườn",
+        "name_placeholder": "VD: Vườn ban công, Sân sau...",
+        "size_label": "Kích thước",
+        "size_selected": "Đã chọn: {{label}} · {{desc}}",
+        "create_action": "Tạo Vườn",
+        "creating": "Đang tạo...",
+        "error_name": "Vui lòng nhập tên vườn",
+        "beds_count": "{{count}} luống",
+        "beds_count_plural": "{{count}} luống",
+        "size_mini": "Mini",
+        "size_small": "Nhỏ",
+        "size_medium": "Vừa",
+        "size_large": "Lớn",
+        "size_wide": "Rộng",
+        "size_farm": "Trang trại"
+    },
+    "planning": {
+        "title": "Kế hoạch",
+        "subtitle": "Lên kế hoạch trồng cây",
+        "add_plant": "Thêm cây",
+        "plant_name": "Tên cây",
+        "plant_placeholder": "VD: Cà chua, Húng quế...",
+        "no_plants": "Chưa có cây nào",
+        "no_plants_desc": "Thêm cây đầu tiên để bắt đầu"
+    },
+    "growing": {
+        "title": "Đang trồng",
+        "active_count": "{{count}} cây đang phát triển",
+        "active_count_plural": "{{count}} cây đang phát triển",
+        "subtitle": "Cây của bạn đang phát triển",
+        "no_plants": "Chưa có cây nào",
+        "no_plants_desc": "Vào tab Kế hoạch để thêm cây mới",
+        "harvest": "Thu hoạch",
+        "auth_warning": "Bạn cần đăng nhập để cập nhật trạng thái cây."
+    },
+    "reminder": {
+        "title": "Nhắc nhở",
+        "today": "Hôm nay",
+        "no_reminders": "Không có nhắc nhở",
+        "no_reminders_desc": "Tạo nhắc nhở để không quên chăm cây"
+    },
+    "library": {
+        "title": "Thư viện",
+        "search_placeholder": "Tìm kiếm cây...",
+        "no_results": "Không tìm thấy cây",
+        "filter_all": "Tất cả"
+    }
+}

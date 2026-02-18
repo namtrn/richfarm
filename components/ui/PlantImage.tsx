@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
-import { YStack } from 'tamagui';
-import { Leaf } from '@tamagui/lucide-icons';
+import { View } from 'react-native';
+import { Leaf } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 
 interface PlantImageProps {
@@ -22,16 +22,12 @@ export function PlantImage({
     if (!uri) {
         if (!showPlaceholder) return null;
         return (
-            <YStack
-                width={size}
-                height={size}
-                borderRadius={borderRadius}
-                backgroundColor="$accent3"
-                justifyContent="center"
-                alignItems="center"
+            <View
+                style={{ width: size, height: size, borderRadius }}
+                className="bg-green-100 justify-center items-center"
             >
-                <Leaf size={size * 0.4} color="$accent8" />
-            </YStack>
+                <Leaf size={size * 0.4} stroke="#16a34a" />
+            </View>
         );
     }
 

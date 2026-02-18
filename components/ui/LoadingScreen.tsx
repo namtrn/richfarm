@@ -1,5 +1,5 @@
-import { YStack, Spinner, Text } from 'tamagui';
-import { Leaf } from '@tamagui/lucide-icons';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { Leaf } from 'lucide-react-native';
 
 interface LoadingScreenProps {
     message?: string;
@@ -7,33 +7,13 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ message = 'Đang tải...' }: LoadingScreenProps) {
     return (
-        <YStack
-            flex={1}
-            justifyContent="center"
-            alignItems="center"
-            backgroundColor="$background"
-            space="$4"
-        >
-            <YStack
-                width={80}
-                height={80}
-                backgroundColor="$accent5"
-                borderRadius={40}
-                justifyContent="center"
-                alignItems="center"
-            >
-                <Leaf size={40} color="white" />
-            </YStack>
-
-            <Text fontSize="$6" fontWeight="bold" color="$accent10">
-                Richfarm
-            </Text>
-
-            <Spinner size="large" color="$accent8" />
-
-            <Text fontSize="$3" color="$gray10">
-                {message}
-            </Text>
-        </YStack>
+        <View className="flex-1 justify-center items-center bg-white dark:bg-gray-950 gap-y-4">
+            <View className="w-20 h-20 bg-green-500 rounded-full justify-center items-center">
+                <Leaf size={40} stroke="white" />
+            </View>
+            <Text className="text-2xl font-bold text-green-900 dark:text-green-100">Richfarm</Text>
+            <ActivityIndicator size="large" color="#16a34a" />
+            <Text className="text-sm text-gray-400">{message}</Text>
+        </View>
     );
 }

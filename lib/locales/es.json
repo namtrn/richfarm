@@ -1,0 +1,77 @@
+{
+    "common": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "create": "Crear",
+        "loading": "Cargando...",
+        "error": "Algo salió mal",
+        "empty": "Nada aquí todavía",
+        "plants": "plantas",
+        "beds": "camas"
+    },
+    "tabs": {
+        "planning": "Planificación",
+        "growing": "Creciendo",
+        "garden": "Jardín",
+        "reminder": "Recordatorio",
+        "library": "Biblioteca"
+    },
+    "garden": {
+        "title": "Jardín",
+        "subtitle_count": "{{count}} jardín",
+        "subtitle_count_plural": "{{count}} jardines",
+        "subtitle_empty": "Gestiona tus jardines",
+        "empty_title": "Sin jardines aún",
+        "empty_desc": "Crea tu primer jardín para empezar a gestionar tus plantas",
+        "create_button": "Crear Jardín",
+        "create_title": "Nuevo Jardín",
+        "name_label": "Nombre del jardín",
+        "name_placeholder": "Ej. Jardín del balcón, Patio trasero...",
+        "size_label": "Tamaño",
+        "size_selected": "Seleccionado: {{label}} · {{desc}}",
+        "create_action": "Crear Jardín",
+        "creating": "Creando...",
+        "error_name": "Por favor ingresa un nombre para el jardín",
+        "beds_count": "{{count}} cama",
+        "beds_count_plural": "{{count}} camas",
+        "size_mini": "Mini",
+        "size_small": "Pequeño",
+        "size_medium": "Mediano",
+        "size_large": "Grande",
+        "size_wide": "Amplio",
+        "size_farm": "Granja"
+    },
+    "planning": {
+        "title": "Planificación",
+        "subtitle": "Planifica tu calendario de siembra",
+        "add_plant": "Agregar planta",
+        "plant_name": "Nombre de la planta",
+        "plant_placeholder": "Ej. Tomate, Albahaca...",
+        "no_plants": "Sin plantas planificadas",
+        "no_plants_desc": "Agrega tu primera planta para comenzar"
+    },
+    "growing": {
+        "title": "Creciendo",
+        "active_count": "{{count}} planta creciendo",
+        "active_count_plural": "{{count}} plantas creciendo",
+        "subtitle": "Tus plantas están creciendo",
+        "no_plants": "Sin plantas activas",
+        "no_plants_desc": "Ve a Planificación para agregar nuevas plantas",
+        "harvest": "Cosechar",
+        "auth_warning": "Necesitas iniciar sesión para actualizar el estado de las plantas."
+    },
+    "reminder": {
+        "title": "Recordatorio",
+        "today": "Hoy",
+        "no_reminders": "Sin recordatorios",
+        "no_reminders_desc": "Crea recordatorios para no olvidar cuidar tus plantas"
+    },
+    "library": {
+        "title": "Biblioteca",
+        "search_placeholder": "Buscar plantas...",
+        "no_results": "No se encontraron plantas",
+        "filter_all": "Todos"
+    }
+}

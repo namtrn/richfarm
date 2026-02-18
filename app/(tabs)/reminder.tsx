@@ -1,5 +1,5 @@
-﻿import { YStack, Text, ScrollView, XStack, Card, Button, Spinner } from 'tamagui';
-import { Bell, Check, Droplets, Scissors, Sprout } from '@tamagui/lucide-icons';
+﻿import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Bell, Check, Droplets, Scissors, Sprout } from 'lucide-react-native';
 import { useReminders } from '../../hooks/useReminders';
 import { useAuth } from '../../lib/auth';
 
@@ -26,41 +26,25 @@ function ReminderCard({
   });
 
   return (
-    <Card elevate bordered padding="$3">
-      <XStack alignItems="center" space="$3">
-        <YStack
-          width={44}
-          height={44}
-          backgroundColor="$accent3"
-          borderRadius={22}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Icon size={22} color="$accent9" />
-        </YStack>
-        <YStack flex={1}>
-          <Text fontSize="$4" fontWeight="600">
-            {reminder.title}
-          </Text>
-          {reminder.description && (
-            <Text fontSize="$2" color="$gray10">
-              {reminder.description}
-            </Text>
-          )}
-          <Text fontSize="$2" color="$gray9">
-            {time}
-          </Text>
-        </YStack>
-        <Button
-          size="$3"
-          theme="accent"
-          icon={Check}
-          circular
-          disabled={!canEdit}
-          onPress={onComplete}
-        />
-      </XStack>
-    </Card>
+    <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3">
+      <View className="w-11 h-11 bg-green-100 rounded-full justify-center items-center">
+        <Icon size={22} stroke="#16a34a" />
+      </View>
+      <View className="flex-1">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white">{reminder.title}</Text>
+        {reminder.description && (
+          <Text className="text-xs text-gray-400">{reminder.description}</Text>
+        )}
+        <Text className="text-xs text-gray-400">{time}</Text>
+      </View>
+      <TouchableOpacity
+        className={`w-9 h-9 bg-green-500 rounded-full justify-center items-center ${!canEdit ? 'opacity-50' : ''}`}
+        disabled={!canEdit}
+        onPress={onComplete}
+      >
+        <Check size={18} color="white" />
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -70,48 +54,36 @@ export default function ReminderScreen() {
   const canEdit = !isAuthLoading && isAuthenticated;
 
   return (
-    <ScrollView flex={1} backgroundColor="$background">
-      <YStack padding="$4" space="$4">
-        <YStack>
-          <Text fontSize="$8" fontWeight="bold">
-            Reminder
-          </Text>
-          <Text fontSize="$4" color="$gray11">
-            Nhắc nhở chăm sóc hôm nay
-          </Text>
-        </YStack>
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <View className="p-4 gap-y-4">
+        <View>
+          <Text className="text-3xl font-bold text-gray-900 dark:text-white">Reminder</Text>
+          <Text className="text-sm text-gray-500">Nhắc nhở chăm sóc hôm nay</Text>
+        </View>
 
         {!isAuthLoading && !isAuthenticated && (
-          <Card bordered padding="$3" backgroundColor="$yellow2">
-            <Text fontSize="$3" color="$yellow11">
+          <View className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+            <Text className="text-yellow-800 text-sm">
               Bạn cần đăng nhập để hoàn thành nhắc nhở.
             </Text>
-          </Card>
+          </View>
         )}
 
         {isLoading ? (
-          <YStack padding="$8" alignItems="center">
-            <Spinner size="large" color="$accent8" />
-          </YStack>
+          <View className="py-16 items-center">
+            <ActivityIndicator size="large" color="#16a34a" />
+          </View>
         ) : todayReminders.length === 0 ? (
-          <YStack
-            padding="$8"
-            alignItems="center"
-            space="$3"
-            backgroundColor="$gray2"
-            borderRadius="$4"
-          >
-            <Bell size={48} color="$gray8" />
-            <Text fontSize="$5" color="$gray10" fontWeight="600">
-              Không có nhắc nhở
-            </Text>
-            <Text fontSize="$3" color="$gray9" textAlign="center">
+          <View className="py-16 items-center gap-y-3 bg-gray-100 dark:bg-gray-800 rounded-2xl">
+            <Bell size={48} stroke="#9ca3af" />
+            <Text className="text-lg font-semibold text-gray-500">Không có nhắc nhở</Text>
+            <Text className="text-sm text-gray-400 text-center">
               Tạo nhắc nhở để không quên chăm cây
             </Text>
-          </YStack>
+          </View>
         ) : (
-          <YStack space="$3">
-            <Text fontSize="$3" color="$gray9" fontWeight="600">
+          <View className="gap-y-3">
+            <Text className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
               HÔM NAY — {todayReminders.length} nhắc nhở
             </Text>
             {todayReminders.map((reminder: any) => (
@@ -122,9 +94,9 @@ export default function ReminderScreen() {
                 canEdit={canEdit}
               />
             ))}
-          </YStack>
+          </View>
         )}
-      </YStack>
+      </View>
     </ScrollView>
   );
 }

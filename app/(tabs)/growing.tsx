@@ -1,5 +1,5 @@
-﻿import { YStack, Text, ScrollView, Button, XStack, Card, Spinner } from 'tamagui';
-import { Sprout, Leaf } from '@tamagui/lucide-icons';
+﻿import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Sprout, Leaf } from 'lucide-react-native';
 import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';
 
@@ -13,86 +13,70 @@ export default function GrowingScreen() {
   );
 
   return (
-    <ScrollView flex={1} backgroundColor="$background">
-      <YStack padding="$4" space="$4">
-        <XStack justifyContent="space-between" alignItems="center">
-          <YStack>
-            <Text fontSize="$8" fontWeight="bold">
-              Growing
-            </Text>
-            <Text fontSize="$4" color="$gray11">
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <View className="p-4 gap-y-4">
+        {/* Header */}
+        <View className="flex-row justify-between items-center">
+          <View>
+            <Text className="text-3xl font-bold text-gray-900 dark:text-white">Growing</Text>
+            <Text className="text-sm text-gray-500">
               {activePlants.length > 0
                 ? `${activePlants.length} cây đang phát triển`
                 : 'Cây của bạn đang phát triển'}
             </Text>
-          </YStack>
-        </XStack>
+          </View>
+        </View>
 
+        {/* Auth warning */}
         {!isAuthLoading && !isAuthenticated && (
-          <Card bordered padding="$3" backgroundColor="$yellow2">
-            <Text fontSize="$3" color="$yellow11">
+          <View className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+            <Text className="text-yellow-800 text-sm">
               Bạn cần đăng nhập để cập nhật trạng thái cây.
             </Text>
-          </Card>
+          </View>
         )}
 
+        {/* Content */}
         {isLoading ? (
-          <YStack padding="$8" alignItems="center">
-            <Spinner size="large" color="$accent8" />
-          </YStack>
+          <View className="py-16 items-center">
+            <ActivityIndicator size="large" color="#16a34a" />
+          </View>
         ) : activePlants.length === 0 ? (
-          <YStack
-            padding="$8"
-            alignItems="center"
-            space="$3"
-            backgroundColor="$gray2"
-            borderRadius="$4"
-          >
-            <Leaf size={48} color="$gray8" />
-            <Text fontSize="$5" color="$gray10" fontWeight="600">
-              Chưa có cây nào
-            </Text>
-            <Text fontSize="$3" color="$gray9" textAlign="center">
+          <View className="py-16 items-center gap-y-3 bg-gray-100 dark:bg-gray-800 rounded-2xl">
+            <Leaf size={48} stroke="#9ca3af" />
+            <Text className="text-lg font-semibold text-gray-500">Chưa có cây nào</Text>
+            <Text className="text-sm text-gray-400 text-center">
               Vào tab Planning để thêm cây mới
             </Text>
-          </YStack>
+          </View>
         ) : (
-          <YStack space="$3">
+          <View className="gap-y-3">
             {activePlants.map((plant) => (
-              <Card key={plant._id} elevate bordered padding="$3">
-                <XStack alignItems="center" space="$3">
-                  <YStack
-                    width={44}
-                    height={44}
-                    backgroundColor="$accent3"
-                    borderRadius={22}
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Sprout size={22} color="$accent9" />
-                  </YStack>
-                  <YStack flex={1}>
-                    <Text fontSize="$4" fontWeight="600">
-                      {plant.nickname ?? 'Cây chưa đặt tên'}
-                    </Text>
-                    <Text fontSize="$2" color="$gray10" textTransform="capitalize">
-                      {plant.status}
-                    </Text>
-                  </YStack>
-                  <Button
-                    size="$2"
-                    theme="accent"
-                    disabled={!canEdit}
-                    onPress={() => updateStatus(plant._id, 'harvested')}
-                  >
-                    Thu hoạch
-                  </Button>
-                </XStack>
-              </Card>
+              <View
+                key={plant._id}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3"
+              >
+                <View className="w-11 h-11 bg-green-100 rounded-full justify-center items-center">
+                  <Sprout size={22} stroke="#16a34a" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                    {plant.nickname ?? 'Cây chưa đặt tên'}
+                  </Text>
+                  <Text className="text-xs text-gray-400 capitalize">{plant.status}</Text>
+                </View>
+                <TouchableOpacity
+                  className={`bg-green-500 rounded-xl px-3 py-1.5 ${!canEdit ? 'opacity-50' : ''}`}
+                  disabled={!canEdit}
+                  onPress={() => updateStatus(plant._id, 'harvested')}
+                >
+                  <Text className="text-white text-sm font-medium">Thu hoạch</Text>
+                </TouchableOpacity>
+              </View>
             ))}
-          </YStack>
+          </View>
         )}
-      </YStack>
+      </View>
     </ScrollView>
   );
 }
