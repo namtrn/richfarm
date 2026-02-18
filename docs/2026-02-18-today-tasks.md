@@ -1,6 +1,6 @@
 ﻿# 2026-02-18 — Những gì cần làm hôm nay
 
-> Mục tiêu: Setup foundation cho My Garden MVP — có thể chạy app và hiển thị được màn hình đầu tiên.
+> Mục tiêu: Bổ sung Auth, Loading Screen, Convex Functions, Service Hooks cho Richfarm MVP.
 
 ---
 
@@ -173,3 +173,34 @@ Nếu hoàn thành sớm, có thể bắt đầu:
 **Kết thúc:** ___:___
 
 **Tâm trạng:** 😄 / 😐 / 😫
+
+---
+
+## 🆕 Bổ sung 2026-02-18 (buổi chiều) — Richfarm App
+
+> Các task dưới đây được thêm sau khi đã hoàn thành setup ban đầu.
+
+### 11. Auth Setup (30 phút)
+- [ ] Tạo `convex/users.ts` — `getOrCreateUser`, `getCurrentUser` mutations/queries
+- [ ] Tạo `lib/auth.ts` — hook `useAuth()` expose `user`, `isLoading`, `signIn`, `signOut`
+- [ ] Tạo `app/(auth)/sign-in.tsx` — màn hình đăng nhập (Anonymous hoặc Email)
+- [ ] Cập nhật `app/_layout.tsx` — thêm auth guard, redirect về sign-in nếu chưa đăng nhập
+
+### 12. Loading Screen (15 phút)
+- [ ] Tạo `components/ui/LoadingScreen.tsx` — full-screen loading với logo + Spinner
+- [ ] Tạo `hooks/useAppReady.ts` — kiểm tra app đã sẵn sàng (auth initialized)
+- [ ] Cập nhật `app/_layout.tsx` — hiển thị LoadingScreen khi khởi động
+
+### 13. Convex Functions (40 phút)
+- [ ] Tạo `convex/plants.ts` — `getUserPlants`, `addPlant`, `updatePlantStatus`, `deletePlant`
+- [ ] Tạo `convex/reminders.ts` — `getReminders`, `createReminder`, `toggleReminder`, `completeReminder`
+- [ ] Tạo `convex/beds.ts` — `getBeds`, `createBed`
+
+### 14. Service Hooks (20 phút)
+- [ ] Tạo `hooks/usePlants.ts` — wrap Convex plants queries/mutations
+- [ ] Tạo `hooks/useReminders.ts` — wrap Convex reminders queries/mutations
+
+### 15. Kết nối data vào Tab Screens (20 phút)
+- [ ] Cập nhật `app/(tabs)/growing.tsx` — dùng `usePlants()`, thêm FAB button
+- [ ] Cập nhật `app/(tabs)/planning.tsx` — dùng `usePlants()`, button "Thêm cây" hoạt động
+- [ ] Cập nhật `app/(tabs)/reminder.tsx` — dùng `useReminders()`, hiển thị nhắc nhở hôm nay
