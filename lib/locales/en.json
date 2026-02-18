@@ -129,7 +129,29 @@
         "add_to_planning": "Add to Planning",
         "species_count": "{{count}} species in database",
         "no_plants": "No plants in library",
-        "try_different": "Try a different search term"
+        "try_different": "Try a different search term",
+        "stat_harvest": "Harvest",
+        "stat_watering": "Watering",
+        "stat_light": "Light",
+        "detail_germination": "Germination",
+        "detail_spacing": "Spacing",
+        "detail_propagation": "Propagation",
+        "detail_uses": "Uses",
+        "light_full_sun": "Full Sun",
+        "light_partial_shade": "Part Shade",
+        "light_shade": "Shade",
+        "watering_every": "Every {{days}}d"
+    },
+    "purposes": {
+        "air_purifying": "Air purifying",
+        "cooking": "Cooking",
+        "cooking_spices": "Cooking spices",
+        "cosmetic": "Cosmetic",
+        "dessert": "Dessert",
+        "indoor": "Indoor",
+        "medicinal": "Medicinal",
+        "ornamental": "Ornamental",
+        "salad": "Salad"
     },
     "profile": {
         "title": "Profile",

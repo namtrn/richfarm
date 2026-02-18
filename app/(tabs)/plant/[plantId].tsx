@@ -36,7 +36,7 @@ function parseDateInput(value: string) {
 }
 
 export default function PlantDetailScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { plantId } = useLocalSearchParams<{ plantId: string }>();
   const resolvedPlantId = Array.isArray(plantId) ? plantId[0] : plantId;
@@ -51,9 +51,12 @@ export default function PlantDetailScreen() {
     [plants, resolvedPlantId]
   );
 
+  const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const masterPlant = useQuery(
     api.plantImages.getPlantById,
-    plant?.plantMasterId ? { plantId: plant.plantMasterId } : 'skip'
+    plant?.plantMasterId
+      ? { plantId: plant.plantMasterId, locale }
+      : 'skip'
   );
 
   const [nickname, setNickname] = useState('');
@@ -148,7 +151,7 @@ export default function PlantDetailScreen() {
         {masterPlant && (
           <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('plant.master_title')}</Text>
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{masterPlant.commonNames?.[0]?.name ?? masterPlant.scientificName}</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{masterPlant.displayName ?? masterPlant.scientificName}</Text>
             <Text style={{ fontSize: 12, color: '#9ca3af', marginBottom: 6 }}>{masterPlant.scientificName}</Text>
             {!!masterPlant.description && (
               <Text style={{ fontSize: 13, color: '#374151', marginBottom: 8 }}>{masterPlant.description}</Text>

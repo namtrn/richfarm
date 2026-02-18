@@ -63,18 +63,11 @@ const schema = defineSchema({
   // ==========================================
   plantsMaster: defineTable({
     scientificName: v.string(),
-    commonNames: v.array(v.object({
-      locale: v.string(),
-      name: v.string(),
-    })),
     
     // Classification
     group: v.string(), // "alliums", "herbs", "nightshades", ...
     family: v.optional(v.string()),
     purposes: v.array(v.string()), // ["cooking_spices", "indoor"]
-    
-    // Description
-    description: v.optional(v.string()),
     
     // Growing info
     typicalDaysToHarvest: v.optional(v.number()),
@@ -100,6 +93,18 @@ const schema = defineSchema({
   })
     .index("by_scientific_name", ["scientificName"])
     .index("by_group", ["group"]),
+
+  // ==========================================
+  // Master Data: Plant i18n
+  // ==========================================
+  plantI18n: defineTable({
+    plantId: v.id("plantsMaster"),
+    locale: v.string(),
+    commonName: v.string(),
+    description: v.optional(v.string()),
+  })
+    .index("by_plant_locale", ["plantId", "locale"])
+    .index("by_locale_common_name", ["locale", "commonName"]),
 
   // ==========================================
   // User's Garden: Beds
@@ -304,6 +309,18 @@ const schema = defineSchema({
   })
     .index("by_key", ["key"])
     .index("by_sort_order", ["sortOrder"]),
+
+  // ==========================================
+  // Recipe i18n
+  // ==========================================
+  recipeI18n: defineTable({
+    recipeId: v.id("preservationRecipes"),
+    locale: v.string(),
+    name: v.string(),
+    steps: v.array(v.string()),
+    safetyNotes: v.optional(v.string()),
+  })
+    .index("by_recipe_locale", ["recipeId", "locale"]),
 
   // ==========================================
   // Preservation Recipes

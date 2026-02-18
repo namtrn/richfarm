@@ -5,6 +5,7 @@
 import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/user";
+import { localizePlantRows, PlantI18nRow } from "./lib/localizePlant";
 
 // ==========================================
 // Lấy danh sách plants có ảnh
@@ -12,6 +13,7 @@ import { requireUser } from "./lib/user";
 export const getPlantsWithImages = query({
     args: {
         group: v.optional(v.string()),
+        locale: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         let plants;
@@ -24,14 +26,40 @@ export const getPlantsWithImages = query({
             plants = await ctx.db.query("plantsMaster").collect();
         }
 
-        return plants.map((p) => ({
-            _id: p._id,
-            scientificName: p.scientificName,
-            commonNames: p.commonNames,
-            group: p.group,
-            imageUrl: p.imageUrl ?? null,
-            hasImage: !!p.imageUrl,
-        }));
+        const i18nRows = await ctx.db.query("plantI18n").collect();
+        const i18nByPlantId = new Map<string, PlantI18nRow[]>();
+        for (const row of i18nRows) {
+            const key = row.plantId.toString();
+            const list = i18nByPlantId.get(key) ?? [];
+            list.push({
+                locale: row.locale,
+                commonName: row.commonName,
+                description: row.description ?? undefined,
+            });
+            i18nByPlantId.set(key, list);
+        }
+
+        return plants.map((p) => {
+            const i18nForPlant = i18nByPlantId.get(p._id.toString());
+            const localized = localizePlantRows(
+                i18nForPlant && i18nForPlant.length > 0
+                    ? i18nForPlant
+                    : undefined,
+                args.locale,
+                p.scientificName
+            );
+
+            return {
+                _id: p._id,
+                scientificName: p.scientificName,
+                displayName: localized.displayName,
+                description: localized.description,
+                localeUsed: localized.localeUsed,
+                group: p.group,
+                imageUrl: p.imageUrl ?? null,
+                hasImage: !!p.imageUrl,
+            };
+        });
     },
 });
 
@@ -93,17 +121,45 @@ export const removePlantImage = mutation({
 // Lấy plants chưa có ảnh (để biết cần upload gì)
 // ==========================================
 export const getPlantsWithoutImages = query({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        locale: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
         const plants = await ctx.db.query("plantsMaster").collect();
+        const i18nRows = await ctx.db.query("plantI18n").collect();
+        const i18nByPlantId = new Map<string, PlantI18nRow[]>();
+        for (const row of i18nRows) {
+            const key = row.plantId.toString();
+            const list = i18nByPlantId.get(key) ?? [];
+            list.push({
+                locale: row.locale,
+                commonName: row.commonName,
+                description: row.description ?? undefined,
+            });
+            i18nByPlantId.set(key, list);
+        }
+
         return plants
             .filter((p) => !p.imageUrl)
-            .map((p) => ({
-                _id: p._id,
-                scientificName: p.scientificName,
-                commonNames: p.commonNames,
-                group: p.group,
-            }));
+            .map((p) => {
+                const i18nForPlant = i18nByPlantId.get(p._id.toString());
+                const localized = localizePlantRows(
+                    i18nForPlant && i18nForPlant.length > 0
+                        ? i18nForPlant
+                        : undefined,
+                    args.locale,
+                    p.scientificName
+                );
+
+                return {
+                    _id: p._id,
+                    scientificName: p.scientificName,
+                    displayName: localized.displayName,
+                    description: localized.description,
+                    localeUsed: localized.localeUsed,
+                    group: p.group,
+                };
+            });
     },
 });
 
@@ -113,10 +169,31 @@ export const getPlantsWithoutImages = query({
 export const getPlantById = query({
     args: {
         plantId: v.id("plantsMaster"),
+        locale: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const plant = await ctx.db.get(args.plantId);
         if (!plant) return null;
-        return plant;
+        const i18nRows = await ctx.db
+            .query("plantI18n")
+            .withIndex("by_plant_locale", (q) => q.eq("plantId", plant._id))
+            .collect();
+        const rows = i18nRows.map((row) => ({
+            locale: row.locale,
+            commonName: row.commonName,
+            description: row.description ?? undefined,
+        }));
+        const localized = localizePlantRows(
+            rows.length > 0 ? rows : undefined,
+            args.locale,
+            plant.scientificName
+        );
+
+        return {
+            ...plant,
+            displayName: localized.displayName,
+            description: localized.description,
+            localeUsed: localized.localeUsed,
+        };
     },
 });

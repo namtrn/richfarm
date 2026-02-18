@@ -4,15 +4,16 @@ import { Id } from '../../convex/_generated/dataModel';
 import { useDeviceId } from '../../lib/deviceId';
 
 // Hook để lấy danh sách plants từ library (plantsMaster)
-export function usePlantLibrary(group?: string) {
+export function usePlantLibrary(group?: string, locale?: string) {
     const { deviceId } = useDeviceId();
     const plants = useQuery(api.plantImages.getPlantsWithImages, {
         group,
+        locale,
     });
 
     const plantsWithoutImages = useQuery(
         api.plantImages.getPlantsWithoutImages,
-        {}
+        { locale }
     );
 
     const updatePlantImageMutation = useMutation(api.plantImages.updatePlantImage);

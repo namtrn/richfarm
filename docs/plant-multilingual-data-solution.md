@@ -28,9 +28,8 @@ Luu thong tin khoa hoc va ky thuat cham soc:
 - `species?: string`
 - `variety?: string` (botanical variety)
 - `cultivar?: string` (giong thuong mai, vd `Genovese`)
-- `groupCode: string` (ma noi bo, vd `herbs`, `leafy_greens`)
+- `group: string` (ma noi bo, vd `herbs`, `leafy_greens`)
 - `purposes: string[]` (ma noi bo, khong phai text hien thi)
-- `descriptionCanonical?: string` (tuỳ chon, mo ta trung lap ngon ngu neu can)
 - Cac field care profile: `lightRequirements`, `wateringFrequencyDays`, `spacingCm`, ...
 
 ### 3.2 Bang `plantI18n` (localized content)
@@ -67,12 +66,8 @@ Khong luu lai `commonName`, `description` da ngon ngu trong bang nay.
 ```ts
 plantsMaster: defineTable({
   scientificName: v.string(),
+  group: v.string(),
   family: v.optional(v.string()),
-  genus: v.optional(v.string()),
-  species: v.optional(v.string()),
-  variety: v.optional(v.string()),
-  cultivar: v.optional(v.string()),
-  groupCode: v.string(),
   purposes: v.array(v.string()),
   lightRequirements: v.optional(v.string()),
   wateringFrequencyDays: v.optional(v.number()),
@@ -80,7 +75,7 @@ plantsMaster: defineTable({
   imageUrl: v.optional(v.string()),
 })
   .index("by_scientific_name", ["scientificName"])
-  .index("by_group_code", ["groupCode"]);
+  .index("by_group", ["group"]);
 
 plantI18n: defineTable({
   plantId: v.id("plantsMaster"),
@@ -158,18 +153,12 @@ Chien luoc:
 
 ## 7) Migration tu model hien tai
 
-Hien tai dang co `commonNames: [{ locale, name }]` trong `plantsMaster`.
-
-Lo trinh migration an toan:
+Da hoan tat migration sang `plantI18n`:
 
 1. Them bang `plantI18n`.
-2. Viet script migrate:
-- Duyet tung `plantsMaster`.
-- Tach `commonNames` -> insert vao `plantI18n`.
-- Neu co `description` dang dat o `plantsMaster`, copy vao `plantI18n` cho locale mac dinh (`en` hoac `vi` theo data source).
+2. Dual-read giai doan chuyen tiep.
 3. Cap nhat query API doc tu `plantI18n`.
-4. Chay dual-read tam thoi (uu tien `plantI18n`, fallback `commonNames` cu).
-5. Sau khi on dinh, bo `commonNames` cu.
+4. Xoa truong legacy `commonNames` va `description` khoi `plantsMaster`.
 
 ## 8) Validation va governance
 
@@ -245,44 +234,25 @@ Model 2 lop (`plantsMaster` canonical + `plantI18n` localized) la cach toan dien
 
 ### 14.1 `schema.ts` — `plantsMaster` hiện tại
 
-Hiện tại đang dùng **embedded array** cho i18n:
+Hiện tại **không còn embedded i18n** trong `plantsMaster`.
 
-```ts
-commonNames: v.array(v.object({
-  locale: v.string(),
-  name: v.string(),
-})),
-description: v.optional(v.string()), // ← CHỈ 1 ngôn ngữ, KHÔNG localize
-```
-
-Vấn đề:
-- `description` là string đơn — seed data đang viết **tiếng Việt** → user EN/ES/FR/PT/ZH sẽ thấy tiếng Việt.
-- `commonNames` dạng embedded array → không index được theo locale, query chậm khi scale.
-- Không có `typeLabel`, `cultivarLabel` theo locale.
+- `commonNames` va `description` da duoc tach sang `plantI18n`.
+- `plantsMaster` chi giu field canonical va care profile.
 
 ### 14.2 `seed.ts` — Dữ liệu seed hiện tại
 
-- **40+ plants**, mỗi cây chỉ có `vi` + `en` `commonNames`.
-- Thiếu **4 locale** mà app hỗ trợ: `es`, `pt`, `fr`, `zh`.
-- `description` viết bằng **tiếng Việt thuần** (vd: "Rau thơm phổ biến trong ẩm thực Việt Nam và Ý").
-- → Cần migration script bổ sung bản dịch cho tất cả locale.
+- Seed `plantsMaster` chi con canonical data.
+- English content (ten + mo ta) nam trong `plantI18n` (locale `en`).
 
 ### 14.3 `plants.ts` — Query hiện tại
 
-- Query `getUserPlants` trả raw data, **không xử lý locale**.
-- Không có query riêng để lấy plant master + resolved locale.
-- Logic fallback locale nằm **inline trong UI** (`library.tsx`).
+- Query plant library da resolve locale tu `plantI18n` (qua `plantImages` query).
+- UI nhan `displayName`, `description`, `localeUsed` san sang.
 
 ### 14.4 `library.tsx` — UI hiện tại
 
-- Fallback logic lặp lại ≥ 3 chỗ (PlantCard, PlantDetailModal, onAdd handler):
-  ```ts
-  const localName = plant.commonNames?.find((n) => n.locale === locale)?.name
-    ?? plant.commonNames?.find((n) => n.locale === 'en')?.name
-    ?? plant.commonNames?.[0]?.name;
-  ```
-- Nhiều string hardcode tiếng Anh ("Harvest", "Watering", "Light", "Germination", "Spacing", "Uses", "Propagation") chưa dùng `t()`.
-- `LIGHT_LABELS` hardcode tiếng Anh → cần map sang `t()`.
+- Da dung `usePlantDisplayName` va `displayName` tu API.
+- String hardcode da duoc dua vao `t()` va key i18n.
 
 ### 14.5 `plantGroups` — Approach khác
 
@@ -300,9 +270,9 @@ Hiện có 2 approach i18n khác nhau trong codebase:
 
 | Bảng | Approach hiện tại | Đề xuất |
 |------|-------------------|---------|
-| `plantsMaster` | Embedded array `commonNames` | → Tách sang `plantI18n` (separate table) |
+| `plantsMaster` | Separate `plantI18n` (da ap dung) | → Giữ `plantI18n` |
 | `plantGroups` | Inline `v.record` | → Giữ nguyên (ít record, hiếm thay đổi) |
-| `preservationRecipes` | Không có i18n | → Thêm `recipeI18n` table |
+| `preservationRecipes` | `recipeI18n` (da ap dung) | → Giữ `recipeI18n` |
 
 **Quy tắc quyết định:**
 - **Dữ liệu ít, ít thay đổi** (plantGroups, enums, labels) → inline `v.record` OK.
@@ -319,7 +289,7 @@ steps: v.array(v.string()), // ← cần localize
 safetyNotes: v.optional(v.string()), // ← cần localize
 ```
 
-Đề xuất thêm bảng `recipeI18n`:
+Da them bảng `recipeI18n`:
 
 ```ts
 recipeI18n: defineTable({
@@ -332,7 +302,7 @@ recipeI18n: defineTable({
   .index("by_recipe_locale", ["recipeId", "locale"]);
 ```
 
-**Ưu tiên**: thấp hơn `plantI18n`, implement sau khi plant i18n ổn định.
+**Trạng thái**: Đã implement.
 
 ## 17) Seed data — Kế hoạch bổ sung bản dịch
 
@@ -348,10 +318,9 @@ Kế hoạch:
 
 ### 17.2 Description cần i18n
 
-Hiện `description` là tiếng Việt thuần. Sau migration sang `plantI18n`:
-- Copy description hiện tại → `plantI18n` locale `vi`.
-- Dịch sang `en` (ưu tiên), sau đó `es`, `pt`, `fr`, `zh`.
-- Xóa field `description` khỏi `plantsMaster` sau khi migrate xong.
+Hiện `description` da duoc luu trong `plantI18n`.
+- Locale mac dinh dang co: `en`.
+- Co the bo sung `es`, `pt`, `fr`, `zh` theo content pipeline.
 
 ## 18) Shared localization hook — `usePlantLocalized`
 
@@ -396,24 +365,21 @@ export function localizePlant(
 
 /**
  * Hook wrapper — gọi trong component.
- * Dùng được cho cả model cũ (commonNames embedded) lẫn model mới (plantI18n table).
+ * Dung cho model hien tai (plantI18n).
  */
 export function usePlantDisplayName(plant: any): PlantLocalized {
   const { i18n } = useTranslation();
   const locale = i18n.language;
 
   return useMemo(() => {
-    // Hỗ trợ model cũ (commonNames embedded)
-    if (plant.commonNames) {
-      const rows = plant.commonNames.map((n: any) => ({
-        locale: n.locale,
-        commonName: n.name,
+    if (plant.displayName) {
+      return {
+        displayName: plant.displayName,
+        scientificName: plant.scientificName,
         description: plant.description,
-      }));
-      return localizePlant(rows, locale, plant.scientificName);
+        localeUsed: plant.localeUsed ?? 'latin',
+      };
     }
-
-    // Model mới — cần pass i18nRows từ query
     return {
       displayName: plant.scientificName,
       scientificName: plant.scientificName,
@@ -521,14 +487,14 @@ Bổ sung chi tiết hơn section 12:
 
 | Phase | Task | Risk | Ước lượng |
 |-------|------|------|-----------|
-| **Phase 1** | Thêm `plantI18n` table + `upsertPlantI18n` mutation | Thấp | 1-2h |
-| **Phase 2** | Tạo `usePlantLocalized` hook + unit test | Thấp | 1-2h |
-| **Phase 3** | Migration script: `commonNames` → `plantI18n` | Trung bình | 2-3h |
-| **Phase 4** | Cập nhật query API trả `displayName` resolved | Trung bình | 2-3h |
-| **Phase 5** | Refactor `library.tsx` dùng hook mới | Trung bình | 2-3h |
-| **Phase 6** | i18n hardcoded strings trong `library.tsx` | Thấp | 1-2h |
-| **Phase 7** | Bổ sung bản dịch es/pt/fr/zh cho 40+ plants | Cao (cần content) | 4-8h |
-| **Phase 8** | Dual-read period, monitoring, xóa `commonNames` cũ | Trung bình | 1-2h |
-| **Phase 9** | `recipeI18n` cho preservationRecipes (nếu cần) | Thấp | 2-3h |
+| **Phase 1** | Thêm `plantI18n` table + `upsertPlantI18n` mutation | Thấp | Done |
+| **Phase 2** | Tạo `usePlantLocalized` hook + unit test | Thấp | Done (hook) |
+| **Phase 3** | Migration script: `commonNames` → `plantI18n` | Trung bình | Done |
+| **Phase 4** | Cập nhật query API trả `displayName` resolved | Trung bình | Done |
+| **Phase 5** | Refactor `library.tsx` dùng hook mới | Trung bình | Done |
+| **Phase 6** | i18n hardcoded strings trong `library.tsx` | Thấp | Done |
+| **Phase 7** | Bổ sung bản dịch es/pt/fr/zh cho 40+ plants | Cao (cần content) | Pending |
+| **Phase 8** | Dual-read period, monitoring, xóa `commonNames` cũ | Trung bình | Done |
+| **Phase 9** | `recipeI18n` cho preservationRecipes | Thấp | Done |
 
 **Tổng ước lượng**: ~16-28h (có thể chia thành nhiều sprint).
