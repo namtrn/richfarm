@@ -12,9 +12,10 @@ import {
 } from 'react-native';
 import { Fence, Plus, X, ChevronUp, ChevronDown } from 'lucide-react-native';
 import { useQuery, useMutation } from 'convex/react';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../convex/_generated/api';
-import { useDeviceId } from '../../lib/deviceId';
+import { api } from '../../../convex/_generated/api';
+import { useDeviceId } from '../../../lib/deviceId';
 
 // ─── Size options ────────────────────────────────────────────────────────────
 const ITEM_HEIGHT = 72;
@@ -138,10 +139,19 @@ function SizePicker({
 }
 
 // ─── Garden Card ─────────────────────────────────────────────────────────────
-function GardenCard({ garden, sizeOptions }: { garden: any; sizeOptions: ReturnType<typeof getSizeOptions> }) {
+function GardenCard({
+    garden,
+    sizeOptions,
+    onPress,
+}: {
+    garden: any;
+    sizeOptions: ReturnType<typeof getSizeOptions>;
+    onPress: () => void;
+}) {
     const sizeOpt = sizeOptions.find((s) => s.areaM2 === garden.areaM2);
     return (
         <TouchableOpacity
+            onPress={onPress}
             activeOpacity={0.8}
             style={{
                 backgroundColor: '#fff',
@@ -183,7 +193,7 @@ function CreateGardenModal({
     onClose: () => void;
 }) {
     const { t } = useTranslation();
-    const deviceId = useDeviceId();
+    const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
     const createGarden = useMutation(api.gardens.createGarden);
     const sizeOptions = getSizeOptions(t);
 
@@ -193,6 +203,7 @@ function CreateGardenModal({
     const [error, setError] = useState('');
 
     const handleCreate = async () => {
+        if (!deviceId) { setError(t('common.error')); return; }
         if (!name.trim()) { setError(t('garden.error_name')); return; }
         setLoading(true);
         setError('');
@@ -251,10 +262,10 @@ function CreateGardenModal({
 
                     <TouchableOpacity
                         onPress={handleCreate}
-                        disabled={loading}
-                        style={{ backgroundColor: '#22c55e', borderRadius: 18, paddingVertical: 16, alignItems: 'center', opacity: loading ? 0.6 : 1 }}
+                        disabled={loading || isDeviceLoading}
+                        style={{ backgroundColor: '#22c55e', borderRadius: 18, paddingVertical: 16, alignItems: 'center', opacity: (loading || isDeviceLoading) ? 0.6 : 1 }}
                     >
-                        {loading
+                        {(loading || isDeviceLoading)
                             ? <ActivityIndicator color="white" />
                             : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{t('garden.create_action')}</Text>
                         }
@@ -268,11 +279,17 @@ function CreateGardenModal({
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 export default function GardenScreen() {
     const { t } = useTranslation();
-    const deviceId = useDeviceId();
+    const router = useRouter();
+    const { deviceId } = useDeviceId();
     const sizeOptions = getSizeOptions(t);
-    const gardens = useQuery(api.gardens.getGardens, { deviceId }) ?? [];
-    const isLoading = gardens === undefined;
+    const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+    const gardens = gardensQuery ?? [];
+    const isLoading = gardensQuery === undefined;
     const [showCreate, setShowCreate] = useState(false);
+
+    const handleOpenGarden = (gardenId: string) => {
+        router.push(`/(tabs)/garden/${gardenId}`);
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
@@ -320,7 +337,12 @@ export default function GardenScreen() {
                     ) : (
                         <View style={{ gap: 12 }}>
                             {(gardens as any[]).map((g) => (
-                                <GardenCard key={g._id} garden={g} sizeOptions={sizeOptions} />
+                                <GardenCard
+                                    key={g._id}
+                                    garden={g}
+                                    sizeOptions={sizeOptions}
+                                    onPress={() => handleOpenGarden(g._id)}
+                                />
                             ))}
                         </View>
                     )}

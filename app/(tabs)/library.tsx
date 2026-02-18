@@ -12,6 +12,8 @@ import { Search, BookOpen, X, Droplets, Sun, Clock } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../hooks/usePlantLibrary';
 import { PlantImage } from '../../components/ui/PlantImage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { usePlants } from '../../hooks/usePlants';
 
 const GROUP_ICONS: Record<string, string> = {
     herbs: '🌿',
@@ -33,8 +35,18 @@ const LIGHT_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 // ─── Plant Detail Modal ───────────────────────────────────────────────────────
-function PlantDetailModal({ plant, onClose }: { plant: any; onClose: () => void }) {
-    const { i18n } = useTranslation();
+function PlantDetailModal({
+    plant,
+    onClose,
+    showAdd,
+    onAdd,
+}: {
+    plant: any;
+    onClose: () => void;
+    showAdd: boolean;
+    onAdd: () => void;
+}) {
+    const { t, i18n } = useTranslation();
     const locale = i18n.language;
     const viName = plant.commonNames?.find((n: any) => n.locale === 'vi')?.name;
     const enName = plant.commonNames?.find((n: any) => n.locale === 'en')?.name;
@@ -69,11 +81,20 @@ function PlantDetailModal({ plant, onClose }: { plant: any; onClose: () => void 
                         </View>
 
                         {/* Description */}
-                        {!!plant.description && (
-                            <View style={{ backgroundColor: '#f9fafb', borderRadius: 14, padding: 14, marginBottom: 16 }}>
-                                <Text style={{ fontSize: 14, color: '#374151', lineHeight: 22 }}>{plant.description}</Text>
-                            </View>
-                        )}
+                    {!!plant.description && (
+                        <View style={{ backgroundColor: '#f9fafb', borderRadius: 14, padding: 14, marginBottom: 16 }}>
+                            <Text style={{ fontSize: 14, color: '#374151', lineHeight: 22 }}>{plant.description}</Text>
+                        </View>
+                    )}
+
+                    {showAdd && (
+                        <TouchableOpacity
+                            onPress={onAdd}
+                            style={{ backgroundColor: '#22c55e', borderRadius: 14, paddingVertical: 12, alignItems: 'center', marginBottom: 16 }}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: '700' }}>{t('library.add_to_planning')}</Text>
+                        </TouchableOpacity>
+                    )}
 
                         {/* Stats grid */}
                         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
@@ -208,6 +229,10 @@ function PlantCard({ plant, onPress }: { plant: any; onPress: () => void }) {
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 export default function LibraryScreen() {
     const { t, i18n } = useTranslation();
+    const router = useRouter();
+    const params = useLocalSearchParams<{ mode?: string; from?: string; plantId?: string }>();
+    const selectMode = params.mode === 'select';
+    const attachMode = params.mode === 'attach';
     const locale = i18n.language;
     const [search, setSearch] = useState('');
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
@@ -215,6 +240,7 @@ export default function LibraryScreen() {
 
     const { plants, isLoading } = usePlantLibrary(selectedGroup);
     const { groups } = usePlantGroups();
+    const { addPlant, updatePlant } = usePlants();
 
     const filtered = useMemo(() => {
         if (!search.trim()) return plants;
@@ -234,7 +260,7 @@ export default function LibraryScreen() {
                     <Text style={{ fontSize: 30, fontWeight: '800', color: '#111827' }}>{t('library.title')}</Text>
                 </View>
                 <Text style={{ fontSize: 13, color: '#6b7280' }}>
-                    {plants.length} {plants.length === 1 ? 'species' : 'species'} in database
+                    {t('library.species_count', { count: plants.length })}
                 </Text>
 
                 {/* Search */}
@@ -306,10 +332,10 @@ export default function LibraryScreen() {
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
                     <BookOpen size={48} stroke="#d1d5db" />
                     <Text style={{ fontSize: 16, fontWeight: '600', color: '#9ca3af' }}>
-                        {search ? t('library.no_results') : 'No plants in library'}
+                        {search ? t('library.no_results') : t('library.no_plants')}
                     </Text>
                     {!!search && (
-                        <Text style={{ fontSize: 13, color: '#d1d5db' }}>Try a different search term</Text>
+                        <Text style={{ fontSize: 13, color: '#d1d5db' }}>{t('library.try_different')}</Text>
                     )}
                 </View>
             ) : (
@@ -322,7 +348,33 @@ export default function LibraryScreen() {
 
             {/* Detail modal */}
             {selectedPlant && (
-                <PlantDetailModal plant={selectedPlant} onClose={() => setSelectedPlant(null)} />
+                <PlantDetailModal
+                    plant={selectedPlant}
+                    onClose={() => setSelectedPlant(null)}
+                    showAdd={selectMode || attachMode}
+                    onAdd={async () => {
+                        const localName = selectedPlant.commonNames?.find((n: any) => n.locale === locale)?.name
+                            ?? selectedPlant.commonNames?.find((n: any) => n.locale === 'en')?.name
+                            ?? selectedPlant.commonNames?.[0]?.name;
+                        if (attachMode && params.plantId) {
+                            await updatePlant(params.plantId as any, {
+                                plantMasterId: selectedPlant._id,
+                                nickname: localName,
+                            });
+                        } else {
+                            await addPlant({
+                                plantMasterId: selectedPlant._id,
+                                nickname: localName,
+                            });
+                        }
+                        setSelectedPlant(null);
+                        if (params.from === 'planning') {
+                            router.replace('/(tabs)/planning');
+                        } else if (params.from === 'plant') {
+                            router.back();
+                        }
+                    }}
+                />
             )}
         </View>
     );

@@ -26,6 +26,7 @@ export const getPlantsWithImages = query({
 
         return plants.map((p) => ({
             _id: p._id,
+            scientificName: p.scientificName,
             commonNames: p.commonNames,
             group: p.group,
             imageUrl: p.imageUrl ?? null,
@@ -103,5 +104,19 @@ export const getPlantsWithoutImages = query({
                 commonNames: p.commonNames,
                 group: p.group,
             }));
+    },
+});
+
+// ==========================================
+// Lấy chi tiết 1 plant từ plantsMaster
+// ==========================================
+export const getPlantById = query({
+    args: {
+        plantId: v.id("plantsMaster"),
+    },
+    handler: async (ctx, args) => {
+        const plant = await ctx.db.get(args.plantId);
+        if (!plant) return null;
+        return plant;
     },
 });

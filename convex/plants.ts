@@ -82,6 +82,7 @@ export const updatePlantStatus = mutation({
 export const updatePlant = mutation({
     args: {
         plantId: v.id("userPlants"),
+        plantMasterId: v.optional(v.id("plantsMaster")),
         nickname: v.optional(v.string()),
         notes: v.optional(v.string()),
         bedId: v.optional(v.id("beds")),

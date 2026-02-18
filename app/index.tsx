@@ -1,4 +1,4 @@
-﻿import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
+﻿import { View, Text, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { Leaf, ArrowRight, Globe, Check } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -50,10 +50,21 @@ function LanguagePicker({
 }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity
+      <Pressable
         style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }}
-        activeOpacity={1}
         onPress={onClose}
+      />
+      <View
+        pointerEvents="box-none"
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
         <View
           style={{
@@ -94,7 +105,7 @@ function LanguagePicker({
             );
           })}
         </View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 }
@@ -171,7 +182,7 @@ export default function WelcomeScreen() {
 
       {/* CTA */}
       <TouchableOpacity
-        onPress={() => router.push('/(tabs)')}
+        onPress={() => router.replace('/(tabs)/growing')}
         style={{
           backgroundColor: '#22c55e',
           borderRadius: 18,

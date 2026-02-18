@@ -33,6 +33,7 @@ export function usePlants(status?: string) {
     const updatePlant = async (
         plantId: Id<'userPlants'>,
         updates: {
+            plantMasterId?: Id<'plantsMaster'>;
             nickname?: string;
             notes?: string;
             bedId?: Id<'beds'>;

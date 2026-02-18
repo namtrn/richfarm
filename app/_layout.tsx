@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { I18nextProvider } from 'react-i18next';
+import { getLocales } from 'expo-localization';
 import i18n from '../lib/i18n';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
@@ -23,6 +24,15 @@ function AuthGuard() {
     if (!isReady) return;
     // Auth redirect logic can go here
   }, [isReady, currentUser, segments, router]);
+
+  useEffect(() => {
+    if (!isReady) return;
+    const deviceLocale = getLocales()[0]?.languageCode ?? 'en';
+    const preferred = currentUser?.locale ?? deviceLocale;
+    if (preferred && i18n.language !== preferred) {
+      i18n.changeLanguage(preferred);
+    }
+  }, [isReady, currentUser?.locale]);
 
   if (!isReady) {
     return <LoadingScreen />;

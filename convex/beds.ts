@@ -23,6 +23,7 @@ export const getBeds = query({
 export const createBed = mutation({
     args: {
         name: v.string(),
+        gardenId: v.optional(v.id("gardens")),
         locationType: v.string(), // "indoor", "outdoor", "greenhouse", "balcony"
         areaM2: v.optional(v.number()),
         sunlightHours: v.optional(v.number()),
@@ -34,6 +35,7 @@ export const createBed = mutation({
 
         return await ctx.db.insert("beds", {
             userId: user._id,
+            gardenId: args.gardenId,
             name: args.name,
             locationType: args.locationType,
             areaM2: args.areaM2,
@@ -48,6 +50,7 @@ export const updateBed = mutation({
     args: {
         bedId: v.id("beds"),
         name: v.optional(v.string()),
+        gardenId: v.optional(v.id("gardens")),
         locationType: v.optional(v.string()),
         areaM2: v.optional(v.number()),
         sunlightHours: v.optional(v.number()),

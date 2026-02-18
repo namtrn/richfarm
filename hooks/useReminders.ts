@@ -16,6 +16,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const createReminderMutation = useMutation(api.reminders.createReminder);
     const toggleReminderMutation = useMutation(api.reminders.toggleReminder);
     const completeReminderMutation = useMutation(api.reminders.completeReminder);
+    const updateReminderMutation = useMutation(api.reminders.updateReminder);
     const deleteReminderMutation = useMutation(api.reminders.deleteReminder);
 
     const createReminder = async (args: {
@@ -39,6 +40,23 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         return await completeReminderMutation({ reminderId, deviceId });
     };
 
+    const updateReminder = async (
+        reminderId: Id<'reminders'>,
+        updates: {
+            userPlantId?: Id<'userPlants'>;
+            bedId?: Id<'beds'>;
+            type?: string;
+            title?: string;
+            description?: string;
+            nextRunAt?: number;
+            rrule?: string;
+            priority?: number;
+            enabled?: boolean;
+        }
+    ) => {
+        return await updateReminderMutation({ reminderId, ...updates, deviceId });
+    };
+
     const deleteReminder = async (reminderId: Id<'reminders'>) => {
         return await deleteReminderMutation({ reminderId, deviceId });
     };
@@ -50,6 +68,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         createReminder,
         toggleReminder,
         completeReminder,
+        updateReminder,
         deleteReminder,
     };
 }

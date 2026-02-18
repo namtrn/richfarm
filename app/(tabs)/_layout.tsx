@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Sprout, Calendar, Bell, BookOpen, Fence } from 'lucide-react-native';
+import { Sprout, Calendar, Bell, BookOpen, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
@@ -20,8 +20,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="garden"
         options={{
-          title: t('tabs.garden'),
-          tabBarIcon: ({ color }) => <Fence size={24} stroke={color} />,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="garden/[gardenId]"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="plant"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
@@ -50,6 +61,13 @@ export default function TabLayout() {
         options={{
           title: t('tabs.library'),
           tabBarIcon: ({ color }) => <BookOpen size={24} stroke={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t('tabs.profile'),
+          tabBarIcon: ({ color }) => <UserRound size={24} stroke={color} />,
         }}
       />
     </Tabs>

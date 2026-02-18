@@ -24,8 +24,9 @@ i18n
             fr: { translation: fr },
             zh: { translation: zh },
         },
-        lng: 'en', // default English
+        lng: supportedLngs.includes(deviceLocale) ? deviceLocale : 'en',
         fallbackLng: 'en',
+        supportedLngs,
         interpolation: { escapeValue: false },
         compatibilityJSON: 'v4',
     });

@@ -113,6 +113,34 @@ export const toggleReminder = mutation({
     },
 });
 
+// Cập nhật reminder
+export const updateReminder = mutation({
+    args: {
+        reminderId: v.id("reminders"),
+        userPlantId: v.optional(v.id("userPlants")),
+        bedId: v.optional(v.id("beds")),
+        type: v.optional(v.string()),
+        title: v.optional(v.string()),
+        description: v.optional(v.string()),
+        nextRunAt: v.optional(v.number()),
+        rrule: v.optional(v.string()),
+        priority: v.optional(v.number()),
+        enabled: v.optional(v.boolean()),
+        deviceId: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const user = await requireUser(ctx, args.deviceId);
+        const reminder = await ctx.db.get(args.reminderId);
+
+        if (!reminder || reminder.userId !== user._id) {
+            throw new Error("Reminder not found or unauthorized");
+        }
+
+        const { reminderId, deviceId, ...updates } = args;
+        await ctx.db.patch(reminderId, updates);
+    },
+});
+
 // Đánh dấu reminder đã hoàn thành + tính nextRunAt tiếp theo
 export const completeReminder = mutation({
     args: {
