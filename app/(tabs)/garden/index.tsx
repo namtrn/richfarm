@@ -16,20 +16,22 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
+import { formatArea, getAreaUnitLabel, UnitSystem } from '../../../lib/units';
+import { useUnitSystem } from '../../../hooks/useUnitSystem';
 
 // ─── Size options ────────────────────────────────────────────────────────────
 const ITEM_HEIGHT = 72;
 const VISIBLE_ITEMS = 3;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 
-function getSizeOptions(t: (k: string) => string) {
+function getSizeOptions(t: (k: string) => string, unitSystem: UnitSystem) {
     return [
-        { label: t('garden.size_mini'), desc: '0.5 m²', areaM2: 0.5, icon: '🪴' },
-        { label: t('garden.size_small'), desc: '1 m²', areaM2: 1, icon: '🌿' },
-        { label: t('garden.size_medium'), desc: '2 m²', areaM2: 2, icon: '🌱' },
-        { label: t('garden.size_large'), desc: '4 m²', areaM2: 4, icon: '🌳' },
-        { label: t('garden.size_wide'), desc: '8 m²', areaM2: 8, icon: '🏡' },
-        { label: t('garden.size_farm'), desc: '16 m²', areaM2: 16, icon: '🚜' },
+        { label: t('garden.size_mini'), desc: formatArea(0.5, unitSystem), areaM2: 0.5, icon: '🪴' },
+        { label: t('garden.size_small'), desc: formatArea(1, unitSystem), areaM2: 1, icon: '🌿' },
+        { label: t('garden.size_medium'), desc: formatArea(2, unitSystem), areaM2: 2, icon: '🌱' },
+        { label: t('garden.size_large'), desc: formatArea(4, unitSystem), areaM2: 4, icon: '🌳' },
+        { label: t('garden.size_wide'), desc: formatArea(8, unitSystem), areaM2: 8, icon: '🏡' },
+        { label: t('garden.size_farm'), desc: formatArea(16, unitSystem), areaM2: 16, icon: '🚜' },
     ];
 }
 
@@ -143,10 +145,12 @@ function GardenCard({
     garden,
     sizeOptions,
     onPress,
+    unitSystem,
 }: {
     garden: any;
     sizeOptions: ReturnType<typeof getSizeOptions>;
     onPress: () => void;
+    unitSystem: UnitSystem;
 }) {
     const sizeOpt = sizeOptions.find((s) => s.areaM2 === garden.areaM2);
     return (
@@ -174,7 +178,7 @@ function GardenCard({
             <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827' }}>{garden.name}</Text>
                 <Text style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
-                    {sizeOpt ? `${sizeOpt.label} · ${sizeOpt.desc}` : garden.areaM2 ? `${garden.areaM2} m²` : '—'}
+                    {sizeOpt ? `${sizeOpt.label} · ${sizeOpt.desc}` : garden.areaM2 ? formatArea(garden.areaM2, unitSystem) : '—'}
                 </Text>
             </View>
             <View style={{ backgroundColor: '#f0fdf4', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
@@ -188,14 +192,16 @@ function GardenCard({
 function CreateGardenModal({
     visible,
     onClose,
+    unitSystem,
 }: {
     visible: boolean;
     onClose: () => void;
+    unitSystem: UnitSystem;
 }) {
     const { t } = useTranslation();
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
     const createGarden = useMutation(api.gardens.createGarden);
-    const sizeOptions = getSizeOptions(t);
+    const sizeOptions = getSizeOptions(t, unitSystem);
 
     const [name, setName] = useState('');
     const [sizeIndex, setSizeIndex] = useState(1);
@@ -250,7 +256,9 @@ function CreateGardenModal({
                     />
 
                     {/* Size picker */}
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 }}>{t('garden.size_label')}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+                        {t('garden.size_label')} ({getAreaUnitLabel(unitSystem)})
+                    </Text>
                     <SizePicker selectedIndex={sizeIndex} onSelect={setSizeIndex} sizeOptions={sizeOptions} />
 
                     {/* Summary */}
@@ -281,7 +289,8 @@ export default function GardenScreen() {
     const { t } = useTranslation();
     const router = useRouter();
     const { deviceId } = useDeviceId();
-    const sizeOptions = getSizeOptions(t);
+    const unitSystem = useUnitSystem();
+    const sizeOptions = getSizeOptions(t, unitSystem);
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const gardens = gardensQuery ?? [];
     const isLoading = gardensQuery === undefined;
@@ -341,6 +350,7 @@ export default function GardenScreen() {
                                     key={g._id}
                                     garden={g}
                                     sizeOptions={sizeOptions}
+                                    unitSystem={unitSystem}
                                     onPress={() => handleOpenGarden(g._id)}
                                 />
                             ))}
@@ -349,7 +359,7 @@ export default function GardenScreen() {
                 </View>
             </ScrollView>
 
-            <CreateGardenModal visible={showCreate} onClose={() => setShowCreate(false)} />
+            <CreateGardenModal visible={showCreate} onClose={() => setShowCreate(false)} unitSystem={unitSystem} />
         </View>
     );
 }

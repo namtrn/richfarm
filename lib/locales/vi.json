@@ -16,7 +16,8 @@
         "growing": "Đang trồng",
         "reminder": "Nhắc nhở",
         "library": "Thư viện",
-        "profile": "Hồ sơ"
+        "profile": "Hồ sơ",
+        "garden": "Vườn"
     },
     "garden": {
         "title": "Vườn",
@@ -41,7 +42,40 @@
         "size_medium": "Vừa",
         "size_large": "Lớn",
         "size_wide": "Rộng",
-        "size_farm": "Trang trại"
+        "size_farm": "Trang trại",
+        "not_found": "Không tìm thấy vườn.",
+        "go_back": "Quay lại",
+        "edit_title": "Sửa vườn",
+        "description_label": "Mô tả",
+        "description_placeholder": "Ghi chú",
+        "save_garden": "Lưu vườn",
+        "beds_section": "Luống ({{count}})",
+        "add_bed": "Thêm luống",
+        "no_beds": "Chưa có luống. Thêm luống đầu tiên.",
+        "delete_garden": "Xóa vườn",
+        "bed_modal_create_title": "Tạo luống",
+        "bed_modal_edit_title": "Sửa luống",
+        "bed_name_label": "Tên luống",
+        "bed_name_placeholder": "Tên luống",
+        "location_label": "Vị trí",
+        "location_outdoor": "Ngoài trời",
+        "location_indoor": "Trong nhà",
+        "location_greenhouse": "Nhà kính",
+        "location_balcony": "Ban công",
+        "area_label": "Diện tích ({{unit}})",
+        "area_placeholder": "VD: 2 {{unit}}",
+        "sunlight_label": "Ánh sáng (giờ)",
+        "sunlight_placeholder": "VD: 6",
+        "soil_label": "Loại đất",
+        "soil_placeholder": "VD: Đất thịt",
+        "bed_save": "Lưu luống",
+        "area_summary": "{{value}} {{unit}}",
+        "error_area": "Nhập diện tích hợp lệ",
+        "error_sunlight": "Nhập số giờ hợp lệ",
+        "confirm_delete_garden_title": "Xóa vườn?",
+        "confirm_delete_garden_desc": "Thao tác này sẽ xóa vườn và toàn bộ luống bên trong.",
+        "confirm_delete_bed_title": "Xóa luống?",
+        "confirm_delete_bed_desc": "Thao tác này sẽ xóa luống và các liên kết liên quan."
     },
     "planning": {
         "title": "Kế hoạch",
@@ -119,7 +153,15 @@
         "type_custom": "Tuỳ chỉnh",
         "enabled": "Bật",
         "disabled": "Tắt",
-        "unnamed_plant": "Cây chưa đặt tên"
+        "unnamed_plant": "Cây chưa đặt tên",
+        "form_date_placeholder": "YYYY-MM-DD",
+        "form_time_placeholder": "HH:mm",
+        "error_date": "Định dạng YYYY-MM-DD",
+        "error_time": "Định dạng HH:mm",
+        "confirm_delete_title": "Xóa nhắc nhở?",
+        "confirm_delete_desc": "Nhắc nhở này sẽ bị xóa.",
+        "form_amount_label": "Lượng nước",
+        "form_amount_placeholder": "VD: 1.5 {{unit}}"
     },
     "library": {
         "title": "Thư viện",
@@ -129,7 +171,22 @@
         "add_to_planning": "Thêm vào Kế hoạch",
         "species_count": "{{count}} loài trong thư viện",
         "no_plants": "Chưa có cây trong thư viện",
-        "try_different": "Thử từ khóa khác"
+        "try_different": "Thử từ khóa khác",
+        "detail_germination": "Nảy mầm",
+        "detail_propagation": "Nhân giống",
+        "detail_spacing": "Khoảng cách",
+        "detail_uses": "Công dụng",
+        "light_full_sun": "Nắng đầy đủ",
+        "light_partial_shade": "Bán râm",
+        "light_shade": "Bóng râm",
+        "stat_harvest": "Thu hoạch",
+        "stat_light": "Ánh sáng",
+        "stat_watering": "Tưới",
+        "watering_every": "Mỗi {{days}} ngày",
+        "detail_seed_rate": "Mật độ gieo hạt",
+        "detail_water_per_area": "Nước trên diện tích",
+        "detail_yield_per_area": "Sản lượng trên diện tích",
+        "detail_max_plants": "Số cây tối đa"
     },
     "profile": {
         "title": "Hồ sơ",
@@ -143,7 +200,11 @@
         "current_language": "Hiện tại: {{label}}",
         "timezone_label": "Múi giờ",
         "timezone_placeholder": "VD: Asia/Ho_Chi_Minh",
-        "save_settings": "Lưu cài đặt"
+        "save_settings": "Lưu cài đặt",
+        "units_label": "Đơn vị",
+        "unit_metric": "Hệ mét",
+        "unit_imperial": "Hệ Anh",
+        "unit_current": "Hiện tại: {{label}}"
     },
     "plant": {
         "not_found": "Không tìm thấy cây.",
@@ -172,5 +233,16 @@
         "harvest_label": "Thu hoạch",
         "no_master": "Chưa liên kết dữ liệu thư viện.",
         "link_library": "Liên kết từ thư viện"
+    },
+    "purposes": {
+        "air_purifying": "Lọc không khí",
+        "cooking": "Nấu ăn",
+        "cooking_spices": "Gia vị",
+        "cosmetic": "Mỹ phẩm",
+        "dessert": "Tráng miệng",
+        "indoor": "Trong nhà",
+        "medicinal": "Dược liệu",
+        "ornamental": "Trang trí",
+        "salad": "Salad"
     }
 }

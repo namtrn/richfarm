@@ -28,6 +28,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         nextRunAt: number;
         rrule?: string;
         priority?: number;
+        waterLiters?: number;
     }) => {
         return await createReminderMutation({ ...args, deviceId });
     };
@@ -52,6 +53,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             rrule?: string;
             priority?: number;
             enabled?: boolean;
+            waterLiters?: number;
         }
     ) => {
         return await updateReminderMutation({ reminderId, ...updates, deviceId });

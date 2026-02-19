@@ -15,6 +15,8 @@ import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
+import { useUnitSystem } from '../../hooks/useUnitSystem';
+import { formatVolume, formatVolumeValue, getVolumeUnitLabel, parseVolumeInput } from '../../lib/units';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -62,6 +64,22 @@ function parseDateTime(dateStr: string, timeStr: string) {
   return date.getTime();
 }
 
+function isValidDateString(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [y, m, d] = value.split('-').map((v) => Number(v));
+  if (!y || !m || !d) return false;
+  const date = new Date(y, m - 1, d);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+
+function isValidTimeString(value: string) {
+  if (!/^\d{2}:\d{2}$/.test(value)) return false;
+  const [hh, mm] = value.split(':').map((v) => Number(v));
+  if (hh < 0 || hh > 23) return false;
+  if (mm < 0 || mm > 59) return false;
+  return true;
+}
+
 function ReminderCard({
   reminder,
   onComplete,
@@ -72,11 +90,13 @@ function ReminderCard({
   canEdit: boolean;
 }) {
   const { i18n } = useTranslation();
+  const unitSystem = useUnitSystem();
   const Icon = REMINDER_ICONS[reminder.type] ?? REMINDER_ICONS.default;
   const time = new Date(reminder.nextRunAt).toLocaleTimeString(i18n.language, {
     hour: '2-digit',
     minute: '2-digit',
   });
+  const amountLabel = reminder.waterLiters ? formatVolume(reminder.waterLiters, unitSystem) : '';
 
   return (
     <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3">
@@ -88,7 +108,7 @@ function ReminderCard({
         {reminder.description && (
           <Text className="text-xs text-gray-400">{reminder.description}</Text>
         )}
-        <Text className="text-xs text-gray-400">{time}</Text>
+        <Text className="text-xs text-gray-400">{amountLabel ? `${time} • ${amountLabel}` : time}</Text>
       </View>
       <TouchableOpacity
         className={`w-9 h-9 bg-green-500 rounded-full justify-center items-center ${!canEdit ? 'opacity-50' : ''}`}
@@ -126,9 +146,11 @@ function ReminderFormModal({
     nextRunAt: number;
     rrule?: string;
     enabled?: boolean;
+    waterLiters?: number;
   }) => Promise<void>;
 }) {
   const { t } = useTranslation();
+  const unitSystem = useUnitSystem();
   const [title, setTitle] = useState(reminder?.title ?? '');
   const [description, setDescription] = useState(reminder?.description ?? '');
   const [type, setType] = useState(reminder?.type ?? 'watering');
@@ -148,6 +170,11 @@ function ReminderFormModal({
   const [selectedBed, setSelectedBed] = useState<string | undefined>(reminder?.bedId);
   const [enabled, setEnabled] = useState(reminder?.enabled ?? true);
   const [saving, setSaving] = useState(false);
+  const [dateError, setDateError] = useState('');
+  const [timeError, setTimeError] = useState('');
+  const [waterAmount, setWaterAmount] = useState(
+    reminder?.waterLiters ? formatVolumeValue(reminder.waterLiters, unitSystem) : ''
+  );
 
   useEffect(() => {
     setTitle(reminder?.title ?? '');
@@ -168,14 +195,25 @@ function ReminderFormModal({
     setSelectedPlant(reminder?.userPlantId);
     setSelectedBed(reminder?.bedId);
     setEnabled(reminder?.enabled ?? true);
-  }, [reminder]);
+    setDateError('');
+    setTimeError('');
+    setWaterAmount(reminder?.waterLiters ? formatVolumeValue(reminder.waterLiters, unitSystem) : '');
+  }, [reminder, unitSystem]);
 
   const handleSave = async () => {
     if (!canEdit || !title.trim()) return;
+    const dateValid = isValidDateString(dateStr);
+    const timeValid = isValidTimeString(timeStr);
+    if (!dateValid || !timeValid) {
+      setDateError(dateValid ? '' : t('reminder.error_date'));
+      setTimeError(timeValid ? '' : t('reminder.error_time'));
+      return;
+    }
     const nextRunAt = parseDateTime(dateStr, timeStr);
     if (!nextRunAt) return;
     const interval = Number(repeatDays);
     const rrule = interval && interval > 0 ? `FREQ=DAILY;INTERVAL=${interval}` : undefined;
+    const waterLiters = type === 'watering' ? parseVolumeInput(waterAmount, unitSystem) : undefined;
 
     setSaving(true);
     try {
@@ -189,6 +227,7 @@ function ReminderFormModal({
         nextRunAt,
         rrule,
         enabled,
+        waterLiters,
       });
       onClose();
     } finally {
@@ -251,21 +290,27 @@ function ReminderFormModal({
               <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_date_label')}</Text>
               <TextInput
                 value={dateStr}
-                onChangeText={setDateStr}
-                placeholder="YYYY-MM-DD"
+                onChangeText={(value) => { setDateStr(value); setDateError(''); }}
+                placeholder={t('reminder.form_date_placeholder')}
                 placeholderTextColor="#9ca3af"
-                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: dateError ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
               />
+              {!!dateError && (
+                <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{dateError}</Text>
+              )}
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_time_label')}</Text>
               <TextInput
                 value={timeStr}
-                onChangeText={setTimeStr}
-                placeholder="HH:mm"
+                onChangeText={(value) => { setTimeStr(value); setTimeError(''); }}
+                placeholder={t('reminder.form_time_placeholder')}
                 placeholderTextColor="#9ca3af"
-                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: timeError ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
               />
+              {!!timeError && (
+                <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{timeError}</Text>
+              )}
             </View>
           </View>
 
@@ -278,6 +323,23 @@ function ReminderFormModal({
             keyboardType="numeric"
             style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', marginBottom: 10 }}
           />
+
+          {type === 'watering' && (
+            <>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_amount_label')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <TextInput
+                  value={waterAmount}
+                  onChangeText={setWaterAmount}
+                  placeholder={t('reminder.form_amount_placeholder', { unit: getVolumeUnitLabel(unitSystem) })}
+                  placeholderTextColor="#9ca3af"
+                  keyboardType="numeric"
+                  style={{ flex: 1, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+                />
+                <Text style={{ fontSize: 12, color: '#6b7280' }}>{getVolumeUnitLabel(unitSystem)}</Text>
+              </View>
+            </>
+          )}
 
           <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_target_label')}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
@@ -339,9 +401,9 @@ function ReminderFormModal({
         </ScrollView>
 
         <TouchableOpacity
-          disabled={!canEdit || saving || !title.trim()}
+          disabled={!canEdit || saving || !title.trim() || !!dateError || !!timeError}
           onPress={handleSave}
-          style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (!canEdit || saving || !title.trim()) ? 0.6 : 1 }}
+          style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (!canEdit || saving || !title.trim() || !!dateError || !!timeError) ? 0.6 : 1 }}
         >
           <Text style={{ color: '#fff', fontWeight: '700' }}>{t('reminder.form_save')}</Text>
         </TouchableOpacity>
@@ -352,6 +414,7 @@ function ReminderFormModal({
 
 export default function ReminderScreen() {
   const { t, i18n } = useTranslation();
+  const unitSystem = useUnitSystem();
   const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder } = useReminders();
   const { plants } = usePlants();
   const { beds } = useBeds();
@@ -359,6 +422,7 @@ export default function ReminderScreen() {
   const canEdit = !isAuthLoading && isAuthenticated;
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
 
   const plantMap = useMemo(() => new Map(plants.map((p) => [p._id, p])), [plants]);
   const bedMap = useMemo(() => new Map(beds.map((b) => [b._id, b])), [beds]);
@@ -378,6 +442,7 @@ export default function ReminderScreen() {
         nextRunAt: payload.nextRunAt,
         rrule: payload.rrule,
         enabled: payload.enabled,
+        waterLiters: payload.waterLiters,
       });
       return;
     }
@@ -389,6 +454,7 @@ export default function ReminderScreen() {
       description: payload.description,
       nextRunAt: payload.nextRunAt,
       rrule: payload.rrule,
+      waterLiters: payload.waterLiters,
     });
   };
 
@@ -461,6 +527,7 @@ export default function ReminderScreen() {
                 day: '2-digit',
                 month: '2-digit',
               });
+              const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
               const targetLabel = r.userPlantId
                 ? plantMap.get(r.userPlantId)?.nickname ?? t('reminder.target_plant')
                 : r.bedId
@@ -477,7 +544,7 @@ export default function ReminderScreen() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-base font-semibold text-gray-900 dark:text-white">{r.title}</Text>
-                    <Text className="text-xs text-gray-400">{time} • {targetLabel}</Text>
+                    <Text className="text-xs text-gray-400">{amountLabel ? `${time} • ${amountLabel} • ${targetLabel}` : `${time} • ${targetLabel}`}</Text>
                   </View>
                   <TouchableOpacity
                     onPress={() => toggleReminder(r._id)}
@@ -494,7 +561,7 @@ export default function ReminderScreen() {
                     <Pencil size={16} color="#6b7280" />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => deleteReminder(r._id)}
+                    onPress={() => setConfirmDelete(r)}
                     disabled={!canEdit}
                     className={`w-9 h-9 bg-red-100 rounded-full justify-center items-center ${!canEdit ? 'opacity-50' : ''}`}
                   >
@@ -516,6 +583,37 @@ export default function ReminderScreen() {
         onClose={() => setFormOpen(false)}
         onSave={handleSave}
       />
+
+      <Modal visible={!!confirmDelete} transparent animationType="fade" onRequestClose={() => setConfirmDelete(null)}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setConfirmDelete(null)} />
+        <View style={{ position: 'absolute', left: 24, right: 24, top: '40%', backgroundColor: '#fff', borderRadius: 16, padding: 16 }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 8 }}>
+            {t('reminder.confirm_delete_title')}
+          </Text>
+          <Text style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
+            {t('reminder.confirm_delete_desc')}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              onPress={() => setConfirmDelete(null)}
+              style={{ flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
+            >
+              <Text style={{ fontWeight: '600', color: '#374151' }}>{t('common.cancel')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={async () => {
+                const target = confirmDelete;
+                setConfirmDelete(null);
+                if (!target) return;
+                await deleteReminder(target._id);
+              }}
+              style={{ flex: 1, backgroundColor: '#ef4444', borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
+            >
+              <Text style={{ fontWeight: '700', color: '#fff' }}>{t('common.delete')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }

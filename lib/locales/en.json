@@ -16,7 +16,8 @@
         "growing": "Growing",
         "reminder": "Reminder",
         "library": "Library",
-        "profile": "Profile"
+        "profile": "Profile",
+        "garden": "Garden"
     },
     "garden": {
         "title": "Garden",
@@ -41,7 +42,40 @@
         "size_medium": "Medium",
         "size_large": "Large",
         "size_wide": "Wide",
-        "size_farm": "Farm"
+        "size_farm": "Farm",
+        "not_found": "Garden not found.",
+        "go_back": "Go back",
+        "edit_title": "Edit garden",
+        "description_label": "Description",
+        "description_placeholder": "Notes",
+        "save_garden": "Save garden",
+        "beds_section": "Beds ({{count}})",
+        "add_bed": "Add bed",
+        "no_beds": "No beds yet. Add your first bed.",
+        "delete_garden": "Delete garden",
+        "bed_modal_create_title": "Create bed",
+        "bed_modal_edit_title": "Edit bed",
+        "bed_name_label": "Bed name",
+        "bed_name_placeholder": "Bed name",
+        "location_label": "Location",
+        "location_outdoor": "Outdoor",
+        "location_indoor": "Indoor",
+        "location_greenhouse": "Greenhouse",
+        "location_balcony": "Balcony",
+        "area_label": "Area ({{unit}})",
+        "area_placeholder": "e.g. 2 {{unit}}",
+        "sunlight_label": "Sunlight (hrs)",
+        "sunlight_placeholder": "e.g. 6",
+        "soil_label": "Soil type",
+        "soil_placeholder": "e.g. Loamy",
+        "bed_save": "Save bed",
+        "area_summary": "{{value}} {{unit}}",
+        "error_area": "Enter a valid area",
+        "error_sunlight": "Enter a valid sunlight value",
+        "confirm_delete_garden_title": "Delete garden?",
+        "confirm_delete_garden_desc": "This will delete the garden and all beds inside it.",
+        "confirm_delete_bed_title": "Delete bed?",
+        "confirm_delete_bed_desc": "This will remove the bed and its assignments."
     },
     "planning": {
         "title": "Planning",
@@ -119,7 +153,15 @@
         "type_custom": "Custom",
         "enabled": "Enabled",
         "disabled": "Disabled",
-        "unnamed_plant": "Unnamed plant"
+        "unnamed_plant": "Unnamed plant",
+        "form_date_placeholder": "YYYY-MM-DD",
+        "form_time_placeholder": "HH:mm",
+        "error_date": "Use format YYYY-MM-DD",
+        "error_time": "Use format HH:mm",
+        "confirm_delete_title": "Delete reminder?",
+        "confirm_delete_desc": "This reminder will be removed.",
+        "form_amount_label": "Water amount",
+        "form_amount_placeholder": "e.g. 1.5 {{unit}}"
     },
     "library": {
         "title": "Library",
@@ -140,7 +182,11 @@
         "light_full_sun": "Full Sun",
         "light_partial_shade": "Part Shade",
         "light_shade": "Shade",
-        "watering_every": "Every {{days}}d"
+        "watering_every": "Every {{days}}d",
+        "detail_seed_rate": "Seed rate",
+        "detail_water_per_area": "Water per area",
+        "detail_yield_per_area": "Yield per area",
+        "detail_max_plants": "Max plants"
     },
     "purposes": {
         "air_purifying": "Air purifying",
@@ -165,7 +211,11 @@
         "current_language": "Current: {{label}}",
         "timezone_label": "Timezone",
         "timezone_placeholder": "e.g. Asia/Ho_Chi_Minh",
-        "save_settings": "Save Settings"
+        "save_settings": "Save Settings",
+        "units_label": "Units",
+        "unit_metric": "Metric",
+        "unit_imperial": "Imperial",
+        "unit_current": "Current: {{label}}"
     },
     "plant": {
         "not_found": "Plant not found.",

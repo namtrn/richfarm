@@ -13,7 +13,126 @@ export const plantGroupsSeed = [
     { key: "flowers", displayName: { en: "Flowers" }, sortOrder: 10 },
 ];
 
-export const plantsMasterSeed = [
+const SQ_CM_PER_M2 = 10000;
+function deriveMaxPlantsPerM2(spacingCm?: number) {
+    if (!spacingCm || spacingCm <= 0) return undefined;
+    const perM2 = SQ_CM_PER_M2 / (spacingCm * spacingCm);
+    return Math.round(perM2 * 10) / 10;
+}
+
+const INCH_TO_L_PER_M2 = 25.4;
+function normalizeKey(value: string) {
+    return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+const WATER_INCHES_BY_COMMON: Record<string, [number, number]> = {
+    "basil": [1, 1.5],
+    "beans": [1, 1.5],
+    "common bean": [1, 1.5],
+    "yard long bean": [1, 1.5],
+    "beetroot": [1, 2],
+    "broccoli": [0.5, 1.5],
+    "cabbage": [1, 2],
+    "napa cabbage": [1, 2],
+    "carrot": [1, 2],
+    "cauliflower": [0.5, 1.5],
+    "celery": [1, 2],
+    "coriander": [1, 1.5],
+    "culantro": [1, 1.5],
+    "cucumber": [1, 2],
+    "dill": [1, 1.5],
+    "eggplant": [1, 2],
+    "garlic": [1, 1.5],
+    "green onion": [1, 1.5],
+    "lettuce": [1, 2],
+    "mint": [1, 2],
+    "mustard": [1, 2],
+    "bok choy": [1, 2],
+    "oregano": [1, 1.5],
+    "parsley": [1, 1.5],
+    "pea": [0.5, 1],
+    "peanut": [1, 2],
+    "perilla shiso": [1, 1.5],
+    "bell pepper": [1, 2],
+    "bird s eye chili": [1, 2],
+    "radish": [0.5, 1],
+    "rosemary": [1, 1.5],
+    "spinach": [1, 2],
+    "squash": [1, 2],
+    "zucchini": [1, 2],
+    "strawberry": [1, 2],
+    "thyme": [1, 1.5],
+    "tomato": [1, 2],
+    "water spinach": [1, 2],
+    "watermelon": [1, 2],
+    "melon": [1, 2],
+};
+
+const DEFAULT_WATER_RANGE_INCHES: [number, number] = [1, 2];
+
+const YIELD_QT_HA_BY_COMMON: Record<string, [number, number]> = {
+    "cabbage": [250, 300],
+    "napa cabbage": [250, 300],
+    "cauliflower": [200, 250],
+    "pea": [80, 100],
+    "common bean": [100, 125],
+    "yard long bean": [100, 125],
+    "bird s eye chili": [75, 90],
+    "bell pepper": [60, 70],
+    "eggplant": [150, 200],
+    "lettuce": [60, 70],
+    "celery": [60, 75],
+    "mustard": [60, 75],
+    "cucumber": [60, 70],
+    "pumpkin": [60, 75],
+    "carrot": [125, 200],
+    "radish": [200, 250],
+    "beetroot": [150, 200],
+    "garlic": [60, 100],
+    "green onion": [100, 120],
+    "tomato": [200, 250],
+    "turnip": [150, 200],
+};
+
+function toWaterLitersPerM2(commonName?: string) {
+    const key = commonName ? normalizeKey(commonName) : "";
+    const range = WATER_INCHES_BY_COMMON[key] ?? DEFAULT_WATER_RANGE_INCHES;
+    const avgInches = (range[0] + range[1]) / 2;
+    return Math.round(avgInches * INCH_TO_L_PER_M2 * 10) / 10;
+}
+
+function toYieldKgPerM2(commonName: string | undefined, fallbackKgPerM2: number) {
+    const key = commonName ? normalizeKey(commonName) : "";
+    const range = YIELD_QT_HA_BY_COMMON[key];
+    const qtHa = range ? (range[0] + range[1]) / 2 : undefined;
+    if (qtHa === undefined) return fallbackKgPerM2;
+    const kgM2 = qtHa * 0.01;
+    return Math.round(kgM2 * 100) / 100;
+}
+
+type PlantSeed = {
+    scientificName: string;
+    group: string;
+    purposes: string[];
+    typicalDaysToHarvest?: number;
+    germinationDays?: number;
+    lightRequirements?: string;
+    soilPref?: string;
+    spacingCm?: number;
+    wateringFrequencyDays?: number;
+    fertilizingFrequencyDays?: number;
+    companionPlants?: string[];
+    avoidPlants?: string[];
+    pestsDiseases?: string[];
+    imageUrl?: string;
+    source?: string;
+    maxPlantsPerM2?: number;
+    seedRatePerM2?: number;
+    waterLitersPerM2?: number;
+    yieldKgPerM2?: number;
+};
+
+const rawPlantsMasterSeed: PlantSeed[] = [
     {
         scientificName: "Ocimum basilicum",
         group: "herbs",
@@ -975,3 +1094,52 @@ export const plantI18nSeed = [
         description: "Broad-leaf houseplant; prefers bright, indirect light.",
     },
 ];
+
+const commonNameByScientific = new Map(
+    plantI18nSeed
+        .filter((row) => row.locale === "en")
+        .map((row) => [row.scientificName, row.commonName] as const)
+);
+
+const yieldsByGroup: Record<string, number[]> = {};
+for (const plant of rawPlantsMasterSeed) {
+    const commonName = commonNameByScientific.get(plant.scientificName);
+    const key = commonName ? normalizeKey(commonName) : "";
+    const range = YIELD_QT_HA_BY_COMMON[key];
+    if (!range) continue;
+    const avgQt = (range[0] + range[1]) / 2;
+    const kgM2 = avgQt * 0.01;
+    const group = plant.group ?? "other";
+    if (!yieldsByGroup[group]) yieldsByGroup[group] = [];
+    yieldsByGroup[group].push(kgM2);
+}
+
+const globalYieldFallback = (() => {
+    const all = Object.values(yieldsByGroup).flat();
+    if (all.length === 0) return 2.5;
+    const avg = all.reduce((sum, v) => sum + v, 0) / all.length;
+    return Math.round(avg * 100) / 100;
+})();
+
+export const plantsMasterSeed = rawPlantsMasterSeed.map((plant) => {
+    const commonName = commonNameByScientific.get(plant.scientificName);
+    const maxPlantsPerM2 = plant.maxPlantsPerM2 ?? deriveMaxPlantsPerM2(plant.spacingCm);
+    const seedRatePerM2 = maxPlantsPerM2 ? Math.round(maxPlantsPerM2 * 1.2 * 10) / 10 : undefined;
+    const waterLitersPerM2 = plant.waterLitersPerM2 ?? toWaterLitersPerM2(commonName);
+
+    const group = plant.group ?? "other";
+    const groupValues = yieldsByGroup[group] ?? [];
+    const groupFallback =
+        groupValues.length > 0
+            ? Math.round((groupValues.reduce((sum, v) => sum + v, 0) / groupValues.length) * 100) / 100
+            : globalYieldFallback;
+    const yieldKgPerM2 = plant.yieldKgPerM2 ?? toYieldKgPerM2(commonName, groupFallback);
+
+    return {
+        ...plant,
+        ...(maxPlantsPerM2 !== undefined ? { maxPlantsPerM2 } : {}),
+        ...(seedRatePerM2 !== undefined ? { seedRatePerM2 } : {}),
+        ...(waterLitersPerM2 !== undefined ? { waterLitersPerM2 } : {}),
+        ...(yieldKgPerM2 !== undefined ? { yieldKgPerM2 } : {}),
+    };
+});
