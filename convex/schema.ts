@@ -94,6 +94,10 @@ export default defineSchema({
     lightRequirements: v.optional(v.string()), // "full_sun", "partial_shade", "shade"
     soilPref: v.optional(v.string()),
     spacingCm: v.optional(v.number()),
+    maxPlantsPerM2: v.optional(v.number()),
+    seedRatePerM2: v.optional(v.number()),
+    waterLitersPerM2: v.optional(v.number()),
+    yieldKgPerM2: v.optional(v.number()),
 
     // Care schedule defaults
     wateringFrequencyDays: v.optional(v.number()),
@@ -264,6 +268,9 @@ export default defineSchema({
     snoozedUntil: v.optional(v.number()),
     priority: v.optional(v.number()), // 1-5
     notificationMethods: v.optional(v.array(v.string())), // ["push", "email", "in_app"]
+
+    // Optional amounts
+    waterLiters: v.optional(v.number()), // Stored in liters (convert for display)
 
     // Completion tracking
     completedCount: v.optional(v.number()),

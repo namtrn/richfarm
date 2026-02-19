@@ -30,6 +30,8 @@ import {
 import { PlantPhotosSection } from '../../../components/plant/PlantPhotosSection';
 import { PlantActivitySection } from '../../../components/plant/PlantActivitySection';
 import { PlantHarvestSection } from '../../../components/plant/PlantHarvestSection';
+import { useUnitSystem } from '../../../hooks/useUnitSystem';
+import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -55,6 +57,7 @@ export default function PlantDetailScreen() {
   const router = useRouter();
   const { plantId } = useLocalSearchParams<{ plantId: string }>();
   const resolvedPlantId = Array.isArray(plantId) ? plantId[0] : plantId;
+  const unitSystem = useUnitSystem();
 
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
   const { beds } = useBeds();
@@ -74,6 +77,9 @@ export default function PlantDetailScreen() {
       ? { plantId: plant.plantMasterId, locale }
       : 'skip'
   );
+  const lightLabel = masterPlant?.lightRequirements
+    ? t(`library.light_${masterPlant.lightRequirements}`, { defaultValue: masterPlant.lightRequirements })
+    : undefined;
 
   const [nickname, setNickname] = useState('');
   const [notes, setNotes] = useState('');
@@ -366,7 +372,7 @@ export default function PlantDetailScreen() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {masterPlant.lightRequirements && (
                 <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
-                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('plant.light_label')}: {masterPlant.lightRequirements}</Text>
+                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('plant.light_label')}: {lightLabel}</Text>
                 </View>
               )}
               {masterPlant.wateringFrequencyDays && (
@@ -377,6 +383,31 @@ export default function PlantDetailScreen() {
               {masterPlant.typicalDaysToHarvest && (
                 <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
                   <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('plant.harvest_label')}: {masterPlant.typicalDaysToHarvest}d</Text>
+                </View>
+              )}
+              {masterPlant.spacingCm && (
+                <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
+                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('library.detail_spacing')}: {formatLengthCm(masterPlant.spacingCm, unitSystem)}</Text>
+                </View>
+              )}
+              {masterPlant.maxPlantsPerM2 && (
+                <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
+                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('library.detail_max_plants')}: {formatPlantsPerArea(masterPlant.maxPlantsPerM2, unitSystem)}</Text>
+                </View>
+              )}
+              {masterPlant.seedRatePerM2 && (
+                <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
+                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('library.detail_seed_rate')}: {formatSeedsPerArea(masterPlant.seedRatePerM2, unitSystem)}</Text>
+                </View>
+              )}
+              {masterPlant.waterLitersPerM2 && (
+                <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
+                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('library.detail_water_per_area')}: {formatWaterPerArea(masterPlant.waterLitersPerM2, unitSystem)}</Text>
+                </View>
+              )}
+              {masterPlant.yieldKgPerM2 && (
+                <View style={{ backgroundColor: '#f3f4f6', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
+                  <Text style={{ fontSize: 11, color: '#6b7280' }}>{t('library.detail_yield_per_area')}: {formatYieldPerArea(masterPlant.yieldKgPerM2, unitSystem)}</Text>
                 </View>
               )}
             </View>

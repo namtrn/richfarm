@@ -71,6 +71,7 @@ export const createReminder = mutation({
         nextRunAt: v.number(),
         rrule: v.optional(v.string()),
         priority: v.optional(v.number()),
+        waterLiters: v.optional(v.number()),
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -85,6 +86,7 @@ export const createReminder = mutation({
             description: args.description,
             nextRunAt: args.nextRunAt,
             rrule: args.rrule,
+            waterLiters: args.waterLiters,
             enabled: true,
             priority: args.priority ?? 3,
             completedCount: 0,
@@ -125,6 +127,7 @@ export const updateReminder = mutation({
         nextRunAt: v.optional(v.number()),
         rrule: v.optional(v.string()),
         priority: v.optional(v.number()),
+        waterLiters: v.optional(v.number()),
         enabled: v.optional(v.boolean()),
         deviceId: v.optional(v.string()),
     },

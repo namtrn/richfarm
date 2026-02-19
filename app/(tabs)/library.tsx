@@ -15,6 +15,8 @@ import { PlantImage } from '../../components/ui/PlantImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
 import { usePlantDisplayName } from '../../hooks/usePlantLocalized';
+import { useUnitSystem } from '../../hooks/useUnitSystem';
+import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../lib/units';
 
 const GROUP_ICONS: Record<string, string> = {
     herbs: '🌿',
@@ -51,6 +53,7 @@ function PlantDetailModal({
     const { displayName, scientificName, description } = usePlantDisplayName(plant);
     const lightMeta = LIGHT_META[plant.lightRequirements ?? ''];
     const lightLabel = lightMeta ? t(lightMeta.key) : plant.lightRequirements;
+    const unitSystem = useUnitSystem();
 
     return (
         <Modal visible animationType="slide" transparent onRequestClose={onClose}>
@@ -127,7 +130,31 @@ function PlantDetailModal({
                         {plant.spacingCm && (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
                                 <Text style={{ fontSize: 14, color: '#6b7280' }}>{t('library.detail_spacing')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>{plant.spacingCm} cm</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>{formatLengthCm(plant.spacingCm, unitSystem)}</Text>
+                            </View>
+                        )}
+                        {plant.maxPlantsPerM2 && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
+                                <Text style={{ fontSize: 14, color: '#6b7280' }}>{t('library.detail_max_plants')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>{formatPlantsPerArea(plant.maxPlantsPerM2, unitSystem)}</Text>
+                            </View>
+                        )}
+                        {plant.seedRatePerM2 && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
+                                <Text style={{ fontSize: 14, color: '#6b7280' }}>{t('library.detail_seed_rate')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>{formatSeedsPerArea(plant.seedRatePerM2, unitSystem)}</Text>
+                            </View>
+                        )}
+                        {plant.waterLitersPerM2 && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
+                                <Text style={{ fontSize: 14, color: '#6b7280' }}>{t('library.detail_water_per_area')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>{formatWaterPerArea(plant.waterLitersPerM2, unitSystem)}</Text>
+                            </View>
+                        )}
+                        {plant.yieldKgPerM2 && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
+                                <Text style={{ fontSize: 14, color: '#6b7280' }}>{t('library.detail_yield_per_area')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827' }}>{formatYieldPerArea(plant.yieldKgPerM2, unitSystem)}</Text>
                             </View>
                         )}
                         {plant.source && (
