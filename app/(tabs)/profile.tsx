@@ -4,7 +4,7 @@ import { UserRound, Globe, Clock, Save } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../lib/auth';
 import { loadSyncQueue } from '../../lib/sync/queue';
-import { syncQueue } from '../../lib/sync/adapter';
+import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -18,6 +18,7 @@ const LANGUAGES = [
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const { user, updateProfile, isLoading } = useAuth();
+  const { execute: executeSyncNow } = useSyncExecutor();
 
   const currentLang = i18n.language;
   const [name, setName] = useState(user?.name ?? '');
@@ -72,15 +73,15 @@ export default function ProfileScreen() {
     setSyncing(true);
     setSyncMessage(null);
     try {
-      const result = await syncQueue();
-      if (result.queuedCount === 0) {
+      const result = await executeSyncNow();
+      if (result.queuedCount === 0 && result.syncedCount === 0) {
         setSyncMessage(t('profile.sync_empty'));
-      } else if (!result.ok && result.reason === 'backend_not_ready') {
+      } else if (result.ok) {
+        setSyncMessage(t('profile.sync_success'));
+      } else {
         setSyncMessage(
           t('profile.sync_not_ready', { count: result.queuedCount })
         );
-      } else {
-        setSyncMessage(t('profile.sync_success'));
       }
       await refreshSyncCount();
     } finally {

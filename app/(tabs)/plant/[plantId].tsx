@@ -5,10 +5,8 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Image,
   Modal,
   Pressable,
-  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays } from 'lucide-react-native';
@@ -29,6 +27,9 @@ import {
   PlantLocalData,
   PlantActivityType,
 } from '../../../lib/plantLocalData';
+import { PlantPhotosSection } from '../../../components/plant/PlantPhotosSection';
+import { PlantActivitySection } from '../../../components/plant/PlantActivitySection';
+import { PlantHarvestSection } from '../../../components/plant/PlantHarvestSection';
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -47,11 +48,6 @@ function parseDateInput(value: string) {
   const date = new Date(y, m - 1, d, 12, 0, 0, 0);
   if (Number.isNaN(date.getTime())) return undefined;
   return date.getTime();
-}
-
-function formatDateLabel(value?: number) {
-  if (!value) return '';
-  return formatDateInput(value);
 }
 
 export default function PlantDetailScreen() {
@@ -84,6 +80,8 @@ export default function PlantDetailScreen() {
   const [expectedDate, setExpectedDate] = useState('');
   const [bedId, setBedId] = useState<Id<'beds'> | undefined>(undefined);
   const [saving, setSaving] = useState(false);
+
+  // Local data state
   const [localData, setLocalData] = useState<PlantLocalData>({
     photos: [],
     activities: [],
@@ -91,13 +89,23 @@ export default function PlantDetailScreen() {
   });
   const [localLoading, setLocalLoading] = useState(true);
   const [localSaving, setLocalSaving] = useState(false);
-  const [localError, setLocalError] = useState<string | null>(null);
+
+  // Separate error states per section
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [activityError, setActivityError] = useState<string | null>(null);
+  const [harvestError, setHarvestError] = useState<string | null>(null);
+
+  // Modal states
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [activityModalOpen, setActivityModalOpen] = useState(false);
   const [harvestModalOpen, setHarvestModalOpen] = useState(false);
+
+  // Activity form state
   const [activityType, setActivityType] = useState<PlantActivityType>('watering');
   const [activityNote, setActivityNote] = useState('');
   const [activityDate, setActivityDate] = useState(formatDateInput(Date.now()));
+
+  // Harvest form state
   const [harvestQuantity, setHarvestQuantity] = useState('');
   const [harvestUnit, setHarvestUnit] = useState('');
   const [harvestNote, setHarvestNote] = useState('');
@@ -115,7 +123,6 @@ export default function PlantDetailScreen() {
     if (!resolvedPlantId) return;
     let active = true;
     setLocalLoading(true);
-    setLocalError(null);
     loadPlantLocalData(resolvedPlantId)
       .then((data) => {
         if (!active) return;
@@ -123,7 +130,9 @@ export default function PlantDetailScreen() {
       })
       .catch(() => {
         if (!active) return;
-        setLocalError(t('plant.local_load_error'));
+        setPhotoError(t('plant.local_load_error'));
+        setActivityError(t('plant.local_load_error'));
+        setHarvestError(t('plant.local_load_error'));
       })
       .finally(() => {
         if (!active) return;
@@ -150,8 +159,40 @@ export default function PlantDetailScreen() {
     );
   }
 
-  const currentBed = beds.find((b) => b._id === bedId);
+  const currentBed = beds.find((b: any) => b._id === bedId);
 
+  // --- Persist helpers (race condition fixed) ---
+  const persistLocalData = async (
+    updater: (prev: PlantLocalData) => PlantLocalData,
+    errorSetter: (msg: string | null) => void,
+  ): Promise<boolean> => {
+    if (!resolvedPlantId) return false;
+    setLocalSaving(true);
+    // Compute next data from current state synchronously
+    let nextData: PlantLocalData | null = null;
+    setLocalData((prev) => {
+      nextData = updater(prev);
+      return nextData;
+    });
+    // React batches setLocalData synchronously within the same call frame,
+    // so nextData is assigned at this point; but to be extra safe:
+    if (!nextData) {
+      setLocalSaving(false);
+      return false;
+    }
+    try {
+      await savePlantLocalData(resolvedPlantId, nextData);
+      errorSetter(null);
+      setLocalSaving(false);
+      return true;
+    } catch {
+      errorSetter(t('plant.local_save_error'));
+      setLocalSaving(false);
+      return false;
+    }
+  };
+
+  // --- Handlers ---
   const handleSave = async () => {
     if (!canEdit) return;
     setSaving(true);
@@ -188,47 +229,7 @@ export default function PlantDetailScreen() {
     }
   };
 
-  const activityLabels = useMemo(
-    () => ({
-      watering: t('plant.activity_type_watering'),
-      fertilizing: t('plant.activity_type_fertilizing'),
-      pruning: t('plant.activity_type_pruning'),
-      custom: t('plant.activity_type_custom'),
-    }),
-    [t]
-  );
-
-  const activityOptions: { key: PlantActivityType; label: string }[] = [
-    { key: 'watering', label: activityLabels.watering },
-    { key: 'fertilizing', label: activityLabels.fertilizing },
-    { key: 'pruning', label: activityLabels.pruning },
-    { key: 'custom', label: activityLabels.custom },
-  ];
-
-  const persistLocalData = async (
-    updater: (prev: PlantLocalData) => PlantLocalData
-  ): Promise<boolean> => {
-    if (!resolvedPlantId) return false;
-    setLocalSaving(true);
-    let nextData: PlantLocalData | null = null;
-    setLocalData((prev) => {
-      nextData = updater(prev);
-      return nextData;
-    });
-    let saved = false;
-    if (nextData) {
-      try {
-        await savePlantLocalData(resolvedPlantId, nextData);
-        setLocalError(null);
-        saved = true;
-      } catch {
-        setLocalError(t('plant.local_save_error'));
-      }
-    }
-    setLocalSaving(false);
-    return saved;
-  };
-
+  // Photo handlers
   const handleAddPhotoFrom = async (source: 'camera' | 'library') => {
     if (!canEdit) return;
     try {
@@ -242,14 +243,8 @@ export default function PlantDetailScreen() {
 
       const result =
         source === 'camera'
-          ? await ImagePicker.launchCameraAsync({
-              quality: 0.7,
-              allowsEditing: true,
-            })
-          : await ImagePicker.launchImageLibraryAsync({
-              quality: 0.7,
-              allowsEditing: true,
-            });
+          ? await ImagePicker.launchCameraAsync({ quality: 0.7, allowsEditing: true })
+          : await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsEditing: true });
 
       if (result.canceled || !result.assets?.[0]?.uri) return;
       const newPhoto = {
@@ -257,10 +252,10 @@ export default function PlantDetailScreen() {
         uri: result.assets[0].uri,
         date: Date.now(),
       };
-      const saved = await persistLocalData((prev) => ({
-        ...prev,
-        photos: [newPhoto, ...prev.photos],
-      }));
+      const saved = await persistLocalData(
+        (prev) => ({ ...prev, photos: [newPhoto, ...prev.photos] }),
+        setPhotoError,
+      );
       if (saved && resolvedPlantId) {
         await queuePhoto(resolvedPlantId, newPhoto);
       }
@@ -270,26 +265,22 @@ export default function PlantDetailScreen() {
   };
 
   const handleRemovePhoto = async (photoId: string) => {
-    await persistLocalData((prev) => ({
-      ...prev,
-      photos: prev.photos.filter((photo) => photo.id !== photoId),
-    }));
+    await persistLocalData(
+      (prev) => ({ ...prev, photos: prev.photos.filter((p) => p.id !== photoId) }),
+      setPhotoError,
+    );
   };
 
+  // Activity handlers
   const handleSaveActivity = async () => {
     if (!canEdit) return;
     const date = parseDateInput(activityDate) ?? Date.now();
     const note = activityNote.trim() || undefined;
-    const newEntry = {
-      id: createLocalId(),
-      type: activityType,
-      note,
-      date,
-    };
-    const saved = await persistLocalData((prev) => ({
-      ...prev,
-      activities: [newEntry, ...prev.activities],
-    }));
+    const newEntry = { id: createLocalId(), type: activityType, note, date };
+    const saved = await persistLocalData(
+      (prev) => ({ ...prev, activities: [newEntry, ...prev.activities] }),
+      setActivityError,
+    );
     if (saved && resolvedPlantId) {
       await queueActivity(resolvedPlantId, newEntry);
     }
@@ -300,12 +291,13 @@ export default function PlantDetailScreen() {
   };
 
   const handleRemoveActivity = async (entryId: string) => {
-    await persistLocalData((prev) => ({
-      ...prev,
-      activities: prev.activities.filter((entry) => entry.id !== entryId),
-    }));
+    await persistLocalData(
+      (prev) => ({ ...prev, activities: prev.activities.filter((e) => e.id !== entryId) }),
+      setActivityError,
+    );
   };
 
+  // Harvest handlers
   const handleSaveHarvest = async () => {
     if (!canEdit) return;
     const date = parseDateInput(harvestDate) ?? Date.now();
@@ -316,10 +308,10 @@ export default function PlantDetailScreen() {
       note: harvestNote.trim() || undefined,
       date,
     };
-    const saved = await persistLocalData((prev) => ({
-      ...prev,
-      harvests: [newEntry, ...prev.harvests],
-    }));
+    const saved = await persistLocalData(
+      (prev) => ({ ...prev, harvests: [newEntry, ...prev.harvests] }),
+      setHarvestError,
+    );
     if (saved && resolvedPlantId) {
       await queueHarvest(resolvedPlantId, newEntry);
     }
@@ -331,10 +323,10 @@ export default function PlantDetailScreen() {
   };
 
   const handleRemoveHarvest = async (entryId: string) => {
-    await persistLocalData((prev) => ({
-      ...prev,
-      harvests: prev.harvests.filter((entry) => entry.id !== entryId),
-    }));
+    await persistLocalData(
+      (prev) => ({ ...prev, harvests: prev.harvests.filter((e) => e.id !== entryId) }),
+      setHarvestError,
+    );
   };
 
   return (
@@ -403,6 +395,7 @@ export default function PlantDetailScreen() {
             </TouchableOpacity>
           </View>
         )}
+
         <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
           <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('plant.nickname_label')}</Text>
           <TextInput
@@ -449,7 +442,7 @@ export default function PlantDetailScreen() {
             >
               <Text style={{ fontSize: 12, fontWeight: '600', color: bedId ? '#374151' : '#fff' }}>{t('plant.no_bed')}</Text>
             </TouchableOpacity>
-            {beds.map((b) => {
+            {beds.map((b: any) => {
               const active = b._id === bedId;
               return (
                 <TouchableOpacity
@@ -515,145 +508,63 @@ export default function PlantDetailScreen() {
             </Text>
           </View>
         </View>
-        <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <View>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.photos_title')}</Text>
-              <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{t('plant.local_only')}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setPhotoModalOpen(true)}
-              disabled={!canEdit || localSaving}
-              style={{ backgroundColor: '#16a34a', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-            >
-              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('plant.photos_add')}</Text>
-            </TouchableOpacity>
-          </View>
-          {localLoading ? (
-            <View style={{ paddingVertical: 10, alignItems: 'center' }}>
-              <ActivityIndicator size="small" color="#16a34a" />
-            </View>
-          ) : localData.photos.length === 0 ? (
-            <Text style={{ fontSize: 12, color: '#9ca3af' }}>{t('plant.photos_empty')}</Text>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={{ flexDirection: 'row' }}>
-                {localData.photos.map((photo, index) => (
-                  <View key={photo.id} style={{ marginRight: index === localData.photos.length - 1 ? 0 : 12 }}>
-                    <Image
-                      source={{ uri: photo.uri }}
-                      style={{ width: 120, height: 120, borderRadius: 12, backgroundColor: '#f3f4f6' }}
-                    />
-                    <Text style={{ fontSize: 10, color: '#9ca3af', marginTop: 4 }}>
-                      {formatDateLabel(photo.date)}
-                    </Text>
-                    <TouchableOpacity onPress={() => handleRemovePhoto(photo.id)}>
-                      <Text style={{ fontSize: 10, color: '#b91c1c', marginTop: 2 }}>{t('plant.photos_remove')}</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
-            </ScrollView>
-          )}
-          {localError && (
-            <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 8 }}>{localError}</Text>
-          )}
-        </View>
 
-        <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <View>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_title')}</Text>
-              <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{t('plant.local_only')}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setActivityModalOpen(true)}
-              disabled={!canEdit || localSaving}
-              style={{ backgroundColor: '#16a34a', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-            >
-              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('plant.activity_add')}</Text>
-            </TouchableOpacity>
-          </View>
-          {localLoading ? (
-            <View style={{ paddingVertical: 10, alignItems: 'center' }}>
-              <ActivityIndicator size="small" color="#16a34a" />
-            </View>
-          ) : localData.activities.length === 0 ? (
-            <Text style={{ fontSize: 12, color: '#9ca3af' }}>{t('plant.activity_empty')}</Text>
-          ) : (
-            <View style={{ gap: 10 }}>
-              {localData.activities.map((entry) => (
-                <View key={entry.id} style={{ backgroundColor: '#f9fafb', borderRadius: 12, padding: 10 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>
-                      {activityLabels[entry.type] ?? activityLabels.custom}
-                    </Text>
-                    <Text style={{ fontSize: 11, color: '#9ca3af' }}>{formatDateLabel(entry.date)}</Text>
-                  </View>
-                  {!!entry.note && (
-                    <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{entry.note}</Text>
-                  )}
-                  <TouchableOpacity onPress={() => handleRemoveActivity(entry.id)}>
-                    <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 6 }}>{t('common.delete')}</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          )}
-          {localError && (
-            <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 8 }}>{localError}</Text>
-          )}
-        </View>
+        {/* Extracted sub-components */}
+        <PlantPhotosSection
+          localData={localData}
+          localLoading={localLoading}
+          error={photoError}
+          canEdit={canEdit}
+          localSaving={localSaving}
+          onAddPhoto={() => setPhotoModalOpen(true)}
+          onRemovePhoto={handleRemovePhoto}
+          formatDate={formatDateInput}
+        />
 
-        <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-            <View>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.harvest_title')}</Text>
-              <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{t('plant.local_only')}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setHarvestModalOpen(true)}
-              disabled={!canEdit || localSaving}
-              style={{ backgroundColor: '#16a34a', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-            >
-              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('plant.harvest_add')}</Text>
-            </TouchableOpacity>
-          </View>
-          {localLoading ? (
-            <View style={{ paddingVertical: 10, alignItems: 'center' }}>
-              <ActivityIndicator size="small" color="#16a34a" />
-            </View>
-          ) : localData.harvests.length === 0 ? (
-            <Text style={{ fontSize: 12, color: '#9ca3af' }}>{t('plant.harvest_empty')}</Text>
-          ) : (
-            <View style={{ gap: 10 }}>
-              {localData.harvests.map((entry) => {
-                const quantityLine = [entry.quantity, entry.unit].filter(Boolean).join(' ');
-                return (
-                  <View key={entry.id} style={{ backgroundColor: '#f9fafb', borderRadius: 12, padding: 10 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>
-                        {quantityLine || '--'}
-                      </Text>
-                      <Text style={{ fontSize: 11, color: '#9ca3af' }}>{formatDateLabel(entry.date)}</Text>
-                    </View>
-                    {!!entry.note && (
-                      <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{entry.note}</Text>
-                    )}
-                    <TouchableOpacity onPress={() => handleRemoveHarvest(entry.id)}>
-                      <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 6 }}>{t('common.delete')}</Text>
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-            </View>
-          )}
-          {localError && (
-            <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 8 }}>{localError}</Text>
-          )}
-        </View>
+        <PlantActivitySection
+          localData={localData}
+          localLoading={localLoading}
+          error={activityError}
+          canEdit={canEdit}
+          localSaving={localSaving}
+          modalOpen={activityModalOpen}
+          activityType={activityType}
+          activityNote={activityNote}
+          activityDate={activityDate}
+          onOpenModal={() => setActivityModalOpen(true)}
+          onCloseModal={() => setActivityModalOpen(false)}
+          onChangeType={setActivityType}
+          onChangeNote={setActivityNote}
+          onChangeDate={setActivityDate}
+          onSave={handleSaveActivity}
+          onRemove={handleRemoveActivity}
+          formatDate={formatDateInput}
+        />
+
+        <PlantHarvestSection
+          localData={localData}
+          localLoading={localLoading}
+          error={harvestError}
+          canEdit={canEdit}
+          localSaving={localSaving}
+          modalOpen={harvestModalOpen}
+          harvestQuantity={harvestQuantity}
+          harvestUnit={harvestUnit}
+          harvestNote={harvestNote}
+          harvestDate={harvestDate}
+          onOpenModal={() => setHarvestModalOpen(true)}
+          onCloseModal={() => setHarvestModalOpen(false)}
+          onChangeQuantity={setHarvestQuantity}
+          onChangeUnit={setHarvestUnit}
+          onChangeNote={setHarvestNote}
+          onChangeDate={setHarvestDate}
+          onSave={handleSaveHarvest}
+          onRemove={handleRemoveHarvest}
+          formatDate={formatDateInput}
+        />
       </ScrollView>
 
+      {/* Photo source modal */}
       <Modal
         visible={photoModalOpen}
         transparent
@@ -684,124 +595,6 @@ export default function PlantDetailScreen() {
             onPress={() => setPhotoModalOpen(false)}
           >
             <Text style={{ fontSize: 14, fontWeight: '600', color: '#fff' }}>{t('common.cancel')}</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={activityModalOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setActivityModalOpen(false)}
-      >
-        <Pressable
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
-          onPress={() => setActivityModalOpen(false)}
-        />
-        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24, gap: 12 }}>
-          <View style={{ width: 40, height: 4, borderRadius: 999, backgroundColor: '#e5e7eb', alignSelf: 'center' }} />
-          <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827' }}>{t('plant.activity_add')}</Text>
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_type_label')}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {activityOptions.map((option) => {
-              const active = option.key === activityType;
-              return (
-                <TouchableOpacity
-                  key={option.key}
-                  onPress={() => setActivityType(option.key)}
-                  style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#16a34a' : '#f3f4f6' }}
-                >
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{option.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_date_label')}</Text>
-          <TextInput
-            value={activityDate}
-            onChangeText={setActivityDate}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-          />
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_note_label')}</Text>
-          <TextInput
-            value={activityNote}
-            onChangeText={setActivityNote}
-            placeholder={t('plant.activity_note_placeholder')}
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-          />
-
-          <TouchableOpacity
-            disabled={!canEdit || localSaving}
-            onPress={handleSaveActivity}
-            style={{ backgroundColor: '#16a34a', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-          >
-            <Text style={{ color: '#fff', fontWeight: '700' }}>{t('plant.activity_save')}</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
-      <Modal
-        visible={harvestModalOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setHarvestModalOpen(false)}
-      >
-        <Pressable
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
-          onPress={() => setHarvestModalOpen(false)}
-        />
-        <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24, gap: 12 }}>
-          <View style={{ width: 40, height: 4, borderRadius: 999, backgroundColor: '#e5e7eb', alignSelf: 'center' }} />
-          <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827' }}>{t('plant.harvest_add')}</Text>
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.harvest_date_label')}</Text>
-          <TextInput
-            value={harvestDate}
-            onChangeText={setHarvestDate}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-          />
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.harvest_quantity_label')}</Text>
-          <TextInput
-            value={harvestQuantity}
-            onChangeText={setHarvestQuantity}
-            placeholder={t('plant.harvest_quantity_placeholder')}
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-          />
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.harvest_unit_label')}</Text>
-          <TextInput
-            value={harvestUnit}
-            onChangeText={setHarvestUnit}
-            placeholder={t('plant.harvest_unit_placeholder')}
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-          />
-
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.harvest_note_label')}</Text>
-          <TextInput
-            value={harvestNote}
-            onChangeText={setHarvestNote}
-            placeholder={t('plant.harvest_note_placeholder')}
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-          />
-
-          <TouchableOpacity
-            disabled={!canEdit || localSaving}
-            onPress={handleSaveHarvest}
-            style={{ backgroundColor: '#16a34a', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-          >
-            <Text style={{ color: '#fff', fontWeight: '700' }}>{t('plant.harvest_save')}</Text>
           </TouchableOpacity>
         </View>
       </Modal>

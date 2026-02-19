@@ -9,7 +9,9 @@
         "error": "Something went wrong",
         "empty": "Nothing here yet",
         "plants": "plants",
-        "beds": "beds"
+        "beds": "beds",
+        "confirm": "Confirm",
+        "confirm_delete": "Are you sure you want to delete this?"
     },
     "tabs": {
         "planning": "Planning",

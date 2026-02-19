@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
-import { syncQueue } from '../lib/sync/adapter';
+import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
 
 const MIN_ATTEMPT_INTERVAL_MS = 15000;
 
 export function useSyncTriggers() {
   const lastAttemptRef = useRef(0);
   const inflightRef = useRef(false);
+  const { execute } = useSyncExecutor();
 
   const attemptSync = useCallback(async () => {
     if (inflightRef.current) return;
@@ -16,14 +17,12 @@ export function useSyncTriggers() {
 
     inflightRef.current = true;
     try {
-      const result = await syncQueue();
-      if (result.queuedCount > 0 || result.reason === 'queue_empty') {
-        lastAttemptRef.current = Date.now();
-      }
+      await execute();
+      lastAttemptRef.current = Date.now();
     } finally {
       inflightRef.current = false;
     }
-  }, []);
+  }, [execute]);
 
   useEffect(() => {
     attemptSync();
