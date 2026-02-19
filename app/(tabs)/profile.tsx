@@ -1,8 +1,10 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { UserRound, Globe, Clock, Save } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../lib/auth';
+import { loadSyncQueue } from '../../lib/sync/queue';
+import { syncQueue } from '../../lib/sync/adapter';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -21,6 +23,9 @@ export default function ProfileScreen() {
   const [name, setName] = useState(user?.name ?? '');
   const [timezone, setTimezone] = useState(user?.timezone ?? '');
   const [saving, setSaving] = useState(false);
+  const [syncCount, setSyncCount] = useState(0);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
   const email = user?.email ?? '—';
   const isAnonymous = user?.isAnonymous ?? false;
@@ -34,6 +39,15 @@ export default function ProfileScreen() {
     setName(user?.name ?? '');
     setTimezone(user?.timezone ?? '');
   }, [user?.name, user?.timezone]);
+
+  const refreshSyncCount = useCallback(async () => {
+    const queue = await loadSyncQueue();
+    setSyncCount(queue.length);
+  }, []);
+
+  useEffect(() => {
+    refreshSyncCount();
+  }, [refreshSyncCount]);
 
   const handleLanguageChange = async (code: string) => {
     if (code === currentLang) return;
@@ -51,6 +65,26 @@ export default function ProfileScreen() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSyncNow = async () => {
+    setSyncing(true);
+    setSyncMessage(null);
+    try {
+      const result = await syncQueue();
+      if (result.queuedCount === 0) {
+        setSyncMessage(t('profile.sync_empty'));
+      } else if (!result.ok && result.reason === 'backend_not_ready') {
+        setSyncMessage(
+          t('profile.sync_not_ready', { count: result.queuedCount })
+        );
+      } else {
+        setSyncMessage(t('profile.sync_success'));
+      }
+      await refreshSyncCount();
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -118,6 +152,24 @@ export default function ProfileScreen() {
             placeholderTextColor="#9ca3af"
             className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
           />
+        </View>
+
+        <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">
+          <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.sync_title')}</Text>
+          <Text className="text-xs text-gray-400">{t('profile.sync_subtitle')}</Text>
+          <Text className="text-xs text-gray-500">
+            {t('profile.sync_queue_count', { count: syncCount })}
+          </Text>
+          {syncMessage && (
+            <Text className="text-xs text-gray-500">{syncMessage}</Text>
+          )}
+          <TouchableOpacity
+            onPress={handleSyncNow}
+            disabled={syncing}
+            className={`bg-green-500 rounded-xl py-3 items-center ${syncing ? 'opacity-50' : ''}`}
+          >
+            <Text className="text-white font-semibold">{t('profile.sync_button')}</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity

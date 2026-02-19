@@ -10,6 +10,7 @@ import i18n from '../lib/i18n';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
 import { useAppReady } from '../hooks/useAppReady';
+import { useSyncTriggers } from '../hooks/useSyncTriggers';
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
@@ -19,6 +20,7 @@ function AuthGuard() {
   const { isReady, currentUser } = useAppReady();
   const router = useRouter();
   const segments = useSegments();
+  useSyncTriggers();
 
   useEffect(() => {
     if (!isReady) return;
