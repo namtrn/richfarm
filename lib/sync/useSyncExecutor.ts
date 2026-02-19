@@ -16,20 +16,27 @@ export function useSyncExecutor() {
     const batchSync = useMutation(api.sync.batchSync);
     const { deviceId } = useDeviceId();
     const inflightRef = useRef(false);
+    const lastQueuedCountRef = useRef(0);
 
     const execute = useCallback(async (): Promise<SyncExecutorResult> => {
         if (inflightRef.current) {
-            return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: 0 };
+            return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: lastQueuedCountRef.current };
         }
 
         inflightRef.current = true;
         try {
             const queue = await loadSyncQueue();
+            lastQueuedCountRef.current = queue.length;
             if (queue.length === 0) {
                 return { ok: true, syncedCount: 0, errorCount: 0, queuedCount: 0 };
             }
 
             const batch = buildSyncBatch(queue);
+
+            const syncableCount = batch.activities.length + batch.harvests.length;
+            if (syncableCount === 0) {
+                return { ok: true, syncedCount: 0, errorCount: 0, queuedCount: queue.length };
+            }
 
             // Photos are local-only for now (no Convex storage upload implemented)
             // Only sync activities and harvests
@@ -52,15 +59,30 @@ export function useSyncExecutor() {
                 })),
             });
 
-            // Remove synced items from queue (keep photo actions since they can't be synced yet)
+            const failedActivityLocalIds = new Set<string>();
+            const failedHarvestLocalIds = new Set<string>();
+            for (const error of result.errors) {
+                const [kind, localId] = error.split(':');
+                if (!localId) continue;
+                if (kind === 'activity') failedActivityLocalIds.add(localId);
+                if (kind === 'harvest') failedHarvestLocalIds.add(localId);
+            }
+
             const syncedIds = queue
                 .filter((item) => item.type === 'activity' || item.type === 'harvest')
+                .filter((item) => {
+                    const payload = item.payload as { localId?: string };
+                    if (!payload?.localId) return false;
+                    if (item.type === 'activity') return !failedActivityLocalIds.has(payload.localId);
+                    return !failedHarvestLocalIds.has(payload.localId);
+                })
                 .map((item) => item.id);
+
             if (syncedIds.length > 0) {
                 await removeSyncActions(syncedIds);
             }
 
-            const totalSynced = result.activitiesSynced + result.harvestsSynced;
+            const totalSynced = syncedIds.length;
             const errorCount = result.errors.length;
 
             return {
@@ -71,6 +93,7 @@ export function useSyncExecutor() {
             };
         } catch {
             const queue = await loadSyncQueue();
+            lastQueuedCountRef.current = queue.length;
             return {
                 ok: false,
                 syncedCount: 0,

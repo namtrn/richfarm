@@ -312,6 +312,7 @@ export default defineSchema({
     userId: v.id("users"),
     userPlantId: v.id("userPlants"),
 
+    localId: v.optional(v.string()),
     harvestDate: v.number(),
     quantity: v.optional(v.number()),
     unit: v.optional(v.string()), // "g", "kg", "piece", "bunch"
@@ -322,6 +323,7 @@ export default defineSchema({
     preservationRecipeId: v.optional(v.id("preservationRecipes")),
   })
     .index("by_user_plant", ["userPlantId"])
+    .index("by_user_plant_local", ["userPlantId", "localId"])
     .index("by_user_plant_date", ["userPlantId", "harvestDate"])
     .index("by_harvest_date", ["harvestDate"]),
 

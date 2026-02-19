@@ -19,7 +19,6 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
-import { syncQueue } from '../../../lib/sync/adapter';
 import {
   createLocalId,
   loadPlantLocalData,
@@ -149,10 +148,6 @@ export default function PlantDetailScreen() {
     };
   }, [resolvedPlantId, t]);
 
-  useEffect(() => {
-    if (!resolvedPlantId) return;
-    syncQueue();
-  }, [resolvedPlantId]);
 
   if (!plant) {
     return (

@@ -623,3 +623,32 @@ Thêm 2 i18n keys mới: `common.confirm`, `common.confirm_delete`.
 | 2 | Native DatePicker thay TextInput | MEDIUM | Cần thêm `@react-native-community/datetimepicker` dependency |
 | 3 | Edit functionality cho activities/harvests | MINOR | UX enhancement, không blocking |
 | 4 | Full-screen photo viewer | MINOR | UX enhancement |
+
+---
+
+## Review Notes - 2026-02-20 (commit d589d5aa36d1fc1e20013c74fd857c218040b1cd)
+
+### Critical
+1. Data loss on partial sync failure  
+`useSyncExecutor` removes all activity/harvest actions even if backend returns errors for some items. Those failed items will never retry.
+
+2. Harvest idempotency missing  
+`harvestRecords` does not store `localId`, but sync checks `e.localId` for idempotency. This will create duplicates on re-sync.
+
+### High
+3. Sync called even when nothing syncable  
+If queue contains only photos, `batchSync` is still called with empty arrays -> potential "Not authenticated" errors.
+
+4. Obsolete syncQueue still called  
+`app/(tabs)/plant/[plantId].tsx` still calls `syncQueue()` stub (backend_not_ready) even though `useSyncExecutor` exists.
+
+### Medium
+5. Inflight result misreports queue length  
+When `execute()` is already running, it returns `queuedCount: 0`, which can show misleading "empty" state.
+
+### Suggested fixes
+- Remove only items confirmed by backend; keep failed items in queue.
+- Add `localId` to `harvestRecords` (schema + insert + optional index).
+- Short-circuit sync if `(activities.length + harvests.length) === 0`.
+- Remove `syncQueue()` call from Plant Detail and rely on sync triggers.
+- Return a more accurate inflight result (use current queue length).

@@ -79,13 +79,12 @@ export const batchSync = mutation({
                     continue;
                 }
 
-                const existing = await ctx.db
+                const alreadySynced = await ctx.db
                     .query("harvestRecords")
-                    .withIndex("by_user_plant", (q: any) => q.eq("userPlantId", plant._id))
-                    .collect();
-                const alreadySynced = existing.some(
-                    (e: any) => e.localId === harvest.localId
-                );
+                    .withIndex("by_user_plant_local", (q: any) =>
+                        q.eq("userPlantId", plant._id).eq("localId", harvest.localId)
+                    )
+                    .unique();
                 if (alreadySynced) {
                     results.harvestsSynced++;
                     continue;
@@ -94,6 +93,7 @@ export const batchSync = mutation({
                 await ctx.db.insert("harvestRecords", {
                     userId: user._id,
                     userPlantId: plant._id,
+                    localId: harvest.localId,
                     harvestDate: harvest.harvestedAt,
                     quantity: harvest.quantity ? parseFloat(harvest.quantity) || undefined : undefined,
                     unit: harvest.unit,
