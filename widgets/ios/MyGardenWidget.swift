@@ -1,5 +1,11 @@
+import Foundation
 import WidgetKit
 import SwiftUI
+
+private let widgetAppName = "My Garden"
+private let widgetAppScheme = "my-garden"
+private let widgetAppURL = URL(string: "\(widgetAppScheme)://")!
+private let widgetAppGroupId = "group.com.mygarden.app"
 
 struct PlantWidgetEntry: TimelineEntry {
     let date: Date
@@ -32,7 +38,7 @@ struct Provider: TimelineProvider {
     }
     
     private func loadWidgetData() -> PlantWidgetEntry {
-        let defaults = UserDefaults(suiteName: "group.com.mygarden.app")
+        let defaults = UserDefaults(suiteName: widgetAppGroupId)
         return PlantWidgetEntry(
             date: Date(),
             plantCount: defaults?.integer(forKey: "plantCount") ?? 0,
@@ -48,16 +54,19 @@ struct MyGardenWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
 
     var body: some View {
-        switch family {
-        case .systemSmall:
-            SmallWidgetView(entry: entry)
-        case .systemMedium:
-            MediumWidgetView(entry: entry)
-        case .systemLarge:
-            LargeWidgetView(entry: entry)
-        default:
-            SmallWidgetView(entry: entry)
+        Group {
+            switch family {
+            case .systemSmall:
+                SmallWidgetView(entry: entry)
+            case .systemMedium:
+                MediumWidgetView(entry: entry)
+            case .systemLarge:
+                LargeWidgetView(entry: entry)
+            default:
+                SmallWidgetView(entry: entry)
+            }
         }
+        .widgetURL(widgetAppURL)
     }
 }
 
@@ -69,7 +78,7 @@ struct SmallWidgetView: View {
             HStack {
                 Image(systemName: "leaf.fill")
                     .foregroundColor(.green)
-                Text("My Garden")
+                Text(widgetAppName)
                     .font(.caption)
                     .bold()
                 Spacer()
@@ -111,7 +120,7 @@ struct MediumWidgetView: View {
                 HStack {
                     Image(systemName: "leaf.fill")
                         .foregroundColor(.green)
-                    Text("My Garden")
+                    Text(widgetAppName)
                         .font(.headline)
                         .bold()
                 }
@@ -175,7 +184,7 @@ struct LargeWidgetView: View {
                 Image(systemName: "leaf.fill")
                     .foregroundColor(.green)
                     .font(.title2)
-                Text("My Garden")
+                Text(widgetAppName)
                     .font(.title2)
                     .bold()
                 Spacer()
@@ -215,7 +224,7 @@ struct LargeWidgetView: View {
                             .foregroundColor(.secondary)
                     }
                     Spacer()
-                    Button(action: {}) {
+                    Link(destination: widgetAppURL) {
                         Text("Đã tưới")
                             .font(.caption)
                             .padding(.horizontal, 12)
@@ -256,7 +265,6 @@ struct StatItem: View {
     }
 }
 
-@main
 struct MyGardenWidget: Widget {
     let kind: String = "MyGardenWidget"
 
@@ -264,7 +272,7 @@ struct MyGardenWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             MyGardenWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("My Garden")
+        .configurationDisplayName(widgetAppName)
         .description("Xem nhanh lịch chăm sóc cây")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }

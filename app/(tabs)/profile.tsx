@@ -8,6 +8,7 @@ import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useUserSettings } from '../../hooks/useUserSettings';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
+import { authClient } from '../../lib/auth-client';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -35,6 +36,12 @@ export default function ProfileScreen() {
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [authPanelOpen, setAuthPanelOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signIn' | 'signUp' | 'forgot'>('signIn');
 
   const email = user?.email ?? '—';
   const isAnonymous = user?.isAnonymous ?? false;
@@ -102,6 +109,107 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleSignUp = async () => {
+    setAuthLoading(true);
+    setAuthMessage(null);
+    try {
+      const result = await authClient.signUp.email({
+        email: authEmail.trim(),
+        password: authPassword,
+        name: name.trim() || undefined,
+      });
+      if (result.error) {
+        setAuthMessage(result.error.message ?? 'Sign up failed');
+        return;
+      }
+      await updateProfile({ name: name.trim() || undefined });
+      setAuthMessage('Account created and signed in.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignIn = async () => {
+    setAuthLoading(true);
+    setAuthMessage(null);
+    try {
+      const result = await authClient.signIn.email({
+        email: authEmail.trim(),
+        password: authPassword,
+      });
+      if (result.error) {
+        setAuthMessage(result.error.message ?? 'Sign in failed');
+        return;
+      }
+      setAuthMessage('Signed in successfully.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthLoading(true);
+    setAuthMessage(null);
+    try {
+      const client = authClient as any;
+      if (!client?.signIn?.social) {
+        setAuthMessage('Google sign in is not available in current auth client config.');
+        return;
+      }
+      const result = await client.signIn.social({
+        provider: 'google',
+        callbackURL: 'my-garden://',
+      });
+      if (result?.error) {
+        setAuthMessage(result.error.message ?? 'Google sign in failed');
+        return;
+      }
+      setAuthMessage('Google sign in started.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setAuthLoading(true);
+    setAuthMessage(null);
+    try {
+      const client = authClient as any;
+      const fn = client?.forgetPassword ?? client?.requestPasswordReset;
+      if (!fn) {
+        setAuthMessage('Forgot password is not available in current auth client config.');
+        return;
+      }
+      const result = await fn({
+        email: authEmail.trim(),
+        redirectTo: 'my-garden://',
+      });
+      if (result?.error) {
+        setAuthMessage(result.error.message ?? 'Forgot password request failed');
+        return;
+      }
+      setAuthMessage('Password reset email sent (if email exists).');
+      setAuthMode('signIn');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setAuthLoading(true);
+    setAuthMessage(null);
+    try {
+      const result = await authClient.signOut();
+      if (result.error) {
+        setAuthMessage(result.error.message ?? 'Sign out failed');
+        return;
+      }
+      setAuthMessage('Signed out.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   return (
     <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ padding: 16, paddingTop: 56, gap: 16, paddingBottom: 40 }}>
       <View>
@@ -124,6 +232,117 @@ export default function ProfileScreen() {
             placeholderTextColor="#9ca3af"
             className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
           />
+          {isAnonymous ? (
+            <View className="gap-y-2 pt-2">
+              <Text className="text-xs text-gray-500">Create account to sync across devices</Text>
+              {!authPanelOpen ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    setAuthPanelOpen(true);
+                    setAuthMode('signIn');
+                    setAuthMessage(null);
+                  }}
+                  className="bg-gray-900 rounded-xl py-3 items-center"
+                >
+                  <Text className="text-white font-semibold">Open auth</Text>
+                </TouchableOpacity>
+              ) : (
+                <View className="gap-y-2">
+                  <View className="flex-row gap-x-2">
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (authMode === 'forgot') setAuthMode('signIn');
+                        else setAuthPanelOpen(false);
+                      }}
+                      className="flex-1 bg-gray-200 rounded-xl py-2 items-center"
+                    >
+                      <Text className="text-gray-700 font-semibold">Back</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setAuthPanelOpen(false)}
+                      className="flex-1 bg-gray-200 rounded-xl py-2 items-center"
+                    >
+                      <Text className="text-gray-700 font-semibold">Close</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <TextInput
+                    value={authEmail}
+                    onChangeText={setAuthEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    placeholder="Email"
+                    placeholderTextColor="#9ca3af"
+                    className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
+                  />
+                  {authMode !== 'forgot' && (
+                    <TextInput
+                      value={authPassword}
+                      onChangeText={setAuthPassword}
+                      autoCapitalize="none"
+                      secureTextEntry
+                      placeholder="Password (min 8 chars)"
+                      placeholderTextColor="#9ca3af"
+                      className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
+                    />
+                  )}
+                  {authMessage && <Text className="text-xs text-gray-500">{authMessage}</Text>}
+                  <TouchableOpacity
+                    onPress={handleGoogleSignIn}
+                    disabled={authLoading}
+                    className={`bg-white border border-gray-300 rounded-xl py-3 items-center ${authLoading ? 'opacity-50' : ''}`}
+                  >
+                    <Text className="text-gray-900 font-semibold">Continue with Google</Text>
+                  </TouchableOpacity>
+                  {authMode === 'forgot' ? (
+                    <TouchableOpacity
+                      onPress={handleForgotPassword}
+                      disabled={authLoading || !authEmail.trim()}
+                      className={`bg-gray-900 rounded-xl py-3 items-center ${authLoading || !authEmail.trim() ? 'opacity-50' : ''}`}
+                    >
+                      <Text className="text-white font-semibold">Send reset link</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View className="flex-row gap-x-2">
+                      <TouchableOpacity
+                        onPress={handleSignUp}
+                        disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
+                        className={`flex-1 bg-green-600 rounded-xl py-3 items-center ${authLoading || !authEmail.trim() || authPassword.length < 8 ? 'opacity-50' : ''}`}
+                      >
+                        <Text className="text-white font-semibold">Sign up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={handleSignIn}
+                        disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
+                        className={`flex-1 bg-gray-900 rounded-xl py-3 items-center ${authLoading || !authEmail.trim() || authPassword.length < 8 ? 'opacity-50' : ''}`}
+                      >
+                        <Text className="text-white font-semibold">Sign in</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {authMode !== 'forgot' && (
+                    <TouchableOpacity
+                      onPress={() => setAuthMode('forgot')}
+                      disabled={authLoading}
+                      className="py-2 items-center"
+                    >
+                      <Text className="text-xs text-gray-500">Forgot password?</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            </View>
+          ) : (
+            <View className="pt-2">
+              {authMessage && <Text className="text-xs text-gray-500 mb-2">{authMessage}</Text>}
+              <TouchableOpacity
+                onPress={handleSignOut}
+                disabled={authLoading}
+                className={`bg-gray-200 rounded-xl py-3 items-center ${authLoading ? 'opacity-50' : ''}`}
+              >
+                <Text className="text-gray-800 font-semibold">Sign out</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">

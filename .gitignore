@@ -41,6 +41,7 @@ convex/_generated/
 # typescript
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# generated native folders (tracked for widgets)
+
+# Expo logs
+expo_out*.txt

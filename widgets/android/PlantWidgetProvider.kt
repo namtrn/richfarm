@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import com.mygarden.app.R
-import android.content.SharedPreferences
 
 class PlantWidgetProvider : AppWidgetProvider() {
     
@@ -35,7 +34,6 @@ class PlantWidgetProvider : AppWidgetProvider() {
     
     companion object {
         const val ACTION_REFRESH = "com.mygarden.app.widget.ACTION_REFRESH"
-        const val ACTION_WATER_PLANT = "com.mygarden.app.widget.ACTION_WATER_PLANT"
         
         fun updateAppWidget(
             context: Context,
@@ -71,15 +69,8 @@ class PlantWidgetProvider : AppWidgetProvider() {
             )
             views.setOnClickPendingIntent(R.id.widget_container, openAppPendingIntent)
             
-            // Water plant action
-            val waterIntent = Intent(context, PlantWidgetProvider::class.java).apply {
-                action = ACTION_WATER_PLANT
-            }
-            val waterPendingIntent = PendingIntent.getBroadcast(
-                context, 0, waterIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.widget_water_button, waterPendingIntent)
+            // Open app when tapping the action button
+            views.setOnClickPendingIntent(R.id.widget_water_button, openAppPendingIntent)
             
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }

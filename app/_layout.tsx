@@ -1,4 +1,5 @@
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ConvexReactClient } from 'convex/react';
+import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { useEffect } from 'react';
@@ -11,6 +12,7 @@ import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
 import { useAppReady } from '../hooks/useAppReady';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
+import { authClient } from '../lib/auth-client';
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
@@ -66,11 +68,11 @@ export default function RootLayout() {
 
   return (
     <I18nextProvider i18n={i18n}>
-      <ConvexProvider client={convex}>
+      <ConvexBetterAuthProvider client={convex} authClient={authClient}>
         <AppShell>
           <AuthGuard />
         </AppShell>
-      </ConvexProvider>
+      </ConvexBetterAuthProvider>
     </I18nextProvider>
   );
 }
