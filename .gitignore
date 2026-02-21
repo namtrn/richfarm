@@ -42,6 +42,6 @@ convex/_generated/
 *.tsbuildinfo
 
 # generated native folders (tracked for widgets)
-
+ios/Podfile.lock
 # Expo logs
 expo_out*.txt

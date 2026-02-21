@@ -8,7 +8,15 @@ import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useUserSettings } from '../../hooks/useUserSettings';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
-import { authClient } from '../../lib/auth-client';
+import { authClient, APP_SCHEME } from '../../lib/auth-client';
+
+/**
+ * Feature flags — flip to true once the backend is configured.
+ * Google OAuth: requires GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET on the server.
+ * Reset password: requires emailAndPassword.sendResetPassword in Better Auth config.
+ */
+const GOOGLE_OAUTH_ENABLED = false;
+const RESET_PASSWORD_ENABLED = false;
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -148,17 +156,16 @@ export default function ProfileScreen() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!GOOGLE_OAUTH_ENABLED) {
+      setAuthMessage('Google sign-in is not configured yet. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET on the server.');
+      return;
+    }
     setAuthLoading(true);
     setAuthMessage(null);
     try {
-      const client = authClient as any;
-      if (!client?.signIn?.social) {
-        setAuthMessage('Google sign in is not available in current auth client config.');
-        return;
-      }
-      const result = await client.signIn.social({
+      const result = await (authClient.signIn as any).social({
         provider: 'google',
-        callbackURL: 'my-garden://',
+        callbackURL: `${APP_SCHEME}://`,
       });
       if (result?.error) {
         setAuthMessage(result.error.message ?? 'Google sign in failed');
@@ -171,18 +178,24 @@ export default function ProfileScreen() {
   };
 
   const handleForgotPassword = async () => {
+    if (!RESET_PASSWORD_ENABLED) {
+      setAuthMessage('⚠ Password reset is not configured yet. Email sending must be set up on the server first.');
+      return;
+    }
     setAuthLoading(true);
     setAuthMessage(null);
     try {
-      const client = authClient as any;
-      const fn = client?.forgetPassword ?? client?.requestPasswordReset;
-      if (!fn) {
-        setAuthMessage('Forgot password is not available in current auth client config.');
+      // Better Auth generates this method dynamically when sendResetPassword is configured.
+      // Use a narrow type assertion since emailAndPassword isn't yet enabled server-side.
+      type RequestResetFn = (opts: { email: string; redirectTo: string }) => Promise<{ error?: { message?: string } }>;
+      const requestReset = (authClient as unknown as { requestPasswordReset: RequestResetFn }).requestPasswordReset;
+      if (!requestReset) {
+        setAuthMessage('Password reset is not available in current auth client config.');
         return;
       }
-      const result = await fn({
+      const result = await requestReset({
         email: authEmail.trim(),
-        redirectTo: 'my-garden://',
+        redirectTo: `${APP_SCHEME}://`,
       });
       if (result?.error) {
         setAuthMessage(result.error.message ?? 'Forgot password request failed');
@@ -288,10 +301,10 @@ export default function ProfileScreen() {
                   {authMessage && <Text className="text-xs text-gray-500">{authMessage}</Text>}
                   <TouchableOpacity
                     onPress={handleGoogleSignIn}
-                    disabled={authLoading}
-                    className={`bg-white border border-gray-300 rounded-xl py-3 items-center ${authLoading ? 'opacity-50' : ''}`}
+                    disabled={authLoading || !GOOGLE_OAUTH_ENABLED}
+                    className={`bg-white border border-gray-300 rounded-xl py-3 items-center ${authLoading || !GOOGLE_OAUTH_ENABLED ? 'opacity-50' : ''}`}
                   >
-                    <Text className="text-gray-900 font-semibold">Continue with Google</Text>
+                    <Text className="text-gray-900 font-semibold">{GOOGLE_OAUTH_ENABLED ? 'Continue with Google' : 'Google — coming soon'}</Text>
                   </TouchableOpacity>
                   {authMode === 'forgot' ? (
                     <TouchableOpacity
