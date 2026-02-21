@@ -6,11 +6,12 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test:smoke:ios": "maestro test .maestro/smoke-all-buttons.yaml"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-native-community/netinfo": "^11.5.0",
+    "@react-native-community/netinfo": "11.4.1",
     "babel-preset-expo": "^54.0.10",
     "convex": "^1.31.7",
     "expo": "~54.0.33",
@@ -26,6 +27,7 @@
     "lucide-react-native": "^0.574.0",
     "nativewind": "^2.0.11",
     "react": "19.1.0",
+    "react-dom": "^19.1.0",
     "react-i18next": "^16.5.4",
     "react-native": "0.81.5",
     "react-native-safe-area-context": "^5.6.2",

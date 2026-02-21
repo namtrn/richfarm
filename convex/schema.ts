@@ -82,6 +82,15 @@ export default defineSchema({
   // ==========================================
   plantsMaster: defineTable({
     scientificName: v.string(),
+    description: v.optional(v.string()),
+    commonNames: v.optional(
+      v.array(
+        v.object({
+          locale: v.string(),
+          name: v.string(),
+        })
+      )
+    ),
 
     // Classification
     group: v.string(), // "alliums", "herbs", "nightshades", ...

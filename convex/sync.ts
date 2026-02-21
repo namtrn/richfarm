@@ -2,6 +2,7 @@
 // Batch sync from local queue to Convex tables
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { requireUser } from "./lib/user";
 
 export const batchSync = mutation({
@@ -36,7 +37,8 @@ export const batchSync = mutation({
         for (const activity of args.activities) {
             try {
                 // Check plant ownership
-                const plant = await ctx.db.get(activity.plantId as any);
+                const plantId = activity.plantId as Id<"userPlants">;
+                const plant = await ctx.db.get(plantId);
                 if (!plant || plant.userId !== user._id) {
                     results.errors.push(`activity:${activity.localId}:unauthorized`);
                     continue;
@@ -73,7 +75,8 @@ export const batchSync = mutation({
         // Sync harvests → harvestRecords table
         for (const harvest of args.harvests) {
             try {
-                const plant = await ctx.db.get(harvest.plantId as any);
+                const plantId = harvest.plantId as Id<"userPlants">;
+                const plant = await ctx.db.get(plantId);
                 if (!plant || plant.userId !== user._id) {
                     results.errors.push(`harvest:${harvest.localId}:unauthorized`);
                     continue;

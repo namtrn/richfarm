@@ -146,17 +146,20 @@ function GardenCard({
     sizeOptions,
     onPress,
     unitSystem,
+    testID,
 }: {
     garden: any;
     sizeOptions: ReturnType<typeof getSizeOptions>;
     onPress: () => void;
     unitSystem: UnitSystem;
+    testID?: string;
 }) {
     const sizeOpt = sizeOptions.find((s) => s.areaM2 === garden.areaM2);
     return (
         <TouchableOpacity
             onPress={onPress}
             activeOpacity={0.8}
+            testID={testID}
             style={{
                 backgroundColor: '#fff',
                 borderRadius: 20,
@@ -240,7 +243,7 @@ function CreateGardenModal({
                     {/* Header */}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                         <Text style={{ fontSize: 20, fontWeight: '700', color: '#111827' }}>{t('garden.create_title')}</Text>
-                        <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center' }}>
+                        <TouchableOpacity onPress={onClose} testID="e2e-garden-create-close" style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center' }}>
                             <X size={20} stroke="#6b7280" />
                         </TouchableOpacity>
                     </View>
@@ -252,6 +255,7 @@ function CreateGardenModal({
                         onChangeText={(t) => { setName(t); setError(''); }}
                         placeholder={t('garden.name_placeholder')}
                         placeholderTextColor="#9ca3af"
+                        testID="e2e-garden-create-name-input"
                         style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#111827', marginBottom: 20 }}
                     />
 
@@ -271,6 +275,7 @@ function CreateGardenModal({
                     <TouchableOpacity
                         onPress={handleCreate}
                         disabled={loading || isDeviceLoading}
+                        testID="e2e-garden-create-submit"
                         style={{ backgroundColor: '#22c55e', borderRadius: 18, paddingVertical: 16, alignItems: 'center', opacity: (loading || isDeviceLoading) ? 0.6 : 1 }}
                     >
                         {(loading || isDeviceLoading)
@@ -316,6 +321,7 @@ export default function GardenScreen() {
                         </View>
                         <TouchableOpacity
                             onPress={() => setShowCreate(true)}
+                            testID="e2e-garden-open-create"
                             style={{ width: 44, height: 44, backgroundColor: '#22c55e', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
                         >
                             <Plus size={22} stroke="white" />
@@ -338,6 +344,7 @@ export default function GardenScreen() {
                             </View>
                             <TouchableOpacity
                                 onPress={() => setShowCreate(true)}
+                                testID="e2e-garden-empty-create"
                                 style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingHorizontal: 24, paddingVertical: 12, marginTop: 4 }}
                             >
                                 <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>{t('garden.create_button')}</Text>
@@ -352,6 +359,7 @@ export default function GardenScreen() {
                                     sizeOptions={sizeOptions}
                                     unitSystem={unitSystem}
                                     onPress={() => handleOpenGarden(g._id)}
+                                    testID="e2e-garden-card"
                                 />
                             ))}
                         </View>

@@ -6,6 +6,6 @@ import { resolveUnitSystem } from '../lib/units';
 export function useUnitSystem() {
     const { i18n } = useTranslation();
     const { settings } = useUserSettings();
-    const deviceRegion = getLocales()[0]?.regionCode;
+    const deviceRegion = getLocales()[0]?.regionCode ?? undefined;
     return resolveUnitSystem(settings?.unitSystem, i18n.language, deviceRegion);
 }

@@ -32,6 +32,7 @@ export default function GrowingScreen() {
           <TouchableOpacity
             className="flex-row items-center gap-x-1 bg-gray-100 rounded-xl px-3 py-2"
             onPress={() => router.push('/(tabs)/garden')}
+            testID="e2e-growing-open-gardens"
           >
             <Fence size={16} color="#6b7280" />
             <Text className="text-xs font-semibold text-gray-700">{t('growing.my_gardens')}</Text>
@@ -82,6 +83,7 @@ export default function GrowingScreen() {
                   className={`bg-green-500 rounded-xl px-3 py-1.5 ${!canEdit ? 'opacity-50' : ''}`}
                   disabled={!canEdit}
                   onPress={() => updateStatus(plant._id, 'harvested')}
+                  testID="e2e-growing-harvest-button"
                 >
                   <Text className="text-white text-sm font-medium">{t('growing.harvest')}</Text>
                 </TouchableOpacity>

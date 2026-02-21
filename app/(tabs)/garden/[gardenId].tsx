@@ -106,6 +106,7 @@ function BedFormModal({
           onChangeText={setName}
           placeholder={t('garden.bed_name_placeholder')}
           placeholderTextColor="#9ca3af"
+          testID="e2e-garden-bed-name-input"
           style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#111827', marginBottom: 10 }}
         />
 
@@ -168,6 +169,7 @@ function BedFormModal({
         <TouchableOpacity
           disabled={saving || !name.trim() || areaInvalid || sunlightInvalid}
           onPress={handleSave}
+          testID="e2e-garden-bed-save"
           style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || sunlightInvalid) ? 0.6 : 1 }}
         >
           <Text style={{ color: '#fff', fontWeight: '700' }}>{t('garden.bed_save')}</Text>
@@ -182,6 +184,7 @@ function GardenEditModal({
   garden,
   onClose,
   onSave,
+  unitSystem,
 }: {
   visible: boolean;
   garden: any;
@@ -344,7 +347,7 @@ export default function GardenDetailScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View style={{ paddingHorizontal: 16, paddingTop: 56, paddingBottom: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <TouchableOpacity onPress={() => router.back()} style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+            <TouchableOpacity onPress={() => router.back()} testID="e2e-garden-detail-back" style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
               <ArrowLeft size={20} color="#374151" />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
@@ -369,6 +372,7 @@ export default function GardenDetailScreen() {
             <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827' }}>{t('garden.beds_section', { count: beds.length })}</Text>
             <TouchableOpacity
               onPress={() => { setEditingBed(null); setShowBedForm(true); }}
+              testID="e2e-garden-detail-add-bed"
               style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#22c55e', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6 }}
             >
               <Plus size={14} color="white" />

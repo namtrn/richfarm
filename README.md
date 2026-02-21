@@ -58,6 +58,21 @@ Richfarm is a premium, comprehensive garden management application designed to h
     npm start # for Expo menu
     ```
 
+## 🤖 UI Smoke Test (Maestro)
+
+1. Install Maestro CLI (macOS):
+   ```bash
+   brew install maestro
+   ```
+2. Start the app on iOS simulator:
+   ```bash
+   npm run ios
+   ```
+3. In another terminal, run the smoke flow:
+   ```bash
+   npm run test:smoke:ios
+   ```
+
 ## 📂 Project Structure
 
 -   `app/`: Main application screens and routing logic using Expo Router.

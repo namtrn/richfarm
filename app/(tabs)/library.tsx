@@ -69,32 +69,33 @@ function PlantDetailModal({
                                 <Text style={{ fontSize: 22, fontWeight: '800', color: '#111827' }}>{displayName}</Text>
                                 <Text style={{ fontSize: 12, color: '#d1d5db', fontStyle: 'italic' }}>{scientificName}</Text>
                             </View>
-                            <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}>
+                            <TouchableOpacity onPress={onClose} testID="e2e-library-modal-close" style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}>
                                 <X size={20} stroke="#6b7280" />
                             </TouchableOpacity>
                         </View>
-
+ 
                         {/* Image */}
                         <View style={{ alignItems: 'center', marginBottom: 20 }}>
                             <PlantImage uri={plant.imageUrl} size={120} borderRadius={20} />
                         </View>
-
+ 
                         {/* Description */}
                         {!!description && (
                             <View style={{ backgroundColor: '#f9fafb', borderRadius: 14, padding: 14, marginBottom: 16 }}>
                                 <Text style={{ fontSize: 14, color: '#374151', lineHeight: 22 }}>{description}</Text>
                             </View>
                         )}
-
+ 
                         {showAdd && (
                             <TouchableOpacity
                                 onPress={onAdd}
+                                testID="e2e-library-modal-add"
                                 style={{ backgroundColor: '#22c55e', borderRadius: 14, paddingVertical: 12, alignItems: 'center', marginBottom: 16 }}
                             >
                                 <Text style={{ color: '#fff', fontWeight: '700' }}>{t('library.add_to_planning')}</Text>
                             </TouchableOpacity>
                         )}
-
+ 
                         {/* Stats grid */}
                         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
                             {plant.typicalDaysToHarvest && (
@@ -119,7 +120,7 @@ function PlantDetailModal({
                                 />
                             )}
                         </View>
-
+ 
                         {/* Germination */}
                         {plant.germinationDays > 0 && (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
@@ -163,7 +164,7 @@ function PlantDetailModal({
                                 <Text style={{ fontSize: 14, fontWeight: '600', color: '#111827', textTransform: 'capitalize' }}>{plant.source}</Text>
                             </View>
                         )}
-
+ 
                         {/* Purposes */}
                         {plant.purposes?.length > 0 && (
                             <View style={{ marginTop: 16 }}>
@@ -185,7 +186,6 @@ function PlantDetailModal({
         </Modal>
     );
 }
-
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
     return (
         <View style={{ flex: 1, backgroundColor: '#f9fafb', borderRadius: 14, padding: 12, alignItems: 'center', gap: 6 }}>
@@ -197,7 +197,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 }
 
 // ─── Plant Card ───────────────────────────────────────────────────────────────
-function PlantCard({ plant, onPress }: { plant: any; onPress: () => void }) {
+function PlantCard({ plant, onPress, testID }: { plant: any; onPress: () => void; testID?: string }) {
     const { displayName } = usePlantDisplayName(plant);
     const groupIcon = GROUP_ICONS[plant.group] ?? '🌱';
 
@@ -205,6 +205,7 @@ function PlantCard({ plant, onPress }: { plant: any; onPress: () => void }) {
         <TouchableOpacity
             onPress={onPress}
             activeOpacity={0.8}
+            testID={testID}
             style={{
                 backgroundColor: '#fff',
                 borderRadius: 16,
@@ -291,6 +292,7 @@ export default function LibraryScreen() {
                         placeholderTextColor="#9ca3af"
                         value={search}
                         onChangeText={setSearch}
+                        testID="e2e-library-search-input"
                     />
                     {!!search && (
                         <TouchableOpacity onPress={() => setSearch('')}>
@@ -360,7 +362,7 @@ export default function LibraryScreen() {
             ) : (
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}>
                     {filtered.map((plant) => (
-                        <PlantCard key={plant._id} plant={plant} onPress={() => setSelectedPlant(plant)} />
+                        <PlantCard key={plant._id} plant={plant} onPress={() => setSelectedPlant(plant)} testID="e2e-library-plant-card" />
                     ))}
                 </ScrollView>
             )}

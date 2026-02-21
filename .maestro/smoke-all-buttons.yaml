@@ -1,0 +1,93 @@
+appId: host.exp.Exponent
+---
+- launchApp
+- tapOn:
+    id: e2e-onboarding-start-button
+    optional: true
+- tapOn:
+    id: e2e-tab-planning
+- tapOn:
+    id: e2e-planning-open-garden-setup
+    optional: true
+- tapOn:
+    id: e2e-tab-growing
+- tapOn:
+    id: e2e-growing-open-gardens
+- tapOn:
+    id: e2e-garden-open-create
+    optional: true
+- tapOn:
+    id: e2e-garden-empty-create
+    optional: true
+- tapOn:
+    id: e2e-garden-create-name-input
+- eraseText
+- inputText: E2E Garden
+- hideKeyboard
+- tapOn:
+    id: e2e-garden-create-submit
+- tapOn:
+    id: e2e-garden-card
+- tapOn:
+    id: e2e-garden-detail-add-bed
+- tapOn:
+    id: e2e-garden-bed-name-input
+- eraseText
+- inputText: E2E Bed
+- hideKeyboard
+- tapOn:
+    id: e2e-garden-bed-save
+- tapOn:
+    id: e2e-garden-detail-back
+- tapOn:
+    id: e2e-tab-planning
+- tapOn:
+    id: e2e-planning-add-button
+    optional: true
+- tapOn:
+    id: e2e-planning-empty-add-button
+    optional: true
+- tapOn:
+    id: e2e-planning-quick-input
+- eraseText
+- inputText: E2E Plant
+- hideKeyboard
+- tapOn:
+    id: e2e-planning-confirm-add
+- tapOn:
+    id: e2e-tab-reminder
+- tapOn:
+    id: e2e-reminder-add-button
+- tapOn:
+    id: e2e-reminder-form-title-input
+- eraseText
+- inputText: E2E Reminder
+- tapOn:
+    id: e2e-reminder-form-date-input
+- eraseText
+- inputText: 2030-01-01
+- tapOn:
+    id: e2e-reminder-form-time-input
+- eraseText
+- inputText: 09:30
+- hideKeyboard
+- tapOn:
+    id: e2e-reminder-form-save
+- tapOn:
+    id: e2e-tab-library
+- tapOn:
+    id: e2e-library-search-input
+- eraseText
+- inputText: to
+- hideKeyboard
+- tapOn:
+    id: e2e-library-plant-card
+- tapOn:
+    id: e2e-library-modal-close
+- tapOn:
+    id: e2e-tab-profile
+- tapOn:
+    id: e2e-profile-sync-now
+    optional: true
+- tapOn:
+    id: e2e-profile-save-settings

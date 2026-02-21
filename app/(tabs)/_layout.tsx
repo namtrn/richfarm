@@ -18,7 +18,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="garden"
+        name="garden/index"
         options={{
           href: null,
         }}
@@ -39,6 +39,7 @@ export default function TabLayout() {
         name="planning"
         options={{
           title: t('tabs.planning'),
+          tabBarButtonTestID: 'e2e-tab-planning',
           tabBarIcon: ({ color }) => <Calendar size={24} stroke={color} />,
         }}
       />
@@ -46,6 +47,7 @@ export default function TabLayout() {
         name="growing"
         options={{
           title: t('tabs.growing'),
+          tabBarButtonTestID: 'e2e-tab-growing',
           tabBarIcon: ({ color }) => <Sprout size={24} stroke={color} />,
         }}
       />
@@ -53,6 +55,7 @@ export default function TabLayout() {
         name="reminder"
         options={{
           title: t('tabs.reminder'),
+          tabBarButtonTestID: 'e2e-tab-reminder',
           tabBarIcon: ({ color }) => <Bell size={24} stroke={color} />,
         }}
       />
@@ -60,6 +63,7 @@ export default function TabLayout() {
         name="library"
         options={{
           title: t('tabs.library'),
+          tabBarButtonTestID: 'e2e-tab-library',
           tabBarIcon: ({ color }) => <BookOpen size={24} stroke={color} />,
         }}
       />
@@ -67,6 +71,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: t('tabs.profile'),
+          tabBarButtonTestID: 'e2e-tab-profile',
           tabBarIcon: ({ color }) => <UserRound size={24} stroke={color} />,
         }}
       />

@@ -87,6 +87,7 @@ function LanguagePicker({
               <TouchableOpacity
                 key={lang.code}
                 onPress={() => { onSelect(lang.code); onClose(); }}
+                testID={`e2e-onboarding-language-${lang.code}`}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -130,6 +131,7 @@ export default function WelcomeScreen() {
       {/* Language badge — top right */}
       <TouchableOpacity
         onPress={() => setShowPicker(true)}
+        testID="e2e-onboarding-language-button"
         style={{
           position: 'absolute',
           top: 56,
@@ -183,6 +185,7 @@ export default function WelcomeScreen() {
       {/* CTA */}
       <TouchableOpacity
         onPress={() => router.replace('/(tabs)/growing')}
+        testID="e2e-onboarding-start-button"
         style={{
           backgroundColor: '#22c55e',
           borderRadius: 18,

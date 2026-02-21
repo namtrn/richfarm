@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler } from 'lucide-react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../lib/auth';
 import { loadSyncQueue } from '../../lib/sync/queue';
@@ -34,6 +34,7 @@ export default function ProfileScreen() {
   const [syncCount, setSyncCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
 
   const email = user?.email ?? '—';
   const isAnonymous = user?.isAnonymous ?? false;
@@ -131,19 +132,37 @@ export default function ProfileScreen() {
             <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.language_label')}</Text>
           </View>
           <Text className="text-xs text-gray-400">{t('profile.current_language', { label: selectedLangLabel })}</Text>
-          <View className="flex-row flex-wrap gap-2">
-            {LANGUAGES.map((lang) => {
-              const active = lang.code === currentLang;
-              return (
-                <TouchableOpacity
-                  key={lang.code}
-                  onPress={() => handleLanguageChange(lang.code)}
-                  className={`px-3 py-2 rounded-full border ${active ? 'bg-green-500 border-green-500' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}
-                >
-                  <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-700 dark:text-gray-200'}`}>{lang.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
+          <View>
+            <TouchableOpacity
+              onPress={() => setLanguageMenuOpen((v) => !v)}
+              className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 flex-row items-center justify-between"
+            >
+              <Text className="text-sm text-gray-900 dark:text-white font-medium">{selectedLangLabel}</Text>
+              {languageMenuOpen ? <ChevronUp size={16} color="#6b7280" /> : <ChevronDown size={16} color="#6b7280" />}
+            </TouchableOpacity>
+            {languageMenuOpen && (
+              <View className="mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                {LANGUAGES.map((lang, index) => {
+                  const active = lang.code === currentLang;
+                  return (
+                    <TouchableOpacity
+                      key={lang.code}
+                      onPress={async () => {
+                        setLanguageMenuOpen(false);
+                        await handleLanguageChange(lang.code);
+                      }}
+                      className="px-4 py-3 flex-row items-center justify-between border-gray-100 dark:border-gray-700"
+                      style={{ borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1 }}
+                    >
+                      <Text className={`text-sm ${active ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-gray-700 dark:text-gray-200'}`}>
+                        {lang.label}
+                      </Text>
+                      {active && <Check size={14} color="#16a34a" />}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
         </View>
 
@@ -197,6 +216,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPress={handleSyncNow}
             disabled={syncing}
+            testID="e2e-profile-sync-now"
             className={`bg-green-500 rounded-xl py-3 items-center ${syncing ? 'opacity-50' : ''}`}
           >
             <Text className="text-white font-semibold">{t('profile.sync_button')}</Text>
@@ -206,6 +226,7 @@ export default function ProfileScreen() {
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving || isLoading || isSettingsLoading}
+          testID="e2e-profile-save-settings"
           className={`bg-gray-900 rounded-xl py-4 items-center ${saving || isLoading || isSettingsLoading ? 'opacity-50' : ''}`}
         >
           <View className="flex-row items-center gap-x-2">

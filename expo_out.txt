@@ -1,0 +1,9 @@
+
+> richfarm@1.0.0 android
+> expo start --android
+
+env: load .env.local .env
+env: export EXPO_PUBLIC_CONVEX_URL CONVEX_DEPLOYMENT EXPO_PUBLIC_CONVEX_SITE_URL
+Starting project at /Users/n/Documents/GitHub/richfarm
+Starting Metro Bundler
+CommandError: "@react-native-community/netinfo" is added as a dependency in your project's package.json but it doesn't seem to be installed. Run "npm install", or the equivalent for your package manager, and try again.

@@ -257,6 +257,7 @@ function ReminderFormModal({
             onChangeText={setTitle}
             placeholder={t('reminder.form_title_placeholder')}
             placeholderTextColor="#9ca3af"
+            testID="e2e-reminder-form-title-input"
             style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#111827', marginBottom: 10 }}
           />
 
@@ -293,6 +294,7 @@ function ReminderFormModal({
                 onChangeText={(value) => { setDateStr(value); setDateError(''); }}
                 placeholder={t('reminder.form_date_placeholder')}
                 placeholderTextColor="#9ca3af"
+                testID="e2e-reminder-form-date-input"
                 style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: dateError ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
               />
               {!!dateError && (
@@ -306,6 +308,7 @@ function ReminderFormModal({
                 onChangeText={(value) => { setTimeStr(value); setTimeError(''); }}
                 placeholder={t('reminder.form_time_placeholder')}
                 placeholderTextColor="#9ca3af"
+                testID="e2e-reminder-form-time-input"
                 style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: timeError ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
               />
               {!!timeError && (
@@ -403,6 +406,7 @@ function ReminderFormModal({
         <TouchableOpacity
           disabled={!canEdit || saving || !title.trim() || !!dateError || !!timeError}
           onPress={handleSave}
+          testID="e2e-reminder-form-save"
           style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (!canEdit || saving || !title.trim() || !!dateError || !!timeError) ? 0.6 : 1 }}
         >
           <Text style={{ color: '#fff', fontWeight: '700' }}>{t('reminder.form_save')}</Text>
@@ -470,6 +474,7 @@ export default function ReminderScreen() {
             className={`flex-row items-center gap-x-1 bg-green-500 rounded-xl px-3 py-2 ${!canEdit ? 'opacity-50' : ''}`}
             disabled={!canEdit}
             onPress={() => { setEditing(null); setFormOpen(true); }}
+            testID="e2e-reminder-add-button"
           >
             <Plus size={16} color="white" />
             <Text className="text-white text-sm font-medium">{t('reminder.add_button')}</Text>
