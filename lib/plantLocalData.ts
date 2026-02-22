@@ -7,6 +7,7 @@ export type PlantPhotoEntry = {
   uri: string;
   note?: string;
   date: number;
+  source?: 'camera' | 'gallery';
 };
 
 export type PlantActivityEntry = {

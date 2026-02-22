@@ -12,12 +12,15 @@
         "beds": "plates-bandes"
     },
     "tabs": {
+        "home": "Accueil",
         "planning": "Planification",
         "growing": "Croissance",
         "garden": "Jardin",
         "reminder": "Rappel",
         "library": "Bibliothèque",
-        "profile": "Profile"
+        "explorer": "Explorer",
+        "profile": "Profile",
+        "more": "Plus"
     },
     "garden": {
         "title": "Jardin",
@@ -30,11 +33,16 @@
         "create_title": "Nouveau Jardin",
         "name_label": "Nom du jardin",
         "name_placeholder": "Ex. Jardin du balcon, Arrière-cour...",
-        "size_label": "Taille",
+        "size_label": "Dimensions",
         "size_selected": "Sélectionné : {{label}} · {{desc}}",
+        "width_label": "Largeur ({{unit}})",
+        "length_label": "Longueur ({{unit}})",
+        "dimension_placeholder": "ex. 2.5",
         "create_action": "Créer le Jardin",
         "creating": "Création...",
         "error_name": "Veuillez entrer un nom pour le jardin",
+        "error_dimensions": "Entrez une largeur et une longueur valides",
+        "error_limit_free": "Les utilisateurs gratuits ne peuvent créer qu'un seul jardin.",
         "beds_count": "{{count}} plate-bande",
         "beds_count_plural": "{{count}} plates-bandes",
         "size_mini": "Mini",

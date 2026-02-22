@@ -12,11 +12,14 @@
         "beds": "luống"
     },
     "tabs": {
+        "home": "Trang chủ",
         "planning": "Kế hoạch",
         "growing": "Đang trồng",
         "reminder": "Nhắc nhở",
         "library": "Thư viện",
+        "explorer": "Khám phá",
         "profile": "Hồ sơ",
+        "more": "Thêm",
         "garden": "Vườn"
     },
     "garden": {
@@ -32,9 +35,14 @@
         "name_placeholder": "VD: Vườn ban công, Sân sau...",
         "size_label": "Kích thước",
         "size_selected": "Đã chọn: {{label}} · {{desc}}",
+        "width_label": "Ngang ({{unit}})",
+        "length_label": "Dài ({{unit}})",
+        "dimension_placeholder": "VD: 2.5",
         "create_action": "Tạo Vườn",
         "creating": "Đang tạo...",
         "error_name": "Vui lòng nhập tên vườn",
+        "error_dimensions": "Nhập chiều ngang và chiều dài hợp lệ",
+        "error_limit_free": "Người dùng miễn phí chỉ có thể tạo một khu vườn.",
         "beds_count": "{{count}} luống",
         "beds_count_plural": "{{count}} luống",
         "size_mini": "Mini",

@@ -7,6 +7,7 @@ export type SyncPhotoPayload = {
   uri: string;
   note?: string;
   date: number;
+  source?: 'camera' | 'gallery';
 };
 
 export type SyncActivityPayload = {
@@ -47,6 +48,7 @@ export type BackendPhotoInput = {
   capturedAt: number;
   note?: string;
   localUri: string;
+  source?: 'camera' | 'gallery';
 };
 
 export type BackendActivityInput = {

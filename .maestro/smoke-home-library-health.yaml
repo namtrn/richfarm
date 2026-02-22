@@ -21,40 +21,13 @@ appId: com.mygarden.app
     timeout: 60000
 - tapOn:
     id: e2e-tab-home
-- tapOn:
-    id: e2e-tab-garden
-- tapOn:
-    id: e2e-garden-quick-planning
-- tapOn:
-    id: e2e-garden-quick-planning
-    optional: true
-- tapOn:
-    id: e2e-tab-reminder
+- assertVisible:
+    id: e2e-home-title
 - tapOn:
     id: e2e-tab-library
 - tapOn:
     id: e2e-library-shortcut-health
-    optional: true
 - tapOn:
     id: e2e-health-tab-light
-    optional: true
-- tapOn:
-    id: e2e-tab-library
-- tapOn:
-    id: e2e-library-search-input
-- eraseText
-- inputText: to
-- tapOn:
-    id: e2e-library-plant-card
-    optional: true
-- tapOn:
-    id: e2e-library-modal-close
-    optional: true
-- tapOn:
-    id: e2e-tab-more
-- tapOn:
-    id: e2e-profile-sync-now
-    optional: true
-- tapOn:
-    id: e2e-profile-save-settings
-    optional: true
+- assertVisible:
+    id: e2e-health-light-card

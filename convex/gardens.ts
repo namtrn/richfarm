@@ -31,6 +31,25 @@ export const createGarden = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        const isAnonymous = user.isAnonymous === true;
+        const subscription = user.subscription;
+        const now = Date.now();
+        const isPremium =
+            !isAnonymous &&
+            subscription?.tier === "premium" &&
+            (subscription.expiresAt === undefined || subscription.expiresAt > now);
+
+        if (!isPremium) {
+            const existingGardens = await ctx.db
+                .query("gardens")
+                .withIndex("by_user", (q: any) => q.eq("userId", user._id))
+                .filter((q: any) => q.neq(q.field("isDeleted"), true))
+                .take(1);
+
+            if (existingGardens.length > 0) {
+                throw new Error("GARDEN_LIMIT_FREE");
+            }
+        }
 
         return await ctx.db.insert("gardens", {
             userId: user._id,

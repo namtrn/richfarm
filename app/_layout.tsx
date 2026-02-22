@@ -12,6 +12,7 @@ import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
 import { useAppReady } from '../hooks/useAppReady';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
+import { useNotifications } from '../hooks/useNotifications';
 import { authClient } from '../lib/auth-client';
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
@@ -23,6 +24,7 @@ function AuthGuard() {
   const router = useRouter();
   const segments = useSegments();
   useSyncTriggers();
+  useNotifications();
 
   useEffect(() => {
     if (!isReady) return;

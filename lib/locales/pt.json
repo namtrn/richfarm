@@ -12,12 +12,15 @@
         "beds": "canteiros"
     },
     "tabs": {
+        "home": "Início",
         "planning": "Planejamento",
         "growing": "Crescendo",
         "garden": "Jardim",
         "reminder": "Lembrete",
         "library": "Biblioteca",
-        "profile": "Profile"
+        "explorer": "Explorar",
+        "profile": "Profile",
+        "more": "Mais"
     },
     "garden": {
         "title": "Jardim",
@@ -30,11 +33,16 @@
         "create_title": "Novo Jardim",
         "name_label": "Nome do jardim",
         "name_placeholder": "Ex. Jardim da varanda, Quintal...",
-        "size_label": "Tamanho",
+        "size_label": "Dimensões",
         "size_selected": "Selecionado: {{label}} · {{desc}}",
+        "width_label": "Largura ({{unit}})",
+        "length_label": "Comprimento ({{unit}})",
+        "dimension_placeholder": "ex.: 2.5",
         "create_action": "Criar Jardim",
         "creating": "Criando...",
         "error_name": "Por favor insira um nome para o jardim",
+        "error_dimensions": "Informe largura e comprimento válidos",
+        "error_limit_free": "Usuários gratuitos só podem criar um jardim.",
         "beds_count": "{{count}} canteiro",
         "beds_count_plural": "{{count}} canteiros",
         "size_mini": "Mini",

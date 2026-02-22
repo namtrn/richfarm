@@ -2,6 +2,7 @@ export type UnitSystem = 'metric' | 'imperial';
 
 const SQM_TO_SQFT = 10.7639;
 const CM_TO_IN = 0.3937007874;
+const M_TO_FT = 3.28084;
 const LITER_TO_GAL = 0.2641720524;
 const KG_TO_LB = 2.2046226218;
 
@@ -28,6 +29,31 @@ export function getAreaUnitLabel(unitSystem: UnitSystem) {
 
 export function getLengthUnitLabel(unitSystem: UnitSystem) {
     return unitSystem === 'imperial' ? 'in' : 'cm';
+}
+
+export function getDistanceUnitLabel(unitSystem: UnitSystem) {
+    return unitSystem === 'imperial' ? 'ft' : 'm';
+}
+
+export function toFeet(meters: number) {
+    return meters * M_TO_FT;
+}
+
+export function toMeters(feet: number) {
+    return feet / M_TO_FT;
+}
+
+export function formatDistanceValue(meters: number, unitSystem: UnitSystem) {
+    if (unitSystem === 'imperial') return formatNumber(toFeet(meters));
+    return formatNumber(meters);
+}
+
+export function parseDistanceInput(value: string, unitSystem: UnitSystem) {
+    const cleaned = value.trim().replace(',', '.');
+    if (!cleaned) return undefined;
+    const parsed = Number(cleaned);
+    if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+    return unitSystem === 'imperial' ? toMeters(parsed) : parsed;
 }
 
 export function getVolumeUnitLabel(unitSystem: UnitSystem) {

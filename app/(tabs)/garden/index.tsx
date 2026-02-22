@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -7,154 +7,35 @@ import {
     Modal,
     TextInput,
     ActivityIndicator,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
 } from 'react-native';
-import { Fence, Plus, X, ChevronUp, ChevronDown } from 'lucide-react-native';
+import { Fence, Plus, X, Calendar, Sprout } from 'lucide-react-native';
 import { useQuery, useMutation } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
-import { formatArea, getAreaUnitLabel, UnitSystem } from '../../../lib/units';
+import {
+    formatArea,
+    formatAreaValue,
+    getAreaUnitLabel,
+    getDistanceUnitLabel,
+    parseDistanceInput,
+    UnitSystem,
+} from '../../../lib/units';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
-
-// ─── Size options ────────────────────────────────────────────────────────────
-const ITEM_HEIGHT = 72;
-const VISIBLE_ITEMS = 3;
-const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
-
-function getSizeOptions(t: (k: string) => string, unitSystem: UnitSystem) {
-    return [
-        { label: t('garden.size_mini'), desc: formatArea(0.5, unitSystem), areaM2: 0.5, icon: '🪴' },
-        { label: t('garden.size_small'), desc: formatArea(1, unitSystem), areaM2: 1, icon: '🌿' },
-        { label: t('garden.size_medium'), desc: formatArea(2, unitSystem), areaM2: 2, icon: '🌱' },
-        { label: t('garden.size_large'), desc: formatArea(4, unitSystem), areaM2: 4, icon: '🌳' },
-        { label: t('garden.size_wide'), desc: formatArea(8, unitSystem), areaM2: 8, icon: '🏡' },
-        { label: t('garden.size_farm'), desc: formatArea(16, unitSystem), areaM2: 16, icon: '🚜' },
-    ];
-}
-
-// ─── Vertical Scroll Size Picker ─────────────────────────────────────────────
-function SizePicker({
-    selectedIndex,
-    onSelect,
-    sizeOptions,
-}: {
-    selectedIndex: number;
-    onSelect: (index: number) => void;
-    sizeOptions: ReturnType<typeof getSizeOptions>;
-}) {
-    const scrollRef = useRef<ScrollView>(null);
-
-    const scrollToIndex = (index: number) => {
-        scrollRef.current?.scrollTo({ y: index * ITEM_HEIGHT, animated: true });
-        onSelect(index);
-    };
-
-    const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const y = e.nativeEvent.contentOffset.y;
-        const index = Math.round(y / ITEM_HEIGHT);
-        const clamped = Math.max(0, Math.min(index, sizeOptions.length - 1));
-        scrollRef.current?.scrollTo({ y: clamped * ITEM_HEIGHT, animated: true });
-        onSelect(clamped);
-    };
-
-    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const y = e.nativeEvent.contentOffset.y;
-        const index = Math.round(y / ITEM_HEIGHT);
-        const clamped = Math.max(0, Math.min(index, sizeOptions.length - 1));
-        if (clamped !== selectedIndex) onSelect(clamped);
-    };
-
-    return (
-        <View style={{ height: PICKER_HEIGHT, borderRadius: 16, overflow: 'hidden', backgroundColor: '#f9fafb' }}>
-            {/* Highlight band */}
-            <View
-                pointerEvents="none"
-                style={{
-                    position: 'absolute',
-                    top: ITEM_HEIGHT,
-                    left: 8,
-                    right: 8,
-                    height: ITEM_HEIGHT,
-                    borderRadius: 12,
-                    borderWidth: 2,
-                    borderColor: '#4ade80',
-                    backgroundColor: '#f0fdf4',
-                    zIndex: 1,
-                }}
-            />
-
-            {/* Up arrow */}
-            <TouchableOpacity
-                onPress={() => scrollToIndex(Math.max(0, selectedIndex - 1))}
-                style={{ position: 'absolute', top: 4, left: 0, right: 0, zIndex: 2, alignItems: 'center' }}
-            >
-                <ChevronUp size={18} stroke="#22c55e" />
-            </TouchableOpacity>
-
-            {/* Down arrow */}
-            <TouchableOpacity
-                onPress={() => scrollToIndex(Math.min(sizeOptions.length - 1, selectedIndex + 1))}
-                style={{ position: 'absolute', bottom: 4, left: 0, right: 0, zIndex: 2, alignItems: 'center' }}
-            >
-                <ChevronDown size={18} stroke="#22c55e" />
-            </TouchableOpacity>
-
-            <ScrollView
-                ref={scrollRef}
-                showsVerticalScrollIndicator={false}
-                snapToInterval={ITEM_HEIGHT}
-                decelerationRate="fast"
-                onScroll={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd}
-                scrollEventThrottle={16}
-                contentContainerStyle={{ paddingVertical: ITEM_HEIGHT }}
-            >
-                {sizeOptions.map((opt, i) => {
-                    const isSelected = i === selectedIndex;
-                    return (
-                        <TouchableOpacity
-                            key={opt.label}
-                            onPress={() => scrollToIndex(i)}
-                            style={{ height: ITEM_HEIGHT, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, gap: 12 }}
-                        >
-                            <Text style={{ fontSize: 28 }}>{opt.icon}</Text>
-                            <View style={{ flex: 1 }}>
-                                <Text style={{ fontSize: 16, fontWeight: '600', color: isSelected ? '#15803d' : '#9ca3af' }}>
-                                    {opt.label}
-                                </Text>
-                                <Text style={{ fontSize: 13, color: isSelected ? '#22c55e' : '#d1d5db' }}>
-                                    {opt.desc}
-                                </Text>
-                            </View>
-                            {isSelected && (
-                                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#22c55e' }} />
-                            )}
-                        </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
-        </View>
-    );
-}
 
 // ─── Garden Card ─────────────────────────────────────────────────────────────
 function GardenCard({
     garden,
-    sizeOptions,
     onPress,
     unitSystem,
     testID,
 }: {
     garden: any;
-    sizeOptions: ReturnType<typeof getSizeOptions>;
     onPress: () => void;
     unitSystem: UnitSystem;
     testID?: string;
 }) {
-    const sizeOpt = sizeOptions.find((s) => s.areaM2 === garden.areaM2);
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -176,12 +57,12 @@ function GardenCard({
             }}
         >
             <View style={{ width: 56, height: 56, backgroundColor: '#f0fdf4', borderRadius: 16, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 28 }}>{sizeOpt?.icon ?? '🌿'}</Text>
+                <Text style={{ fontSize: 28 }}>🌿</Text>
             </View>
             <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827' }}>{garden.name}</Text>
                 <Text style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
-                    {sizeOpt ? `${sizeOpt.label} · ${sizeOpt.desc}` : garden.areaM2 ? formatArea(garden.areaM2, unitSystem) : '—'}
+                    {garden.areaM2 ? formatArea(garden.areaM2, unitSystem) : '—'}
                 </Text>
             </View>
             <View style={{ backgroundColor: '#f0fdf4', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4 }}>
@@ -204,30 +85,43 @@ function CreateGardenModal({
     const { t } = useTranslation();
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
     const createGarden = useMutation(api.gardens.createGarden);
-    const sizeOptions = getSizeOptions(t, unitSystem);
 
     const [name, setName] = useState('');
-    const [sizeIndex, setSizeIndex] = useState(1);
+    const [width, setWidth] = useState('');
+    const [length, setLength] = useState('');
+    const [locationType, setLocationType] = useState<'outdoor' | 'greenhouse' | 'balcony' | 'indoor'>('outdoor');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const widthValue = parseDistanceInput(width, unitSystem);
+    const lengthValue = parseDistanceInput(length, unitSystem);
+    const areaM2 = widthValue && lengthValue ? widthValue * lengthValue : undefined;
 
     const handleCreate = async () => {
         if (!deviceId) { setError(t('common.error')); return; }
         if (!name.trim()) { setError(t('garden.error_name')); return; }
+        if (!widthValue || !lengthValue) { setError(t('garden.error_dimensions')); return; }
         setLoading(true);
         setError('');
         try {
             await createGarden({
                 name: name.trim(),
-                locationType: 'outdoor',
-                areaM2: sizeOptions[sizeIndex].areaM2,
+                locationType,
+                areaM2: widthValue * lengthValue,
                 deviceId,
             });
             setName('');
-            setSizeIndex(1);
+            setWidth('');
+            setLength('');
+            setLocationType('outdoor');
             onClose();
         } catch (e: any) {
-            setError(e.message ?? t('common.error'));
+            const message = typeof e?.message === 'string' ? e.message : '';
+            if (message.includes('GARDEN_LIMIT_FREE')) {
+                setError(t('garden.error_limit_free'));
+            } else {
+                setError(message || t('common.error'));
+            }
         } finally {
             setLoading(false);
         }
@@ -259,15 +153,84 @@ function CreateGardenModal({
                         style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#111827', marginBottom: 20 }}
                     />
 
-                    {/* Size picker */}
+                    {/* Location type */}
                     <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
-                        {t('garden.size_label')} ({getAreaUnitLabel(unitSystem)})
+                        {t('garden.location_label', { defaultValue: 'Location type' })}
                     </Text>
-                    <SizePicker selectedIndex={sizeIndex} onSelect={setSizeIndex} sizeOptions={sizeOptions} />
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+                        {[
+                            { key: 'outdoor', label: t('garden.location_outdoor', { defaultValue: 'Outdoor' }) },
+                            { key: 'greenhouse', label: t('garden.location_greenhouse', { defaultValue: 'Greenhouse' }) },
+                            { key: 'balcony', label: t('garden.location_balcony', { defaultValue: 'Balcony' }) },
+                            { key: 'indoor', label: t('garden.location_indoor', { defaultValue: 'Indoor' }) },
+                        ].map((option) => {
+                            const active = locationType === option.key;
+                            return (
+                                <TouchableOpacity
+                                    key={option.key}
+                                    onPress={() => setLocationType(option.key as any)}
+                                    style={{
+                                        paddingHorizontal: 12,
+                                        paddingVertical: 8,
+                                        borderRadius: 999,
+                                        backgroundColor: active ? '#22c55e' : '#f9fafb',
+                                        borderWidth: 1,
+                                        borderColor: active ? '#22c55e' : '#e5e7eb',
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>
+                                        {option.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+
+                    {/* Dimensions */}
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 }}>
+                        {t('garden.size_label')}
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 6 }}>
+                                {t('garden.width_label', { unit: getDistanceUnitLabel(unitSystem) })}
+                            </Text>
+                            <TextInput
+                                value={width}
+                                onChangeText={(text) => { setWidth(text); setError(''); }}
+                                placeholder={t('garden.dimension_placeholder')}
+                                placeholderTextColor="#9ca3af"
+                                keyboardType="decimal-pad"
+                                testID="e2e-garden-create-width-input"
+                                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#111827' }}
+                            />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 6 }}>
+                                {t('garden.length_label', { unit: getDistanceUnitLabel(unitSystem) })}
+                            </Text>
+                            <TextInput
+                                value={length}
+                                onChangeText={(text) => { setLength(text); setError(''); }}
+                                placeholder={t('garden.dimension_placeholder')}
+                                placeholderTextColor="#9ca3af"
+                                keyboardType="decimal-pad"
+                                testID="e2e-garden-create-length-input"
+                                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#111827' }}
+                            />
+                        </View>
+                    </View>
 
                     {/* Summary */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, marginBottom: 20, paddingHorizontal: 4 }}>
-                        <Text style={{ fontSize: 13, color: '#6b7280' }}>{t('garden.size_selected', { label: sizeOptions[sizeIndex].label, desc: sizeOptions[sizeIndex].desc })}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 20, paddingHorizontal: 4 }}>
+                        <Text style={{ fontSize: 13, color: '#6b7280' }}>
+                            {areaM2
+                                ? t('garden.area_summary', {
+                                    value: formatAreaValue(areaM2, unitSystem),
+                                    unit: getAreaUnitLabel(unitSystem),
+                                })
+                                : '—'}
+                        </Text>
                     </View>
 
                     {!!error && <Text style={{ color: '#ef4444', fontSize: 13, marginBottom: 10 }}>{error}</Text>}
@@ -295,7 +258,6 @@ export default function GardenScreen() {
     const router = useRouter();
     const { deviceId } = useDeviceId();
     const unitSystem = useUnitSystem();
-    const sizeOptions = getSizeOptions(t, unitSystem);
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const gardens = gardensQuery ?? [];
     const isLoading = gardensQuery === undefined;
@@ -308,7 +270,7 @@ export default function GardenScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-                <View style={{ paddingHorizontal: 16, paddingTop: 56, paddingBottom: 16 }}>
+                <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 16 }}>
                     {/* Header */}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                         <View>
@@ -326,6 +288,45 @@ export default function GardenScreen() {
                         >
                             <Plus size={22} stroke="white" />
                         </TouchableOpacity>
+                    </View>
+
+                    {/* Quick actions */}
+                    <View style={{ marginBottom: 20 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827', marginBottom: 10 }}>
+                            {t('garden.quick_actions_title', { defaultValue: 'Garden tools' })}
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <TouchableOpacity
+                                onPress={() => router.push('/(tabs)/planning')}
+                                testID="e2e-garden-quick-planning"
+                                style={{ flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', gap: 8 }}
+                            >
+                                <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: '#ecfeff', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Calendar size={18} stroke="#0e7490" />
+                                </View>
+                                <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>
+                                    {t('garden.quick_planning', { defaultValue: 'Planning' })}
+                                </Text>
+                                <Text style={{ fontSize: 12, color: '#6b7280' }}>
+                                    {t('garden.quick_planning_desc', { defaultValue: 'Plan new crops and seedlings.' })}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => router.push('/(tabs)/growing')}
+                                testID="e2e-garden-quick-growing"
+                                style={{ flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', gap: 8 }}
+                            >
+                                <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: '#ecfdf3', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Sprout size={18} stroke="#16a34a" />
+                                </View>
+                                <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>
+                                    {t('garden.quick_growing', { defaultValue: 'Growing' })}
+                                </Text>
+                                <Text style={{ fontSize: 12, color: '#6b7280' }}>
+                                    {t('garden.quick_growing_desc', { defaultValue: 'Track active plants.' })}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {/* Content */}
@@ -356,7 +357,6 @@ export default function GardenScreen() {
                                 <GardenCard
                                     key={g._id}
                                     garden={g}
-                                    sizeOptions={sizeOptions}
                                     unitSystem={unitSystem}
                                     onPress={() => handleOpenGarden(g._id)}
                                     testID="e2e-garden-card"

@@ -15,6 +15,7 @@ export function mapSyncActionToPhoto(
     uri: string;
     note?: string;
     date: number;
+    source?: 'camera' | 'gallery';
   };
 
   return {
@@ -24,6 +25,7 @@ export function mapSyncActionToPhoto(
     capturedAt: payload.date,
     note: payload.note,
     localUri: payload.uri,
+    source: payload.source,
   };
 }
 

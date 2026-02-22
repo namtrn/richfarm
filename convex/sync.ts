@@ -31,7 +31,13 @@ export const batchSync = mutation({
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
 
-        const results = { activitiesSynced: 0, harvestsSynced: 0, errors: [] as string[] };
+        const results = {
+            activitiesSynced: 0,
+            harvestsSynced: 0,
+            errors: [] as string[],
+            syncedActivityLocalIds: [] as string[],
+            syncedHarvestLocalIds: [] as string[],
+        };
 
         // Sync activities → logs table
         for (const activity of args.activities) {
@@ -54,6 +60,7 @@ export const batchSync = mutation({
                 );
                 if (alreadySynced) {
                     results.activitiesSynced++;
+                    results.syncedActivityLocalIds.push(activity.localId);
                     continue;
                 }
 
@@ -67,6 +74,7 @@ export const batchSync = mutation({
                     value: { localId: activity.localId },
                 });
                 results.activitiesSynced++;
+                results.syncedActivityLocalIds.push(activity.localId);
             } catch (e: any) {
                 results.errors.push(`activity:${activity.localId}:${e.message}`);
             }
@@ -90,6 +98,7 @@ export const batchSync = mutation({
                     .unique();
                 if (alreadySynced) {
                     results.harvestsSynced++;
+                    results.syncedHarvestLocalIds.push(harvest.localId);
                     continue;
                 }
 
@@ -103,6 +112,7 @@ export const batchSync = mutation({
                     notes: harvest.note,
                 });
                 results.harvestsSynced++;
+                results.syncedHarvestLocalIds.push(harvest.localId);
             } catch (e: any) {
                 results.errors.push(`harvest:${harvest.localId}:${e.message}`);
             }

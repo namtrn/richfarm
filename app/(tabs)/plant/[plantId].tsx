@@ -252,6 +252,7 @@ export default function PlantDetailScreen() {
         id: createLocalId(),
         uri: result.assets[0].uri,
         date: Date.now(),
+        source: source === 'camera' ? 'camera' : 'gallery',
       };
       const saved = await persistLocalData(
         (prev) => ({ ...prev, photos: [newPhoto, ...prev.photos] }),

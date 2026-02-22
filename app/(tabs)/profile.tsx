@@ -224,7 +224,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ padding: 16, paddingTop: 56, gap: 16, paddingBottom: 40 }}>
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ padding: 16, paddingTop: 16, gap: 16, paddingBottom: 40 }}>
       <View>
         <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">{t('profile.title')}</Text>
         <Text className="text-xs text-gray-400">{isAnonymous ? t('profile.anonymous') : t('profile.signed_in')}</Text>

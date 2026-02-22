@@ -12,12 +12,15 @@
         "beds": "camas"
     },
     "tabs": {
+        "home": "Inicio",
         "planning": "Planificación",
         "growing": "Creciendo",
         "garden": "Jardín",
         "reminder": "Recordatorio",
         "library": "Biblioteca",
-        "profile": "Profile"
+        "explorer": "Explorar",
+        "profile": "Profile",
+        "more": "Más"
     },
     "garden": {
         "title": "Jardín",
@@ -30,11 +33,16 @@
         "create_title": "Nuevo Jardín",
         "name_label": "Nombre del jardín",
         "name_placeholder": "Ej. Jardín del balcón, Patio trasero...",
-        "size_label": "Tamaño",
+        "size_label": "Dimensiones",
         "size_selected": "Seleccionado: {{label}} · {{desc}}",
+        "width_label": "Ancho ({{unit}})",
+        "length_label": "Largo ({{unit}})",
+        "dimension_placeholder": "p. ej. 2.5",
         "create_action": "Crear Jardín",
         "creating": "Creando...",
         "error_name": "Por favor ingresa un nombre para el jardín",
+        "error_dimensions": "Ingresa un ancho y largo válidos",
+        "error_limit_free": "Los usuarios gratuitos solo pueden crear un jardín.",
         "beds_count": "{{count}} cama",
         "beds_count_plural": "{{count}} camas",
         "size_mini": "Mini",

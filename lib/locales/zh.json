@@ -12,12 +12,15 @@
         "beds": "个苗床"
     },
     "tabs": {
+        "home": "首页",
         "planning": "规划",
         "growing": "生长",
         "garden": "花园",
         "reminder": "提醒",
         "library": "图书馆",
-        "profile": "Profile"
+        "explorer": "探索",
+        "profile": "Profile",
+        "more": "更多"
     },
     "garden": {
         "title": "花园",
@@ -30,11 +33,16 @@
         "create_title": "新建花园",
         "name_label": "花园名称",
         "name_placeholder": "例如：阳台花园、后院...",
-        "size_label": "大小",
+        "size_label": "尺寸",
         "size_selected": "已选择：{{label}} · {{desc}}",
+        "width_label": "宽度 ({{unit}})",
+        "length_label": "长度 ({{unit}})",
+        "dimension_placeholder": "例如 2.5",
         "create_action": "创建花园",
         "creating": "创建中...",
         "error_name": "请输入花园名称",
+        "error_dimensions": "请输入有效的宽度和长度",
+        "error_limit_free": "免费用户只能创建一个花园。",
         "beds_count": "{{count}} 个苗床",
         "beds_count_plural": "{{count}} 个苗床",
         "size_mini": "迷你",

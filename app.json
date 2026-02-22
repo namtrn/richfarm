@@ -34,7 +34,8 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.mygarden.app",
       "permissions": [
-        "CAMERA"
+        "CAMERA",
+        "POST_NOTIFICATIONS"
       ]
     },
     "web": {
@@ -54,6 +55,7 @@
           }
         }
       ],
+      "expo-notifications",
       "expo-secure-store"
     ]
   }

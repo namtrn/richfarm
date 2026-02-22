@@ -139,6 +139,28 @@ export default defineSchema({
     .index("by_locale_common_name", ["locale", "commonName"]),
 
   // ==========================================
+  // Master Data: Pests and Diseases
+  // ==========================================
+  pestsDiseases: defineTable({
+    key: v.string(),
+    type: v.string(), // "pest" | "disease"
+    name: v.string(),
+    identification: v.array(v.string()),
+    damage: v.array(v.string()),
+    prevention: v.array(v.string()),
+    control: v.object({
+      physical: v.array(v.string()),
+      organic: v.array(v.string()),
+      chemical: v.array(v.string()),
+    }),
+    plantsAffected: v.array(v.string()),
+    sortOrder: v.number(),
+  })
+    .index("by_key", ["key"])
+    .index("by_type", ["type"])
+    .index("by_type_sort", ["type", "sortOrder"]),
+
+  // ==========================================
   // Beds (belong to a Garden)
   // ==========================================
   beds: defineTable({
@@ -228,6 +250,7 @@ export default defineSchema({
   plantPhotos: defineTable({
     userPlantId: v.id("userPlants"),
     userId: v.id("users"), // Denormalized for auth
+    localId: v.optional(v.string()),
 
     // Storage
     photoUrl: v.string(), // Storage URL or local path
@@ -251,6 +274,7 @@ export default defineSchema({
     analysisStatus: v.string(), // "pending", "success", "failed"
   })
     .index("by_user_plant", ["userPlantId"])
+    .index("by_user_plant_local", ["userPlantId", "localId"])
     .index("by_user_plant_date", ["userPlantId", "takenAt"])
     .index("by_analysis_status", ["analysisStatus"]),
 
@@ -271,6 +295,7 @@ export default defineSchema({
     rrule: v.optional(v.string()), // iCalendar RRULE
     nextRunAt: v.number(),
     lastRunAt: v.optional(v.number()),
+    lastNotifiedAt: v.optional(v.number()),
 
     // State
     enabled: v.boolean(),

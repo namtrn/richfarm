@@ -8,7 +8,7 @@ import {
     ActivityIndicator,
     Modal,
 } from 'react-native';
-import { Search, BookOpen, X, Droplets, Sun, Clock } from 'lucide-react-native';
+import { Search, BookOpen, X, Droplets, Sun, Clock, Bug } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../hooks/usePlantLibrary';
 import { PlantImage } from '../../components/ui/PlantImage';
@@ -274,7 +274,7 @@ export default function LibraryScreen() {
     return (
         <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
             {/* Header */}
-            <View style={{ paddingHorizontal: 16, paddingTop: 56, paddingBottom: 12, gap: 12 }}>
+            <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, gap: 12 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <BookOpen size={24} stroke="#16a34a" />
                     <Text style={{ fontSize: 30, fontWeight: '800', color: '#111827' }}>{t('library.title')}</Text>
@@ -282,6 +282,100 @@ export default function LibraryScreen() {
                 <Text style={{ fontSize: 13, color: '#6b7280' }}>
                     {t('library.species_count', { count: plants.length })}
                 </Text>
+
+                {/* Knowledge shortcuts */}
+                <View style={{ gap: 8 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>
+                        {t('library.sections_title', { defaultValue: 'Knowledge' })}
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 10, paddingRight: 16 }}
+                    >
+                        <TouchableOpacity
+                            onPress={() => router.push('/(tabs)/health')}
+                            testID="e2e-library-shortcut-health"
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 8,
+                                backgroundColor: '#fff',
+                                borderRadius: 14,
+                                paddingHorizontal: 12,
+                                paddingVertical: 10,
+                                borderWidth: 1,
+                                borderColor: '#e5e7eb',
+                            }}
+                        >
+                            <View style={{ width: 28, height: 28, backgroundColor: '#fee2e2', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                                <Bug size={14} stroke="#b91c1c" />
+                            </View>
+                            <View>
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>
+                                    {t('library.section_pests', { defaultValue: 'Pests & Diseases' })}
+                                </Text>
+                                <Text style={{ fontSize: 11, color: '#6b7280' }}>
+                                    {t('library.section_pests_desc', { defaultValue: 'Identification and control' })}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 8,
+                                backgroundColor: '#f9fafb',
+                                borderRadius: 14,
+                                paddingHorizontal: 12,
+                                paddingVertical: 10,
+                                borderWidth: 1,
+                                borderColor: '#e5e7eb',
+                                opacity: 0.7,
+                            }}
+                        >
+                            <View style={{ width: 28, height: 28, backgroundColor: '#e5e7eb', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                                <BookOpen size={14} stroke="#6b7280" />
+                            </View>
+                            <View>
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#6b7280' }}>
+                                    {t('library.section_guides', { defaultValue: 'Guides' })}
+                                </Text>
+                                <Text style={{ fontSize: 11, color: '#9ca3af' }}>
+                                    {t('library.section_soon', { defaultValue: 'Coming soon' })}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: 8,
+                                backgroundColor: '#f9fafb',
+                                borderRadius: 14,
+                                paddingHorizontal: 12,
+                                paddingVertical: 10,
+                                borderWidth: 1,
+                                borderColor: '#e5e7eb',
+                                opacity: 0.7,
+                            }}
+                        >
+                            <View style={{ width: 28, height: 28, backgroundColor: '#e5e7eb', borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                                <BookOpen size={14} stroke="#6b7280" />
+                            </View>
+                            <View>
+                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#6b7280' }}>
+                                    {t('library.section_plans', { defaultValue: 'Building plans' })}
+                                </Text>
+                                <Text style={{ fontSize: 11, color: '#9ca3af' }}>
+                                    {t('library.section_soon', { defaultValue: 'Coming soon' })}
+                                </Text>
+                            </View>
+                        </View>
+                    </ScrollView>
+                </View>
 
                 {/* Search */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 12, gap: 8, borderWidth: 1, borderColor: '#e5e7eb' }}>

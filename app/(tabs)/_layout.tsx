@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Sprout, Calendar, Bell, BookOpen, UserRound } from 'lucide-react-native';
+import { Bell, BookOpen, UserRound, Home, Fence } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
@@ -18,12 +18,6 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="garden/index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
         name="garden/[gardenId]"
         options={{
           href: null,
@@ -36,19 +30,31 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="home"
+        options={{
+          title: t('tabs.home', { defaultValue: 'Home' }),
+          tabBarButtonTestID: 'e2e-tab-home',
+          tabBarIcon: ({ color }) => <Home size={24} stroke={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="planning"
         options={{
-          title: t('tabs.planning'),
-          tabBarButtonTestID: 'e2e-tab-planning',
-          tabBarIcon: ({ color }) => <Calendar size={24} stroke={color} />,
+          href: null,
         }}
       />
       <Tabs.Screen
         name="growing"
         options={{
-          title: t('tabs.growing'),
-          tabBarButtonTestID: 'e2e-tab-growing',
-          tabBarIcon: ({ color }) => <Sprout size={24} stroke={color} />,
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="garden/index"
+        options={{
+          title: t('tabs.garden'),
+          tabBarButtonTestID: 'e2e-tab-garden',
+          tabBarIcon: ({ color }) => <Fence size={24} stroke={color} />,
         }}
       />
       <Tabs.Screen
@@ -68,10 +74,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="health"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
-          title: t('tabs.profile'),
-          tabBarButtonTestID: 'e2e-tab-profile',
+          title: t('tabs.more', { defaultValue: 'More' }),
+          tabBarButtonTestID: 'e2e-tab-more',
           tabBarIcon: ({ color }) => <UserRound size={24} stroke={color} />,
         }}
       />

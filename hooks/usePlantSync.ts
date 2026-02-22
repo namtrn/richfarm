@@ -32,6 +32,7 @@ export function usePlantSync() {
           uri: photo.uri,
           note: photo.note,
           date: photo.date,
+          source: photo.source,
         },
         createdAt: Date.now(),
         attempts: 0,
