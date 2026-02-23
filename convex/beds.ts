@@ -3,6 +3,14 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 
+const NAME_MAX = 40;
+
+function assertNameLength(value: string) {
+    if (value.trim().length > NAME_MAX) {
+        throw new Error("NAME_TOO_LONG");
+    }
+}
+
 // Lấy tất cả beds của user
 export const getBeds = query({
     args: {
@@ -24,6 +32,12 @@ export const createBed = mutation({
     args: {
         name: v.string(),
         gardenId: v.optional(v.id("gardens")),
+        bedType: v.optional(v.string()),
+        tiers: v.optional(v.number()),
+        dimensions: v.optional(v.object({
+            widthCm: v.number(),
+            heightCm: v.number(),
+        })),
         locationType: v.string(), // "indoor", "outdoor", "greenhouse", "balcony"
         areaM2: v.optional(v.number()),
         sunlightHours: v.optional(v.number()),
@@ -32,11 +46,15 @@ export const createBed = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        assertNameLength(args.name);
 
         return await ctx.db.insert("beds", {
             userId: user._id,
             gardenId: args.gardenId,
             name: args.name,
+            bedType: args.bedType,
+            tiers: args.tiers,
+            dimensions: args.dimensions,
             locationType: args.locationType,
             areaM2: args.areaM2,
             sunlightHours: args.sunlightHours,
@@ -51,6 +69,12 @@ export const updateBed = mutation({
         bedId: v.id("beds"),
         name: v.optional(v.string()),
         gardenId: v.optional(v.id("gardens")),
+        bedType: v.optional(v.string()),
+        tiers: v.optional(v.number()),
+        dimensions: v.optional(v.object({
+            widthCm: v.number(),
+            heightCm: v.number(),
+        })),
         locationType: v.optional(v.string()),
         areaM2: v.optional(v.number()),
         sunlightHours: v.optional(v.number()),
@@ -63,6 +87,10 @@ export const updateBed = mutation({
 
         if (!bed || bed.userId !== user._id) {
             throw new Error("Bed not found or unauthorized");
+        }
+
+        if (args.name !== undefined) {
+            assertNameLength(args.name);
         }
 
         const { bedId, ...updates } = args;

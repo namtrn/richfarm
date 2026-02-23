@@ -20,6 +20,9 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   const createBed = async (args: {
     name: string;
     locationType: string;
+    bedType?: string;
+    tiers?: number;
+    dimensions?: { widthCm: number; heightCm: number };
     areaM2?: number;
     sunlightHours?: number;
     soilType?: string;
@@ -33,6 +36,9 @@ export function useBeds(gardenId?: Id<'gardens'>) {
     updates: {
       name?: string;
       gardenId?: Id<'gardens'>;
+      bedType?: string;
+      tiers?: number;
+      dimensions?: { widthCm: number; heightCm: number };
       locationType?: string;
       areaM2?: number;
       sunlightHours?: number;

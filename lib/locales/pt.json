@@ -41,6 +41,7 @@
         "create_action": "Criar Jardim",
         "creating": "Criando...",
         "error_name": "Por favor insira um nome para o jardim",
+        "error_name_length": "Name is too long (max {{max}} chars)",
         "error_dimensions": "Informe largura e comprimento válidos",
         "error_limit_free": "Usuários gratuitos só podem criar um jardim.",
         "beds_count": "{{count}} canteiro",
@@ -65,7 +66,13 @@
         "bed_modal_edit_title": "Edit bed",
         "bed_name_label": "Bed name",
         "bed_name_placeholder": "Bed name",
+        "bed_type_label": "Bed type",
+        "bed_type_in_ground": "In-ground",
+        "bed_type_raised": "Raised",
+        "bed_type_container": "Container",
+        "bed_type_no_dig": "No-dig",
         "location_label": "Location",
+        "location_inherited": "From garden location",
         "location_outdoor": "Outdoor",
         "location_indoor": "Indoor",
         "location_greenhouse": "Greenhouse",
@@ -84,6 +91,17 @@
         "confirm_delete_garden_desc": "This will delete the garden and all beds inside it.",
         "confirm_delete_bed_title": "Delete bed?",
         "confirm_delete_bed_desc": "This will remove the bed and its assignments."
+    },
+    "bed": {
+        "not_found": "Bed not found.",
+        "go_back": "Go back",
+        "layout_title": "Layout",
+        "layout_desc": "Grid view of your bed",
+        "add_plant": "Add plant",
+        "adjust": "Adjust",
+        "adjust_title": "Adjust bed",
+        "diameter_label": "Diameter ({{unit}})",
+        "tiers_label": "Tiers"
     },
     "planning": {
         "title": "Planejamento",
@@ -195,6 +213,18 @@
         "detail_water_per_area": "Water per area",
         "detail_yield_per_area": "Yield per area",
         "detail_max_plants": "Max plants"
+    },
+    "search": {
+        "title": "Pesquisar",
+        "subtitle": "Encontre plantas, pragas e itens do seu jardim.",
+        "placeholder": "Pesquisar plantas, pragas, doenças...",
+        "section_my_plants": "Minhas plantas",
+        "section_library": "Biblioteca de plantas",
+        "section_health": "Pragas e doenças",
+        "empty_title": "Comece a digitar para pesquisar",
+        "empty_desc": "Pesquise no seu jardim, na biblioteca e nos guias de saúde.",
+        "no_results": "Nenhum resultado para \"{{query}}\"",
+        "view_all": "Ver tudo"
     },
     "purposes": {
         "air_purifying": "Air purifying",

@@ -17,23 +17,25 @@ import { api } from '../../../convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
 import { useBeds } from '../../../hooks/useBeds';
 import { Id } from '../../../convex/_generated/dataModel';
-import { formatAreaValue, getAreaUnitLabel, parseAreaInput, UnitSystem } from '../../../lib/units';
+import { formatAreaValue, formatDistanceValue, getAreaUnitLabel, getDistanceUnitLabel, parseAreaInput, parseDistanceInput, UnitSystem } from '../../../lib/units';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 
 const LOCATION_TYPES = ['outdoor', 'indoor', 'greenhouse', 'balcony'] as const;
-
-function parsePositiveNumber(value: string) {
-  const cleaned = value.trim().replace(',', '.');
-  if (!cleaned) return undefined;
-  const parsed = Number(cleaned);
-  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
-  return parsed;
-}
+const BED_TYPES = ['in_ground', 'raised', 'container', 'no_dig'] as const;
+const NAME_MAX = 40;
+const BED_DEFAULTS_CM: Record<string, { widthCm?: number; heightCm?: number; diameterCm?: number; tiers?: number }> = {
+  in_ground: { widthCm: 100, heightCm: 200 },
+  raised: { widthCm: 80, heightCm: 160, tiers: 1 },
+  container: { diameterCm: 40 },
+  no_dig: { widthCm: 120, heightCm: 240 },
+};
 
 function BedFormModal({
   visible,
   bed,
   gardenId,
+  gardenLocationType,
+  gardenName,
   onClose,
   onSave,
   unitSystem,
@@ -41,48 +43,94 @@ function BedFormModal({
   visible: boolean;
   bed: any | null;
   gardenId: Id<'gardens'>;
+  gardenLocationType?: string;
+  gardenName: string;
   onClose: () => void;
   onSave: (payload: {
     bedId?: Id<'beds'>;
     name: string;
+    bedType?: string;
+    tiers?: number;
     locationType: string;
+    dimensions?: { widthCm: number; heightCm: number };
     areaM2?: number;
-    sunlightHours?: number;
     soilType?: string;
   }) => Promise<unknown>;
   unitSystem: UnitSystem;
 }) {
   const { t } = useTranslation();
   const [name, setName] = useState(bed?.name ?? '');
-  const [locationType, setLocationType] = useState(bed?.locationType ?? 'outdoor');
-  const [area, setArea] = useState(bed?.areaM2 ? formatAreaValue(bed.areaM2, unitSystem) : '');
-  const [sunlight, setSunlight] = useState(bed?.sunlightHours ? String(bed.sunlightHours) : '');
+  const [bedType, setBedType] = useState(bed?.bedType ?? 'in_ground');
+  const [locationType, setLocationType] = useState(
+    gardenLocationType ?? bed?.locationType ?? 'outdoor'
+  );
+  const [width, setWidth] = useState('');
+  const [length, setLength] = useState('');
+  const [diameter, setDiameter] = useState('');
+  const [tiers, setTiers] = useState<number>(1);
   const [soilType, setSoilType] = useState(bed?.soilType ?? '');
   const [saving, setSaving] = useState(false);
+  const isContainer = bedType === 'container';
+  const isRaised = bedType === 'raised';
+  const nameTooLong = name.trim().length > NAME_MAX;
 
   useEffect(() => {
     setName(bed?.name ?? '');
-    setLocationType(bed?.locationType ?? 'outdoor');
-    setArea(bed?.areaM2 ? formatAreaValue(bed.areaM2, unitSystem) : '');
-    setSunlight(bed?.sunlightHours ? String(bed.sunlightHours) : '');
+    const nextType = bed?.bedType ?? 'in_ground';
+    setBedType(nextType);
+    setLocationType(gardenLocationType ?? bed?.locationType ?? 'outdoor');
+    const defaults = BED_DEFAULTS_CM[nextType] ?? {};
+    const widthCm = bed?.dimensions?.widthCm ?? defaults.widthCm;
+    const heightCm = bed?.dimensions?.heightCm ?? defaults.heightCm;
+    const diameterCm = bed?.dimensions?.widthCm ?? defaults.diameterCm;
+    setWidth(widthCm ? formatDistanceValue(widthCm / 100, unitSystem) : '');
+    setLength(heightCm ? formatDistanceValue(heightCm / 100, unitSystem) : '');
+    setDiameter(diameterCm ? formatDistanceValue(diameterCm / 100, unitSystem) : '');
+    setTiers(bed?.tiers ?? defaults.tiers ?? 1);
     setSoilType(bed?.soilType ?? '');
-  }, [bed, unitSystem]);
+  }, [bed, gardenLocationType, unitSystem]);
 
-  const parsedArea = parseAreaInput(area, unitSystem);
-  const parsedSunlight = parsePositiveNumber(sunlight);
-  const areaInvalid = area.trim() !== '' && parsedArea === undefined;
-  const sunlightInvalid = sunlight.trim() !== '' && parsedSunlight === undefined;
+  const parsedWidth = parseDistanceInput(width, unitSystem);
+  const parsedLength = parseDistanceInput(length, unitSystem);
+  const parsedDiameter = parseDistanceInput(diameter, unitSystem);
+  const dimensionsInvalid = isContainer ? !parsedDiameter : !parsedWidth || !parsedLength;
+  const computedAreaM2 = isContainer
+    ? (parsedDiameter ? Math.PI * Math.pow(parsedDiameter / 2, 2) : undefined)
+    : (parsedWidth && parsedLength ? parsedWidth * parsedLength : undefined);
+
+  const handleBedTypeChange = (typeKey: string) => {
+    setBedType(typeKey);
+    const defaults = BED_DEFAULTS_CM[typeKey] ?? {};
+    if (typeKey === 'container') {
+      setDiameter(defaults.diameterCm ? formatDistanceValue(defaults.diameterCm / 100, unitSystem) : '');
+      setWidth('');
+      setLength('');
+    } else {
+      setWidth(defaults.widthCm ? formatDistanceValue(defaults.widthCm / 100, unitSystem) : '');
+      setLength(defaults.heightCm ? formatDistanceValue(defaults.heightCm / 100, unitSystem) : '');
+      setDiameter('');
+    }
+    setTiers(defaults.tiers ?? 1);
+  };
 
   const handleSave = async () => {
-    if (!name.trim() || areaInvalid || sunlightInvalid) return;
+    if (!name.trim() || dimensionsInvalid || nameTooLong) return;
     setSaving(true);
     try {
+      const widthCm = isContainer
+        ? Math.round((parsedDiameter ?? 0) * 100)
+        : Math.round((parsedWidth ?? 0) * 100);
+      const heightCm = isContainer
+        ? Math.round((parsedDiameter ?? 0) * 100)
+        : Math.round((parsedLength ?? 0) * 100);
       await onSave({
         bedId: bed?._id,
         name: name.trim(),
+        bedType,
+        tiers: isRaised ? tiers : undefined,
         locationType,
-        areaM2: parsedArea,
-        sunlightHours: parsedSunlight,
+        dimensions: widthCm && heightCm ? { widthCm, heightCm } : undefined,
+        areaM2: computedAreaM2,
         soilType: soilType.trim() || undefined,
       });
       onClose();
@@ -107,70 +155,141 @@ function BedFormModal({
           placeholder={t('garden.bed_name_placeholder')}
           placeholderTextColor="#9ca3af"
           testID="e2e-garden-bed-name-input"
+          maxLength={NAME_MAX}
           style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#111827', marginBottom: 10 }}
         />
+        {nameTooLong && (
+          <Text style={{ fontSize: 11, color: '#ef4444', marginTop: -4, marginBottom: 10 }}>
+            {t('garden.error_name_length', { max: NAME_MAX })}
+          </Text>
+        )}
 
-        <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.location_label')}</Text>
+        <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.bed_type_label')}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-          {LOCATION_TYPES.map((typeKey) => {
-            const active = typeKey === locationType;
+          {BED_TYPES.map((typeKey) => {
+            const active = typeKey === bedType;
             return (
               <TouchableOpacity
                 key={typeKey}
-                onPress={() => setLocationType(typeKey)}
+                onPress={() => handleBedTypeChange(typeKey)}
                 style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#22c55e' : '#fff', borderWidth: 1, borderColor: active ? '#22c55e' : '#e5e7eb' }}
               >
-                <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{t(`garden.location_${typeKey}`)}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>
+                  {t(`garden.bed_type_${typeKey}`)}
+                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
+        {isRaised && (
+          <>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('bed.tiers_label', { defaultValue: 'Tiers' })}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+              {[1, 2, 3].map((value) => {
+                const active = value === tiers;
+                return (
+                  <TouchableOpacity
+                    key={value}
+                    onPress={() => setTiers(value)}
+                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#22c55e' : '#fff', borderWidth: 1, borderColor: active ? '#22c55e' : '#e5e7eb' }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{value}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        )}
+
+        <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.location_label')}</Text>
+        <View style={{ marginBottom: 10 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>
+                {gardenName}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {isContainer ? (
+          <View style={{ marginBottom: dimensionsInvalid ? 0 : 10 }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>
+              {t('bed.diameter_label', { unit: getDistanceUnitLabel(unitSystem) })}
+            </Text>
+            <TextInput
+              value={diameter}
+              onChangeText={setDiameter}
+              placeholder={t('garden.dimension_placeholder')}
+              placeholderTextColor="#9ca3af"
+              keyboardType="numeric"
+              style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: dimensionsInvalid ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+            />
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: 10, marginBottom: dimensionsInvalid ? 0 : 10 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>
+                {t('garden.width_label', { unit: getDistanceUnitLabel(unitSystem) })}
+              </Text>
+              <TextInput
+                value={width}
+                onChangeText={setWidth}
+                placeholder={t('garden.dimension_placeholder')}
+                placeholderTextColor="#9ca3af"
+                keyboardType="numeric"
+                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: dimensionsInvalid ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>
+                {t('garden.length_label', { unit: getDistanceUnitLabel(unitSystem) })}
+              </Text>
+              <TextInput
+                value={length}
+                onChangeText={setLength}
+                placeholder={t('garden.dimension_placeholder')}
+                placeholderTextColor="#9ca3af"
+                keyboardType="numeric"
+                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: dimensionsInvalid ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+              />
+            </View>
+          </View>
+        )}
+        {dimensionsInvalid && (
+          <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4, marginBottom: 10 }}>{t('garden.error_dimensions')}</Text>
+        )}
+
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.area_label', { unit: getAreaUnitLabel(unitSystem) })}</Text>
             <TextInput
-              value={area}
-              onChangeText={setArea}
+              value={computedAreaM2 ? formatAreaValue(computedAreaM2, unitSystem) : ''}
               placeholder={t('garden.area_placeholder', { unit: getAreaUnitLabel(unitSystem) })}
               placeholderTextColor="#9ca3af"
               keyboardType="numeric"
-              style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: areaInvalid ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+              editable={false}
+              style={{ backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
             />
-            {areaInvalid && (
-              <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{t('garden.error_area')}</Text>
-            )}
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.sunlight_label')}</Text>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.soil_label')}</Text>
             <TextInput
-              value={sunlight}
-              onChangeText={setSunlight}
-              placeholder={t('garden.sunlight_placeholder')}
+              value={soilType}
+              onChangeText={setSoilType}
+              placeholder={t('garden.soil_placeholder')}
               placeholderTextColor="#9ca3af"
-              keyboardType="numeric"
-              style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: sunlightInvalid ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+              style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
             />
-            {sunlightInvalid && (
-              <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{t('garden.error_sunlight')}</Text>
-            )}
           </View>
         </View>
 
-        <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.soil_label')}</Text>
-        <TextInput
-          value={soilType}
-          onChangeText={setSoilType}
-          placeholder={t('garden.soil_placeholder')}
-          placeholderTextColor="#9ca3af"
-          style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', marginBottom: 16 }}
-        />
-
         <TouchableOpacity
-          disabled={saving || !name.trim() || areaInvalid || sunlightInvalid}
+          disabled={saving || !name.trim() || dimensionsInvalid || nameTooLong}
           onPress={handleSave}
           testID="e2e-garden-bed-save"
-          style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || sunlightInvalid) ? 0.6 : 1 }}
+          style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (saving || !name.trim() || dimensionsInvalid || nameTooLong) ? 0.6 : 1 }}
         >
           <Text style={{ color: '#fff', fontWeight: '700' }}>{t('garden.bed_save')}</Text>
         </TouchableOpacity>
@@ -203,6 +322,7 @@ function GardenEditModal({
   const [locationType, setLocationType] = useState(garden?.locationType ?? 'outdoor');
   const [description, setDescription] = useState(garden?.description ?? '');
   const [saving, setSaving] = useState(false);
+  const nameTooLong = name.trim().length > NAME_MAX;
 
   useEffect(() => {
     setName(garden?.name ?? '');
@@ -215,7 +335,7 @@ function GardenEditModal({
   const areaInvalid = area.trim() !== '' && parsedArea === undefined;
 
   const handleSave = async () => {
-    if (!name.trim() || areaInvalid) return;
+    if (!name.trim() || areaInvalid || nameTooLong) return;
     setSaving(true);
     try {
       await onSave({
@@ -243,8 +363,14 @@ function GardenEditModal({
           onChangeText={setName}
           placeholder={t('garden.name_placeholder')}
           placeholderTextColor="#9ca3af"
+          maxLength={NAME_MAX}
           style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#111827', marginBottom: 10 }}
         />
+        {nameTooLong && (
+          <Text style={{ fontSize: 11, color: '#ef4444', marginTop: -4, marginBottom: 10 }}>
+            {t('garden.error_name_length', { max: NAME_MAX })}
+          </Text>
+        )}
 
         <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('garden.location_label')}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
@@ -285,9 +411,9 @@ function GardenEditModal({
         />
 
         <TouchableOpacity
-          disabled={saving || !name.trim() || areaInvalid}
+          disabled={saving || !name.trim() || areaInvalid || nameTooLong}
           onPress={handleSave}
-          style={{ backgroundColor: '#111827', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid) ? 0.6 : 1 }}
+          style={{ backgroundColor: '#111827', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || nameTooLong) ? 0.6 : 1 }}
         >
           <Text style={{ color: '#fff', fontWeight: '700' }}>{t('garden.save_garden')}</Text>
         </TouchableOpacity>
@@ -314,6 +440,10 @@ export default function GardenDetailScreen() {
   const updateGarden = useMutation(api.gardens.updateGarden);
   const deleteGarden = useMutation(api.gardens.deleteGarden);
 
+  const navigateToGardenList = () => {
+    router.replace('/(tabs)/garden');
+  };
+
   const [showGardenEdit, setShowGardenEdit] = useState(false);
   const [showBedForm, setShowBedForm] = useState(false);
   const [editingBed, setEditingBed] = useState<any | null>(null);
@@ -322,6 +452,12 @@ export default function GardenDetailScreen() {
     if (!key) return '—';
     return t(`garden.location_${key}`, { defaultValue: key });
   };
+
+  useEffect(() => {
+    if (gardensQuery === undefined) return;
+    if (garden) return;
+    router.replace('/(tabs)/garden');
+  }, [garden, gardensQuery, router]);
 
   if (gardensQuery === undefined) {
     return (
@@ -335,7 +471,7 @@ export default function GardenDetailScreen() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f9fafb' }}>
         <Text style={{ color: '#6b7280' }}>{t('garden.not_found')}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 12 }}>
+        <TouchableOpacity onPress={navigateToGardenList} style={{ marginTop: 12 }}>
           <Text style={{ color: '#16a34a', fontWeight: '600' }}>{t('garden.go_back')}</Text>
         </TouchableOpacity>
       </View>
@@ -345,9 +481,9 @@ export default function GardenDetailScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-        <View style={{ paddingHorizontal: 16, paddingTop: 56, paddingBottom: 16 }}>
+        <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-            <TouchableOpacity onPress={() => router.back()} testID="e2e-garden-detail-back" style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+            <TouchableOpacity onPress={navigateToGardenList} testID="e2e-garden-detail-back" style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
               <ArrowLeft size={20} color="#374151" />
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
@@ -388,10 +524,14 @@ export default function GardenDetailScreen() {
             <View style={{ gap: 10 }}>
               {beds.map((b) => (
                 <View key={b._id} style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View style={{ flex: 1 }}>
+                  <TouchableOpacity
+                    onPress={() => router.push(`/(tabs)/bed/${b._id}`)}
+                    activeOpacity={0.8}
+                    style={{ flex: 1 }}
+                  >
                     <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827' }}>{b.name}</Text>
                     <Text style={{ fontSize: 12, color: '#9ca3af' }}>{getLocationLabel(b.locationType)} • {b.areaM2 ? t('garden.area_summary', { value: formatAreaValue(b.areaM2, unitSystem), unit: getAreaUnitLabel(unitSystem) }) : '—'}</Text>
-                  </View>
+                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => { setEditingBed(b); setShowBedForm(true); }}
                     style={{ width: 34, height: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f3f4f6', borderRadius: 10 }}
@@ -430,6 +570,8 @@ export default function GardenDetailScreen() {
         visible={showBedForm}
         bed={editingBed}
         gardenId={garden._id}
+        gardenLocationType={garden.locationType}
+        gardenName={garden.name}
         onClose={() => setShowBedForm(false)}
         onSave={async (payload) => {
           if (payload.bedId) {

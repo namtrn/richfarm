@@ -9,44 +9,30 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#22c55e',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: '#1a4731',
+        tabBarInactiveTintColor: '#a8a29e',
         tabBarStyle: {
-          borderTopColor: '#f3f4f6',
+          borderTopColor: '#e7e0d6',
           backgroundColor: '#ffffff',
         },
       }}
     >
-      <Tabs.Screen
-        name="garden/[gardenId]"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="plant"
-        options={{
-          href: null,
-        }}
-      />
+      {/* Hidden routes */}
+      <Tabs.Screen name="garden/[gardenId]" options={{ href: null }} />
+      <Tabs.Screen name="bed/[bedId]" options={{ href: null }} />
+      <Tabs.Screen name="plant" options={{ href: null }} />
+      <Tabs.Screen name="planning" options={{ href: null }} />
+      <Tabs.Screen name="growing" options={{ href: null }} />
+      <Tabs.Screen name="health" options={{ href: null }} />
+      <Tabs.Screen name="explorer" options={{ href: null }} />
+
+      {/* Visible tabs — order: Home | Garden | Library | Reminder | More */}
       <Tabs.Screen
         name="home"
         options={{
           title: t('tabs.home', { defaultValue: 'Home' }),
           tabBarButtonTestID: 'e2e-tab-home',
           tabBarIcon: ({ color }) => <Home size={24} stroke={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="planning"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="growing"
-        options={{
-          href: null,
         }}
       />
       <Tabs.Screen
@@ -58,14 +44,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="reminder"
-        options={{
-          title: t('tabs.reminder'),
-          tabBarButtonTestID: 'e2e-tab-reminder',
-          tabBarIcon: ({ color }) => <Bell size={24} stroke={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="library"
         options={{
           title: t('tabs.library'),
@@ -74,9 +52,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="health"
+        name="reminder"
         options={{
-          href: null,
+          title: t('tabs.reminder'),
+          tabBarButtonTestID: 'e2e-tab-reminder',
+          tabBarIcon: ({ color }) => <Bell size={24} stroke={color} />,
         }}
       />
       <Tabs.Screen

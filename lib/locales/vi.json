@@ -41,6 +41,7 @@
         "create_action": "Tạo Vườn",
         "creating": "Đang tạo...",
         "error_name": "Vui lòng nhập tên vườn",
+        "error_name_length": "Tên quá dài (tối đa {{max}} ký tự)",
         "error_dimensions": "Nhập chiều ngang và chiều dài hợp lệ",
         "error_limit_free": "Người dùng miễn phí chỉ có thể tạo một khu vườn.",
         "beds_count": "{{count}} luống",
@@ -65,7 +66,13 @@
         "bed_modal_edit_title": "Sửa luống",
         "bed_name_label": "Tên luống",
         "bed_name_placeholder": "Tên luống",
+        "bed_type_label": "Kiểu luống",
+        "bed_type_in_ground": "Luống đất",
+        "bed_type_raised": "Luống cao",
+        "bed_type_container": "Chậu/khay",
+        "bed_type_no_dig": "Luống không xới",
         "location_label": "Vị trí",
+        "location_inherited": "Theo vị trí của vườn",
         "location_outdoor": "Ngoài trời",
         "location_indoor": "Trong nhà",
         "location_greenhouse": "Nhà kính",
@@ -84,6 +91,17 @@
         "confirm_delete_garden_desc": "Thao tác này sẽ xóa vườn và toàn bộ luống bên trong.",
         "confirm_delete_bed_title": "Xóa luống?",
         "confirm_delete_bed_desc": "Thao tác này sẽ xóa luống và các liên kết liên quan."
+    },
+    "bed": {
+        "not_found": "Không tìm thấy luống.",
+        "go_back": "Quay lại",
+        "layout_title": "Sơ đồ",
+        "layout_desc": "Lưới vị trí trong luống",
+        "add_plant": "Thêm cây",
+        "adjust": "Chỉnh",
+        "adjust_title": "Chỉnh luống",
+        "diameter_label": "Đường kính ({{unit}})",
+        "tiers_label": "Tầng"
     },
     "planning": {
         "title": "Kế hoạch",
@@ -195,6 +213,18 @@
         "detail_water_per_area": "Nước trên diện tích",
         "detail_yield_per_area": "Sản lượng trên diện tích",
         "detail_max_plants": "Số cây tối đa"
+    },
+    "search": {
+        "title": "Tìm kiếm",
+        "subtitle": "Tìm cây, sâu bệnh và các mục trong vườn của bạn.",
+        "placeholder": "Tìm cây, sâu bệnh...",
+        "section_my_plants": "Cây của tôi",
+        "section_library": "Thư viện cây",
+        "section_health": "Sâu bệnh",
+        "empty_title": "Bắt đầu gõ để tìm kiếm",
+        "empty_desc": "Tìm trong vườn, thư viện và hướng dẫn sức khỏe.",
+        "no_results": "Không có kết quả cho \"{{query}}\"",
+        "view_all": "Xem tất cả"
     },
     "profile": {
         "title": "Hồ sơ",

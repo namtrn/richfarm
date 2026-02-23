@@ -168,6 +168,10 @@ export default defineSchema({
     gardenId: v.optional(v.id("gardens")), // belongs to garden
     name: v.string(),
 
+    // Classification
+    bedType: v.optional(v.string()), // "in_ground", "raised", "container", "no_dig"
+    tiers: v.optional(v.number()),
+
     // Dimensions
     areaM2: v.optional(v.number()),
     dimensions: v.optional(v.object({
@@ -243,6 +247,18 @@ export default defineSchema({
     .index("by_bed", ["bedId"])
     .index("by_user_harvest_date", ["userId", "expectedHarvestDate"])
     .index("by_client_id", ["clientId"]),
+
+  // ==========================================
+  // User Favorites (plantsMaster)
+  // ==========================================
+  userFavorites: defineTable({
+    userId: v.id("users"),
+    plantMasterId: v.id("plantsMaster"),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_plant", ["userId", "plantMasterId"])
+    .index("by_plant", ["plantMasterId"]),
 
   // ==========================================
   // Plant Photos

@@ -1,8 +1,7 @@
 appId: com.mygarden.app
 ---
-- launchApp
 - openLink:
-    link: my-garden://expo-development-client/?url=http%3A%2F%2F192.168.137.190%3A8082
+    link: com.mygarden.app://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
 - runFlow:
     when:
       visible: "Open"

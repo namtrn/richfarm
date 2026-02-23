@@ -41,6 +41,7 @@
         "create_action": "Créer le Jardin",
         "creating": "Création...",
         "error_name": "Veuillez entrer un nom pour le jardin",
+        "error_name_length": "Name is too long (max {{max}} chars)",
         "error_dimensions": "Entrez une largeur et une longueur valides",
         "error_limit_free": "Les utilisateurs gratuits ne peuvent créer qu'un seul jardin.",
         "beds_count": "{{count}} plate-bande",
@@ -65,7 +66,13 @@
         "bed_modal_edit_title": "Edit bed",
         "bed_name_label": "Bed name",
         "bed_name_placeholder": "Bed name",
+        "bed_type_label": "Bed type",
+        "bed_type_in_ground": "In-ground",
+        "bed_type_raised": "Raised",
+        "bed_type_container": "Container",
+        "bed_type_no_dig": "No-dig",
         "location_label": "Location",
+        "location_inherited": "From garden location",
         "location_outdoor": "Outdoor",
         "location_indoor": "Indoor",
         "location_greenhouse": "Greenhouse",
@@ -84,6 +91,17 @@
         "confirm_delete_garden_desc": "This will delete the garden and all beds inside it.",
         "confirm_delete_bed_title": "Delete bed?",
         "confirm_delete_bed_desc": "This will remove the bed and its assignments."
+    },
+    "bed": {
+        "not_found": "Bed not found.",
+        "go_back": "Go back",
+        "layout_title": "Layout",
+        "layout_desc": "Grid view of your bed",
+        "add_plant": "Add plant",
+        "adjust": "Adjust",
+        "adjust_title": "Adjust bed",
+        "diameter_label": "Diameter ({{unit}})",
+        "tiers_label": "Tiers"
     },
     "planning": {
         "title": "Planification",
@@ -195,6 +213,18 @@
         "detail_water_per_area": "Water per area",
         "detail_yield_per_area": "Yield per area",
         "detail_max_plants": "Max plants"
+    },
+    "search": {
+        "title": "Recherche",
+        "subtitle": "Trouvez des plantes, des ravageurs et des éléments de votre jardin.",
+        "placeholder": "Rechercher des plantes, ravageurs, maladies...",
+        "section_my_plants": "Mes plantes",
+        "section_library": "Bibliothèque des plantes",
+        "section_health": "Ravageurs et maladies",
+        "empty_title": "Commencez à taper pour rechercher",
+        "empty_desc": "Recherchez dans votre jardin, la bibliothèque et les guides de santé.",
+        "no_results": "Aucun résultat pour \"{{query}}\"",
+        "view_all": "Voir tout"
     },
     "purposes": {
         "air_purifying": "Air purifying",

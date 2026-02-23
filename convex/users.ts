@@ -15,10 +15,39 @@ export const getCurrentUser = query({
 
 // Tạo hoặc lấy user (gọi sau khi đăng nhập)
 export const getOrCreateUser = mutation({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        deviceId: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
-        if (!identity) throw new Error("Not authenticated");
+        if (!identity) {
+            if (!args.deviceId) throw new Error("Not authenticated");
+
+            const tokenIdentifier = deviceToken(args.deviceId);
+            const existing = await ctx.db
+                .query("users")
+                .withIndex("by_token", (q) =>
+                    q.eq("tokenIdentifier", tokenIdentifier)
+                )
+                .unique();
+
+            if (existing) {
+                await ctx.db.patch(existing._id, {
+                    lastSyncAt: Date.now(),
+                    deviceId: existing.deviceId ?? args.deviceId,
+                    isAnonymous: existing.isAnonymous ?? true,
+                });
+                return existing._id;
+            }
+
+            return await ctx.db.insert("users", {
+                tokenIdentifier,
+                deviceId: args.deviceId,
+                isAnonymous: true,
+                isActive: true,
+                lastSyncAt: Date.now(),
+            });
+        }
 
         const existing = await ctx.db
             .query("users")

@@ -16,6 +16,7 @@ export function usePlants(status?: string) {
         nickname?: string;
         plantMasterId?: Id<'plantsMaster'>;
         bedId?: Id<'beds'>;
+        positionInBed?: { x: number; y: number; width: number; height: number };
         plantedAt?: number;
         notes?: string;
     }) => {
@@ -37,6 +38,7 @@ export function usePlants(status?: string) {
             nickname?: string;
             notes?: string;
             bedId?: Id<'beds'>;
+            positionInBed?: { x: number; y: number; width: number; height: number };
             expectedHarvestDate?: number;
         }
     ) => {

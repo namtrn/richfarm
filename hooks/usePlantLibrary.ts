@@ -2,9 +2,8 @@ import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 
 // Hook để lấy danh sách plants từ library (plantsMaster)
-export function usePlantLibrary(group?: string, locale?: string) {
+export function usePlantLibrary(locale?: string) {
     const plants = useQuery(api.plantImages.getPlantsWithImages, {
-        group,
         locale,
     });
 

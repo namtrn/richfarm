@@ -41,6 +41,7 @@
         "create_action": "创建花园",
         "creating": "创建中...",
         "error_name": "请输入花园名称",
+        "error_name_length": "Name is too long (max {{max}} chars)",
         "error_dimensions": "请输入有效的宽度和长度",
         "error_limit_free": "免费用户只能创建一个花园。",
         "beds_count": "{{count}} 个苗床",
@@ -65,7 +66,13 @@
         "bed_modal_edit_title": "Edit bed",
         "bed_name_label": "Bed name",
         "bed_name_placeholder": "Bed name",
+        "bed_type_label": "Bed type",
+        "bed_type_in_ground": "In-ground",
+        "bed_type_raised": "Raised",
+        "bed_type_container": "Container",
+        "bed_type_no_dig": "No-dig",
         "location_label": "Location",
+        "location_inherited": "From garden location",
         "location_outdoor": "Outdoor",
         "location_indoor": "Indoor",
         "location_greenhouse": "Greenhouse",
@@ -84,6 +91,17 @@
         "confirm_delete_garden_desc": "This will delete the garden and all beds inside it.",
         "confirm_delete_bed_title": "Delete bed?",
         "confirm_delete_bed_desc": "This will remove the bed and its assignments."
+    },
+    "bed": {
+        "not_found": "Bed not found.",
+        "go_back": "Go back",
+        "layout_title": "Layout",
+        "layout_desc": "Grid view of your bed",
+        "add_plant": "Add plant",
+        "adjust": "Adjust",
+        "adjust_title": "Adjust bed",
+        "diameter_label": "Diameter ({{unit}})",
+        "tiers_label": "Tiers"
     },
     "planning": {
         "title": "规划",
@@ -195,6 +213,18 @@
         "detail_water_per_area": "Water per area",
         "detail_yield_per_area": "Yield per area",
         "detail_max_plants": "Max plants"
+    },
+    "search": {
+        "title": "搜索",
+        "subtitle": "查找植物、病虫害和你的花园项目。",
+        "placeholder": "搜索植物、病虫害...",
+        "section_my_plants": "我的植物",
+        "section_library": "植物库",
+        "section_health": "病虫害",
+        "empty_title": "开始输入以搜索",
+        "empty_desc": "在花园、植物库和健康指南中搜索。",
+        "no_results": "未找到与“{{query}}”匹配的结果",
+        "view_all": "查看全部"
     },
     "purposes": {
         "air_purifying": "Air purifying",

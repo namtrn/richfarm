@@ -17,7 +17,7 @@ export function useAuth() {
 
         (async () => {
             try {
-                await getOrCreateUserMutation({});
+                await getOrCreateUserMutation({ deviceId });
             } catch (error) {
                 const message =
                     error instanceof Error ? error.message.toLowerCase() : '';
@@ -32,7 +32,7 @@ export function useAuth() {
 
     const initUser = async () => {
         try {
-            return await getOrCreateUserMutation({});
+            return await getOrCreateUserMutation({ deviceId });
         } catch (error) {
             const message =
                 error instanceof Error ? error.message.toLowerCase() : '';

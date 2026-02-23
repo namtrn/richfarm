@@ -184,7 +184,7 @@ export default function WelcomeScreen() {
 
       {/* CTA */}
       <TouchableOpacity
-        onPress={() => router.replace('/(tabs)/growing')}
+        onPress={() => router.replace('/(tabs)/home')}
         testID="e2e-onboarding-start-button"
         style={{
           backgroundColor: '#22c55e',

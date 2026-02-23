@@ -44,6 +44,7 @@
         "create_action": "Create Garden",
         "creating": "Creating...",
         "error_name": "Please enter a garden name",
+        "error_name_length": "Name is too long (max {{max}} chars)",
         "error_dimensions": "Enter a valid width and length",
         "error_limit_free": "Free users can only create one garden.",
         "beds_count": "{{count}} bed",
@@ -68,7 +69,13 @@
         "bed_modal_edit_title": "Edit bed",
         "bed_name_label": "Bed name",
         "bed_name_placeholder": "Bed name",
+        "bed_type_label": "Bed type",
+        "bed_type_in_ground": "In-ground",
+        "bed_type_raised": "Raised",
+        "bed_type_container": "Container",
+        "bed_type_no_dig": "No-dig",
         "location_label": "Location",
+        "location_inherited": "From garden location",
         "location_outdoor": "Outdoor",
         "location_indoor": "Indoor",
         "location_greenhouse": "Greenhouse",
@@ -87,6 +94,17 @@
         "confirm_delete_garden_desc": "This will delete the garden and all beds inside it.",
         "confirm_delete_bed_title": "Delete bed?",
         "confirm_delete_bed_desc": "This will remove the bed and its assignments."
+    },
+    "bed": {
+        "not_found": "Bed not found.",
+        "go_back": "Go back",
+        "layout_title": "Layout",
+        "layout_desc": "Grid view of your bed",
+        "add_plant": "Add plant",
+        "adjust": "Adjust",
+        "adjust_title": "Adjust bed",
+        "diameter_label": "Diameter ({{unit}})",
+        "tiers_label": "Tiers"
     },
     "planning": {
         "title": "Planning",
@@ -198,6 +216,18 @@
         "detail_water_per_area": "Water per area",
         "detail_yield_per_area": "Yield per area",
         "detail_max_plants": "Max plants"
+    },
+    "search": {
+        "title": "Search",
+        "subtitle": "Find plants, pests, and your garden items.",
+        "placeholder": "Search plants, pests, diseases...",
+        "section_my_plants": "My plants",
+        "section_library": "Plant library",
+        "section_health": "Pests & diseases",
+        "empty_title": "Start typing to search",
+        "empty_desc": "Search across your garden, library, and health guides.",
+        "no_results": "No results for \"{{query}}\"",
+        "view_all": "View all"
     },
     "health": {
         "title": "Plant Health",

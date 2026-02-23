@@ -101,7 +101,7 @@ function ReminderCard({
   return (
     <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3">
       <View className="w-11 h-11 bg-green-100 rounded-full justify-center items-center">
-        <Icon size={22} stroke="#16a34a" />
+        <Icon size={22} stroke="#166534" />
       </View>
       <View className="flex-1">
         <Text className="text-base font-semibold text-gray-900 dark:text-white">{reminder.title}</Text>
@@ -238,9 +238,9 @@ function ReminderFormModal({
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={onClose} />
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}>
-        <View style={{ width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginBottom: 12 }} />
-        <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 10 }}>
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 }}>
+        <View style={{ width: 36, height: 4, backgroundColor: '#e2e8f0', borderRadius: 2, alignSelf: 'center', marginBottom: 12 }} />
+        <Text style={{ fontSize: 18, fontWeight: '700', color: '#1c1917', marginBottom: 10 }}>
           {reminder ? t('reminder.form_title_edit') : t('reminder.form_title_create')}
         </Text>
 
@@ -251,26 +251,26 @@ function ReminderFormModal({
         )}
 
         <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 420 }}>
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_title_label')}</Text>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_title_label')}</Text>
           <TextInput
             value={title}
             onChangeText={setTitle}
             placeholder={t('reminder.form_title_placeholder')}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#a8a29e"
             testID="e2e-reminder-form-title-input"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#111827', marginBottom: 10 }}
+            style={{ backgroundColor: '#faf8f4', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#1c1917', marginBottom: 10 }}
           />
 
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_desc_label')}</Text>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_desc_label')}</Text>
           <TextInput
             value={description}
             onChangeText={setDescription}
             placeholder={t('reminder.form_desc_placeholder')}
-            placeholderTextColor="#9ca3af"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', marginBottom: 10 }}
+            placeholderTextColor="#a8a29e"
+            style={{ backgroundColor: '#faf8f4', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#1c1917', marginBottom: 10 }}
           />
 
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_type_label')}</Text>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_type_label')}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
             {REMINDER_TYPES.map((typeItem) => {
               const active = typeItem.key === type;
@@ -278,9 +278,9 @@ function ReminderFormModal({
                 <TouchableOpacity
                   key={typeItem.key}
                   onPress={() => setType(typeItem.key)}
-                  style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#22c55e' : '#fff', borderWidth: 1, borderColor: active ? '#22c55e' : '#e5e7eb' }}
+                  style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#059669' : '#fff', borderWidth: 1, borderColor: active ? '#059669' : '#e2e8f0' }}
                 >
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{t(typeItem.labelKey)}</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#475569' }}>{t(typeItem.labelKey)}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -288,28 +288,28 @@ function ReminderFormModal({
 
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_date_label')}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_date_label')}</Text>
               <TextInput
                 value={dateStr}
                 onChangeText={(value) => { setDateStr(value); setDateError(''); }}
                 placeholder={t('reminder.form_date_placeholder')}
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#a8a29e"
                 testID="e2e-reminder-form-date-input"
-                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: dateError ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+                style={{ backgroundColor: '#faf8f4', borderWidth: 1, borderColor: dateError ? '#f87171' : '#e2e8f0', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#1c1917' }}
               />
               {!!dateError && (
                 <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{dateError}</Text>
               )}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_time_label')}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_time_label')}</Text>
               <TextInput
                 value={timeStr}
                 onChangeText={(value) => { setTimeStr(value); setTimeError(''); }}
                 placeholder={t('reminder.form_time_placeholder')}
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor="#a8a29e"
                 testID="e2e-reminder-form-time-input"
-                style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: timeError ? '#f87171' : '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+                style={{ backgroundColor: '#faf8f4', borderWidth: 1, borderColor: timeError ? '#f87171' : '#e2e8f0', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#1c1917' }}
               />
               {!!timeError && (
                 <Text style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>{timeError}</Text>
@@ -317,34 +317,34 @@ function ReminderFormModal({
             </View>
           </View>
 
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_repeat_label')}</Text>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_repeat_label')}</Text>
           <TextInput
             value={repeatDays}
             onChangeText={setRepeatDays}
             placeholder={t('reminder.form_repeat_placeholder')}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#a8a29e"
             keyboardType="numeric"
-            style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', marginBottom: 10 }}
+            style={{ backgroundColor: '#faf8f4', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#1c1917', marginBottom: 10 }}
           />
 
           {type === 'watering' && (
             <>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_amount_label')}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_amount_label')}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <TextInput
                   value={waterAmount}
                   onChangeText={setWaterAmount}
                   placeholder={t('reminder.form_amount_placeholder', { unit: getVolumeUnitLabel(unitSystem) })}
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor="#a8a29e"
                   keyboardType="numeric"
-                  style={{ flex: 1, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
+                  style={{ flex: 1, backgroundColor: '#faf8f4', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#1c1917' }}
                 />
-                <Text style={{ fontSize: 12, color: '#6b7280' }}>{getVolumeUnitLabel(unitSystem)}</Text>
+                <Text style={{ fontSize: 12, color: '#78716c' }}>{getVolumeUnitLabel(unitSystem)}</Text>
               </View>
             </>
           )}
 
-          <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151', marginBottom: 6 }}>{t('reminder.form_target_label')}</Text>
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#5c5247', marginBottom: 6 }}>{t('reminder.form_target_label')}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
             {['none', 'plant', 'bed'].map((key) => {
               const active = target === key;
@@ -352,9 +352,9 @@ function ReminderFormModal({
                 <TouchableOpacity
                   key={key}
                   onPress={() => setTarget(key as any)}
-                  style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#22c55e' : '#fff', borderWidth: 1, borderColor: active ? '#22c55e' : '#e5e7eb' }}
+                  style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#059669' : '#fff', borderWidth: 1, borderColor: active ? '#059669' : '#e2e8f0' }}
                 >
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{t(`reminder.target_${key}`)}</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#475569' }}>{t(`reminder.target_${key}`)}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -368,9 +368,9 @@ function ReminderFormModal({
                   <TouchableOpacity
                     key={p._id}
                     onPress={() => setSelectedPlant(p._id)}
-                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#22c55e' : '#fff', borderWidth: 1, borderColor: active ? '#22c55e' : '#e5e7eb' }}
+                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#059669' : '#fff', borderWidth: 1, borderColor: active ? '#059669' : '#e2e8f0' }}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{p.nickname ?? t('reminder.unnamed_plant')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#475569' }}>{p.nickname ?? t('reminder.unnamed_plant')}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -385,9 +385,9 @@ function ReminderFormModal({
                   <TouchableOpacity
                     key={b._id}
                     onPress={() => setSelectedBed(b._id)}
-                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#22c55e' : '#fff', borderWidth: 1, borderColor: active ? '#22c55e' : '#e5e7eb' }}
+                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#059669' : '#fff', borderWidth: 1, borderColor: active ? '#059669' : '#e2e8f0' }}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{b.name}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#475569' }}>{b.name}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -399,7 +399,7 @@ function ReminderFormModal({
             style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
           >
             <Power size={16} color={enabled ? '#16a34a' : '#9ca3af'} />
-            <Text style={{ fontSize: 13, color: '#374151' }}>{enabled ? t('reminder.enabled') : t('reminder.disabled')}</Text>
+            <Text style={{ fontSize: 13, color: '#5c5247' }}>{enabled ? t('reminder.enabled') : t('reminder.disabled')}</Text>
           </TouchableOpacity>
         </ScrollView>
 
@@ -407,9 +407,9 @@ function ReminderFormModal({
           disabled={!canEdit || saving || !title.trim() || !!dateError || !!timeError}
           onPress={handleSave}
           testID="e2e-reminder-form-save"
-          style={{ backgroundColor: '#22c55e', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (!canEdit || saving || !title.trim() || !!dateError || !!timeError) ? 0.6 : 1 }}
+          style={{ backgroundColor: '#1a4731', borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (!canEdit || saving || !title.trim() || !!dateError || !!timeError) ? 0.5 : 1 }}
         >
-          <Text style={{ color: '#fff', fontWeight: '700' }}>{t('reminder.form_save')}</Text>
+          <Text style={{ color: '#fff', fontWeight: '700', letterSpacing: 0.2 }}>{t('reminder.form_save')}</Text>
         </TouchableOpacity>
       </View>
     </Modal>
@@ -491,11 +491,11 @@ export default function ReminderScreen() {
 
         {isLoading ? (
           <View className="py-16 items-center">
-            <ActivityIndicator size="large" color="#16a34a" />
+            <ActivityIndicator size="large" color="#166534" />
           </View>
         ) : todayReminders.length === 0 ? (
           <View className="py-10 items-center gap-y-3 bg-gray-100 dark:bg-gray-800 rounded-2xl">
-            <Bell size={48} stroke="#9ca3af" />
+            <Bell size={48} stroke="#a8a29e" />
             <Text className="text-lg font-semibold text-gray-500">{t('reminder.no_reminders')}</Text>
             <Text className="text-sm text-gray-400 text-center">
               {t('reminder.no_reminders_desc')}
@@ -545,7 +545,7 @@ export default function ReminderScreen() {
                   className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3"
                 >
                   <View className="w-10 h-10 bg-green-100 rounded-full justify-center items-center">
-                    <Icon size={20} stroke="#16a34a" />
+                    <Icon size={20} stroke="#166534" />
                   </View>
                   <View className="flex-1">
                     <Text className="text-base font-semibold text-gray-900 dark:text-white">{r.title}</Text>
@@ -591,19 +591,19 @@ export default function ReminderScreen() {
 
       <Modal visible={!!confirmDelete} transparent animationType="fade" onRequestClose={() => setConfirmDelete(null)}>
         <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setConfirmDelete(null)} />
-        <View style={{ position: 'absolute', left: 24, right: 24, top: '40%', backgroundColor: '#fff', borderRadius: 16, padding: 16 }}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 8 }}>
+        <View style={{ position: 'absolute', left: 24, right: 24, top: '40%', backgroundColor: '#fff', borderRadius: 18, padding: 20, shadowColor: '#1a1a18', shadowOpacity: 0.15, shadowRadius: 20, shadowOffset: { width: 0, height: 4 } }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917', marginBottom: 8 }}>
             {t('reminder.confirm_delete_title')}
           </Text>
-          <Text style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
+          <Text style={{ fontSize: 13, color: '#78716c', marginBottom: 16 }}>
             {t('reminder.confirm_delete_desc')}
           </Text>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity
               onPress={() => setConfirmDelete(null)}
-              style={{ flex: 1, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
+              style={{ flex: 1, borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
             >
-              <Text style={{ fontWeight: '600', color: '#374151' }}>{t('common.cancel')}</Text>
+              <Text style={{ fontWeight: '600', color: '#5c5247' }}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={async () => {

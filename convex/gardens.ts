@@ -3,6 +3,14 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 
+const NAME_MAX = 40;
+
+function assertNameLength(value: string) {
+    if (value.trim().length > NAME_MAX) {
+        throw new Error("NAME_TOO_LONG");
+    }
+}
+
 // Lấy tất cả gardens của user
 export const getGardens = query({
     args: {
@@ -31,6 +39,7 @@ export const createGarden = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        assertNameLength(args.name);
         const isAnonymous = user.isAnonymous === true;
         const subscription = user.subscription;
         const now = Date.now();
@@ -77,6 +86,10 @@ export const updateGarden = mutation({
 
         if (!garden || garden.userId !== user._id) {
             throw new Error("Garden not found or unauthorized");
+        }
+
+        if (args.name !== undefined) {
+            assertNameLength(args.name);
         }
 
         const { gardenId, deviceId, ...updates } = args;

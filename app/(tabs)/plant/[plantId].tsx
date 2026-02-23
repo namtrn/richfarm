@@ -9,7 +9,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays } from 'lucide-react-native';
+import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart } from 'lucide-react-native';
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { useAuth } from '../../../lib/auth';
@@ -19,12 +19,14 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
+import { useFavorites } from '../../../hooks/useFavorites';
 import {
   createLocalId,
   loadPlantLocalData,
   savePlantLocalData,
   PlantLocalData,
   PlantActivityType,
+  PlantPhotoEntry,
 } from '../../../lib/plantLocalData';
 import { PlantPhotosSection } from '../../../components/plant/PlantPhotosSection';
 import { PlantActivitySection } from '../../../components/plant/PlantActivitySection';
@@ -62,11 +64,24 @@ export default function PlantDetailScreen() {
   const { beds } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { queuePhoto, queueActivity, queueHarvest } = usePlantSync();
+  const { favorites, toggleFavorite } = useFavorites();
   const canEdit = !isAuthLoading && isAuthenticated;
+  const navigateBackOrGrowing = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/(tabs)/growing');
+  };
 
   const plant = useMemo(
     () => plants.find((p: any) => p._id === resolvedPlantId),
     [plants, resolvedPlantId]
+  );
+
+  const favoriteIds = useMemo(
+    () => new Set(favorites.map((fav: any) => String(fav.plantMasterId))),
+    [favorites]
   );
 
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
@@ -153,7 +168,7 @@ export default function PlantDetailScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: '#f9fafb', justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ color: '#6b7280' }}>{t('plant.not_found')}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 12 }}>
+        <TouchableOpacity onPress={navigateBackOrGrowing} style={{ marginTop: 12 }}>
           <Text style={{ color: '#16a34a', fontWeight: '600' }}>{t('plant.go_back')}</Text>
         </TouchableOpacity>
       </View>
@@ -224,7 +239,7 @@ export default function PlantDetailScreen() {
     setSaving(true);
     try {
       await deletePlant(plant._id);
-      router.back();
+      navigateBackOrGrowing();
     } finally {
       setSaving(false);
     }
@@ -248,7 +263,7 @@ export default function PlantDetailScreen() {
           : await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsEditing: true });
 
       if (result.canceled || !result.assets?.[0]?.uri) return;
-      const newPhoto = {
+      const newPhoto: PlantPhotoEntry = {
         id: createLocalId(),
         uri: result.assets[0].uri,
         date: Date.now(),
@@ -331,16 +346,41 @@ export default function PlantDetailScreen() {
     );
   };
 
+  const plantMasterId = plant?.plantMasterId;
+  const canFavorite = !!plantMasterId;
+  const isFavorite = plantMasterId ? favoriteIds.has(String(plantMasterId)) : false;
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f9fafb' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 56, paddingBottom: 12, flexDirection: 'row', alignItems: 'center' }}>
-        <TouchableOpacity onPress={() => router.back()} style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+        <TouchableOpacity onPress={navigateBackOrGrowing} style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
           <ArrowLeft size={20} color="#374151" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 22, fontWeight: '800', color: '#111827' }}>{plant.nickname ?? t('plant.unnamed')}</Text>
           <Text style={{ fontSize: 12, color: '#9ca3af' }}>{plant.status}</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => {
+            if (!plantMasterId) return;
+            void toggleFavorite(plantMasterId).catch(() => undefined);
+          }}
+          disabled={!plantMasterId}
+          style={{
+            width: 36,
+            height: 36,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#fff',
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: '#e5e7eb',
+            marginRight: 8,
+            opacity: plantMasterId ? 1 : 0.5,
+          }}
+        >
+          <Heart size={18} stroke={isFavorite ? '#ef4444' : '#9ca3af'} fill={isFavorite ? '#ef4444' : 'none'} />
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSave}
           disabled={!canEdit || saving}
