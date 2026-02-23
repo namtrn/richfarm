@@ -21,6 +21,7 @@ export const upsertUserSettings = mutation({
     args: {
         deviceId: v.optional(v.string()),
         unitSystem: v.optional(v.string()),
+        theme: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
@@ -32,6 +33,7 @@ export const upsertUserSettings = mutation({
         if (existing) {
             await ctx.db.patch(existing._id, {
                 ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
+                ...(args.theme !== undefined && { theme: args.theme }),
             });
             return existing._id;
         }
@@ -39,6 +41,7 @@ export const upsertUserSettings = mutation({
         return await ctx.db.insert('userSettings', {
             userId: user._id,
             ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
+            ...(args.theme !== undefined && { theme: args.theme }),
         });
     },
 });

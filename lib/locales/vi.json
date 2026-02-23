@@ -101,7 +101,9 @@
         "adjust": "Chỉnh",
         "adjust_title": "Chỉnh luống",
         "diameter_label": "Đường kính ({{unit}})",
-        "tiers_label": "Tầng"
+        "tiers_label": "Tầng",
+        "cols_label": "Số cột",
+        "rows_label": "Số hàng"
     },
     "planning": {
         "title": "Kế hoạch",
@@ -242,7 +244,11 @@
         "units_label": "Đơn vị",
         "unit_metric": "Hệ mét",
         "unit_imperial": "Hệ Anh",
-        "unit_current": "Hiện tại: {{label}}"
+        "unit_current": "Hiện tại: {{label}}",
+        "theme_label": "Giao diện",
+        "theme_light": "Sáng",
+        "theme_dark": "Tối",
+        "theme_system": "Hệ thống"
     },
     "plant": {
         "not_found": "Không tìm thấy cây.",

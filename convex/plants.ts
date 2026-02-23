@@ -110,9 +110,13 @@ export const updatePlant = mutation({
             throw new Error("Plant not found or unauthorized");
         }
 
-        const { plantId, ...updates } = args;
-        await ctx.db.patch(plantId, {
-            ...updates,
+        await ctx.db.patch(args.plantId, {
+            ...(args.plantMasterId !== undefined && { plantMasterId: args.plantMasterId }),
+            ...(args.nickname !== undefined && { nickname: args.nickname }),
+            ...(args.notes !== undefined && { notes: args.notes }),
+            ...(args.bedId !== undefined && { bedId: args.bedId }),
+            ...(args.positionInBed !== undefined && { positionInBed: args.positionInBed }),
+            ...(args.expectedHarvestDate !== undefined && { expectedHarvestDate: args.expectedHarvestDate }),
             version: (plant.version ?? 1) + 1,
         });
     },

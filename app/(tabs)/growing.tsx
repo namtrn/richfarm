@@ -5,8 +5,11 @@ import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
 
+import { useTheme } from '../../lib/theme';
+
 export default function GrowingScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const router = useRouter();
   const { plants, isLoading, updateStatus } = usePlants();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -17,82 +20,89 @@ export default function GrowingScreen() {
   );
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950">
-      <View className="p-4 gap-y-4">
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 24 }}>
         {/* Header */}
-        <View className="flex-row justify-between items-center">
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text className="text-3xl font-bold text-gray-900 dark:text-white">{t('growing.title')}</Text>
-            <Text className="text-sm text-gray-500">
+            <Text style={{ fontSize: 28, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('growing.title')}</Text>
+            <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>
               {activePlants.length > 0
                 ? t('growing.active_count', { count: activePlants.length })
                 : t('growing.subtitle')}
             </Text>
           </View>
           <TouchableOpacity
-            className="flex-row items-center gap-x-1 bg-gray-100 rounded-xl px-3 py-2"
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.card, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}
             onPress={() => router.push('/(tabs)/garden')}
             testID="e2e-growing-open-gardens"
           >
-            <Fence size={16} color="#6b7280" />
-            <Text className="text-xs font-semibold text-gray-700">{t('growing.my_gardens')}</Text>
+            <Fence size={18} color={theme.primary} strokeWidth={2.5} />
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.primary }}>{t('growing.my_gardens')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Auth warning */}
-          {!isAuthLoading && !isAuthenticated && (
-            <View className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
-              <Text className="text-yellow-800 text-sm">
-                {t('growing.auth_warning')}
-              </Text>
-            </View>
-          )}
+        {!isAuthLoading && !isAuthenticated && (
+          <View style={{ backgroundColor: theme.warningBg, borderLeftWidth: 4, borderLeftColor: theme.warning, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 }}>
+            <Text style={{ color: theme.warning, fontSize: 14, fontWeight: '600' }}>
+              {t('growing.auth_warning')}
+            </Text>
+          </View>
+        )}
 
         {/* Content */}
         {isLoading ? (
-          <View className="py-16 items-center">
-            <ActivityIndicator size="large" color="#16a34a" />
+          <View style={{ paddingVertical: 60, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={theme.primary} />
           </View>
         ) : activePlants.length === 0 ? (
-          <View className="py-16 items-center gap-y-3 bg-gray-100 dark:bg-gray-800 rounded-2xl">
-            <Leaf size={48} stroke="#9ca3af" />
-            <Text className="text-lg font-semibold text-gray-500">{t('growing.no_plants')}</Text>
-            <Text className="text-sm text-gray-400 text-center">
-              {t('growing.no_plants_desc')}
-            </Text>
+          <View style={{ paddingVertical: 80, alignItems: 'center', gap: 16, backgroundColor: theme.card, borderRadius: 24, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 15 }}>
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: theme.accent, justifyContent: 'center', alignItems: 'center' }}>
+              <Leaf size={40} color={theme.primary} strokeWidth={1.5} />
+            </View>
+            <View style={{ alignItems: 'center', paddingHorizontal: 40 }}>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text }}>{t('growing.no_plants')}</Text>
+              <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 20, fontWeight: '500' }}>
+                {t('growing.no_plants_desc')}
+              </Text>
+            </View>
           </View>
         ) : (
-          <View className="gap-y-3">
+          <View style={{ gap: 16 }}>
             {activePlants.map((plant) => (
               <TouchableOpacity
                 key={plant._id}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3"
+                style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}
                 onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
                 activeOpacity={0.8}
               >
-                <View className="w-11 h-11 bg-green-100 rounded-full justify-center items-center">
-                  <Sprout size={22} stroke="#16a34a" />
+                <View style={{ width: 56, height: 56, backgroundColor: theme.accent, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
+                  <Sprout size={28} color={theme.primary} strokeWidth={2} />
                 </View>
-                <View className="flex-1">
-                  <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>
                     {plant.nickname ?? t('growing.unnamed')}
                   </Text>
-                  <Text className="text-xs text-gray-400 capitalize">{plant.status}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                    <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: plant.status === 'growing' ? theme.successBg : theme.warningBg, borderWidth: 1, borderColor: plant.status === 'growing' ? theme.success : theme.warning }}>
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: plant.status === 'growing' ? theme.success : theme.warning, textTransform: 'uppercase', letterSpacing: 0.5 }}>{plant.status}</Text>
+                    </View>
+                  </View>
                 </View>
                 <TouchableOpacity
-                  className={`bg-green-500 rounded-xl px-3 py-1.5 ${!canEdit ? 'opacity-50' : ''}`}
+                  style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, opacity: !canEdit ? 0.6 : 1 }}
                   disabled={!canEdit}
                   onPress={() => updateStatus(plant._id, 'harvested')}
                   testID="e2e-growing-harvest-button"
                 >
-                  <Text className="text-white text-sm font-medium">{t('growing.harvest')}</Text>
+                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800' }}>{t('growing.harvest')}</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             ))}
           </View>
         )}
       </View>
-
     </ScrollView>
   );
 }

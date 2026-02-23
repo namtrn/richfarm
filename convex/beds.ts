@@ -93,8 +93,17 @@ export const updateBed = mutation({
             assertNameLength(args.name);
         }
 
-        const { bedId, ...updates } = args;
-        await ctx.db.patch(bedId, updates);
+        await ctx.db.patch(args.bedId, {
+            ...(args.name !== undefined && { name: args.name }),
+            ...(args.gardenId !== undefined && { gardenId: args.gardenId }),
+            ...(args.bedType !== undefined && { bedType: args.bedType }),
+            ...(args.tiers !== undefined && { tiers: args.tiers }),
+            ...(args.dimensions !== undefined && { dimensions: args.dimensions }),
+            ...(args.locationType !== undefined && { locationType: args.locationType }),
+            ...(args.areaM2 !== undefined && { areaM2: args.areaM2 }),
+            ...(args.sunlightHours !== undefined && { sunlightHours: args.sunlightHours }),
+            ...(args.soilType !== undefined && { soilType: args.soilType }),
+        });
     },
 });
 

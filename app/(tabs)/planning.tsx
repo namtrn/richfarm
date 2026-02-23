@@ -11,8 +11,11 @@ import { useTranslation } from 'react-i18next';
 import { useDeviceId } from '../../lib/deviceId';
 import { api } from '../../convex/_generated/api';
 
+import { useTheme } from '../../lib/theme';
+
 export default function PlanningScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { plants, isLoading, addPlant } = usePlants();
   const { beds, isLoading: isBedsLoading } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -84,13 +87,13 @@ export default function PlanningScreen() {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950">
-        <View className="p-4 gap-y-4">
+      <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 40, gap: 24 }}>
           {/* Header */}
-          <View className="flex-row justify-between items-center">
-            <View>
-              <Text className="text-3xl font-bold text-gray-900 dark:text-white">{t('planning.title')}</Text>
-              <Text className="text-sm text-gray-500">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flex: 1, marginRight: 16 }}>
+              <Text style={{ fontSize: 28, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.title')}</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500', lineHeight: 18 }}>
                 {isSetupRequired
                   ? t('planning.setup_required_desc', { defaultValue: 'Set up your garden before adding plants.' })
                   : t('planning.subtitle')}
@@ -98,32 +101,32 @@ export default function PlanningScreen() {
             </View>
             {isSetupRequired ? (
               <TouchableOpacity
-                className="flex-row items-center gap-x-1 bg-amber-500 rounded-xl px-3 py-2"
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.warning, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10 }}
                 onPress={() => router.push('/(tabs)/garden')}
                 testID="e2e-planning-open-garden-setup"
               >
-                <Plus size={16} color="white" />
-                <Text className="text-white text-sm font-medium">
-                  {t('planning.setup_required_action', { defaultValue: 'Set up garden' })}
+                <Plus size={18} color="white" strokeWidth={3} />
+                <Text style={{ color: 'white', fontSize: 13, fontWeight: '800' }}>
+                  {t('planning.setup_required_action', { defaultValue: 'Set up' })}
                 </Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                className={`flex-row items-center gap-x-1 bg-green-500 rounded-xl px-3 py-2 ${!canCreatePlant ? 'opacity-50' : ''}`}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.primary, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, opacity: !canCreatePlant ? 0.6 : 1 }}
                 disabled={!canCreatePlant}
                 onPress={() => setSheetOpen(true)}
                 testID="e2e-planning-add-button"
               >
-                <Plus size={16} color="white" />
-                <Text className="text-white text-sm font-medium">{t('planning.add_button')}</Text>
+                <Plus size={18} color="white" strokeWidth={3} />
+                <Text style={{ color: 'white', fontSize: 13, fontWeight: '800' }}>{t('planning.add_button')}</Text>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Auth warning */}
           {!isAuthLoading && !isAuthenticated && (
-            <View className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
-              <Text className="text-yellow-800 text-sm">
+            <View style={{ backgroundColor: theme.warningBg, borderLeftWidth: 4, borderLeftColor: theme.warning, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 }}>
+              <Text style={{ color: theme.warning, fontSize: 14, fontWeight: '600' }}>
                 {t('planning.auth_warning')}
               </Text>
             </View>
@@ -131,62 +134,74 @@ export default function PlanningScreen() {
 
           {/* Content */}
           {isLoading || isSetupLoading ? (
-            <View className="py-16 items-center">
-              <ActivityIndicator size="large" color="#16a34a" />
+            <View style={{ paddingVertical: 60, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={theme.primary} />
             </View>
           ) : isSetupRequired ? (
-            <View className="py-16 items-center gap-y-3 bg-amber-50 border border-amber-200 rounded-2xl">
-              <Calendar size={48} color="#d97706" />
-              <Text className="text-lg font-semibold text-amber-900">
-                {t('planning.setup_required_title', { defaultValue: 'Create a garden or bed first' })}
-              </Text>
-              <Text className="text-sm text-amber-800 text-center px-5">
-                {t('planning.setup_required_desc', { defaultValue: 'Before adding plants, set up at least one garden or bed.' })}
-              </Text>
+            <View style={{ paddingVertical: 80, alignItems: 'center', gap: 16, backgroundColor: theme.card, borderRadius: 24, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 15 }}>
+              <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: theme.warningBg, justifyContent: 'center', alignItems: 'center' }}>
+                <Calendar size={40} color={theme.warning} strokeWidth={1.5} />
+              </View>
+              <View style={{ alignItems: 'center', paddingHorizontal: 30 }}>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, textAlign: 'center' }}>
+                  {t('planning.setup_required_title', { defaultValue: 'Garden Setup Required' })}
+                </Text>
+                <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 20, fontWeight: '500' }}>
+                  {t('planning.setup_required_desc', { defaultValue: 'Before adding plants, set up at least one garden or bed.' })}
+                </Text>
+              </View>
               <TouchableOpacity
-                className="bg-amber-500 rounded-xl px-4 py-2 mt-1"
+                style={{ backgroundColor: theme.warning, borderRadius: 16, paddingHorizontal: 24, paddingVertical: 14, marginTop: 8 }}
                 onPress={() => router.push('/(tabs)/garden')}
                 testID="e2e-planning-open-garden-setup-empty"
               >
-                <Text className="text-white text-sm font-semibold">
+                <Text style={{ color: 'white', fontSize: 15, fontWeight: '800' }}>
                   {t('planning.setup_required_action', { defaultValue: 'Set up garden' })}
                 </Text>
               </TouchableOpacity>
             </View>
           ) : plannedPlants.length === 0 ? (
-            <View className="py-16 items-center gap-y-3 bg-gray-100 dark:bg-gray-800 rounded-2xl">
-              <Calendar size={48} color="#9ca3af" />
-              <Text className="text-lg font-semibold text-gray-500">{t('planning.empty_title')}</Text>
-              <Text className="text-sm text-gray-400 text-center">
-                {t('planning.empty_desc')}
-              </Text>
+            <View style={{ paddingVertical: 80, alignItems: 'center', gap: 16, backgroundColor: theme.card, borderRadius: 24, borderWidth: 1, borderColor: theme.border, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 15 }}>
+              <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: theme.accent, justifyContent: 'center', alignItems: 'center' }}>
+                <Calendar size={40} color={theme.primary} strokeWidth={1.5} />
+              </View>
+              <View style={{ alignItems: 'center', paddingHorizontal: 40 }}>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text }}>{t('planning.empty_title')}</Text>
+                <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 20, fontWeight: '500' }}>
+                  {t('planning.empty_desc')}
+                </Text>
+              </View>
               <TouchableOpacity
-                className={`flex-row items-center gap-x-1 bg-green-500 rounded-xl px-4 py-2 mt-1 ${!canCreatePlant ? 'opacity-50' : ''}`}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.primary, borderRadius: 16, paddingHorizontal: 24, paddingVertical: 14, marginTop: 8, opacity: !canCreatePlant ? 0.6 : 1 }}
                 disabled={!canCreatePlant}
                 onPress={() => setSheetOpen(true)}
                 testID="e2e-planning-empty-add-button"
               >
-                <Plus size={16} color="white" />
-                <Text className="text-white text-sm font-medium">{t('planning.add_new')}</Text>
+                <Plus size={20} color="white" strokeWidth={3} />
+                <Text style={{ color: 'white', fontSize: 15, fontWeight: '800' }}>{t('planning.add_new')}</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View className="gap-y-3">
+            <View style={{ gap: 16 }}>
               {plannedPlants.map((plant) => (
                 <TouchableOpacity
                   key={plant._id}
                   onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-sm flex-row items-center gap-x-3"
+                  style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}
                   activeOpacity={0.8}
                 >
-                  <View className="w-11 h-11 bg-green-100 rounded-full justify-center items-center">
-                    <Leaf size={22} color="#16a34a" />
+                  <View style={{ width: 56, height: 56, backgroundColor: theme.accent, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
+                    <Leaf size={28} color={theme.primary} strokeWidth={2} />
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>
                       {plant.nickname ?? t('planning.unnamed')}
                     </Text>
-                    <Text className="text-xs text-gray-400">{t('planning.status_planning')}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                      <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border }}>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('planning.status_planning')}</Text>
+                      </View>
+                    </View>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -202,42 +217,47 @@ export default function PlanningScreen() {
         animationType="slide"
         onRequestClose={() => setSheetOpen(false)}
       >
-        <Pressable className="flex-1 bg-black/40" onPress={() => setSheetOpen(false)} />
-        <View className="bg-white dark:bg-gray-900 rounded-t-3xl px-6 py-6 gap-y-4">
-          <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-2" />
-          <Text className="text-xl font-bold text-gray-900 dark:text-white">{t('planning.modal_title')}</Text>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setSheetOpen(false)} />
+        <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 20 }}>
+          <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
+          <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.modal_title')}</Text>
+
+          <View style={{ gap: 12 }}>
+            <TouchableOpacity
+              style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
+              disabled={!canCreatePlant}
+              onPress={handleSearchLibrary}
+              testID="e2e-planning-option-library"
+            >
+              <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>{t('planning.option_library_title')}</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_library_desc')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
+              disabled={!canCreatePlant}
+              onPress={handleCapture}
+              testID="e2e-planning-option-camera"
+            >
+              <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>{t('planning.option_camera_title')}</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_camera_desc')}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ gap: 8, marginTop: 4 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.quick_input_label')}</Text>
+            <TextInput
+              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+              placeholder={t('planning.quick_input_placeholder')}
+              placeholderTextColor={theme.textMuted}
+              value={nickname}
+              onChangeText={setNickname}
+              testID="e2e-planning-quick-input"
+            />
+          </View>
 
           <TouchableOpacity
-            className={`bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-4 ${!canCreatePlant ? 'opacity-50' : ''}`}
-            disabled={!canCreatePlant}
-            onPress={handleSearchLibrary}
-            testID="e2e-planning-option-library"
-          >
-            <Text className="text-base font-semibold text-gray-900 dark:text-white">{t('planning.option_library_title')}</Text>
-            <Text className="text-xs text-gray-500 mt-1">{t('planning.option_library_desc')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className={`bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-4 ${!canCreatePlant ? 'opacity-50' : ''}`}
-            disabled={!canCreatePlant}
-            onPress={handleCapture}
-            testID="e2e-planning-option-camera"
-          >
-            <Text className="text-base font-semibold text-gray-900 dark:text-white">{t('planning.option_camera_title')}</Text>
-            <Text className="text-xs text-gray-500 mt-1">{t('planning.option_camera_desc')}</Text>
-          </TouchableOpacity>
-
-          <Text className="text-xs text-gray-400 mt-2">{t('planning.quick_input_label')}</Text>
-          <TextInput
-            className="bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-3 text-base text-gray-900 dark:text-white"
-            placeholder={t('planning.quick_input_placeholder')}
-            placeholderTextColor="#9ca3af"
-            value={nickname}
-            onChangeText={setNickname}
-            testID="e2e-planning-quick-input"
-          />
-          <TouchableOpacity
-            className={`bg-green-500 rounded-xl py-4 items-center ${(!canCreatePlant || !nickname.trim() || saving) ? 'opacity-50' : ''}`}
+            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.6 : 1, marginTop: 8 }}
             disabled={!canCreatePlant || !nickname.trim() || saving}
             onPress={handleAddPlant}
             testID="e2e-planning-confirm-add"
@@ -245,7 +265,7 @@ export default function PlanningScreen() {
             {saving ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-semibold text-base">{t('planning.add_confirm')}</Text>
+              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' }}>{t('planning.add_confirm')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -257,42 +277,44 @@ export default function PlanningScreen() {
         animationType="slide"
         onRequestClose={() => setPhotoOpen(false)}
       >
-        <Pressable className="flex-1 bg-black/40" onPress={() => setPhotoOpen(false)} />
-        <View className="bg-white dark:bg-gray-900 rounded-t-3xl px-6 py-6 gap-y-4">
-          <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-2" />
-          <Text className="text-xl font-bold text-gray-900 dark:text-white">{t('planning.detect_title')}</Text>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setPhotoOpen(false)} />
+        <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 20 }}>
+          <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
+          <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.detect_title')}</Text>
           {photoUri && (
             <Image
               source={{ uri: photoUri }}
-              style={{ width: '100%', height: 180, borderRadius: 16 }}
+              style={{ width: '100%', height: 220, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}
               resizeMode="cover"
             />
           )}
-          <Text className="text-xs text-gray-500">{t('planning.detect_hint')}</Text>
-          <TextInput
-            className="bg-gray-100 dark:bg-gray-800 rounded-xl px-4 py-3 text-base text-gray-900 dark:text-white"
-            placeholder={t('planning.detect_name_placeholder')}
-            placeholderTextColor="#9ca3af"
-            value={detectedName}
-            onChangeText={setDetectedName}
-          />
-          <View className="flex-row gap-x-2">
+          <View style={{ gap: 12 }}>
+            <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500', textAlign: 'center' }}>{t('planning.detect_hint')}</Text>
+            <TextInput
+              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+              placeholder={t('planning.detect_name_placeholder')}
+              placeholderTextColor={theme.textMuted}
+              value={detectedName}
+              onChangeText={setDetectedName}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
             <TouchableOpacity
-              className={`flex-1 bg-gray-200 rounded-xl py-3 items-center ${!canCreatePlant ? 'opacity-50' : ''}`}
+              style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
               onPress={canCreatePlant ? handleCapture : undefined}
               disabled={!canCreatePlant}
             >
-              <Text className="text-gray-700 font-semibold">{t('planning.detect_retake')}</Text>
+              <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 15 }}>{t('planning.detect_retake')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 bg-green-500 rounded-xl py-3 items-center ${(!canCreatePlant || photoSaving) ? 'opacity-50' : ''}`}
+              style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || photoSaving) ? 0.6 : 1 }}
               disabled={!canCreatePlant || photoSaving}
               onPress={handleSavePhotoPlant}
             >
               {photoSaving ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text className="text-white font-semibold">{t('planning.detect_save')}</Text>
+                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>{t('planning.detect_save')}</Text>
               )}
             </TouchableOpacity>
           </View>

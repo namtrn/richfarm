@@ -7,7 +7,7 @@ export function useUserSettings() {
     const settings = useQuery(api.userSettings.getUserSettings, deviceId ? { deviceId } : 'skip');
     const upsert = useMutation(api.userSettings.upsertUserSettings);
 
-    const updateSettings = async (args: { unitSystem?: string }) => {
+    const updateSettings = async (args: { unitSystem?: string; theme?: string }) => {
         return await upsert({ ...args, deviceId });
     };
 

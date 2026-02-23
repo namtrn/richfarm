@@ -14,6 +14,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { LightSensor } from 'expo-sensors';
 import { usePestsDiseases, PestDiseaseType } from '../../hooks/usePestsDiseases';
 import { matchesSearch } from '../../lib/search';
+import { useTheme } from '../../lib/theme';
 
 type TabKey = 'pests' | 'diseases' | 'light';
 
@@ -61,22 +62,23 @@ function PestDiseaseCard({
     onPress: () => void;
 }) {
     const { t } = useTranslation();
+    const theme = useTheme();
     const chips = item.plantsAffected?.slice(0, 4) ?? [];
     const extra = (item.plantsAffected?.length ?? 0) - chips.length;
     const typeLabel = item.type === 'disease' ? 'Disease' : 'Pest';
-    const typeColor = item.type === 'disease' ? '#2563eb' : '#b91c1c';
-    const typeBg = item.type === 'disease' ? '#dbeafe' : '#fee2e2';
+    const typeColor = item.type === 'disease' ? theme.primary : theme.danger;
+    const typeBg = item.type === 'disease' ? theme.accent : theme.dangerBg;
 
     return (
         <TouchableOpacity
             onPress={onPress}
             activeOpacity={0.85}
             style={{
-                backgroundColor: '#fff',
+                backgroundColor: theme.card,
                 borderRadius: 18,
                 padding: 16,
                 borderWidth: 1,
-                borderColor: '#e7e0d6',
+                borderColor: theme.border,
                 shadowColor: '#1a1a18',
                 shadowOpacity: 0.06,
                 shadowRadius: 10,
@@ -85,23 +87,23 @@ function PestDiseaseCard({
             }}
         >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917', flex: 1, letterSpacing: -0.3 }}>{item.name}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text, flex: 1, letterSpacing: -0.3 }}>{item.name}</Text>
                 <View style={{ backgroundColor: typeBg, paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10 }}>
                     <Text style={{ color: typeColor, fontSize: 11, fontWeight: '700' }}>{typeLabel}</Text>
                 </View>
             </View>
-            <Text style={{ fontSize: 12, color: '#78716c' }}>
+            <Text style={{ fontSize: 12, color: theme.textSecondary }}>
                 {t('health.section_plants', { defaultValue: 'Plants affected' })}
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {chips.map((plant: string) => (
-                    <View key={plant} style={{ backgroundColor: '#f5f0e8', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
-                        <Text style={{ fontSize: 11, color: '#5c5247', fontWeight: '600' }}>{plant}</Text>
+                    <View key={plant} style={{ backgroundColor: theme.accent, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
+                        <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: '600' }}>{plant}</Text>
                     </View>
                 ))}
                 {extra > 0 && (
-                    <View style={{ backgroundColor: '#faf8f4', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#e7e0d6' }}>
-                        <Text style={{ fontSize: 11, color: '#a8a29e', fontWeight: '600' }}>+{extra} more</Text>
+                    <View style={{ backgroundColor: theme.background, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: theme.border }}>
+                        <Text style={{ fontSize: 11, color: theme.textMuted, fontWeight: '600' }}>+{extra} more</Text>
                     </View>
                 )}
             </View>
@@ -110,13 +112,14 @@ function PestDiseaseCard({
 }
 
 function Section({ title, items }: { title: string; items?: string[] }) {
+    const theme = useTheme();
     if (!items || items.length === 0) return null;
     return (
         <View style={{ marginBottom: 14 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#5c5247', marginBottom: 6 }}>{title}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary, marginBottom: 6 }}>{title}</Text>
             <View style={{ gap: 6 }}>
                 {items.map((item, idx) => (
-                    <Text key={`${title}-${idx}`} style={{ fontSize: 13, color: '#4b5563', lineHeight: 20 }}>
+                    <Text key={`${title}-${idx}`} style={{ fontSize: 13, color: theme.text, lineHeight: 20 }}>
                         - {item}
                     </Text>
                 ))}
@@ -127,39 +130,40 @@ function Section({ title, items }: { title: string; items?: string[] }) {
 
 function ControlSection({ control }: { control: { physical: string[]; organic: string[]; chemical: string[] } }) {
     const { t } = useTranslation();
+    const theme = useTheme();
 
     return (
         <View style={{ marginBottom: 14 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#5c5247', marginBottom: 6 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary, marginBottom: 6 }}>
                 {t('health.section_control', { defaultValue: 'Control' })}
             </Text>
             <View style={{ gap: 10 }}>
                 <View>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#1c1917', marginBottom: 4 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text, marginBottom: 4 }}>
                         {t('health.control_physical', { defaultValue: 'Physical' })}
                     </Text>
                     {control.physical.map((item, idx) => (
-                        <Text key={`physical-${idx}`} style={{ fontSize: 13, color: '#4b5563', lineHeight: 20 }}>
+                        <Text key={`physical-${idx}`} style={{ fontSize: 13, color: theme.text, lineHeight: 20 }}>
                             - {item}
                         </Text>
                     ))}
                 </View>
                 <View>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#1c1917', marginBottom: 4 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text, marginBottom: 4 }}>
                         {t('health.control_organic', { defaultValue: 'Organic' })}
                     </Text>
                     {control.organic.map((item, idx) => (
-                        <Text key={`organic-${idx}`} style={{ fontSize: 13, color: '#4b5563', lineHeight: 20 }}>
+                        <Text key={`organic-${idx}`} style={{ fontSize: 13, color: theme.text, lineHeight: 20 }}>
                             - {item}
                         </Text>
                     ))}
                 </View>
                 <View>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#1c1917', marginBottom: 4 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text, marginBottom: 4 }}>
                         {t('health.control_chemical', { defaultValue: 'Chemical' })}
                     </Text>
                     {control.chemical.map((item, idx) => (
-                        <Text key={`chemical-${idx}`} style={{ fontSize: 13, color: '#4b5563', lineHeight: 20 }}>
+                        <Text key={`chemical-${idx}`} style={{ fontSize: 13, color: theme.text, lineHeight: 20 }}>
                             - {item}
                         </Text>
                     ))}
@@ -177,12 +181,13 @@ function PestDiseaseDetailModal({
     onClose: () => void;
 }) {
     const { t } = useTranslation();
+    const theme = useTheme();
 
     return (
         <Modal visible animationType="slide" transparent onRequestClose={onClose}>
             <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
                 <View style={{
-                    backgroundColor: '#fff',
+                    backgroundColor: theme.card,
                     borderTopLeftRadius: 28,
                     borderTopRightRadius: 28,
                     paddingHorizontal: 20,
@@ -190,11 +195,11 @@ function PestDiseaseDetailModal({
                     paddingBottom: 40,
                     maxHeight: '85%',
                 }}>
-                    <View style={{ width: 40, height: 4, backgroundColor: '#e5e7eb', borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
+                    <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                        <Text style={{ fontSize: 22, fontWeight: '800', color: '#1c1917', flex: 1 }}>{item.name}</Text>
+                        <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, flex: 1 }}>{item.name}</Text>
                         <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}>
-                            <X size={20} stroke="#6b7280" />
+                            <X size={20} color={theme.textSecondary} />
                         </TouchableOpacity>
                     </View>
 
@@ -213,6 +218,7 @@ function PestDiseaseDetailModal({
 
 export default function HealthScreen() {
     const { t } = useTranslation();
+    const theme = useTheme();
     const params = useLocalSearchParams<{ q?: string; tab?: TabKey }>();
     const [activeTab, setActiveTab] = useState<TabKey>(() => resolveTab(params.tab));
     const [search, setSearch] = useState(resolveParam(params.q) ?? '');
@@ -283,35 +289,34 @@ export default function HealthScreen() {
     const currentRange = getLuxRange(lux);
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#faf8f4' }}>
-            <View style={{ paddingHorizontal: 16, paddingTop: 56, paddingBottom: 12, gap: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <Bug size={24} stroke="#166534" />
-                    <Text style={{ fontSize: 30, fontWeight: '800', color: '#1c1917', letterSpacing: -0.5 }}>
+        <View style={{ flex: 1, backgroundColor: theme.background }}>
+            <View style={{ paddingHorizontal: 16, paddingTop: 60, paddingBottom: 16, gap: 12 }}>
+                <View style={{ gap: 2 }}>
+                    <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
                         {t('health.title', { defaultValue: 'Plant Health' })}
                     </Text>
+                    <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+                        {t('health.subtitle', { defaultValue: 'Pest, disease, and light checks in one place.' })}
+                    </Text>
                 </View>
-                <Text style={{ fontSize: 13, color: '#78716c' }}>
-                    {t('health.subtitle', { defaultValue: 'Pest, disease, and light checks in one place.' })}
-                </Text>
 
-                <View style={{ flexDirection: 'row', backgroundColor: '#f5f0e8', borderRadius: 16, padding: 4 }}>
+                <View style={{ flexDirection: 'row', backgroundColor: theme.accent, borderRadius: 16, padding: 4, marginTop: 4 }}>
                     <TouchableOpacity
                         onPress={() => setActiveTab('pests')}
                         testID="e2e-health-tab-pests"
                         style={{
                             flex: 1,
-                            backgroundColor: activeTab === 'pests' ? '#0f172a' : 'transparent',
+                            backgroundColor: activeTab === 'pests' ? theme.primary : 'transparent',
                             borderRadius: 12,
-                            paddingVertical: 8,
+                            paddingVertical: 10,
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: 6,
                         }}
                     >
-                        <Bug size={15} stroke={activeTab === 'pests' ? '#fff' : '#64748b'} />
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'pests' ? '#fff' : '#475569' }}>
+                        <Bug size={16} color={activeTab === 'pests' ? '#fff' : theme.textSecondary} />
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'pests' ? '#fff' : theme.textSecondary }}>
                             {t('health.tab_pests', { defaultValue: 'Pests' })}
                         </Text>
                     </TouchableOpacity>
@@ -320,17 +325,17 @@ export default function HealthScreen() {
                         testID="e2e-health-tab-diseases"
                         style={{
                             flex: 1,
-                            backgroundColor: activeTab === 'diseases' ? '#0f172a' : 'transparent',
+                            backgroundColor: activeTab === 'diseases' ? theme.primary : 'transparent',
                             borderRadius: 12,
-                            paddingVertical: 8,
+                            paddingVertical: 10,
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: 6,
                         }}
                     >
-                        <ShieldAlert size={15} stroke={activeTab === 'diseases' ? '#fff' : '#64748b'} />
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'diseases' ? '#fff' : '#475569' }}>
+                        <ShieldAlert size={16} color={activeTab === 'diseases' ? '#fff' : theme.textSecondary} />
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'diseases' ? '#fff' : theme.textSecondary }}>
                             {t('health.tab_diseases', { defaultValue: 'Diseases' })}
                         </Text>
                     </TouchableOpacity>
@@ -339,17 +344,17 @@ export default function HealthScreen() {
                         testID="e2e-health-tab-light"
                         style={{
                             flex: 1,
-                            backgroundColor: activeTab === 'light' ? '#0f172a' : 'transparent',
+                            backgroundColor: activeTab === 'light' ? theme.primary : 'transparent',
                             borderRadius: 12,
-                            paddingVertical: 8,
+                            paddingVertical: 10,
                             flexDirection: 'row',
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: 6,
                         }}
                     >
-                        <Sun size={15} stroke={activeTab === 'light' ? '#fff' : '#64748b'} />
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'light' ? '#fff' : '#475569' }}>
+                        <Sun size={16} color={activeTab === 'light' ? '#fff' : theme.textSecondary} />
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: activeTab === 'light' ? '#fff' : theme.textSecondary }}>
                             {t('health.tab_light', { defaultValue: 'Light Sensor' })}
                         </Text>
                     </TouchableOpacity>
@@ -360,25 +365,44 @@ export default function HealthScreen() {
                 <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 100 }}>
                     <View
                         testID="e2e-health-light-card"
-                        style={{ backgroundColor: '#fff', borderRadius: 18, padding: 16, borderWidth: 1, borderColor: '#ede7dc', gap: 8 }}
+                        style={{
+                            backgroundColor: theme.card,
+                            borderRadius: 20,
+                            padding: 20,
+                            borderWidth: 1,
+                            borderColor: theme.border,
+                            gap: 12,
+                            shadowColor: '#1a1a18',
+                            shadowOpacity: 0.04,
+                            shadowRadius: 10,
+                            shadowOffset: { width: 0, height: 2 },
+                        }}
                     >
-                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>
-                            {t('health.light_title', { defaultValue: 'Current light level' })}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+                                <Sun size={20} color={theme.success} />
+                            </View>
+                            <Text style={{ fontSize: 17, fontWeight: '700', color: theme.text }}>
+                                {t('health.light_title', { defaultValue: 'Current light level' })}
+                            </Text>
+                        </View>
+
                         {sensorAvailable === null ? (
-                            <View style={{ paddingVertical: 8 }}>
-                                <ActivityIndicator size="small" color="#22c55e" />
+                            <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+                                <ActivityIndicator size="small" color={theme.success} />
                             </View>
                         ) : sensorAvailable === false ? (
-                            <Text style={{ fontSize: 13, color: '#b45309' }}>
-                                {t('health.light_unavailable', { defaultValue: 'Light sensor not available on this device.' })}
-                            </Text>
+                            <View style={{ backgroundColor: theme.warningBg, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: theme.warning }}>
+                                <Text style={{ fontSize: 13, color: theme.warning, lineHeight: 20 }}>
+                                    {t('health.light_unavailable', { defaultValue: 'Light sensor not available on this device.' })}
+                                </Text>
+                            </View>
                         ) : (
-                            <View style={{ gap: 6 }}>
-                                <Text style={{ fontSize: 28, fontWeight: '800', color: '#166534' }}>
+                            <View style={{ gap: 6, backgroundColor: theme.background, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: theme.border }}>
+                                <Text style={{ fontSize: 32, fontWeight: '800', color: theme.primary }}>
                                     {lux === null ? '--' : `${lux} lux`}
                                 </Text>
-                                <Text style={{ fontSize: 13, color: '#78716c' }}>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.textSecondary }}>
                                     {currentRange
                                         ? `${currentRange.label} (${currentRange.min}-${currentRange.max} lux)`
                                         : t('health.light_waiting', { defaultValue: 'Waiting for sensor data...' })}
@@ -387,37 +411,65 @@ export default function HealthScreen() {
                         )}
                     </View>
 
-                    <View style={{ gap: 10 }}>
-                        <Text style={{ fontSize: 14, fontWeight: '700', color: '#1c1917' }}>
+                    <View style={{ gap: 12 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', paddingLeft: 4 }}>
                             {t('health.light_ranges', { defaultValue: 'Lux ranges and examples' })}
                         </Text>
-                        {LUX_RANGES.map((range) => (
-                            <View
-                                key={`${range.label}-${range.min}`}
-                                style={{ backgroundColor: '#fff', borderRadius: 14, padding: 12, borderWidth: 1, borderColor: '#e7e0d6' }}
-                            >
-                                <Text style={{ fontSize: 13, fontWeight: '700', color: '#1c1917' }}>{range.label}</Text>
-                                <Text style={{ fontSize: 12, color: '#78716c' }}>{range.min}-{range.max} lux</Text>
-                                <Text style={{ fontSize: 12, color: '#a8a29e' }}>{range.example}</Text>
-                            </View>
-                        ))}
+                        <View style={{ gap: 10 }}>
+                            {LUX_RANGES.map((range) => (
+                                <View
+                                    key={`${range.label}-${range.min}`}
+                                    style={{
+                                        backgroundColor: theme.card,
+                                        borderRadius: 16,
+                                        padding: 14,
+                                        borderWidth: 1,
+                                        borderColor: theme.border,
+                                        gap: 2,
+                                        shadowColor: '#1a1a18',
+                                        shadowOpacity: 0.03,
+                                        shadowRadius: 8,
+                                        shadowOffset: { width: 0, height: 1 },
+                                    }}
+                                >
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{range.label}</Text>
+                                        <Text style={{ fontSize: 12, fontWeight: '600', color: theme.success, backgroundColor: theme.successBg, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>{range.min}-{range.max} lux</Text>
+                                    </View>
+                                    <Text style={{ fontSize: 13, color: theme.textSecondary }}>{range.example}</Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
                 </ScrollView>
             ) : (
                 <>
-                    <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, paddingHorizontal: 12, gap: 8, borderWidth: 1, borderColor: '#e7e0d6' }}>
-                            <Search size={16} stroke="#a8a29e" />
+                    <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            backgroundColor: theme.card,
+                            borderRadius: 16,
+                            paddingHorizontal: 14,
+                            gap: 10,
+                            borderWidth: 1,
+                            borderColor: theme.border,
+                            shadowColor: '#1a1a18',
+                            shadowOpacity: 0.04,
+                            shadowRadius: 8,
+                            shadowOffset: { width: 0, height: 1 },
+                        }}>
+                            <Search size={18} color={theme.textMuted} />
                             <TextInput
-                                style={{ flex: 1, paddingVertical: 12, fontSize: 15, color: '#1c1917' }}
+                                style={{ flex: 1, paddingVertical: 12, fontSize: 15, color: theme.text }}
                                 placeholder={t('health.search_placeholder', { defaultValue: 'Search pests and diseases...' })}
-                                placeholderTextColor="#a8a29e"
+                                placeholderTextColor={theme.textMuted}
                                 value={search}
                                 onChangeText={setSearch}
                             />
                             {!!search && (
-                                <TouchableOpacity onPress={() => setSearch('')}>
-                                    <X size={16} stroke="#a8a29e" />
+                                <TouchableOpacity onPress={() => setSearch('')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                                    <X size={18} color={theme.textMuted} />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -425,17 +477,17 @@ export default function HealthScreen() {
 
                     {isLoading ? (
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                            <ActivityIndicator size="large" color="#166534" />
+                            <ActivityIndicator size="small" color={theme.success} />
                         </View>
                     ) : filtered.length === 0 ? (
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
-                            <Bug size={48} stroke="#c4bdb3" />
-                            <Text style={{ fontSize: 16, fontWeight: '600', color: '#a8a29e' }}>
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, opacity: 0.6 }}>
+                            <Bug size={48} color={theme.textMuted} />
+                            <Text style={{ fontSize: 16, fontWeight: '600', color: theme.textMuted }}>
                                 {t('health.no_results', { defaultValue: 'No matches found' })}
                             </Text>
                         </View>
                     ) : (
-                        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 10, paddingBottom: 100 }}>
+                        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 100 }}>
                             {filtered.map((item: any) => (
                                 <PestDiseaseCard key={item._id} item={item} onPress={() => setSelected(item)} />
                             ))}

@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check } from 'lucide-react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../lib/auth';
 import { loadSyncQueue } from '../../lib/sync/queue';
@@ -9,6 +9,7 @@ import { useUserSettings } from '../../hooks/useUserSettings';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { authClient, APP_SCHEME } from '../../lib/auth-client';
+import { useTheme } from '../../lib/theme';
 
 /**
  * Feature flags — flip to true once the backend is configured.
@@ -29,6 +30,7 @@ const LANGUAGES = [
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
+  const theme = useTheme();
   const { user, updateProfile, isLoading } = useAuth();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
@@ -39,6 +41,7 @@ export default function ProfileScreen() {
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(
     resolveUnitSystem(settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
+  const [themePreference, setThemePreference] = useState<string>(settings?.theme ?? 'system');
   const [saving, setSaving] = useState(false);
   const [syncCount, setSyncCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
@@ -75,7 +78,8 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     setUnitSystem(resolveUnitSystem(settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
-  }, [settings?.unitSystem, currentLang]);
+    setThemePreference(settings?.theme ?? 'system');
+  }, [settings?.unitSystem, settings?.theme, currentLang]);
 
   const handleLanguageChange = async (code: string) => {
     if (code === currentLang) return;
@@ -91,7 +95,7 @@ export default function ProfileScreen() {
         locale: currentLang,
         timezone: timezone.trim() || undefined,
       });
-      await updateSettings({ unitSystem });
+      await updateSettings({ unitSystem, theme: themePreference });
     } finally {
       setSaving(false);
     }
@@ -224,30 +228,41 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ padding: 16, paddingTop: 16, gap: 16, paddingBottom: 40 }}>
-      <View>
-        <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">{t('profile.title')}</Text>
-        <Text className="text-xs text-gray-400">{isAnonymous ? t('profile.anonymous') : t('profile.signed_in')}</Text>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 40 }}>
+      <View style={{ gap: 2, paddingVertical: 4 }}>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+          {t('profile.title')}
+        </Text>
+        <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+          {isAnonymous ? t('profile.anonymous') : t('profile.signed_in')}
+        </Text>
       </View>
 
-      <View className="gap-y-4">
-        <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">
-          <View className="flex-row items-center gap-x-2">
-            <UserRound size={16} color="#6b7280" />
-            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.user_section')}</Text>
+      <View style={{ gap: 16 }}>
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <UserRound size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.user_section')}</Text>
           </View>
-          <Text className="text-xs text-gray-400">{t('profile.email_label')}: {email}</Text>
-          <Text className="text-xs text-gray-500 font-semibold">{t('profile.name_label')}</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder={t('profile.name_placeholder')}
-            placeholderTextColor="#9ca3af"
-            className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
-          />
+
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('profile.name_label')}</Text>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder={t('profile.name_placeholder')}
+              placeholderTextColor={theme.textMuted}
+              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+            />
+          </View>
+
+          <Text style={{ fontSize: 13, color: theme.textMuted }}>{t('profile.email_label')}: {email}</Text>
+
           {isAnonymous ? (
-            <View className="gap-y-2 pt-2">
-              <Text className="text-xs text-gray-500">Create account to sync across devices</Text>
+            <View style={{ gap: 12, paddingTop: 4 }}>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>Create account to sync across devices</Text>
               {!authPanelOpen ? (
                 <TouchableOpacity
                   onPress={() => {
@@ -255,27 +270,27 @@ export default function ProfileScreen() {
                     setAuthMode('signIn');
                     setAuthMessage(null);
                   }}
-                  className="bg-gray-900 rounded-xl py-3 items-center"
+                  style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
                 >
-                  <Text className="text-white font-semibold">Open auth</Text>
+                  <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Open Auth</Text>
                 </TouchableOpacity>
               ) : (
-                <View className="gap-y-2">
-                  <View className="flex-row gap-x-2">
+                <View style={{ gap: 12 }}>
+                  <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity
                       onPress={() => {
                         if (authMode === 'forgot') setAuthMode('signIn');
                         else setAuthPanelOpen(false);
                       }}
-                      className="flex-1 bg-gray-200 rounded-xl py-2 items-center"
+                      style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
                     >
-                      <Text className="text-gray-700 font-semibold">Back</Text>
+                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>Back</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setAuthPanelOpen(false)}
-                      className="flex-1 bg-gray-200 rounded-xl py-2 items-center"
+                      style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
                     >
-                      <Text className="text-gray-700 font-semibold">Close</Text>
+                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>Close</Text>
                     </TouchableOpacity>
                   </View>
                   <TextInput
@@ -284,8 +299,8 @@ export default function ProfileScreen() {
                     autoCapitalize="none"
                     keyboardType="email-address"
                     placeholder="Email"
-                    placeholderTextColor="#9ca3af"
-                    className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
+                    placeholderTextColor={theme.textMuted}
+                    style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                   />
                   {authMode !== 'forgot' && (
                     <TextInput
@@ -294,41 +309,41 @@ export default function ProfileScreen() {
                       autoCapitalize="none"
                       secureTextEntry
                       placeholder="Password (min 8 chars)"
-                      placeholderTextColor="#9ca3af"
-                      className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
+                      placeholderTextColor={theme.textMuted}
+                      style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                     />
                   )}
-                  {authMessage && <Text className="text-xs text-gray-500">{authMessage}</Text>}
+                  {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{authMessage}</Text>}
                   <TouchableOpacity
                     onPress={handleGoogleSignIn}
                     disabled={authLoading || !GOOGLE_OAUTH_ENABLED}
-                    className={`bg-white border border-gray-300 rounded-xl py-3 items-center ${authLoading || !GOOGLE_OAUTH_ENABLED ? 'opacity-50' : ''}`}
+                    style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !GOOGLE_OAUTH_ENABLED ? 0.5 : 1 }}
                   >
-                    <Text className="text-gray-900 font-semibold">{GOOGLE_OAUTH_ENABLED ? 'Continue with Google' : 'Google — coming soon'}</Text>
+                    <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{GOOGLE_OAUTH_ENABLED ? 'Continue with Google' : 'Google — coming soon'}</Text>
                   </TouchableOpacity>
                   {authMode === 'forgot' ? (
                     <TouchableOpacity
                       onPress={handleForgotPassword}
                       disabled={authLoading || !authEmail.trim()}
-                      className={`bg-gray-900 rounded-xl py-3 items-center ${authLoading || !authEmail.trim() ? 'opacity-50' : ''}`}
+                      style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() ? 0.5 : 1 }}
                     >
-                      <Text className="text-white font-semibold">Send reset link</Text>
+                      <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Send Reset Link</Text>
                     </TouchableOpacity>
                   ) : (
-                    <View className="flex-row gap-x-2">
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
                       <TouchableOpacity
                         onPress={handleSignUp}
                         disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
-                        className={`flex-1 bg-green-600 rounded-xl py-3 items-center ${authLoading || !authEmail.trim() || authPassword.length < 8 ? 'opacity-50' : ''}`}
+                        style={{ flex: 1, backgroundColor: theme.success, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
                       >
-                        <Text className="text-white font-semibold">Sign up</Text>
+                        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Sign Up</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={handleSignIn}
                         disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
-                        className={`flex-1 bg-gray-900 rounded-xl py-3 items-center ${authLoading || !authEmail.trim() || authPassword.length < 8 ? 'opacity-50' : ''}`}
+                        style={{ flex: 1, backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
                       >
-                        <Text className="text-white font-semibold">Sign in</Text>
+                        <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Sign In</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -336,44 +351,46 @@ export default function ProfileScreen() {
                     <TouchableOpacity
                       onPress={() => setAuthMode('forgot')}
                       disabled={authLoading}
-                      className="py-2 items-center"
+                      style={{ paddingVertical: 4, alignItems: 'center' }}
                     >
-                      <Text className="text-xs text-gray-500">Forgot password?</Text>
+                      <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '600' }}>Forgot password?</Text>
                     </TouchableOpacity>
                   )}
                 </View>
               )}
             </View>
           ) : (
-            <View className="pt-2">
-              {authMessage && <Text className="text-xs text-gray-500 mb-2">{authMessage}</Text>}
+            <View style={{ paddingTop: 4 }}>
+              {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 12 }}>{authMessage}</Text>}
               <TouchableOpacity
                 onPress={handleSignOut}
                 disabled={authLoading}
-                className={`bg-gray-200 rounded-xl py-3 items-center ${authLoading ? 'opacity-50' : ''}`}
+                style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
               >
-                <Text className="text-gray-800 font-semibold">Sign out</Text>
+                <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>Sign Out</Text>
               </TouchableOpacity>
             </View>
           )}
         </View>
 
-        <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">
-          <View className="flex-row items-center gap-x-2">
-            <Globe size={16} color="#6b7280" />
-            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.language_label')}</Text>
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Globe size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.language_label')}</Text>
           </View>
-          <Text className="text-xs text-gray-400">{t('profile.current_language', { label: selectedLangLabel })}</Text>
+          <Text style={{ fontSize: 13, color: theme.textMuted }}>{t('profile.current_language', { label: selectedLangLabel })}</Text>
           <View>
             <TouchableOpacity
               onPress={() => setLanguageMenuOpen((v) => !v)}
-              className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 flex-row items-center justify-between"
+              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
             >
-              <Text className="text-sm text-gray-900 dark:text-white font-medium">{selectedLangLabel}</Text>
-              {languageMenuOpen ? <ChevronUp size={16} color="#6b7280" /> : <ChevronDown size={16} color="#6b7280" />}
+              <Text style={{ flex: 1, fontSize: 15, fontWeight: '700', color: theme.text }}>{selectedLangLabel}</Text>
+              {languageMenuOpen ? <ChevronUp size={18} color={theme.textSecondary} /> : <ChevronDown size={18} color={theme.textSecondary} />}
             </TouchableOpacity>
             {languageMenuOpen && (
-              <View className="mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+              <View style={{ marginTop: 8, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, overflow: 'hidden' }}>
                 {LANGUAGES.map((lang, index) => {
                   const active = lang.code === currentLang;
                   return (
@@ -383,13 +400,12 @@ export default function ProfileScreen() {
                         setLanguageMenuOpen(false);
                         await handleLanguageChange(lang.code);
                       }}
-                      className="px-4 py-3 flex-row items-center justify-between border-gray-100 dark:border-gray-700"
-                      style={{ borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1 }}
+                      style={{ paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1, borderColor: theme.accent }}
                     >
-                      <Text className={`text-sm ${active ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-gray-700 dark:text-gray-200'}`}>
+                      <Text style={{ fontSize: 14, fontWeight: active ? '700' : '500', color: active ? theme.success : theme.text }}>
                         {lang.label}
                       </Text>
-                      {active && <Check size={14} color="#16a34a" />}
+                      {active && <Check size={16} color={theme.success} />}
                     </TouchableOpacity>
                   );
                 })}
@@ -398,60 +414,95 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">
-          <View className="flex-row items-center gap-x-2">
-            <Clock size={16} color="#6b7280" />
-            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.timezone_label')}</Text>
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Clock size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.timezone_label')}</Text>
           </View>
           <TextInput
             value={timezone}
             onChangeText={setTimezone}
             placeholder={t('profile.timezone_placeholder')}
-            placeholderTextColor="#9ca3af"
-            className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white"
+            placeholderTextColor={theme.textMuted}
+            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
           />
         </View>
 
-        <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">
-          <View className="flex-row items-center gap-x-2">
-            <Ruler size={16} color="#6b7280" />
-            <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.units_label')}</Text>
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Ruler size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.units_label')}</Text>
           </View>
-          <View className="flex-row flex-wrap gap-2">
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {(['metric', 'imperial'] as UnitSystem[]).map((unit) => {
               const active = unit === unitSystem;
               return (
                 <TouchableOpacity
                   key={unit}
                   onPress={() => setUnitSystem(unit)}
-                  className={`px-3 py-2 rounded-full border ${active ? 'bg-green-500 border-green-500' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}
+                  style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                 >
-                  <Text className={`text-xs font-semibold ${active ? 'text-white' : 'text-gray-700 dark:text-gray-200'}`}>
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
                     {unit === 'metric' ? t('profile.unit_metric') : t('profile.unit_imperial')}
                   </Text>
                 </TouchableOpacity>
               );
             })}
           </View>
-          <Text className="text-xs text-gray-400">{t('profile.unit_current', { label: unitSystem === 'metric' ? t('profile.unit_metric') : t('profile.unit_imperial') })}</Text>
+          <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('profile.unit_current', { label: unitSystem === 'metric' ? t('profile.unit_metric') : t('profile.unit_imperial') })}</Text>
         </View>
 
-        <View className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 gap-y-3">
-          <Text className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('profile.sync_title')}</Text>
-          <Text className="text-xs text-gray-400">{t('profile.sync_subtitle')}</Text>
-          <Text className="text-xs text-gray-500">
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Sun size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.theme_label')}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {[
+              { id: 'light', label: t('profile.theme_light'), icon: Sun },
+              { id: 'dark', label: t('profile.theme_dark'), icon: Moon },
+              { id: 'system', label: t('profile.theme_system'), icon: Monitor },
+            ].map((item) => {
+              const active = item.id === themePreference;
+              const Icon = item.icon;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  onPress={() => setThemePreference(item.id)}
+                  style={{ flex: 1, paddingVertical: 12, borderRadius: 16, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border, alignItems: 'center', gap: 6 }}
+                >
+                  <Icon size={18} color={active ? '#fff' : theme.textSecondary} />
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.sync_title')}</Text>
+          <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.sync_subtitle')}</Text>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: theme.text }}>
             {t('profile.sync_queue_count', { count: syncCount })}
           </Text>
           {syncMessage && (
-            <Text className="text-xs text-gray-500">{syncMessage}</Text>
+            <Text style={{ fontSize: 13, color: theme.success, fontWeight: '500' }}>{syncMessage}</Text>
           )}
           <TouchableOpacity
             onPress={handleSyncNow}
             disabled={syncing}
             testID="e2e-profile-sync-now"
-            className={`bg-green-500 rounded-xl py-3 items-center ${syncing ? 'opacity-50' : ''}`}
+            style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: syncing ? 0.5 : 1 }}
           >
-            <Text className="text-white font-semibold">{t('profile.sync_button')}</Text>
+            <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>{t('profile.sync_button')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -459,11 +510,11 @@ export default function ProfileScreen() {
           onPress={handleSave}
           disabled={saving || isLoading || isSettingsLoading}
           testID="e2e-profile-save-settings"
-          className={`bg-gray-900 rounded-xl py-4 items-center ${saving || isLoading || isSettingsLoading ? 'opacity-50' : ''}`}
+          style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: saving || isLoading || isSettingsLoading ? 0.5 : 1, marginTop: 8 }}
         >
-          <View className="flex-row items-center gap-x-2">
-            <Save size={16} color="white" />
-            <Text className="text-white font-semibold">{t('profile.save_settings')}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Save size={20} color="white" />
+            <Text style={{ color: 'white', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('profile.save_settings')}</Text>
           </View>
         </TouchableOpacity>
       </View>

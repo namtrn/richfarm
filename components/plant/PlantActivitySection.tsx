@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PlantLocalData, PlantActivityType } from '../../lib/plantLocalData';
+import { useTheme } from '../../lib/theme';
 
 type Props = {
     localData: PlantLocalData;
@@ -52,6 +53,7 @@ export function PlantActivitySection({
     formatDate,
 }: Props) {
     const { t } = useTranslation();
+    const theme = useTheme();
 
     const activityLabels = useMemo(
         () => ({
@@ -83,48 +85,50 @@ export function PlantActivitySection({
 
     return (
         <>
-            <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 14, borderWidth: 1, borderColor: '#f3f4f6' }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+            <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                     <View>
-                        <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_title')}</Text>
-                        <Text style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{t('plant.local_only')}</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.activity_title')}</Text>
+                        <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.local_only')}</Text>
                     </View>
                     <TouchableOpacity
                         onPress={onOpenModal}
                         disabled={!canEdit || localSaving}
-                        style={{ backgroundColor: '#16a34a', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
+                        style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
                     >
-                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('plant.activity_add')}</Text>
+                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800' }}>{t('plant.activity_add')}</Text>
                     </TouchableOpacity>
                 </View>
                 {localLoading ? (
                     <View style={{ paddingVertical: 10, alignItems: 'center' }}>
-                        <ActivityIndicator size="small" color="#16a34a" />
+                        <ActivityIndicator size="small" color={theme.primary} />
                     </View>
                 ) : localData.activities.length === 0 ? (
-                    <Text style={{ fontSize: 12, color: '#9ca3af' }}>{t('plant.activity_empty')}</Text>
+                    <Text style={{ fontSize: 13, color: theme.textMuted, fontStyle: 'italic' }}>{t('plant.activity_empty')}</Text>
                 ) : (
-                    <View style={{ gap: 10 }}>
+                    <View style={{ gap: 12 }}>
                         {localData.activities.map((entry) => (
-                            <View key={entry.id} style={{ backgroundColor: '#f9fafb', borderRadius: 12, padding: 10 }}>
+                            <View key={entry.id} style={{ backgroundColor: theme.background, borderRadius: 16, padding: 14, borderWidth: 1, borderColor: theme.border }}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>
+                                    <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>
                                         {activityLabels[entry.type] ?? activityLabels.custom}
                                     </Text>
-                                    <Text style={{ fontSize: 11, color: '#9ca3af' }}>{formatDate(entry.date)}</Text>
+                                    <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '500' }}>{formatDate(entry.date)}</Text>
                                 </View>
                                 {!!entry.note && (
-                                    <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{entry.note}</Text>
+                                    <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 6, lineHeight: 18 }}>{entry.note}</Text>
                                 )}
-                                <TouchableOpacity onPress={() => confirmRemove(entry.id)}>
-                                    <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 6 }}>{t('common.delete')}</Text>
+                                <TouchableOpacity onPress={() => confirmRemove(entry.id)} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
+                                    <Text style={{ fontSize: 12, color: theme.danger, fontWeight: '700' }}>{t('common.delete')}</Text>
                                 </TouchableOpacity>
                             </View>
                         ))}
                     </View>
                 )}
                 {error && (
-                    <Text style={{ fontSize: 11, color: '#b91c1c', marginTop: 8 }}>{error}</Text>
+                    <View style={{ marginTop: 12, padding: 8, backgroundColor: theme.dangerBg, borderRadius: 8 }}>
+                        <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '500' }}>{error}</Text>
+                    </View>
                 )}
             </View>
 
@@ -135,54 +139,69 @@ export function PlantActivitySection({
                 onRequestClose={onCloseModal}
             >
                 <Pressable
-                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
+                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
                     onPress={onCloseModal}
                 />
-                <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 24, gap: 12 }}>
-                    <View style={{ width: 40, height: 4, borderRadius: 999, backgroundColor: '#e5e7eb', alignSelf: 'center' }} />
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827' }}>{t('plant.activity_add')}</Text>
+                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 20 }}>
+                    <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
+                    <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('plant.activity_add')}</Text>
 
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_type_label')}</Text>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                        {activityOptions.map((option) => {
-                            const active = option.key === activityType;
-                            return (
-                                <TouchableOpacity
-                                    key={option.key}
-                                    onPress={() => onChangeType(option.key)}
-                                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? '#16a34a' : '#f3f4f6' }}
-                                >
-                                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : '#374151' }}>{option.label}</Text>
-                                </TouchableOpacity>
-                            );
-                        })}
+                    <View style={{ gap: 8 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.activity_type_label')}</Text>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                            {activityOptions.map((option) => {
+                                const active = option.key === activityType;
+                                return (
+                                    <TouchableOpacity
+                                        key={option.key}
+                                        onPress={() => onChangeType(option.key)}
+                                        style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                                    >
+                                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{option.label}</Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
                     </View>
 
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_date_label')}</Text>
-                    <TextInput
-                        value={activityDate}
-                        onChangeText={onChangeDate}
-                        placeholder="YYYY-MM-DD"
-                        placeholderTextColor="#9ca3af"
-                        style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-                    />
+                    <View style={{ gap: 8 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.activity_date_label')}</Text>
+                        <TextInput
+                            value={activityDate}
+                            onChangeText={onChangeDate}
+                            placeholder="YYYY-MM-DD"
+                            placeholderTextColor={theme.textMuted}
+                            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                        />
+                    </View>
 
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#374151' }}>{t('plant.activity_note_label')}</Text>
-                    <TextInput
-                        value={activityNote}
-                        onChangeText={onChangeNote}
-                        placeholder={t('plant.activity_note_placeholder')}
-                        placeholderTextColor="#9ca3af"
-                        style={{ backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' }}
-                    />
+                    <View style={{ gap: 8 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.activity_note_label')}</Text>
+                        <TextInput
+                            value={activityNote}
+                            onChangeText={onChangeNote}
+                            placeholder={t('plant.activity_note_placeholder')}
+                            placeholderTextColor={theme.textMuted}
+                            multiline
+                            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, minHeight: 80, textAlignVertical: 'top' }}
+                        />
+                    </View>
 
-                    <TouchableOpacity
-                        disabled={!canEdit || localSaving}
-                        onPress={onSave}
-                        style={{ backgroundColor: '#16a34a', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-                    >
-                        <Text style={{ color: '#fff', fontWeight: '700' }}>{t('plant.activity_save')}</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
+                        <TouchableOpacity
+                            onPress={onCloseModal}
+                            style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
+                        >
+                            <Text style={{ fontSize: 15, fontWeight: '700', color: theme.textSecondary }}>{t('common.cancel')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            disabled={!canEdit || localSaving}
+                            onPress={onSave}
+                            style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>{t('plant.activity_save')}</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </Modal>
         </>

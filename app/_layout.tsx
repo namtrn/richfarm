@@ -1,7 +1,7 @@
 import { ConvexReactClient } from 'convex/react';
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react';
 import { Slot, useRouter, useSegments } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, useColorScheme } from 'react-native';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
 import { useAppReady } from '../hooks/useAppReady';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
+import { useUserSettings } from '../hooks/useUserSettings';
 import { useNotifications } from '../hooks/useNotifications';
 import { authClient } from '../lib/auth-client';
 
@@ -47,10 +48,19 @@ function AuthGuard() {
   return <Slot />;
 }
 
+import { StatusBar } from 'expo-status-bar';
+import { useTheme } from '../lib/theme';
+
 function AppShell({ children }: { children: ReactNode }) {
+  const theme = useTheme();
+  const systemScheme = useColorScheme();
+  const { settings } = useUserSettings();
+  const isDark = (settings?.theme === 'system' || !settings?.theme) ? systemScheme === 'dark' : settings?.theme === 'dark';
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
         {children}
       </SafeAreaView>
     </SafeAreaProvider>

@@ -104,7 +104,9 @@
         "adjust": "Adjust",
         "adjust_title": "Adjust bed",
         "diameter_label": "Diameter ({{unit}})",
-        "tiers_label": "Tiers"
+        "tiers_label": "Tiers",
+        "cols_label": "Columns",
+        "rows_label": "Rows"
     },
     "planning": {
         "title": "Planning",
@@ -284,7 +286,11 @@
         "units_label": "Units",
         "unit_metric": "Metric",
         "unit_imperial": "Imperial",
-        "unit_current": "Current: {{label}}"
+        "unit_current": "Current: {{label}}",
+        "theme_label": "Appearance",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "theme_system": "System"
     },
     "plant": {
         "not_found": "Plant not found.",
