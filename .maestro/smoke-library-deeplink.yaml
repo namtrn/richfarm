@@ -1,0 +1,30 @@
+appId: com.mygarden.app
+---
+- openLink:
+    link: com.mygarden.app://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-start-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-start-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- openLink:
+    link: com.mygarden.app://library?tab=pests
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-tab-pests-content
+    timeout: 60000
+- openLink:
+    link: com.mygarden.app://library?tab=diseases
+- assertVisible:
+    id: e2e-library-tab-pests-content

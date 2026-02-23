@@ -26,6 +26,14 @@ import { usePestsDiseases, PestDiseaseType } from '../../hooks/usePestsDiseases'
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
 
+const LIBRARY_TABS: LibraryTab[] = ['plants', 'pests', 'guide'];
+
+function normalizeTab(value?: string): LibraryTab {
+    if (!value) return 'plants';
+    if (value === 'diseases') return 'pests';
+    return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : 'plants';
+}
+
 const GROUP_ICONS: Record<string, string> = {
     herbs: '🌿',
     vegetables: '🥦',
@@ -472,8 +480,9 @@ export default function LibraryScreen() {
             : undefined;
 
     const initialQuery = Array.isArray(params.q) ? params.q[0] : params.q;
+    const tabParam = Array.isArray(params.tab) ? params.tab[0] : params.tab;
     const [search, setSearch] = useState(initialQuery ?? '');
-    const [activeTab, setActiveTab] = useState<LibraryTab>('plants');
+    const [activeTab, setActiveTab] = useState<LibraryTab>(() => normalizeTab(tabParam));
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
     const [selectedPlant, setSelectedPlant] = useState<any>(null);
     const [selectedPest, setSelectedPest] = useState<any>(null);
@@ -498,6 +507,14 @@ export default function LibraryScreen() {
         const nextQuery = Array.isArray(params.q) ? params.q[0] : params.q;
         if (typeof nextQuery === 'string') setSearch(nextQuery);
     }, [params.q]);
+
+    useEffect(() => {
+        if (params.tab === undefined) return;
+        const nextTab = Array.isArray(params.tab) ? params.tab[0] : params.tab;
+        if (typeof nextTab !== 'string') return;
+        const normalized = normalizeTab(nextTab);
+        setActiveTab((current) => (current === normalized ? current : normalized));
+    }, [params.tab]);
 
     const filteredPlants = useMemo(() => {
         let result = plants;
@@ -646,7 +663,7 @@ export default function LibraryScreen() {
 
             {/* ── Pest & Diseases Tab ── */}
             {activeTab === 'pests' && (
-                <>
+                <View testID="e2e-library-tab-pests-content" style={{ flex: 1 }}>
                     {pestsLoading ? (
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                             <ActivityIndicator size="large" color="#166534" />
@@ -665,7 +682,7 @@ export default function LibraryScreen() {
                             ))}
                         </ScrollView>
                     )}
-                </>
+                </View>
             )}
 
             {/* ── Guide Tab ── */}

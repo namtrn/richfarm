@@ -100,7 +100,7 @@ export default function ExplorerScreen() {
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const [query, setQuery] = useState('');
 
-    const { plants: libraryPlants, isLoading: isLibraryLoading } = usePlantLibrary(undefined, locale);
+    const { plants: libraryPlants, isLoading: isLibraryLoading } = usePlantLibrary(locale);
     const { plants: userPlants, isLoading: isUserPlantsLoading } = usePlants();
 
     const pestsDiseases = useQuery(api.pestsDiseases.list, {});
@@ -171,11 +171,12 @@ export default function ExplorerScreen() {
     };
 
     const openHealth = (_tab?: 'pests' | 'diseases') => {
+        const tab = _tab === 'diseases' ? 'diseases' : 'pests';
         if (!query.trim()) {
-            router.push({ pathname: '/(tabs)/library', params: { tab: 'pests' } });
+            router.push({ pathname: '/(tabs)/library', params: { tab } });
             return;
         }
-        router.push({ pathname: '/(tabs)/library', params: { q: query.trim(), tab: 'pests' } });
+        router.push({ pathname: '/(tabs)/library', params: { q: query.trim(), tab } });
     };
 
     const openPlant = (plantId: string) => {

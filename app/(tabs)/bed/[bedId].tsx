@@ -1,5 +1,5 @@
-import { useMemo, useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions, Modal, TextInput, Pressable } from 'react-native';
+import { useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions, Modal, TextInput, Pressable, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Search, X, Sprout, Leaf } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -207,8 +207,12 @@ export default function BedDetailScreen() {
     let targetX = x;
     let targetY = y;
     if (typeof targetX !== 'number' || typeof targetY !== 'number') {
-      targetX = firstEmptyCell?.x ?? 0;
-      targetY = firstEmptyCell?.y ?? 0;
+      if (!firstEmptyCell) {
+        Alert.alert(t('bed.no_space', { defaultValue: 'No empty space available in this bed.' }));
+        return;
+      }
+      targetX = firstEmptyCell.x;
+      targetY = firstEmptyCell.y;
     }
     setTargetCell({ x: targetX, y: targetY });
     setPlantSelectorOpen(true);
