@@ -9,7 +9,7 @@
 ### 1. Khởi động (10 phút)
 - [ ] Kiểm tra Node/NPM version
 - [ ] `cd my-garden`
-- [ ] Xác nhận có `tamagui.config.ts`, `theme.ts`, `docs/convex-schema.ts` ở root
+- [ ] Xác nhận có `tamagui.config.ts`, `theme.ts`, `docs/specs/convex-schema.ts` ở root
 
 ### 2. Cài dependencies (15 phút)
 - [ ] Cài Tamagui + Expo Router + Convex + AsyncStorage + Babel plugin
@@ -20,11 +20,11 @@
 
 ### 3. Copy config & schema (10 phút)
 - [ ] Copy `tamagui.config.ts`, `theme.ts`
-- [ ] Copy `docs/convex-schema.ts` → `convex/schema.ts`
+- [ ] Copy `docs/specs/convex-schema.ts` → `convex/schema.ts`
   ```bash
   cp ../tamagui.config.ts ./tamagui.config.ts
   cp ../theme.ts ./theme.ts
-  cp ../docs/convex-schema.ts ./convex/schema.ts
+  cp ../docs/specs/convex-schema.ts ./convex/schema.ts
   ```
 
 ### 4. Cấu hình Babel/Expo/Metro (20 phút)
@@ -79,7 +79,7 @@
   │   └── Card.tsx
   └── PlantCard.tsx
   convex/
-  ├── schema.ts          ← copy từ docs/convex-schema.ts
+  ├── schema.ts          ← copy từ docs/specs/convex-schema.ts
   └── README.md
   lib/
   └── convex.ts
@@ -106,7 +106,7 @@
 ### 7. Convex Setup (35 phút)
 - [ ] Đăng ký account tại convex.dev nếu chưa có
 - [ ] Chạy `npx convex dev` để init Convex project (tạo `.env.local`)
-- [ ] Copy `docs/convex-schema.ts` → `convex/schema.ts`
+- [ ] Copy `docs/specs/convex-schema.ts` → `convex/schema.ts`
 - [ ] Tạo `lib/convex.ts`
   ```ts
   import { ConvexReactClient } from 'convex/react'

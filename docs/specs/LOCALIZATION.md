@@ -69,7 +69,7 @@ Plant content is stored in `plantI18n` (per-locale content) and the base plant t
 3. Use the Convex Dashboard or a dedicated mutation to upsert data.
 
 Reference details and schema notes:
-- `docs/plant-multilingual-data-solution.md`
+- `docs/specs/plant-multilingual-data-solution.md`
 
 ## Adding or updating recipe translations
 Recipe content is stored in `recipeI18n` (per-locale content).
@@ -78,7 +78,7 @@ Recipe content is stored in `recipeI18n` (per-locale content).
 2. Use the Convex Dashboard or an upsert mutation.
 
 Reference details and schema notes:
-- `docs/plant-multilingual-data-solution.md`
+- `docs/specs/plant-multilingual-data-solution.md`
 
 ## Notes
 Some locales currently fall back to English for newly added keys. Replace these values with proper translations when the locale is actively used.

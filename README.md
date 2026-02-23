@@ -78,28 +78,43 @@ Richfarm is a premium, comprehensive garden management application designed to h
 -   `app/`: Main application screens and routing logic using Expo Router.
 -   `components/`: Reusable UI components.
 -   `convex/`: Backend functions, schema, and database triggers.
--   `docs/`: Detailed technical specifications and functional plans.
+-   `docs/specs/`: Product and technical specifications.
+-   `docs/reports/`: Reviews, daily reports, and audits.
+-   `features/`: Feature-slice modules (domain-specific components and hooks).
 -   `hooks/`: Custom React hooks for global state and data fetching.
 -   `lib/`: Core utilities, internationalization setup, and constants.
 -   `modules/`: Feature-specific modules.
+-   `scripts/`: Project automation and setup scripts.
 -   `widgets/`: Specialized UI widgets.
 
 ## 🌐 Localization (i18n)
 
 Richfarm prioritizes global accessibility. UI strings are managed via `i18next` in `lib/locales/`, while plant and recipe content are served dynamically based on the user's locale from Convex i18n tables.
 
-For more details, see [LOCALIZATION.md](./docs/LOCALIZATION.md) and [Plant Multilingual Data Solution](./docs/plant-multilingual-data-solution.md).
+For more details, see [LOCALIZATION.md](./docs/specs/LOCALIZATION.md) and [Plant Multilingual Data Solution](./docs/specs/plant-multilingual-data-solution.md).
 
 ## 📄 Documentation
 
--   [Functional Plan](./docs/APP_FUNCTIONAL_PLAN.md)
--   [My Garden Specification](./docs/MY_GARDEN_SPEC.md)
--   [Unit System Specification](./docs/UNIT_SYSTEM.md)
--   [Image Storage Strategy](./docs/image-storage-strategy.md)
+-   [Business Requirements (BRD)](./docs/specs/BA_REQUIREMENTS.md)
+-   [BA User Stories](./docs/specs/BA_USER_STORIES.md)
+-   [Functional Plan](./docs/specs/APP_FUNCTIONAL_PLAN.md)
+-   [My Garden Specification](./docs/specs/MY_GARDEN_SPEC.md)
+-   [Unit System Specification](./docs/specs/UNIT_SYSTEM.md)
+-   [Image Storage Strategy](./docs/specs/image-storage-strategy.md)
+
+## ✅ Requirements Source Of Truth
+
+-   `README.md` is an onboarding and developer guide.
+-   BA-level requirements live in:
+-   `docs/specs/BA_REQUIREMENTS.md`
+-   `docs/specs/BA_USER_STORIES.md`
+-   Detailed supporting specs live in:
+-   `docs/specs/APP_FUNCTIONAL_PLAN.md`
+-   `docs/specs/MY_GARDEN_SPEC.md`
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our [Functional Plan](./docs/APP_FUNCTIONAL_PLAN.md) to understand the product scope before submitting pull requests.
+Contributions are welcome! Please read our [Functional Plan](./docs/specs/APP_FUNCTIONAL_PLAN.md) to understand the product scope before submitting pull requests.
 
 ## 📝 License
 
