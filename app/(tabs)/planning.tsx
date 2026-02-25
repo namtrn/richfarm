@@ -186,7 +186,12 @@ export default function PlanningScreen() {
               {plannedPlants.map((plant) => (
                 <TouchableOpacity
                   key={plant._id}
-                  onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(tabs)/plant/[plantId]',
+                      params: { plantId: String(plant._id), from: 'planning' },
+                    })
+                  }
                   style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}
                   activeOpacity={0.8}
                 >

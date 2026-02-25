@@ -67,7 +67,7 @@ export default function BedDetailScreen() {
   const [addingPlant, setAddingPlant] = useState(false);
 
   const { beds, isLoading: bedsLoading, updateBed } = useBeds();
-  const { plants, addPlant } = usePlants();
+  const { plants, addPlant, deletePlant } = usePlants();
   const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
 
   const bed = useMemo(
@@ -236,6 +236,61 @@ export default function BedDetailScreen() {
     }
   };
 
+  const handleDeletePlantFromBed = (plant: any) => {
+    Alert.alert(
+      t('common.confirm', { defaultValue: 'Confirm' }),
+      t('bed.delete_plant_confirm', { defaultValue: 'Delete this plant from your garden?' }),
+      [
+        { text: t('common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
+        {
+          text: t('common.delete', { defaultValue: 'Delete' }),
+          style: 'destructive',
+          onPress: () => {
+            void deletePlant(plant._id as any).catch(() => {
+              Alert.alert(
+                t('common.error', { defaultValue: 'Error' }),
+                t('bed.delete_plant_failed', { defaultValue: 'Could not delete this plant.' })
+              );
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const openCellAction = (col: number, row: number, plantEntry?: { plant: any; count: number }) => {
+    if (!plantEntry) {
+      openAddPlant(col, row);
+      return;
+    }
+
+    Alert.alert(
+      plantEntry.plant.nickname ?? t('bed.plant_in_cell', { defaultValue: 'Plant in this cell' }),
+      t('bed.choose_action', { defaultValue: 'Choose an action' }),
+      [
+        {
+          text: t('common.view_details', { defaultValue: 'View details' }),
+          onPress: () =>
+            router.push({
+              pathname: '/(tabs)/plant/[plantId]',
+              params: {
+                plantId: String(plantEntry.plant._id),
+                from: 'bed',
+                bedId: String(resolvedBedId),
+                gardenId: bed?.gardenId ? String(bed.gardenId) : undefined,
+              },
+            }),
+        },
+        {
+          text: t('common.delete', { defaultValue: 'Delete' }),
+          style: 'destructive',
+          onPress: () => handleDeletePlantFromBed(plantEntry.plant),
+        },
+        { text: t('common.cancel', { defaultValue: 'Cancel' }), style: 'cancel' },
+      ]
+    );
+  };
+
   const handleAdjustSave = async () => {
     if (!bed || adjustInvalid) return;
     setAdjustSaving(true);
@@ -378,7 +433,7 @@ export default function BedDetailScreen() {
                 <TouchableOpacity
                   key={index}
                   activeOpacity={0.7}
-                  onPress={() => openAddPlant(col, row)}
+                  onPress={() => openCellAction(col, row, plantEntry)}
                   style={{
                     width: cellSize,
                     height: cellSize,

@@ -2,8 +2,10 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
+import { isPremiumActive } from "./lib/subscription";
 
 const NAME_MAX = 40;
+const FREE_GARDEN_LIMIT = 1;
 
 function assertNameLength(value: string) {
     if (value.trim().length > NAME_MAX) {
@@ -40,22 +42,14 @@ export const createGarden = mutation({
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
         assertNameLength(args.name);
-        const isAnonymous = user.isAnonymous === true;
-        const subscription = user.subscription;
-        const now = Date.now();
-        const isPremium =
-            !isAnonymous &&
-            subscription?.tier === "premium" &&
-            (subscription.expiresAt === undefined || subscription.expiresAt > now);
 
-        if (!isPremium) {
-            const existingGardens = await ctx.db
+        if (!isPremiumActive(user)) {
+            const gardens = await ctx.db
                 .query("gardens")
                 .withIndex("by_user", (q: any) => q.eq("userId", user._id))
                 .filter((q: any) => q.neq(q.field("isDeleted"), true))
-                .take(1);
-
-            if (existingGardens.length > 0) {
+                .collect();
+            if (gardens.length >= FREE_GARDEN_LIMIT) {
                 throw new Error("GARDEN_LIMIT_FREE");
             }
         }

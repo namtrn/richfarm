@@ -15,6 +15,7 @@ import { useSyncTriggers } from '../hooks/useSyncTriggers';
 import { useUserSettings } from '../hooks/useUserSettings';
 import { useNotifications } from '../hooks/useNotifications';
 import { authClient } from '../lib/auth-client';
+import { SubscriptionProvider } from '../hooks/useSubscription';
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
@@ -81,9 +82,11 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <ConvexBetterAuthProvider client={convex} authClient={authClient}>
-        <AppShell>
-          <AuthGuard />
-        </AppShell>
+        <SubscriptionProvider>
+          <AppShell>
+            <AuthGuard />
+          </AppShell>
+        </SubscriptionProvider>
       </ConvexBetterAuthProvider>
     </I18nextProvider>
   );

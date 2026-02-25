@@ -299,8 +299,11 @@ function PestDiseaseCard({ item, onPress }: { item: any; onPress: () => void }) 
             }}
         >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917', flex: 1, letterSpacing: -0.3 }}>{item.name}</Text>
-                <View style={{ backgroundColor: typeBg, paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10 }}>
+                <View style={{ flexDirection: 'row', flex: 1, gap: 12 }}>
+                    <PlantImage uri={item.imageUrl} size={56} borderRadius={12} />
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917', flex: 1, letterSpacing: -0.3 }}>{item.name}</Text>
+                </View>
+                <View style={{ backgroundColor: typeBg, paddingHorizontal: 9, paddingVertical: 3, borderRadius: 10, marginLeft: 8 }}>
                     <Text style={{ color: typeColor, fontSize: 11, fontWeight: '700' }}>{typeLabel}</Text>
                 </View>
             </View>
@@ -345,6 +348,9 @@ function PestDiseaseDetailModal({ item, onClose }: { item: any; onClose: () => v
                         <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}>
                             <X size={20} stroke="#6b7280" />
                         </TouchableOpacity>
+                    </View>
+                    <View style={{ alignItems: 'center', marginBottom: 14 }}>
+                        <PlantImage uri={item.imageUrl} size={180} borderRadius={16} />
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <InfoSection title={t('health.section_identification', { defaultValue: 'Identification' })} items={item.identification} />
@@ -460,13 +466,28 @@ function SlidingTabBar({
 export default function LibraryScreen() {
     const { t, i18n } = useTranslation();
     const router = useRouter();
-    const params = useLocalSearchParams<{ mode?: string; from?: string; plantId?: string; bedId?: string; x?: string; y?: string; q?: string; tab?: string }>();
+    const params = useLocalSearchParams<{
+        mode?: string;
+        from?: string;
+        plantId?: string;
+        bedId?: string;
+        x?: string;
+        y?: string;
+        q?: string;
+        tab?: string;
+        backFrom?: string;
+        backBedId?: string;
+        backGardenId?: string;
+    }>();
     const fromParam = Array.isArray(params.from) ? params.from[0] : params.from;
     const modeParam = Array.isArray(params.mode) ? params.mode[0] : params.mode;
     const selectMode = modeParam === 'select';
     const attachMode = modeParam === 'attach';
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const bedIdParam = Array.isArray(params.bedId) ? params.bedId[0] : params.bedId;
+    const backFromParam = Array.isArray(params.backFrom) ? params.backFrom[0] : params.backFrom;
+    const backBedIdParam = Array.isArray(params.backBedId) ? params.backBedId[0] : params.backBedId;
+    const backGardenIdParam = Array.isArray(params.backGardenId) ? params.backGardenId[0] : params.backGardenId;
     const xParam = Array.isArray(params.x) ? params.x[0] : params.x;
     const yParam = Array.isArray(params.y) ? params.y[0] : params.y;
     const xValue = xParam !== undefined ? Number(xParam) : undefined;
@@ -724,7 +745,15 @@ export default function LibraryScreen() {
                             if (router.canGoBack()) {
                                 router.back();
                             } else if (params.plantId) {
-                                router.replace(`/(tabs)/plant/${params.plantId}`);
+                                router.replace({
+                                    pathname: '/(tabs)/plant/[plantId]',
+                                    params: {
+                                        plantId: String(params.plantId),
+                                        from: backFromParam,
+                                        bedId: backBedIdParam,
+                                        gardenId: backGardenIdParam,
+                                    },
+                                });
                             } else {
                                 router.replace('/(tabs)/growing');
                             }

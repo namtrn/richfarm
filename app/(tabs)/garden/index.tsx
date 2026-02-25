@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -15,6 +15,7 @@ import {
 import { Fence, Plus, X, Calendar, Sprout, Leaf, ChevronRight } from 'lucide-react-native';
 import { useQuery, useMutation } from 'convex/react';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
@@ -30,6 +31,7 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { usePlants } from '../../../hooks/usePlants';
 import { useAuth } from '../../../lib/auth';
 import { useBeds } from '../../../hooks/useBeds';
+import { isPremiumActive } from '../../../lib/access';
 import * as ImagePicker from 'expo-image-picker';
 
 type GardenTab = 'garden' | 'planning' | 'growing';
@@ -181,8 +183,8 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
             onClose();
         } catch (e: any) {
             const message = typeof e?.message === 'string' ? e.message : '';
-            if (message.includes('GARDEN_LIMIT_FREE')) {
-                setError(t('garden.error_limit_free'));
+            if (message === 'GARDEN_LIMIT_FREE') {
+                setError(t('garden.error_limit_free', { defaultValue: 'Free users can only create one garden.' }));
             } else {
                 setError(message || t('common.error'));
             }
@@ -289,7 +291,13 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
 }
 
 // ─── Garden Tab Content ───────────────────────────────────────────────────────
-function GardenTabContent({ onCreateGarden }: { onCreateGarden: () => void }) {
+function GardenTabContent({
+    onCreateGarden,
+    canCreateGarden,
+}: {
+    onCreateGarden: () => void;
+    canCreateGarden: boolean;
+}) {
     const { t } = useTranslation();
     const router = useRouter();
     const { deviceId } = useDeviceId();
@@ -318,8 +326,9 @@ function GardenTabContent({ onCreateGarden }: { onCreateGarden: () => void }) {
                 </View>
                 <TouchableOpacity
                     onPress={onCreateGarden}
+                    disabled={!canCreateGarden}
                     testID="e2e-garden-empty-create"
-                    style={{ backgroundColor: '#1a4731', borderRadius: 16, paddingHorizontal: 24, paddingVertical: 12, marginTop: 4 }}
+                    style={{ backgroundColor: '#1a4731', borderRadius: 16, paddingHorizontal: 24, paddingVertical: 12, marginTop: 4, opacity: canCreateGarden ? 1 : 0.5 }}
                 >
                     <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>{t('garden.create_button')}</Text>
                 </TouchableOpacity>
@@ -425,7 +434,12 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
                     {plannedPlants.map((plant) => (
                         <TouchableOpacity
                             key={plant._id}
-                            onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/(tabs)/plant/[plantId]',
+                                    params: { plantId: String(plant._id), from: 'planning' },
+                                })
+                            }
                             activeOpacity={0.8}
                             style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
                         >
@@ -538,7 +552,12 @@ function GrowingTabContent() {
                     {activePlants.map((plant) => (
                         <TouchableOpacity
                             key={plant._id}
-                            onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/(tabs)/plant/[plantId]',
+                                    params: { plantId: String(plant._id), from: 'growing' },
+                                })
+                            }
                             activeOpacity={0.8}
                             style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
                         >
@@ -569,12 +588,16 @@ function GrowingTabContent() {
 export default function GardenScreen() {
     const { t } = useTranslation();
     const { deviceId } = useDeviceId();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const gardens = gardensQuery ?? [];
+    const isPremium = isPremiumActive(user);
+    const canCreateGarden = !isAuthLoading && (isPremium || gardens.length < 1);
 
     const [activeTab, setActiveTab] = useState<GardenTab>('garden');
     const [showCreate, setShowCreate] = useState(false);
     const [showSheet, setShowSheet] = useState(false);
+    const [gardenLimitError, setGardenLimitError] = useState('');
     const unitSystem = useUnitSystem();
 
     const TABS = [
@@ -582,6 +605,36 @@ export default function GardenScreen() {
         { key: 'planning', label: t('garden.tab_planning', { defaultValue: 'Planning' }) },
         { key: 'growing', label: t('garden.tab_growing', { defaultValue: 'Growing' }) },
     ];
+
+    const handleOpenCreateGarden = () => {
+        if (!canCreateGarden) {
+            setGardenLimitError(t('garden.error_limit_free'));
+            return;
+        }
+        setGardenLimitError('');
+        setShowCreate(true);
+    };
+
+    useEffect(() => {
+        if (canCreateGarden) {
+            setGardenLimitError('');
+        }
+    }, [canCreateGarden]);
+
+    useEffect(() => {
+        if (activeTab !== 'garden') {
+            setGardenLimitError('');
+        }
+    }, [activeTab]);
+
+    useFocusEffect(
+        useCallback(() => {
+            setGardenLimitError('');
+            return () => {
+                setGardenLimitError('');
+            };
+        }, [])
+    );
 
     return (
         <View style={{ flex: 1, backgroundColor: '#faf8f4' }}>
@@ -591,7 +644,7 @@ export default function GardenScreen() {
                     <Text style={{ fontSize: 26, fontWeight: '800', color: '#1c1917', letterSpacing: -0.5 }}>{t('garden.title')}</Text>
                     {activeTab === 'garden' && (
                         <TouchableOpacity
-                            onPress={() => setShowCreate(true)}
+                            onPress={handleOpenCreateGarden}
                             testID="e2e-garden-open-create"
                             style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#1a4731', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}
                         >
@@ -619,7 +672,18 @@ export default function GardenScreen() {
 
             {/* Scrollable content area */}
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-                {activeTab === 'garden' && <GardenTabContent onCreateGarden={() => setShowCreate(true)} />}
+                {activeTab === 'garden' && (
+                    <>
+                        {!!gardenLimitError && (
+                            <View style={{ marginBottom: 12, backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                                <Text style={{ color: '#b91c1c', fontSize: 13 }}>
+                                    {gardenLimitError}
+                                </Text>
+                            </View>
+                        )}
+                        <GardenTabContent onCreateGarden={handleOpenCreateGarden} canCreateGarden={canCreateGarden} />
+                    </>
+                )}
                 {activeTab === 'planning' && <PlanningTabContent onAddPlant={() => setShowSheet(true)} />}
                 {activeTab === 'growing' && <GrowingTabContent />}
             </ScrollView>

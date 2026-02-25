@@ -23,7 +23,6 @@ export default function TabLayout() {
       <Tabs.Screen name="plant" options={{ href: null }} />
       <Tabs.Screen name="planning" options={{ href: null }} />
       <Tabs.Screen name="growing" options={{ href: null }} />
-      <Tabs.Screen name="health" options={{ href: null }} />
       <Tabs.Screen name="explorer" options={{ href: null }} />
 
       {/* Visible tabs — order: Home | Garden | Library | Reminder | More */}

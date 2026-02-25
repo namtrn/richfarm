@@ -2,7 +2,7 @@ import { useAuth } from '../lib/auth';
 
 export function useAppReady() {
     const fontsLoaded = true; // Tamagui handles fonts
-    const { user, isLoading } = useAuth();
+    const { user, isLoading, deviceId } = useAuth();
 
     // App is ready when device id + auth query has resolved
     const isAuthReady = !isLoading;
@@ -12,5 +12,6 @@ export function useAppReady() {
         isReady,
         isAuthReady,
         currentUser: user ?? null,
+        deviceId,
     };
 }

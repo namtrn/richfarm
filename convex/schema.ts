@@ -49,6 +49,7 @@ export default defineSchema({
     subscription: v.optional(v.object({
       tier: v.string(), // "free", "premium"
       expiresAt: v.optional(v.number()),
+      source: v.optional(v.string()), // "revenuecat"
     })),
 
     // Metadata
@@ -145,6 +146,7 @@ export default defineSchema({
     key: v.string(),
     type: v.string(), // "pest" | "disease"
     name: v.string(),
+    imageUrl: v.optional(v.string()),
     identification: v.array(v.string()),
     damage: v.array(v.string()),
     prevention: v.array(v.string()),

@@ -180,7 +180,10 @@ export default function ExplorerScreen() {
     };
 
     const openPlant = (plantId: string) => {
-        router.push(`/(tabs)/plant/${plantId}`);
+        router.push({
+            pathname: '/(tabs)/plant/[plantId]',
+            params: { plantId: String(plantId), from: 'explorer' },
+        });
     };
 
     const isLoading = isLibraryLoading || isUserPlantsLoading || isHealthLoading;

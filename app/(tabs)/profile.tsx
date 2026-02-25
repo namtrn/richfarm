@@ -1,11 +1,15 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor } from 'lucide-react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { useAuth } from '../../lib/auth';
 import { loadSyncQueue } from '../../lib/sync/queue';
 import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useUserSettings } from '../../hooks/useUserSettings';
+import { useSubscription } from '../../hooks/useSubscription';
+import { usePaywall } from '../../hooks/usePaywall';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { authClient, APP_SCHEME } from '../../lib/auth-client';
@@ -31,9 +35,12 @@ const LANGUAGES = [
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const { user, updateProfile, isLoading } = useAuth();
+  const { user, updateProfile, isLoading, deviceId } = useAuth();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
+  const { isPremium, isConfigured: isSubConfigured, isLoading: isSubLoading, restorePurchases } = useSubscription();
+  const { presentPaywall, isPresenting } = usePaywall();
+  const deleteAccountMutation = useMutation((api as any).users.deleteAccount);
 
   const currentLang = i18n.language;
   const [name, setName] = useState(user?.name ?? '');
@@ -53,6 +60,7 @@ export default function ProfileScreen() {
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [authPanelOpen, setAuthPanelOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp' | 'forgot'>('signIn');
+  const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
 
   const email = user?.email ?? '—';
   const isAnonymous = user?.isAnonymous ?? false;
@@ -227,17 +235,71 @@ export default function ProfileScreen() {
     }
   };
 
-  return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 40 }}>
-      <View style={{ gap: 2, paddingVertical: 4 }}>
-        <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
-          {t('profile.title')}
-        </Text>
-        <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-          {isAnonymous ? t('profile.anonymous') : t('profile.signed_in')}
-        </Text>
-      </View>
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete account?',
+      'This will permanently remove your account and app data. This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setAuthLoading(true);
+            setAuthMessage(null);
+            try {
+              await deleteAccountMutation({ deviceId });
+              await authClient.signOut();
+              setAuthMessage('Account deleted.');
+            } catch (error) {
+              const message =
+                error instanceof Error ? error.message : 'Delete account failed';
+              setAuthMessage(message);
+            } finally {
+              setAuthLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
+  const handlePaywall = async () => {
+    setPaywallMessage(null);
+    const result = await presentPaywall();
+    if (result.status === 'purchased' || result.status === 'restored') {
+      setPaywallMessage('Subscription active.');
+      return;
+    }
+    if (result.status === 'cancelled') {
+      setPaywallMessage('Purchase cancelled.');
+      return;
+    }
+    if (result.status === 'not_presented') {
+      setPaywallMessage('Paywall not available.');
+      return;
+    }
+    if (result.status === 'error') {
+      setPaywallMessage(result.errorMessage ?? 'Paywall error.');
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    setPaywallMessage(null);
+    try {
+      await restorePurchases();
+      setPaywallMessage('Purchases restored.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Restore failed.';
+      setPaywallMessage(message);
+    }
+  };
+
+  return (
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
+      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 16 }}
+    >
       <View style={{ gap: 16 }}>
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -247,21 +309,23 @@ export default function ProfileScreen() {
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.user_section')}</Text>
           </View>
 
-          <View style={{ gap: 4 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('profile.name_label')}</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder={t('profile.name_placeholder')}
-              placeholderTextColor={theme.textMuted}
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-            />
+          <View style={{ gap: 10 }}>
+            <View style={{ gap: 2 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                {t('profile.name_label')}
+              </Text>
+              <Text style={{ fontSize: 15, color: theme.text }}>{name || '—'}</Text>
+            </View>
+            <View style={{ gap: 2 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                {t('profile.email_label')}
+              </Text>
+              <Text style={{ fontSize: 14, color: theme.textMuted }}>{email}</Text>
+            </View>
           </View>
 
-          <Text style={{ fontSize: 13, color: theme.textMuted }}>{t('profile.email_label')}: {email}</Text>
-
           {isAnonymous ? (
-            <View style={{ gap: 12, paddingTop: 4 }}>
+            <View style={{ gap: 12 }}>
               <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>Create account to sync across devices</Text>
               {!authPanelOpen ? (
                 <TouchableOpacity
@@ -272,27 +336,48 @@ export default function ProfileScreen() {
                   }}
                   style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
                 >
-                  <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Open Auth</Text>
+                  <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Sign In or Create Account</Text>
                 </TouchableOpacity>
               ) : (
                 <View style={{ gap: 12 }}>
-                  <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        if (authMode === 'forgot') setAuthMode('signIn');
-                        else setAuthPanelOpen(false);
-                      }}
-                      style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
-                    >
-                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>Back</Text>
-                    </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                      Account
+                    </Text>
                     <TouchableOpacity
                       onPress={() => setAuthPanelOpen(false)}
-                      style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
+                      style={{ backgroundColor: theme.accent, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
                     >
-                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>Close</Text>
+                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 12 }}>Close</Text>
                     </TouchableOpacity>
                   </View>
+                  {authMode !== 'forgot' ? (
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <TouchableOpacity
+                        onPress={() => setAuthMode('signIn')}
+                        style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', backgroundColor: authMode === 'signIn' ? theme.primary : theme.accent }}
+                      >
+                        <Text style={{ fontWeight: '700', color: authMode === 'signIn' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
+                          Sign In
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => setAuthMode('signUp')}
+                        style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', backgroundColor: authMode === 'signUp' ? theme.primary : theme.accent }}
+                      >
+                        <Text style={{ fontWeight: '700', color: authMode === 'signUp' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
+                          Sign Up
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => setAuthMode('signIn')}
+                      style={{ backgroundColor: theme.accent, borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
+                    >
+                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>Back to Sign In</Text>
+                    </TouchableOpacity>
+                  )}
                   <TextInput
                     value={authEmail}
                     onChangeText={setAuthEmail}
@@ -329,23 +414,22 @@ export default function ProfileScreen() {
                     >
                       <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Send Reset Link</Text>
                     </TouchableOpacity>
+                  ) : authMode === 'signUp' ? (
+                    <TouchableOpacity
+                      onPress={handleSignUp}
+                      disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
+                      style={{ backgroundColor: theme.success, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
+                    >
+                      <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Create Account</Text>
+                    </TouchableOpacity>
                   ) : (
-                    <View style={{ flexDirection: 'row', gap: 10 }}>
-                      <TouchableOpacity
-                        onPress={handleSignUp}
-                        disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
-                        style={{ flex: 1, backgroundColor: theme.success, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
-                      >
-                        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Sign Up</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={handleSignIn}
-                        disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
-                        style={{ flex: 1, backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
-                      >
-                        <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Sign In</Text>
-                      </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity
+                      onPress={handleSignIn}
+                      disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
+                      style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
+                    >
+                      <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Sign In</Text>
+                    </TouchableOpacity>
                   )}
                   {authMode !== 'forgot' && (
                     <TouchableOpacity
@@ -360,7 +444,7 @@ export default function ProfileScreen() {
               )}
             </View>
           ) : (
-            <View style={{ paddingTop: 4 }}>
+            <View>
               {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 12 }}>{authMessage}</Text>}
               <TouchableOpacity
                 onPress={handleSignOut}
@@ -369,8 +453,46 @@ export default function ProfileScreen() {
               >
                 <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>Sign Out</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDeleteAccount}
+                disabled={authLoading}
+                style={{ marginTop: 10, backgroundColor: '#fee2e2', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
+              >
+                <Text style={{ color: '#991b1b', fontWeight: '700', fontSize: 14 }}>Delete Account</Text>
+              </TouchableOpacity>
             </View>
           )}
+        </View>
+
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Crown size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>Subscription</Text>
+          </View>
+
+          <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+            {!isSubConfigured ? 'RevenueCat not configured.' : isSubLoading ? 'Checking status...' : isPremium ? 'Premium active.' : 'Free plan.'}
+          </Text>
+
+          <TouchableOpacity
+            onPress={handlePaywall}
+            disabled={!isSubConfigured || isPresenting || isSubLoading}
+            style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isPresenting || isSubLoading ? 0.5 : 1 }}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{isPremium ? 'Manage subscription' : 'Upgrade to Premium'}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleRestorePurchases}
+            disabled={!isSubConfigured || isPresenting || isSubLoading}
+            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isPresenting || isSubLoading ? 0.5 : 1 }}
+          >
+            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>Restore Purchases</Text>
+          </TouchableOpacity>
+
+          {paywallMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{paywallMessage}</Text>}
         </View>
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
@@ -380,7 +502,6 @@ export default function ProfileScreen() {
             </View>
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.language_label')}</Text>
           </View>
-          <Text style={{ fontSize: 13, color: theme.textMuted }}>{t('profile.current_language', { label: selectedLangLabel })}</Text>
           <View>
             <TouchableOpacity
               onPress={() => setLanguageMenuOpen((v) => !v)}
@@ -453,7 +574,6 @@ export default function ProfileScreen() {
               );
             })}
           </View>
-          <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('profile.unit_current', { label: unitSystem === 'metric' ? t('profile.unit_metric') : t('profile.unit_imperial') })}</Text>
         </View>
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
@@ -490,9 +610,6 @@ export default function ProfileScreen() {
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.sync_title')}</Text>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.sync_subtitle')}</Text>
-          <Text style={{ fontSize: 13, fontWeight: '600', color: theme.text }}>
-            {t('profile.sync_queue_count', { count: syncCount })}
-          </Text>
           {syncMessage && (
             <Text style={{ fontSize: 13, color: theme.success, fontWeight: '500' }}>{syncMessage}</Text>
           )}
