@@ -3,8 +3,8 @@
 // Hoặc từng function riêng lẻ qua Convex dashboard
 
 import { internalMutation } from "./_generated/server";
-import type { Doc, TableNames } from "./_generated/dataModel";
-import { plantGroupsSeed, plantsMasterSeed } from "./data/plantsMasterSeed";
+import type { Doc, TableNames, Id } from "./_generated/dataModel";
+import { plantGroupsSeed, plantsMasterSeed, plantI18nSeed } from "./data/plantsMasterSeed";
 import { pestsDiseasesSeed } from "./data/pestsDiseasesSeed";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -28,6 +28,101 @@ function formatYmd(timestamp: number) {
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
+}
+
+async function seedPlantsAndI18n(ctx: any) {
+    const plants = plantsMasterSeed;
+    const idByScientificName = new Map<string, Id<"plantsMaster">>();
+
+    let plantsInserted = 0;
+    for (const plant of plants) {
+        const existing = await ctx.db
+            .query("plantsMaster")
+            .withIndex("by_scientific_name", (q: any) =>
+                q.eq("scientificName", plant.scientificName)
+            )
+            .unique();
+
+        if (!existing) {
+            const basePlant: InsertDoc<"plantsMaster"> = {
+                ...plant,
+                companionPlants: undefined,
+                avoidPlants: undefined,
+            };
+            const insertedId = await ctx.db.insert("plantsMaster", basePlant);
+            idByScientificName.set(plant.scientificName, insertedId);
+            plantsInserted++;
+        } else {
+            idByScientificName.set(plant.scientificName, existing._id);
+        }
+    }
+
+    for (const plant of plants) {
+        const plantId = idByScientificName.get(plant.scientificName);
+        if (!plantId) continue;
+        const companionIds = (plant.companionPlants ?? [])
+            .map((name) => idByScientificName.get(name))
+            .filter((id): id is Id<"plantsMaster"> => Boolean(id));
+        const avoidIds = (plant.avoidPlants ?? [])
+            .map((name) => idByScientificName.get(name))
+            .filter((id): id is Id<"plantsMaster"> => Boolean(id));
+
+        if (companionIds.length === 0 && avoidIds.length === 0) continue;
+
+        await ctx.db.patch(plantId, {
+            ...(companionIds.length > 0 && { companionPlants: companionIds }),
+            ...(avoidIds.length > 0 && { avoidPlants: avoidIds }),
+        });
+    }
+
+    let i18nInserted = 0;
+    let i18nUpdated = 0;
+    let i18nSkipped = 0;
+    for (const row of plantI18nSeed) {
+        const plantId = idByScientificName.get(row.scientificName);
+        if (!plantId) continue;
+
+        const existing = await ctx.db
+            .query("plantI18n")
+            .withIndex("by_plant_locale", (q: any) =>
+                q.eq("plantId", plantId).eq("locale", row.locale)
+            )
+            .unique();
+
+        if (!existing) {
+            await ctx.db.insert("plantI18n", {
+                plantId,
+                locale: row.locale,
+                commonName: row.commonName,
+                description: row.description,
+            });
+            i18nInserted++;
+            continue;
+        }
+
+        if (
+            existing.commonName !== row.commonName ||
+            existing.description !== row.description
+        ) {
+            await ctx.db.patch(existing._id, {
+                commonName: row.commonName,
+                description: row.description,
+            });
+            i18nUpdated++;
+        } else {
+            i18nSkipped++;
+        }
+    }
+
+    return {
+        plants: { inserted: plantsInserted, total: plants.length },
+        plantI18n: {
+            inserted: i18nInserted,
+            updated: i18nUpdated,
+            skipped: i18nSkipped,
+            total: plantI18nSeed.length,
+        },
+    };
 }
 
 // ==========================================
@@ -61,24 +156,7 @@ export const seedPlantGroups = internalMutation({
 export const seedPlantsMaster = internalMutation({
     args: {},
     handler: async (ctx) => {
-        const plants: Array<InsertDoc<"plantsMaster">> = plantsMasterSeed;
-
-        let count = 0;
-        for (const plant of plants) {
-            const existing = await ctx.db
-                .query("plantsMaster")
-                .withIndex("by_scientific_name", (q) =>
-                    q.eq("scientificName", plant.scientificName)
-                )
-                .unique();
-
-            if (!existing) {
-                await ctx.db.insert("plantsMaster", plant);
-                count++;
-            }
-        }
-
-        return { inserted: count, total: plants.length };
+        return await seedPlantsAndI18n(ctx);
     },
 });
 
@@ -130,6 +208,9 @@ export const seedAll = internalMutation({
             }
         }
 
+        // --- Seed Plants + Plant I18n ---
+        const plantsStats = await seedPlantsAndI18n(ctx);
+
         // --- Seed Pests and Diseases ---
         const pestsDiseasesDefs: Array<InsertDoc<"pestsDiseases">> = pestsDiseasesSeed;
         let pestsDiseasesInserted = 0;
@@ -150,12 +231,13 @@ export const seedAll = internalMutation({
 
         return {
             groups: { inserted: groupsInserted, total: groupDefs.length },
+            ...plantsStats,
             pestsDiseases: {
                 inserted: pestsDiseasesInserted,
                 updated: pestsDiseasesUpdated,
                 total: pestsDiseasesDefs.length,
             },
-            message: "Seed completed! Run seedPlantsMaster separately to add plants.",
+            message: "Seed completed: groups, plants, plantI18n, pestsDiseases.",
         };
     },
 });

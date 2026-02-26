@@ -143,8 +143,9 @@ export default function PlantDetailScreen() {
       : 'skip'
   );
   const lightLabel = masterPlant?.lightRequirements
-    ? t(`library.light_${masterPlant.lightRequirements}`, { defaultValue: masterPlant.lightRequirements })
+    ? t(`library.light_${masterPlant.lightRequirements}`)
     : undefined;
+  const statusLabel = plant ? t(`plant.status_${plant.status}`) : '';
 
   const [nickname, setNickname] = useState('');
   const [notes, setNotes] = useState('');
@@ -412,7 +413,7 @@ export default function PlantDetailScreen() {
         </TouchableOpacity>
         <View style={{ flex: 1, gap: 1 }}>
           <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.nickname ?? t('plant.unnamed')}</Text>
-          <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{t(`plant.status_${plant.status}`, { defaultValue: plant.status })}</Text>
+          <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{statusLabel}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <TouchableOpacity
@@ -622,7 +623,7 @@ export default function PlantDetailScreen() {
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.successBg, alignItems: 'center', justifyContent: 'center' }}>
                 <Sprout size={16} color={theme.success} />
               </View>
-              <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>{t('plant.status_label', { status: t(`plant.status_${plant.status}`, { defaultValue: plant.status }) })}</Text>
+              <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>{t('plant.status_label', { status: statusLabel })}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>

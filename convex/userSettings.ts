@@ -22,6 +22,17 @@ export const upsertUserSettings = mutation({
         deviceId: v.optional(v.string()),
         unitSystem: v.optional(v.string()),
         theme: v.optional(v.string()),
+        onboarding: v.optional(
+            v.object({
+                goals: v.array(v.string()),
+                scaleEnvironment: v.array(v.string()),
+                crops: v.array(v.string()),
+                experience: v.string(),
+                needs: v.array(v.string()),
+                completedAt: v.number(),
+                version: v.optional(v.number()),
+            })
+        ),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
@@ -34,6 +45,7 @@ export const upsertUserSettings = mutation({
             await ctx.db.patch(existing._id, {
                 ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
                 ...(args.theme !== undefined && { theme: args.theme }),
+                ...(args.onboarding !== undefined && { onboarding: args.onboarding }),
             });
             return existing._id;
         }
@@ -42,6 +54,7 @@ export const upsertUserSettings = mutation({
             userId: user._id,
             ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
             ...(args.theme !== undefined && { theme: args.theme }),
+            ...(args.onboarding !== undefined && { onboarding: args.onboarding }),
         });
     },
 });

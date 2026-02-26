@@ -7,10 +7,13 @@ const LITER_TO_GAL = 0.2641720524;
 const KG_TO_LB = 2.2046226218;
 
 export function resolveUnitSystem(unitSystem?: string, locale?: string, region?: string): UnitSystem {
-    if (unitSystem === 'imperial' || unitSystem === 'metric') return unitSystem;
+    const normalizedUnitSystem = (unitSystem ?? '').trim().toLowerCase();
+    if (normalizedUnitSystem === 'imperial' || normalizedUnitSystem === 'metric') {
+        return normalizedUnitSystem;
+    }
     const normalized = (locale ?? '').toLowerCase();
     const normalizedRegion = (region ?? '').toUpperCase();
-    if (normalizedRegion === 'US') return 'imperial';
+    if (normalizedRegion === 'US' || normalizedRegion === 'LR' || normalizedRegion === 'MM') return 'imperial';
     if (normalized.includes('en-us')) return 'imperial';
     return 'metric';
 }

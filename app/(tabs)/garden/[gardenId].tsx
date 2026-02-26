@@ -147,7 +147,7 @@ function BedFormModal({
     } catch (e: any) {
       const message = typeof e?.message === 'string' ? e.message : '';
       if (message === 'BED_LIMIT_FREE') {
-        setError(t('garden.error_limit_free_beds', { defaultValue: 'Free users can only create up to 3 beds.' }));
+        setError(t('garden.error_limit_free_beds'));
       } else {
         setError(message || t('common.error'));
       }
@@ -206,7 +206,7 @@ function BedFormModal({
 
           {isRaised && (
             <View style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label', { defaultValue: 'Tiers' })}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label')}</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {[1, 2, 3].map((value) => {
                   const active = value === tiers;
@@ -492,16 +492,12 @@ export default function GardenDetailScreen() {
   const hasReachedBedLimit = !isAuthLoading && !isPremium && beds.length >= 3;
   const getLocationLabel = (key?: string) => {
     if (!key) return '—';
-    return t(`garden.location_${key}`, { defaultValue: key });
+    return t(`garden.location_${key}`);
   };
 
   const handleOpenCreateBed = () => {
     if (hasReachedBedLimit) {
-      setBedLimitError(
-        t('garden.error_limit_free_beds', {
-          defaultValue: 'Free users can only create up to 3 beds.',
-        })
-      );
+      setBedLimitError(t('garden.error_limit_free_beds'));
       return;
     }
     setBedLimitError('');
@@ -683,11 +679,7 @@ export default function GardenDetailScreen() {
           }
           if (hasReachedBedLimit) {
             setShowBedForm(false);
-            setBedLimitError(
-              t('garden.error_limit_free_beds', {
-                defaultValue: 'Free users can only create up to 3 beds.',
-              })
-            );
+            setBedLimitError(t('garden.error_limit_free_beds'));
             return;
           }
           await createBed({ ...payload, gardenId: garden._id });

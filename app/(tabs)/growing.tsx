@@ -88,8 +88,8 @@ export default function GrowingScreen() {
                 ? ` • Cell ${(pos?.x ?? 0) + 1},${(pos?.y ?? 0) + 1}`
                 : '';
               const locationLabel = bed
-                ? `${garden?.name ?? t('growing.unknown_garden', { defaultValue: 'Unknown garden' })} > ${bed.name}${positionLabel}`
-                : t('growing.no_location', { defaultValue: 'No bed assigned' });
+                ? `${garden?.name ?? t('growing.unknown_garden')} > ${bed.name}${positionLabel}`
+                : t('growing.no_location');
 
               return (
               <TouchableOpacity

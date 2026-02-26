@@ -487,6 +487,19 @@ export default defineSchema({
 
     // Privacy
     shareAnonymousData: v.optional(v.boolean()),
+
+    // Onboarding profile (farm-first)
+    onboarding: v.optional(
+      v.object({
+        goals: v.array(v.string()),
+        scaleEnvironment: v.array(v.string()),
+        crops: v.array(v.string()),
+        experience: v.string(),
+        needs: v.array(v.string()),
+        completedAt: v.number(),
+        version: v.optional(v.number()),
+      })
+    ),
   })
     .index("by_user", ["userId"]),
 });

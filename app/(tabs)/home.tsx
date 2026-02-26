@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
-import { Bell, Droplets, Scissors, Sprout, ChevronRight } from 'lucide-react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import { Bell, Droplets, Scissors, Sprout, ChevronRight, ScanSearch } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useReminders } from '../../hooks/useReminders';
@@ -30,11 +30,11 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { todayReminders, isLoading } = useReminders();
   const { model: weatherModel } = useWeatherCard();
 
-  const displayName = user?.name || t('home.welcome_default', { defaultValue: 'Gardener' });
+  const displayName = user?.name || t('home.welcome_default');
   const initials = displayName
     .split(' ')
     .slice(0, 2)
@@ -47,6 +47,21 @@ export default function HomeScreen() {
 
   const upcoming = sortedToday.slice(0, 6);
   const overdueCount = sortedToday.filter((r) => r.nextRunAt < Date.now()).length;
+  const handleOpenAiScanner = () => {
+    if (isAuthLoading) return;
+    if (!isAuthenticated) {
+      Alert.alert(
+        t('profile.auth_sign_in'),
+        t('planning.auth_warning'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('profile.auth_sign_in'), onPress: () => router.push('/(tabs)/profile') },
+        ]
+      );
+      return;
+    }
+    router.push('/(tabs)/planning?scanner=1');
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
@@ -66,13 +81,33 @@ export default function HomeScreen() {
           )}
         </View>
         {/* Text block */}
-        <View style={{ gap: 2 }}>
+        <View style={{ gap: 2, flex: 1 }}>
           <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.5, textTransform: 'uppercase' }}>
-            {t('home.welcome_back', { defaultValue: 'Welcome back' })}
+            {t('home.welcome_back')}
           </Text>
           <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
             {displayName}
           </Text>
+        </View>
+        <View style={{ alignItems: 'center', gap: 3 }}>
+          <TouchableOpacity
+            onPress={handleOpenAiScanner}
+            accessibilityLabel={t('planning.option_camera_title')}
+            testID="e2e-home-ai-scanner"
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              backgroundColor: theme.card,
+              borderWidth: 1,
+              borderColor: theme.border,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <ScanSearch size={20} color={theme.primary} />
+          </TouchableOpacity>
+          <Text style={{ fontSize: 10, fontWeight: '700', color: theme.textSecondary }}>{t('planning.ai_scan_short')}</Text>
         </View>
       </View>
 
@@ -82,15 +117,15 @@ export default function HomeScreen() {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
-              {t('home.section_today', { defaultValue: 'Today' })}
+              {t('home.section_today')}
             </Text>
             <Text style={{ fontSize: 12, color: theme.textSecondary }}>
-              {t('home.section_today_desc', { defaultValue: 'Watering, harvest, and care reminders.' })}
+              {t('home.section_today_desc')}
             </Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/(tabs)/reminder')}>
             <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>
-              {t('home.view_all', { defaultValue: 'View all' })}
+              {t('home.view_all')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -103,7 +138,7 @@ export default function HomeScreen() {
           <View style={{ paddingVertical: 20, alignItems: 'center', gap: 8 }}>
             <Bell size={28} stroke={theme.textMuted} />
             <Text style={{ fontSize: 13, color: theme.textMuted }}>
-              {t('home.empty', { defaultValue: 'No tasks due today.' })}
+              {t('home.empty')}
             </Text>
           </View>
         ) : (
@@ -140,7 +175,7 @@ export default function HomeScreen() {
             })}
             {sortedToday.length > upcoming.length && (
               <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 6 }}>
-                {t('home.more_count', { defaultValue: '+{{count}} more tasks today', count: sortedToday.length - upcoming.length })}
+                {t('home.more_count', { count: sortedToday.length - upcoming.length })}
               </Text>
             )}
           </View>
@@ -149,18 +184,18 @@ export default function HomeScreen() {
 
       <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
         <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>
-          {t('home.quick_stats', { defaultValue: 'Quick stats' })}
+          {t('home.quick_stats')}
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1, backgroundColor: theme.successBg, borderRadius: 14, padding: 12 }}>
             <Text style={{ fontSize: 12, color: theme.success, marginBottom: 4 }}>
-              {t('home.stat_today', { defaultValue: 'Due today' })}
+              {t('home.stat_today')}
             </Text>
             <Text style={{ fontSize: 20, fontWeight: '800', color: theme.primary }}>{sortedToday.length}</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: theme.warningBg, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: theme.warning }}>
             <Text style={{ fontSize: 12, color: theme.warning, marginBottom: 4 }}>
-              {t('home.stat_overdue', { defaultValue: 'Overdue' })}
+              {t('home.stat_overdue')}
             </Text>
             <Text style={{ fontSize: 20, fontWeight: '800', color: theme.warning }}>{overdueCount}</Text>
           </View>

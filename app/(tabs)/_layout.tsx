@@ -29,7 +29,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: t('tabs.home', { defaultValue: 'Home' }),
+          title: t('tabs.home'),
           tabBarButtonTestID: 'e2e-tab-home',
           tabBarIcon: ({ color }) => <Home size={24} stroke={color} />,
         }}
@@ -61,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: t('tabs.more', { defaultValue: 'More' }),
+          title: t('tabs.more'),
           tabBarButtonTestID: 'e2e-tab-more',
           tabBarIcon: ({ color }) => <UserRound size={24} stroke={color} />,
         }}

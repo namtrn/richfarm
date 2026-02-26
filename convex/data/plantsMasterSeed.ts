@@ -1,16 +1,16 @@
 // Shared seed data for plantsMaster, plantGroups, and plantI18n
 
 export const plantGroupsSeed = [
-    { key: "herbs", displayName: { en: "Herbs" }, sortOrder: 1 },
-    { key: "vegetables", displayName: { en: "Vegetables" }, sortOrder: 2 },
-    { key: "fruits", displayName: { en: "Fruits" }, sortOrder: 3 },
-    { key: "nightshades", displayName: { en: "Nightshades" }, sortOrder: 4 },
-    { key: "alliums", displayName: { en: "Alliums" }, sortOrder: 5 },
-    { key: "leafy_greens", displayName: { en: "Leafy Greens" }, sortOrder: 6 },
-    { key: "roots", displayName: { en: "Root Vegetables" }, sortOrder: 7 },
-    { key: "legumes", displayName: { en: "Legumes" }, sortOrder: 8 },
-    { key: "indoor", displayName: { en: "Indoor Plants" }, sortOrder: 9 },
-    { key: "flowers", displayName: { en: "Flowers" }, sortOrder: 10 },
+    { key: "herbs", displayName: { en: "Herbs", vi: "Cay gia vi" }, sortOrder: 1 },
+    { key: "vegetables", displayName: { en: "Vegetables", vi: "Rau cu" }, sortOrder: 2 },
+    { key: "fruits", displayName: { en: "Fruits", vi: "Cay an trai" }, sortOrder: 3 },
+    { key: "nightshades", displayName: { en: "Nightshades", vi: "Ho ca" }, sortOrder: 4 },
+    { key: "alliums", displayName: { en: "Alliums", vi: "Ho hanh toi" }, sortOrder: 5 },
+    { key: "leafy_greens", displayName: { en: "Leafy Greens", vi: "Rau an la" }, sortOrder: 6 },
+    { key: "roots", displayName: { en: "Root Vegetables", vi: "Rau cu an re" }, sortOrder: 7 },
+    { key: "legumes", displayName: { en: "Legumes", vi: "Cay ho dau" }, sortOrder: 8 },
+    { key: "indoor", displayName: { en: "Indoor Plants", vi: "Cay trong nha" }, sortOrder: 9 },
+    { key: "flowers", displayName: { en: "Flowers", vi: "Hoa canh" }, sortOrder: 10 },
 ];
 
 const SQ_CM_PER_M2 = 10000;
@@ -743,7 +743,7 @@ const rawPlantsMasterSeed: PlantSeed[] = [
     },
 ];
 
-export const plantI18nSeed = [
+const plantI18nEnSeed = [
     {
         scientificName: "Ocimum basilicum",
         locale: "en",
@@ -1094,6 +1094,61 @@ export const plantI18nSeed = [
         description: "Broad-leaf houseplant; prefers bright, indirect light.",
     },
 ];
+
+const plantI18nViSeed = [
+    { scientificName: "Ocimum basilicum", locale: "vi", commonName: "Húng quế", description: "Rau gia vi thom, de trong va de cham soc." },
+    { scientificName: "Mentha × piperita", locale: "vi", commonName: "Bac ha", description: "Rau thom mat, lon nhanh, de cham soc." },
+    { scientificName: "Coriandrum sativum", locale: "vi", commonName: "Ngo ri", description: "Rau gia vi pho bien, dung ca la va hat." },
+    { scientificName: "Ipomoea aquatica", locale: "vi", commonName: "Rau muong", description: "Rau an la lon nhanh, hop khi hau am va am uot." },
+    { scientificName: "Lactuca sativa", locale: "vi", commonName: "Xa lach", description: "Rau an la gion, hop trong chau va khi hau mat." },
+    { scientificName: "Brassica rapa subsp. chinensis", locale: "vi", commonName: "Cai thi", description: "Rau cai lon nhanh, than la mem de an." },
+    { scientificName: "Solanum lycopersicum", locale: "vi", commonName: "Ca chua", description: "Cay an qua pho bien, nhieu giong va de trong." },
+    { scientificName: "Capsicum annuum", locale: "vi", commonName: "Ot chuong", description: "Qua ngot, mau sac da dang, giau vitamin C." },
+    { scientificName: "Capsicum frutescens", locale: "vi", commonName: "Ot hiem", description: "Qua nho vi cay, cay khoe va cho nang suat tot." },
+    { scientificName: "Allium fistulosum", locale: "vi", commonName: "Hanh la", description: "Cay hanh vi nhe, thu hoach som hoac de lon deu duoc." },
+    { scientificName: "Allium sativum", locale: "vi", commonName: "Toi", description: "Cu gia vi cay nong, thuong trong vao mua mat." },
+    { scientificName: "Raphanus sativus", locale: "vi", commonName: "Cu cai trang", description: "Cu gion vi nhe, hop muoi dua va nau canh." },
+    { scientificName: "Daucus carota", locale: "vi", commonName: "Ca rot", description: "Cu ngot gion, giau beta-carotene." },
+    { scientificName: "Vigna unguiculata", locale: "vi", commonName: "Dau dua", description: "Qua dai, chiu nong tot, cho nang suat cao." },
+    { scientificName: "Cucumis sativus", locale: "vi", commonName: "Dua leo", description: "Qua thanh mat, can du am deu va gian do." },
+    { scientificName: "Momordica charantia", locale: "vi", commonName: "Muop dang", description: "Qua vi dang, day leo manh, pho bien trong am thuc." },
+    { scientificName: "Aloe vera", locale: "vi", commonName: "Nha dam", description: "Cay mong nuoc, it cong cham soc, chiu han tot." },
+    { scientificName: "Chlorophytum comosum", locale: "vi", commonName: "Cay day nhen", description: "Cay noi that de song, thanh loc khong khi tot." },
+    { scientificName: "Perilla frutescens", locale: "vi", commonName: "Tia to", description: "Rau gia vi mui dac trung, lon nhanh." },
+    { scientificName: "Eryngium foetidum", locale: "vi", commonName: "Ngo gai", description: "Rau thom mui manh, chiu nong tot." },
+    { scientificName: "Rosmarinus officinalis", locale: "vi", commonName: "Huong thao", description: "Cay gia vi than go, thich nang va dat thoat nuoc." },
+    { scientificName: "Thymus vulgaris", locale: "vi", commonName: "Xa huong", description: "Cay gia vi than thap, chiu han sau khi on dinh." },
+    { scientificName: "Origanum vulgare", locale: "vi", commonName: "Kinh gioi tay", description: "Rau gia vi pho bien trong am thuc Dia Trung Hai." },
+    { scientificName: "Petroselinum crispum", locale: "vi", commonName: "Ngo tay", description: "Rau thom vi nhe, hop trong chau." },
+    { scientificName: "Anethum graveolens", locale: "vi", commonName: "Thi la", description: "Rau mui hoang hoi, hop cho mon ca va do muoi." },
+    { scientificName: "Brassica oleracea var. capitata", locale: "vi", commonName: "Bap cai", description: "Bap chat, cay vu mua mat." },
+    { scientificName: "Brassica oleracea var. italica", locale: "vi", commonName: "Bong cai xanh", description: "Rau cai bo duong cao, an phan hoa." },
+    { scientificName: "Brassica oleracea var. botrytis", locale: "vi", commonName: "Bong cai trang", description: "Cum hoa mem, phat trien tot khi troi mat." },
+    { scientificName: "Spinacia oleracea", locale: "vi", commonName: "Rau bina", description: "Rau an la lon nhanh, hop nhiet do mat." },
+    { scientificName: "Brassica rapa subsp. pekinensis", locale: "vi", commonName: "Cai thao", description: "La gion vi nhe, hop xao va lam kim chi." },
+    { scientificName: "Beta vulgaris", locale: "vi", commonName: "Cu den", description: "Cu ngot vi dat, la cung co the an." },
+    { scientificName: "Solanum melongena", locale: "vi", commonName: "Ca tim", description: "Cay vu mua nong, qua bong dep." },
+    { scientificName: "Phaseolus vulgaris", locale: "vi", commonName: "Dau que", description: "Qua non mem, nen thu hoach thuong xuyen." },
+    { scientificName: "Pisum sativum", locale: "vi", commonName: "Dau Ha Lan", description: "Cay ho dau vu mat, qua va hat ngot." },
+    { scientificName: "Arachis hypogaea", locale: "vi", commonName: "Dau phong", description: "Cay ho dau vu nong, qua hinh thanh duoi dat." },
+    { scientificName: "Cucurbita pepo", locale: "vi", commonName: "Bi ngoi", description: "Bi mua he nang suat cao, nen thu hoach luc qua non." },
+    { scientificName: "Cucurbita moschata", locale: "vi", commonName: "Bi do", description: "Bi vu dong thit day, ngot, bao quan duoc lau." },
+    { scientificName: "Citrullus lanatus", locale: "vi", commonName: "Dua hau", description: "Qua lon ngot, can nang day va khong gian rong." },
+    { scientificName: "Cucumis melo", locale: "vi", commonName: "Dua luoi", description: "Qua thom ngot, can nhiet do cao va thong thoang." },
+    { scientificName: "Fragaria x ananassa", locale: "vi", commonName: "Dau tay", description: "Qua ngot, thich dem mat va do am on dinh." },
+    { scientificName: "Citrus limon", locale: "vi", commonName: "Chanh", description: "Cay co mui vi chua, thich nang va dat thoat nuoc." },
+    { scientificName: "Citrus sinensis", locale: "vi", commonName: "Cam", description: "Cay co mui qua ngot, hop dieu kien am ap co nang." },
+    { scientificName: "Carica papaya", locale: "vi", commonName: "Du du", description: "Cay an qua nhiet doi, lon nhanh va ua nang." },
+    { scientificName: "Hibiscus rosa-sinensis", locale: "vi", commonName: "Dam but", description: "Hoa lon ruc ro, no dep khi co nang va am." },
+    { scientificName: "Tagetes erecta", locale: "vi", commonName: "Van tho", description: "Hoa mot nam de trong, mau sac sang va xua sau." },
+    { scientificName: "Rosa chinensis", locale: "vi", commonName: "Hoa hong", description: "Bui hoa co dien, nhieu giong va nhieu mau." },
+    { scientificName: "Helianthus annuus", locale: "vi", commonName: "Huong duong", description: "Hoa cao lon, bong to, can nhieu nang." },
+    { scientificName: "Epipremnum aureum", locale: "vi", commonName: "Trau ba", description: "Cay noi that de song, chiu thieu sang tot." },
+    { scientificName: "Sansevieria trifasciata", locale: "vi", commonName: "Luoi ho", description: "Cay noi that khoe, chiu han va chiu bong ram." },
+    { scientificName: "Ficus elastica", locale: "vi", commonName: "Da bun", description: "Cay la to trong nha, ua sang gian tiep." },
+];
+
+export const plantI18nSeed = [...plantI18nEnSeed, ...plantI18nViSeed];
 
 const commonNameByScientific = new Map(
     plantI18nSeed

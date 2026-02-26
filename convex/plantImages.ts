@@ -6,6 +6,52 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/user";
 import { localizePlantRows, PlantI18nRow } from "./lib/localizePlant";
+import { plantI18nSeed } from "./data/plantsMasterSeed";
+
+function normalizeScientificName(value: string) {
+    return value
+        .toLowerCase()
+        .replaceAll("×", "x")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+const seedI18nByLocaleAndScientific = new Map<
+    string,
+    { commonName: string; description?: string }
+>();
+for (const row of plantI18nSeed) {
+    const key = `${row.locale}|${normalizeScientificName(row.scientificName)}`;
+    seedI18nByLocaleAndScientific.set(key, {
+        commonName: row.commonName,
+        description: row.description ?? undefined,
+    });
+}
+
+function withSeedLocaleFallback(
+    rows: PlantI18nRow[] | undefined,
+    scientificName: string,
+    locale: string | undefined
+): PlantI18nRow[] | undefined {
+    const normalizedLocale = (locale ?? "en").split("-")[0].toLowerCase();
+    const base = rows ?? [];
+    const fallback = seedI18nByLocaleAndScientific.get(
+        `${normalizedLocale}|${normalizeScientificName(scientificName)}`
+    );
+    if (!fallback) {
+        return base.length > 0 ? base : undefined;
+    }
+
+    return [
+        // Force seed locale content to win for current locale to avoid stale English rows in DB.
+        ...base.filter((r) => r.locale !== normalizedLocale),
+        {
+            locale: normalizedLocale,
+            commonName: fallback.commonName,
+            description: fallback.description ?? undefined,
+        },
+    ];
+}
 
 // ==========================================
 // Lấy danh sách plants có ảnh
@@ -41,10 +87,15 @@ export const getPlantsWithImages = query({
 
         return plants.map((p) => {
             const i18nForPlant = i18nByPlantId.get(p._id.toString());
-            const localized = localizePlantRows(
+            const rows = withSeedLocaleFallback(
                 i18nForPlant && i18nForPlant.length > 0
                     ? i18nForPlant
                     : undefined,
+                p.scientificName,
+                args.locale
+            );
+            const localized = localizePlantRows(
+                rows,
                 args.locale,
                 p.scientificName
             );
@@ -55,6 +106,7 @@ export const getPlantsWithImages = query({
                 displayName: localized.displayName,
                 description: localized.description,
                 localeUsed: localized.localeUsed,
+                i18nRows: rows ?? [],
                 group: p.group,
                 imageUrl: p.imageUrl ?? null,
                 hasImage: !!p.imageUrl,
@@ -154,10 +206,15 @@ export const getPlantsWithoutImages = query({
             .filter((p) => !p.imageUrl)
             .map((p) => {
                 const i18nForPlant = i18nByPlantId.get(p._id.toString());
-                const localized = localizePlantRows(
+                const rows = withSeedLocaleFallback(
                     i18nForPlant && i18nForPlant.length > 0
                         ? i18nForPlant
                         : undefined,
+                    p.scientificName,
+                    args.locale
+                );
+                const localized = localizePlantRows(
+                    rows,
                     args.locale,
                     p.scientificName
                 );
@@ -168,6 +225,7 @@ export const getPlantsWithoutImages = query({
                     displayName: localized.displayName,
                     description: localized.description,
                     localeUsed: localized.localeUsed,
+                    i18nRows: rows ?? [],
                     group: p.group,
                     typicalDaysToHarvest: p.typicalDaysToHarvest,
                     wateringFrequencyDays: p.wateringFrequencyDays,
@@ -205,8 +263,13 @@ export const getPlantById = query({
             commonName: row.commonName,
             description: row.description ?? undefined,
         }));
-        const localized = localizePlantRows(
+        const localizedRows = withSeedLocaleFallback(
             rows.length > 0 ? rows : undefined,
+            plant.scientificName,
+            args.locale
+        );
+        const localized = localizePlantRows(
+            localizedRows,
             args.locale,
             plant.scientificName
         );
@@ -216,6 +279,7 @@ export const getPlantById = query({
             displayName: localized.displayName,
             description: localized.description,
             localeUsed: localized.localeUsed,
+            i18nRows: localizedRows ?? [],
         };
     },
 });

@@ -39,6 +39,10 @@ export function usePlantDisplayName(plant: any): PlantLocalized {
             };
         }
 
+        if (plant.i18nRows?.length) {
+            return localizePlant(plant.i18nRows, locale, plant.scientificName);
+        }
+
         if (plant.displayName) {
             return {
                 displayName: plant.displayName,
@@ -46,10 +50,6 @@ export function usePlantDisplayName(plant: any): PlantLocalized {
                 description: plant.description,
                 localeUsed: plant.localeUsed ?? 'latin',
             };
-        }
-
-        if (plant.i18nRows?.length) {
-            return localizePlant(plant.i18nRows, locale, plant.scientificName);
         }
 
         return {

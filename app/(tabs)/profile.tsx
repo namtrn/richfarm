@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown } from 'lucide-react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
@@ -14,6 +14,7 @@ import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { authClient, APP_SCHEME } from '../../lib/auth-client';
 import { useTheme } from '../../lib/theme';
+import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
 
 /**
  * Feature flags — flip to true once the backend is configured.
@@ -22,6 +23,7 @@ import { useTheme } from '../../lib/theme';
  */
 const GOOGLE_OAUTH_ENABLED = false;
 const RESET_PASSWORD_ENABLED = false;
+const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -42,17 +44,18 @@ export default function ProfileScreen() {
   const { presentPaywall, isPresenting } = usePaywall();
   const deleteAccountMutation = useMutation((api as any).users.deleteAccount);
 
-  const currentLang = i18n.language;
+  const currentLang = (i18n.language ?? 'en').split('-')[0].toLowerCase();
   const [name, setName] = useState(user?.name ?? '');
   const [timezone, setTimezone] = useState(user?.timezone ?? '');
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(
-    resolveUnitSystem(settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
+    resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
   const [themePreference, setThemePreference] = useState<string>(settings?.theme ?? 'system');
   const [saving, setSaving] = useState(false);
-  const [syncCount, setSyncCount] = useState(0);
-  const [syncing, setSyncing] = useState(false);
-  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [backupCount, setBackupCount] = useState(0);
+  const [backingUp, setBackingUp] = useState(false);
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const isCloudBackupLinked = !!CLOUD_BACKUP_PROVIDER;
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
@@ -60,10 +63,14 @@ export default function ProfileScreen() {
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [authPanelOpen, setAuthPanelOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp' | 'forgot'>('signIn');
+  const [showPassword, setShowPassword] = useState(false);
   const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
 
   const email = user?.email ?? '—';
   const isAnonymous = user?.isAnonymous ?? false;
+  const trimmedAuthEmail = authEmail.trim();
+  const authPasswordOk = authPassword.length >= 8;
+  const authEmailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedAuthEmail);
 
   const selectedLangLabel = useMemo(
     () => LANGUAGES.find((l) => l.code === currentLang)?.label ?? currentLang,
@@ -75,19 +82,32 @@ export default function ProfileScreen() {
     setTimezone(user?.timezone ?? '');
   }, [user?.name, user?.timezone]);
 
-  const refreshSyncCount = useCallback(async () => {
+  const refreshBackupCount = useCallback(async () => {
     const queue = await loadSyncQueue();
-    setSyncCount(queue.length);
+    setBackupCount(queue.filter((item) => item.type === 'photo').length);
   }, []);
 
   useEffect(() => {
-    refreshSyncCount();
-  }, [refreshSyncCount]);
+    refreshBackupCount();
+  }, [refreshBackupCount]);
 
   useEffect(() => {
-    setUnitSystem(resolveUnitSystem(settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
+    setUnitSystem(resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
     setThemePreference(settings?.theme ?? 'system');
   }, [settings?.unitSystem, settings?.theme, currentLang]);
+
+  useEffect(() => {
+    void hydrateUnitSystemPreference().then((cached) => {
+      if (!cached) return;
+      setUnitSystem(resolveUnitSystem(cached, currentLang, getLocales()[0]?.regionCode ?? undefined));
+    });
+  }, [currentLang]);
+
+  useEffect(() => {
+    if (authMode === 'forgot') {
+      setShowPassword(false);
+    }
+  }, [authMode]);
 
   const handleLanguageChange = async (code: string) => {
     if (code === currentLang) return;
@@ -103,30 +123,39 @@ export default function ProfileScreen() {
         locale: currentLang,
         timezone: timezone.trim() || undefined,
       });
+      await setUnitSystemPreference(unitSystem);
       await updateSettings({ unitSystem, theme: themePreference });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleSyncNow = async () => {
-    setSyncing(true);
-    setSyncMessage(null);
+  const handleBackupNow = async () => {
+    if (!isCloudBackupLinked) {
+      setBackupMessage(t('profile.backup_link_required'));
+      return;
+    }
+    setBackingUp(true);
+    setBackupMessage(null);
     try {
-      const result = await executeSyncNow();
+      const result = await executeSyncNow({ types: ['photo'] });
       if (result.queuedCount === 0 && result.syncedCount === 0) {
-        setSyncMessage(t('profile.sync_empty'));
+        setBackupMessage(t('profile.backup_empty'));
       } else if (result.ok) {
-        setSyncMessage(t('profile.sync_success'));
+        setBackupMessage(t('profile.backup_success'));
       } else {
-        setSyncMessage(
-          t('profile.sync_not_ready', { count: result.queuedCount })
+        setBackupMessage(
+          t('profile.backup_not_ready', { count: result.queuedCount })
         );
       }
-      await refreshSyncCount();
+      await refreshBackupCount();
     } finally {
-      setSyncing(false);
+      setBackingUp(false);
     }
+  };
+
+  const handleLinkCloudBackup = () => {
+    setBackupMessage(t('profile.backup_link_required'));
   };
 
   const handleSignUp = async () => {
@@ -139,11 +168,11 @@ export default function ProfileScreen() {
         name: name.trim() || undefined,
       });
       if (result.error) {
-        setAuthMessage(result.error.message ?? 'Sign up failed');
+        setAuthMessage(result.error.message ?? t('profile.auth_sign_up_failed'));
         return;
       }
       await updateProfile({ name: name.trim() || undefined });
-      setAuthMessage('Account created and signed in.');
+      setAuthMessage(t('profile.auth_account_created'));
     } finally {
       setAuthLoading(false);
     }
@@ -158,10 +187,10 @@ export default function ProfileScreen() {
         password: authPassword,
       });
       if (result.error) {
-        setAuthMessage(result.error.message ?? 'Sign in failed');
+        setAuthMessage(result.error.message ?? t('profile.auth_sign_in_failed'));
         return;
       }
-      setAuthMessage('Signed in successfully.');
+      setAuthMessage(t('profile.auth_signed_in'));
     } finally {
       setAuthLoading(false);
     }
@@ -169,7 +198,7 @@ export default function ProfileScreen() {
 
   const handleGoogleSignIn = async () => {
     if (!GOOGLE_OAUTH_ENABLED) {
-      setAuthMessage('Google sign-in is not configured yet. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET on the server.');
+      setAuthMessage(t('profile.auth_google_not_configured'));
       return;
     }
     setAuthLoading(true);
@@ -180,10 +209,10 @@ export default function ProfileScreen() {
         callbackURL: `${APP_SCHEME}://`,
       });
       if (result?.error) {
-        setAuthMessage(result.error.message ?? 'Google sign in failed');
+        setAuthMessage(result.error.message ?? t('profile.auth_google_failed'));
         return;
       }
-      setAuthMessage('Google sign in started.');
+      setAuthMessage(t('profile.auth_google_started'));
     } finally {
       setAuthLoading(false);
     }
@@ -191,7 +220,7 @@ export default function ProfileScreen() {
 
   const handleForgotPassword = async () => {
     if (!RESET_PASSWORD_ENABLED) {
-      setAuthMessage('⚠ Password reset is not configured yet. Email sending must be set up on the server first.');
+      setAuthMessage(t('profile.auth_reset_not_configured'));
       return;
     }
     setAuthLoading(true);
@@ -202,7 +231,7 @@ export default function ProfileScreen() {
       type RequestResetFn = (opts: { email: string; redirectTo: string }) => Promise<{ error?: { message?: string } }>;
       const requestReset = (authClient as unknown as { requestPasswordReset: RequestResetFn }).requestPasswordReset;
       if (!requestReset) {
-        setAuthMessage('Password reset is not available in current auth client config.');
+        setAuthMessage(t('profile.auth_reset_unavailable'));
         return;
       }
       const result = await requestReset({
@@ -210,10 +239,10 @@ export default function ProfileScreen() {
         redirectTo: `${APP_SCHEME}://`,
       });
       if (result?.error) {
-        setAuthMessage(result.error.message ?? 'Forgot password request failed');
+        setAuthMessage(result.error.message ?? t('profile.auth_forgot_failed'));
         return;
       }
-      setAuthMessage('Password reset email sent (if email exists).');
+      setAuthMessage(t('profile.auth_reset_sent'));
       setAuthMode('signIn');
     } finally {
       setAuthLoading(false);
@@ -226,10 +255,10 @@ export default function ProfileScreen() {
     try {
       const result = await authClient.signOut();
       if (result.error) {
-        setAuthMessage(result.error.message ?? 'Sign out failed');
+        setAuthMessage(result.error.message ?? t('profile.auth_sign_out_failed'));
         return;
       }
-      setAuthMessage('Signed out.');
+      setAuthMessage(t('profile.auth_signed_out'));
     } finally {
       setAuthLoading(false);
     }
@@ -237,12 +266,12 @@ export default function ProfileScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete account?',
-      'This will permanently remove your account and app data. This action cannot be undone.',
+      t('profile.delete_account_title'),
+      t('profile.delete_account_desc'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: async () => {
             setAuthLoading(true);
@@ -250,10 +279,10 @@ export default function ProfileScreen() {
             try {
               await deleteAccountMutation({ deviceId });
               await authClient.signOut();
-              setAuthMessage('Account deleted.');
+              setAuthMessage(t('profile.account_deleted'));
             } catch (error) {
               const message =
-                error instanceof Error ? error.message : 'Delete account failed';
+                error instanceof Error ? error.message : t('profile.delete_account_failed');
               setAuthMessage(message);
             } finally {
               setAuthLoading(false);
@@ -268,19 +297,19 @@ export default function ProfileScreen() {
     setPaywallMessage(null);
     const result = await presentPaywall();
     if (result.status === 'purchased' || result.status === 'restored') {
-      setPaywallMessage('Subscription active.');
+      setPaywallMessage(t('profile.sub_active'));
       return;
     }
     if (result.status === 'cancelled') {
-      setPaywallMessage('Purchase cancelled.');
+      setPaywallMessage(t('profile.sub_cancelled'));
       return;
     }
     if (result.status === 'not_presented') {
-      setPaywallMessage('Paywall not available.');
+      setPaywallMessage(t('profile.sub_paywall_unavailable'));
       return;
     }
     if (result.status === 'error') {
-      setPaywallMessage(result.errorMessage ?? 'Paywall error.');
+      setPaywallMessage(result.errorMessage ?? t('profile.sub_paywall_error'));
     }
   };
 
@@ -288,9 +317,9 @@ export default function ProfileScreen() {
     setPaywallMessage(null);
     try {
       await restorePurchases();
-      setPaywallMessage('Purchases restored.');
+      setPaywallMessage(t('profile.sub_restored'));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Restore failed.';
+      const message = error instanceof Error ? error.message : t('profile.sub_restore_failed');
       setPaywallMessage(message);
     }
   };
@@ -326,109 +355,153 @@ export default function ProfileScreen() {
 
           {isAnonymous ? (
             <View style={{ gap: 12 }}>
-              <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>Create account to sync across devices</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>{t('profile.auth_create_to_sync')}</Text>
               {!authPanelOpen ? (
                 <TouchableOpacity
                   onPress={() => {
                     setAuthPanelOpen(true);
                     setAuthMode('signIn');
                     setAuthMessage(null);
+                    setShowPassword(false);
                   }}
                   style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
                 >
-                  <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Sign In or Create Account</Text>
+                  <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_in_or_create')}</Text>
                 </TouchableOpacity>
               ) : (
-                <View style={{ gap: 12 }}>
+                <View style={{ gap: 14 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                      Account
+                      {t('profile.auth_account')}
                     </Text>
                     <TouchableOpacity
-                      onPress={() => setAuthPanelOpen(false)}
+                      onPress={() => {
+                        setAuthPanelOpen(false);
+                        setAuthMode('signIn');
+                        setShowPassword(false);
+                      }}
                       style={{ backgroundColor: theme.accent, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
                     >
-                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 12 }}>Close</Text>
+                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 12 }}>{t('profile.auth_close')}</Text>
                     </TouchableOpacity>
                   </View>
                   {authMode !== 'forgot' ? (
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                       <TouchableOpacity
                         onPress={() => setAuthMode('signIn')}
-                        style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', backgroundColor: authMode === 'signIn' ? theme.primary : theme.accent }}
+                        style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signIn' ? theme.primary : theme.border, backgroundColor: authMode === 'signIn' ? theme.primary : theme.background }}
                       >
                         <Text style={{ fontWeight: '700', color: authMode === 'signIn' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
-                          Sign In
+                          {t('profile.auth_sign_in')}
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => setAuthMode('signUp')}
-                        style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', backgroundColor: authMode === 'signUp' ? theme.primary : theme.accent }}
+                        style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signUp' ? theme.primary : theme.border, backgroundColor: authMode === 'signUp' ? theme.primary : theme.background }}
                       >
                         <Text style={{ fontWeight: '700', color: authMode === 'signUp' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
-                          Sign Up
+                          {t('profile.auth_sign_up')}
                         </Text>
                       </TouchableOpacity>
                     </View>
                   ) : (
                     <TouchableOpacity
                       onPress={() => setAuthMode('signIn')}
-                      style={{ backgroundColor: theme.accent, borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}
+                      style={{ backgroundColor: theme.background, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
                     >
-                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>Back to Sign In</Text>
+                      <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>{t('profile.auth_back_to_sign_in')}</Text>
                     </TouchableOpacity>
                   )}
-                  <TextInput
-                    value={authEmail}
-                    onChangeText={setAuthEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    placeholder="Email"
-                    placeholderTextColor={theme.textMuted}
-                    style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                  />
-                  {authMode !== 'forgot' && (
-                    <TextInput
-                      value={authPassword}
-                      onChangeText={setAuthPassword}
-                      autoCapitalize="none"
-                      secureTextEntry
-                      placeholder="Password (min 8 chars)"
-                      placeholderTextColor={theme.textMuted}
-                      style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                    />
-                  )}
-                  {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{authMessage}</Text>}
+
                   <TouchableOpacity
                     onPress={handleGoogleSignIn}
                     disabled={authLoading || !GOOGLE_OAUTH_ENABLED}
                     style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !GOOGLE_OAUTH_ENABLED ? 0.5 : 1 }}
                   >
-                    <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{GOOGLE_OAUTH_ENABLED ? 'Continue with Google' : 'Google — coming soon'}</Text>
+                    <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{GOOGLE_OAUTH_ENABLED ? t('profile.auth_continue_google') : t('profile.auth_google_coming_soon')}</Text>
                   </TouchableOpacity>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                    <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>{t('profile.email_label')}</Text>
+                    <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                  </View>
+
+                  <View style={{ gap: 6 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                      {t('profile.email_label')}
+                    </Text>
+                    <TextInput
+                      value={authEmail}
+                      onChangeText={setAuthEmail}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      keyboardType="email-address"
+                      textContentType="emailAddress"
+                      autoComplete="email"
+                      placeholder={t('profile.auth_email_placeholder')}
+                      placeholderTextColor={theme.textMuted}
+                      style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: !authEmailOk && trimmedAuthEmail.length > 0 ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                    />
+                  </View>
+
+                  {authMode !== 'forgot' && (
+                    <View style={{ gap: 6 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                          {t('profile.auth_password_placeholder')}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => setShowPassword((v) => !v)}
+                          style={{ paddingVertical: 2 }}
+                        >
+                          {showPassword ? <EyeOff size={14} color={theme.textSecondary} /> : <Eye size={14} color={theme.textSecondary} />}
+                        </TouchableOpacity>
+                      </View>
+                      <TextInput
+                        value={authPassword}
+                        onChangeText={setAuthPassword}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        secureTextEntry={!showPassword}
+                        textContentType={authMode === 'signUp' ? 'newPassword' : 'password'}
+                        autoComplete={authMode === 'signUp' ? 'password-new' : 'password'}
+                        placeholder={t('profile.auth_password_placeholder')}
+                        placeholderTextColor={theme.textMuted}
+                        style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: authPassword.length > 0 && !authPasswordOk ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                      />
+                    </View>
+                  )}
+
+                  {authMessage && (
+                    <View style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                      <Text style={{ fontSize: 12, color: theme.textSecondary }}>{authMessage}</Text>
+                    </View>
+                  )}
+
                   {authMode === 'forgot' ? (
                     <TouchableOpacity
                       onPress={handleForgotPassword}
-                      disabled={authLoading || !authEmail.trim()}
-                      style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() ? 0.5 : 1 }}
+                      disabled={authLoading || !authEmailOk}
+                      style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmailOk ? 0.5 : 1 }}
                     >
-                      <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Send Reset Link</Text>
+                      <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_send_reset_link')}</Text>
                     </TouchableOpacity>
                   ) : authMode === 'signUp' ? (
                     <TouchableOpacity
                       onPress={handleSignUp}
-                      disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
-                      style={{ backgroundColor: theme.success, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
+                      disabled={authLoading || !authEmailOk || !authPasswordOk}
+                      style={{ backgroundColor: theme.success, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmailOk || !authPasswordOk ? 0.5 : 1 }}
                     >
-                      <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Create Account</Text>
+                      <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('profile.auth_create_account')}</Text>
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
                       onPress={handleSignIn}
-                      disabled={authLoading || !authEmail.trim() || authPassword.length < 8}
-                      style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmail.trim() || authPassword.length < 8 ? 0.5 : 1 }}
+                      disabled={authLoading || !authEmailOk || !authPasswordOk}
+                      style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !authEmailOk || !authPasswordOk ? 0.5 : 1 }}
                     >
-                      <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>Sign In</Text>
+                      <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_in')}</Text>
                     </TouchableOpacity>
                   )}
                   {authMode !== 'forgot' && (
@@ -437,7 +510,7 @@ export default function ProfileScreen() {
                       disabled={authLoading}
                       style={{ paddingVertical: 4, alignItems: 'center' }}
                     >
-                      <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '600' }}>Forgot password?</Text>
+                      <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '600' }}>{t('profile.auth_forgot_password')}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -451,14 +524,14 @@ export default function ProfileScreen() {
                 disabled={authLoading}
                 style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
               >
-                <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>Sign Out</Text>
+                <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_out')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDeleteAccount}
                 disabled={authLoading}
                 style={{ marginTop: 10, backgroundColor: '#fee2e2', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
               >
-                <Text style={{ color: '#991b1b', fontWeight: '700', fontSize: 14 }}>Delete Account</Text>
+                <Text style={{ color: '#991b1b', fontWeight: '700', fontSize: 14 }}>{t('profile.auth_delete_account')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -469,11 +542,11 @@ export default function ProfileScreen() {
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <Crown size={18} color={theme.textSecondary} />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>Subscription</Text>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.subscription_title')}</Text>
           </View>
 
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-            {!isSubConfigured ? 'RevenueCat not configured.' : isSubLoading ? 'Checking status...' : isPremium ? 'Premium active.' : 'Free plan.'}
+            {!isSubConfigured ? t('profile.sub_not_configured') : isSubLoading ? t('profile.sub_checking') : isPremium ? t('profile.sub_premium_active') : t('profile.sub_free_plan')}
           </Text>
 
           <TouchableOpacity
@@ -481,7 +554,7 @@ export default function ProfileScreen() {
             disabled={!isSubConfigured || isPresenting || isSubLoading}
             style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isPresenting || isSubLoading ? 0.5 : 1 }}
           >
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{isPremium ? 'Manage subscription' : 'Upgrade to Premium'}</Text>
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{isPremium ? t('profile.sub_manage') : t('profile.sub_upgrade')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -489,7 +562,7 @@ export default function ProfileScreen() {
             disabled={!isSubConfigured || isPresenting || isSubLoading}
             style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isPresenting || isSubLoading ? 0.5 : 1 }}
           >
-            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>Restore Purchases</Text>
+            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.sub_restore')}</Text>
           </TouchableOpacity>
 
           {paywallMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{paywallMessage}</Text>}
@@ -564,7 +637,10 @@ export default function ProfileScreen() {
               return (
                 <TouchableOpacity
                   key={unit}
-                  onPress={() => setUnitSystem(unit)}
+                  onPress={() => {
+                    setUnitSystem(unit);
+                    void setUnitSystemPreference(unit);
+                  }}
                   style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                 >
                   <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
@@ -608,18 +684,28 @@ export default function ProfileScreen() {
         </View>
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.sync_title')}</Text>
-          <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.sync_subtitle')}</Text>
-          {syncMessage && (
-            <Text style={{ fontSize: 13, color: theme.success, fontWeight: '500' }}>{syncMessage}</Text>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.backup_title')}</Text>
+          <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+            {isCloudBackupLinked ? t('profile.backup_subtitle') : t('profile.backup_subtitle_unlinked')}
+          </Text>
+          {!isCloudBackupLinked && (
+            <Text style={{ fontSize: 12, color: theme.textMuted, lineHeight: 18 }}>
+              {t('profile.backup_storage_note')}
+            </Text>
+          )}
+          <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.backup_queue_count', { count: backupCount })}</Text>
+          {backupMessage && (
+            <Text style={{ fontSize: 13, color: theme.success, fontWeight: '500' }}>{backupMessage}</Text>
           )}
           <TouchableOpacity
-            onPress={handleSyncNow}
-            disabled={syncing}
-            testID="e2e-profile-sync-now"
-            style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: syncing ? 0.5 : 1 }}
+            onPress={isCloudBackupLinked ? handleBackupNow : handleLinkCloudBackup}
+            disabled={backingUp}
+            testID="e2e-profile-backup-now"
+            style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: backingUp ? 0.5 : 1 }}
           >
-            <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>{t('profile.sync_button')}</Text>
+            <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>
+              {isCloudBackupLinked ? t('profile.backup_button') : t('profile.backup_link_button')}
+            </Text>
           </TouchableOpacity>
         </View>
 

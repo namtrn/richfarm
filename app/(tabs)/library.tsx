@@ -10,8 +10,9 @@ import {
     Pressable,
     Animated,
     LayoutChangeEvent,
+    Alert,
 } from 'react-native';
-import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen } from 'lucide-react-native';
+import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../hooks/usePlantLibrary';
 import { PlantImage } from '../../components/ui/PlantImage';
@@ -23,6 +24,7 @@ import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPer
 import { matchesSearch } from '../../lib/search';
 import { useFavorites } from '../../hooks/useFavorites';
 import { usePestsDiseases, PestDiseaseType } from '../../hooks/usePestsDiseases';
+import { useAuth } from '../../lib/auth';
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
 
@@ -138,7 +140,7 @@ function PlantDetailModal({
 
                         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
                             {plant.typicalDaysToHarvest && (
-                                <StatCard icon={<Clock size={18} stroke="#166534" />} label={t('library.stat_harvest')} value={`${plant.typicalDaysToHarvest}d`} />
+                                <StatCard icon={<Clock size={18} stroke="#166534" />} label={t('library.stat_harvest')} value={t('library.days_value', { count: plant.typicalDaysToHarvest })} />
                             )}
                             {plant.wateringFrequencyDays && (
                                 <StatCard icon={<Droplets size={18} stroke="#166534" />} label={t('library.stat_watering')} value={t('library.watering_every', { days: plant.wateringFrequencyDays })} />
@@ -151,7 +153,7 @@ function PlantDetailModal({
                         {plant.germinationDays > 0 && (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
                                 <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_germination')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{plant.germinationDays} days</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{t('library.days_value', { count: plant.germinationDays })}</Text>
                             </View>
                         )}
                         {plant.spacingCm && (
@@ -187,7 +189,7 @@ function PlantDetailModal({
                         {plant.source && (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
                                 <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_propagation')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917', textTransform: 'capitalize' }}>{plant.source}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{t(`library.source_${plant.source}`)}</Text>
                             </View>
                         )}
 
@@ -198,7 +200,7 @@ function PlantDetailModal({
                                     {plant.purposes.map((p: string) => (
                                         <View key={p} style={{ backgroundColor: '#f0f7f2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
                                             <Text style={{ fontSize: 12, color: '#166534', fontWeight: '600', textTransform: 'capitalize' }}>
-                                                {t(`purposes.${p}`, { defaultValue: p.replace(/_/g, ' ') })}
+                                                {t(`purposes.${p}`)}
                                             </Text>
                                         </View>
                                     ))}
@@ -275,9 +277,10 @@ function PlantCard({
 
 // ─── Pest & Disease Card ──────────────────────────────────────────────────────
 function PestDiseaseCard({ item, onPress }: { item: any; onPress: () => void }) {
+    const { t } = useTranslation();
     const typeColor = item.type === 'disease' ? '#2563eb' : '#b91c1c';
     const typeBg = item.type === 'disease' ? '#dbeafe' : '#fee2e2';
-    const typeLabel = item.type === 'disease' ? 'Disease' : 'Pest';
+    const typeLabel = item.type === 'disease' ? t('library.disease_label') : t('library.pest_label');
     const chips = item.plantsAffected?.slice(0, 4) ?? [];
     const extra = (item.plantsAffected?.length ?? 0) - chips.length;
 
@@ -315,7 +318,7 @@ function PestDiseaseCard({ item, onPress }: { item: any; onPress: () => void }) 
                 ))}
                 {extra > 0 && (
                     <View style={{ backgroundColor: '#faf8f4', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#e7e0d6' }}>
-                        <Text style={{ fontSize: 11, color: '#a8a29e', fontWeight: '600' }}>+{extra} more</Text>
+                        <Text style={{ fontSize: 11, color: '#a8a29e', fontWeight: '600' }}>{t('library.more_items', { count: extra })}</Text>
                     </View>
                 )}
             </View>
@@ -353,10 +356,10 @@ function PestDiseaseDetailModal({ item, onClose }: { item: any; onClose: () => v
                         <PlantImage uri={item.imageUrl} size={180} borderRadius={16} />
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        <InfoSection title={t('health.section_identification', { defaultValue: 'Identification' })} items={item.identification} />
-                        <InfoSection title={t('health.section_damage', { defaultValue: 'Damage' })} items={item.damage} />
-                        <InfoSection title={t('health.section_prevention', { defaultValue: 'Prevention' })} items={item.prevention} />
-                        <InfoSection title={t('health.section_plants', { defaultValue: 'Plants affected' })} items={item.plantsAffected} />
+                        <InfoSection title={t('health.section_identification')} items={item.identification} />
+                        <InfoSection title={t('health.section_damage')} items={item.damage} />
+                        <InfoSection title={t('health.section_prevention')} items={item.prevention} />
+                        <InfoSection title={t('health.section_plants')} items={item.plantsAffected} />
                     </ScrollView>
                 </View>
             </View>
@@ -371,10 +374,10 @@ function GuideTab() {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 32 }}>
             <BookOpen size={48} stroke="#c4bdb3" />
             <Text style={{ fontSize: 16, fontWeight: '700', color: '#a8a29e', textAlign: 'center' }}>
-                {t('library.section_guides', { defaultValue: 'Guides' })}
+                {t('library.section_guides')}
             </Text>
             <Text style={{ fontSize: 13, color: '#c4bdb3', textAlign: 'center' }}>
-                {t('library.section_soon', { defaultValue: 'Coming soon' })}
+                {t('library.section_soon')}
             </Text>
         </View>
     );
@@ -466,9 +469,12 @@ function SlidingTabBar({
 export default function LibraryScreen() {
     const { t, i18n } = useTranslation();
     const router = useRouter();
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
     const params = useLocalSearchParams<{
         mode?: string;
         from?: string;
+        aiFrom?: string;
+        aiMatchId?: string;
         plantId?: string;
         bedId?: string;
         x?: string;
@@ -507,6 +513,7 @@ export default function LibraryScreen() {
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
     const [selectedPlant, setSelectedPlant] = useState<any>(null);
     const [selectedPest, setSelectedPest] = useState<any>(null);
+    const aiRouteHandledRef = useRef<string | null>(null);
 
     // Plants data
     const { plants, isLoading: plantsLoading } = usePlantLibrary(locale);
@@ -537,6 +544,22 @@ export default function LibraryScreen() {
         setActiveTab((current) => (current === normalized ? current : normalized));
     }, [params.tab]);
 
+    useEffect(() => {
+        const aiMatchIdParam = Array.isArray(params.aiMatchId) ? params.aiMatchId[0] : params.aiMatchId;
+        if (!aiMatchIdParam || plantsLoading) return;
+        if (aiRouteHandledRef.current === aiMatchIdParam) return;
+        const matched = plants.find((plant: any) => String(plant._id) === String(aiMatchIdParam));
+        if (!matched) return;
+        aiRouteHandledRef.current = aiMatchIdParam;
+        router.push({
+            pathname: '/(tabs)/plant/[plantId]',
+            params: {
+                plantId: String(matched._id),
+                from: 'library',
+            },
+        });
+    }, [params.aiMatchId, plantsLoading, plants, router]);
+
     const filteredPlants = useMemo(() => {
         let result = plants;
         if (selectedGroup) result = result.filter((p) => p.group === selectedGroup);
@@ -561,10 +584,26 @@ export default function LibraryScreen() {
     // Dynamic search placeholder based on active tab
     const searchPlaceholder =
         activeTab === 'plants'
-            ? t('library.search_plants', { defaultValue: 'Search plants...' })
+            ? t('library.search_plants')
             : activeTab === 'pests'
-                ? t('library.search_pests', { defaultValue: 'Search pests & diseases...' })
-                : t('library.search_guides', { defaultValue: 'Search guides...' });
+                ? t('library.search_pests')
+                : t('library.search_guides');
+
+    const handleOpenAiScanner = () => {
+        if (isAuthLoading) return;
+        if (!isAuthenticated) {
+            Alert.alert(
+                t('profile.auth_sign_in'),
+                t('planning.auth_warning'),
+                [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    { text: t('profile.auth_sign_in'), onPress: () => router.push('/(tabs)/profile') },
+                ]
+            );
+            return;
+        }
+        router.push('/(tabs)/planning?scanner=1');
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: '#faf8f4' }}>
@@ -599,14 +638,35 @@ export default function LibraryScreen() {
                             <X size={15} stroke="#a8a29e" />
                         </TouchableOpacity>
                     )}
+                    <TouchableOpacity
+                        onPress={handleOpenAiScanner}
+                        accessibilityLabel={t('planning.option_camera_title')}
+                        testID="e2e-library-ai-scanner"
+                        style={{
+                            minWidth: 64,
+                            height: 30,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            borderColor: '#e7e0d6',
+                            paddingHorizontal: 8,
+                            flexDirection: 'row',
+                            gap: 4,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: '#faf8f4',
+                        }}
+                    >
+                        <ScanSearch size={13} stroke="#166534" />
+                        <Text style={{ fontSize: 10, fontWeight: '700', color: '#166534' }}>{t('planning.ai_scan_short')}</Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Internal tabs — animated sliding pill */}
                 <SlidingTabBar
                     tabs={[
-                        { key: 'plants', label: t('library.tab_plants', { defaultValue: 'Plants' }), flex: 3 },
-                        { key: 'pests', label: t('library.tab_pests', { defaultValue: 'Pest & Diseases' }), flex: 4 },
-                        { key: 'guide', label: t('library.tab_guide', { defaultValue: 'Guide' }), flex: 3 },
+                        { key: 'plants', label: t('library.tab_plants'), flex: 3 },
+                        { key: 'pests', label: t('library.tab_pests'), flex: 4 },
+                        { key: 'guide', label: t('library.tab_guide'), flex: 3 },
                     ]}
                     activeTab={activeTab}
                     onTabChange={(key: string) => { setActiveTab(key as LibraryTab); setSearch(''); }}
@@ -638,7 +698,11 @@ export default function LibraryScreen() {
                         </TouchableOpacity>
                         {groups.map((g: any) => {
                             const active = selectedGroup === g.key;
-                            const label = g.displayName?.[locale] ?? g.displayName?.en ?? g.key;
+                            const translated = t(`plantGroups.${g.key}`);
+                            const label =
+                                translated !== `plantGroups.${g.key}`
+                                    ? translated
+                                    : (g.displayName?.[locale] ?? g.displayName?.en ?? g.key);
                             return (
                                 <TouchableOpacity
                                     key={g.key}
@@ -693,7 +757,7 @@ export default function LibraryScreen() {
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
                             <Bug size={48} stroke="#c4bdb3" />
                             <Text style={{ fontSize: 16, fontWeight: '600', color: '#a8a29e' }}>
-                                {t('health.no_results', { defaultValue: 'No matches found' })}
+                                {t('health.no_results')}
                             </Text>
                         </View>
                     ) : (
@@ -715,7 +779,7 @@ export default function LibraryScreen() {
                     plant={selectedPlant}
                     onClose={() => setSelectedPlant(null)}
                     showAdd={selectMode || attachMode}
-                    addLabel={fromParam === 'bed' ? t('bed.add_plant', { defaultValue: 'Add plant' }) : undefined}
+                    addLabel={fromParam === 'bed' ? t('bed.add_plant') : undefined}
                     onAdd={async () => {
                         const localName = selectedPlant.displayName ?? selectedPlant.scientificName;
                         if (attachMode && params.plantId) {
