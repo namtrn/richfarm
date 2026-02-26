@@ -13,6 +13,8 @@ export const upsertPlantI18n = mutation({
         locale: v.string(),
         commonName: v.string(),
         description: v.optional(v.string()),
+        careContent: v.optional(v.string()),
+        contentVersion: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const normalized = args.locale.toLowerCase().trim();
@@ -31,6 +33,8 @@ export const upsertPlantI18n = mutation({
             await ctx.db.patch(existing._id, {
                 commonName: args.commonName,
                 description: args.description,
+                ...(args.careContent !== undefined && { careContent: args.careContent }),
+                ...(args.contentVersion !== undefined && { contentVersion: args.contentVersion }),
             });
             return { updated: true };
         }
@@ -40,6 +44,8 @@ export const upsertPlantI18n = mutation({
             locale: normalized,
             commonName: args.commonName,
             description: args.description,
+            careContent: args.careContent,
+            contentVersion: args.contentVersion,
         });
 
         return { updated: false };
@@ -76,7 +82,7 @@ export const syncEnglishSeedContent = internalMutation({
 
             const needsUpdate =
                 JSON.stringify(existing.displayName) !==
-                    JSON.stringify(group.displayName) ||
+                JSON.stringify(group.displayName) ||
                 existing.sortOrder !== group.sortOrder;
             if (needsUpdate) {
                 if (!dryRun) {

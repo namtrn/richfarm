@@ -11,18 +11,16 @@ import {
     Animated,
     LayoutChangeEvent,
 } from 'react-native';
-import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen } from 'lucide-react-native';
+import { Search, X, Bug, Heart, BookOpen } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { usePlantLibrary, usePlantGroups } from '../../hooks/usePlantLibrary';
-import { PlantImage } from '../../components/ui/PlantImage';
+import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary';
+import { PlantImage } from '../../../components/ui/PlantImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { usePlants } from '../../hooks/usePlants';
-import { usePlantDisplayName } from '../../hooks/usePlantLocalized';
-import { useUnitSystem } from '../../hooks/useUnitSystem';
-import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../lib/units';
-import { matchesSearch } from '../../lib/search';
-import { useFavorites } from '../../hooks/useFavorites';
-import { usePestsDiseases, PestDiseaseType } from '../../hooks/usePestsDiseases';
+import { usePlants } from '../../../hooks/usePlants';
+import { usePlantDisplayName } from '../../../hooks/usePlantLocalized';
+import { matchesSearch } from '../../../lib/search';
+import { useFavorites } from '../../../hooks/useFavorites';
+import { usePestsDiseases, PestDiseaseType } from '../../../hooks/usePestsDiseases';
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
 
@@ -46,171 +44,6 @@ const GROUP_ICONS: Record<string, string> = {
     indoor: '🪴',
     flowers: '🌸',
 };
-
-const LIGHT_META: Record<string, { key: string; color: string }> = {
-    full_sun: { key: 'library.light_full_sun', color: '#f59e0b' },
-    partial_shade: { key: 'library.light_partial_shade', color: '#84cc16' },
-    shade: { key: 'library.light_shade', color: '#78716c' },
-};
-
-// ─── Stat Card ────────────────────────────────────────────────────────────────
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-    return (
-        <View style={{ flex: 1, backgroundColor: '#faf8f4', borderRadius: 14, padding: 12, alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#e7e0d6' }}>
-            {icon}
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#1c1917' }}>{value}</Text>
-            <Text style={{ fontSize: 11, color: '#a8a29e' }}>{label}</Text>
-        </View>
-    );
-}
-
-// ─── Plant Detail Modal ───────────────────────────────────────────────────────
-function PlantDetailModal({
-    plant,
-    onClose,
-    showAdd,
-    addLabel,
-    onAdd,
-    isFavorite,
-    onToggleFavorite,
-}: {
-    plant: any;
-    onClose: () => void;
-    showAdd: boolean;
-    addLabel?: string;
-    onAdd: () => void;
-    isFavorite: boolean;
-    onToggleFavorite: () => void;
-}) {
-    const { t } = useTranslation();
-    const { displayName, scientificName, description } = usePlantDisplayName(plant);
-    const lightMeta = LIGHT_META[plant.lightRequirements ?? ''];
-    const lightLabel = lightMeta ? t(lightMeta.key) : plant.lightRequirements;
-    const unitSystem = useUnitSystem();
-
-    return (
-        <Modal visible animationType="slide" transparent onRequestClose={onClose}>
-            <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}>
-                <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 48, maxHeight: '88%' }}>
-                    <View style={{ width: 36, height: 4, backgroundColor: '#e2e8f0', borderRadius: 2, alignSelf: 'center', marginBottom: 20 }} />
-
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-                            <View style={{ flex: 1, gap: 4 }}>
-                                <Text style={{ fontSize: 22, fontWeight: '800', color: '#1c1917', letterSpacing: -0.5 }}>{displayName}</Text>
-                                <Text style={{ fontSize: 12, color: '#a8a29e', fontStyle: 'italic' }}>{scientificName}</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 8 }}>
-                                <TouchableOpacity
-                                    onPress={onToggleFavorite}
-                                    testID="e2e-library-modal-favorite"
-                                    style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#faf8f4', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#e7e0d6' }}
-                                >
-                                    <Heart size={17} stroke={isFavorite ? '#ef4444' : '#94a3b8'} fill={isFavorite ? '#ef4444' : 'none'} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={onClose} testID="e2e-library-modal-close" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#faf8f4', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#e7e0d6' }}>
-                                    <X size={18} stroke="#64748b" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-                            <PlantImage uri={plant.imageUrl} size={120} borderRadius={20} />
-                        </View>
-
-                        {!!description && (
-                            <View style={{ backgroundColor: '#faf8f4', borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: '#e7e0d6' }}>
-                                <Text style={{ fontSize: 14, color: '#5c5247', lineHeight: 22 }}>{description}</Text>
-                            </View>
-                        )}
-
-                        {showAdd && (
-                            <TouchableOpacity
-                                onPress={onAdd}
-                                testID="e2e-library-modal-add"
-                                style={{ backgroundColor: '#1a4731', borderRadius: 16, paddingVertical: 14, alignItems: 'center', marginBottom: 16 }}
-                            >
-                                <Text style={{ color: '#fff', fontWeight: '700', letterSpacing: 0.2 }}>
-                                    {addLabel ?? t('library.add_to_planning')}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-
-                        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-                            {plant.typicalDaysToHarvest && (
-                                <StatCard icon={<Clock size={18} stroke="#166534" />} label={t('library.stat_harvest')} value={`${plant.typicalDaysToHarvest}d`} />
-                            )}
-                            {plant.wateringFrequencyDays && (
-                                <StatCard icon={<Droplets size={18} stroke="#166534" />} label={t('library.stat_watering')} value={t('library.watering_every', { days: plant.wateringFrequencyDays })} />
-                            )}
-                            {plant.lightRequirements && (
-                                <StatCard icon={<Sun size={18} stroke="#d97706" />} label={t('library.stat_light')} value={lightLabel ?? plant.lightRequirements} />
-                            )}
-                        </View>
-
-                        {plant.germinationDays > 0 && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_germination')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{plant.germinationDays} days</Text>
-                            </View>
-                        )}
-                        {plant.spacingCm && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_spacing')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{formatLengthCm(plant.spacingCm, unitSystem)}</Text>
-                            </View>
-                        )}
-                        {plant.maxPlantsPerM2 && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_max_plants')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{formatPlantsPerArea(plant.maxPlantsPerM2, unitSystem)}</Text>
-                            </View>
-                        )}
-                        {plant.seedRatePerM2 && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_seed_rate')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{formatSeedsPerArea(plant.seedRatePerM2, unitSystem)}</Text>
-                            </View>
-                        )}
-                        {plant.waterLitersPerM2 && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_water_per_area')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{formatWaterPerArea(plant.waterLitersPerM2, unitSystem)}</Text>
-                            </View>
-                        )}
-                        {plant.yieldKgPerM2 && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_yield_per_area')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{formatYieldPerArea(plant.yieldKgPerM2, unitSystem)}</Text>
-                            </View>
-                        )}
-                        {plant.source && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#ede7dc' }}>
-                                <Text style={{ fontSize: 14, color: '#78716c' }}>{t('library.detail_propagation')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917', textTransform: 'capitalize' }}>{plant.source}</Text>
-                            </View>
-                        )}
-
-                        {plant.purposes?.length > 0 && (
-                            <View style={{ marginTop: 16 }}>
-                                <Text style={{ fontSize: 13, fontWeight: '600', color: '#5c5247', marginBottom: 8 }}>{t('library.detail_uses')}</Text>
-                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                                    {plant.purposes.map((p: string) => (
-                                        <View key={p} style={{ backgroundColor: '#f0f7f2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-                                            <Text style={{ fontSize: 12, color: '#166534', fontWeight: '600', textTransform: 'capitalize' }}>
-                                                {t(`purposes.${p}`, { defaultValue: p.replace(/_/g, ' ') })}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
-                    </ScrollView>
-                </View>
-            </View>
-        </Modal>
-    );
-}
 
 // ─── Plant Card ───────────────────────────────────────────────────────────────
 function PlantCard({
@@ -473,9 +306,9 @@ export default function LibraryScreen() {
     const yValue = yParam !== undefined ? Number(yParam) : undefined;
     const positionInBed =
         typeof xValue === 'number' &&
-        Number.isFinite(xValue) &&
-        typeof yValue === 'number' &&
-        Number.isFinite(yValue)
+            Number.isFinite(xValue) &&
+            typeof yValue === 'number' &&
+            Number.isFinite(yValue)
             ? { x: xValue, y: yValue, width: 1, height: 1 }
             : undefined;
 
@@ -484,7 +317,6 @@ export default function LibraryScreen() {
     const [search, setSearch] = useState(initialQuery ?? '');
     const [activeTab, setActiveTab] = useState<LibraryTab>(() => normalizeTab(tabParam));
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
-    const [selectedPlant, setSelectedPlant] = useState<any>(null);
     const [selectedPest, setSelectedPest] = useState<any>(null);
 
     // Plants data
@@ -650,7 +482,17 @@ export default function LibraryScreen() {
                                 <PlantCard
                                     key={plant._id}
                                     plant={plant}
-                                    onPress={() => setSelectedPlant(plant)}
+                                    onPress={() => {
+                                        const query = new URLSearchParams();
+                                        if (modeParam) query.set('mode', modeParam);
+                                        if (fromParam) query.set('from', fromParam);
+                                        if (params.plantId) query.set('fromPlantId', String(params.plantId));
+                                        if (bedIdParam) query.set('bedId', bedIdParam);
+                                        if (xParam !== undefined) query.set('x', xParam);
+                                        if (yParam !== undefined) query.set('y', yParam);
+                                        const qs = query.toString();
+                                        router.push(`/(tabs)/library/${plant._id}${qs ? `?${qs}` : ''}`);
+                                    }}
                                     onToggleFavorite={() => { void toggleFavorite(plant._id).catch(() => undefined); }}
                                     isFavorite={favoriteIds.has(String(plant._id))}
                                     testID="e2e-library-plant-card"
@@ -687,53 +529,6 @@ export default function LibraryScreen() {
 
             {/* ── Guide Tab ── */}
             {activeTab === 'guide' && <GuideTab />}
-
-            {/* Plant detail modal */}
-            {selectedPlant && (
-                <PlantDetailModal
-                    plant={selectedPlant}
-                    onClose={() => setSelectedPlant(null)}
-                    showAdd={selectMode || attachMode}
-                    addLabel={fromParam === 'bed' ? t('bed.add_plant', { defaultValue: 'Add plant' }) : undefined}
-                    onAdd={async () => {
-                        const localName = selectedPlant.displayName ?? selectedPlant.scientificName;
-                        if (attachMode && params.plantId) {
-                            await updatePlant(params.plantId as any, {
-                                plantMasterId: selectedPlant._id,
-                                nickname: localName,
-                            });
-                        } else if (fromParam === 'bed' && bedIdParam) {
-                            await addPlant({
-                                plantMasterId: selectedPlant._id,
-                                nickname: localName,
-                                bedId: bedIdParam as any,
-                                positionInBed,
-                            });
-                        } else {
-                            await addPlant({
-                                plantMasterId: selectedPlant._id,
-                                nickname: localName,
-                            });
-                        }
-                        setSelectedPlant(null);
-                        if (fromParam === 'planning') {
-                            router.replace('/(tabs)/planning');
-                        } else if (fromParam === 'bed' && bedIdParam) {
-                            router.replace(`/(tabs)/bed/${bedIdParam}`);
-                        } else if (fromParam === 'plant') {
-                            if (router.canGoBack()) {
-                                router.back();
-                            } else if (params.plantId) {
-                                router.replace(`/(tabs)/plant/${params.plantId}`);
-                            } else {
-                                router.replace('/(tabs)/growing');
-                            }
-                        }
-                    }}
-                    isFavorite={favoriteIds.has(String(selectedPlant._id))}
-                    onToggleFavorite={() => { void toggleFavorite(selectedPlant._id).catch(() => undefined); }}
-                />
-            )}
 
             {/* Pest detail modal */}
             {selectedPest && (

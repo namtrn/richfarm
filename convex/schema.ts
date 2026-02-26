@@ -134,6 +134,11 @@ export default defineSchema({
     locale: v.string(),
     commonName: v.string(),
     description: v.optional(v.string()),
+    // Structured care content stored as JSON string.
+    // App parses this and renders each section (watering, fertilizing, soil, etc.).
+    // Versioned so the app can cache locally and only re-fetch when updated.
+    careContent: v.optional(v.string()),    // JSON: { watering, fertilizing, location, soil, nutrition, propagation, temperature, toxicity }
+    contentVersion: v.optional(v.number()), // Increment on every careContent update
   })
     .index("by_plant_locale", ["plantId", "locale"])
     .index("by_locale_common_name", ["locale", "commonName"]),

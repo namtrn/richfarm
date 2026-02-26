@@ -35,6 +35,8 @@ export const getPlantsWithImages = query({
                 locale: row.locale,
                 commonName: row.commonName,
                 description: row.description ?? undefined,
+                careContent: row.careContent ?? undefined,
+                contentVersion: row.contentVersion ?? undefined,
             });
             i18nByPlantId.set(key, list);
         }
@@ -55,6 +57,8 @@ export const getPlantsWithImages = query({
                 displayName: localized.displayName,
                 description: localized.description,
                 localeUsed: localized.localeUsed,
+                careContent: localized.careContent,
+                contentVersion: localized.contentVersion,
                 group: p.group,
                 imageUrl: p.imageUrl ?? null,
                 hasImage: !!p.imageUrl,
@@ -204,6 +208,8 @@ export const getPlantById = query({
             locale: row.locale,
             commonName: row.commonName,
             description: row.description ?? undefined,
+            careContent: row.careContent ?? undefined,
+            contentVersion: row.contentVersion ?? undefined,
         }));
         const localized = localizePlantRows(
             rows.length > 0 ? rows : undefined,
@@ -216,6 +222,8 @@ export const getPlantById = query({
             displayName: localized.displayName,
             description: localized.description,
             localeUsed: localized.localeUsed,
+            careContent: localized.careContent,
+            contentVersion: localized.contentVersion,
         };
     },
 });

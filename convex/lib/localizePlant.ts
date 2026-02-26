@@ -2,6 +2,8 @@ export type PlantI18nRow = {
     locale: string;
     commonName: string;
     description?: string;
+    careContent?: string;
+    contentVersion?: number;
 };
 
 export type PlantLocalized = {
@@ -9,6 +11,8 @@ export type PlantLocalized = {
     scientificName: string;
     description?: string;
     localeUsed: string;
+    careContent?: string;
+    contentVersion?: number;
 };
 
 export function localizePlantRows(
@@ -39,5 +43,7 @@ export function localizePlantRows(
         scientificName,
         description: picked?.description ?? fallbackDescription,
         localeUsed: picked?.locale ?? "latin",
+        careContent: picked?.careContent,
+        contentVersion: picked?.contentVersion,
     };
 }
