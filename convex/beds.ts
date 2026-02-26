@@ -2,8 +2,10 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
+import { isPremiumActive } from "./lib/subscription";
 
 const NAME_MAX = 40;
+const FREE_BED_LIMIT = 3;
 
 function assertNameLength(value: string) {
     if (value.trim().length > NAME_MAX) {
@@ -47,6 +49,16 @@ export const createBed = mutation({
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
         assertNameLength(args.name);
+
+        if (!isPremiumActive(user)) {
+            const existingBeds = await ctx.db
+                .query("beds")
+                .withIndex("by_user", (q: any) => q.eq("userId", user._id))
+                .collect();
+            if (existingBeds.length >= FREE_BED_LIMIT) {
+                throw new Error("BED_LIMIT_FREE");
+            }
+        }
 
         return await ctx.db.insert("beds", {
             userId: user._id,

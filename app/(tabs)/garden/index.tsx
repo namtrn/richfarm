@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -11,10 +11,12 @@ import {
     LayoutChangeEvent,
     Pressable,
     Image,
+    Alert,
 } from 'react-native';
 import { Fence, Plus, X, Calendar, Sprout, Leaf, ChevronRight } from 'lucide-react-native';
 import { useQuery, useMutation } from 'convex/react';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
@@ -30,7 +32,10 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { usePlants } from '../../../hooks/usePlants';
 import { useAuth } from '../../../lib/auth';
 import { useBeds } from '../../../hooks/useBeds';
+import { isPremiumActive } from '../../../lib/access';
+import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../../lib/aiDetectorLimit';
 import * as ImagePicker from 'expo-image-picker';
+import { usePlantLibrary } from '../../../hooks/usePlantLibrary';
 
 type GardenTab = 'garden' | 'planning' | 'growing';
 const NAME_MAX = 40;
@@ -181,7 +186,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
             onClose();
         } catch (e: any) {
             const message = typeof e?.message === 'string' ? e.message : '';
-            if (message.includes('GARDEN_LIMIT_FREE')) {
+            if (message === 'GARDEN_LIMIT_FREE') {
                 setError(t('garden.error_limit_free'));
             } else {
                 setError(message || t('common.error'));
@@ -190,10 +195,10 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
     };
 
     const LOCATION_TYPES = [
-        { key: 'outdoor', label: t('garden.location_outdoor', { defaultValue: 'Outdoor' }) },
-        { key: 'greenhouse', label: t('garden.location_greenhouse', { defaultValue: 'Greenhouse' }) },
-        { key: 'balcony', label: t('garden.location_balcony', { defaultValue: 'Balcony' }) },
-        { key: 'indoor', label: t('garden.location_indoor', { defaultValue: 'Indoor' }) },
+        { key: 'outdoor', label: t('garden.location_outdoor') },
+        { key: 'greenhouse', label: t('garden.location_greenhouse') },
+        { key: 'balcony', label: t('garden.location_balcony') },
+        { key: 'indoor', label: t('garden.location_indoor') },
     ];
 
     return (
@@ -219,7 +224,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                         style={{ backgroundColor: '#f5f0e8', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#1c1917', marginBottom: 20 }}
                     />
 
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#5c5247', marginBottom: 8 }}>{t('garden.location_label', { defaultValue: 'Location type' })}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#5c5247', marginBottom: 8 }}>{t('garden.location_label')}</Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
                         {LOCATION_TYPES.map((option) => {
                             const active = locationType === option.key;
@@ -289,11 +294,18 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
 }
 
 // ─── Garden Tab Content ───────────────────────────────────────────────────────
-function GardenTabContent({ onCreateGarden }: { onCreateGarden: () => void }) {
+function GardenTabContent({
+    onCreateGarden,
+    canCreateGarden,
+    unitSystem,
+}: {
+    onCreateGarden: () => void;
+    canCreateGarden: boolean;
+    unitSystem: UnitSystem;
+}) {
     const { t } = useTranslation();
     const router = useRouter();
     const { deviceId } = useDeviceId();
-    const unitSystem = useUnitSystem();
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const gardens = gardensQuery ?? [];
     const isLoading = gardensQuery === undefined;
@@ -318,8 +330,9 @@ function GardenTabContent({ onCreateGarden }: { onCreateGarden: () => void }) {
                 </View>
                 <TouchableOpacity
                     onPress={onCreateGarden}
+                    disabled={!canCreateGarden}
                     testID="e2e-garden-empty-create"
-                    style={{ backgroundColor: '#1a4731', borderRadius: 16, paddingHorizontal: 24, paddingVertical: 12, marginTop: 4 }}
+                    style={{ backgroundColor: '#1a4731', borderRadius: 16, paddingHorizontal: 24, paddingVertical: 12, marginTop: 4, opacity: canCreateGarden ? 1 : 0.5 }}
                 >
                     <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>{t('garden.create_button')}</Text>
                 </TouchableOpacity>
@@ -343,12 +356,12 @@ function GardenTabContent({ onCreateGarden }: { onCreateGarden: () => void }) {
 }
 
 // ─── Planning Tab Content ─────────────────────────────────────────────────────
-function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
-    const { t } = useTranslation();
+function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number }) {
+    const { t, i18n } = useTranslation();
     const router = useRouter();
     const { plants, isLoading, addPlant } = usePlants();
     const { beds, isLoading: isBedsLoading } = useBeds();
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
     const { deviceId } = useDeviceId();
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
 
@@ -359,6 +372,10 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
     const [photoUri, setPhotoUri] = useState<string | null>(null);
     const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
     const [photoSaving, setPhotoSaving] = useState(false);
+    const [aiLimitError, setAiLimitError] = useState('');
+    const [aiSessionActive, setAiSessionActive] = useState(false);
+    const [scanSourceOpen, setScanSourceOpen] = useState(false);
+    const [detectNoMatch, setDetectNoMatch] = useState(false);
 
     const canEdit = !isAuthLoading && isAuthenticated;
     const gardens = gardensQuery ?? [];
@@ -366,7 +383,27 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
     const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
     const canCreatePlant = canEdit && hasGardenOrBed;
     const isSetupRequired = canEdit && !isSetupLoading && !hasGardenOrBed;
+    const isPremium = isPremiumActive(user);
+    const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
+    const locale = i18n.language?.split('-')[0] ?? i18n.language;
+    const { plants: libraryPlants } = usePlantLibrary(locale);
     const plannedPlants = plants.filter((p) => p.status === 'planting');
+    const normalize = (value: string) =>
+        value
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+
+    const findLibraryMatchByName = (name: string) => {
+        const query = normalize(name);
+        if (!query) return null;
+        return (
+            libraryPlants.find((plant: any) => normalize(plant.displayName ?? '') === query || normalize(plant.scientificName ?? '') === query) ??
+            libraryPlants.find((plant: any) => normalize(plant.displayName ?? '').includes(query) || normalize(plant.scientificName ?? '').includes(query)) ??
+            null
+        );
+    };
 
     const handleAddPlant = async () => {
         if (!canCreatePlant || !nickname.trim()) return;
@@ -375,24 +412,169 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
         finally { setSaving(false); }
     };
 
-    const handleCapture = async () => {
-        if (!canCreatePlant) return;
-        setSheetOpen(false);
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') return;
-        const result = await ImagePicker.launchCameraAsync({ quality: 0.7, allowsEditing: true });
+    const canStartAiScan = async () => {
+        if (!canCreatePlant) return false;
+        if (!isPremium && !aiSessionActive) {
+            if (!aiDetectorKey) {
+                setAiLimitError(t('common.error'));
+                return false;
+            }
+            const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
+            if (reached) {
+                setAiLimitError(t('planning.detect_limit_free'));
+                return false;
+            }
+        }
+        setAiLimitError('');
+        return true;
+    };
+
+    const applyPickedImage = async (result: ImagePicker.ImagePickerResult) => {
         if (result.canceled || !result.assets?.[0]?.uri) return;
+        if (!isPremium && !aiSessionActive) {
+            const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
+            if (!consumption.allowed) {
+                setAiLimitError(t('planning.detect_limit_free'));
+                return;
+            }
+        }
+        setAiSessionActive(true);
         setPhotoUri(result.assets[0].uri);
         setDetectedName(t('planning.unknown_plant'));
+        setDetectNoMatch(false);
         setPhotoOpen(true);
+    };
+
+    const handleCaptureFromCamera = async () => {
+        const canStart = await canStartAiScan();
+        if (!canStart) return;
+        setScanSourceOpen(false);
+
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) {
+            if (permission.canAskAgain) {
+                Alert.alert(
+                    t('planning.camera_permission_title'),
+                    t('planning.camera_permission_desc')
+                );
+            } else {
+                Alert.alert(
+                    t('planning.camera_permission_title'),
+                    t('planning.camera_permission_settings_desc')
+                );
+            }
+            return;
+        }
+        try {
+            const result = await ImagePicker.launchCameraAsync({ quality: 0.7, allowsEditing: true });
+            await applyPickedImage(result);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : '';
+            const simulatorCameraUnavailable = /camera not available on simulator/i.test(message);
+            if (!simulatorCameraUnavailable) {
+                Alert.alert(t('planning.camera_open_failed_title'), t('planning.camera_open_failed_desc'));
+                return;
+            }
+            Alert.alert(t('planning.camera_unavailable_title'), t('planning.camera_unavailable_desc'));
+        }
+    };
+
+    const handlePickFromLibrary = async () => {
+        const canStart = await canStartAiScan();
+        if (!canStart) return;
+        setScanSourceOpen(false);
+        const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!mediaPermission.granted) {
+            if (mediaPermission.canAskAgain) {
+                Alert.alert(t('planning.photo_permission_title'), t('planning.photo_permission_desc'));
+            } else {
+                Alert.alert(t('planning.photo_permission_title'), t('planning.photo_permission_settings_desc'));
+            }
+            return;
+        }
+        const result = await ImagePicker.launchImageLibraryAsync({
+            quality: 0.7,
+            allowsEditing: true,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        });
+        await applyPickedImage(result);
+    };
+
+    const handleCapture = () => {
+        if (!canCreatePlant) return;
+        setAiLimitError('');
+        setSheetOpen(false);
+        setScanSourceOpen(true);
     };
 
     const handleSavePhotoPlant = async () => {
         if (!canCreatePlant) return;
+        const detected = detectedName.trim();
+        const unknown = t('planning.unknown_plant');
+        const hasDetectedName = detected.length > 0 && normalize(detected) !== normalize(unknown);
+        if (hasDetectedName) {
+            const matchedPlant = findLibraryMatchByName(detected);
+            if (matchedPlant) {
+                setPhotoOpen(false);
+                setPhotoUri(null);
+                setAiSessionActive(false);
+                setAiLimitError('');
+                router.push({
+                    pathname: '/(tabs)/library',
+                    params: {
+                        q: detected,
+                        tab: 'plants',
+                        aiMatchId: String(matchedPlant._id),
+                        aiFrom: 'scan',
+                    },
+                });
+                return;
+            }
+        }
+        setDetectNoMatch(true);
+    };
+
+    const handleSaveAsUnknown = async () => {
+        if (!canCreatePlant) return;
         setPhotoSaving(true);
         try { await addPlant({ nickname: detectedName.trim() || t('planning.unknown_plant') }); setPhotoOpen(false); setPhotoUri(null); }
-        finally { setPhotoSaving(false); }
+        finally {
+            setAiSessionActive(false);
+            setAiLimitError('');
+            setDetectNoMatch(false);
+            setPhotoSaving(false);
+        }
     };
+
+    useEffect(() => {
+        if (!sheetOpen) {
+            setAiLimitError('');
+        }
+    }, [sheetOpen]);
+
+    useEffect(() => {
+        if (!photoOpen) {
+            setAiSessionActive(false);
+        }
+    }, [photoOpen]);
+
+    useEffect(() => {
+        if (openAddSheetSignal <= 0) return;
+        if (!canCreatePlant) return;
+        setAiLimitError('');
+        setSheetOpen(true);
+    }, [openAddSheetSignal, canCreatePlant]);
+
+    useFocusEffect(
+        useCallback(() => {
+            setAiLimitError('');
+            return () => {
+                setAiLimitError('');
+                setScanSourceOpen(false);
+                setAiSessionActive(false);
+            };
+        }, [])
+    );
 
     return (
         <>
@@ -411,8 +593,8 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
             ) : isSetupRequired ? (
                 <View style={{ paddingVertical: 48, alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#e7e0d6' }}>
                     <Calendar size={48} stroke="#d97706" />
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>{t('planning.setup_required_title', { defaultValue: 'Create a garden or bed first' })}</Text>
-                    <Text style={{ fontSize: 13, color: '#78716c', textAlign: 'center', paddingHorizontal: 24 }}>{t('planning.setup_required_desc', { defaultValue: 'Before adding plants, set up at least one garden or bed.' })}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>{t('planning.setup_required_title')}</Text>
+                    <Text style={{ fontSize: 13, color: '#78716c', textAlign: 'center', paddingHorizontal: 24 }}>{t('planning.setup_required_desc')}</Text>
                 </View>
             ) : plannedPlants.length === 0 ? (
                 <View style={{ paddingVertical: 48, alignItems: 'center', gap: 12, backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#e7e0d6' }}>
@@ -425,7 +607,12 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
                     {plannedPlants.map((plant) => (
                         <TouchableOpacity
                             key={plant._id}
-                            onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/(tabs)/plant/[plantId]',
+                                    params: { plantId: String(plant._id), from: 'planning' },
+                                })
+                            }
                             activeOpacity={0.8}
                             style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
                         >
@@ -456,6 +643,11 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
                         <Text style={{ fontSize: 14, fontWeight: '600', color: '#1c1917' }}>{t('planning.option_camera_title')}</Text>
                         <Text style={{ fontSize: 12, color: '#78716c', marginTop: 2 }}>{t('planning.option_camera_desc')}</Text>
                     </TouchableOpacity>
+                    {!!aiLimitError && (
+                        <View style={{ backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                            <Text style={{ color: '#b91c1c', fontSize: 12 }}>{aiLimitError}</Text>
+                        </View>
+                    )}
                     <Text style={{ fontSize: 12, color: '#a8a29e' }}>{t('planning.quick_input_label')}</Text>
                     <TextInput
                         style={{ backgroundColor: '#f5f0e8', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1c1917', borderWidth: 1, borderColor: '#e7e0d6' }}
@@ -476,6 +668,23 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
                 </View>
             </Modal>
 
+            <Modal
+                visible={scanSourceOpen}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setScanSourceOpen(false)}
+            >
+                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.15)' }} onPress={() => setScanSourceOpen(false)} />
+                <View style={{ position: 'absolute', top: 120, left: '33.5%', width: '33%', backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#e7e0d6', overflow: 'hidden' }}>
+                    <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#e7e0d6' }} onPress={() => { void handleCaptureFromCamera(); }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#1c1917' }}>{t('planning.scan_source_camera')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10 }} onPress={() => { void handlePickFromLibrary(); }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#1c1917' }}>{t('planning.scan_source_library')}</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
             {/* Photo plant modal */}
             <Modal visible={photoOpen} transparent animationType="slide" onRequestClose={() => setPhotoOpen(false)}>
                 <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setPhotoOpen(false)} />
@@ -489,8 +698,38 @@ function PlanningTabContent({ onAddPlant }: { onAddPlant: () => void }) {
                         placeholder={t('planning.detect_name_placeholder')}
                         placeholderTextColor="#a8a29e"
                         value={detectedName}
-                        onChangeText={setDetectedName}
+                        onChangeText={(value) => {
+                            setDetectedName(value);
+                            if (detectNoMatch) setDetectNoMatch(false);
+                        }}
                     />
+                    {detectNoMatch && (
+                        <View style={{ gap: 8 }}>
+                            <Text style={{ fontSize: 12, color: '#92400e', textAlign: 'center' }}>{t('planning.detect_not_found')}</Text>
+                            <TouchableOpacity
+                                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#e7e0d6', backgroundColor: '#f5f0e8' }}
+                                onPress={handleCapture}
+                            >
+                                <Text style={{ color: '#5c5247', fontWeight: '700', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: '#e7e0d6', backgroundColor: '#fff' }}
+                                onPress={() => {
+                                    setPhotoOpen(false);
+                                    router.push({ pathname: '/(tabs)/library', params: { q: detectedName.trim(), tab: 'plants' } });
+                                }}
+                            >
+                                <Text style={{ color: '#1c1917', fontWeight: '700', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', backgroundColor: '#1a4731', opacity: photoSaving ? 0.6 : 1 }}
+                                disabled={photoSaving}
+                                onPress={handleSaveAsUnknown}
+                            >
+                                {photoSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('planning.detect_save_unknown')}</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    )}
                     <View style={{ flexDirection: 'row', gap: 10 }}>
                         <TouchableOpacity disabled={!canCreatePlant} onPress={canCreatePlant ? handleCapture : undefined} style={{ flex: 1, backgroundColor: '#f5f0e8', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !canCreatePlant ? 0.5 : 1 }}>
                             <Text style={{ color: '#5c5247', fontWeight: '600' }}>{t('planning.detect_retake')}</Text>
@@ -538,7 +777,12 @@ function GrowingTabContent() {
                     {activePlants.map((plant) => (
                         <TouchableOpacity
                             key={plant._id}
-                            onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/(tabs)/plant/[plantId]',
+                                    params: { plantId: String(plant._id), from: 'growing' },
+                                })
+                            }
                             activeOpacity={0.8}
                             style={{ backgroundColor: '#fff', borderWidth: 1, borderColor: '#e7e0d6', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
                         >
@@ -569,19 +813,53 @@ function GrowingTabContent() {
 export default function GardenScreen() {
     const { t } = useTranslation();
     const { deviceId } = useDeviceId();
+    const { user, isLoading: isAuthLoading } = useAuth();
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const gardens = gardensQuery ?? [];
+    const isPremium = isPremiumActive(user);
+    const canCreateGarden = !isAuthLoading && (isPremium || gardens.length < 1);
 
     const [activeTab, setActiveTab] = useState<GardenTab>('garden');
     const [showCreate, setShowCreate] = useState(false);
-    const [showSheet, setShowSheet] = useState(false);
+    const [openAddSheetSignal, setOpenAddSheetSignal] = useState(0);
+    const [gardenLimitError, setGardenLimitError] = useState('');
     const unitSystem = useUnitSystem();
 
     const TABS = [
-        { key: 'garden', label: t('garden.tab_garden', { defaultValue: 'Garden' }) },
-        { key: 'planning', label: t('garden.tab_planning', { defaultValue: 'Planning' }) },
-        { key: 'growing', label: t('garden.tab_growing', { defaultValue: 'Growing' }) },
+        { key: 'garden', label: t('garden.tab_garden') },
+        { key: 'planning', label: t('garden.tab_planning') },
+        { key: 'growing', label: t('garden.tab_growing') },
     ];
+
+    const handleOpenCreateGarden = () => {
+        if (!canCreateGarden) {
+            setGardenLimitError(t('garden.error_limit_free'));
+            return;
+        }
+        setGardenLimitError('');
+        setShowCreate(true);
+    };
+
+    useEffect(() => {
+        if (canCreateGarden) {
+            setGardenLimitError('');
+        }
+    }, [canCreateGarden]);
+
+    useEffect(() => {
+        if (activeTab !== 'garden') {
+            setGardenLimitError('');
+        }
+    }, [activeTab]);
+
+    useFocusEffect(
+        useCallback(() => {
+            setGardenLimitError('');
+            return () => {
+                setGardenLimitError('');
+            };
+        }, [])
+    );
 
     return (
         <View style={{ flex: 1, backgroundColor: '#faf8f4' }}>
@@ -591,22 +869,22 @@ export default function GardenScreen() {
                     <Text style={{ fontSize: 26, fontWeight: '800', color: '#1c1917', letterSpacing: -0.5 }}>{t('garden.title')}</Text>
                     {activeTab === 'garden' && (
                         <TouchableOpacity
-                            onPress={() => setShowCreate(true)}
+                            onPress={handleOpenCreateGarden}
                             testID="e2e-garden-open-create"
                             style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#1a4731', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}
                         >
                             <Plus size={13} stroke="white" />
-                            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('garden.create_button', { defaultValue: 'Add garden' })}</Text>
+                            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('garden.create_button')}</Text>
                         </TouchableOpacity>
                     )}
                     {activeTab === 'planning' && (
                         <TouchableOpacity
-                            onPress={() => setShowSheet(true)}
+                            onPress={() => setOpenAddSheetSignal((v) => v + 1)}
                             testID="e2e-planning-add-button"
                             style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#1a4731', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}
                         >
                             <Plus size={13} stroke="white" />
-                            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('planning.add_button', { defaultValue: 'Add plant' })}</Text>
+                            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('planning.add_button')}</Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -619,8 +897,19 @@ export default function GardenScreen() {
 
             {/* Scrollable content area */}
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-                {activeTab === 'garden' && <GardenTabContent onCreateGarden={() => setShowCreate(true)} />}
-                {activeTab === 'planning' && <PlanningTabContent onAddPlant={() => setShowSheet(true)} />}
+                {activeTab === 'garden' && (
+                    <>
+                        {!!gardenLimitError && (
+                            <View style={{ marginBottom: 12, backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                                <Text style={{ color: '#b91c1c', fontSize: 13 }}>
+                                    {gardenLimitError}
+                                </Text>
+                            </View>
+                        )}
+                        <GardenTabContent onCreateGarden={handleOpenCreateGarden} canCreateGarden={canCreateGarden} unitSystem={unitSystem} />
+                    </>
+                )}
+                {activeTab === 'planning' && <PlanningTabContent openAddSheetSignal={openAddSheetSignal} />}
                 {activeTab === 'growing' && <GrowingTabContent />}
             </ScrollView>
 

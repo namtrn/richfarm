@@ -180,7 +180,10 @@ export default function ExplorerScreen() {
     };
 
     const openPlant = (plantId: string) => {
-        router.push(`/(tabs)/plant/${plantId}`);
+        router.push({
+            pathname: '/(tabs)/plant/[plantId]',
+            params: { plantId: String(plantId), from: 'explorer' },
+        });
     };
 
     const isLoading = isLibraryLoading || isUserPlantsLoading || isHealthLoading;
@@ -193,10 +196,10 @@ export default function ExplorerScreen() {
         >
             <View style={{ gap: 6 }}>
                 <Text style={{ fontSize: 30, fontWeight: '800', color: '#1c1917', letterSpacing: -0.5 }}>
-                    {t('search.title', { defaultValue: 'Search' })}
+                    {t('search.title')}
                 </Text>
                 <Text style={{ fontSize: 13, color: '#78716c' }}>
-                    {t('search.subtitle', { defaultValue: 'Find plants, pests, and your garden items.' })}
+                    {t('search.subtitle')}
                 </Text>
             </View>
 
@@ -219,7 +222,7 @@ export default function ExplorerScreen() {
             >
                 <Search size={17} stroke="#a8a29e" />
                 <TextInput
-                    placeholder={t('search.placeholder', { defaultValue: 'Search plants, pests, diseases...' })}
+                    placeholder={t('search.placeholder')}
                     placeholderTextColor="#a8a29e"
                     value={query}
                     onChangeText={setQuery}
@@ -263,10 +266,10 @@ export default function ExplorerScreen() {
                         <Search size={22} stroke="#166534" />
                     </View>
                     <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>
-                        {t('search.empty_title', { defaultValue: 'Start typing to search' })}
+                        {t('search.empty_title')}
                     </Text>
                     <Text style={{ fontSize: 12, color: '#78716c', textAlign: 'center' }}>
-                        {t('search.empty_desc', { defaultValue: 'Search across your garden, library, and health guides.' })}
+                        {t('search.empty_desc')}
                     </Text>
                 </View>
             ) : !hasResults ? (
@@ -285,23 +288,23 @@ export default function ExplorerScreen() {
                         <Search size={22} stroke="#d97706" />
                     </View>
                     <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>
-                        {t('search.no_results', { defaultValue: 'No results for "{{query}}"', query: query.trim() })}
+                        {t('search.no_results', { query: query.trim() })}
                     </Text>
                     <Text style={{ fontSize: 12, color: '#78716c', textAlign: 'center' }}>
-                        {t('library.try_different', { defaultValue: 'Try a different search term' })}
+                        {t('library.try_different')}
                     </Text>
                 </View>
             ) : (
                 <View style={{ gap: 16 }}>
                     {myPlantMatches.length > 0 && (
                         <ResultSection
-                            title={t('search.section_my_plants', { defaultValue: 'My plants' })}
-                            viewAllLabel={t('search.view_all', { defaultValue: 'View all' })}
+                            title={t('search.section_my_plants')}
+                            viewAllLabel={t('search.view_all')}
                         >
                             {myPlantMatches.map((plant: any) => {
                                 const master = plant.plantMasterId ? libraryById.get(plant.plantMasterId) : undefined;
                                 const title = plant.nickname ?? master?.displayName ?? master?.scientificName ?? t('plant.unnamed');
-                                const subtitle = t('plant.status_label', { status: plant.status });
+                                const subtitle = t('plant.status_label', { status: t(`plant.status_${plant.status}`) });
                                 const imageUri = plant.photoUrl ?? master?.imageUrl ?? null;
                                 return (
                                     <ResultRow
@@ -319,9 +322,9 @@ export default function ExplorerScreen() {
 
                     {libraryMatches.length > 0 && (
                         <ResultSection
-                            title={t('search.section_library', { defaultValue: 'Plant library' })}
+                            title={t('search.section_library')}
                             onViewAll={openLibrary}
-                            viewAllLabel={t('search.view_all', { defaultValue: 'View all' })}
+                            viewAllLabel={t('search.view_all')}
                         >
                             {libraryMatches.map((plant: any) => {
                                 const title = plant.displayName ?? plant.scientificName ?? t('plant.unnamed');
@@ -342,17 +345,17 @@ export default function ExplorerScreen() {
 
                     {healthMatches.length > 0 && (
                         <ResultSection
-                            title={t('search.section_health', { defaultValue: 'Pests & diseases' })}
+                            title={t('search.section_health')}
                             onViewAll={() => openHealth()}
-                            viewAllLabel={t('search.view_all', { defaultValue: 'View all' })}
+                            viewAllLabel={t('search.view_all')}
                         >
                             {healthMatches.map((item: any) => {
                                 const isDisease = item.type === 'disease';
                                 const badgeBg = isDisease ? '#dbeafe' : '#fee2e2';
                                 const badgeColor = isDisease ? '#2563eb' : '#b91c1c';
                                 const badgeLabel = isDisease
-                                    ? t('health.tab_diseases', { defaultValue: 'Diseases' })
-                                    : t('health.tab_pests', { defaultValue: 'Pests' });
+                                    ? t('health.tab_diseases')
+                                    : t('health.tab_pests');
                                 return (
                                     <ResultRow
                                         key={item._id}

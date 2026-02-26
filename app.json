@@ -55,6 +55,14 @@
           }
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow access to the camera to identify your plants.",
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
+          "microphonePermission": false
+        }
+      ],
       "expo-notifications",
       "expo-secure-store"
     ]

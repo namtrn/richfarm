@@ -23,14 +23,13 @@ export default function TabLayout() {
       <Tabs.Screen name="plant" options={{ href: null }} />
       <Tabs.Screen name="planning" options={{ href: null }} />
       <Tabs.Screen name="growing" options={{ href: null }} />
-      <Tabs.Screen name="health" options={{ href: null }} />
       <Tabs.Screen name="explorer" options={{ href: null }} />
 
       {/* Visible tabs — order: Home | Garden | Library | Reminder | More */}
       <Tabs.Screen
         name="home"
         options={{
-          title: t('tabs.home', { defaultValue: 'Home' }),
+          title: t('tabs.home'),
           tabBarButtonTestID: 'e2e-tab-home',
           tabBarIcon: ({ color }) => <Home size={24} stroke={color} />,
         }}
@@ -62,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: t('tabs.more', { defaultValue: 'More' }),
+          title: t('tabs.more'),
           tabBarButtonTestID: 'e2e-tab-more',
           tabBarIcon: ({ color }) => <UserRound size={24} stroke={color} />,
         }}

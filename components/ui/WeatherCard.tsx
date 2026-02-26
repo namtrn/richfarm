@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
     MapPin,
     Sun,
@@ -21,11 +22,23 @@ type WeatherCardProps = {
 };
 
 export function WeatherCard({ model }: WeatherCardProps) {
+    const { t } = useTranslation();
     const {
-        location, condition, conditionKey, temperature, feelsLike,
+        location, conditionKey, temperature, feelsLike,
         rainfall, humidity, uvIndex, uvLabel,
-        soilStatus, soilNote, soilBars,
+        soilStatus, soilBars,
     } = model;
+    const localizedCondition = t(`weather_card.condition_${conditionKey}`);
+    const normalizedUv = uvLabel.toLowerCase().replace(/\s+/g, '_');
+    const localizedUvLabel = t(`weather_card.uv_${normalizedUv}`);
+    const normalizedSoilStatus = soilStatus.toLowerCase();
+    const localizedSoilStatus = t(`weather_card.soil_status_${normalizedSoilStatus}`);
+    const localizedSoilNote =
+        rainfall >= 5
+            ? t('weather_card.soil_note_rain', { moisture: model.soilMoisture })
+            : rainfall >= 1
+                ? t('weather_card.soil_note_light_rain', { moisture: model.soilMoisture })
+                : t('weather_card.soil_note_no_rain', { moisture: model.soilMoisture });
     const { Icon, badgeStyle, badgeIcon, heroIcon } = resolveConditionAssets(conditionKey);
 
     return (
@@ -38,7 +51,7 @@ export function WeatherCard({ model }: WeatherCardProps) {
                 </View>
                 <View style={[styles.badge, badgeStyle.container]}>
                     <Icon size={12} stroke={badgeIcon.stroke} fill={badgeIcon.fill} />
-                    <Text style={[styles.badgeText, badgeStyle.text]}>{condition}</Text>
+                    <Text style={[styles.badgeText, badgeStyle.text]}>{localizedCondition}</Text>
                 </View>
             </View>
 
@@ -47,9 +60,9 @@ export function WeatherCard({ model }: WeatherCardProps) {
                 <View style={styles.tempCol}>
                     <View style={styles.tempLeft}>
                         <Text style={styles.tempNumber}>{temperature}°</Text>
-                        <Text style={styles.tempUnit}>C</Text>
+                        <Text style={styles.tempUnit}>{t('weather_card.temp_unit')}</Text>
                     </View>
-                    <Text style={styles.feelsLike}>Feels like {feelsLike}°C</Text>
+                    <Text style={styles.feelsLike}>{t('weather_card.feels_like', { value: feelsLike })}</Text>
                 </View>
                 <View style={styles.sunIconWrapper}>
                     <Icon size={38} stroke={heroIcon.stroke} fill={heroIcon.fill} strokeWidth={1.5} />
@@ -58,19 +71,19 @@ export function WeatherCard({ model }: WeatherCardProps) {
 
             {/* ── Stats (no icons) ── */}
             <View style={styles.statsRow}>
-                <StatItem label="RAINFALL" value={`${rainfall} mm`} valueColor="#1d4ed8" />
+                <StatItem label={t('weather_card.rainfall')} value={`${rainfall} mm`} valueColor="#1d4ed8" />
                 <View style={styles.statSep} />
-                <StatItem label="HUMIDITY" value={`${humidity}%`} valueColor="#0369a1" />
+                <StatItem label={t('weather_card.humidity')} value={`${humidity}%`} valueColor="#0369a1" />
                 <View style={styles.statSep} />
-                <StatItem label="UV INDEX" value={`${uvIndex} (${uvLabel})`} valueColor="#b45309" />
+                <StatItem label={t('weather_card.uv_index')} value={`${uvIndex} (${localizedUvLabel})`} valueColor="#b45309" />
             </View>
 
             {/* ── Soil Moisture Projection ── */}
             <View style={styles.soilCard}>
                 <View style={styles.soilHeader}>
-                    <Text style={styles.soilTitle}>SOIL MOISTURE PROJECTION</Text>
+                    <Text style={styles.soilTitle}>{t('weather_card.soil_projection')}</Text>
                     <View style={styles.soilBadge}>
-                        <Text style={styles.soilBadgeText}>{soilStatus}</Text>
+                        <Text style={styles.soilBadgeText}>{localizedSoilStatus}</Text>
                     </View>
                 </View>
 
@@ -90,7 +103,7 @@ export function WeatherCard({ model }: WeatherCardProps) {
                     ))}
                 </View>
 
-                <Text style={styles.soilNote}>{soilNote}</Text>
+                <Text style={styles.soilNote}>{localizedSoilNote}</Text>
             </View>
         </View>
     );

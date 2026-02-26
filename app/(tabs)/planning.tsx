@@ -1,27 +1,33 @@
-﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal, Pressable, Image } from 'react-native';
+﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal, Pressable, Image, Alert } from 'react-native';
 import { Plus, Calendar, Leaf } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from 'convex/react';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
 import { useAuth } from '../../lib/auth';
 import { useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 import { useDeviceId } from '../../lib/deviceId';
 import { api } from '../../convex/_generated/api';
+import { isPremiumActive } from '../../lib/access';
+import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../lib/aiDetectorLimit';
+import { usePlantLibrary } from '../../hooks/usePlantLibrary';
 
 import { useTheme } from '../../lib/theme';
 
 export default function PlanningScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { plants, isLoading, addPlant } = usePlants();
   const { beds, isLoading: isBedsLoading } = useBeds();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
   const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
   const router = useRouter();
+  const params = useLocalSearchParams<{ scanner?: string | string[] }>();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [nickname, setNickname] = useState('');
   const [saving, setSaving] = useState(false);
@@ -30,13 +36,38 @@ export default function PlanningScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
   const [photoSaving, setPhotoSaving] = useState(false);
+  const [aiLimitError, setAiLimitError] = useState('');
+  const [aiSessionActive, setAiSessionActive] = useState(false);
+  const [scanSourceOpen, setScanSourceOpen] = useState(false);
+  const [detectNoMatch, setDetectNoMatch] = useState(false);
+  const scannerTriggeredRef = useRef(false);
   const gardens = gardensQuery ?? [];
   const isSetupLoading = gardensQuery === undefined || isBedsLoading;
   const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
   const canCreatePlant = canEdit && hasGardenOrBed;
   const isSetupRequired = canEdit && !isSetupLoading && !hasGardenOrBed;
+  const isPremium = isPremiumActive(user);
+  const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
+  const locale = i18n.language?.split('-')[0] ?? i18n.language;
+  const { plants: libraryPlants } = usePlantLibrary(locale);
 
   const plannedPlants = plants.filter((p) => p.status === 'planting');
+  const normalize = (value: string) =>
+    value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+
+  const findLibraryMatchByName = (name: string) => {
+    const query = normalize(name);
+    if (!query) return null;
+    return (
+      libraryPlants.find((plant: any) => normalize(plant.displayName ?? '') === query || normalize(plant.scientificName ?? '') === query) ??
+      libraryPlants.find((plant: any) => normalize(plant.displayName ?? '').includes(query) || normalize(plant.scientificName ?? '').includes(query)) ??
+      null
+    );
+  };
 
   const handleAddPlant = async () => {
     if (!canCreatePlant || !nickname.trim()) return;
@@ -56,34 +87,177 @@ export default function PlanningScreen() {
     router.push('/(tabs)/library?mode=select&from=planning');
   };
 
-  const handleCapture = async () => {
+  const canStartAiScan = async () => {
     if (!canCreatePlant) return;
-    setSheetOpen(false);
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') return;
+    if (!isPremium && !aiSessionActive) {
+      if (!aiDetectorKey) {
+        setAiLimitError(t('common.error'));
+        return false;
+      }
+      const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
+      if (reached) {
+        setAiLimitError(t('planning.detect_limit_free'));
+        return false;
+      }
+    }
+    setAiLimitError('');
+    return true;
+  };
 
-    const result = await ImagePicker.launchCameraAsync({
-      quality: 0.7,
-      allowsEditing: true,
-    });
-
+  const applyPickedImage = async (result: ImagePicker.ImagePickerResult) => {
     if (result.canceled || !result.assets?.[0]?.uri) return;
+    if (!isPremium && !aiSessionActive) {
+      const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
+      if (!consumption.allowed) {
+        setAiLimitError(t('planning.detect_limit_free'));
+        return;
+      }
+    }
+    setAiSessionActive(true);
     setPhotoUri(result.assets[0].uri);
     setDetectedName(t('planning.unknown_plant'));
+    setDetectNoMatch(false);
     setPhotoOpen(true);
   };
 
+  const handleOpenScanSource = () => {
+    if (!canCreatePlant) return;
+    setAiLimitError('');
+    setSheetOpen(false);
+    setScanSourceOpen(true);
+  };
+
+  const handleCaptureFromCamera = async () => {
+    const canStart = await canStartAiScan();
+    if (!canStart) return;
+    setScanSourceOpen(false);
+
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      if (permission.canAskAgain) {
+        Alert.alert(
+          t('planning.camera_permission_title'),
+          t('planning.camera_permission_desc')
+        );
+      } else {
+        Alert.alert(
+          t('planning.camera_permission_title'),
+          t('planning.camera_permission_settings_desc')
+        );
+      }
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 0.7,
+        allowsEditing: true,
+      });
+      await applyPickedImage(result);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      const simulatorCameraUnavailable = /camera not available on simulator/i.test(message);
+      if (!simulatorCameraUnavailable) {
+        Alert.alert(t('planning.camera_open_failed_title'), t('planning.camera_open_failed_desc'));
+        return;
+      }
+      Alert.alert(t('planning.camera_unavailable_title'), t('planning.camera_unavailable_desc'));
+    }
+  };
+
+  const handlePickFromLibrary = async () => {
+    const canStart = await canStartAiScan();
+    if (!canStart) return;
+    setScanSourceOpen(false);
+    const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!mediaPermission.granted) {
+      if (mediaPermission.canAskAgain) {
+        Alert.alert(t('planning.photo_permission_title'), t('planning.photo_permission_desc'));
+      } else {
+        Alert.alert(t('planning.photo_permission_title'), t('planning.photo_permission_settings_desc'));
+      }
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 0.7,
+      allowsEditing: true,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    });
+    await applyPickedImage(result);
+  };
+
   const handleSavePhotoPlant = async () => {
+    if (!canCreatePlant) return;
+    const detected = detectedName.trim();
+    const unknown = t('planning.unknown_plant');
+    const hasDetectedName = detected.length > 0 && normalize(detected) !== normalize(unknown);
+    if (hasDetectedName) {
+      const matchedPlant = findLibraryMatchByName(detected);
+      if (matchedPlant) {
+        setPhotoOpen(false);
+        setPhotoUri(null);
+        setAiSessionActive(false);
+        setAiLimitError('');
+        router.push({
+          pathname: '/(tabs)/library',
+          params: {
+            q: detected,
+            tab: 'plants',
+            aiMatchId: String(matchedPlant._id),
+            aiFrom: 'scan',
+          },
+        });
+        return;
+      }
+    }
+
+    setDetectNoMatch(true);
+  };
+
+  const handleSaveAsUnknown = async () => {
     if (!canCreatePlant) return;
     setPhotoSaving(true);
     try {
       await addPlant({ nickname: detectedName.trim() || t('planning.unknown_plant') });
       setPhotoOpen(false);
       setPhotoUri(null);
+      setAiSessionActive(false);
+      setAiLimitError('');
+      setDetectNoMatch(false);
     } finally {
       setPhotoSaving(false);
     }
   };
+
+  useEffect(() => {
+    if (!sheetOpen) {
+      setAiLimitError('');
+    }
+  }, [sheetOpen]);
+
+  useEffect(() => {
+    if (!photoOpen) {
+      setAiSessionActive(false);
+    }
+  }, [photoOpen]);
+
+  useEffect(() => {
+    const scannerParam = Array.isArray(params.scanner) ? params.scanner[0] : params.scanner;
+    if (scannerParam !== '1' || scannerTriggeredRef.current || !canCreatePlant) return;
+    scannerTriggeredRef.current = true;
+    handleOpenScanSource();
+  }, [params.scanner, canCreatePlant]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setAiLimitError('');
+      return () => {
+        setAiLimitError('');
+        setScanSourceOpen(false);
+        setAiSessionActive(false);
+      };
+    }, [])
+  );
 
   return (
     <>
@@ -95,7 +269,7 @@ export default function PlanningScreen() {
               <Text style={{ fontSize: 28, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.title')}</Text>
               <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500', lineHeight: 18 }}>
                 {isSetupRequired
-                  ? t('planning.setup_required_desc', { defaultValue: 'Set up your garden before adding plants.' })
+                  ? t('planning.setup_required_desc')
                   : t('planning.subtitle')}
               </Text>
             </View>
@@ -107,7 +281,7 @@ export default function PlanningScreen() {
               >
                 <Plus size={18} color="white" strokeWidth={3} />
                 <Text style={{ color: 'white', fontSize: 13, fontWeight: '800' }}>
-                  {t('planning.setup_required_action', { defaultValue: 'Set up' })}
+                  {t('planning.setup_required_action')}
                 </Text>
               </TouchableOpacity>
             ) : (
@@ -144,10 +318,10 @@ export default function PlanningScreen() {
               </View>
               <View style={{ alignItems: 'center', paddingHorizontal: 30 }}>
                 <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, textAlign: 'center' }}>
-                  {t('planning.setup_required_title', { defaultValue: 'Garden Setup Required' })}
+                  {t('planning.setup_required_title')}
                 </Text>
                 <Text style={{ fontSize: 14, color: theme.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 20, fontWeight: '500' }}>
-                  {t('planning.setup_required_desc', { defaultValue: 'Before adding plants, set up at least one garden or bed.' })}
+                  {t('planning.setup_required_desc')}
                 </Text>
               </View>
               <TouchableOpacity
@@ -156,7 +330,7 @@ export default function PlanningScreen() {
                 testID="e2e-planning-open-garden-setup-empty"
               >
                 <Text style={{ color: 'white', fontSize: 15, fontWeight: '800' }}>
-                  {t('planning.setup_required_action', { defaultValue: 'Set up garden' })}
+                  {t('planning.setup_required_action')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -186,7 +360,12 @@ export default function PlanningScreen() {
               {plannedPlants.map((plant) => (
                 <TouchableOpacity
                   key={plant._id}
-                  onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(tabs)/plant/[plantId]',
+                      params: { plantId: String(plant._id), from: 'planning' },
+                    })
+                  }
                   style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}
                   activeOpacity={0.8}
                 >
@@ -236,12 +415,18 @@ export default function PlanningScreen() {
             <TouchableOpacity
               style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
               disabled={!canCreatePlant}
-              onPress={handleCapture}
+              onPress={handleOpenScanSource}
               testID="e2e-planning-option-camera"
             >
               <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>{t('planning.option_camera_title')}</Text>
               <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_camera_desc')}</Text>
             </TouchableOpacity>
+
+            {!!aiLimitError && (
+              <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                <Text style={{ color: theme.danger, fontSize: 12 }}>{aiLimitError}</Text>
+              </View>
+            )}
           </View>
 
           <View style={{ gap: 8, marginTop: 4 }}>
@@ -272,6 +457,23 @@ export default function PlanningScreen() {
       </Modal>
 
       <Modal
+        visible={scanSourceOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setScanSourceOpen(false)}
+      >
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.15)' }} onPress={() => setScanSourceOpen(false)} />
+        <View style={{ position: 'absolute', top: 120, left: '33.5%', width: '33%', backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' }}>
+          <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.border }} onPress={() => { void handleCaptureFromCamera(); }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{t('planning.scan_source_camera')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10 }} onPress={() => { void handlePickFromLibrary(); }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{t('planning.scan_source_library')}</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal
         visible={photoOpen}
         transparent
         animationType="slide"
@@ -295,13 +497,47 @@ export default function PlanningScreen() {
               placeholder={t('planning.detect_name_placeholder')}
               placeholderTextColor={theme.textMuted}
               value={detectedName}
-              onChangeText={setDetectedName}
+              onChangeText={(value) => {
+                setDetectedName(value);
+                if (detectNoMatch) setDetectNoMatch(false);
+              }}
             />
           </View>
+          {detectNoMatch && (
+            <View style={{ gap: 8 }}>
+              <Text style={{ fontSize: 12, color: theme.warning, textAlign: 'center' }}>{t('planning.detect_not_found')}</Text>
+              <TouchableOpacity
+                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
+                onPress={handleOpenScanSource}
+              >
+                <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
+                onPress={() => {
+                  setPhotoOpen(false);
+                  router.push({ pathname: '/(tabs)/library', params: { q: detectedName.trim(), tab: 'plants' } });
+                }}
+              >
+                <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary, opacity: photoSaving ? 0.6 : 1 }}
+                disabled={photoSaving}
+                onPress={handleSaveAsUnknown}
+              >
+                {photoSaving ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('planning.detect_save_unknown')}</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
             <TouchableOpacity
               style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
-              onPress={canCreatePlant ? handleCapture : undefined}
+              onPress={canCreatePlant ? handleOpenScanSource : undefined}
               disabled={!canCreatePlant}
             >
               <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 15 }}>{t('planning.detect_retake')}</Text>

@@ -41,6 +41,7 @@ function clamp(value: number, min: number, max: number) {
 
 export default function BedDetailScreen() {
   const { t, i18n } = useTranslation();
+  const currentLocale = (i18n.language ?? 'en').split('-')[0].toLowerCase();
   const theme = useTheme();
   const router = useRouter();
   const { bedId } = useLocalSearchParams<{ bedId: string }>();
@@ -67,7 +68,7 @@ export default function BedDetailScreen() {
   const [addingPlant, setAddingPlant] = useState(false);
 
   const { beds, isLoading: bedsLoading, updateBed } = useBeds();
-  const { plants, addPlant } = usePlants();
+  const { plants, addPlant, deletePlant } = usePlants();
   const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
 
   const bed = useMemo(
@@ -167,15 +168,15 @@ export default function BedDetailScreen() {
   if (!bed) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
-        <Text style={{ color: theme.textSecondary }}>{t('bed.not_found', { defaultValue: 'Bed not found.' })}</Text>
+        <Text style={{ color: theme.textSecondary }}>{t('bed.not_found')}</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 12 }}>
-          <Text style={{ color: theme.primary, fontWeight: '600' }}>{t('bed.go_back', { defaultValue: t('garden.go_back', { defaultValue: 'Go back' }) })}</Text>
+          <Text style={{ color: theme.primary, fontWeight: '600' }}>{t('bed.go_back')}</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const bedTypeLabel = t(`garden.bed_type_${bedTypeKey}`, { defaultValue: bedTypeKey });
+  const bedTypeLabel = t(`garden.bed_type_${bedTypeKey}`);
   const isContainer = bedTypeKey === 'container';
   const isRaised = bedTypeKey === 'raised';
 
@@ -208,7 +209,7 @@ export default function BedDetailScreen() {
     let targetY = y;
     if (typeof targetX !== 'number' || typeof targetY !== 'number') {
       if (!firstEmptyCell) {
-        Alert.alert(t('bed.no_space', { defaultValue: 'No empty space available in this bed.' }));
+        Alert.alert(t('bed.no_space'));
         return;
       }
       targetX = firstEmptyCell.x;
@@ -234,6 +235,61 @@ export default function BedDetailScreen() {
     } finally {
       setAddingPlant(false);
     }
+  };
+
+  const handleDeletePlantFromBed = (plant: any) => {
+    Alert.alert(
+      t('common.confirm'),
+      t('bed.delete_plant_confirm'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: () => {
+            void deletePlant(plant._id as any).catch(() => {
+              Alert.alert(
+                t('common.error'),
+                t('bed.delete_plant_failed')
+              );
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const openCellAction = (col: number, row: number, plantEntry?: { plant: any; count: number }) => {
+    if (!plantEntry) {
+      openAddPlant(col, row);
+      return;
+    }
+
+    Alert.alert(
+      plantEntry.plant.nickname ?? t('bed.plant_in_cell'),
+      t('bed.choose_action'),
+      [
+        {
+          text: t('common.view_details'),
+          onPress: () =>
+            router.push({
+              pathname: '/(tabs)/plant/[plantId]',
+              params: {
+                plantId: String(plantEntry.plant._id),
+                from: 'bed',
+                bedId: String(resolvedBedId),
+                gardenId: bed?.gardenId ? String(bed.gardenId) : undefined,
+              },
+            }),
+        },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: () => handleDeletePlantFromBed(plantEntry.plant),
+        },
+        { text: t('common.cancel'), style: 'cancel' },
+      ]
+    );
   };
 
   const handleAdjustSave = async () => {
@@ -298,13 +354,13 @@ export default function BedDetailScreen() {
             style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 14 }}
           >
             <Plus size={18} color="#fff" />
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', letterSpacing: 0.2 }}>{t('bed.add_plant', { defaultValue: 'Add plant' })}</Text>
+            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', letterSpacing: 0.2 }}>{t('bed.add_plant')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={openAdjust}
             style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, alignItems: 'center', justifyContent: 'center', shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}
           >
-            <Text style={{ color: theme.textSecondary, fontSize: 13, fontWeight: '700' }}>{t('bed.adjust', { defaultValue: 'Adjust' })}</Text>
+            <Text style={{ color: theme.textSecondary, fontSize: 13, fontWeight: '700' }}>{t('bed.adjust')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -316,7 +372,7 @@ export default function BedDetailScreen() {
             </View>
             {isRaised && (
               <View style={{ flex: 1, gap: 4 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label', { defaultValue: 'Tiers' })}</Text>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label')}</Text>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{bed.tiers ?? 1}</Text>
               </View>
             )}
@@ -378,7 +434,7 @@ export default function BedDetailScreen() {
                 <TouchableOpacity
                   key={index}
                   activeOpacity={0.7}
-                  onPress={() => openAddPlant(col, row)}
+                  onPress={() => openCellAction(col, row, plantEntry)}
                   style={{
                     width: cellSize,
                     height: cellSize,
@@ -419,13 +475,13 @@ export default function BedDetailScreen() {
         <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}>
           <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
           <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, marginBottom: 20, letterSpacing: -0.5 }}>
-            {t('bed.adjust_title', { defaultValue: 'Adjust bed' })}
+            {t('bed.adjust_title')}
           </Text>
 
           <View style={{ gap: 20, marginBottom: 24 }}>
             {isRaised && (
               <View style={{ gap: 8 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label', { defaultValue: 'Tiers' })}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label')}</Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
                   {[1, 2, 3].map((value) => {
                     const active = value === adjustTiers;
@@ -462,7 +518,7 @@ export default function BedDetailScreen() {
                 <View style={{ flexDirection: 'row', gap: 12 }}>
                   <View style={{ flex: 1, gap: 8 }}>
                     <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                      {t('bed.cols_label', { defaultValue: 'Columns' })}
+                      {t('bed.cols_label')}
                     </Text>
                     <TextInput
                       value={adjustCols}
@@ -475,7 +531,7 @@ export default function BedDetailScreen() {
                   </View>
                   <View style={{ flex: 1, gap: 8 }}>
                     <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                      {t('bed.rows_label', { defaultValue: 'Rows' })}
+                      {t('bed.rows_label')}
                     </Text>
                     <TextInput
                       value={adjustRows}
@@ -580,13 +636,18 @@ export default function BedDetailScreen() {
               </TouchableOpacity>
               {groups.map(g => {
                 const active = selectedCategory === g.key;
+                const translated = t(`plantGroups.${g.key}`);
+                const label =
+                  translated !== `plantGroups.${g.key}`
+                    ? translated
+                    : (g.displayName?.[currentLocale] ?? g.displayName?.en ?? g.key);
                 return (
                   <TouchableOpacity
                     key={g.key}
                     onPress={() => setSelectedCategory(active ? undefined : g.key)}
                     style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                   >
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{g.displayName?.[i18n.language] ?? g.displayName?.en ?? g.key}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{label}</Text>
                   </TouchableOpacity>
                 );
               })}

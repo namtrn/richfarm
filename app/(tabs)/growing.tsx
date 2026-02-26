@@ -4,6 +4,10 @@ import { useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
+import { useBeds } from '../../hooks/useBeds';
+import { useDeviceId } from '../../lib/deviceId';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 import { useTheme } from '../../lib/theme';
 
@@ -12,12 +16,17 @@ export default function GrowingScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { plants, isLoading, updateStatus } = usePlants();
+  const { beds } = useBeds();
+  const { deviceId } = useDeviceId();
+  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const canEdit = !isAuthLoading && isAuthenticated;
 
   const activePlants = plants.filter(
     (p) => p.status === 'growing' || p.status === 'planting'
   );
+  const bedMap = new Map(beds.map((bed: any) => [String(bed._id), bed]));
+  const gardenMap = new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden]));
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
@@ -70,11 +79,28 @@ export default function GrowingScreen() {
           </View>
         ) : (
           <View style={{ gap: 16 }}>
-            {activePlants.map((plant) => (
+            {activePlants.map((plant) => {
+              const bed = plant.bedId ? bedMap.get(String(plant.bedId)) : undefined;
+              const garden = bed?.gardenId ? gardenMap.get(String(bed.gardenId)) : undefined;
+              const pos = plant.positionInBed;
+              const hasPosition = typeof pos?.x === 'number' && typeof pos?.y === 'number';
+              const positionLabel = hasPosition
+                ? ` • Cell ${(pos?.x ?? 0) + 1},${(pos?.y ?? 0) + 1}`
+                : '';
+              const locationLabel = bed
+                ? `${garden?.name ?? t('growing.unknown_garden')} > ${bed.name}${positionLabel}`
+                : t('growing.no_location');
+
+              return (
               <TouchableOpacity
                 key={plant._id}
                 style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}
-                onPress={() => router.push(`/(tabs)/plant/${plant._id}`)}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(tabs)/plant/[plantId]',
+                    params: { plantId: String(plant._id), from: 'growing' },
+                  })
+                }
                 activeOpacity={0.8}
               >
                 <View style={{ width: 56, height: 56, backgroundColor: theme.accent, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
@@ -83,6 +109,9 @@ export default function GrowingScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>
                     {plant.nickname ?? t('growing.unnamed')}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }} numberOfLines={2}>
+                    {locationLabel}
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                     <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: plant.status === 'growing' ? theme.successBg : theme.warningBg, borderWidth: 1, borderColor: plant.status === 'growing' ? theme.success : theme.warning }}>
@@ -99,7 +128,8 @@ export default function GrowingScreen() {
                   <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800' }}>{t('growing.harvest')}</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
-            ))}
+              );
+            })}
           </View>
         )}
       </View>

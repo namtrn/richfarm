@@ -5,12 +5,17 @@ import type { Id } from '../../convex/_generated/dataModel';
 import { loadSyncQueue, markSyncAttempt, removeSyncActions } from './queue';
 import { buildSyncBatch, mapSyncActionToPhoto } from './mappers';
 import { useDeviceId } from '../deviceId';
+import { SyncActionType } from './types';
 
 export type SyncExecutorResult = {
     ok: boolean;
     syncedCount: number;
     errorCount: number;
     queuedCount: number;
+};
+
+type SyncExecuteOptions = {
+    types?: SyncActionType[];
 };
 
 export function useSyncExecutor() {
@@ -21,26 +26,32 @@ export function useSyncExecutor() {
     const inflightRef = useRef(false);
     const lastQueuedCountRef = useRef(0);
 
-    const execute = useCallback(async (): Promise<SyncExecutorResult> => {
+    const execute = useCallback(async (options?: SyncExecuteOptions): Promise<SyncExecutorResult> => {
         if (inflightRef.current) {
             const queue = await loadSyncQueue();
-            lastQueuedCountRef.current = queue.length;
-            return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: queue.length };
+            const filteredQueue = options?.types?.length
+                ? queue.filter((item) => options.types!.includes(item.type))
+                : queue;
+            lastQueuedCountRef.current = filteredQueue.length;
+            return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: filteredQueue.length };
         }
 
         inflightRef.current = true;
         try {
             const queue = await loadSyncQueue();
-            lastQueuedCountRef.current = queue.length;
-            if (queue.length === 0) {
+            const filteredQueue = options?.types?.length
+                ? queue.filter((item) => options.types!.includes(item.type))
+                : queue;
+            lastQueuedCountRef.current = filteredQueue.length;
+            if (filteredQueue.length === 0) {
                 return { ok: true, syncedCount: 0, errorCount: 0, queuedCount: 0 };
             }
 
-            const batch = buildSyncBatch(queue);
+            const batch = buildSyncBatch(filteredQueue);
             const syncedIds = new Set<string>();
             let errorCount = 0;
 
-            const photoItems = queue.filter((item) => item.type === 'photo');
+            const photoItems = filteredQueue.filter((item) => item.type === 'photo');
             for (const item of photoItems) {
                 const photo = mapSyncActionToPhoto(item);
                 if (!photo) continue;
@@ -114,7 +125,7 @@ export function useSyncExecutor() {
                     }
                     errorCount += result.errors.length;
 
-                    for (const item of queue) {
+                    for (const item of filteredQueue) {
                         if (item.type !== 'activity' && item.type !== 'harvest') continue;
                         const payload = item.payload as { localId?: string };
                         if (!payload?.localId) continue;
@@ -134,7 +145,7 @@ export function useSyncExecutor() {
                     errorCount += syncableCount;
                     const message =
                         error instanceof Error ? error.message : 'sync_failed';
-                    const pendingItems = queue.filter(
+                    const pendingItems = filteredQueue.filter(
                         (item) => item.type === 'activity' || item.type === 'harvest'
                     );
                     await Promise.all(
@@ -151,16 +162,19 @@ export function useSyncExecutor() {
                 ok: errorCount === 0,
                 syncedCount: syncedIds.size,
                 errorCount,
-                queuedCount: queue.length - syncedIds.size,
+                queuedCount: filteredQueue.length - syncedIds.size,
             };
         } catch {
             const queue = await loadSyncQueue();
-            lastQueuedCountRef.current = queue.length;
+            const filteredQueue = options?.types?.length
+                ? queue.filter((item) => options.types!.includes(item.type))
+                : queue;
+            lastQueuedCountRef.current = filteredQueue.length;
             return {
                 ok: false,
                 syncedCount: 0,
                 errorCount: 1,
-                queuedCount: queue.length,
+                queuedCount: filteredQueue.length,
             };
         } finally {
             inflightRef.current = false;

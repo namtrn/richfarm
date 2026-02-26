@@ -21,11 +21,11 @@
 | Plan | Storage | Giá |
 |------|---------|-----|
 | **Free (Starter)** | 1 GB | $0 |
-| **Pro** | 100 GB included | $25/member/tháng + $0.03/GB thêm |
+| **Premium** | 100 GB included | $25/member/tháng + $0.03/GB thêm |
 | **500 GB** | 100 + 400 extra | $25 + $12/tháng = **~$37/tháng** |
 
 > [!WARNING]
-> Với 1,000 user, mỗi user upload ~50 ảnh × 2MB = 100GB → hết Pro plan.
+> Với 1,000 user, mỗi user upload ~50 ảnh × 2MB = 100GB → hết Premium plan.
 > Với 10,000 user → 1TB → ~$300/tháng chỉ riêng storage.
 
 ---
@@ -212,5 +212,4 @@ documentDirectory/
 
 > [!IMPORTANT]
 > Quy tắc vàng: **Convex lưu metadata + URLs, device lưu pixels.**
-
 

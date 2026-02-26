@@ -59,8 +59,18 @@ export default function PlantDetailScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { plantId } = useLocalSearchParams<{ plantId: string }>();
-  const resolvedPlantId = Array.isArray(plantId) ? plantId[0] : plantId;
+  const params = useLocalSearchParams<{
+    plantId: string | string[];
+    from?: string | string[];
+    bedId?: string | string[];
+    gardenId?: string | string[];
+  }>();
+  const firstParam = (value?: string | string[]) =>
+    Array.isArray(value) ? value[0] : value;
+  const resolvedPlantId = firstParam(params.plantId);
+  const fromParam = firstParam(params.from);
+  const fromBedId = firstParam(params.bedId);
+  const fromGardenId = firstParam(params.gardenId);
   const unitSystem = useUnitSystem();
 
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
@@ -70,6 +80,44 @@ export default function PlantDetailScreen() {
   const { favorites, toggleFavorite } = useFavorites();
   const canEdit = !isAuthLoading && isAuthenticated;
   const navigateBackOrGrowing = () => {
+    if (fromParam === 'bed') {
+      if (fromBedId) {
+        router.replace(`/(tabs)/bed/${fromBedId}`);
+      } else if (fromGardenId) {
+        router.replace(`/(tabs)/garden/${fromGardenId}`);
+      } else {
+        router.replace('/(tabs)/garden');
+      }
+      return;
+    }
+    if (fromParam === 'garden') {
+      if (fromGardenId) {
+        router.replace(`/(tabs)/garden/${fromGardenId}`);
+      } else {
+        router.replace('/(tabs)/garden');
+      }
+      return;
+    }
+    if (fromParam === 'planning') {
+      router.replace('/(tabs)/planning');
+      return;
+    }
+    if (fromParam === 'growing') {
+      router.replace('/(tabs)/growing');
+      return;
+    }
+    if (fromParam === 'explorer') {
+      router.replace('/(tabs)/explorer');
+      return;
+    }
+    if (fromParam === 'library') {
+      router.replace('/(tabs)/library');
+      return;
+    }
+    if (fromParam === 'reminder') {
+      router.replace('/(tabs)/reminder');
+      return;
+    }
     if (router.canGoBack()) {
       router.back();
       return;
@@ -95,8 +143,9 @@ export default function PlantDetailScreen() {
       : 'skip'
   );
   const lightLabel = masterPlant?.lightRequirements
-    ? t(`library.light_${masterPlant.lightRequirements}`, { defaultValue: masterPlant.lightRequirements })
+    ? t(`library.light_${masterPlant.lightRequirements}`)
     : undefined;
+  const statusLabel = plant ? t(`plant.status_${plant.status}`) : '';
 
   const [nickname, setNickname] = useState('');
   const [notes, setNotes] = useState('');
@@ -364,7 +413,7 @@ export default function PlantDetailScreen() {
         </TouchableOpacity>
         <View style={{ flex: 1, gap: 1 }}>
           <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.nickname ?? t('plant.unnamed')}</Text>
-          <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{t(`plant.status_${plant.status}`, { defaultValue: plant.status })}</Text>
+          <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{statusLabel}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <TouchableOpacity
@@ -450,7 +499,19 @@ export default function PlantDetailScreen() {
             <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{t('plant.master_title')}</Text>
             <Text style={{ fontSize: 14, color: theme.textSecondary, marginBottom: 16 }}>{t('plant.no_master')}</Text>
             <TouchableOpacity
-              onPress={() => router.push(`/(tabs)/library?mode=attach&from=plant&plantId=${plant._id}`)}
+              onPress={() =>
+                router.push({
+                  pathname: '/(tabs)/library',
+                  params: {
+                    mode: 'attach',
+                    from: 'plant',
+                    plantId: String(plant._id),
+                    backFrom: fromParam,
+                    backBedId: fromBedId,
+                    backGardenId: fromGardenId,
+                  },
+                })
+              }
               style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 14, alignItems: 'center' }}
             >
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 14 }}>{t('plant.link_library')}</Text>
@@ -562,7 +623,7 @@ export default function PlantDetailScreen() {
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.successBg, alignItems: 'center', justifyContent: 'center' }}>
                 <Sprout size={16} color={theme.success} />
               </View>
-              <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>{t('plant.status_label', { status: t(`plant.status_${plant.status}`, { defaultValue: plant.status }) })}</Text>
+              <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>{t('plant.status_label', { status: statusLabel })}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>

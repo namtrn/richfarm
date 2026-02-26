@@ -45,6 +45,9 @@ export const addPlant = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        if (args.notes !== undefined) {
+            throw new Error("Notes are only allowed for plants in growing status");
+        }
 
         return await ctx.db.insert("userPlants", {
             userId: user._id,
@@ -76,10 +79,14 @@ export const updatePlantStatus = mutation({
         if (!plant || plant.userId !== user._id) {
             throw new Error("Plant not found or unauthorized");
         }
+        if (args.notes !== undefined && args.status !== "growing") {
+            throw new Error("Notes are only allowed for plants in growing status");
+        }
 
         await ctx.db.patch(args.plantId, {
             status: args.status,
             ...(args.notes !== undefined && { notes: args.notes }),
+            ...(args.status !== "growing" && { notes: undefined }),
             version: (plant.version ?? 1) + 1,
         });
     },
@@ -108,6 +115,9 @@ export const updatePlant = mutation({
 
         if (!plant || plant.userId !== user._id) {
             throw new Error("Plant not found or unauthorized");
+        }
+        if (args.notes !== undefined && plant.status !== "growing") {
+            throw new Error("Notes are only allowed for plants in growing status");
         }
 
         await ctx.db.patch(args.plantId, {

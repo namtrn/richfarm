@@ -91,6 +91,7 @@ function ReminderCard({
   canEdit: boolean;
 }) {
   const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const unitSystem = useUnitSystem();
   const Icon = REMINDER_ICONS[reminder.type] ?? REMINDER_ICONS.default;
@@ -99,6 +100,28 @@ function ReminderCard({
     minute: '2-digit',
   });
   const amountLabel = reminder.waterLiters ? formatVolume(reminder.waterLiters, unitSystem) : '';
+  const displayTitle = useMemo(() => {
+    const title = reminder.title ?? '';
+    if (title.startsWith('Planted: ')) {
+      return t('reminder.seed_title_planted', { name: title.replace('Planted: ', '') });
+    }
+    if (title.startsWith('Harvest: ')) {
+      return t('reminder.seed_title_harvest', { name: title.replace('Harvest: ', '') });
+    }
+    return title;
+  }, [reminder.title, t]);
+  const displayDescription = useMemo(() => {
+    const description = reminder.description ?? '';
+    const plantedMatch = description.match(/^Planted on (\d{4}-\d{2}-\d{2})/);
+    if (plantedMatch) {
+      return t('reminder.seed_desc_planted', { date: plantedMatch[1] });
+    }
+    const harvestMatch = description.match(/^Expected harvest date (\d{4}-\d{2}-\d{2})/);
+    if (harvestMatch) {
+      return t('reminder.seed_desc_harvest', { date: harvestMatch[1] });
+    }
+    return description;
+  }, [reminder.description, t]);
 
   return (
     <View style={{
@@ -119,9 +142,9 @@ function ReminderCard({
         <Icon size={22} color={theme.success} />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{reminder.title}</Text>
-        {reminder.description && (
-          <Text style={{ fontSize: 12, color: theme.textSecondary }}>{reminder.description}</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{displayTitle}</Text>
+        {displayDescription && (
+          <Text style={{ fontSize: 12, color: theme.textSecondary }}>{displayDescription}</Text>
         )}
         <Text style={{ fontSize: 12, color: theme.textMuted }}>{amountLabel ? `${time} • ${amountLabel}` : time}</Text>
       </View>

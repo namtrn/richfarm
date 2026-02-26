@@ -169,7 +169,7 @@ export function PlantActivitySection({
                         <TextInput
                             value={activityDate}
                             onChangeText={onChangeDate}
-                            placeholder="YYYY-MM-DD"
+                            placeholder={t('plant.expected_harvest_placeholder')}
                             placeholderTextColor={theme.textMuted}
                             style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                         />

@@ -49,6 +49,7 @@ export default defineSchema({
     subscription: v.optional(v.object({
       tier: v.string(), // "free", "premium"
       expiresAt: v.optional(v.number()),
+      source: v.optional(v.string()), // "revenuecat"
     })),
 
     // Metadata
@@ -150,6 +151,7 @@ export default defineSchema({
     key: v.string(),
     type: v.string(), // "pest" | "disease"
     name: v.string(),
+    imageUrl: v.optional(v.string()),
     identification: v.array(v.string()),
     damage: v.array(v.string()),
     prevention: v.array(v.string()),
@@ -490,6 +492,19 @@ export default defineSchema({
 
     // Privacy
     shareAnonymousData: v.optional(v.boolean()),
+
+    // Onboarding profile (farm-first)
+    onboarding: v.optional(
+      v.object({
+        goals: v.array(v.string()),
+        scaleEnvironment: v.array(v.string()),
+        crops: v.array(v.string()),
+        experience: v.string(),
+        needs: v.array(v.string()),
+        completedAt: v.number(),
+        version: v.optional(v.number()),
+      })
+    ),
   })
     .index("by_user", ["userId"]),
 });

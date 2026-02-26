@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../convex/_generated/api';
@@ -20,6 +21,8 @@ import { Id } from '../../../convex/_generated/dataModel';
 import { formatAreaValue, formatDistanceValue, getAreaUnitLabel, getDistanceUnitLabel, parseAreaInput, parseDistanceInput, UnitSystem } from '../../../lib/units';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { useTheme } from '../../../lib/theme';
+import { useAuth } from '../../../lib/auth';
+import { isPremiumActive } from '../../../lib/access';
 
 const LOCATION_TYPES = ['outdoor', 'indoor', 'greenhouse', 'balcony'] as const;
 const BED_TYPES = ['in_ground', 'raised', 'container', 'no_dig'] as const;
@@ -72,6 +75,7 @@ function BedFormModal({
   const [tiers, setTiers] = useState<number>(1);
   const [soilType, setSoilType] = useState(bed?.soilType ?? '');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const isContainer = bedType === 'container';
   const isRaised = bedType === 'raised';
   const nameTooLong = name.trim().length > NAME_MAX;
@@ -90,6 +94,7 @@ function BedFormModal({
     setDiameter(diameterCm ? formatDistanceValue(diameterCm / 100, unitSystem) : '');
     setTiers(bed?.tiers ?? defaults.tiers ?? 1);
     setSoilType(bed?.soilType ?? '');
+    setError('');
   }, [bed, gardenLocationType, unitSystem]);
 
   const parsedWidth = parseDistanceInput(width, unitSystem);
@@ -118,6 +123,7 @@ function BedFormModal({
   const handleSave = async () => {
     if (!name.trim() || dimensionsInvalid || nameTooLong) return;
     setSaving(true);
+    setError('');
     try {
       const widthCm = isContainer
         ? Math.round((parsedDiameter ?? 0) * 100)
@@ -138,6 +144,13 @@ function BedFormModal({
         soilType: soilType.trim() || undefined,
       });
       onClose();
+    } catch (e: any) {
+      const message = typeof e?.message === 'string' ? e.message : '';
+      if (message === 'BED_LIMIT_FREE') {
+        setError(t('garden.error_limit_free_beds'));
+      } else {
+        setError(message || t('common.error'));
+      }
     } finally {
       setSaving(false);
     }
@@ -193,7 +206,7 @@ function BedFormModal({
 
           {isRaised && (
             <View style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label', { defaultValue: 'Tiers' })}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label')}</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {[1, 2, 3].map((value) => {
                   const active = value === tiers;
@@ -290,6 +303,12 @@ function BedFormModal({
             </View>
           </View>
         </ScrollView>
+
+        {!!error && (
+          <Text style={{ fontSize: 12, color: theme.danger, marginTop: 4 }}>
+            {error}
+          </Text>
+        )}
 
         <TouchableOpacity
           disabled={saving || !name.trim() || dimensionsInvalid || nameTooLong}
@@ -444,6 +463,7 @@ export default function GardenDetailScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { gardenId } = useLocalSearchParams<{ gardenId: string }>();
   const resolvedGardenId = Array.isArray(gardenId) ? gardenId[0] : gardenId;
   const { deviceId } = useDeviceId();
@@ -467,10 +487,38 @@ export default function GardenDetailScreen() {
   const [showBedForm, setShowBedForm] = useState(false);
   const [editingBed, setEditingBed] = useState<any | null>(null);
   const [confirm, setConfirm] = useState<{ type: 'garden' | 'bed'; bed?: any } | null>(null);
+  const [bedLimitError, setBedLimitError] = useState('');
+  const isPremium = isPremiumActive(user);
+  const hasReachedBedLimit = !isAuthLoading && !isPremium && beds.length >= 3;
   const getLocationLabel = (key?: string) => {
     if (!key) return '—';
-    return t(`garden.location_${key}`, { defaultValue: key });
+    return t(`garden.location_${key}`);
   };
+
+  const handleOpenCreateBed = () => {
+    if (hasReachedBedLimit) {
+      setBedLimitError(t('garden.error_limit_free_beds'));
+      return;
+    }
+    setBedLimitError('');
+    setEditingBed(null);
+    setShowBedForm(true);
+  };
+
+  useEffect(() => {
+    if (!hasReachedBedLimit) {
+      setBedLimitError('');
+    }
+  }, [hasReachedBedLimit]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setBedLimitError('');
+      return () => {
+        setBedLimitError('');
+      };
+    }, [])
+  );
 
   useEffect(() => {
     if (gardensQuery === undefined) return;
@@ -534,7 +582,7 @@ export default function GardenDetailScreen() {
             {t('garden.beds_section', { count: beds.length })}
           </Text>
           <TouchableOpacity
-            onPress={() => { setEditingBed(null); setShowBedForm(true); }}
+            onPress={handleOpenCreateBed}
             testID="e2e-garden-detail-add-bed"
             style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.success, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 }}
           >
@@ -542,6 +590,13 @@ export default function GardenDetailScreen() {
             <Text style={{ fontSize: 13, color: '#fff', fontWeight: '700' }}>{t('garden.add_bed')}</Text>
           </TouchableOpacity>
         </View>
+        {!!bedLimitError && (
+          <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+            <Text style={{ fontSize: 12, color: theme.danger }}>
+              {bedLimitError}
+            </Text>
+          </View>
+        )}
 
         {beds.length === 0 ? (
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 32, borderWidth: 1, borderColor: theme.border, alignItems: 'center', gap: 8 }}>
@@ -620,6 +675,11 @@ export default function GardenDetailScreen() {
         onSave={async (payload) => {
           if (payload.bedId) {
             await updateBed(payload.bedId, { ...payload, gardenId: garden._id });
+            return;
+          }
+          if (hasReachedBedLimit) {
+            setShowBedForm(false);
+            setBedLimitError(t('garden.error_limit_free_beds'));
             return;
           }
           await createBed({ ...payload, gardenId: garden._id });
