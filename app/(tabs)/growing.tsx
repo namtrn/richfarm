@@ -1,4 +1,5 @@
-﻿import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+﻿import { useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Sprout, Leaf, Fence } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
@@ -22,11 +23,18 @@ export default function GrowingScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const canEdit = !isAuthLoading && isAuthenticated;
 
-  const activePlants = plants.filter(
-    (p) => p.status === 'growing' || p.status === 'planting'
+  const activePlants = useMemo(
+    () => plants.filter((p) => p.status === 'growing' || p.status === 'planting'),
+    [plants]
   );
-  const bedMap = new Map(beds.map((bed: any) => [String(bed._id), bed]));
-  const gardenMap = new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden]));
+  const bedMap = useMemo(
+    () => new Map(beds.map((bed: any) => [String(bed._id), bed])),
+    [beds]
+  );
+  const gardenMap = useMemo(
+    () => new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden])),
+    [gardens]
+  );
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
@@ -97,8 +105,8 @@ export default function GrowingScreen() {
                 style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}
                 onPress={() =>
                   router.push({
-                    pathname: '/(tabs)/plant/[plantId]',
-                    params: { plantId: String(plant._id), from: 'growing' },
+                    pathname: '/(tabs)/plant/[userPlantId]',
+                    params: { userPlantId: String(plant._id), from: 'growing' },
                   })
                 }
                 activeOpacity={0.8}

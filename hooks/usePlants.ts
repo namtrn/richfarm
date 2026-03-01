@@ -2,10 +2,21 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
+import { useNetworkStatus } from './useNetworkStatus';
+import { useQueryCache } from '../lib/queryCache';
 
 export function usePlants(status?: string) {
     const { deviceId } = useDeviceId();
-    const plants = useQuery(api.plants.getUserPlants, { status, deviceId });
+    const { isKnown, isOffline } = useNetworkStatus();
+    const shouldBypassRemote = isKnown && isOffline;
+    const remotePlants = useQuery(api.plants.getUserPlants, { status, deviceId });
+
+    const cacheKey = deviceId
+        ? `rf_plants_v1_${deviceId}${status ? `_${status}` : ''}`
+        : null;
+    const { cached, cacheLoaded } = useQueryCache(cacheKey, remotePlants);
+
+    const plants = remotePlants ?? cached;
 
     const addPlantMutation = useMutation(api.plants.addPlant);
     const updateStatusMutation = useMutation(api.plants.updatePlantStatus);
@@ -50,8 +61,8 @@ export function usePlants(status?: string) {
     };
 
     return {
-        plants: plants ?? [],
-        isLoading: plants === undefined,
+        plants: plants ?? (shouldBypassRemote ? [] : []),
+        isLoading: plants === undefined && !cacheLoaded && !shouldBypassRemote,
         addPlant,
         updateStatus,
         updatePlant,

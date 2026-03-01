@@ -16,6 +16,9 @@ import { usePlantLibrary } from '../../hooks/usePlantLibrary';
 import { usePlants } from '../../hooks/usePlants';
 import { PlantImage } from '../../components/ui/PlantImage';
 import { matchesSearch } from '../../lib/search';
+import { useTheme } from '../../lib/theme';
+import type { ThemeColors } from '../../lib/theme';
+import { useThemeContext } from '../../lib/ThemeContext';
 
 const RESULT_LIMIT = 4;
 
@@ -24,19 +27,21 @@ function ResultSection({
     onViewAll,
     children,
     viewAllLabel,
+    theme,
 }: {
     title: string;
     onViewAll?: () => void;
     viewAllLabel: string;
     children: ReactNode;
+    theme: ThemeColors;
 }) {
     return (
         <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#1c1917' }}>{title}</Text>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{title}</Text>
                 {onViewAll && (
                     <TouchableOpacity onPress={onViewAll} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#059669' }}>{viewAllLabel}</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.primary }}>{viewAllLabel}</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -51,12 +56,16 @@ function ResultRow({
     subtitle,
     onPress,
     testID,
+    theme,
+    isDark,
 }: {
     leading: ReactNode;
     title: string;
     subtitle?: string;
     onPress: () => void;
     testID?: string;
+    theme: ThemeColors;
+    isDark: boolean;
 }) {
     return (
         <TouchableOpacity
@@ -64,15 +73,15 @@ function ResultRow({
             activeOpacity={0.85}
             testID={testID}
             style={{
-                backgroundColor: '#fff',
+                backgroundColor: theme.card,
                 borderRadius: 18,
                 padding: 12,
                 borderWidth: 1,
-                borderColor: '#e7e0d6',
+                borderColor: theme.border,
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 12,
-                shadowColor: '#1a1a18',
+                shadowColor: isDark ? '#000000' : '#1a1a18',
                 shadowOpacity: 0.06,
                 shadowRadius: 10,
                 shadowOffset: { width: 0, height: 2 },
@@ -80,16 +89,16 @@ function ResultRow({
         >
             {leading}
             <View style={{ flex: 1, gap: 4 }}>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#1c1917' }} numberOfLines={1}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
                     {title}
                 </Text>
                 {!!subtitle && (
-                    <Text style={{ fontSize: 12, color: '#78716c' }} numberOfLines={1}>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
                         {subtitle}
                     </Text>
                 )}
             </View>
-            <ChevronRight size={16} stroke="#c4bdb3" />
+            <ChevronRight size={16} stroke={theme.textMuted} />
         </TouchableOpacity>
     );
 }
@@ -97,6 +106,8 @@ function ResultRow({
 export default function ExplorerScreen() {
     const { t, i18n } = useTranslation();
     const router = useRouter();
+    const theme = useTheme();
+    const { isDark } = useThemeContext();
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const [query, setQuery] = useState('');
 
@@ -181,8 +192,8 @@ export default function ExplorerScreen() {
 
     const openPlant = (plantId: string) => {
         router.push({
-            pathname: '/(tabs)/plant/[plantId]',
-            params: { plantId: String(plantId), from: 'explorer' },
+            pathname: '/(tabs)/plant/[userPlantId]',
+            params: { userPlantId: String(plantId), from: 'explorer' },
         });
     };
 
@@ -190,43 +201,43 @@ export default function ExplorerScreen() {
 
     return (
         <ScrollView
-            style={{ flex: 1, backgroundColor: '#faf8f4' }}
+            style={{ flex: 1, backgroundColor: theme.background }}
             contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 120 }}
             keyboardShouldPersistTaps="handled"
         >
             <View style={{ gap: 6 }}>
-                <Text style={{ fontSize: 30, fontWeight: '800', color: '#1c1917', letterSpacing: -0.5 }}>
+                <Text style={{ fontSize: 30, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
                     {t('search.title')}
                 </Text>
-                <Text style={{ fontSize: 13, color: '#78716c' }}>
+                <Text style={{ fontSize: 13, color: theme.textSecondary }}>
                     {t('search.subtitle')}
                 </Text>
             </View>
 
             <View
                 style={{
-                    backgroundColor: '#fff',
+                    backgroundColor: theme.card,
                     borderRadius: 16,
                     paddingHorizontal: 14,
                     paddingVertical: 11,
                     borderWidth: 1,
-                    borderColor: '#e7e0d6',
+                    borderColor: theme.border,
                     flexDirection: 'row',
                     alignItems: 'center',
                     gap: 10,
-                    shadowColor: '#1a1a18',
+                    shadowColor: isDark ? '#000000' : '#1a1a18',
                     shadowOpacity: 0.04,
                     shadowRadius: 8,
                     shadowOffset: { width: 0, height: 1 },
                 }}
             >
-                <Search size={17} stroke="#a8a29e" />
+                <Search size={17} stroke={theme.textMuted} />
                 <TextInput
                     placeholder={t('search.placeholder')}
-                    placeholderTextColor="#a8a29e"
+                    placeholderTextColor={theme.textMuted}
                     value={query}
                     onChangeText={setQuery}
-                    style={{ flex: 1, fontSize: 15, color: '#1c1917' }}
+                    style={{ flex: 1, fontSize: 15, color: theme.text }}
                     autoCapitalize="none"
                     autoCorrect={false}
                     testID="e2e-explorer-search-input"
@@ -237,60 +248,60 @@ export default function ExplorerScreen() {
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         testID="e2e-explorer-search-clear"
                     >
-                        <X size={15} stroke="#a8a29e" />
+                        <X size={15} stroke={theme.textMuted} />
                     </TouchableOpacity>
                 )}
             </View>
 
             {isLoading && isSearching && !hasResults ? (
                 <View style={{ paddingVertical: 20, alignItems: 'center' }}>
-                    <ActivityIndicator size="small" color="#166534" />
+                    <ActivityIndicator size="small" color={theme.primary} />
                 </View>
             ) : !isSearching ? (
                 <View
                     style={{
-                        backgroundColor: '#fff',
+                        backgroundColor: theme.card,
                         borderRadius: 18,
                         padding: 20,
                         borderWidth: 1,
-                        borderColor: '#e7e0d6',
+                        borderColor: theme.border,
                         alignItems: 'center',
                         gap: 10,
-                        shadowColor: '#1a1a18',
+                        shadowColor: isDark ? '#000000' : '#1a1a18',
                         shadowOpacity: 0.05,
                         shadowRadius: 10,
                         shadowOffset: { width: 0, height: 2 },
                     }}
                 >
-                    <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#e8f5ec', alignItems: 'center', justifyContent: 'center' }}>
-                        <Search size={22} stroke="#166534" />
+                    <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+                        <Search size={22} stroke={theme.primary} />
                     </View>
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
                         {t('search.empty_title')}
                     </Text>
-                    <Text style={{ fontSize: 12, color: '#78716c', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center' }}>
                         {t('search.empty_desc')}
                     </Text>
                 </View>
             ) : !hasResults ? (
                 <View
                     style={{
-                        backgroundColor: '#fff',
+                        backgroundColor: theme.card,
                         borderRadius: 18,
                         padding: 20,
                         borderWidth: 1,
-                        borderColor: '#e7e0d6',
+                        borderColor: theme.border,
                         alignItems: 'center',
                         gap: 10,
                     }}
                 >
-                    <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#fef3c7', alignItems: 'center', justifyContent: 'center' }}>
-                        <Search size={22} stroke="#d97706" />
+                    <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: theme.warningBg, alignItems: 'center', justifyContent: 'center' }}>
+                        <Search size={22} stroke={theme.warning} />
                     </View>
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#1c1917' }}>
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
                         {t('search.no_results', { query: query.trim() })}
                     </Text>
-                    <Text style={{ fontSize: 12, color: '#78716c', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center' }}>
                         {t('library.try_different')}
                     </Text>
                 </View>
@@ -300,6 +311,7 @@ export default function ExplorerScreen() {
                         <ResultSection
                             title={t('search.section_my_plants')}
                             viewAllLabel={t('search.view_all')}
+                            theme={theme}
                         >
                             {myPlantMatches.map((plant: any) => {
                                 const master = plant.plantMasterId ? libraryById.get(plant.plantMasterId) : undefined;
@@ -314,6 +326,8 @@ export default function ExplorerScreen() {
                                         subtitle={subtitle}
                                         onPress={() => openPlant(plant._id)}
                                         testID="e2e-explorer-plant-result"
+                                        theme={theme}
+                                        isDark={isDark}
                                     />
                                 );
                             })}
@@ -325,6 +339,7 @@ export default function ExplorerScreen() {
                             title={t('search.section_library')}
                             onViewAll={openLibrary}
                             viewAllLabel={t('search.view_all')}
+                            theme={theme}
                         >
                             {libraryMatches.map((plant: any) => {
                                 const title = plant.displayName ?? plant.scientificName ?? t('plant.unnamed');
@@ -337,6 +352,8 @@ export default function ExplorerScreen() {
                                         subtitle={subtitle}
                                         onPress={openLibrary}
                                         testID="e2e-explorer-library-result"
+                                        theme={theme}
+                                        isDark={isDark}
                                     />
                                 );
                             })}
@@ -348,11 +365,12 @@ export default function ExplorerScreen() {
                             title={t('search.section_health')}
                             onViewAll={() => openHealth()}
                             viewAllLabel={t('search.view_all')}
+                            theme={theme}
                         >
                             {healthMatches.map((item: any) => {
                                 const isDisease = item.type === 'disease';
-                                const badgeBg = isDisease ? '#dbeafe' : '#fee2e2';
-                                const badgeColor = isDisease ? '#2563eb' : '#b91c1c';
+                                const badgeBg = isDisease ? (isDark ? '#1e3a8a' : '#dbeafe') : (isDark ? '#7f1d1d' : '#fee2e2');
+                                const badgeColor = isDisease ? (isDark ? '#bfdbfe' : '#2563eb') : (isDark ? '#fecaca' : '#b91c1c');
                                 const badgeLabel = isDisease
                                     ? t('health.tab_diseases')
                                     : t('health.tab_pests');
@@ -368,6 +386,8 @@ export default function ExplorerScreen() {
                                         subtitle={badgeLabel}
                                         onPress={() => openHealth(isDisease ? 'diseases' : 'pests')}
                                         testID="e2e-explorer-health-result"
+                                        theme={theme}
+                                        isDark={isDark}
                                     />
                                 );
                             })}
@@ -378,7 +398,7 @@ export default function ExplorerScreen() {
 
             {isSearching && hasResults && isLoading && (
                 <View style={{ paddingVertical: 8, alignItems: 'center' }}>
-                    <ActivityIndicator size="small" color="#166534" />
+                    <ActivityIndicator size="small" color={theme.primary} />
                 </View>
             )}
         </ScrollView>

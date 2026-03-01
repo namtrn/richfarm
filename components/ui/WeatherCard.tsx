@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,6 +17,9 @@ import {
     Tornado,
 } from 'lucide-react-native';
 import type { WeatherCardModel, WeatherConditionKey } from '../../features/weather/weatherLogic';
+import { useTheme } from '../../lib/theme';
+import type { ThemeColors } from '../../lib/theme';
+import { useThemeContext } from '../../lib/ThemeContext';
 
 type WeatherCardProps = {
     model: WeatherCardModel;
@@ -23,6 +27,17 @@ type WeatherCardProps = {
 
 export function WeatherCard({ model }: WeatherCardProps) {
     const { t } = useTranslation();
+    const theme = useTheme();
+    const { isDark } = useThemeContext();
+    const styles = useMemo(() => createStyles(theme, isDark), [theme, isDark]);
+    const statColors = useMemo(
+        () => ({
+            rainfall: isDark ? '#60a5fa' : '#1d4ed8',
+            humidity: isDark ? '#38bdf8' : '#0369a1',
+            uv: isDark ? '#fbbf24' : '#b45309',
+        }),
+        [isDark]
+    );
     const {
         location, conditionKey, temperature, feelsLike,
         rainfall, humidity, uvIndex, uvLabel,
@@ -39,14 +54,17 @@ export function WeatherCard({ model }: WeatherCardProps) {
             : rainfall >= 1
                 ? t('weather_card.soil_note_light_rain', { moisture: model.soilMoisture })
                 : t('weather_card.soil_note_no_rain', { moisture: model.soilMoisture });
-    const { Icon, badgeStyle, badgeIcon, heroIcon } = resolveConditionAssets(conditionKey);
+    const { Icon, badgeStyle, badgeIcon, heroIcon } = useMemo(
+        () => resolveConditionAssets(conditionKey, isDark),
+        [conditionKey, isDark]
+    );
 
     return (
         <View style={styles.card}>
             {/* ── Header ── */}
             <View style={styles.header}>
                 <View style={styles.locationRow}>
-                    <MapPin size={13} stroke="#78716c" />
+                    <MapPin size={13} stroke={theme.textSecondary} />
                     <Text style={styles.locationText}>{location}</Text>
                 </View>
                 <View style={[styles.badge, badgeStyle.container]}>
@@ -71,11 +89,26 @@ export function WeatherCard({ model }: WeatherCardProps) {
 
             {/* ── Stats (no icons) ── */}
             <View style={styles.statsRow}>
-                <StatItem label={t('weather_card.rainfall')} value={`${rainfall} mm`} valueColor="#1d4ed8" />
+                <StatItem
+                    label={t('weather_card.rainfall')}
+                    value={`${rainfall} mm`}
+                    valueColor={statColors.rainfall}
+                    labelColor={theme.textMuted}
+                />
                 <View style={styles.statSep} />
-                <StatItem label={t('weather_card.humidity')} value={`${humidity}%`} valueColor="#0369a1" />
+                <StatItem
+                    label={t('weather_card.humidity')}
+                    value={`${humidity}%`}
+                    valueColor={statColors.humidity}
+                    labelColor={theme.textMuted}
+                />
                 <View style={styles.statSep} />
-                <StatItem label={t('weather_card.uv_index')} value={`${uvIndex} (${localizedUvLabel})`} valueColor="#b45309" />
+                <StatItem
+                    label={t('weather_card.uv_index')}
+                    value={`${uvIndex} (${localizedUvLabel})`}
+                    valueColor={statColors.uv}
+                    labelColor={theme.textMuted}
+                />
             </View>
 
             {/* ── Soil Moisture Projection ── */}
@@ -95,7 +128,12 @@ export function WeatherCard({ model }: WeatherCardProps) {
                                     styles.bar,
                                     {
                                         height: Math.round(h * 52),
-                                        backgroundColor: h === 1.0 ? '#1a4731' : h > 0.7 ? '#2d6a4f' : '#95c4a8',
+                                        backgroundColor:
+                                            h === 1.0
+                                                ? theme.primary
+                                                : h > 0.7
+                                                    ? (isDark ? '#2f6f52' : '#2d6a4f')
+                                                    : (isDark ? '#3f4f46' : '#95c4a8'),
                                     },
                                 ]}
                             />
@@ -110,16 +148,29 @@ export function WeatherCard({ model }: WeatherCardProps) {
 }
 
 function StatItem({
-    label, value, valueColor,
+    label, value, valueColor, labelColor,
 }: {
     label: string;
     value: string;
     valueColor: string;
+    labelColor: string;
 }) {
     return (
-        <View style={styles.statItem}>
-            <Text style={styles.statLabel}>{label}</Text>
-            <Text style={[styles.statValue, { color: valueColor }]}>{value}</Text>
+        <View style={{ flex: 1, alignItems: 'center', gap: 3 }}>
+            <Text
+                style={{
+                    fontSize: 9,
+                    color: labelColor,
+                    fontWeight: '700',
+                    letterSpacing: 0.6,
+                    textAlign: 'center',
+                }}
+            >
+                {label}
+            </Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', textAlign: 'center', color: valueColor }}>
+                {value}
+            </Text>
         </View>
     );
 }
@@ -134,38 +185,143 @@ type ConditionAsset = {
     heroIcon: { stroke: string; fill?: string };
 };
 
-function resolveConditionAssets(conditionKey: WeatherConditionKey): ConditionAsset {
+function resolveConditionAssets(conditionKey: WeatherConditionKey, isDark: boolean): ConditionAsset {
     switch (conditionKey) {
         case 'sunny':
-            return buildAsset(Sun, '#fef9c3', '#fde68a', '#b45309', '#f59e0b', '#fef08a');
+            return buildAsset(
+                Sun,
+                isDark ? '#3f2f07' : '#fef9c3',
+                isDark ? '#854d0e' : '#fde68a',
+                isDark ? '#fcd34d' : '#b45309',
+                '#f59e0b',
+                isDark ? '#854d0e' : '#fef08a'
+            );
         case 'partly_cloudy':
-            return buildAsset(CloudSun, '#fef3c7', '#fde68a', '#b45309', '#f59e0b', '#fef08a');
+            return buildAsset(
+                CloudSun,
+                isDark ? '#3f2f07' : '#fef3c7',
+                isDark ? '#854d0e' : '#fde68a',
+                isDark ? '#fcd34d' : '#b45309',
+                '#f59e0b',
+                isDark ? '#854d0e' : '#fef08a'
+            );
         case 'mostly_cloudy':
-            return buildAsset(Cloudy, '#f3f4f6', '#e5e7eb', '#6b7280', '#9ca3af', '#e5e7eb');
+            return buildAsset(
+                Cloudy,
+                isDark ? '#1f2937' : '#f3f4f6',
+                isDark ? '#374151' : '#e5e7eb',
+                isDark ? '#cbd5e1' : '#6b7280',
+                isDark ? '#cbd5e1' : '#9ca3af',
+                isDark ? '#374151' : '#e5e7eb'
+            );
         case 'overcast':
-            return buildAsset(Cloud, '#f3f4f6', '#e5e7eb', '#6b7280', '#9ca3af', '#e5e7eb');
+            return buildAsset(
+                Cloud,
+                isDark ? '#1f2937' : '#f3f4f6',
+                isDark ? '#374151' : '#e5e7eb',
+                isDark ? '#cbd5e1' : '#6b7280',
+                isDark ? '#cbd5e1' : '#9ca3af',
+                isDark ? '#374151' : '#e5e7eb'
+            );
         case 'fog':
-            return buildAsset(CloudFog, '#f3f4f6', '#e5e7eb', '#6b7280', '#9ca3af', '#e5e7eb');
+            return buildAsset(
+                CloudFog,
+                isDark ? '#1f2937' : '#f3f4f6',
+                isDark ? '#374151' : '#e5e7eb',
+                isDark ? '#cbd5e1' : '#6b7280',
+                isDark ? '#cbd5e1' : '#9ca3af',
+                isDark ? '#374151' : '#e5e7eb'
+            );
         case 'drizzle':
-            return buildAsset(CloudDrizzle, '#e0f2fe', '#bae6fd', '#0369a1', '#0ea5e9', '#bae6fd');
+            return buildAsset(
+                CloudDrizzle,
+                isDark ? '#082f49' : '#e0f2fe',
+                isDark ? '#155e75' : '#bae6fd',
+                isDark ? '#7dd3fc' : '#0369a1',
+                '#0ea5e9',
+                isDark ? '#164e63' : '#bae6fd'
+            );
         case 'light_rain':
-            return buildAsset(CloudDrizzle, '#e0f2fe', '#bae6fd', '#0369a1', '#0ea5e9', '#bae6fd');
+            return buildAsset(
+                CloudDrizzle,
+                isDark ? '#082f49' : '#e0f2fe',
+                isDark ? '#155e75' : '#bae6fd',
+                isDark ? '#7dd3fc' : '#0369a1',
+                '#0ea5e9',
+                isDark ? '#164e63' : '#bae6fd'
+            );
         case 'rain':
-            return buildAsset(CloudRain, '#e0f2fe', '#bae6fd', '#0369a1', '#0ea5e9', '#bae6fd');
+            return buildAsset(
+                CloudRain,
+                isDark ? '#082f49' : '#e0f2fe',
+                isDark ? '#155e75' : '#bae6fd',
+                isDark ? '#7dd3fc' : '#0369a1',
+                '#0ea5e9',
+                isDark ? '#164e63' : '#bae6fd'
+            );
         case 'heavy_rain':
-            return buildAsset(CloudRainWind, '#e0f2fe', '#bae6fd', '#0369a1', '#0ea5e9', '#bae6fd');
+            return buildAsset(
+                CloudRainWind,
+                isDark ? '#082f49' : '#e0f2fe',
+                isDark ? '#155e75' : '#bae6fd',
+                isDark ? '#7dd3fc' : '#0369a1',
+                '#0ea5e9',
+                isDark ? '#164e63' : '#bae6fd'
+            );
         case 'thunderstorm':
-            return buildAsset(CloudLightning, '#eef2ff', '#c7d2fe', '#4338ca', '#6366f1', '#e0e7ff');
+            return buildAsset(
+                CloudLightning,
+                isDark ? '#1e1b4b' : '#eef2ff',
+                isDark ? '#4338ca' : '#c7d2fe',
+                isDark ? '#a5b4fc' : '#4338ca',
+                '#6366f1',
+                isDark ? '#312e81' : '#e0e7ff'
+            );
         case 'storm':
-            return buildAsset(CloudLightning, '#eef2ff', '#c7d2fe', '#4338ca', '#6366f1', '#e0e7ff');
+            return buildAsset(
+                CloudLightning,
+                isDark ? '#1e1b4b' : '#eef2ff',
+                isDark ? '#4338ca' : '#c7d2fe',
+                isDark ? '#a5b4fc' : '#4338ca',
+                '#6366f1',
+                isDark ? '#312e81' : '#e0e7ff'
+            );
         case 'hail':
-            return buildAsset(CloudHail, '#e0f2fe', '#bae6fd', '#0369a1', '#0ea5e9', '#bae6fd');
+            return buildAsset(
+                CloudHail,
+                isDark ? '#082f49' : '#e0f2fe',
+                isDark ? '#155e75' : '#bae6fd',
+                isDark ? '#7dd3fc' : '#0369a1',
+                '#0ea5e9',
+                isDark ? '#164e63' : '#bae6fd'
+            );
         case 'wind':
-            return buildAsset(Wind, '#ecfeff', '#a5f3fc', '#0e7490', '#06b6d4', '#cffafe');
+            return buildAsset(
+                Wind,
+                isDark ? '#083344' : '#ecfeff',
+                isDark ? '#155e75' : '#a5f3fc',
+                isDark ? '#67e8f9' : '#0e7490',
+                '#06b6d4',
+                isDark ? '#164e63' : '#cffafe'
+            );
         case 'tornado':
-            return buildAsset(Tornado, '#f3f4f6', '#e5e7eb', '#6b7280', '#9ca3af', '#e5e7eb');
+            return buildAsset(
+                Tornado,
+                isDark ? '#1f2937' : '#f3f4f6',
+                isDark ? '#374151' : '#e5e7eb',
+                isDark ? '#cbd5e1' : '#6b7280',
+                isDark ? '#cbd5e1' : '#9ca3af',
+                isDark ? '#374151' : '#e5e7eb'
+            );
         default:
-            return buildAsset(Sun, '#fef9c3', '#fde68a', '#b45309', '#f59e0b', '#fef08a');
+            return buildAsset(
+                Sun,
+                isDark ? '#3f2f07' : '#fef9c3',
+                isDark ? '#854d0e' : '#fde68a',
+                isDark ? '#fcd34d' : '#b45309',
+                '#f59e0b',
+                isDark ? '#854d0e' : '#fef08a'
+            );
     }
 }
 
@@ -188,14 +344,15 @@ function buildAsset(
     };
 }
 
-const styles = StyleSheet.create({
+function createStyles(theme: ThemeColors, isDark: boolean) {
+    return StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: theme.card,
         borderRadius: 20,
         padding: 18,
         borderWidth: 1,
-        borderColor: '#e7e0d6',
-        shadowColor: '#1a1a18',
+        borderColor: theme.border,
+        shadowColor: isDark ? '#000000' : '#1a1a18',
         shadowOpacity: 0.06,
         shadowRadius: 10,
         shadowOffset: { width: 0, height: 3 },
@@ -215,23 +372,23 @@ const styles = StyleSheet.create({
     },
     locationText: {
         fontSize: 13,
-        color: '#78716c',
+        color: theme.textSecondary,
         fontWeight: '500',
     },
     badge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
-        backgroundColor: '#fef9c3',
+        backgroundColor: theme.accent,
         borderRadius: 20,
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderWidth: 1,
-        borderColor: '#fde68a',
+        borderColor: theme.border,
     },
     badgeText: {
         fontSize: 11,
-        color: '#b45309',
+        color: theme.textAccent,
         fontWeight: '700',
         letterSpacing: 0.5,
     },
@@ -255,14 +412,14 @@ const styles = StyleSheet.create({
     tempNumber: {
         fontSize: 36,
         fontWeight: '800',
-        color: '#1c1917',
+        color: theme.text,
         letterSpacing: -1.5,
         lineHeight: 40,
     },
     tempUnit: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#78716c',
+        color: theme.textSecondary,
         marginTop: 6,
         marginLeft: 2,
     },
@@ -270,15 +427,15 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: '#fefce8',
+        backgroundColor: isDark ? theme.card : '#fefce8',
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        borderColor: '#fde68a',
+        borderColor: isDark ? theme.border : '#fde68a',
     },
     feelsLike: {
         fontSize: 13,
-        color: '#a8a29e',
+        color: theme.textMuted,
         fontWeight: '400',
     },
 
@@ -287,36 +444,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#f0ebe3',
+        borderTopColor: theme.border,
         paddingTop: 10,
         marginTop: 2,
     },
     statSep: {
         width: 1,
         height: 28,
-        backgroundColor: '#f0ebe3',
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-        gap: 3,
-    },
-    statLabel: {
-        fontSize: 9,
-        color: '#a8a29e',
-        fontWeight: '700',
-        letterSpacing: 0.6,
-        textAlign: 'center',
-    },
-    statValue: {
-        fontSize: 13,
-        fontWeight: '700',
-        textAlign: 'center',
+        backgroundColor: theme.border,
     },
 
     // soil projection
     soilCard: {
-        backgroundColor: '#f8f6f2',
+        backgroundColor: theme.accent,
         borderRadius: 14,
         padding: 14,
         gap: 10,
@@ -329,21 +469,21 @@ const styles = StyleSheet.create({
     soilTitle: {
         fontSize: 10,
         fontWeight: '800',
-        color: '#1c1917',
+        color: theme.text,
         letterSpacing: 0.8,
     },
     soilBadge: {
-        backgroundColor: '#d1fae5',
+        backgroundColor: theme.successBg,
         borderRadius: 20,
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderWidth: 1,
-        borderColor: '#6ee7b7',
+        borderColor: theme.success,
     },
     soilBadgeText: {
         fontSize: 9,
         fontWeight: '700',
-        color: '#065f46',
+        color: theme.success,
         letterSpacing: 0.5,
     },
     barsRow: {
@@ -363,7 +503,8 @@ const styles = StyleSheet.create({
     },
     soilNote: {
         fontSize: 11,
-        color: '#78716c',
+        color: theme.textSecondary,
         lineHeight: 16,
     },
 });
+}

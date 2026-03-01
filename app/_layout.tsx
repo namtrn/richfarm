@@ -1,25 +1,30 @@
 import { ConvexReactClient } from 'convex/react';
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react';
 import { Slot, useRouter, useSegments } from 'expo-router';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 import i18n from '../lib/i18n';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
 import { useAppReady } from '../hooks/useAppReady';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
-import { useUserSettings } from '../hooks/useUserSettings';
 import { useNotifications } from '../hooks/useNotifications';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { authClient } from '../lib/auth-client';
 import { SubscriptionProvider } from '../hooks/useSubscription';
+import { palette, useTheme } from '../lib/theme';
+import { ThemeProvider, useThemeContext } from '../lib/ThemeContext';
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
-const convex = convexUrl ? new ConvexReactClient(convexUrl) : null;
+const convex = convexUrl
+  ? new ConvexReactClient(convexUrl, { logger: false })
+  : null;
 
 function AuthGuard() {
   const { isReady, currentUser } = useAppReady();
@@ -49,14 +54,9 @@ function AuthGuard() {
   return <Slot />;
 }
 
-import { StatusBar } from 'expo-status-bar';
-import { useTheme } from '../lib/theme';
-
-function AppShell({ children }: { children: ReactNode }) {
+function AppShellWithSettings({ children }: { children: ReactNode }) {
   const theme = useTheme();
-  const systemScheme = useColorScheme();
-  const { settings } = useUserSettings();
-  const isDark = (settings?.theme === 'system' || !settings?.theme) ? systemScheme === 'dark' : settings?.theme === 'dark';
+  const { isDark } = useThemeContext();
 
   return (
     <SafeAreaProvider>
@@ -68,13 +68,49 @@ function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
+function AppShellOffline({ children }: { children: ReactNode }) {
+  const systemScheme = useColorScheme();
+  const isDark = systemScheme === 'dark';
+  const background = isDark ? palette.dark.background : palette.light.background;
+
+  return (
+    <SafeAreaProvider>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: background }]} edges={['top', 'left', 'right']}>
+        {children}
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+}
+
+function OfflineBanner() {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const { isOffline } = useNetworkStatus();
+
+  if (!isOffline) return null;
+
+  return (
+    <View
+      style={[
+        styles.offlineBanner,
+        { backgroundColor: theme.warningBg, borderColor: theme.warning },
+      ]}
+    >
+      <Text style={[styles.offlineBannerText, { color: theme.warning }]}>
+        {t('offline.banner')}
+      </Text>
+    </View>
+  );
+}
+
 export default function RootLayout() {
   if (!convex) {
     return (
       <I18nextProvider i18n={i18n}>
-        <AppShell>
+        <AppShellOffline>
           <OfflineScreen />
-        </AppShell>
+        </AppShellOffline>
       </I18nextProvider>
     );
   }
@@ -83,9 +119,12 @@ export default function RootLayout() {
     <I18nextProvider i18n={i18n}>
       <ConvexBetterAuthProvider client={convex} authClient={authClient}>
         <SubscriptionProvider>
-          <AppShell>
-            <AuthGuard />
-          </AppShell>
+          <ThemeProvider>
+            <AppShellWithSettings>
+              <OfflineBanner />
+              <AuthGuard />
+            </AppShellWithSettings>
+          </ThemeProvider>
         </SubscriptionProvider>
       </ConvexBetterAuthProvider>
     </I18nextProvider>
@@ -95,5 +134,19 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  offlineBanner: {
+    marginHorizontal: 12,
+    marginTop: 8,
+    marginBottom: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  offlineBannerText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
   },
 });

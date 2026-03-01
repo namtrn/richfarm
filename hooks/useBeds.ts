@@ -2,16 +2,27 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
+import { useNetworkStatus } from './useNetworkStatus';
+import { useQueryCache } from '../lib/queryCache';
 
 export function useBeds(gardenId?: Id<'gardens'>) {
   const { deviceId } = useDeviceId();
+  const { isKnown, isOffline } = useNetworkStatus();
+  const shouldBypassRemote = isKnown && isOffline;
 
-  const beds = gardenId
+  const remoteBeds = gardenId
     ? useQuery(
-        api.gardens.getBedsInGarden,
-        deviceId ? { gardenId, deviceId } : 'skip'
-      )
+      api.gardens.getBedsInGarden,
+      deviceId ? { gardenId, deviceId } : 'skip'
+    )
     : useQuery(api.beds.getBeds, deviceId ? { deviceId } : 'skip');
+
+  const cacheKey = deviceId
+    ? `rf_beds_v1_${deviceId}${gardenId ? `_${gardenId}` : ''}`
+    : null;
+  const { cached, cacheLoaded } = useQueryCache(cacheKey, remoteBeds);
+
+  const beds = remoteBeds ?? cached;
 
   const createBedMutation = useMutation(api.beds.createBed);
   const updateBedMutation = useMutation(api.beds.updateBed);
@@ -53,8 +64,8 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   };
 
   return {
-    beds: beds ?? [],
-    isLoading: beds === undefined,
+    beds: beds ?? (shouldBypassRemote ? [] : []),
+    isLoading: beds === undefined && !cacheLoaded && !shouldBypassRemote,
     createBed,
     updateBed,
     deleteBed,

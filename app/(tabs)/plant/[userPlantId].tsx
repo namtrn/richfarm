@@ -1,12 +1,14 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   TextInput,
   Modal,
   Pressable,
+  Image,
+  Animated,
+  useWindowDimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart } from 'lucide-react-native';
@@ -60,18 +62,19 @@ export default function PlantDetailScreen() {
   const theme = useTheme();
   const router = useRouter();
   const params = useLocalSearchParams<{
-    plantId: string | string[];
+    userPlantId: string | string[];
     from?: string | string[];
     bedId?: string | string[];
     gardenId?: string | string[];
   }>();
   const firstParam = (value?: string | string[]) =>
     Array.isArray(value) ? value[0] : value;
-  const resolvedPlantId = firstParam(params.plantId);
+  const resolvedPlantId = firstParam(params.userPlantId);
   const fromParam = firstParam(params.from);
   const fromBedId = firstParam(params.bedId);
   const fromGardenId = firstParam(params.gardenId);
   const unitSystem = useUnitSystem();
+  const { width: screenWidth } = useWindowDimensions();
 
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
   const { beds } = useBeds();
@@ -99,11 +102,11 @@ export default function PlantDetailScreen() {
       return;
     }
     if (fromParam === 'planning') {
-      router.replace('/(tabs)/planning');
+      router.replace('/(tabs)/garden?tab=planning');
       return;
     }
     if (fromParam === 'growing') {
-      router.replace('/(tabs)/growing');
+      router.replace('/(tabs)/garden?tab=growing');
       return;
     }
     if (fromParam === 'explorer') {
@@ -122,7 +125,7 @@ export default function PlantDetailScreen() {
       router.back();
       return;
     }
-    router.replace('/(tabs)/growing');
+    router.replace('/(tabs)/garden?tab=growing');
   };
 
   const plant = useMemo(
@@ -145,6 +148,7 @@ export default function PlantDetailScreen() {
   const lightLabel = masterPlant?.lightRequirements
     ? t(`library.light_${masterPlant.lightRequirements}`)
     : undefined;
+  const latinName = masterPlant?.scientificName;
   const statusLabel = plant ? t(`plant.status_${plant.status}`) : '';
 
   const [nickname, setNickname] = useState('');
@@ -182,6 +186,7 @@ export default function PlantDetailScreen() {
   const [harvestUnit, setHarvestUnit] = useState('');
   const [harvestNote, setHarvestNote] = useState('');
   const [harvestDate, setHarvestDate] = useState(formatDateInput(Date.now()));
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!plant) return;
@@ -287,12 +292,14 @@ export default function PlantDetailScreen() {
   };
 
   const handleDelete = async () => {
-    if (!canEdit) return;
+    if (!canEdit || saving) return;
     setSaving(true);
+    const plantIdToDelete = plant._id;
+    // Leave the detail screen first so this component doesn't rerender while the item disappears.
+    navigateBackOrGrowing();
     try {
-      await deletePlant(plant._id);
-      navigateBackOrGrowing();
-    } finally {
+      await deletePlant(plantIdToDelete);
+    } catch {
       setSaving(false);
     }
   };
@@ -401,54 +408,98 @@ export default function PlantDetailScreen() {
   const plantMasterId = plant?.plantMasterId;
   const canFavorite = !!plantMasterId;
   const isFavorite = plantMasterId ? favoriteIds.has(String(plantMasterId)) : false;
+  const shrinkRange = [0, 90];
+  const headerPaddingHorizontal = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [16, 12], extrapolate: 'clamp' });
+  const headerPaddingBottom = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [12, 8], extrapolate: 'clamp' });
+  const buttonSize = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [40, 28], extrapolate: 'clamp' });
+  const buttonRadius = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [12, 8], extrapolate: 'clamp' });
+  const backButtonMarginRight = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [12, 8], extrapolate: 'clamp' });
+  const nameSize = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [22, 15], extrapolate: 'clamp' });
+  const latinSize = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [13, 10], extrapolate: 'clamp' });
+  const iconScale = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [1, 0.72], extrapolate: 'clamp' });
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 60, paddingBottom: 12, flexDirection: 'row', alignItems: 'center' }}>
+      <Animated.View
+        style={{
+          paddingHorizontal: headerPaddingHorizontal,
+          paddingTop: 0,
+          paddingBottom: headerPaddingBottom,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
         <TouchableOpacity
           onPress={navigateBackOrGrowing}
-          style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent, borderRadius: 12, marginRight: 12, borderWidth: 1, borderColor: theme.border }}
+          style={{}}
         >
-          <ArrowLeft size={20} color={theme.text} />
+          <Animated.View
+            style={{
+              width: buttonSize,
+              height: buttonSize,
+              borderRadius: buttonRadius,
+              marginRight: backButtonMarginRight,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: theme.accent,
+              borderWidth: 1,
+              borderColor: theme.border,
+            }}
+          >
+            <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+              <ArrowLeft size={20} color={theme.text} />
+            </Animated.View>
+          </Animated.View>
         </TouchableOpacity>
         <View style={{ flex: 1, gap: 1 }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.nickname ?? t('plant.unnamed')}</Text>
-          <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{statusLabel}</Text>
+          <Animated.Text style={{ fontSize: nameSize, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.nickname ?? t('plant.unnamed')}</Animated.Text>
+          <Animated.Text style={{ fontSize: latinSize, color: theme.textSecondary, fontWeight: '500', fontStyle: latinName ? 'italic' : 'normal' }}>
+            {latinName ?? statusLabel}
+          </Animated.Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Animated.View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <TouchableOpacity
             onPress={() => {
               if (!plantMasterId) return;
               void toggleFavorite(plantMasterId).catch(() => undefined);
             }}
             disabled={!plantMasterId}
-            style={{
-              width: 40,
-              height: 40,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: theme.card,
-              borderRadius: 12,
-              borderWidth: 1,
-              borderColor: theme.border,
-              opacity: plantMasterId ? 1 : 0.5,
-              shadowColor: '#1a1a18',
-              shadowOpacity: 0.04,
-              shadowRadius: 8,
-              shadowOffset: { width: 0, height: 2 },
-            }}
+            style={{ opacity: plantMasterId ? 1 : 0.5 }}
           >
-            <Heart size={20} stroke={isFavorite ? '#ef4444' : theme.textSecondary} fill={isFavorite ? '#ef4444' : 'none'} />
+            <Animated.View
+              style={{
+                width: buttonSize,
+                height: buttonSize,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: theme.card,
+                borderRadius: buttonRadius,
+                borderWidth: 1,
+                borderColor: theme.border,
+                shadowColor: '#1a1a18',
+                shadowOpacity: 0.04,
+                shadowRadius: 8,
+                shadowOffset: { width: 0, height: 2 },
+              }}
+            >
+              <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+                <Heart size={20} stroke={isFavorite ? '#ef4444' : theme.textSecondary} fill={isFavorite ? '#ef4444' : 'none'} />
+              </Animated.View>
+            </Animated.View>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSave}
             disabled={!canEdit || saving}
-            style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.primary, borderRadius: 12, opacity: (!canEdit || saving) ? 0.6 : 1 }}
+            style={{ opacity: (!canEdit || saving) ? 0.6 : 1 }}
           >
-            <Check size={20} color="white" />
+            <Animated.View style={{ width: buttonSize, height: buttonSize, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.primary, borderRadius: buttonRadius }}>
+              <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+                <Check size={20} color="white" />
+              </Animated.View>
+            </Animated.View>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
 
       {!canEdit && (
         <View style={{ marginHorizontal: 16, backgroundColor: theme.warningBg, borderRadius: 16, padding: 12, borderWidth: 1, borderColor: theme.warning, marginBottom: 8 }}>
@@ -456,7 +507,24 @@ export default function PlantDetailScreen() {
         </View>
       )}
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 100 }}>
+      <Animated.ScrollView
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 0, gap: 16, paddingBottom: 100 }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
+      >
+        <Image
+          source={{
+            uri:
+              masterPlant?.imageUrl ??
+              'https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=1600&q=80',
+          }}
+          style={{ width: screenWidth, height: 220, marginLeft: -16 }}
+          resizeMode="cover"
+        />
+
         {masterPlant && (
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
             <View style={{ gap: 4, marginBottom: 12 }}>
@@ -491,6 +559,23 @@ export default function PlantDetailScreen() {
                 </View>
               )}
             </View>
+
+            {masterPlant.purposes?.length > 0 && (
+              <View style={{ marginTop: 12 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                  {t('library.detail_uses', { defaultValue: 'Uses' })}
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {masterPlant.purposes.map((p: string) => (
+                    <View key={p} style={{ backgroundColor: theme.successBg, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
+                      <Text style={{ fontSize: 12, color: theme.success, fontWeight: '700', textTransform: 'capitalize' }}>
+                        {t(`purposes.${p}`, { defaultValue: p.replace(/_/g, ' ') })}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
         )}
 
@@ -505,7 +590,7 @@ export default function PlantDetailScreen() {
                   params: {
                     mode: 'attach',
                     from: 'plant',
-                    plantId: String(plant._id),
+                    userPlantId: String(plant._id),
                     backFrom: fromParam,
                     backBedId: fromBedId,
                     backGardenId: fromGardenId,
@@ -695,7 +780,7 @@ export default function PlantDetailScreen() {
           onRemove={handleRemoveHarvest}
           formatDate={formatDateInput}
         />
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Photo source modal */}
       <Modal

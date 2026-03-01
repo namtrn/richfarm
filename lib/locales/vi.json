@@ -148,7 +148,7 @@
         "option_library_desc": "Chọn cây từ database có sẵn",
         "option_camera_title": "Chụp ảnh để nhận diện",
         "option_camera_desc": "Tạo cây mới từ ảnh (beta)",
-        "ai_scan_short": "AI Scan",
+        "ai_scan_short": "Plant Scanner",
         "scan_source_title": "Chọn nguồn ảnh",
         "scan_source_camera": "Chụp ảnh",
         "scan_source_library": "Chọn từ thư viện",
@@ -205,6 +205,10 @@
         "today_label": "HÔM NAY — {{count}} nhắc nhở",
         "all_label": "TẤT CẢ NHẮC NHỞ",
         "none_all": "Chưa có nhắc nhở nào.",
+        "history_label": "LỊCH SỬ",
+        "none_history": "Chưa có lịch sử.",
+        "status_completed": "Đã hoàn thành",
+        "status_scheduled": "Đã lên lịch",
         "form_title_create": "Tạo nhắc nhở",
         "form_title_edit": "Sửa nhắc nhở",
         "form_title_label": "Tiêu đề",
@@ -240,7 +244,9 @@
         "seed_title_planted": "Đã trồng: {{name}}",
         "seed_title_harvest": "Thu hoạch: {{name}}",
         "seed_desc_planted": "Đã trồng vào {{date}}.",
-        "seed_desc_harvest": "Dự kiến thu hoạch vào {{date}}."
+        "seed_desc_harvest": "Dự kiến thu hoạch vào {{date}}.",
+        "auto_title_watering": "Tưới nước",
+        "auto_desc_watering_growing": "Nhắc tưới tự động khi cây đang ở giai đoạn phát triển."
     },
     "library": {
         "title": "Thư viện",
@@ -447,8 +453,9 @@
     },
     "offline": {
         "title": "Chế độ ngoại tuyến",
-        "description": "Convex chưa được cấu hình. Hãy thiết lập EXPO_PUBLIC_CONVEX_URL trong môi trường.",
-        "open_docs": "Mở tài liệu Convex"
+        "description": "Bạn đang ngoại tuyến. Vẫn có thể dùng dữ liệu cục bộ, đồng bộ sẽ tiếp tục khi có mạng.",
+        "open_docs": "Mở tài liệu Convex",
+        "banner": "Đang ngoại tuyến: hiển thị dữ liệu cục bộ"
     },
     "weather_card": {
         "temp_unit": "C",

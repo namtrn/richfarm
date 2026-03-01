@@ -362,8 +362,8 @@ export default function PlanningScreen() {
                   key={plant._id}
                   onPress={() =>
                     router.push({
-                      pathname: '/(tabs)/plant/[plantId]',
-                      params: { plantId: String(plant._id), from: 'planning' },
+                      pathname: '/(tabs)/plant/[userPlantId]',
+                      params: { userPlantId: String(plant._id), from: 'planning' },
                     })
                   }
                   style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, flexDirection: 'row', alignItems: 'center', gap: 16 }}

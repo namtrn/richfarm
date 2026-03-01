@@ -5,15 +5,19 @@ import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { useAuth } from '../lib/auth';
 import { api } from '../convex/_generated/api';
 import { loadOnboardingData, saveOnboardingData, type OnboardingData } from '../lib/onboardingLocalData';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 
 export default function StartScreen() {
   const router = useRouter();
   const { user, isLoading, deviceId } = useAuth();
+  const { isKnown, isOffline } = useNetworkStatus();
+  const shouldBypassRemote = isKnown && isOffline;
   const [localData, setLocalData] = useState<OnboardingData | null>(null);
   const [localLoaded, setLocalLoaded] = useState(false);
   const syncAttemptedRef = useRef(false);
 
-  const remoteSettings = useQuery(api.userSettings.getUserSettings, deviceId ? { deviceId } : 'skip');
+  const rawRemoteSettings = useQuery(api.userSettings.getUserSettings, deviceId ? { deviceId } : 'skip');
+  const remoteSettings = shouldBypassRemote && rawRemoteSettings === undefined ? null : rawRemoteSettings;
   const upsertUserSettings = useMutation(api.userSettings.upsertUserSettings);
 
   useEffect(() => {
@@ -36,7 +40,7 @@ export default function StartScreen() {
   const isReady = localLoaded && !isLoading && (deviceId ? true : true) && (isRemoteReady || !deviceId);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || shouldBypassRemote) return;
 
     const remoteOnboarding = remoteSettings?.onboarding;
     const localCompletedAt = localData?.completedAt ?? 0;
@@ -61,7 +65,7 @@ export default function StartScreen() {
         syncAttemptedRef.current = false;
       }
     })();
-  }, [isReady, localData, remoteSettings, user, upsertUserSettings, deviceId]);
+  }, [isReady, localData, remoteSettings, user, upsertUserSettings, deviceId, shouldBypassRemote]);
 
   useEffect(() => {
     if (!isReady) return;

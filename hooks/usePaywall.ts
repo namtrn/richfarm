@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import Purchases, { type Offering } from 'react-native-purchases';
+import Purchases, { type PurchasesOffering } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import { REVENUECAT_ENTITLEMENT_ID } from '../lib/revenuecat';
 import { useSubscription } from './useSubscription';
@@ -37,7 +37,7 @@ export function usePaywall() {
       let result: PAYWALL_RESULT;
 
       if (opts?.onlyIfNeeded) {
-        const params: { requiredEntitlementIdentifier: string; offering?: Offering } = {
+        const params: { requiredEntitlementIdentifier: string; offering?: PurchasesOffering } = {
           requiredEntitlementIdentifier: REVENUECAT_ENTITLEMENT_ID,
         };
         if (hasOffering && offering) params.offering = offering;

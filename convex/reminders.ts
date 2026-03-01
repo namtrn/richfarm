@@ -29,7 +29,26 @@ export const getReminders = query({
             reminders = reminders.filter((r: any) => r.enabled);
         }
 
-        return reminders;
+        const visibilityByPlantId = new Map<string, boolean>();
+        const visibleReminders: any[] = [];
+        for (const reminder of reminders) {
+            if (!reminder.userPlantId) {
+                visibleReminders.push(reminder);
+                continue;
+            }
+
+            const plantId = String(reminder.userPlantId);
+            let isVisible = visibilityByPlantId.get(plantId);
+            if (isVisible === undefined) {
+                const plant = await ctx.db.get(reminder.userPlantId);
+                isVisible = !!plant && !plant.isDeleted;
+                visibilityByPlantId.set(plantId, isVisible);
+            }
+
+            if (isVisible) visibleReminders.push(reminder);
+        }
+
+        return visibleReminders;
     },
 });
 
@@ -53,10 +72,31 @@ export const getTodayReminders = query({
             )
             .collect();
 
-        return reminders.filter(
+        const dueReminders = reminders.filter(
             (r: any) =>
                 r.enabled && (!r.snoozedUntil || r.snoozedUntil <= now)
         );
+
+        const visibilityByPlantId = new Map<string, boolean>();
+        const visibleDueReminders: any[] = [];
+        for (const reminder of dueReminders) {
+            if (!reminder.userPlantId) {
+                visibleDueReminders.push(reminder);
+                continue;
+            }
+
+            const plantId = String(reminder.userPlantId);
+            let isVisible = visibilityByPlantId.get(plantId);
+            if (isVisible === undefined) {
+                const plant = await ctx.db.get(reminder.userPlantId);
+                isVisible = !!plant && !plant.isDeleted;
+                visibilityByPlantId.set(plantId, isVisible);
+            }
+
+            if (isVisible) visibleDueReminders.push(reminder);
+        }
+
+        return visibleDueReminders;
     },
 });
 
@@ -168,6 +208,8 @@ export const completeReminder = mutation({
         await ctx.db.patch(args.reminderId, {
             lastRunAt: now,
             nextRunAt,
+            // One-time reminders should not continue showing up after completion.
+            ...(reminder.rrule ? {} : { enabled: false }),
             completedCount: (reminder.completedCount ?? 0) + 1,
         });
     },

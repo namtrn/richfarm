@@ -102,11 +102,14 @@ function ReminderCard({
   const amountLabel = reminder.waterLiters ? formatVolume(reminder.waterLiters, unitSystem) : '';
   const displayTitle = useMemo(() => {
     const title = reminder.title ?? '';
-    if (title.startsWith('Planted: ')) {
-      return t('reminder.seed_title_planted', { name: title.replace('Planted: ', '') });
+    if (/^planted:\s*/i.test(title)) {
+      return t('reminder.seed_title_planted', { name: title.replace(/^planted:\s*/i, '') });
     }
-    if (title.startsWith('Harvest: ')) {
-      return t('reminder.seed_title_harvest', { name: title.replace('Harvest: ', '') });
+    if (/^harvest:\s*/i.test(title)) {
+      return t('reminder.seed_title_harvest', { name: title.replace(/^harvest:\s*/i, '') });
+    }
+    if (/^watering:\s*/i.test(title)) {
+      return t('reminder.auto_title_watering');
     }
     return title;
   }, [reminder.title, t]);
@@ -119,6 +122,9 @@ function ReminderCard({
     const harvestMatch = description.match(/^Expected harvest date (\d{4}-\d{2}-\d{2})/);
     if (harvestMatch) {
       return t('reminder.seed_desc_harvest', { date: harvestMatch[1] });
+    }
+    if (/^Auto reminder while plant is in growing stage\./i.test(description)) {
+      return t('reminder.auto_desc_watering_growing');
     }
     return description;
   }, [reminder.description, t]);
@@ -492,9 +498,73 @@ export default function ReminderScreen() {
   const plantMap = useMemo(() => new Map(plants.map((p) => [p._id, p])), [plants]);
   const bedMap = useMemo(() => new Map(beds.map((b) => [b._id, b])), [beds]);
 
-  const allReminders = useMemo(() => {
+  const sortedReminders = useMemo(() => {
     return [...reminders].sort((a, b) => a.nextRunAt - b.nextRunAt);
   }, [reminders]);
+
+  const normalizeText = (value?: string) =>
+    (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+  const isPlantedReminder = (reminder: any) => {
+    const title = normalizeText(reminder?.title);
+    const description = normalizeText(reminder?.description);
+    return (
+      title.includes('planted:') ||
+      description.includes('planted on') ||
+      title.includes('da trong:') ||
+      description.includes('da trong vao')
+    );
+  };
+
+  const historyReminders = useMemo(() => {
+    return sortedReminders.filter((r: any) => isPlantedReminder(r));
+  }, [sortedReminders]);
+
+  const upcomingReminders = useMemo(() => {
+    return sortedReminders.filter((r: any) => !isPlantedReminder(r));
+  }, [sortedReminders]);
+
+  const getStage = (reminder: any): 'planning' | 'growing' | null => {
+    if (!reminder?.userPlantId) return null;
+    const linkedPlant = plantMap.get(reminder.userPlantId);
+    if (!linkedPlant) return null;
+    if (linkedPlant.status === 'planting') return 'planning';
+    if (linkedPlant.status === 'growing') return 'growing';
+    return null;
+  };
+
+  const getDisplayTitle = (reminder: any) => {
+    const title = reminder?.title ?? '';
+    if (/^planted:\s*/i.test(title)) {
+      return t('reminder.seed_title_planted', { name: title.replace(/^planted:\s*/i, '') });
+    }
+    if (/^harvest:\s*/i.test(title)) {
+      return t('reminder.seed_title_harvest', { name: title.replace(/^harvest:\s*/i, '') });
+    }
+    if (/^watering:\s*/i.test(title)) {
+      return t('reminder.auto_title_watering');
+    }
+    return title;
+  };
+
+  const getDisplayDescription = (reminder: any) => {
+    const description = reminder?.description ?? '';
+    const plantedMatch = description.match(/^Planted on (\d{4}-\d{2}-\d{2})/i);
+    if (plantedMatch) {
+      return t('reminder.seed_desc_planted', { date: plantedMatch[1] });
+    }
+    const harvestMatch = description.match(/^Expected harvest date (\d{4}-\d{2}-\d{2})/i);
+    if (harvestMatch) {
+      return t('reminder.seed_desc_harvest', { date: harvestMatch[1] });
+    }
+    if (/^Auto reminder while plant is in growing stage\./i.test(description)) {
+      return t('reminder.auto_desc_watering_growing');
+    }
+    return description;
+  };
 
   const handleSave = async (payload: any) => {
     if (payload.reminderId) {
@@ -524,7 +594,7 @@ export default function ReminderScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 100 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 0, gap: 16, paddingBottom: 100 }}>
       {/* Header */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 4 }}>
         <View style={{ gap: 2 }}>
@@ -613,13 +683,13 @@ export default function ReminderScreen() {
         <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
           {t('reminder.all_label')}
         </Text>
-        {allReminders.length === 0 ? (
+        {upcomingReminders.length === 0 ? (
           <Text style={{ fontSize: 13, color: theme.textMuted, fontStyle: 'italic', paddingLeft: 4 }}>
             {t('reminder.none_all')}
           </Text>
         ) : (
           <View style={{ gap: 10 }}>
-            {allReminders.map((r) => {
+            {upcomingReminders.map((r) => {
               const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
               const time = new Date(r.nextRunAt).toLocaleString(i18n.language, {
                 hour: '2-digit',
@@ -633,6 +703,14 @@ export default function ReminderScreen() {
                 : r.bedId
                   ? bedMap.get(r.bedId)?.name ?? t('reminder.target_bed')
                   : t('reminder.target_none');
+              const stage = getStage(r);
+              const stageLabel = stage === 'planning'
+                ? t('garden.tab_planning')
+                : stage === 'growing'
+                  ? t('garden.tab_growing')
+                  : null;
+              const stageColor = stage === 'planning' ? theme.warning : theme.success;
+              const stageBg = stage === 'planning' ? theme.warningBg : theme.successBg;
 
               return (
                 <View
@@ -657,8 +735,15 @@ export default function ReminderScreen() {
                   </View>
                   <View style={{ flex: 1, gap: 2 }}>
                     <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
-                      {r.title}
+                      {getDisplayTitle(r)}
                     </Text>
+                    {!!stageLabel && (
+                      <View style={{ marginTop: 2, alignSelf: 'flex-start', backgroundColor: stageBg, borderRadius: 999, borderWidth: 1, borderColor: stageColor, paddingHorizontal: 8, paddingVertical: 2 }}>
+                        <Text style={{ fontSize: 10, fontWeight: '800', color: stageColor, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                          {stageLabel}
+                        </Text>
+                      </View>
+                    )}
                     <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
                       {amountLabel ? `${time} • ${amountLabel} • ${targetLabel}` : `${time} • ${targetLabel}`}
                     </Text>
@@ -685,6 +770,77 @@ export default function ReminderScreen() {
                     >
                       <Trash2 size={16} color={theme.danger} />
                     </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </View>
+
+      <View style={{ gap: 10, marginTop: 4 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
+          {t('reminder.history_label')}
+        </Text>
+        {historyReminders.length === 0 ? (
+          <Text style={{ fontSize: 13, color: theme.textMuted, fontStyle: 'italic', paddingLeft: 4 }}>
+            {t('reminder.none_history')}
+          </Text>
+        ) : (
+          <View style={{ gap: 10 }}>
+            {historyReminders.map((r) => {
+              const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
+              const completedOrScheduledAt = r.lastRunAt ?? r.nextRunAt;
+              const time = completedOrScheduledAt
+                ? new Date(completedOrScheduledAt).toLocaleString(i18n.language, {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  day: '2-digit',
+                  month: '2-digit',
+                })
+                : '—';
+              const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
+              const targetLabel = r.userPlantId
+                ? plantMap.get(r.userPlantId)?.nickname ?? t('reminder.target_plant')
+                : r.bedId
+                  ? bedMap.get(r.bedId)?.name ?? t('reminder.target_bed')
+                  : t('reminder.target_none');
+              const statusLabel = r.lastRunAt
+                ? t('reminder.status_completed')
+                : t('reminder.status_scheduled');
+              const description = getDisplayDescription(r).trim();
+              return (
+                <View
+                  key={`history-${r._id}`}
+                  style={{
+                    backgroundColor: theme.card,
+                    borderRadius: 18,
+                    padding: 14,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 12,
+                    borderWidth: 1,
+                    borderColor: theme.border,
+                    opacity: 0.85,
+                  }}
+                >
+                  <View style={{ width: 44, height: 44, backgroundColor: theme.accent, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+                    <Icon size={20} color={theme.textMuted} />
+                  </View>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+                      {getDisplayTitle(r)}
+                    </Text>
+                    {!!description && (
+                      <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={2}>
+                        {description}
+                      </Text>
+                    )}
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
+                      {amountLabel
+                        ? `${statusLabel}: ${time} • ${amountLabel} • ${targetLabel}`
+                        : `${statusLabel}: ${time} • ${targetLabel}`}
+                    </Text>
                   </View>
                 </View>
               );

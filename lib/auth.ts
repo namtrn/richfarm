@@ -2,16 +2,27 @@ import { useEffect, useRef } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { useDeviceId } from './deviceId';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useQueryCache } from './queryCache';
 
 export function useAuth() {
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
-    const currentUser = useQuery(api.users.getCurrentUser, { deviceId });
+    const rawCurrentUser = useQuery(api.users.getCurrentUser, { deviceId });
+    const { isKnown, isOffline } = useNetworkStatus();
+    const shouldBypassRemote = isKnown && isOffline;
+
+    const cacheKey = deviceId ? `rf_current_user_v1_${deviceId}` : null;
+    const { cached: cachedUser } = useQueryCache(cacheKey, rawCurrentUser);
+
+    const currentUser =
+        rawCurrentUser ?? cachedUser ?? (shouldBypassRemote ? null : undefined);
     const getOrCreateUserMutation = useMutation(api.users.getOrCreateUser);
     const getOrCreateDeviceUserMutation = useMutation(api.users.getOrCreateDeviceUser);
     const updateProfileMutation = useMutation(api.users.updateProfile);
     const createAttemptedRef = useRef(false);
 
     useEffect(() => {
+        if (shouldBypassRemote) return;
         if (!deviceId || currentUser === undefined || currentUser || createAttemptedRef.current) return;
         createAttemptedRef.current = true;
 
@@ -28,7 +39,7 @@ export function useAuth() {
                 }
             }
         })();
-    }, [deviceId, currentUser, getOrCreateUserMutation, getOrCreateDeviceUserMutation]);
+    }, [deviceId, currentUser, getOrCreateUserMutation, getOrCreateDeviceUserMutation, shouldBypassRemote]);
 
     const initUser = async () => {
         try {

@@ -15,11 +15,11 @@ import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary'
 import { PlantImage } from '../../../components/ui/PlantImage';
 import { matchesSearch } from '../../../lib/search';
 
-const BED_LAYOUTS: Record<string, { cols: number; rows: number; borderRadius: number; borderWidth: number; borderColor: string; background: string; borderStyle?: 'solid' | 'dashed'; mask?: 'circle' }> = {
-  in_ground: { cols: 8, rows: 6, borderRadius: 12, borderWidth: 1, borderColor: '#e7e0d6', background: '#ffffff' },
-  raised: { cols: 6, rows: 4, borderRadius: 14, borderWidth: 2, borderColor: '#d97706', background: '#fff7ed' },
-  container: { cols: 5, rows: 5, borderRadius: 999, borderWidth: 2, borderColor: '#94a3b8', background: '#f8fafc', mask: 'circle' },
-  no_dig: { cols: 10, rows: 4, borderRadius: 12, borderWidth: 1, borderColor: '#16a34a', background: '#f0fdf4', borderStyle: 'dashed' },
+const BED_LAYOUTS: Record<string, { cols: number; rows: number; borderRadius: number; borderWidth: number; borderStyle?: 'solid' | 'dashed'; mask?: 'circle' }> = {
+  in_ground: { cols: 8, rows: 6, borderRadius: 12, borderWidth: 1 },
+  raised: { cols: 6, rows: 4, borderRadius: 14, borderWidth: 2 },
+  container: { cols: 5, rows: 5, borderRadius: 999, borderWidth: 2, mask: 'circle' },
+  no_dig: { cols: 10, rows: 4, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed' },
 };
 
 const BED_CELL_CM: Record<string, number> = {
@@ -96,6 +96,12 @@ export default function BedDetailScreen() {
     cols: computedCols ?? baseLayout.cols,
     rows: computedRows ?? baseLayout.rows,
   };
+  const layoutColors = {
+    in_ground: { borderColor: theme.border, background: theme.card },
+    raised: { borderColor: theme.warning, background: theme.warningBg },
+    container: { borderColor: theme.textMuted, background: theme.accent },
+    no_dig: { borderColor: theme.success, background: theme.successBg },
+  }[bedTypeKey] ?? { borderColor: theme.border, background: theme.card };
   const maxGridWidth = Math.max(1, width - 32);
   const innerWidth = maxGridWidth - (layout.borderWidth * 2);
   const cellSize = Math.floor(innerWidth / layout.cols);
@@ -103,7 +109,11 @@ export default function BedDetailScreen() {
   const gridHeight = cellSize * layout.rows + (layout.borderWidth * 2);
 
   const plantsInBed = useMemo(
-    () => plants.filter((p: any) => p.bedId === bed?._id),
+    () => plants.filter(
+      (p: any) =>
+        p.bedId === bed?._id &&
+        (p.status === 'planting' || p.status === 'growing')
+    ),
     [plants, bed?._id]
   );
 
@@ -273,9 +283,9 @@ export default function BedDetailScreen() {
           text: t('common.view_details'),
           onPress: () =>
             router.push({
-              pathname: '/(tabs)/plant/[plantId]',
+              pathname: '/(tabs)/plant/[userPlantId]',
               params: {
-                plantId: String(plantEntry.plant._id),
+                userPlantId: String(plantEntry.plant._id),
                 from: 'bed',
                 bedId: String(resolvedBedId),
                 gardenId: bed?.gardenId ? String(bed.gardenId) : undefined,
@@ -333,7 +343,7 @@ export default function BedDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16, paddingBottom: 100 }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 0, gap: 16, paddingBottom: 100 }}>
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}>
           <TouchableOpacity
@@ -399,10 +409,10 @@ export default function BedDetailScreen() {
               height: gridHeight,
               flexDirection: 'row',
               flexWrap: 'wrap',
-              backgroundColor: layout.background,
+              backgroundColor: layoutColors.background,
               borderRadius: layout.borderRadius,
               borderWidth: layout.borderWidth,
-              borderColor: layout.borderColor,
+              borderColor: layoutColors.borderColor,
               borderStyle: layout.borderStyle ?? 'solid',
               overflow: 'hidden',
             }}

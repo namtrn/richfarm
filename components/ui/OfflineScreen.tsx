@@ -2,24 +2,26 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useCallback } from 'react';
 import { Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../lib/theme';
 
 export function OfflineScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const handleOpenDocs = useCallback(() => {
     Linking.openURL('https://docs.convex.dev');
   }, []);
 
   return (
-    <View className="flex-1 justify-center items-center px-6 gap-y-4 bg-white dark:bg-gray-950">
-      <Text className="text-3xl font-bold text-gray-900 dark:text-white">{t('offline.title')}</Text>
-      <Text className="text-base text-gray-500 text-center">
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 16, backgroundColor: theme.background }}>
+      <Text style={{ fontSize: 30, fontWeight: '700', color: theme.text }}>{t('offline.title')}</Text>
+      <Text style={{ fontSize: 16, color: theme.textSecondary, textAlign: 'center' }}>
         {t('offline.description')}
       </Text>
       <TouchableOpacity
-        className="bg-green-500 rounded-xl px-6 py-3"
+        style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 }}
         onPress={handleOpenDocs}
       >
-        <Text className="text-white font-semibold">{t('offline.open_docs')}</Text>
+        <Text style={{ color: '#fff', fontWeight: '600' }}>{t('offline.open_docs')}</Text>
       </TouchableOpacity>
     </View>
   );

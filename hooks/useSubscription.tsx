@@ -11,6 +11,7 @@ import {
 } from 'react';
 import {
   getRevenueCatApiKey,
+  getRevenueCatApiKeyValidationError,
   getRevenueCatAppUserId,
   isRevenueCatSupportedPlatform,
   REVENUECAT_ENTITLEMENT_ID,
@@ -59,9 +60,12 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
 
     const apiKey = getRevenueCatApiKey();
-    if (!apiKey) {
+    const apiKeyValidationError = getRevenueCatApiKeyValidationError(apiKey);
+    if (apiKeyValidationError) {
       if (__DEV__) {
-        console.warn('RevenueCat API key missing. Set EXPO_PUBLIC_REVENUECAT_IOS_API_KEY(_TEST) / EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY(_TEST).');
+        console.warn(
+          `RevenueCat API key is invalid: ${apiKeyValidationError} Set EXPO_PUBLIC_REVENUECAT_IOS_API_KEY(_TEST) / EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY(_TEST) to valid SDK public keys.`
+        );
       }
       setIsLoading(false);
       return;
@@ -107,6 +111,8 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     try {
       const info = await purchases.getCustomerInfo();
       setCustomerInfo(info);
+    } catch {
+      // Keep app functional if RevenueCat request fails (e.g. bad key/network).
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +132,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isConfigured) return;
 
-    refresh();
+    void refresh();
 
     const listener = (info: CustomerInfo) => {
       setCustomerInfo(info);

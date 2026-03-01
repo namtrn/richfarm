@@ -149,7 +149,7 @@
         "option_library_desc": "Pick a plant from the database",
         "option_camera_title": "Detect from photo",
         "option_camera_desc": "Create a plant from an image (beta)",
-        "ai_scan_short": "AI Scan",
+        "ai_scan_short": "Plant Scanner",
         "scan_source_title": "Choose image source",
         "scan_source_camera": "Take photo",
         "scan_source_library": "Choose from library",
@@ -206,6 +206,10 @@
         "today_label": "TODAY — {{count}} reminders",
         "all_label": "ALL REMINDERS",
         "none_all": "No reminders yet.",
+        "history_label": "HISTORY",
+        "none_history": "No history yet.",
+        "status_completed": "Completed",
+        "status_scheduled": "Scheduled",
         "form_title_create": "Create reminder",
         "form_title_edit": "Edit reminder",
         "form_title_label": "Title",
@@ -241,7 +245,9 @@
         "seed_title_planted": "Planted: {{name}}",
         "seed_title_harvest": "Harvest: {{name}}",
         "seed_desc_planted": "Planted on {{date}}.",
-        "seed_desc_harvest": "Expected harvest date {{date}}."
+        "seed_desc_harvest": "Expected harvest date {{date}}.",
+        "auto_title_watering": "Watering",
+        "auto_desc_watering_growing": "Automatic watering reminder while this plant is in growing stage."
     },
     "library": {
         "title": "Library",
@@ -459,8 +465,9 @@
     },
     "offline": {
         "title": "Offline Mode",
-        "description": "Convex is not configured. Set EXPO_PUBLIC_CONVEX_URL in your environment.",
-        "open_docs": "Open Convex Docs"
+        "description": "You are offline. Local content is available, and cloud sync will resume when connected.",
+        "open_docs": "Open Convex Docs",
+        "banner": "Offline mode: showing local data"
     },
     "weather_card": {
         "temp_unit": "C",

@@ -6,4 +6,4 @@ if (!convexUrl) {
   throw new Error('EXPO_PUBLIC_CONVEX_URL is not set');
 }
 
-export const convex = new ConvexReactClient(convexUrl);
+export const convex = new ConvexReactClient(convexUrl, { logger: false });

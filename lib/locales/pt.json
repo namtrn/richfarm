@@ -123,7 +123,7 @@
         "option_library_desc": "Pick a plant from the database",
         "option_camera_title": "Detect from photo",
         "option_camera_desc": "Create a plant from an image (beta)",
-        "ai_scan_short": "AI Scan",
+        "ai_scan_short": "Plant Scanner",
         "scan_source_title": "Choose image source",
         "scan_source_camera": "Take photo",
         "scan_source_library": "Choose from library",
@@ -273,6 +273,12 @@
         "unit_metric": "Metric",
         "unit_imperial": "Imperial",
         "unit_current": "Current: {{label}}"
+    },
+    "offline": {
+        "title": "Offline Mode",
+        "description": "You are offline. Local content is available, and cloud sync will resume when connected.",
+        "open_docs": "Open Convex Docs",
+        "banner": "Offline mode: showing local data"
     },
     "plant": {
         "not_found": "Plant not found.",

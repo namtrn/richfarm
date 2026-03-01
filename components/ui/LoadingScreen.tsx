@@ -1,6 +1,7 @@
 import { View, Text, ActivityIndicator } from 'react-native';
 import { Leaf } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../lib/theme';
 
 interface LoadingScreenProps {
     message?: string;
@@ -8,16 +9,17 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ message }: LoadingScreenProps) {
     const { t } = useTranslation();
+    const theme = useTheme();
     const loadingMessage = message ?? t('common.loading');
 
     return (
-        <View className="flex-1 justify-center items-center bg-white dark:bg-gray-950 gap-y-4">
-            <View className="w-20 h-20 bg-green-500 rounded-full justify-center items-center">
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background, gap: 16 }}>
+            <View style={{ width: 80, height: 80, backgroundColor: theme.primary, borderRadius: 999, justifyContent: 'center', alignItems: 'center' }}>
                 <Leaf size={40} stroke="white" />
             </View>
-            <Text className="text-2xl font-bold text-green-900 dark:text-green-100">Richfarm</Text>
-            <ActivityIndicator size="large" color="#16a34a" />
-            <Text className="text-sm text-gray-400">{loadingMessage}</Text>
+            <Text style={{ fontSize: 24, fontWeight: '700', color: theme.text }}>Richfarm</Text>
+            <ActivityIndicator size="large" color={theme.primary} />
+            <Text style={{ fontSize: 14, color: theme.textSecondary }}>{loadingMessage}</Text>
         </View>
     );
 }

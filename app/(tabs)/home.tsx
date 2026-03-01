@@ -60,7 +60,7 @@ export default function HomeScreen() {
       );
       return;
     }
-    router.push('/(tabs)/planning?scanner=1');
+    router.push('/(tabs)/garden?tab=planning&scanner=1');
   };
 
   return (

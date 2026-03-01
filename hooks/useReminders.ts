@@ -2,16 +2,34 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
+import { useNetworkStatus } from './useNetworkStatus';
+import { useQueryCache } from '../lib/queryCache';
 
 export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { deviceId } = useDeviceId();
-    const reminders = useQuery(api.reminders.getReminders, {
+    const { isKnown, isOffline } = useNetworkStatus();
+    const shouldBypassRemote = isKnown && isOffline;
+
+    const remoteReminders = useQuery(api.reminders.getReminders, {
         userPlantId,
         enabledOnly: false,
         deviceId,
     });
 
-    const todayReminders = useQuery(api.reminders.getTodayReminders, { deviceId });
+    const remoteTodayReminders = useQuery(api.reminders.getTodayReminders, { deviceId });
+
+    const remindersCacheKey = deviceId
+        ? `rf_reminders_v1_${deviceId}${userPlantId ? `_${userPlantId}` : ''}`
+        : null;
+    const todayCacheKey = deviceId ? `rf_reminders_today_v1_${deviceId}` : null;
+
+    const { cached: cachedReminders, cacheLoaded: remindersCacheLoaded } =
+        useQueryCache(remindersCacheKey, remoteReminders);
+    const { cached: cachedToday } =
+        useQueryCache(todayCacheKey, remoteTodayReminders);
+
+    const reminders = remoteReminders ?? cachedReminders;
+    const todayReminders = remoteTodayReminders ?? cachedToday;
 
     const createReminderMutation = useMutation(api.reminders.createReminder);
     const toggleReminderMutation = useMutation(api.reminders.toggleReminder);
@@ -64,9 +82,9 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     };
 
     return {
-        reminders: reminders ?? [],
-        todayReminders: todayReminders ?? [],
-        isLoading: reminders === undefined,
+        reminders: reminders ?? (shouldBypassRemote ? [] : []),
+        todayReminders: todayReminders ?? (shouldBypassRemote ? [] : []),
+        isLoading: reminders === undefined && !remindersCacheLoaded && !shouldBypassRemote,
         createReminder,
         toggleReminder,
         completeReminder,

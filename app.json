@@ -48,10 +48,7 @@
         "expo-build-properties",
         {
           "ios": {
-            "newArchEnabled": true
-          },
-          "android": {
-            "newArchEnabled": true
+            "deploymentTarget": "16.0"
           }
         }
       ],

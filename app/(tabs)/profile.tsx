@@ -14,6 +14,7 @@ import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { authClient, APP_SCHEME } from '../../lib/auth-client';
 import { useTheme } from '../../lib/theme';
+import { useThemeContext } from '../../lib/ThemeContext';
 import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
 
 /**
@@ -37,6 +38,7 @@ const LANGUAGES = [
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const { themePreference, setThemePreference: setGlobalTheme } = useThemeContext();
   const { user, updateProfile, isLoading, deviceId } = useAuth();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
@@ -50,7 +52,7 @@ export default function ProfileScreen() {
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(
     resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
-  const [themePreference, setThemePreference] = useState<string>(settings?.theme ?? 'system');
+  const [localThemePref, setLocalThemePref] = useState<string>(settings?.theme ?? 'system');
   const [saving, setSaving] = useState(false);
   const [backupCount, setBackupCount] = useState(0);
   const [backingUp, setBackingUp] = useState(false);
@@ -93,7 +95,9 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     setUnitSystem(resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
-    setThemePreference(settings?.theme ?? 'system');
+    // Note: themePreference local state is only used for the unit/save flow;
+    // the live theme is controlled by ThemeContext (already synced there).
+    setLocalThemePref(settings?.theme ?? 'system');
   }, [settings?.unitSystem, settings?.theme, currentLang]);
 
   useEffect(() => {
@@ -124,7 +128,7 @@ export default function ProfileScreen() {
         timezone: timezone.trim() || undefined,
       });
       await setUnitSystemPreference(unitSystem);
-      await updateSettings({ unitSystem, theme: themePreference });
+      await updateSettings({ unitSystem, theme: localThemePref });
     } finally {
       setSaving(false);
     }
@@ -670,7 +674,12 @@ export default function ProfileScreen() {
               return (
                 <TouchableOpacity
                   key={item.id}
-                  onPress={() => setThemePreference(item.id)}
+                  onPress={async () => {
+                    setLocalThemePref(item.id);
+                    setGlobalTheme(item.id as 'light' | 'dark' | 'system');
+                    // Auto-save theme immediately so it persists without needing Save
+                    await updateSettings({ theme: item.id });
+                  }}
                   style={{ flex: 1, paddingVertical: 12, borderRadius: 16, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border, alignItems: 'center', gap: 6 }}
                 >
                   <Icon size={18} color={active ? '#fff' : theme.textSecondary} />
