@@ -26,11 +26,12 @@ import {
     MapPin,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { plantI18nSeed, plantsMasterSeed } from '../../../convex/data/plantsMasterSeed';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePlants } from '../../../hooks/usePlants';
+import { useDeviceId } from '../../../lib/deviceId';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import {
     formatLengthCm,
@@ -315,7 +316,7 @@ export default function LibraryPlantDetailScreen() {
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const router = useRouter();
-    const { masterPlantId, mode, from, fromPlantId, bedId, x, y } = useLocalSearchParams<{
+    const { masterPlantId, mode, from, fromPlantId, bedId, x, y, scannedPhotoUri } = useLocalSearchParams<{
         masterPlantId: string;
         mode?: string;
         from?: string;
@@ -323,6 +324,7 @@ export default function LibraryPlantDetailScreen() {
         bedId?: string;
         x?: string;
         y?: string;
+        scannedPhotoUri?: string;
     }>();
 
     const resolvedId = Array.isArray(masterPlantId) ? masterPlantId[0] : masterPlantId;
@@ -347,6 +349,9 @@ export default function LibraryPlantDetailScreen() {
 
     const { favorites, toggleFavorite } = useFavorites();
     const { addPlant, updatePlant } = usePlants();
+    const { deviceId } = useDeviceId();
+    const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
+    const savePhoto = useMutation(api.storage.savePhoto);
 
     const masterPlant = useQuery(
         api.plantImages.getPlantById,
@@ -410,7 +415,12 @@ export default function LibraryPlantDetailScreen() {
     ];
 
     const showAdd = (modeParam === 'select' || modeParam === 'attach') && canMutateMaster;
-    const addLabel = fromParam === 'bed' ? t('bed.add_plant', { defaultValue: 'Add to garden' }) : undefined;
+    const addLabel =
+        fromParam === 'bed'
+            ? t('bed.add_plant', { defaultValue: 'Add to garden' })
+            : fromParam === 'scanner'
+                ? t('library.add_to_my_garden', { defaultValue: 'Add to My Garden' })
+                : undefined;
 
     const handleAdd = async () => {
         if (!currentPlant || !resolvedId || !canMutateMaster) return;
@@ -422,20 +432,47 @@ export default function LibraryPlantDetailScreen() {
                 ? { x: xValue, y: yValue, width: 1, height: 1 }
                 : undefined;
 
+        let addedPlantId: any = null;
         if (modeParam === 'attach' && fromPlantId) {
             await updatePlant(fromPlantId as any, { plantMasterId: resolvedId as any });
         } else if (fromParam === 'bed' && bedIdParam) {
-            await addPlant({ plantMasterId: resolvedId as any, bedId: bedIdParam as any, positionInBed });
+            addedPlantId = await addPlant({ plantMasterId: resolvedId as any, bedId: bedIdParam as any, positionInBed });
         } else {
-            await addPlant({ plantMasterId: resolvedId as any });
+            addedPlantId = await addPlant({ plantMasterId: resolvedId as any });
         }
 
-        if (router.canGoBack()) {
-            router.back();
-        } else if (fromParam === 'planning') {
+        const resolvedScannedUri = Array.isArray(scannedPhotoUri) ? scannedPhotoUri[0] : scannedPhotoUri;
+        if (fromParam === 'scanner' && addedPlantId && resolvedScannedUri) {
+            try {
+                const uploadUrl = await generateUploadUrl({ deviceId });
+                const response = await fetch(resolvedScannedUri);
+                const blob = await response.blob();
+                const uploadResponse = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': blob.type || 'application/octet-stream' },
+                    body: blob,
+                });
+                if (uploadResponse.ok) {
+                    const { storageId } = await uploadResponse.json();
+                    await savePhoto({
+                        deviceId,
+                        plantId: addedPlantId,
+                        storageId,
+                        capturedAt: Date.now(),
+                        source: 'scanner',
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to upload scanner photo:', error);
+            }
+        }
+
+        if (fromParam === 'scanner' || fromParam === 'planning') {
             router.replace('/(tabs)/garden?tab=planning');
         } else if (fromParam === 'bed' && bedIdParam) {
             router.replace(`/(tabs)/bed/${bedIdParam}`);
+        } else if (router.canGoBack()) {
+            router.back();
         }
     };
 

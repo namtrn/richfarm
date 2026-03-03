@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RichFarm Backend Dashboard</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f7fb;
+        --panel: #ffffff;
+        --border: #dfe5f0;
+        --text: #1b2430;
+        --muted: #5f6f86;
+        --accent: #247f4f;
+        --danger: #bc2131;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top right, #dff5e8 0%, var(--bg) 35%);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        border-right: 1px solid var(--border);
+        background: var(--panel);
+        padding: 20px;
+      }
+
+      .sidebar h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .sidebar p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .table-list {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .table-button {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: #f8fafd;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 10px 12px;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .table-button.active {
+        border-color: var(--accent);
+        background: #e8f6ee;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .panel {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+
+      .panel-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .panel-subtitle {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .button {
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .button.primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .button.danger {
+        background: #ffecee;
+        border-color: #ffd6dc;
+        color: var(--danger);
+      }
+
+      .button.secondary {
+        background: #f3f6fb;
+        border-color: var(--border);
+        color: var(--text);
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        font-size: 13px;
+        vertical-align: top;
+        padding: 10px 12px;
+      }
+
+      th {
+        background: #f9fbff;
+        position: sticky;
+        top: 0;
+      }
+
+      td pre {
+        margin: 0;
+        white-space: pre-wrap;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        padding: 3px 8px;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .toolbar input,
+      .toolbar select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 7px 9px;
+      }
+
+      .status {
+        margin-bottom: 12px;
+        color: var(--muted);
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(22, 27, 35, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .modal.open {
+        display: flex;
+      }
+
+      .modal-card {
+        width: min(740px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+        border-radius: 12px;
+        background: white;
+        border: 1px solid var(--border);
+      }
+
+      .modal-header,
+      .modal-footer {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-footer {
+        border-top: 1px solid var(--border);
+        border-bottom: 0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .form-grid {
+        padding: 16px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .form-field label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .form-field input,
+      .form-field textarea {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-family: inherit;
+        font-size: 13px;
+      }
+
+      .form-field textarea {
+        min-height: 72px;
+        resize: vertical;
+      }
+
+      .mono {
+        font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <h1>RichFarm DB</h1>
+        <p>Dashboard tự động map theo toàn bộ cột trong database.</p>
+        <div id="tableList" class="table-list"></div>
+      </aside>
+
+      <main class="content">
+        <div id="status" class="status">Loading tables...</div>
+        <section class="panel">
+          <header class="panel-header">
+            <div>
+              <h2 id="panelTitle" class="panel-title">No table selected</h2>
+              <p id="panelSubtitle" class="panel-subtitle">-</p>
+            </div>
+            <div class="toolbar">
+              <select id="sortColumn"></select>
+              <select id="sortDirection">
+                <option value="asc">asc</option>
+                <option value="desc">desc</option>
+              </select>
+              <button id="refreshBtn" class="button secondary">Refresh</button>
+              <button id="createBtn" class="button primary">Add row</button>
+            </div>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="editorModal" class="modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <strong id="modalTitle">Create row</strong>
+        </div>
+        <form id="editorForm">
+          <div id="formGrid" class="form-grid"></div>
+          <div class="modal-footer">
+            <button type="button" id="cancelBtn" class="button secondary">Cancel</button>
+            <button type="submit" class="button primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        tables: [],
+        activeTable: null,
+        rows: [],
+        sort: { column: null, direction: "asc" },
+        editingRow: null,
+      };
+
+      const statusEl = document.getElementById("status");
+      const tableListEl = document.getElementById("tableList");
+      const panelTitleEl = document.getElementById("panelTitle");
+      const panelSubtitleEl = document.getElementById("panelSubtitle");
+      const tableHeadEl = document.getElementById("tableHead");
+      const tableBodyEl = document.getElementById("tableBody");
+      const sortColumnEl = document.getElementById("sortColumn");
+      const sortDirectionEl = document.getElementById("sortDirection");
+
+      const modalEl = document.getElementById("editorModal");
+      const modalTitleEl = document.getElementById("modalTitle");
+      const formEl = document.getElementById("editorForm");
+      const formGridEl = document.getElementById("formGrid");
+
+      document.getElementById("refreshBtn").addEventListener("click", () => {
+        if (state.activeTable) {
+          loadRows(state.activeTable.name);
+        }
+      });
+
+      document.getElementById("createBtn").addEventListener("click", () => {
+        if (!state.activeTable) return;
+        openEditor(null);
+      });
+
+      document.getElementById("cancelBtn").addEventListener("click", closeEditor);
+      modalEl.addEventListener("click", (event) => {
+        if (event.target === modalEl) {
+          closeEditor();
+        }
+      });
+
+      sortColumnEl.addEventListener("change", () => {
+        state.sort.column = sortColumnEl.value;
+        if (state.activeTable) {
+          loadRows(state.activeTable.name);
+        }
+      });
+
+      sortDirectionEl.addEventListener("change", () => {
+        state.sort.direction = sortDirectionEl.value;
+        if (state.activeTable) {
+          loadRows(state.activeTable.name);
+        }
+      });
+
+      formEl.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!state.activeTable) return;
+
+        const payload = {};
+        for (const column of state.activeTable.columns) {
+          if (!shouldRenderField(column)) continue;
+          const field = formEl.elements.namedItem(column.name);
+          if (!field) continue;
+
+          const rawValue = field.value;
+          if (rawValue === "") {
+            payload[column.name] = null;
+            continue;
+          }
+
+          if (isNumericColumn(column)) {
+            payload[column.name] = Number(rawValue);
+            continue;
+          }
+
+          if (isJsonColumn(column)) {
+            try {
+              payload[column.name] = JSON.parse(rawValue);
+            } catch {
+              alert(`Column ${column.name} requires valid JSON`);
+              return;
+            }
+            continue;
+          }
+
+          payload[column.name] = rawValue;
+        }
+
+        const tableName = state.activeTable.name;
+        const isEditing = Boolean(state.editingRow);
+        const targetUrl = isEditing
+          ? `/api/tables/${encodeURIComponent(tableName)}/rows/${state.editingRow[state.activeTable.primaryKey]}`
+          : `/api/tables/${encodeURIComponent(tableName)}/rows`;
+
+        const response = await fetch(targetUrl, {
+          method: isEditing ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({ error: "Unknown error" }));
+          alert(data.error || "Request failed");
+          return;
+        }
+
+        closeEditor();
+        await loadRows(tableName);
+      });
+
+      function isNumericColumn(column) {
+        return /int|real|floa|doub|num|dec/i.test(column.type || "");
+      }
+
+      function isJsonColumn(column) {
+        return column.name.endsWith("_json") || /json/i.test(column.type || "");
+      }
+
+      function shouldRenderField(column) {
+        if (!column) return false;
+        if (column.primaryKeyOrder > 0 && state.editingRow === null) {
+          return false;
+        }
+        if (column.name === "created_at" || column.name === "updated_at") {
+          return false;
+        }
+        return true;
+      }
+
+      function formatCell(value) {
+        if (value === null || value === undefined) {
+          return '<span class="badge">NULL</span>';
+        }
+
+        if (typeof value === "object") {
+          return `<pre class="mono">${escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
+        }
+
+        const text = String(value);
+        return `<span class="mono">${escapeHtml(text)}</span>`;
+      }
+
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function openEditor(row) {
+        if (!state.activeTable) return;
+        state.editingRow = row;
+        modalTitleEl.textContent = row ? `Edit row: ${state.activeTable.name}` : `Create row: ${state.activeTable.name}`;
+        formGridEl.innerHTML = "";
+
+        for (const column of state.activeTable.columns) {
+          if (!shouldRenderField(column)) continue;
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "form-field";
+
+          const label = document.createElement("label");
+          label.textContent = `${column.name} (${column.type || "TEXT"})${column.notNull ? " *" : ""}`;
+
+          const isJson = isJsonColumn(column);
+          const input = isJson ? document.createElement("textarea") : document.createElement("input");
+          input.name = column.name;
+          input.placeholder = column.defaultValue || "";
+
+          const existingValue = row ? row[column.name] : null;
+          if (existingValue === null || existingValue === undefined) {
+            input.value = "";
+          } else if (typeof existingValue === "object") {
+            input.value = JSON.stringify(existingValue, null, 2);
+          } else {
+            input.value = String(existingValue);
+          }
+
+          if (!isJson && isNumericColumn(column)) {
+            input.type = "number";
+            input.step = column.type.toLowerCase().includes("int") ? "1" : "any";
+          }
+
+          wrapper.appendChild(label);
+          wrapper.appendChild(input);
+          formGridEl.appendChild(wrapper);
+        }
+
+        modalEl.classList.add("open");
+      }
+
+      function closeEditor() {
+        state.editingRow = null;
+        modalEl.classList.remove("open");
+      }
+
+      async function deleteRow(row) {
+        if (!state.activeTable || !state.activeTable.primaryKey) return;
+
+        const confirmDelete = confirm(
+          `Delete ${state.activeTable.name}.${state.activeTable.primaryKey}=${row[state.activeTable.primaryKey]}?`,
+        );
+        if (!confirmDelete) return;
+
+        const response = await fetch(
+          `/api/tables/${encodeURIComponent(state.activeTable.name)}/rows/${row[state.activeTable.primaryKey]}`,
+          { method: "DELETE" },
+        );
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({ error: "Unknown error" }));
+          alert(data.error || "Delete failed");
+          return;
+        }
+
+        await loadRows(state.activeTable.name);
+      }
+
+      function renderTableList() {
+        tableListEl.innerHTML = "";
+
+        for (const table of state.tables) {
+          const button = document.createElement("button");
+          button.className = "table-button" + (state.activeTable?.name === table.name ? " active" : "");
+          button.textContent = `${table.name} (${table.columns.length})`;
+          button.addEventListener("click", () => loadRows(table.name));
+          tableListEl.appendChild(button);
+        }
+      }
+
+      function renderSortControls() {
+        if (!state.activeTable) {
+          sortColumnEl.innerHTML = "";
+          return;
+        }
+
+        sortColumnEl.innerHTML = "";
+        for (const column of state.activeTable.columns) {
+          const option = document.createElement("option");
+          option.value = column.name;
+          option.textContent = column.name;
+          sortColumnEl.appendChild(option);
+        }
+
+        const defaultSort = state.sort.column || state.activeTable.primaryKey || state.activeTable.columns[0].name;
+        if (!state.activeTable.columns.find((column) => column.name === defaultSort)) {
+          state.sort.column = state.activeTable.columns[0].name;
+        }
+
+        sortColumnEl.value = state.sort.column || defaultSort;
+        sortDirectionEl.value = state.sort.direction;
+      }
+
+      function renderRows() {
+        if (!state.activeTable) {
+          tableHeadEl.innerHTML = "";
+          tableBodyEl.innerHTML = "";
+          return;
+        }
+
+        const headerColumns = [...state.activeTable.columns, { name: "actions", type: "", primaryKeyOrder: 0 }];
+        tableHeadEl.innerHTML = `<tr>${headerColumns
+          .map((column) => `<th>${escapeHtml(column.name)}</th>`)
+          .join("")}</tr>`;
+
+        tableBodyEl.innerHTML = "";
+
+        if (state.rows.length === 0) {
+          tableBodyEl.innerHTML = `<tr><td colspan="${headerColumns.length}">No rows found.</td></tr>`;
+          return;
+        }
+
+        for (const row of state.rows) {
+          const tr = document.createElement("tr");
+
+          for (const column of state.activeTable.columns) {
+            const td = document.createElement("td");
+            td.innerHTML = formatCell(row[column.name]);
+            tr.appendChild(td);
+          }
+
+          const actionTd = document.createElement("td");
+          const editButton = document.createElement("button");
+          editButton.textContent = "Edit";
+          editButton.className = "button secondary";
+          editButton.addEventListener("click", () => openEditor(row));
+
+          actionTd.appendChild(editButton);
+
+          if (state.activeTable.primaryKey) {
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.className = "button danger";
+            deleteButton.style.marginLeft = "8px";
+            deleteButton.addEventListener("click", () => deleteRow(row));
+            actionTd.appendChild(deleteButton);
+          }
+
+          tr.appendChild(actionTd);
+          tableBodyEl.appendChild(tr);
+        }
+      }
+
+      async function loadTables() {
+        statusEl.textContent = "Loading table metadata...";
+
+        const response = await fetch("/api/meta/tables");
+        if (!response.ok) {
+          statusEl.textContent = "Cannot load table metadata";
+          return;
+        }
+
+        const payload = await response.json();
+        state.tables = payload.data || [];
+        renderTableList();
+
+        if (state.tables.length === 0) {
+          statusEl.textContent = "No user tables found in database.";
+          return;
+        }
+
+        statusEl.textContent = `Loaded ${state.tables.length} table(s)`;
+        await loadRows(state.tables[0].name);
+      }
+
+      async function loadRows(tableName) {
+        const table = state.tables.find((item) => item.name === tableName);
+        if (!table) return;
+
+        state.activeTable = table;
+        renderTableList();
+        renderSortControls();
+
+        const sortColumn = state.sort.column || table.primaryKey || table.columns[0].name;
+        state.sort.column = sortColumn;
+
+        const params = new URLSearchParams({
+          limit: "100",
+          offset: "0",
+          sort: sortColumn,
+          direction: state.sort.direction,
+        });
+
+        statusEl.textContent = `Loading rows from ${table.name}...`;
+
+        const response = await fetch(`/api/tables/${encodeURIComponent(table.name)}/rows?${params.toString()}`);
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({ error: "Unknown error" }));
+          statusEl.textContent = error.error || "Failed to load rows";
+          return;
+        }
+
+        const payload = await response.json();
+        state.activeTable = payload.table;
+        state.rows = payload.data || [];
+
+        panelTitleEl.textContent = table.name;
+        panelSubtitleEl.textContent = `Rows: ${payload.pagination.total} | Columns: ${table.columns.length}`;
+        statusEl.textContent = `Showing ${state.rows.length} row(s) from ${table.name}`;
+
+        renderSortControls();
+        renderRows();
+      }
+
+      loadTables().catch((error) => {
+        statusEl.textContent = error.message || "Unexpected error";
+      });
+    </script>
+  </body>
+</html>

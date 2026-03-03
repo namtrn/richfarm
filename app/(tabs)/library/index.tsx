@@ -11,7 +11,8 @@ import {
     Pressable,
     Animated,
     LayoutChangeEvent,
-    Alert,
+    PanResponder,
+    StyleSheet,
 } from 'react-native';
 import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -23,11 +24,11 @@ import { api } from '../../../convex/_generated/api';
 import { usePlants } from '../../../hooks/usePlants';
 import { usePlantDisplayName } from '../../../hooks/usePlantLocalized';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
+import { usePlantScanner } from '../../../hooks/usePlantScanner';
 import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { matchesSearch } from '../../../lib/search';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePestsDiseases, PestDiseaseType } from '../../../hooks/usePestsDiseases';
-import { useAuth } from '../../../lib/auth';
 import { loadCachedCareContent, parseCareContent, saveCareContent, type PlantCareContent } from '../../../lib/plantCareCache';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
@@ -116,11 +117,48 @@ function PlantDetailModal({
         .map(({ key, titleKey }) => ({ key, title: t(titleKey), content: care?.[key] }))
         .filter((section) => section.content && ((section.content.items?.length ?? 0) > 0 || !!section.content.intro));
 
+    const pan = useRef(new Animated.ValueXY()).current;
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+            onPanResponderMove: (_, gestureState) => {
+                if (gestureState.dy > 0) {
+                    pan.setValue({ x: 0, y: gestureState.dy });
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+                    onClose();
+                    Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
+                } else {
+                    Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+                }
+            },
+        })
+    ).current;
+
+    useEffect(() => {
+        pan.setValue({ x: 0, y: 0 });
+    }, [plant._id, pan]);
+
     return (
         <Modal visible animationType="slide" transparent onRequestClose={onClose}>
             <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}>
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 48, maxHeight: '88%' }}>
-                    <View style={{ width: 36, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 20 }} />
+                <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+                <Animated.View
+                    {...panResponder.panHandlers}
+                    style={{
+                        backgroundColor: theme.card,
+                        borderTopLeftRadius: 32,
+                        borderTopRightRadius: 32,
+                        paddingHorizontal: 20,
+                        paddingTop: 12,
+                        paddingBottom: 48,
+                        maxHeight: '88%',
+                        transform: [{ translateY: pan.y }],
+                    }}
+                >
+                    <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
 
                     <ScrollView showsVerticalScrollIndicator={false}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
@@ -270,7 +308,7 @@ function PlantDetailModal({
                             </View>
                         )}
                     </ScrollView>
-                </View>
+                </Animated.View>
             </View>
         </Modal>
     );
@@ -410,11 +448,49 @@ function InfoSection({ title, items }: { title: string; items?: string[] }) {
 function PestDiseaseDetailModal({ item, onClose }: { item: any; onClose: () => void }) {
     const { t } = useTranslation();
     const theme = useTheme();
+
+    const pan = useRef(new Animated.ValueXY()).current;
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+            onPanResponderMove: (_, gestureState) => {
+                if (gestureState.dy > 0) {
+                    pan.setValue({ x: 0, y: gestureState.dy });
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+                    onClose();
+                    Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
+                } else {
+                    Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+                }
+            },
+        })
+    ).current;
+
+    useEffect(() => {
+        pan.setValue({ x: 0, y: 0 });
+    }, [item?._id, pan]);
+
     return (
         <Modal visible animationType="slide" transparent onRequestClose={onClose}>
             <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40, maxHeight: '85%' }}>
-                    <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
+                <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+                <Animated.View
+                    {...panResponder.panHandlers}
+                    style={{
+                        backgroundColor: theme.card,
+                        borderTopLeftRadius: 32,
+                        borderTopRightRadius: 32,
+                        paddingHorizontal: 20,
+                        paddingTop: 12,
+                        paddingBottom: 40,
+                        maxHeight: '85%',
+                        transform: [{ translateY: pan.y }],
+                    }}
+                >
+                    <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 16 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                         <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, flex: 1 }}>{item.name}</Text>
                         <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}>
@@ -430,7 +506,7 @@ function PestDiseaseDetailModal({ item, onClose }: { item: any; onClose: () => v
                         <InfoSection title={t('health.section_prevention')} items={item.prevention} />
                         <InfoSection title={t('health.section_plants')} items={item.plantsAffected} />
                     </ScrollView>
-                </View>
+                </Animated.View>
             </View>
         </Modal>
     );
@@ -542,7 +618,7 @@ export default function LibraryScreen() {
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const router = useRouter();
-    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { openScanner, scannerModals } = usePlantScanner();
     const params = useLocalSearchParams<{
         mode?: string;
         from?: string;
@@ -712,22 +788,6 @@ export default function LibraryScreen() {
                 ? t('library.search_pests')
                 : t('library.search_guides');
 
-    const handleOpenAiScanner = () => {
-        if (isAuthLoading) return;
-        if (!isAuthenticated) {
-            Alert.alert(
-                t('profile.auth_sign_in'),
-                t('planning.auth_warning'),
-                [
-                    { text: t('common.cancel'), style: 'cancel' },
-                    { text: t('profile.auth_sign_in'), onPress: () => router.push('/(tabs)/profile') },
-                ]
-            );
-            return;
-        }
-        router.push('/(tabs)/garden?tab=planning&scanner=1');
-    };
-
     const openPlantDetail = useCallback(
         (plant: any) => {
             const query = new URLSearchParams();
@@ -808,7 +868,7 @@ export default function LibraryScreen() {
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity
-                        onPress={handleOpenAiScanner}
+                        onPress={openScanner}
                         accessibilityLabel={t('planning.option_camera_title')}
                         testID="e2e-library-ai-scanner"
                         style={{
@@ -1020,6 +1080,7 @@ export default function LibraryScreen() {
                     <PestDiseaseDetailModal item={selectedPest} onClose={() => setSelectedPest(null)} />
                 )
             }
+            {scannerModals}
         </View >
     );
 }

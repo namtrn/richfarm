@@ -9,6 +9,7 @@ import {
   Image,
   Animated,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart } from 'lucide-react-native';
@@ -282,8 +283,31 @@ export default function PlantDetailScreen() {
 
   const handleStatus = async (status: string) => {
     if (!canEdit) return;
+    if (status === 'growing') {
+      if (beds.length === 0) {
+        Alert.alert(
+          t('plant.start_growing_requires_bed_title'),
+          t('plant.start_growing_requires_bed_desc'),
+          [
+            { text: t('common.cancel'), style: 'cancel' },
+            { text: t('plant.setup_bed_action'), onPress: () => router.push('/(tabs)/garden?tab=garden&create=1') },
+          ]
+        );
+        return;
+      }
+      if (!bedId) {
+        Alert.alert(
+          t('plant.start_growing_select_bed_title'),
+          t('plant.start_growing_select_bed_desc')
+        );
+        return;
+      }
+    }
     setSaving(true);
     try {
+      if (status === 'growing') {
+        await updatePlant(plant._id, { bedId });
+      }
       await updateStatus(plant._id, status);
     } finally {
       setSaving(false);

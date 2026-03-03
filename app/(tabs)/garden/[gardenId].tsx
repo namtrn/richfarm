@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,12 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
+  PanResponder,
+  Animated,
+  StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react-native';
+import { ArrowLeft, Plus, Pencil, Trash2, X } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQuery, useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
@@ -97,6 +100,32 @@ function BedFormModal({
     setError('');
   }, [bed, gardenLocationType, unitSystem]);
 
+  const pan = useRef(new Animated.ValueXY()).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          pan.setValue({ x: 0, y: gestureState.dy });
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+          onClose();
+          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
+        } else {
+          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+        }
+      },
+    })
+  ).current;
+
+  useEffect(() => {
+    if (visible) {
+      pan.setValue({ x: 0, y: 0 });
+    }
+  }, [visible, pan]);
+
   const parsedWidth = parseDistanceInput(width, unitSystem);
   const parsedLength = parseDistanceInput(length, unitSystem);
   const parsedDiameter = parseDistanceInput(diameter, unitSystem);
@@ -158,166 +187,185 @@ function BedFormModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={onClose} />
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}>
-        <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
-        <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, marginBottom: 16, letterSpacing: -0.5 }}>
-          {bed ? t('garden.bed_modal_edit_title') : t('garden.bed_modal_create_title')}
-        </Text>
-
-        <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.bed_name_label')}</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder={t('garden.bed_name_placeholder')}
-              placeholderTextColor={theme.textMuted}
-              testID="e2e-garden-bed-name-input"
-              maxLength={NAME_MAX}
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: nameTooLong ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-            />
-            {nameTooLong && (
-              <Text style={{ fontSize: 11, color: theme.danger }}>
-                {t('garden.error_name_length', { max: NAME_MAX })}
-              </Text>
-            )}
+      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <Animated.View
+          {...panResponder.panHandlers}
+          style={{
+            backgroundColor: theme.card,
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 40,
+            maxHeight: '85%',
+            transform: [{ translateY: pan.y }],
+          }}
+        >
+          <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+              {bed ? t('garden.bed_modal_edit_title') : t('garden.bed_modal_create_title')}
+            </Text>
+            <TouchableOpacity onPress={onClose} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <X size={20} stroke={theme.textSecondary} />
+            </TouchableOpacity>
           </View>
 
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.bed_type_label')}</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {BED_TYPES.map((typeKey) => {
-                const active = typeKey === bedType;
-                return (
-                  <TouchableOpacity
-                    key={typeKey}
-                    onPress={() => handleBedTypeChange(typeKey)}
-                    style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
-                  >
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
-                      {t(`garden.bed_type_${typeKey}`)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          {isRaised && (
+          <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
             <View style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label')}</Text>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.bed_name_label')}</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder={t('garden.bed_name_placeholder')}
+                placeholderTextColor={theme.textMuted}
+                testID="e2e-garden-bed-name-input"
+                maxLength={NAME_MAX}
+                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: nameTooLong ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+              />
+              {nameTooLong && (
+                <Text style={{ fontSize: 11, color: theme.danger }}>
+                  {t('garden.error_name_length', { max: NAME_MAX })}
+                </Text>
+              )}
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.bed_type_label')}</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                {[1, 2, 3].map((value) => {
-                  const active = value === tiers;
+                {BED_TYPES.map((typeKey) => {
+                  const active = typeKey === bedType;
                   return (
                     <TouchableOpacity
-                      key={value}
-                      onPress={() => setTiers(value)}
+                      key={typeKey}
+                      onPress={() => handleBedTypeChange(typeKey)}
                       style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                     >
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{value}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
+                        {t(`garden.bed_type_${typeKey}`)}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
             </View>
-          )}
 
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.location_label')}</Text>
-            <View style={{ backgroundColor: theme.accent, alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary }}>{gardenName}</Text>
-            </View>
-          </View>
+            {isRaised && (
+              <View style={{ gap: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('bed.tiers_label')}</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {[1, 2, 3].map((value) => {
+                    const active = value === tiers;
+                    return (
+                      <TouchableOpacity
+                        key={value}
+                        onPress={() => setTiers(value)}
+                        style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                      >
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{value}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
 
-          {isContainer ? (
             <View style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                {t('bed.diameter_label', { unit: getDistanceUnitLabel(unitSystem) })}
-              </Text>
-              <TextInput
-                value={diameter}
-                onChangeText={setDiameter}
-                placeholder={t('garden.dimension_placeholder')}
-                placeholderTextColor={theme.textMuted}
-                keyboardType="numeric"
-                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-              />
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.location_label')}</Text>
+              <View style={{ backgroundColor: theme.accent, alignSelf: 'flex-start', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary }}>{gardenName}</Text>
+              </View>
             </View>
-          ) : (
+
+            {isContainer ? (
+              <View style={{ gap: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                  {t('bed.diameter_label', { unit: getDistanceUnitLabel(unitSystem) })}
+                </Text>
+                <TextInput
+                  value={diameter}
+                  onChangeText={setDiameter}
+                  placeholder={t('garden.dimension_placeholder')}
+                  placeholderTextColor={theme.textMuted}
+                  keyboardType="numeric"
+                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                />
+              </View>
+            ) : (
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    {t('garden.width_label', { unit: getDistanceUnitLabel(unitSystem) })}
+                  </Text>
+                  <TextInput
+                    value={width}
+                    onChangeText={setWidth}
+                    placeholder={t('garden.dimension_placeholder')}
+                    placeholderTextColor={theme.textMuted}
+                    keyboardType="numeric"
+                    style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                  />
+                </View>
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    {t('garden.length_label', { unit: getDistanceUnitLabel(unitSystem) })}
+                  </Text>
+                  <TextInput
+                    value={length}
+                    onChangeText={setLength}
+                    placeholder={t('garden.dimension_placeholder')}
+                    placeholderTextColor={theme.textMuted}
+                    keyboardType="numeric"
+                    style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                  />
+                </View>
+              </View>
+            )}
+            {dimensionsInvalid && (
+              <Text style={{ fontSize: 11, color: theme.danger }}>{t('garden.error_dimensions')}</Text>
+            )}
+
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <View style={{ flex: 1, gap: 6 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {t('garden.width_label', { unit: getDistanceUnitLabel(unitSystem) })}
-                </Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.area_label', { unit: getAreaUnitLabel(unitSystem) })}</Text>
                 <TextInput
-                  value={width}
-                  onChangeText={setWidth}
-                  placeholder={t('garden.dimension_placeholder')}
+                  value={computedAreaM2 ? formatAreaValue(computedAreaM2, unitSystem) : ''}
+                  placeholder={t('garden.area_placeholder', { unit: getAreaUnitLabel(unitSystem) })}
                   placeholderTextColor={theme.textMuted}
                   keyboardType="numeric"
-                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                  editable={false}
+                  style={{ backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, opacity: 0.8 }}
                 />
               </View>
               <View style={{ flex: 1, gap: 6 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                  {t('garden.length_label', { unit: getDistanceUnitLabel(unitSystem) })}
-                </Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.soil_label')}</Text>
                 <TextInput
-                  value={length}
-                  onChangeText={setLength}
-                  placeholder={t('garden.dimension_placeholder')}
+                  value={soilType}
+                  onChangeText={setSoilType}
+                  placeholder={t('garden.soil_placeholder')}
                   placeholderTextColor={theme.textMuted}
-                  keyboardType="numeric"
-                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
               </View>
             </View>
+          </ScrollView>
+
+          {!!error && (
+            <Text style={{ fontSize: 12, color: theme.danger, marginTop: 4 }}>
+              {error}
+            </Text>
           )}
-          {dimensionsInvalid && (
-            <Text style={{ fontSize: 11, color: theme.danger }}>{t('garden.error_dimensions')}</Text>
-          )}
 
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1, gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.area_label', { unit: getAreaUnitLabel(unitSystem) })}</Text>
-              <TextInput
-                value={computedAreaM2 ? formatAreaValue(computedAreaM2, unitSystem) : ''}
-                placeholder={t('garden.area_placeholder', { unit: getAreaUnitLabel(unitSystem) })}
-                placeholderTextColor={theme.textMuted}
-                keyboardType="numeric"
-                editable={false}
-                style={{ backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, opacity: 0.8 }}
-              />
-            </View>
-            <View style={{ flex: 1, gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.soil_label')}</Text>
-              <TextInput
-                value={soilType}
-                onChangeText={setSoilType}
-                placeholder={t('garden.soil_placeholder')}
-                placeholderTextColor={theme.textMuted}
-                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-              />
-            </View>
-          </View>
-        </ScrollView>
-
-        {!!error && (
-          <Text style={{ fontSize: 12, color: theme.danger, marginTop: 4 }}>
-            {error}
-          </Text>
-        )}
-
-        <TouchableOpacity
-          disabled={saving || !name.trim() || dimensionsInvalid || nameTooLong}
-          onPress={handleSave}
-          testID="e2e-garden-bed-save"
-          style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || dimensionsInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
-        >
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.bed_save')}</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            disabled={saving || !name.trim() || dimensionsInvalid || nameTooLong}
+            onPress={handleSave}
+            testID="e2e-garden-bed-save"
+            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || dimensionsInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.bed_save')}</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -357,6 +405,32 @@ function GardenEditModal({
     setDescription(garden?.description ?? '');
   }, [garden, unitSystem]);
 
+  const pan = useRef(new Animated.ValueXY()).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          pan.setValue({ x: 0, y: gestureState.dy });
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+          onClose();
+          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
+        } else {
+          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+        }
+      },
+    })
+  ).current;
+
+  useEffect(() => {
+    if (visible) {
+      pan.setValue({ x: 0, y: 0 });
+    }
+  }, [visible, pan]);
+
   const parsedArea = parseAreaInput(area, unitSystem);
   const areaInvalid = area.trim() !== '' && parsedArea === undefined;
 
@@ -378,82 +452,101 @@ function GardenEditModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={onClose} />
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}>
-        <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
-        <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, marginBottom: 16, letterSpacing: -0.5 }}>{t('garden.edit_title')}</Text>
-
-        <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.name_label')}</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder={t('garden.name_placeholder')}
-              placeholderTextColor={theme.textMuted}
-              maxLength={NAME_MAX}
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: nameTooLong ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-            />
-            {nameTooLong && (
-              <Text style={{ fontSize: 11, color: theme.danger }}>
-                {t('garden.error_name_length', { max: NAME_MAX })}
-              </Text>
-            )}
-          </View>
-
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.location_label')}</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {LOCATION_TYPES.map((typeKey) => {
-                const active = typeKey === locationType;
-                return (
-                  <TouchableOpacity
-                    key={typeKey}
-                    onPress={() => setLocationType(typeKey)}
-                    style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
-                  >
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{t(`garden.location_${typeKey}`)}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.area_label', { unit: getAreaUnitLabel(unitSystem) })}</Text>
-            <TextInput
-              value={area}
-              onChangeText={setArea}
-              placeholder={t('garden.area_placeholder', { unit: getAreaUnitLabel(unitSystem) })}
-              placeholderTextColor={theme.textMuted}
-              keyboardType="numeric"
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: areaInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-            />
-            {areaInvalid && (
-              <Text style={{ fontSize: 11, color: theme.danger }}>{t('garden.error_area')}</Text>
-            )}
-          </View>
-
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.description_label')}</Text>
-            <TextInput
-              value={description}
-              onChangeText={setDescription}
-              placeholder={t('garden.description_placeholder')}
-              placeholderTextColor={theme.textMuted}
-              multiline
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, minHeight: 80, textAlignVertical: 'top' }}
-            />
-          </View>
-        </ScrollView>
-
-        <TouchableOpacity
-          disabled={saving || !name.trim() || areaInvalid || nameTooLong}
-          onPress={handleSave}
-          style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
+      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <Animated.View
+          {...panResponder.panHandlers}
+          style={{
+            backgroundColor: theme.card,
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 40,
+            maxHeight: '85%',
+            transform: [{ translateY: pan.y }],
+          }}
         >
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.save_garden')}</Text>
-        </TouchableOpacity>
+          <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('garden.edit_title')}</Text>
+            <TouchableOpacity onPress={onClose} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <X size={20} stroke={theme.textSecondary} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.name_label')}</Text>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder={t('garden.name_placeholder')}
+                placeholderTextColor={theme.textMuted}
+                maxLength={NAME_MAX}
+                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: nameTooLong ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+              />
+              {nameTooLong && (
+                <Text style={{ fontSize: 11, color: theme.danger }}>
+                  {t('garden.error_name_length', { max: NAME_MAX })}
+                </Text>
+              )}
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.location_label')}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {LOCATION_TYPES.map((typeKey) => {
+                  const active = typeKey === locationType;
+                  return (
+                    <TouchableOpacity
+                      key={typeKey}
+                      onPress={() => setLocationType(typeKey)}
+                      style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{t(`garden.location_${typeKey}`)}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.area_label', { unit: getAreaUnitLabel(unitSystem) })}</Text>
+              <TextInput
+                value={area}
+                onChangeText={setArea}
+                placeholder={t('garden.area_placeholder', { unit: getAreaUnitLabel(unitSystem) })}
+                placeholderTextColor={theme.textMuted}
+                keyboardType="numeric"
+                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: areaInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+              />
+              {areaInvalid && (
+                <Text style={{ fontSize: 11, color: theme.danger }}>{t('garden.error_area')}</Text>
+              )}
+            </View>
+
+            <View style={{ gap: 6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.description_label')}</Text>
+              <TextInput
+                value={description}
+                onChangeText={setDescription}
+                placeholder={t('garden.description_placeholder')}
+                placeholderTextColor={theme.textMuted}
+                multiline
+                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, minHeight: 80, textAlignVertical: 'top' }}
+              />
+            </View>
+          </ScrollView>
+
+          <TouchableOpacity
+            disabled={saving || !name.trim() || areaInvalid || nameTooLong}
+            onPress={handleSave}
+            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.save_garden')}</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
     </Modal>
   );

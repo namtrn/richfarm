@@ -5,11 +5,16 @@ All notable changes to the **Richfarm** project will be documented in this file.
 ## [2026-03-03]
 - [2026-03-03-daily-report.md](./docs/reports/2026-03-03-daily-report.md)
 - **Features**:
+  - **AI Plant Scanner**: Introduced plant identification using Plant.id and Google Vision fallback, with multilingual support.
+  - **Expanded Garden Locations**: Added more indoor/outdoor site options (e.g., Balcony, Rooftop, Greenhouse) with horizontal scrolling.
+  - **Bottom Sheet Gestures**: Implemented swipe-down-to-close and click-outside-to-dismiss for all major modals.
   - Relaxed authentication requirements for adding gardens, beds, and plants. Guests can now use these features anonymously.
   - Implemented automatic anonymous session initialization via `deviceId` in `app/_layout.tsx`.
   - Implement offline caching system for major data entities.
   - New theming system with consistent UI and Dark Mode support.
   - Introduced Liquid Glass navigation bar.
+- **Localization**:
+  - Updated English and Vietnamese translations for new locations and interactive features.
 - **Refactor**:
   - Unified state management for better performance.
 

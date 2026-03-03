@@ -481,8 +481,8 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const gardens = gardensQuery ?? [];
     const isSetupLoading = gardensQuery === undefined || isBedsLoading;
     const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
-    const canCreatePlant = canEdit && hasGardenOrBed;
-    const isSetupRequired = canEdit && !isSetupLoading && !hasGardenOrBed;
+    const canCreatePlant = canEdit;
+    const isSetupRequired = false;
     const isPremium = isPremiumActive(user);
     const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
@@ -656,12 +656,12 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                 setAiSessionActive(false);
                 setAiLimitError('');
                 router.push({
-                    pathname: '/(tabs)/library',
+                    pathname: '/(tabs)/library/[masterPlantId]',
                     params: {
-                        q: detected,
-                        tab: 'plants',
-                        aiMatchId: String(matchedPlant._id),
-                        aiFrom: 'scan',
+                        masterPlantId: String(matchedPlant._id),
+                        mode: 'select',
+                        from: 'scanner',
+                        scannedPhotoUri: photoUri ?? undefined,
                     },
                 });
                 return;
@@ -767,39 +767,54 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
 
             {/* Add plant sheet */}
             <Modal visible={sheetOpen} transparent animationType="slide" onRequestClose={() => setSheetOpen(false)}>
-                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setSheetOpen(false)} />
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
-                    <View style={{ width: 36, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 4 }} />
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{t('planning.modal_title')}</Text>
-                    <TouchableOpacity disabled={!canCreatePlant} onPress={() => { setSheetOpen(false); router.push('/(tabs)/library?mode=select&from=planning'); }} testID="e2e-planning-option-library" style={{ backgroundColor: theme.accent, borderRadius: 14, padding: 16, opacity: !canCreatePlant ? 0.5 : 1 }}>
-                        <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{t('planning.option_library_title')}</Text>
-                        <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }}>{t('planning.option_library_desc')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity disabled={!canCreatePlant} onPress={handleCapture} testID="e2e-planning-option-camera" style={{ backgroundColor: theme.accent, borderRadius: 14, padding: 16, opacity: !canCreatePlant ? 0.5 : 1 }}>
-                        <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{t('planning.option_camera_title')}</Text>
-                        <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }}>{t('planning.option_camera_desc')}</Text>
-                    </TouchableOpacity>
+                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setSheetOpen(false)} />
+                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 20 }}>
+                    <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
+                    <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.modal_title')}</Text>
+
+                    <View style={{ gap: 12 }}>
+                        <TouchableOpacity
+                            disabled={!canCreatePlant}
+                            onPress={() => { setSheetOpen(false); router.push('/(tabs)/library?mode=select&from=planning'); }}
+                            testID="e2e-planning-option-library"
+                            style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
+                        >
+                            <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>{t('planning.option_library_title')}</Text>
+                            <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_library_desc')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            disabled={!canCreatePlant}
+                            onPress={handleCapture}
+                            testID="e2e-planning-option-camera"
+                            style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
+                        >
+                            <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>{t('planning.option_camera_title')}</Text>
+                            <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_camera_desc')}</Text>
+                        </TouchableOpacity>
+                    </View>
                     {!!aiLimitError && (
                         <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
                             <Text style={{ color: theme.danger, fontSize: 12 }}>{aiLimitError}</Text>
                         </View>
                     )}
-                    <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('planning.quick_input_label')}</Text>
-                    <TextInput
-                        style={{ backgroundColor: theme.accent, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: theme.text, borderWidth: 1, borderColor: theme.border }}
-                        placeholder={t('planning.quick_input_placeholder')}
-                        placeholderTextColor={theme.textMuted}
-                        value={nickname}
-                        onChangeText={setNickname}
-                        testID="e2e-planning-quick-input"
-                    />
+                    <View style={{ gap: 8, marginTop: 4 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.quick_input_label')}</Text>
+                        <TextInput
+                            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                            placeholder={t('planning.quick_input_placeholder')}
+                            placeholderTextColor={theme.textMuted}
+                            value={nickname}
+                            onChangeText={setNickname}
+                            testID="e2e-planning-quick-input"
+                        />
+                    </View>
                     <TouchableOpacity
                         disabled={!canCreatePlant || !nickname.trim() || saving}
                         onPress={handleAddPlant}
                         testID="e2e-planning-confirm-add"
-                        style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 14, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.5 : 1 }}
+                        style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.6 : 1, marginTop: 8 }}
                     >
-                        {saving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15, letterSpacing: 0.2 }}>{t('planning.add_confirm')}</Text>}
+                        {saving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' }}>{t('planning.add_confirm')}</Text>}
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -1092,7 +1107,7 @@ function GrowingTabContent() {
 export default function GardenScreen() {
     const { t } = useTranslation();
     const theme = useTheme();
-    const params = useLocalSearchParams<{ tab?: string | string[]; scanner?: string | string[] }>();
+    const params = useLocalSearchParams<{ tab?: string | string[]; scanner?: string | string[]; create?: string | string[] }>();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
@@ -1149,6 +1164,17 @@ export default function GardenScreen() {
             setActiveTab(tabParam);
         }
     }, [params.tab]);
+
+    useEffect(() => {
+        const createParam = Array.isArray(params.create) ? params.create[0] : params.create;
+        if (createParam !== '1') return;
+        setActiveTab('garden');
+        if (canCreateGarden) {
+            setShowCreate(true);
+        } else {
+            setGardenLimitError(t('garden.error_limit_free'));
+        }
+    }, [params.create, canCreateGarden, t]);
 
     useEffect(() => {
         const scannerParam = Array.isArray(params.scanner) ? params.scanner[0] : params.scanner;

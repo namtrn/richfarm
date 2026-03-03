@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import { Bell, Droplets, Scissors, Sprout, ChevronRight, ScanSearch } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useReminders } from '../../hooks/useReminders';
 import { usePlants } from '../../hooks/usePlants';
+import { usePlantScanner } from '../../hooks/usePlantScanner';
 import { WeatherCard } from '../../components/ui/WeatherCard';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useAuth } from '../../lib/auth';
-import { palette, useTheme } from '../../lib/theme';
+import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
 
 const REMINDER_ICONS: Record<string, any> = {
@@ -32,11 +33,12 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { user } = useAuth();
   const { isDark } = useThemeContext();
   const { todayReminders, isLoading } = useReminders();
   const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
+  const { openScanner, scannerModals } = usePlantScanner();
 
   const displayName = user?.name || t('home.welcome_default');
   const initials = displayName
@@ -75,22 +77,6 @@ export default function HomeScreen() {
 
   const upcoming = sortedToday.slice(0, 6);
   const overdueCount = sortedToday.filter((r) => r.nextRunAt < Date.now()).length;
-  const handleOpenAiScanner = () => {
-    if (isAuthLoading) return;
-    if (!isAuthenticated) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.auth_warning'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          { text: t('profile.auth_sign_in'), onPress: () => router.push('/(tabs)/profile') },
-        ]
-      );
-      return;
-    }
-    router.push('/(tabs)/garden?tab=planning&scanner=1');
-  };
-
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
       {/* Welcome header */}
@@ -119,7 +105,7 @@ export default function HomeScreen() {
         </View>
         <View style={{ alignItems: 'center', gap: 3 }}>
           <TouchableOpacity
-            onPress={handleOpenAiScanner}
+            onPress={openScanner}
             accessibilityLabel={t('planning.option_camera_title')}
             testID="e2e-home-ai-scanner"
             style={{
@@ -229,6 +215,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+
+      {scannerModals}
     </ScrollView>
   );
 }
