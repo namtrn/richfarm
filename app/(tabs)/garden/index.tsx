@@ -12,9 +12,11 @@ import {
     Pressable,
     Image,
     Alert,
+    StyleSheet,
+    PanResponder,
 } from 'react-native';
-import { Fence, Plus, X, Calendar, Sprout, Leaf, ChevronRight } from 'lucide-react-native';
-import { useQuery, useMutation } from 'convex/react';
+import { Plus, Sprout, Leaf, Camera, Image as ImageIcon, X, Trash2, ArrowRight, BookOpen, Fence, Calendar, ChevronRight } from 'lucide-react-native';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -171,7 +173,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
     const [name, setName] = useState('');
     const [width, setWidth] = useState('');
     const [length, setLength] = useState('');
-    const [locationType, setLocationType] = useState<'outdoor' | 'greenhouse' | 'balcony' | 'indoor'>('outdoor');
+    const [locationType, setLocationType] = useState<string>('outdoor');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -200,21 +202,81 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
         } finally { setLoading(false); }
     };
 
-    const LOCATION_TYPES = [
+    const OUTDOOR_OPTIONS = [
         { key: 'outdoor', label: t('garden.location_outdoor') },
-        { key: 'greenhouse', label: t('garden.location_greenhouse') },
+        { key: 'frontyard', label: t('garden.location_frontyard') },
+        { key: 'backyard', label: t('garden.location_backyard') },
+        { key: 'garden_bed', label: t('garden.location_garden_bed') },
+        { key: 'vegetable_bed', label: t('garden.location_vegetable_bed') },
+        { key: 'flower_bed', label: t('garden.location_flower_bed') },
+        { key: 'patio', label: t('garden.location_patio') },
+        { key: 'porch', label: t('garden.location_porch') },
+        { key: 'terrace', label: t('garden.location_terrace') },
         { key: 'balcony', label: t('garden.location_balcony') },
-        { key: 'indoor', label: t('garden.location_indoor') },
+        { key: 'greenhouse', label: t('garden.location_greenhouse') },
     ];
+
+    const INDOOR_OPTIONS = [
+        { key: 'indoor', label: t('garden.location_indoor') },
+        { key: 'living_room', label: t('garden.location_living_room') },
+        { key: 'bedroom', label: t('garden.location_bedroom') },
+        { key: 'kitchen', label: t('garden.location_kitchen') },
+        { key: 'office', label: t('garden.location_office') },
+        { key: 'bathroom', label: t('garden.location_bathroom') },
+        { key: 'hall', label: t('garden.location_hall') },
+    ];
+
+    const pan = useRef(new Animated.ValueXY()).current;
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+            onPanResponderMove: (_, gestureState) => {
+                if (gestureState.dy > 0) {
+                    pan.setValue({ x: 0, y: gestureState.dy });
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+                    onClose();
+                    Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
+                } else {
+                    Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
+                }
+            },
+        })
+    ).current;
+
+    useEffect(() => {
+        if (visible) {
+            pan.setValue({ x: 0, y: 0 });
+        }
+    }, [visible, pan]);
 
     return (
         <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
             <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 }}>
-                    <View style={{ width: 36, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 20 }} />
+                <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+                <Animated.View
+                    {...panResponder.panHandlers}
+                    style={{
+                        backgroundColor: theme.card,
+                        borderTopLeftRadius: 32,
+                        borderTopRightRadius: 32,
+                        paddingHorizontal: 20,
+                        paddingTop: 12,
+                        paddingBottom: 40,
+                        transform: [{ translateY: pan.y }],
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: -4 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 12,
+                        elevation: 5,
+                    }}
+                >
+                    <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                        <Text style={{ fontSize: 20, fontWeight: '700', color: theme.text }}>{t('garden.create_title')}</Text>
-                        <TouchableOpacity onPress={onClose} testID="e2e-garden-create-close" style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('garden.create_title')}</Text>
+                        <TouchableOpacity onPress={onClose} testID="e2e-garden-create-close" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
                             <X size={20} stroke={theme.textSecondary} />
                         </TouchableOpacity>
                     </View>
@@ -231,20 +293,50 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                     />
 
                     <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textAccent, marginBottom: 8 }}>{t('garden.location_label')}</Text>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
-                        {LOCATION_TYPES.map((option) => {
+
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 }}>
+                        {t('garden.location_outdoor_sites')}
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 8, paddingBottom: 16, paddingHorizontal: 4 }}
+                    >
+                        {OUTDOOR_OPTIONS.map((option) => {
                             const active = locationType === option.key;
                             return (
                                 <TouchableOpacity
                                     key={option.key}
-                                    onPress={() => setLocationType(option.key as any)}
-                                    style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                                    onPress={() => setLocationType(option.key)}
+                                    style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                                 >
                                     <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : theme.textAccent }}>{option.label}</Text>
                                 </TouchableOpacity>
                             );
                         })}
-                    </View>
+                    </ScrollView>
+
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', marginBottom: 8, marginLeft: 4 }}>
+                        {t('garden.location_indoor_sites')}
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 8, paddingBottom: 20, paddingHorizontal: 4 }}
+                    >
+                        {INDOOR_OPTIONS.map((option) => {
+                            const active = locationType === option.key;
+                            return (
+                                <TouchableOpacity
+                                    key={option.key}
+                                    onPress={() => setLocationType(option.key)}
+                                    style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                                >
+                                    <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : theme.textAccent }}>{option.label}</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
 
                     <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textAccent, marginBottom: 8 }}>{t('garden.size_label')}</Text>
                     <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
@@ -293,7 +385,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                             : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{t('garden.create_action')}</Text>
                         }
                     </TouchableOpacity>
-                </View>
+                </Animated.View>
             </View>
         </Modal>
     );
@@ -454,6 +546,34 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         setDetectedName(t('planning.unknown_plant'));
         setDetectNoMatch(false);
         setPhotoOpen(true);
+
+        // Auto trigger detection
+        if (result.assets[0].base64) {
+            void runDetection(result.assets[0].base64);
+        }
+    };
+
+    const detectPlantAction = useAction((api as any).plantScan.detectPlant);
+    const [detectionResults, setDetectionResults] = useState<{
+        match: any;
+        alternatives: any[];
+    } | null>(null);
+    const [isDetecting, setIsDetecting] = useState(false);
+
+    const runDetection = async (base64: string) => {
+        setIsDetecting(true);
+        setDetectionResults(null);
+        try {
+            const res = await detectPlantAction({ images: [base64], locale: i18n.language });
+            setDetectionResults(res as any);
+            if (res.match) {
+                setDetectedName(res.match.name);
+            }
+        } catch (err) {
+            console.error('Detection failed:', err);
+        } finally {
+            setIsDetecting(false);
+        }
     };
 
     const handleCaptureFromCamera = async () => {
@@ -477,7 +597,11 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
             return;
         }
         try {
-            const result = await ImagePicker.launchCameraAsync({ quality: 0.7, allowsEditing: true });
+            const result = await ImagePicker.launchCameraAsync({
+                quality: 0.7,
+                allowsEditing: true,
+                base64: true,
+            });
             await applyPickedImage(result);
         } catch (error) {
             const message = error instanceof Error ? error.message : '';
@@ -507,6 +631,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
             quality: 0.7,
             allowsEditing: true,
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            base64: true,
         });
         await applyPickedImage(result);
     };
@@ -702,8 +827,70 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                 <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
                     <View style={{ width: 36, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 4 }} />
                     <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{t('planning.detect_title')}</Text>
-                    {photoUri && <Image source={{ uri: photoUri }} style={{ width: '100%', height: 180, borderRadius: 16 }} resizeMode="cover" />}
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('planning.detect_hint')}</Text>
+                    {photoUri && (
+                        <View style={{ position: 'relative' }}>
+                            <Image source={{ uri: photoUri }} style={{ width: '100%', height: 200, borderRadius: 16 }} resizeMode="cover" />
+                            {isDetecting && (
+                                <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}>
+                                    <ActivityIndicator size="large" color="#fff" />
+                                </View>
+                            )}
+                        </View>
+                    )}
+
+                    {/* AI Suggestions UI */}
+                    {detectionResults ? (
+                        <View style={{ gap: 12 }}>
+                            {detectionResults.match ? (
+                                <View style={{ backgroundColor: theme.primary + '10', borderRadius: 16, padding: 12, borderWidth: 1, borderColor: theme.primary + '30' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.primary, textTransform: 'uppercase' }}>{t('planning.top_match') || 'Top Match'}</Text>
+                                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.primary }}>{Math.round(detectionResults.match.probability * 100)}%</Text>
+                                    </View>
+                                    <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text, marginTop: 4 }}>{detectionResults.match.name}</Text>
+                                    {detectionResults.match.common_names?.[0] && (
+                                        <Text style={{ fontSize: 13, color: theme.textSecondary }}>{detectionResults.match.common_names[0]}</Text>
+                                    )}
+                                    {detectionResults.match.plantMasterId && (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, paddingVertical: 6, borderTopWidth: 1, borderTopColor: theme.primary + '20' }}>
+                                            <BookOpen size={14} stroke={theme.primary} />
+                                            <Text style={{ fontSize: 12, fontWeight: '600', color: theme.primary }}>{t('planning.linked_to_library') || 'Linked to Library'}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                            ) : (
+                                <Text style={{ textAlign: 'center', color: theme.textSecondary }}>{t('planning.no_match_found') || 'No match found'}</Text>
+                            )}
+
+                            {detectionResults.alternatives.length > 0 && (
+                                <View style={{ gap: 8 }}>
+                                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase' }}>{t('planning.similar_plants') || 'Similar Plants'}</Text>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+                                        {detectionResults.alternatives.map((alt: any, idx: number) => (
+                                            <TouchableOpacity
+                                                key={idx}
+                                                onPress={() => {
+                                                    setDetectedName(alt.name);
+                                                    setDetectionResults({ ...detectionResults, match: alt, alternatives: detectionResults.alternatives.filter((_, i) => i !== idx).concat(detectionResults.match ? [detectionResults.match] : []) });
+                                                }}
+                                                style={{ width: 140, backgroundColor: theme.accent, borderRadius: 12, padding: 10, borderWidth: 1, borderColor: theme.border }}
+                                            >
+                                                {alt.image_url && <Image source={{ uri: alt.image_url }} style={{ width: '100%', height: 80, borderRadius: 8, marginBottom: 6 }} />}
+                                                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.text }} numberOfLines={1}>{alt.name}</Text>
+                                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Text style={{ fontSize: 11, color: theme.textSecondary }}>{Math.round(alt.probability * 100)}% Match</Text>
+                                                    {alt.plantMasterId && <BookOpen size={12} stroke={theme.primary} />}
+                                                </View>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                            )}
+                        </View>
+                    ) : !isDetecting && (
+                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('planning.detect_hint')}</Text>
+                    )}
+
                     <TextInput
                         style={{ backgroundColor: theme.accent, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: theme.text, borderWidth: 1, borderColor: theme.border }}
                         placeholder={t('planning.detect_name_placeholder')}
@@ -742,10 +929,10 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                         </View>
                     )}
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <TouchableOpacity disabled={!canCreatePlant} onPress={canCreatePlant ? handleCapture : undefined} style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !canCreatePlant ? 0.5 : 1 }}>
+                        <TouchableOpacity disabled={!canCreatePlant || isDetecting} onPress={canCreatePlant ? handleCapture : undefined} style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canCreatePlant || isDetecting) ? 0.5 : 1 }}>
                             <Text style={{ color: theme.textAccent, fontWeight: '600' }}>{t('planning.detect_retake')}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity disabled={!canCreatePlant || photoSaving} onPress={handleSavePhotoPlant} style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canCreatePlant || photoSaving) ? 0.5 : 1 }}>
+                        <TouchableOpacity disabled={!canCreatePlant || photoSaving || isDetecting} onPress={handleSavePhotoPlant} style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canCreatePlant || photoSaving || isDetecting) ? 0.5 : 1 }}>
                             {photoSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '700' }}>{t('planning.detect_save')}</Text>}
                         </TouchableOpacity>
                     </View>
