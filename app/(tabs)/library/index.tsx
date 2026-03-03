@@ -1048,6 +1048,8 @@ export default function LibraryScreen() {
                             router.replace('/(tabs)/garden?tab=planning');
                         } else if (fromParam === 'bed' && bedIdParam) {
                             router.replace(`/(tabs)/bed/${bedIdParam}`);
+                        } else if (fromParam === 'garden' || fromParam === 'gardener') {
+                            router.replace('/(tabs)/garden');
                         } else if (fromParam === 'plant') {
                             if (router.canGoBack()) {
                                 router.back();

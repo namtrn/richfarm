@@ -25,6 +25,7 @@ import { useTheme } from '../../lib/theme';
 import { useAuth } from '../../lib/auth';
 import { api } from '../../convex/_generated/api';
 import { saveOnboardingData } from '../../lib/onboardingLocalData';
+import { deriveAppModeFromOnboarding } from '../../lib/appMode';
 import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
@@ -242,6 +243,7 @@ export default function FarmSetupScreen() {
       await upsertUserSettings({
         deviceId: deviceId ?? undefined,
         onboarding: saved,
+        appMode: deriveAppModeFromOnboarding(saved),
       });
     }
   };

@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { palette, useTheme } from '../../lib/theme';
+import { useAppMode } from '../../hooks/useAppMode';
 
 // expo-blur requires a native rebuild — guard against Expo Go where the native
 // module hasn't been compiled in yet.
@@ -123,6 +124,8 @@ export default function TabLayout() {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const { bottom: safeBottom } = useSafeAreaInsets();
+  const { appMode } = useAppMode();
+  const isGardener = appMode === 'gardener';
 
 
   const isDark = theme.background === palette.dark.background;
@@ -187,7 +190,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="garden/index"
         options={{
-          title: t('tabs.garden'),
+          title: isGardener ? t('tabs.my_plants') : t('tabs.garden'),
           tabBarButtonTestID: 'e2e-tab-garden',
           tabBarIcon: ({ color }) => <Fence size={22} stroke={color} />,
         }}

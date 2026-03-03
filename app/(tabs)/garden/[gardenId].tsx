@@ -26,6 +26,7 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { useTheme } from '../../../lib/theme';
 import { useAuth } from '../../../lib/auth';
 import { isPremiumActive } from '../../../lib/access';
+import { useAppMode } from '../../../hooks/useAppMode';
 
 const LOCATION_TYPES = ['outdoor', 'indoor', 'greenhouse', 'balcony'] as const;
 const BED_TYPES = ['in_ground', 'raised', 'container', 'no_dig'] as const;
@@ -556,11 +557,18 @@ export default function GardenDetailScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const { appMode } = useAppMode();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { gardenId } = useLocalSearchParams<{ gardenId: string }>();
   const resolvedGardenId = Array.isArray(gardenId) ? gardenId[0] : gardenId;
   const { deviceId } = useDeviceId();
   const unitSystem = useUnitSystem();
+
+  useEffect(() => {
+    if (appMode === 'gardener') {
+      router.replace('/(tabs)/garden');
+    }
+  }, [appMode, router]);
 
   const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
   const garden = useMemo(

@@ -3,6 +3,7 @@ import { api } from '../convex/_generated/api';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
+import { deriveAppModeFromOnboarding, normalizeAppMode, type AppMode } from '../lib/appMode';
 
 export function useUserSettings() {
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
@@ -24,13 +25,14 @@ export function useUserSettings() {
 
     const upsert = useMutation(api.userSettings.upsertUserSettings);
 
-    const updateSettings = async (args: { unitSystem?: string; theme?: string }) => {
+    const updateSettings = async (args: { unitSystem?: string; theme?: string; appMode?: AppMode }) => {
         return await upsert({ ...args, deviceId });
     };
 
     return {
         settings,
         updateSettings,
+        appMode: normalizeAppMode(settings?.appMode) ?? deriveAppModeFromOnboarding(settings?.onboarding),
         isLoading: isDeviceLoading || (settings === undefined && !cacheLoaded),
     };
 }

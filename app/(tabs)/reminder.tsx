@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useUnitSystem } from '../../hooks/useUnitSystem';
 import { formatVolume, formatVolumeValue, getVolumeUnitLabel, parseVolumeInput } from '../../lib/units';
 import { useTheme } from '../../lib/theme';
+import { useAppMode } from '../../hooks/useAppMode';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -184,6 +185,7 @@ function ReminderFormModal({
   plants,
   beds,
   canEdit,
+  isGardener,
   onClose,
   onSave,
 }: {
@@ -192,6 +194,7 @@ function ReminderFormModal({
   plants: any[];
   beds: any[];
   canEdit: boolean;
+  isGardener: boolean;
   onClose: () => void;
   onSave: (payload: {
     reminderId?: string;
@@ -221,6 +224,11 @@ function ReminderFormModal({
     return match?.[1] ?? '';
   });
   const [target, setTarget] = useState<'none' | 'plant' | 'bed'>(() => {
+    if (isGardener) {
+      if (reminder?.bedId) return 'bed';
+      if (reminder?.userPlantId) return 'plant';
+      return 'plant';
+    }
     if (reminder?.userPlantId) return 'plant';
     if (reminder?.bedId) return 'bed';
     return 'none';
@@ -247,6 +255,11 @@ function ReminderFormModal({
       return match?.[1] ?? '';
     });
     setTarget(() => {
+      if (isGardener) {
+        if (reminder?.bedId) return 'bed';
+        if (reminder?.userPlantId) return 'plant';
+        return 'plant';
+      }
       if (reminder?.userPlantId) return 'plant';
       if (reminder?.bedId) return 'bed';
       return 'none';
@@ -257,7 +270,7 @@ function ReminderFormModal({
     setDateError('');
     setTimeError('');
     setWaterAmount(reminder?.waterLiters ? formatVolumeValue(reminder.waterLiters, unitSystem) : '');
-  }, [reminder, unitSystem]);
+  }, [reminder, unitSystem, isGardener]);
 
   const pan = useRef(new Animated.ValueXY()).current;
   const panResponder = useRef(
@@ -427,14 +440,36 @@ function ReminderFormModal({
 
             <View style={{ gap: 6 }}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('reminder.form_repeat_label')}</Text>
-              <TextInput
-                value={repeatDays}
-                onChangeText={setRepeatDays}
-                placeholder={t('reminder.form_repeat_placeholder')}
-                placeholderTextColor={theme.textMuted}
-                keyboardType="numeric"
-                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-              />
+              {isGardener ? (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {[
+                    { key: '', label: t('reminder.preset_once') },
+                    { key: '1', label: t('reminder.preset_daily') },
+                    { key: '2', label: t('reminder.preset_every_2_days') },
+                    { key: '7', label: t('reminder.preset_weekly') },
+                  ].map((preset) => {
+                    const active = repeatDays === preset.key;
+                    return (
+                      <TouchableOpacity
+                        key={preset.key || 'once'}
+                        onPress={() => setRepeatDays(preset.key)}
+                        style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                      >
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{preset.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ) : (
+                <TextInput
+                  value={repeatDays}
+                  onChangeText={setRepeatDays}
+                  placeholder={t('reminder.form_repeat_placeholder')}
+                  placeholderTextColor={theme.textMuted}
+                  keyboardType="numeric"
+                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                />
+              )}
             </View>
 
             {type === 'watering' && (
@@ -456,20 +491,22 @@ function ReminderFormModal({
 
             <View style={{ gap: 6 }}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('reminder.form_target_label')}</Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
-                {['none', 'plant', 'bed'].map((key) => {
-                  const active = target === key;
-                  return (
-                    <TouchableOpacity
-                      key={key}
-                      onPress={() => setTarget(key as any)}
-                      style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
-                    >
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{t(`reminder.target_${key}`)}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+              {!isGardener && (
+                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
+                  {['none', 'plant', 'bed'].map((key) => {
+                    const active = target === key;
+                    return (
+                      <TouchableOpacity
+                        key={key}
+                        onPress={() => setTarget(key as any)}
+                        style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                      >
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{t(`reminder.target_${key}`)}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
 
               {target === 'plant' && (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -488,7 +525,7 @@ function ReminderFormModal({
                 </View>
               )}
 
-              {target === 'bed' && (
+              {!isGardener && target === 'bed' && (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {beds.map((b) => {
                     const active = selectedBed === b._id;
@@ -535,6 +572,8 @@ export default function ReminderScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const unitSystem = useUnitSystem();
+  const { appMode } = useAppMode();
+  const isGardener = appMode === 'gardener';
   const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder } = useReminders();
   const { plants } = usePlants();
   const { beds } = useBeds();
@@ -546,6 +585,17 @@ export default function ReminderScreen() {
 
   const plantMap = useMemo(() => new Map(plants.map((p) => [p._id, p])), [plants]);
   const bedMap = useMemo(() => new Map(beds.map((b) => [b._id, b])), [beds]);
+  const plantsByBed = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const plant of plants) {
+      if (!plant?.bedId) continue;
+      const key = String(plant.bedId);
+      const list = map.get(key) ?? [];
+      list.push(plant);
+      map.set(key, list);
+    }
+    return map;
+  }, [plants]);
 
   const sortedReminders = useMemo(() => {
     return [...reminders].sort((a, b) => a.nextRunAt - b.nextRunAt);
@@ -613,6 +663,31 @@ export default function ReminderScreen() {
       return t('reminder.auto_desc_watering_growing');
     }
     return description;
+  };
+
+  const buildBedLabelForGardener = (bedId: string) => {
+    const plantsInBed = plantsByBed.get(String(bedId)) ?? [];
+    const names = plantsInBed
+      .map((p) => p.displayName ?? p.scientificName)
+      .filter(Boolean) as string[];
+    if (names.length === 0) return t('reminder.target_bed_empty');
+    if (names.length <= 2) return names.join(', ');
+    return `${names.slice(0, 2).join(', ')} +${names.length - 2}`;
+  };
+
+  const getTargetLabel = (reminder: any) => {
+    if (reminder.userPlantId) {
+      return plantMap.get(reminder.userPlantId)?.displayName
+        ?? plantMap.get(reminder.userPlantId)?.scientificName
+        ?? t('reminder.target_plant');
+    }
+    if (reminder.bedId) {
+      if (isGardener) {
+        return buildBedLabelForGardener(reminder.bedId);
+      }
+      return bedMap.get(reminder.bedId)?.name ?? t('reminder.target_bed');
+    }
+    return t('reminder.target_none');
   };
 
   const handleSave = async (payload: any) => {
@@ -747,11 +822,7 @@ export default function ReminderScreen() {
                 month: '2-digit',
               });
               const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
-              const targetLabel = r.userPlantId
-                ? plantMap.get(r.userPlantId)?.displayName ?? plantMap.get(r.userPlantId)?.scientificName ?? t('reminder.target_plant')
-                : r.bedId
-                  ? bedMap.get(r.bedId)?.name ?? t('reminder.target_bed')
-                  : t('reminder.target_none');
+              const targetLabel = getTargetLabel(r);
               const stage = getStage(r);
               const stageLabel = stage === 'planning'
                 ? t('garden.tab_planning')
@@ -849,11 +920,7 @@ export default function ReminderScreen() {
                 })
                 : '—';
               const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
-              const targetLabel = r.userPlantId
-                ? plantMap.get(r.userPlantId)?.displayName ?? plantMap.get(r.userPlantId)?.scientificName ?? t('reminder.target_plant')
-                : r.bedId
-                  ? bedMap.get(r.bedId)?.name ?? t('reminder.target_bed')
-                  : t('reminder.target_none');
+              const targetLabel = getTargetLabel(r);
               const statusLabel = r.lastRunAt
                 ? t('reminder.status_completed')
                 : t('reminder.status_scheduled');
@@ -904,6 +971,7 @@ export default function ReminderScreen() {
         plants={plants}
         beds={beds}
         canEdit={canEdit}
+        isGardener={isGardener}
         onClose={() => setFormOpen(false)}
         onSave={handleSave}
       />

@@ -13,6 +13,37 @@ type ExpoPushMessage = {
     data?: Record<string, unknown>;
 };
 
+type AppMode = "farmer" | "gardener";
+
+function deriveAppModeFromOnboarding(onboarding: {
+    goals?: string[];
+    scaleEnvironment?: string[];
+    experience?: string;
+} | undefined): AppMode {
+    if (!onboarding) return "farmer";
+    const farmGoals = ["food", "business", "offgrid"];
+    const hasFarmGoal = (onboarding.goals ?? []).some((g) => farmGoals.includes(g));
+    const isExperienced = ["intermediate", "experienced"].includes(onboarding.experience ?? "");
+    const isLargeScale = (onboarding.scaleEnvironment ?? []).some((s) =>
+        ["mini_farm", "large_farm", "greenhouse"].includes(s)
+    );
+    if (hasFarmGoal || isLargeScale || isExperienced) return "farmer";
+    return "gardener";
+}
+
+function resolveAppMode(settings?: { appMode?: string; onboarding?: any }): AppMode {
+    if (settings?.appMode === "farmer" || settings?.appMode === "gardener") {
+        return settings.appMode;
+    }
+    return deriveAppModeFromOnboarding(settings?.onboarding);
+}
+
+function buildBedCountLabel(count: number) {
+    if (!count) return "No plants";
+    if (count === 1) return "1 plant";
+    return `${count} plants`;
+}
+
 function chunk<T>(items: T[], size: number): T[][] {
     const chunks: T[][] = [];
     for (let i = 0; i < items.length; i += size) {
@@ -108,6 +139,31 @@ export const sendDueReminders = internalMutation({
 
         for (const reminders of remindersByUser.values()) {
             const userId = reminders[0].userId;
+            const settings = await ctx.db
+                .query("userSettings")
+                .withIndex("by_user", (q) => q.eq("userId", userId))
+                .unique();
+            const appMode = resolveAppMode(settings ?? undefined);
+
+            let bedPlantCounts = new Map<string, number>();
+            if (appMode === "gardener") {
+                const bedIds = Array.from(
+                    new Set(reminders.map((r) => r.bedId).filter(Boolean).map((id) => String(id)))
+                );
+                if (bedIds.length > 0) {
+                    const entries = await Promise.all(
+                        bedIds.map(async (bedId) => {
+                            const plants = await ctx.db
+                                .query("userPlants")
+                                .withIndex("by_bed", (q) => q.eq("bedId", bedId as any))
+                                .collect();
+                            return [bedId, plants.length] as const;
+                        })
+                    );
+                    bedPlantCounts = new Map(entries);
+                }
+            }
+
             const tokens = await ctx.db
                 .query("deviceTokens")
                 .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -120,12 +176,17 @@ export const sendDueReminders = internalMutation({
             const tokenRefs: any[] = [];
 
             for (const reminder of reminders) {
+                let body = reminder.description ?? "Reminder due";
+                if (appMode === "gardener" && reminder.bedId) {
+                    const count = bedPlantCounts.get(String(reminder.bedId)) ?? 0;
+                    body = buildBedCountLabel(count);
+                }
                 for (const token of activeTokens) {
                     messages.push({
                         to: token.token,
                         sound: "default",
                         title: reminder.title,
-                        body: reminder.description ?? "Reminder due",
+                        body,
                         data: {
                             reminderId: reminder._id,
                             userPlantId: reminder.userPlantId,

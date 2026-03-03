@@ -6,6 +6,7 @@ import { useAuth } from '../lib/auth';
 import { api } from '../convex/_generated/api';
 import { loadOnboardingData, saveOnboardingData, type OnboardingData } from '../lib/onboardingLocalData';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { deriveAppModeFromOnboarding } from '../lib/appMode';
 
 export default function StartScreen() {
   const router = useRouter();
@@ -59,6 +60,7 @@ export default function StartScreen() {
         await upsertUserSettings({
           deviceId: deviceId ?? undefined,
           onboarding: saved,
+          appMode: deriveAppModeFromOnboarding(saved),
         });
       } catch {
         syncAttemptedRef.current = false;

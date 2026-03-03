@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState, type ReactNode } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
     View,
     Text,
@@ -19,6 +19,7 @@ import { matchesSearch } from '../../lib/search';
 import { useTheme } from '../../lib/theme';
 import type { ThemeColors } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
+import { useAppMode } from '../../hooks/useAppMode';
 
 const RESULT_LIMIT = 4;
 
@@ -108,12 +109,19 @@ export default function ExplorerScreen() {
     const router = useRouter();
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const { appMode } = useAppMode();
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const [query, setQuery] = useState('');
     const deferredQuery = useDeferredValue(query);
 
     const { plants: libraryPlants, isLoading: isLibraryLoading } = usePlantLibrary(locale);
     const { plants: userPlants, isLoading: isUserPlantsLoading } = usePlants();
+
+    useEffect(() => {
+        if (appMode === 'gardener') {
+            router.replace('/(tabs)/garden');
+        }
+    }, [appMode, router]);
 
     const pestsDiseases = useQuery(api.pestsDiseases.list, {});
     const healthItems = pestsDiseases ?? [];

@@ -480,6 +480,7 @@ export default defineSchema({
     userId: v.id("users"),
 
     // App preferences
+    appMode: v.optional(v.string()), // "farmer" | "gardener"
     theme: v.optional(v.string()), // "light", "dark", "system"
     defaultView: v.optional(v.string()), // "list", "grid", "calendar"
 

@@ -1,4 +1,4 @@
-﻿import { useMemo } from 'react';
+﻿import { useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Sprout, Leaf, Fence } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
@@ -11,17 +11,25 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
 import { useTheme } from '../../lib/theme';
+import { useAppMode } from '../../hooks/useAppMode';
 
 export default function GrowingScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const { appMode } = useAppMode();
   const { plants, isLoading, updateStatus } = usePlants();
   const { beds } = useBeds();
   const { deviceId } = useDeviceId();
   const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const canEdit = !isAuthLoading && isAuthenticated;
+
+  useEffect(() => {
+    if (appMode === 'gardener') {
+      router.replace('/(tabs)/garden');
+    }
+  }, [appMode, router]);
 
   const activePlants = useMemo(
     () => plants.filter((p) => p.status === 'growing'),

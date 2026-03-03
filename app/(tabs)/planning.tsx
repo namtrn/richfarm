@@ -17,10 +17,12 @@ import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } 
 import { usePlantLibrary } from '../../hooks/usePlantLibrary';
 
 import { useTheme } from '../../lib/theme';
+import { useAppMode } from '../../hooks/useAppMode';
 
 export default function PlanningScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
+  const { appMode } = useAppMode();
   const { plants, isLoading, addPlant } = usePlants();
   const { beds, isLoading: isBedsLoading } = useBeds();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -38,6 +40,12 @@ export default function PlanningScreen() {
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
+
+  useEffect(() => {
+    if (appMode === 'gardener') {
+      router.replace('/(tabs)/garden');
+    }
+  }, [appMode, router]);
   const [photoSaving, setPhotoSaving] = useState(false);
   const [aiLimitError, setAiLimitError] = useState('');
   const [aiSessionActive, setAiSessionActive] = useState(false);

@@ -17,6 +17,8 @@ import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
 import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
 import { usePathname, useRouter } from 'expo-router';
+import { useAppMode } from '../../hooks/useAppMode';
+import { type AppMode } from '../../lib/appMode';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -36,6 +38,7 @@ export default function ProfileScreen() {
   const { user, updateProfile, isLoading, deviceId } = useAuth();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
+  const { appMode, switchMode, isLoading: isAppModeLoading } = useAppMode();
   const { isPremium, isConfigured: isSubConfigured, isLoading: isSubLoading, restorePurchases } = useSubscription();
   const { presentPaywall, isPresenting } = usePaywall();
   const deleteAccountMutation = useMutation((api as any).users.deleteAccount);
@@ -58,6 +61,7 @@ export default function ProfileScreen() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
+  const [switchingMode, setSwitchingMode] = useState(false);
 
   const email = user?.email ?? '—';
   const isAnonymous = !user || user.isAnonymous;
@@ -205,6 +209,29 @@ export default function ProfileScreen() {
     if (result.status === 'error') {
       setPaywallMessage(result.errorMessage ?? t('profile.sub_paywall_error'));
     }
+  };
+
+  const handleSwitchMode = (nextMode: AppMode) => {
+    if (nextMode === appMode) return;
+    const modeLabel = nextMode === 'gardener' ? t('profile.mode_gardener') : t('profile.mode_farmer');
+    Alert.alert(
+      t('profile.switch_mode_title', { mode: modeLabel }),
+      t('profile.switch_mode_desc'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.confirm'),
+          onPress: async () => {
+            setSwitchingMode(true);
+            try {
+              await switchMode(nextMode);
+            } finally {
+              setSwitchingMode(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleRestorePurchases = async () => {
@@ -426,6 +453,42 @@ export default function ProfileScreen() {
                   <Icon size={18} color={active ? '#fff' : theme.textSecondary} />
                   <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
                     {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View>
+              <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.app_mode')}</Text>
+              <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
+                {appMode === 'gardener' ? t('profile.mode_gardener_desc') : t('profile.mode_farmer_desc')}
+              </Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {(['gardener', 'farmer'] as AppMode[]).map((mode) => {
+              const active = mode === appMode;
+              return (
+                <TouchableOpacity
+                  key={mode}
+                  onPress={() => handleSwitchMode(mode)}
+                  disabled={switchingMode || isAppModeLoading}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 16,
+                    backgroundColor: active ? theme.primary : theme.accent,
+                    borderWidth: 1,
+                    borderColor: active ? theme.primary : theme.border,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
+                    {mode === 'gardener' ? t('profile.mode_gardener') : t('profile.mode_farmer')}
                   </Text>
                 </TouchableOpacity>
               );

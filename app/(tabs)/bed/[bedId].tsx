@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions, Modal, TextInput, Pressable, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Search, X, Sprout, Leaf } from 'lucide-react-native';
@@ -14,6 +14,7 @@ import { formatAreaValue, formatDistanceValue, getAreaUnitLabel, getDistanceUnit
 import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary';
 import { PlantImage } from '../../../components/ui/PlantImage';
 import { matchesSearch } from '../../../lib/search';
+import { useAppMode } from '../../../hooks/useAppMode';
 
 const BED_LAYOUTS: Record<string, { cols: number; rows: number; borderRadius: number; borderWidth: number; borderStyle?: 'solid' | 'dashed'; mask?: 'circle' }> = {
   in_ground: { cols: 8, rows: 6, borderRadius: 12, borderWidth: 1 },
@@ -44,11 +45,18 @@ export default function BedDetailScreen() {
   const currentLocale = (i18n.language ?? 'en').split('-')[0].toLowerCase();
   const theme = useTheme();
   const router = useRouter();
+  const { appMode } = useAppMode();
   const { bedId } = useLocalSearchParams<{ bedId: string }>();
   const resolvedBedId = Array.isArray(bedId) ? bedId[0] : bedId;
   const { width } = useWindowDimensions();
   const unitSystem = useUnitSystem();
   const { deviceId } = useDeviceId();
+
+  useEffect(() => {
+    if (appMode === 'gardener') {
+      router.replace('/(tabs)/garden');
+    }
+  }, [appMode, router]);
 
   // Adjust state
   const [adjustOpen, setAdjustOpen] = useState(false);

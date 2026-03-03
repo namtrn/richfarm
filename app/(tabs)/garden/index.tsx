@@ -40,6 +40,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { usePlantLibrary } from '../../../hooks/usePlantLibrary';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
+import { useAppMode } from '../../../hooks/useAppMode';
+import { GardenerMyPlantsView } from './GardenerMyPlantsView';
 
 type GardenTab = 'garden' | 'planning' | 'growing';
 const NAME_MAX = 40;
@@ -1107,6 +1109,8 @@ function GrowingTabContent() {
 export default function GardenScreen() {
     const { t } = useTranslation();
     const theme = useTheme();
+    const { appMode } = useAppMode();
+    const isGardener = appMode === 'gardener';
     const params = useLocalSearchParams<{ tab?: string | string[]; scanner?: string | string[]; create?: string | string[] }>();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -1121,6 +1125,10 @@ export default function GardenScreen() {
     const [gardenLimitError, setGardenLimitError] = useState('');
     const scannerHandledRef = useRef(false);
     const unitSystem = useUnitSystem();
+
+    if (isGardener) {
+        return <GardenerMyPlantsView />;
+    }
 
     const TABS = [
         { key: 'garden', label: t('garden.tab_garden') },
