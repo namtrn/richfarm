@@ -3,9 +3,12 @@ import path from "path";
 
 import cors from "cors";
 import express from "express";
+import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { ZodError } from "zod";
 
+import { createAuthRouter, requireAuth, requireRole, type AuthConfig } from "./auth";
+import type { ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
 import { createGenericDataRouter } from "./generic-data";
 import { createMasterPlantsRouter, handleMasterPlantsError } from "./master-plants";
@@ -20,7 +23,12 @@ function resolveDashboardDirectory(): string | null {
   return candidateDirectories.find((directory) => fs.existsSync(directory)) ?? null;
 }
 
-export function createApp(db: SqliteDatabase) {
+interface CreateAppOptions {
+  auth: AuthConfig;
+  syncService?: ConvexSyncService;
+}
+
+export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   const app = express();
 
   app.use(
@@ -30,6 +38,15 @@ export function createApp(db: SqliteDatabase) {
   );
   app.use(cors());
   app.use(express.json({ limit: "1mb" }));
+  app.use(
+    "/api/auth/login",
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 25,
+      standardHeaders: true,
+      legacyHeaders: false,
+    }),
+  );
 
   app.get("/api/health", (_req, res) => {
     res.json({
@@ -38,8 +55,15 @@ export function createApp(db: SqliteDatabase) {
     });
   });
 
-  app.use("/api/master-plants", createMasterPlantsRouter(db));
-  app.use("/api", createGenericDataRouter(db));
+  app.use("/api/auth", createAuthRouter(db, options.auth));
+
+  app.use("/api/master-plants", requireAuth(options.auth), createMasterPlantsRouter(db, options.syncService));
+  app.use(
+    "/api",
+    requireAuth(options.auth),
+    requireRole(["admin", "editor"]),
+    createGenericDataRouter(db),
+  );
 
   const dashboardDirectory = resolveDashboardDirectory();
   if (dashboardDirectory) {

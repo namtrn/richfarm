@@ -279,6 +279,9 @@
       <aside class="sidebar">
         <h1>RichFarm DB</h1>
         <p>Dashboard tự động map theo toàn bộ cột trong database.</p>
+        <div id="authStatus" class="status" style="margin-top: 12px">Not logged in</div>
+        <button id="loginBtn" class="button primary" style="margin-top: 8px">Login</button>
+        <button id="logoutBtn" class="button secondary" style="margin-top: 8px">Logout</button>
         <div id="tableList" class="table-list"></div>
       </aside>
 
@@ -325,6 +328,27 @@
       </div>
     </div>
 
+    <div id="loginModal" class="modal">
+      <div class="modal-card" style="width: min(420px, 100%)">
+        <div class="modal-header"><strong>Login Dashboard</strong></div>
+        <form id="loginForm">
+          <div class="form-grid" style="grid-template-columns: 1fr">
+            <div class="form-field">
+              <label>Email</label>
+              <input id="loginEmail" name="email" type="email" required />
+            </div>
+            <div class="form-field">
+              <label>Password</label>
+              <input id="loginPassword" name="password" type="password" required />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="button primary">Sign in</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       const state = {
         tables: [],
@@ -332,6 +356,8 @@
         rows: [],
         sort: { column: null, direction: "asc" },
         editingRow: null,
+        token: localStorage.getItem("rf_dashboard_token") || "",
+        user: null,
       };
 
       const statusEl = document.getElementById("status");
@@ -347,6 +373,9 @@
       const modalTitleEl = document.getElementById("modalTitle");
       const formEl = document.getElementById("editorForm");
       const formGridEl = document.getElementById("formGrid");
+      const authStatusEl = document.getElementById("authStatus");
+      const loginModalEl = document.getElementById("loginModal");
+      const loginFormEl = document.getElementById("loginForm");
 
       document.getElementById("refreshBtn").addEventListener("click", () => {
         if (state.activeTable) {
@@ -360,9 +389,16 @@
       });
 
       document.getElementById("cancelBtn").addEventListener("click", closeEditor);
+      document.getElementById("loginBtn").addEventListener("click", openLoginModal);
+      document.getElementById("logoutBtn").addEventListener("click", logout);
       modalEl.addEventListener("click", (event) => {
         if (event.target === modalEl) {
           closeEditor();
+        }
+      });
+      loginModalEl.addEventListener("click", (event) => {
+        if (event.target === loginModalEl) {
+          openLoginModal();
         }
       });
 
@@ -420,7 +456,7 @@
           ? `/api/tables/${encodeURIComponent(tableName)}/rows/${state.editingRow[state.activeTable.primaryKey]}`
           : `/api/tables/${encodeURIComponent(tableName)}/rows`;
 
-        const response = await fetch(targetUrl, {
+        const response = await apiFetch(targetUrl, {
           method: isEditing ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -532,7 +568,7 @@
         );
         if (!confirmDelete) return;
 
-        const response = await fetch(
+        const response = await apiFetch(
           `/api/tables/${encodeURIComponent(state.activeTable.name)}/rows/${row[state.activeTable.primaryKey]}`,
           { method: "DELETE" },
         );
@@ -634,9 +670,9 @@
       async function loadTables() {
         statusEl.textContent = "Loading table metadata...";
 
-        const response = await fetch("/api/meta/tables");
+        const response = await apiFetch("/api/meta/tables");
         if (!response.ok) {
-          statusEl.textContent = "Cannot load table metadata";
+          statusEl.textContent = response.status === 401 ? "Please login first" : "Cannot load table metadata";
           return;
         }
 
@@ -673,7 +709,7 @@
 
         statusEl.textContent = `Loading rows from ${table.name}...`;
 
-        const response = await fetch(`/api/tables/${encodeURIComponent(table.name)}/rows?${params.toString()}`);
+        const response = await apiFetch(`/api/tables/${encodeURIComponent(table.name)}/rows?${params.toString()}`);
         if (!response.ok) {
           const error = await response.json().catch(() => ({ error: "Unknown error" }));
           statusEl.textContent = error.error || "Failed to load rows";
@@ -692,9 +728,88 @@
         renderRows();
       }
 
-      loadTables().catch((error) => {
+      async function init() {
+        updateAuthStatus();
+        if (!state.token) {
+          openLoginModal();
+          return;
+        }
+
+        const me = await apiFetch("/api/auth/me");
+        if (!me.ok) {
+          openLoginModal();
+          return;
+        }
+        const mePayload = await me.json();
+        state.user = mePayload.user;
+        updateAuthStatus();
+        await loadTables();
+      }
+
+      init().catch((error) => {
         statusEl.textContent = error.message || "Unexpected error";
       });
     </script>
   </body>
 </html>
+      loginFormEl.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          alert("Login failed");
+          return;
+        }
+
+        const payload = await response.json();
+        state.token = payload.token;
+        state.user = payload.user;
+        localStorage.setItem("rf_dashboard_token", state.token);
+        updateAuthStatus();
+        loginModalEl.classList.remove("open");
+        await loadTables();
+      });
+
+      async function apiFetch(url, options = {}) {
+        const headers = { ...(options.headers || {}) };
+        if (state.token) {
+          headers.Authorization = `Bearer ${state.token}`;
+        }
+
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+          state.token = "";
+          state.user = null;
+          localStorage.removeItem("rf_dashboard_token");
+          updateAuthStatus();
+          openLoginModal();
+        }
+        return response;
+      }
+
+      function openLoginModal() {
+        loginModalEl.classList.add("open");
+      }
+
+      function logout() {
+        state.token = "";
+        state.user = null;
+        localStorage.removeItem("rf_dashboard_token");
+        updateAuthStatus();
+        state.tables = [];
+        state.activeTable = null;
+        state.rows = [];
+        renderTableList();
+        renderRows();
+        openLoginModal();
+      }
+
+      function updateAuthStatus() {
+        authStatusEl.textContent = state.user ? `Logged in: ${state.user.email}` : "Not logged in";
+      }

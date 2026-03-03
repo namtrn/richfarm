@@ -2,6 +2,7 @@ import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { ZodError, z } from "zod";
 
+import type { ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
 
 const growthStageSchema = z.enum(["seedling", "vegetative", "flowering", "harvest"]);
@@ -126,7 +127,7 @@ function toSqliteBoolean(value: boolean): 0 | 1 {
   return value ? 1 : 0;
 }
 
-export function createMasterPlantsRouter(db: SqliteDatabase): Router {
+export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: ConvexSyncService): Router {
   const router = Router();
 
   router.get("/", (req: Request, res: Response, next: NextFunction) => {
@@ -191,7 +192,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase): Router {
     }
   });
 
-  router.post("/", (req: Request, res: Response, next: NextFunction) => {
+  router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const payload = createMasterPlantSchema.parse(req.body);
 
@@ -231,13 +232,17 @@ export function createMasterPlantsRouter(db: SqliteDatabase): Router {
         | MasterPlantRow
         | undefined;
 
+      if (row && syncService) {
+        await syncService.syncUpsert(normalizeMasterPlant(row));
+      }
+
       res.status(201).json({ data: row ? normalizeMasterPlant(row) : null });
     } catch (error) {
       next(error);
     }
   });
 
-  router.patch("/:id", (req: Request, res: Response, next: NextFunction) => {
+  router.patch("/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = z.coerce.number().int().positive().parse(req.params.id);
       const payload = updateMasterPlantSchema.parse(req.body);
@@ -289,13 +294,16 @@ export function createMasterPlantsRouter(db: SqliteDatabase): Router {
       );
 
       const updatedRow = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow;
+      if (syncService) {
+        await syncService.syncUpsert(normalizeMasterPlant(updatedRow));
+      }
       res.json({ data: normalizeMasterPlant(updatedRow) });
     } catch (error) {
       next(error);
     }
   });
 
-  router.delete("/:id", (req: Request, res: Response, next: NextFunction) => {
+  router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = z.coerce.number().int().positive().parse(req.params.id);
       const result = db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(id);
@@ -303,6 +311,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase): Router {
       if (result.changes === 0) {
         res.status(404).json({ error: "Master plant not found" });
         return;
+      }
+
+      if (syncService) {
+        await syncService.syncDelete(id);
       }
 
       res.status(204).send();

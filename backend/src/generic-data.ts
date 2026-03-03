@@ -134,6 +134,18 @@ function getTableOrThrow(db: SqliteDatabase, tableName: string): TableMetadata {
   return table;
 }
 
+function getSingleParam(value: string | string[] | undefined, name: string): string {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value) && value.length > 0) {
+    return value[0];
+  }
+
+  throw new Error(`Missing route param '${name}'`);
+}
+
 function sanitizePayload(payload: unknown, table: TableMetadata) {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw new Error("Request body must be an object");
@@ -166,7 +178,8 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
 
   router.get("/tables/:tableName/rows", (req: Request, res: Response, next: NextFunction) => {
     try {
-      const table = getTableOrThrow(db, req.params.tableName);
+      const tableName = getSingleParam(req.params.tableName, "tableName");
+      const table = getTableOrThrow(db, tableName);
       const query = listRowsQuerySchema.parse(req.query);
       const sortColumn = query.sort ?? table.primaryKey ?? table.columns[0].name;
 
@@ -202,7 +215,8 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
 
   router.post("/tables/:tableName/rows", (req: Request, res: Response, next: NextFunction) => {
     try {
-      const table = getTableOrThrow(db, req.params.tableName);
+      const tableName = getSingleParam(req.params.tableName, "tableName");
+      const table = getTableOrThrow(db, tableName);
       const primaryKey = getPrimaryKey(table);
       const entries = sanitizePayload(req.body, table);
 
@@ -245,7 +259,8 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
 
   router.patch("/tables/:tableName/rows/:id", (req: Request, res: Response, next: NextFunction) => {
     try {
-      const table = getTableOrThrow(db, req.params.tableName);
+      const tableName = getSingleParam(req.params.tableName, "tableName");
+      const table = getTableOrThrow(db, tableName);
       const primaryKey = getPrimaryKey(table);
 
       if (!primaryKey) {
@@ -253,7 +268,7 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
         return;
       }
 
-      const rowId = parsePrimaryKeyFromParam(req.params.id, primaryKey);
+      const rowId = parsePrimaryKeyFromParam(getSingleParam(req.params.id, "id"), primaryKey);
       const entries = sanitizePayload(req.body, table).filter(([key]) => key !== primaryKey.name);
 
       if (entries.length === 0) {
@@ -296,7 +311,8 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
 
   router.delete("/tables/:tableName/rows/:id", (req: Request, res: Response, next: NextFunction) => {
     try {
-      const table = getTableOrThrow(db, req.params.tableName);
+      const tableName = getSingleParam(req.params.tableName, "tableName");
+      const table = getTableOrThrow(db, tableName);
       const primaryKey = getPrimaryKey(table);
 
       if (!primaryKey) {
@@ -304,7 +320,7 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
         return;
       }
 
-      const rowId = parsePrimaryKeyFromParam(req.params.id, primaryKey);
+      const rowId = parsePrimaryKeyFromParam(getSingleParam(req.params.id, "id"), primaryKey);
       const quotedTable = quoteIdentifier(table.name);
       const quotedPrimaryKey = quoteIdentifier(primaryKey.name);
 

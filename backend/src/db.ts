@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 
+import bcrypt from "bcryptjs";
 import Database from "better-sqlite3";
 
 import { isSafeIdentifier } from "./sql-utils";
@@ -49,6 +50,26 @@ export function createDatabase(dbPath: string): SqliteDatabase {
 
 function runMigrations(db: SqliteDatabase): void {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'editor', 'viewer')),
+      is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TRIGGER IF NOT EXISTS trg_users_updated_at
+    AFTER UPDATE ON users
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+    BEGIN
+      UPDATE users
+      SET updated_at = datetime('now')
+      WHERE id = OLD.id;
+    END;
+
     CREATE TABLE IF NOT EXISTS master_plants (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       plant_code TEXT NOT NULL UNIQUE,
@@ -93,6 +114,31 @@ function runMigrations(db: SqliteDatabase): void {
     CREATE INDEX IF NOT EXISTS idx_plant_measurements_master_plant_id
     ON plant_measurements(master_plant_id);
   `);
+}
+
+export function ensureBootstrapAdmin(db: SqliteDatabase, email?: string, password?: string): void {
+  if (!email || !password) {
+    return;
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) {
+    return;
+  }
+
+  const existing = db
+    .prepare(`SELECT id FROM users WHERE email = ? LIMIT 1`)
+    .get(normalizedEmail) as { id: number } | undefined;
+
+  if (existing) {
+    return;
+  }
+
+  const hash = bcrypt.hashSync(password, 12);
+  db.prepare(`INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, 'admin', 1)`).run(
+    normalizedEmail,
+    hash,
+  );
 }
 
 export function listUserTables(db: SqliteDatabase): string[] {
