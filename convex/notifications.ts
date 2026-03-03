@@ -1,6 +1,7 @@
 import { internalMutation, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/user";
+import { resolveAppMode } from "./lib/appMode";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 const EXPO_BATCH_SIZE = 100;
@@ -12,31 +13,6 @@ type ExpoPushMessage = {
     sound?: "default";
     data?: Record<string, unknown>;
 };
-
-type AppMode = "farmer" | "gardener";
-
-function deriveAppModeFromOnboarding(onboarding: {
-    goals?: string[];
-    scaleEnvironment?: string[];
-    experience?: string;
-} | undefined): AppMode {
-    if (!onboarding) return "farmer";
-    const farmGoals = ["food", "business", "offgrid"];
-    const hasFarmGoal = (onboarding.goals ?? []).some((g) => farmGoals.includes(g));
-    const isExperienced = ["intermediate", "experienced"].includes(onboarding.experience ?? "");
-    const isLargeScale = (onboarding.scaleEnvironment ?? []).some((s) =>
-        ["mini_farm", "large_farm", "greenhouse"].includes(s)
-    );
-    if (hasFarmGoal || isLargeScale || isExperienced) return "farmer";
-    return "gardener";
-}
-
-function resolveAppMode(settings?: { appMode?: string; onboarding?: any }): AppMode {
-    if (settings?.appMode === "farmer" || settings?.appMode === "gardener") {
-        return settings.appMode;
-    }
-    return deriveAppModeFromOnboarding(settings?.onboarding);
-}
 
 function buildBedCountLabel(count: number) {
     if (!count) return "No plants";

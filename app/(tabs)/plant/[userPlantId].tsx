@@ -36,6 +36,7 @@ import { PlantActivitySection } from '../../../components/plant/PlantActivitySec
 import { PlantHarvestSection } from '../../../components/plant/PlantHarvestSection';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
+import { useAppMode } from '../../../hooks/useAppMode';
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -62,6 +63,7 @@ export default function PlantDetailScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const { appMode } = useAppMode();
   const params = useLocalSearchParams<{
     userPlantId: string | string[];
     from?: string | string[];
@@ -71,7 +73,11 @@ export default function PlantDetailScreen() {
   const firstParam = (value?: string | string[]) =>
     Array.isArray(value) ? value[0] : value;
   const resolvedPlantId = firstParam(params.userPlantId);
-  const fromParam = firstParam(params.from);
+  const rawFromParam = firstParam(params.from);
+  const fromParam =
+    appMode === 'gardener' && ['planning', 'growing', 'explorer'].includes(rawFromParam ?? '')
+      ? 'garden'
+      : rawFromParam;
   const fromBedId = firstParam(params.bedId);
   const fromGardenId = firstParam(params.gardenId);
   const unitSystem = useUnitSystem();

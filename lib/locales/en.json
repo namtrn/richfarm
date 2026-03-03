@@ -48,6 +48,8 @@
         "my_plants_search": "Search plants",
         "my_plants_empty_title": "No plants yet",
         "my_plants_empty_desc": "Add your first plant to get started",
+        "unassigned_plants": "Unassigned Plants",
+        "unassigned_plants_desc": "These plants were added without a bed. Tap to assign them to a bed.",
         "subtitle_count": "{{count}} garden",
         "subtitle_count_plural": "{{count}} gardens",
         "subtitle_empty": "Manage your gardens",

@@ -47,6 +47,8 @@
         "my_plants_search": "Tìm cây",
         "my_plants_empty_title": "Chưa có cây nào",
         "my_plants_empty_desc": "Thêm cây đầu tiên để bắt đầu",
+        "unassigned_plants": "Cây chưa phân bổ",
+        "unassigned_plants_desc": "Các cây thêm trong Gardener mode chưa thuộc luống nào. Nhấn để gán vào luống.",
         "subtitle_count": "{{count}} khu vườn",
         "subtitle_count_plural": "{{count}} khu vườn",
         "subtitle_empty": "Quản lý vườn của bạn",

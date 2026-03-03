@@ -410,6 +410,11 @@ function GardenTabContent({
     const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const gardens = gardensQuery ?? [];
     const isLoading = gardensQuery === undefined;
+    const { plants } = usePlants();
+    const unassignedPlants = useMemo(
+        () => plants.filter((p: any) => !p.bedId),
+        [plants]
+    );
 
     if (isLoading) {
         return (
@@ -452,6 +457,37 @@ function GardenTabContent({
                     testID="e2e-garden-card"
                 />
             ))}
+            {unassignedPlants.length > 0 && (
+                <View style={{ backgroundColor: theme.card, borderRadius: 20, borderWidth: 1, borderColor: theme.border, padding: 16, gap: 12 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Sprout size={16} stroke={theme.warning} />
+                        <Text style={{ fontSize: 13, fontWeight: '800', color: theme.warning, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                            {t('garden.unassigned_plants')} ({unassignedPlants.length})
+                        </Text>
+                    </View>
+                    <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('garden.unassigned_plants_desc')}</Text>
+                    <View style={{ gap: 8 }}>
+                        {unassignedPlants.map((plant: any) => (
+                            <TouchableOpacity
+                                key={plant._id}
+                                onPress={() => router.push({ pathname: '/(tabs)/plant/[userPlantId]', params: { userPlantId: String(plant._id), from: 'garden' } })}
+                                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.background, borderRadius: 12, padding: 10 }}
+                            >
+                                <View style={{ width: 36, height: 36, backgroundColor: theme.accent, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
+                                    <Leaf size={18} stroke={theme.primary} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }} numberOfLines={1}>
+                                        {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
+                                    </Text>
+                                    <Text style={{ fontSize: 11, color: theme.textMuted }}>{plant.status ?? 'planning'}</Text>
+                                </View>
+                                <ChevronRight size={14} stroke={theme.textMuted} />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+            )}
         </View>
     );
 }

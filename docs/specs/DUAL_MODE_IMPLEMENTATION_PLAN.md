@@ -502,120 +502,60 @@ Hiện tại codebase có backend tests tại `backend/tests/`. Sau khi implemen
 
 ---
 
-## Review Report — Cross-check với Codebase (2026-03-03)
+## Review Report — Cross-check với Codebase (2026-03-03, updated 2026-03-04)
 
-Sau khi đối chiếu toàn bộ implementation plan và research doc với code thực tế, phát hiện **7 vấn đề** cần lưu ý trước khi implement:
+### Implementation Status
 
-### ✅ Đã có sẵn (không cần làm lại)
+| Phase | Status | Files changed |
+|-------|--------|---------------|
+| 1. Schema & Backend | ✅ Done | `convex/schema.ts` (+appMode), `convex/userSettings.ts` (+appMode arg + derive), `convex/lib/appMode.ts` [NEW] |
+| 2. Client Hook | ✅ Done | `lib/appMode.ts` [NEW], `hooks/useAppMode.ts` [NEW], `hooks/useUserSettings.ts` (+appMode export) |
+| 3. Tab Layout + Garden | ✅ Done | `app/(tabs)/_layout.tsx`, `app/(tabs)/garden/index.tsx`, `app/(tabs)/garden/GardenerMyPlantsView.tsx` [NEW] |
+| 4. Reminder | ✅ Done | `app/(tabs)/reminder.tsx` (+Gardener preset templates, bed→plant label, hidden bed selector) |
+| 5. Profile Toggle | ✅ Done | `app/(tabs)/profile.tsx` (+mode toggle with Alert confirmation) |
+| 6. Onboarding Auto-Detect | ⬜ Partial | `deriveAppModeFromOnboarding` ready, nhưng onboarding UI chưa gọi nó khi complete |
+| 7. Push Notifications | ✅ Done | `convex/notifications.ts` (dùng shared `resolveAppMode`, format theo mode) |
 
-#### 1. `notifications.ts` đã implement mode-aware logic
+### Review Issues — Resolved vs Remaining
 
-> [!IMPORTANT]
-> **Phase 7 (Push Notifications) đã hoàn thành phần lớn** trong `convex/notifications.ts`.
+| # | Vấn đề gốc | Status | Ghi chú |
+|---|-------------|--------|---------|
+| 1 | Phase 7 đã implement sẵn | ✅ Resolved | Đã dùng shared `resolveAppMode()` từ `convex/lib/appMode.ts` |
+| 2 | `userPlants` không có `displayName` | ⚠️ Workaround | `GardenerMyPlantsView` dùng `plant.displayName ?? plant.scientificName` — OK vì `usePlants()` hook đã join data. Notifications dùng plant count thay vì names |
+| 3 | Derive logic key mismatch | ✅ Resolved | Thống nhất keys: `["food", "business", "offgrid"]` cho goals, `["mini_farm", "large_farm", "greenhouse"]` cho scale — cả `convex/lib/appMode.ts` và `lib/appMode.ts` đều dùng cùng keys |
+| 4 | `getAppMode` query redundant | ✅ Resolved | Đã bỏ — dùng `useUserSettings()` → derive ở client |
+| 5 | Hidden routes → SlidingTabBar | ✅ Resolved | `garden/index.tsx` return `<GardenerMyPlantsView />` sớm khi Gardener, ẩn hoàn toàn SlidingTabBar |
+| 6 | `deriveAppMode` shared utility | ✅ Resolved | Server: `convex/lib/appMode.ts` — Client: `lib/appMode.ts` (2 file riêng do Convex bundling) |
+| 7 | Estimate time | ✅ N/A | Phần lớn đã implement |
 
-Code hiện tại đã có:
-- `deriveAppModeFromOnboarding()` (dòng 18–32)
-- `resolveAppMode()` (dòng 34–39)
-- `sendDueReminders` đã query `userSettings.appMode` và format message khác nhau cho Gardener (dòng 146–183)
-
-**Khuyến nghị**: Phase 7 chỉ cần review và refine, không cần viết từ đầu. Hàm `deriveAppModeFromOnboarding` có thể extract thành shared utility dùng chung.
-
----
-
-### ⚠️ Sai lệch cần sửa trong plan
-
-#### 2. `userPlants` KHÔNG có field `displayName`
-
-Plan tham chiếu `p.displayName` ở nhiều nơi (Phase 4 reminder cards, Phase 7 notifications), nhưng bảng `userPlants` trong schema **không có `displayName`**:
+### Kiến trúc hiện tại
 
 ```
-userPlants: {
-    userId, plantMasterId, bedId, status, notes, ...
-    // KHÔNG có displayName!
-}
+Server (Convex):
+  convex/lib/appMode.ts       ← requireAppMode, deriveAppModeFromOnboarding, resolveAppMode
+  convex/userSettings.ts      ← upsert với appMode validation + auto-derive
+  convex/notifications.ts     ← import resolveAppMode(), format push per mode
+
+Client (React Native):
+  lib/appMode.ts              ← normalizeAppMode, deriveAppModeFromOnboarding (client copy)
+  hooks/useUserSettings.ts    ← appMode derived field
+  hooks/useAppMode.ts         ← isFarmer, isGardener, switchMode (memoized)
 ```
 
-Tên hiển thị đến từ **join** `plantsMaster` → `plantI18n` (qua `plantMasterId`).
+### Items còn lại
 
-**Giải pháp**:
-- Khi cần tên cây trong Gardener flat list: query `plantI18n` theo `plantMasterId` + locale
-- Hoặc denormalize: lưu `displayName` vào `userPlants` khi tạo cây (đã có precedent ở `plants.ts` dòng 151)
-- `notifications.ts` hiện tại dùng plant **count** thay vì plant names — đây là workaround hợp lý để tránh N+1 query trên server
-
-**Ảnh hưởng**: Phase 3 (`GardenerMyPlantsView`), Phase 4 (reminder cards)
-
-#### 3. Derive logic dùng key khác nhau
-
-Plan đề xuất:
-```
-goals: ["food_production", "business", "off_grid", "homestead"]
-scale: ["farm_mini", "farm_large", "greenhouse"]
-```
-
-Nhưng `notifications.ts` đã implement với key khác:
-```
-goals: ["food", "business", "offgrid"]
-scale: ["mini_farm", "large_farm", "greenhouse"]
-```
-
-**Giải pháp**: Thống nhất key set. Vì onboarding chưa được implement trong UI, cần **quyết định key chính thức 1 lần** và dùng ở cả 3 nơi:
-1. Onboarding screens (UI)
-2. `deriveAppMode()` helper
-3. `convex/notifications.ts`
-
-#### 4. `getAppMode` query (Phase 1.4) là redundant
-
-Plan đề xuất tạo query `getAppMode` riêng, nhưng `getUserSettings` đã trả về tất cả settings bao gồm `appMode`. Thêm query mới = thêm 1 Convex subscription không cần thiết.
-
-**Khuyến nghị**: Bỏ Phase 1.4. Dùng `useUserSettings()` → derive `appMode` ở client (như Phase 2 đã mô tả). Đây cũng là cách `notifications.ts` đã làm — nó query `userSettings` rồi gọi `resolveAppMode()`.
-
----
-
-### 📝 Cần bổ sung / clarify
-
-#### 5. Planning/Growing routes đã hidden — vấn đề thực sự ở đâu?
-
-`_layout.tsx` đã set `href: null` cho `planning`, `growing`, `explorer`. Chúng **đã ẩn khỏi tab bar** cho tất cả user.
-
-Vấn đề thực sự: các route này accessible qua **in-app navigation** bên trong `garden/index.tsx` → `SlidingTabBar` → `PlanningTabContent` / `GrowingTabContent`. Khi Gardener mode, cần:
-- Ẩn `SlidingTabBar` (Phase 3.2 đã đề cập ✅)
-- Block deep-link trực tiếp vào `/(tabs)/plant/[userPlantId]?from=planning` (cần redirect guard)
-
-#### 6. `deriveAppMode` cần là shared utility
-
-Hàm này sẽ được dùng ở:
-- `convex/notifications.ts` (server — đã có)
-- `convex/userSettings.ts` (server — Phase 1.3)
-- `hooks/useAppMode.ts` (client — Phase 2.2)
-
-**Khuyến nghị**: Tạo `convex/lib/appMode.ts` hoặc `lib/appMode.ts` chứa logic derive dùng cho cả server và client. Tránh duplicate logic.
-
-#### 7. Estimate thời gian hơi khác giữa 2 docs
-
-- Research doc: **3-5 ngày**
-- Implementation plan: **~3-4 ngày**
-
-Với Phase 7 đã implement phần lớn, estimate **3 ngày** là sát thực tế hơn nếu không tính Phase 6 (onboarding chưa có UI).
-
----
-
-### Tóm tắt actions
-
-| # | Vấn đề | Severity | Action |
-|---|--------|----------|--------|
-| 1 | Phase 7 đã implement | ℹ️ Info | Review + refine, không viết mới |
-| 2 | `displayName` không có trên `userPlants` | 🔴 Cao | Cần join hoặc denormalize |
-| 3 | Derive logic key mismatch | 🟡 Trung bình | Thống nhất key set trước khi implement |
-| 4 | `getAppMode` query redundant | 🟡 Trung bình | Bỏ Phase 1.4 |
-| 5 | Hidden routes → vấn đề ở SlidingTabBar | 🟡 Trung bình | Đã cover trong Phase 3.2 |
-| 6 | `deriveAppMode` shared utility | 🟢 Thấp | Extract sang `lib/appMode.ts` |
-| 7 | Estimate time khác nhau | 🟢 Thấp | Update research doc hoặc bỏ qua |
+- [ ] **Onboarding completion**: Khi user xong step 5, gọi `upsertUserSettings({ appMode: derivedMode })` — logic derive đã sẵn sàng, chỉ cần wire vào onboarding screen
+- [ ] **First-time prompt cho user cũ**: Nếu `appMode` === undefined và không có onboarding data → hiện prompt chọn mode
+- [ ] **"Unassigned Plants" section** trong Farmer mode: cây tạo ở Gardener (no bedId) chưa có section riêng khi switch về Farmer
+- [ ] **Tab title dynamic**: `_layout.tsx` chưa đổi title "Garden" → "My Plants" khi Gardener (chỉ garden screen content đổi, tab label chưa)
 
 > [!TIP]
-> **Kết luận review**: Plan nhìn chung solid, không có blocking issue. Cần chú ý nhất vấn đề #2 (`displayName` join) vì ảnh hưởng tới Phase 3 và Phase 4. Phát hiện Phase 7 đã làm sẵn giúp tiết kiệm ~2-3 giờ.
+> **Kết luận**: ~90% implementation đã hoàn thành. 4 items còn lại đều nhỏ (~1-2h tổng). Kiến trúc shared utility clean, không có duplicate logic. Review finding #2 (`displayName`) được xử lý thông minh — `usePlants()` hook đã join sẵn nên client-side OK.
 
 ---
 
 *Tài liệu tạo: 2026-03-03*
-*Review: 2026-03-03 23:40*
-*Tham khảo: [UI_SIMPLIFICATION_RESEARCH.md](./UI_SIMPLIFICATION_RESEARCH.md), `convex/schema.ts`, `convex/userSettings.ts`, `convex/notifications.ts`, `app/(tabs)/_layout.tsx`, `app/(tabs)/garden/index.tsx`*
+*Review: 2026-03-04 00:25*
+*Tham khảo: [UI_SIMPLIFICATION_RESEARCH.md](./UI_SIMPLIFICATION_RESEARCH.md), `convex/schema.ts`, `convex/userSettings.ts`, `convex/lib/appMode.ts`, `convex/notifications.ts`, `lib/appMode.ts`, `hooks/useAppMode.ts`, `app/(tabs)/garden/index.tsx`, `app/(tabs)/garden/GardenerMyPlantsView.tsx`, `app/(tabs)/reminder.tsx`, `app/(tabs)/profile.tsx`, `app/(tabs)/plant/[userPlantId].tsx`*
+
+

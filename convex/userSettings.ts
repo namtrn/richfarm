@@ -1,32 +1,7 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import { getUserByIdentityOrDevice, requireUser } from './lib/user';
-
-type AppMode = 'farmer' | 'gardener';
-
-function normalizeAppMode(value?: string): AppMode | undefined {
-    if (value === undefined) return undefined;
-    if (value === 'farmer' || value === 'gardener') return value;
-    throw new Error('Invalid appMode');
-}
-
-function deriveAppMode(onboarding: {
-    goals?: string[];
-    scaleEnvironment?: string[];
-    experience?: string;
-} | undefined): AppMode {
-    if (!onboarding) return 'farmer';
-
-    const farmGoals = ['food', 'business', 'offgrid'];
-    const hasFarmGoal = (onboarding.goals ?? []).some((g) => farmGoals.includes(g));
-    const isExperienced = ['intermediate', 'experienced'].includes(onboarding.experience ?? '');
-    const isLargeScale = (onboarding.scaleEnvironment ?? []).some((s) =>
-        ['mini_farm', 'large_farm', 'greenhouse'].includes(s)
-    );
-
-    if (hasFarmGoal || isLargeScale || isExperienced) return 'farmer';
-    return 'gardener';
-}
+import { deriveAppModeFromOnboarding, requireAppMode } from './lib/appMode';
 
 export const getUserSettings = query({
     args: {
@@ -40,22 +15,6 @@ export const getUserSettings = query({
             .query('userSettings')
             .withIndex('by_user', (q) => q.eq('userId', user._id))
             .unique();
-    },
-});
-
-export const getAppMode = query({
-    args: { deviceId: v.optional(v.string()) },
-    handler: async (ctx, args) => {
-        const user = await getUserByIdentityOrDevice(ctx, args.deviceId);
-        if (!user) return 'farmer';
-        const settings = await ctx.db
-            .query('userSettings')
-            .withIndex('by_user', (q) => q.eq('userId', user._id))
-            .unique();
-        if (settings?.appMode === 'farmer' || settings?.appMode === 'gardener') {
-            return settings.appMode;
-        }
-        return deriveAppMode(settings?.onboarding);
     },
 });
 
@@ -84,9 +43,9 @@ export const upsertUserSettings = mutation({
             .withIndex('by_user', (q) => q.eq('userId', user._id))
             .unique();
 
-        const normalizedAppMode = normalizeAppMode(args.appMode);
+        const normalizedAppMode = requireAppMode(args.appMode);
         const shouldDerive = normalizedAppMode === undefined && !!args.onboarding && !existing?.appMode;
-        const derivedAppMode = shouldDerive ? deriveAppMode(args.onboarding) : undefined;
+        const derivedAppMode = shouldDerive ? deriveAppModeFromOnboarding(args.onboarding) : undefined;
 
         if (existing) {
             await ctx.db.patch(existing._id, {
