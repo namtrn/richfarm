@@ -32,9 +32,9 @@ export function WeatherCard({ model }: WeatherCardProps) {
     const styles = useMemo(() => createStyles(theme, isDark), [theme, isDark]);
     const statColors = useMemo(
         () => ({
-            rainfall: isDark ? '#60a5fa' : '#1d4ed8',
-            humidity: isDark ? '#38bdf8' : '#0369a1',
-            uv: isDark ? '#fbbf24' : '#b45309',
+            rainfall: isDark ? theme.info : theme.info,
+            humidity: isDark ? theme.infoLight : theme.infoLight,
+            uv: isDark ? theme.premium : theme.warning,
         }),
         [isDark]
     );
@@ -132,8 +132,8 @@ export function WeatherCard({ model }: WeatherCardProps) {
                                             h === 1.0
                                                 ? theme.primary
                                                 : h > 0.7
-                                                    ? (isDark ? '#2f6f52' : '#2d6a4f')
-                                                    : (isDark ? '#3f4f46' : '#95c4a8'),
+                                                    ? (isDark ? theme.primaryDark : theme.primaryLight)
+                                                    : (isDark ? theme.accent : theme.primaryLighter),
                                     },
                                 ]}
                             />
@@ -346,165 +346,165 @@ function buildAsset(
 
 function createStyles(theme: ThemeColors, isDark: boolean) {
     return StyleSheet.create({
-    card: {
-        backgroundColor: theme.card,
-        borderRadius: 20,
-        padding: 18,
-        borderWidth: 1,
-        borderColor: theme.border,
-        shadowColor: isDark ? '#000000' : '#1a1a18',
-        shadowOpacity: 0.06,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 3 },
-        gap: 10,
-    },
+        card: {
+            backgroundColor: theme.card,
+            borderRadius: 20,
+            padding: 18,
+            borderWidth: 1,
+            borderColor: theme.border,
+            shadowColor: isDark ? '#000000' : '#1a1a18',
+            shadowOpacity: 0.06,
+            shadowRadius: 10,
+            shadowOffset: { width: 0, height: 3 },
+            gap: 10,
+        },
 
-    // header
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    locationText: {
-        fontSize: 13,
-        color: theme.textSecondary,
-        fontWeight: '500',
-    },
-    badge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        backgroundColor: theme.accent,
-        borderRadius: 20,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderWidth: 1,
-        borderColor: theme.border,
-    },
-    badgeText: {
-        fontSize: 11,
-        color: theme.textAccent,
-        fontWeight: '700',
-        letterSpacing: 0.5,
-    },
+        // header
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+        },
+        locationRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+        },
+        locationText: {
+            fontSize: 13,
+            color: theme.textSecondary,
+            fontWeight: '500',
+        },
+        badge: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+            backgroundColor: theme.accent,
+            borderRadius: 20,
+            paddingHorizontal: 10,
+            paddingVertical: 4,
+            borderWidth: 1,
+            borderColor: theme.border,
+        },
+        badgeText: {
+            fontSize: 11,
+            color: theme.textAccent,
+            fontWeight: '700',
+            letterSpacing: 0.5,
+        },
 
-    // temperature
-    tempRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: 2,
-    },
-    tempCol: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        gap: 2,
-    },
-    tempLeft: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-    },
-    tempNumber: {
-        fontSize: 36,
-        fontWeight: '800',
-        color: theme.text,
-        letterSpacing: -1.5,
-        lineHeight: 40,
-    },
-    tempUnit: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: theme.textSecondary,
-        marginTop: 6,
-        marginLeft: 2,
-    },
-    sunIconWrapper: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: isDark ? theme.card : '#fefce8',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1.5,
-        borderColor: isDark ? theme.border : '#fde68a',
-    },
-    feelsLike: {
-        fontSize: 13,
-        color: theme.textMuted,
-        fontWeight: '400',
-    },
+        // temperature
+        tempRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: 2,
+        },
+        tempCol: {
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: 2,
+        },
+        tempLeft: {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+        },
+        tempNumber: {
+            fontSize: 36,
+            fontWeight: '800',
+            color: theme.text,
+            letterSpacing: -1.5,
+            lineHeight: 40,
+        },
+        tempUnit: {
+            fontSize: 16,
+            fontWeight: '600',
+            color: theme.textSecondary,
+            marginTop: 6,
+            marginLeft: 2,
+        },
+        sunIconWrapper: {
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: isDark ? theme.card : theme.accent,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 1.5,
+            borderColor: isDark ? theme.border : theme.primaryLighter,
+        },
+        feelsLike: {
+            fontSize: 13,
+            color: theme.textMuted,
+            fontWeight: '400',
+        },
 
-    // stats
-    statsRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderTopWidth: 1,
-        borderTopColor: theme.border,
-        paddingTop: 10,
-        marginTop: 2,
-    },
-    statSep: {
-        width: 1,
-        height: 28,
-        backgroundColor: theme.border,
-    },
+        // stats
+        statsRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderTopWidth: 1,
+            borderTopColor: theme.border,
+            paddingTop: 10,
+            marginTop: 2,
+        },
+        statSep: {
+            width: 1,
+            height: 28,
+            backgroundColor: theme.border,
+        },
 
-    // soil projection
-    soilCard: {
-        backgroundColor: theme.accent,
-        borderRadius: 14,
-        padding: 14,
-        gap: 10,
-    },
-    soilHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    soilTitle: {
-        fontSize: 10,
-        fontWeight: '800',
-        color: theme.text,
-        letterSpacing: 0.8,
-    },
-    soilBadge: {
-        backgroundColor: theme.successBg,
-        borderRadius: 20,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderWidth: 1,
-        borderColor: theme.success,
-    },
-    soilBadgeText: {
-        fontSize: 9,
-        fontWeight: '700',
-        color: theme.success,
-        letterSpacing: 0.5,
-    },
-    barsRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        gap: 5,
-        height: 56,
-    },
-    barWrapper: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        height: 56,
-    },
-    bar: {
-        borderRadius: 5,
-        width: '100%',
-    },
-    soilNote: {
-        fontSize: 11,
-        color: theme.textSecondary,
-        lineHeight: 16,
-    },
-});
+        // soil projection
+        soilCard: {
+            backgroundColor: theme.accent,
+            borderRadius: 14,
+            padding: 14,
+            gap: 10,
+        },
+        soilHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+        },
+        soilTitle: {
+            fontSize: 10,
+            fontWeight: '800',
+            color: theme.text,
+            letterSpacing: 0.8,
+        },
+        soilBadge: {
+            backgroundColor: theme.successBg,
+            borderRadius: 20,
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderWidth: 1,
+            borderColor: theme.success,
+        },
+        soilBadgeText: {
+            fontSize: 9,
+            fontWeight: '700',
+            color: theme.success,
+            letterSpacing: 0.5,
+        },
+        barsRow: {
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            gap: 5,
+            height: 56,
+        },
+        barWrapper: {
+            flex: 1,
+            justifyContent: 'flex-end',
+            height: 56,
+        },
+        bar: {
+            borderRadius: 5,
+            width: '100%',
+        },
+        soilNote: {
+            fontSize: 11,
+            color: theme.textSecondary,
+            lineHeight: 16,
+        },
+    });
 }

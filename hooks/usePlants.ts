@@ -1,22 +1,47 @@
+import { useMemo } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
+import { useTranslation } from 'react-i18next';
+import { usePlantLibrary } from './usePlantLibrary';
 
 export function usePlants(status?: string) {
     const { deviceId } = useDeviceId();
+    const { i18n } = useTranslation();
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
-    const remotePlants = useQuery(api.plants.getUserPlants, { status, deviceId });
+    const locale = i18n.language?.split('-')[0] ?? i18n.language;
+    const remotePlants = useQuery(api.plants.getUserPlants, deviceId ? { status, deviceId } : 'skip');
 
     const cacheKey = deviceId
-        ? `rf_plants_v1_${deviceId}${status ? `_${status}` : ''}`
+        ? `rf_plants_v1_${deviceId}${status ? `_${status}` : ''}${locale ? `_${locale}` : ''}`
         : null;
     const { cached, cacheLoaded } = useQueryCache(cacheKey, remotePlants);
 
     const plants = remotePlants ?? cached;
+    const { plants: libraryPlants } = usePlantLibrary(locale);
+    const libraryById = useMemo(
+        () => new Map((libraryPlants ?? []).map((plant: any) => [String(plant._id), plant])),
+        [libraryPlants]
+    );
+    const localizedPlants = useMemo(
+        () =>
+            (plants ?? []).map((plant: any) => {
+                if (!plant?.plantMasterId) return plant;
+                const localized = libraryById.get(String(plant.plantMasterId));
+                if (!localized) return plant;
+                return {
+                    ...plant,
+                    displayName: localized.displayName,
+                    scientificName: localized.scientificName,
+                    localeUsed: localized.localeUsed,
+                };
+            }),
+        [plants, libraryById]
+    );
 
     const addPlantMutation = useMutation(api.plants.addPlant);
     const updateStatusMutation = useMutation(api.plants.updatePlantStatus);
@@ -24,7 +49,6 @@ export function usePlants(status?: string) {
     const deletePlantMutation = useMutation(api.plants.deletePlant);
 
     const addPlant = async (args: {
-        nickname?: string;
         plantMasterId?: Id<'plantsMaster'>;
         bedId?: Id<'beds'>;
         positionInBed?: { x: number; y: number; width: number; height: number };
@@ -46,7 +70,6 @@ export function usePlants(status?: string) {
         plantId: Id<'userPlants'>,
         updates: {
             plantMasterId?: Id<'plantsMaster'>;
-            nickname?: string;
             notes?: string;
             bedId?: Id<'beds'>;
             positionInBed?: { x: number; y: number; width: number; height: number };
@@ -61,7 +84,7 @@ export function usePlants(status?: string) {
     };
 
     return {
-        plants: plants ?? (shouldBypassRemote ? [] : []),
+        plants: localizedPlants,
         isLoading: plants === undefined && !cacheLoaded && !shouldBypassRemote,
         addPlant,
         updateStatus,

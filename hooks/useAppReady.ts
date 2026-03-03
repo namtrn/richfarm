@@ -1,17 +1,17 @@
 import { useAuth } from '../lib/auth';
 
 export function useAppReady() {
-    const fontsLoaded = true; // Tamagui handles fonts
-    const { user, isLoading, deviceId } = useAuth();
+    const { user, deviceId } = useAuth();
 
-    // App is ready when device id + auth query has resolved
-    const isAuthReady = !isLoading;
-    const isReady = fontsLoaded && isAuthReady;
+    // App is ready as soon as deviceId is available — no need to wait for
+    // Convex to confirm the user record. It gets created in the background.
+    const isReady = !!deviceId;
 
     return {
         isReady,
-        isAuthReady,
+        isAuthReady: isReady,
         currentUser: user ?? null,
         deviceId,
     };
 }
+

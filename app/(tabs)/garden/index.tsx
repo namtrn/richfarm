@@ -385,7 +385,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const [scanSourceOpen, setScanSourceOpen] = useState(false);
     const [detectNoMatch, setDetectNoMatch] = useState(false);
 
-    const canEdit = !isAuthLoading && isAuthenticated;
+    const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
     const gardens = gardensQuery ?? [];
     const isSetupLoading = gardensQuery === undefined || isBedsLoading;
     const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
@@ -395,7 +395,10 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const { plants: libraryPlants } = usePlantLibrary(locale);
-    const plannedPlants = plants.filter((p) => p.status === 'planting');
+    const plannedPlants = useMemo(
+        () => plants.filter((p) => p.status === 'planning' || p.status === 'planting'),
+        [plants]
+    );
     const normalize = (value: string) =>
         value
             .normalize('NFD')
@@ -416,7 +419,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const handleAddPlant = async () => {
         if (!canCreatePlant || !nickname.trim()) return;
         setSaving(true);
-        try { await addPlant({ nickname: nickname.trim() }); setNickname(''); setSheetOpen(false); }
+        try { await addPlant({}); setNickname(''); setSheetOpen(false); }
         finally { setSaving(false); }
     };
 
@@ -545,7 +548,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const handleSaveAsUnknown = async () => {
         if (!canCreatePlant) return;
         setPhotoSaving(true);
-        try { await addPlant({ nickname: detectedName.trim() || t('planning.unknown_plant') }); setPhotoOpen(false); setPhotoUri(null); }
+        try { await addPlant({}); setPhotoOpen(false); setPhotoUri(null); }
         finally {
             setAiSessionActive(false);
             setAiLimitError('');
@@ -628,7 +631,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                                 <Leaf size={22} stroke={theme.primary} />
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.nickname ?? t('planning.unnamed')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.displayName ?? plant.scientificName ?? t('planning.unnamed')}</Text>
                                 <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('planning.status_planning')}</Text>
                             </View>
                             <ChevronRight size={16} stroke={theme.textMuted} />
@@ -754,7 +757,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
 
 // ─── Growing Tab Content ──────────────────────────────────────────────────────
 function GrowingTabContent() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const theme = useTheme();
     const router = useRouter();
     const { plants, isLoading, updateStatus } = usePlants();
@@ -762,10 +765,14 @@ function GrowingTabContent() {
     const { deviceId } = useDeviceId();
     const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-    const canEdit = !isAuthLoading && isAuthenticated;
+    const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
 
     const activePlants = useMemo(
-        () => plants.filter((p) => p.status === 'growing' || p.status === 'planting'),
+        () => plants.filter((p) => p.status === 'growing'),
+        [plants]
+    );
+    const archivedPlants = useMemo(
+        () => plants.filter((p) => p.status === 'archived' || p.status === 'harvested'),
         [plants]
     );
     const bedMap = useMemo(
@@ -776,6 +783,15 @@ function GrowingTabContent() {
         () => new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden])),
         [gardens]
     );
+
+    const formatArchiveDate = (value?: number) => {
+        if (!value) return '—';
+        return new Date(value).toLocaleDateString(i18n.language, {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+        });
+    };
 
     return (
         <>
@@ -789,55 +805,96 @@ function GrowingTabContent() {
                 <View style={{ paddingVertical: 60, alignItems: 'center' }}>
                     <ActivityIndicator size="large" color={theme.primary} />
                 </View>
-            ) : activePlants.length === 0 ? (
-                <View style={{ paddingVertical: 48, alignItems: 'center', gap: 12, backgroundColor: theme.card, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}>
-                    <Sprout size={48} stroke={theme.textMuted} />
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.textMuted }}>{t('growing.no_plants')}</Text>
-                    <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center' }}>{t('growing.no_plants_desc')}</Text>
-                </View>
             ) : (
-                <View style={{ gap: 10 }}>
-                    {activePlants.map((plant) => {
-                        const bed = plant.bedId ? bedMap.get(String(plant.bedId)) : undefined;
-                        const garden = bed?.gardenId ? gardenMap.get(String(bed.gardenId)) : undefined;
-                        const pos = plant.positionInBed;
-                        const hasPosition = typeof pos?.x === 'number' && typeof pos?.y === 'number';
-                        const positionLabel = hasPosition ? ` • Cell ${(pos?.x ?? 0) + 1},${(pos?.y ?? 0) + 1}` : '';
-                        const locationLabel = bed
-                            ? `${garden?.name ?? t('growing.unknown_garden')} > ${bed.name}${positionLabel}`
-                            : t('growing.no_location');
+                <View style={{ gap: 18 }}>
+                    {activePlants.length === 0 ? (
+                        <View style={{ paddingVertical: 48, alignItems: 'center', gap: 12, backgroundColor: theme.card, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}>
+                            <Sprout size={48} stroke={theme.textMuted} />
+                            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.textMuted }}>{t('growing.no_plants')}</Text>
+                            <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center' }}>{t('growing.no_plants_desc')}</Text>
+                        </View>
+                    ) : (
+                        <View style={{ gap: 10 }}>
+                            {activePlants.map((plant) => {
+                                const bed = plant.bedId ? bedMap.get(String(plant.bedId)) : undefined;
+                                const garden = bed?.gardenId ? gardenMap.get(String(bed.gardenId)) : undefined;
+                                const pos = plant.positionInBed;
+                                const hasPosition = typeof pos?.x === 'number' && typeof pos?.y === 'number';
+                                const positionLabel = hasPosition ? ` • Cell ${(pos?.x ?? 0) + 1},${(pos?.y ?? 0) + 1}` : '';
+                                const locationLabel = bed
+                                    ? `${garden?.name ?? t('growing.unknown_garden')} > ${bed.name}${positionLabel}`
+                                    : t('growing.no_location');
 
-                        return (
-                            <TouchableOpacity
-                                key={plant._id}
-                                onPress={() =>
-                                    router.push({
-                                        pathname: '/(tabs)/plant/[userPlantId]',
-                                        params: { userPlantId: String(plant._id), from: 'growing' },
-                                    })
-                                }
-                                activeOpacity={0.8}
-                                style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-                            >
-                                <View style={{ width: 44, height: 44, backgroundColor: theme.accent, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Sprout size={22} stroke={theme.primary} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.nickname ?? t('growing.unnamed')}</Text>
-                                    <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={2}>{locationLabel}</Text>
-                                    <Text style={{ fontSize: 11, color: theme.textMuted, textTransform: 'capitalize', marginTop: 2 }}>{plant.status}</Text>
-                                </View>
-                                <TouchableOpacity
-                                    disabled={!canEdit}
-                                    onPress={() => updateStatus(plant._id, 'harvested')}
-                                    testID="e2e-growing-harvest-button"
-                                    style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6, opacity: !canEdit ? 0.5 : 1 }}
-                                >
-                                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>{t('growing.harvest')}</Text>
-                                </TouchableOpacity>
-                            </TouchableOpacity>
-                        );
-                    })}
+                                return (
+                                    <TouchableOpacity
+                                        key={plant._id}
+                                        onPress={() =>
+                                            router.push({
+                                                pathname: '/(tabs)/plant/[userPlantId]',
+                                                params: { userPlantId: String(plant._id), from: 'growing' },
+                                            })
+                                        }
+                                        activeOpacity={0.8}
+                                        style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
+                                    >
+                                        <View style={{ width: 44, height: 44, backgroundColor: theme.accent, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Sprout size={22} stroke={theme.primary} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}</Text>
+                                            <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={2}>{locationLabel}</Text>
+                                            <Text style={{ fontSize: 11, color: theme.textMuted, textTransform: 'uppercase', marginTop: 2 }}>{t('plant.status_growing')}</Text>
+                                        </View>
+                                        <TouchableOpacity
+                                            disabled={!canEdit}
+                                            onPress={() => updateStatus(plant._id, 'archived')}
+                                            testID="e2e-growing-harvest-button"
+                                            style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6, opacity: !canEdit ? 0.5 : 1 }}
+                                        >
+                                            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>{t('growing.harvest')}</Text>
+                                        </TouchableOpacity>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    )}
+
+                    <View style={{ gap: 10 }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1, textTransform: 'uppercase' }}>
+                            {t('growing.archive_title')}
+                        </Text>
+                        {archivedPlants.length === 0 ? (
+                            <Text style={{ fontSize: 12, color: theme.textMuted, fontStyle: 'italic' }}>
+                                {t('growing.archive_empty')}
+                            </Text>
+                        ) : (
+                            <View style={{ gap: 10 }}>
+                                {archivedPlants.map((plant) => (
+                                    <TouchableOpacity
+                                        key={`archived-${plant._id}`}
+                                        onPress={() =>
+                                            router.push({
+                                                pathname: '/(tabs)/plant/[userPlantId]',
+                                                params: { userPlantId: String(plant._id), from: 'growing' },
+                                            })
+                                        }
+                                        activeOpacity={0.8}
+                                        style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12, opacity: 0.9 }}
+                                    >
+                                        <View style={{ width: 44, height: 44, backgroundColor: theme.accent, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+                                            <Leaf size={20} stroke={theme.textMuted} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}</Text>
+                                            <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
+                                                {t('plant.status_archived')} • {formatArchiveDate(plant.actualHarvestDate ?? plant.archivedAt)}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
                 </View>
             )}
         </>

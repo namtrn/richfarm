@@ -25,8 +25,6 @@ appId: com.mygarden.app
 - tapOn:
     id: e2e-tab-library
 - tapOn:
-    id: e2e-library-shortcut-health
-- tapOn:
-    id: e2e-health-tab-light
+    id: e2e-library-tab-pests
 - assertVisible:
-    id: e2e-health-light-card
+    id: e2e-library-tab-pests-content

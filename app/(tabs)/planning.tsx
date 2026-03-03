@@ -1,6 +1,6 @@
 ﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal, Pressable, Image, Alert } from 'react-native';
 import { Plus, Calendar, Leaf } from 'lucide-react-native';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
@@ -31,7 +31,9 @@ export default function PlanningScreen() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [nickname, setNickname] = useState('');
   const [saving, setSaving] = useState(false);
-  const canEdit = !isAuthLoading && isAuthenticated;
+  // Guests (not authenticated but having a deviceId) are allowed to edit.
+  // isAuthenticated refers to a "signed in" user (Google/Apple).
+  const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
@@ -51,7 +53,10 @@ export default function PlanningScreen() {
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const { plants: libraryPlants } = usePlantLibrary(locale);
 
-  const plannedPlants = plants.filter((p) => p.status === 'planting');
+  const plannedPlants = useMemo(
+    () => plants.filter((p) => p.status === 'planning' || p.status === 'planting'),
+    [plants]
+  );
   const normalize = (value: string) =>
     value
       .normalize('NFD')
@@ -73,7 +78,7 @@ export default function PlanningScreen() {
     if (!canCreatePlant || !nickname.trim()) return;
     setSaving(true);
     try {
-      await addPlant({ nickname: nickname.trim() });
+      await addPlant({});
       setNickname('');
       setSheetOpen(false);
     } finally {
@@ -218,7 +223,7 @@ export default function PlanningScreen() {
     if (!canCreatePlant) return;
     setPhotoSaving(true);
     try {
-      await addPlant({ nickname: detectedName.trim() || t('planning.unknown_plant') });
+      await addPlant({});
       setPhotoOpen(false);
       setPhotoUri(null);
       setAiSessionActive(false);
@@ -374,7 +379,7 @@ export default function PlanningScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>
-                      {plant.nickname ?? t('planning.unnamed')}
+                      {plant.displayName ?? plant.scientificName ?? t('planning.unnamed')}
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
                       <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border }}>

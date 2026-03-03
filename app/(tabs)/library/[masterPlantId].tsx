@@ -414,7 +414,6 @@ export default function LibraryPlantDetailScreen() {
 
     const handleAdd = async () => {
         if (!currentPlant || !resolvedId || !canMutateMaster) return;
-        const localName = currentPlant.displayName ?? currentPlant.scientificName;
         const xValue = xParam !== undefined ? Number(xParam) : undefined;
         const yValue = yParam !== undefined ? Number(yParam) : undefined;
         const positionInBed =
@@ -424,11 +423,11 @@ export default function LibraryPlantDetailScreen() {
                 : undefined;
 
         if (modeParam === 'attach' && fromPlantId) {
-            await updatePlant(fromPlantId as any, { plantMasterId: resolvedId as any, nickname: localName });
+            await updatePlant(fromPlantId as any, { plantMasterId: resolvedId as any });
         } else if (fromParam === 'bed' && bedIdParam) {
-            await addPlant({ plantMasterId: resolvedId as any, nickname: localName, bedId: bedIdParam as any, positionInBed });
+            await addPlant({ plantMasterId: resolvedId as any, bedId: bedIdParam as any, positionInBed });
         } else {
-            await addPlant({ plantMasterId: resolvedId as any, nickname: localName });
+            await addPlant({ plantMasterId: resolvedId as any });
         }
 
         if (router.canGoBack()) {

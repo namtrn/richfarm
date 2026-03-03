@@ -11,9 +11,16 @@ export function useUserSettings() {
     const shouldBypassRemote = isKnown && isOffline;
 
     const cacheKey = deviceId ? `rf_user_settings_v1_${deviceId}` : null;
-    const { cached, cacheLoaded } = useQueryCache(cacheKey, rawSettings);
+    const { cached, cacheLoaded, remoteResolved } = useQueryCache(cacheKey, rawSettings);
 
-    const settings = rawSettings ?? cached ?? (shouldBypassRemote ? null : undefined);
+    // When rawSettings has resolved (even to null), use it directly.
+    const settings = remoteResolved
+        ? rawSettings
+        : cached !== undefined
+            ? cached
+            : shouldBypassRemote
+                ? null
+                : undefined;
 
     const upsert = useMutation(api.userSettings.upsertUserSettings);
 

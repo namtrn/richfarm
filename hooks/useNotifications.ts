@@ -5,15 +5,20 @@ import { api } from '../convex/_generated/api';
 import { useAuth } from '../lib/auth';
 import { registerForPushNotificationsAsync } from '../lib/notifications';
 
-export function useNotifications() {
+export function useNotifications(enabled: boolean = true) {
   const { user, deviceId } = useAuth();
+  const enabledRef = useRef(enabled);
   const registerDeviceToken = useMutation(
     api.notifications.registerDeviceToken
   );
   const lastTokenRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!deviceId || !user) return;
+    enabledRef.current = enabled;
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabledRef.current || !deviceId || !user) return;
     let cancelled = false;
 
     (async () => {

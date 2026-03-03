@@ -212,7 +212,6 @@ export default defineSchema({
     plantMasterId: v.optional(v.id("plantsMaster")), // null nếu custom plant
 
     // Customization
-    nickname: v.optional(v.string()),
     photoUrl: v.optional(v.string()), // Ảnh đại diện
 
     // Location
@@ -230,9 +229,10 @@ export default defineSchema({
     transplantDate: v.optional(v.number()),
     expectedHarvestDate: v.optional(v.number()),
     actualHarvestDate: v.optional(v.number()),
+    archivedAt: v.optional(v.number()),
 
     // Status
-    status: v.string(), // "planting", "growing", "harvested", "failed", "paused"
+    status: v.string(), // "planning", "growing", "archived", "failed", "dormant"
     notes: v.optional(v.string()),
 
     // Custom care rules (override defaults)

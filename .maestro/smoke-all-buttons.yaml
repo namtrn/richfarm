@@ -23,9 +23,9 @@ appId: com.mygarden.app
 - tapOn:
     id: e2e-tab-garden
 - tapOn:
-    id: e2e-garden-quick-planning
+    id: e2e-garden-tab-planning
 - tapOn:
-    id: e2e-garden-quick-planning
+    id: e2e-garden-tab-planning
     optional: true
 - tapOn:
     id: e2e-tab-reminder

@@ -36,11 +36,10 @@ export default function StartScreen() {
     };
   }, []);
 
-  const isRemoteReady = remoteSettings !== undefined;
-  const isReady = localLoaded && !isLoading && (deviceId ? true : true) && (isRemoteReady || !deviceId);
+  const isReady = localLoaded && !isLoading;
 
   useEffect(() => {
-    if (!isReady || shouldBypassRemote) return;
+    if (!isReady || shouldBypassRemote || remoteSettings === undefined) return;
 
     const remoteOnboarding = remoteSettings?.onboarding;
     const localCompletedAt = localData?.completedAt ?? 0;

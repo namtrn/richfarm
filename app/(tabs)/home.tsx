@@ -4,10 +4,12 @@ import { Bell, Droplets, Scissors, Sprout, ChevronRight, ScanSearch } from 'luci
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useReminders } from '../../hooks/useReminders';
+import { usePlants } from '../../hooks/usePlants';
 import { WeatherCard } from '../../components/ui/WeatherCard';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useAuth } from '../../lib/auth';
-import { useTheme } from '../../lib/theme';
+import { palette, useTheme } from '../../lib/theme';
+import { useThemeContext } from '../../lib/ThemeContext';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -31,7 +33,9 @@ export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isDark } = useThemeContext();
   const { todayReminders, isLoading } = useReminders();
+  const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
 
   const displayName = user?.name || t('home.welcome_default');
@@ -44,6 +48,30 @@ export default function HomeScreen() {
   const sortedToday = useMemo(() => {
     return [...todayReminders].sort((a, b) => a.nextRunAt - b.nextRunAt);
   }, [todayReminders]);
+  const plantMap = useMemo(() => new Map((plants ?? []).map((p: any) => [String(p._id), p])), [plants]);
+
+  const getPlantName = (reminder: any) => {
+    if (!reminder?.userPlantId) return '';
+    const linkedPlant = plantMap.get(String(reminder.userPlantId));
+    return linkedPlant?.displayName ?? linkedPlant?.scientificName ?? '';
+  };
+
+  const getDisplayTitle = (reminder: any) => {
+    const title = reminder?.title ?? '';
+    const plantName = getPlantName(reminder);
+    if (/^watering:\s*/i.test(title) && plantName) {
+      return `${t('reminder.auto_title_watering')}: ${plantName}`;
+    }
+    if (/^planted:\s*/i.test(title)) {
+      const name = plantName || title.replace(/^planted:\s*/i, '');
+      return t('reminder.seed_title_planted', { name });
+    }
+    if (/^harvest:\s*/i.test(title)) {
+      const name = plantName || title.replace(/^harvest:\s*/i, '');
+      return t('reminder.seed_title_harvest', { name });
+    }
+    return title;
+  };
 
   const upcoming = sortedToday.slice(0, 6);
   const overdueCount = sortedToday.filter((r) => r.nextRunAt < Date.now()).length;
@@ -68,7 +96,7 @@ export default function HomeScreen() {
       {/* Welcome header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 4 }}>
         {/* Avatar with yellow ring */}
-        <View style={{ width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: '#fbbf24', padding: 2 }}>
+        <View style={{ width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: theme.premium, padding: 2 }}>
           {user?.image ? (
             <Image
               source={{ uri: user.image }}
@@ -85,7 +113,7 @@ export default function HomeScreen() {
           <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.5, textTransform: 'uppercase' }}>
             {t('home.welcome_back')}
           </Text>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+          <Text testID="e2e-home-title" style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
             {displayName}
           </Text>
         </View>
@@ -113,7 +141,7 @@ export default function HomeScreen() {
 
       <WeatherCard model={weatherModel} />
 
-      <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+      <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: isDark ? '#000000' : '#1a1a18', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
@@ -162,7 +190,7 @@ export default function HomeScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }} numberOfLines={1}>
-                      {reminder.title}
+                      {getDisplayTitle(reminder)}
                     </Text>
                     <Text style={{ fontSize: 12, color: theme.textSecondary }}>
                       {formatTime(reminder.nextRunAt, i18n.language)}

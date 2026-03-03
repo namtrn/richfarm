@@ -24,6 +24,7 @@ const REMINDER_ICONS: Record<string, any> = {
   pruning: Scissors,
   fertilizing: Sprout,
   harvest: Sprout,
+  soil_refresh: Sprout,
   custom: Bell,
   default: Bell,
 };
@@ -33,6 +34,7 @@ const REMINDER_TYPES = [
   { key: 'fertilizing', labelKey: 'reminder.type_fertilizing' },
   { key: 'pruning', labelKey: 'reminder.type_pruning' },
   { key: 'harvest', labelKey: 'reminder.type_harvest' },
+  { key: 'soil_refresh', labelKey: 'reminder.type_soil_refresh' },
   { key: 'custom', labelKey: 'reminder.type_custom' },
 ];
 
@@ -433,7 +435,7 @@ function ReminderFormModal({
                       onPress={() => setSelectedPlant(p._id)}
                       style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                     >
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{p.nickname ?? t('reminder.unnamed_plant')}</Text>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{p.displayName ?? p.scientificName ?? t('reminder.unnamed_plant')}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -531,7 +533,7 @@ export default function ReminderScreen() {
     if (!reminder?.userPlantId) return null;
     const linkedPlant = plantMap.get(reminder.userPlantId);
     if (!linkedPlant) return null;
-    if (linkedPlant.status === 'planting') return 'planning';
+    if (linkedPlant.status === 'planning' || linkedPlant.status === 'planting') return 'planning';
     if (linkedPlant.status === 'growing') return 'growing';
     return null;
   };
@@ -699,7 +701,7 @@ export default function ReminderScreen() {
               });
               const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
               const targetLabel = r.userPlantId
-                ? plantMap.get(r.userPlantId)?.nickname ?? t('reminder.target_plant')
+                ? plantMap.get(r.userPlantId)?.displayName ?? plantMap.get(r.userPlantId)?.scientificName ?? t('reminder.target_plant')
                 : r.bedId
                   ? bedMap.get(r.bedId)?.name ?? t('reminder.target_bed')
                   : t('reminder.target_none');
@@ -801,7 +803,7 @@ export default function ReminderScreen() {
                 : '—';
               const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
               const targetLabel = r.userPlantId
-                ? plantMap.get(r.userPlantId)?.nickname ?? t('reminder.target_plant')
+                ? plantMap.get(r.userPlantId)?.displayName ?? plantMap.get(r.userPlantId)?.scientificName ?? t('reminder.target_plant')
                 : r.bedId
                   ? bedMap.get(r.bedId)?.name ?? t('reminder.target_bed')
                   : t('reminder.target_none');

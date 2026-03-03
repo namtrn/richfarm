@@ -23,7 +23,11 @@ async function loadOrCreateDeviceId() {
 export async function getDeviceId() {
   if (cachedId) return cachedId;
   if (!inflight) {
-    inflight = loadOrCreateDeviceId()
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('AsyncStorage timeout')), 2000)
+    );
+
+    inflight = Promise.race([loadOrCreateDeviceId(), timeoutPromise])
       .then((id) => {
         cachedId = id;
         return id;

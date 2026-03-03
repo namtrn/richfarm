@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useDeferredValue, useMemo, useState, type ReactNode } from 'react';
 import {
     View,
     Text,
@@ -110,6 +110,7 @@ export default function ExplorerScreen() {
     const { isDark } = useThemeContext();
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const [query, setQuery] = useState('');
+    const deferredQuery = useDeferredValue(query);
 
     const { plants: libraryPlants, isLoading: isLibraryLoading } = usePlantLibrary(locale);
     const { plants: userPlants, isLoading: isUserPlantsLoading } = usePlants();
@@ -119,6 +120,8 @@ export default function ExplorerScreen() {
     const isHealthLoading = pestsDiseases === undefined;
 
     const isSearching = query.trim().length > 0;
+    const normalizedDeferredQuery = deferredQuery.trim();
+    const isDeferredSearching = normalizedDeferredQuery.length > 0;
 
     const libraryById = useMemo(() => {
         const map = new Map<string, any>();
@@ -129,25 +132,25 @@ export default function ExplorerScreen() {
     }, [libraryPlants]);
 
     const myPlantMatches = useMemo(() => {
-        if (!isSearching) return [];
+        if (!isDeferredSearching) return [];
         return userPlants
             .filter((plant: any) => {
                 const master = plant.plantMasterId ? libraryById.get(plant.plantMasterId) : undefined;
-                return matchesSearch(query, [
-                    plant.nickname,
+                return matchesSearch(normalizedDeferredQuery, [
+                    plant.displayName,
                     master?.displayName,
                     master?.scientificName,
                     plant.notes,
                 ]);
             })
             .slice(0, RESULT_LIMIT);
-    }, [isSearching, userPlants, libraryById, query]);
+    }, [isDeferredSearching, userPlants, libraryById, normalizedDeferredQuery]);
 
     const libraryMatches = useMemo(() => {
-        if (!isSearching) return [];
+        if (!isDeferredSearching) return [];
         return libraryPlants
             .filter((plant: any) => {
-                return matchesSearch(query, [
+                return matchesSearch(normalizedDeferredQuery, [
                     plant.displayName,
                     plant.scientificName,
                     plant.group,
@@ -155,13 +158,13 @@ export default function ExplorerScreen() {
                 ]);
             })
             .slice(0, RESULT_LIMIT);
-    }, [isSearching, libraryPlants, query]);
+    }, [isDeferredSearching, libraryPlants, normalizedDeferredQuery]);
 
     const healthMatches = useMemo(() => {
-        if (!isSearching) return [];
+        if (!isDeferredSearching) return [];
         return healthItems
             .filter((item: any) => {
-                return matchesSearch(query, [
+                return matchesSearch(normalizedDeferredQuery, [
                     item.name,
                     item.key,
                     item.type,
@@ -169,7 +172,7 @@ export default function ExplorerScreen() {
                 ]);
             })
             .slice(0, RESULT_LIMIT);
-    }, [isSearching, healthItems, query]);
+    }, [isDeferredSearching, healthItems, normalizedDeferredQuery]);
 
     const hasResults = myPlantMatches.length + libraryMatches.length + healthMatches.length > 0;
 
@@ -315,7 +318,7 @@ export default function ExplorerScreen() {
                         >
                             {myPlantMatches.map((plant: any) => {
                                 const master = plant.plantMasterId ? libraryById.get(plant.plantMasterId) : undefined;
-                                const title = plant.nickname ?? master?.displayName ?? master?.scientificName ?? t('plant.unnamed');
+                                const title = plant.displayName ?? master?.displayName ?? plant.scientificName ?? master?.scientificName ?? t('plant.unnamed');
                                 const subtitle = t('plant.status_label', { status: t(`plant.status_${plant.status}`) });
                                 const imageUri = plant.photoUrl ?? master?.imageUrl ?? null;
                                 return (

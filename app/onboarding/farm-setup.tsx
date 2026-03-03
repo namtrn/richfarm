@@ -285,9 +285,9 @@ export default function FarmSetupScreen() {
               paddingHorizontal: 16,
               paddingVertical: 14,
               borderRadius: 18,
-              backgroundColor: isActive ? '#dbe5cc' : '#e4ead9',
+              backgroundColor: isActive ? theme.successBg : theme.accent,
               borderWidth: 1,
-              borderColor: isActive ? '#b5c7a1' : '#d4dcc6',
+              borderColor: isActive ? theme.primary : theme.border,
               opacity: pressed ? 0.9 : 1,
             })}
           >
@@ -299,7 +299,7 @@ export default function FarmSetupScreen() {
                   borderRadius: 10,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: '#cedbbd',
+                  backgroundColor: theme.accent,
                 }}
               >
                 <Icon size={18} color={theme.primary} />
@@ -312,7 +312,7 @@ export default function FarmSetupScreen() {
                 height: 24,
                 borderRadius: 12,
                 borderWidth: 2,
-                borderColor: isActive ? theme.primary : '#7d8d6b',
+                borderColor: isActive ? theme.primary : theme.border,
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: isActive ? theme.primary : 'transparent',
@@ -350,7 +350,7 @@ export default function FarmSetupScreen() {
                 width: 72,
                 height: 72,
                 borderRadius: 14,
-                backgroundColor: isActive ? '#c3d3ad' : '#d3dec4',
+                backgroundColor: isActive ? theme.successBg : theme.accent,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -368,7 +368,7 @@ export default function FarmSetupScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#e9eece' }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <View style={{ paddingTop: 56, paddingHorizontal: 18, paddingBottom: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         {stepIndex > 0 ? (
           <TouchableOpacity
@@ -386,9 +386,9 @@ export default function FarmSetupScreen() {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 6,
-            backgroundColor: '#e4ead9',
+            backgroundColor: theme.accent,
             borderWidth: 1,
-            borderColor: '#d4dcc6',
+            borderColor: theme.border,
             borderRadius: 20,
             paddingHorizontal: 12,
             paddingVertical: 6,
@@ -420,10 +420,10 @@ export default function FarmSetupScreen() {
             flex: 1,
             paddingVertical: 16,
             borderRadius: 22,
-            backgroundColor: '#dfe8cf',
+            backgroundColor: theme.accent,
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: '#cbd8b9',
+            borderColor: theme.border,
           }}
         >
           <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('onboarding.skip')}</Text>
@@ -436,10 +436,10 @@ export default function FarmSetupScreen() {
             paddingVertical: 16,
             borderRadius: 22,
             alignItems: 'center',
-            backgroundColor: canContinue ? '#8ea27e' : '#b7c6a6',
+            backgroundColor: canContinue ? theme.primary : theme.accent,
           }}
         >
-          <Text style={{ fontSize: 16, fontWeight: '700', color: canContinue ? '#ffffff' : '#eef3e4' }}>{t('onboarding.next')}</Text>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: canContinue ? '#ffffff' : theme.textMuted }}>{t('onboarding.next')}</Text>
         </TouchableOpacity>
       </View>
       <LanguagePicker

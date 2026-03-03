@@ -124,7 +124,7 @@ export default function TabLayout() {
   const { width: windowWidth } = useWindowDimensions();
   const { bottom: safeBottom } = useSafeAreaInsets();
 
-  const tabBarLeft = (windowWidth - TAB_BAR_WIDTH) / 2;
+
   const isDark = theme.background === palette.dark.background;
 
   const activePillColor = isDark
@@ -155,8 +155,10 @@ export default function TabLayout() {
           styles.tabBar,
           {
             bottom: floatBottom,
-            left: tabBarLeft,
+            left: 0,
+            right: 0,
             width: TAB_BAR_WIDTH,
+            alignSelf: 'center',
             backgroundColor: 'transparent',
             borderColor,
             shadowColor: isDark ? '#000000' : '#1a4731',

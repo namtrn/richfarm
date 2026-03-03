@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, useDeferredValue } from 'react';
 import {
     View,
     Text,
@@ -582,6 +582,7 @@ export default function LibraryScreen() {
     const initialQuery = Array.isArray(params.q) ? params.q[0] : params.q;
     const tabParam = Array.isArray(params.tab) ? params.tab[0] : params.tab;
     const [search, setSearch] = useState(initialQuery ?? '');
+    const deferredSearch = useDeferredValue(search);
     const [activeTab, setActiveTab] = useState<LibraryTab>(() => normalizeTab(tabParam));
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
     const [selectedPest, setSelectedPest] = useState<any>(null);
@@ -680,26 +681,28 @@ export default function LibraryScreen() {
         };
     }, [selectedPlant, selectedPlantIsSeed, locale]);
 
+    const normalizedSearch = deferredSearch.trim();
+
     const filteredPlants = useMemo(() => {
         let result = plants;
         if (selectedGroup) result = result.filter((p) => p.group === selectedGroup);
-        if (search.trim()) result = result.filter((p) =>
-            matchesSearch(search, [p.displayName, p.scientificName, p.group, p.group?.replace(/_/g, ' ')])
+        if (normalizedSearch) result = result.filter((p) =>
+            matchesSearch(normalizedSearch, [p.displayName, p.scientificName, p.group, p.group?.replace(/_/g, ' ')])
         );
         return result;
-    }, [plants, selectedGroup, search]);
+    }, [plants, selectedGroup, normalizedSearch]);
 
     const filteredPests = useMemo(() => {
-        if (!search.trim()) return pestItems;
+        if (!normalizedSearch) return pestItems;
         return pestItems.filter((item: any) =>
-            matchesSearch(search, [
+            matchesSearch(normalizedSearch, [
                 item.name,
                 item.key,
                 item.type,
                 Array.isArray(item.plantsAffected) ? item.plantsAffected.join(' ') : '',
             ])
         );
-    }, [pestItems, search]);
+    }, [pestItems, normalizedSearch]);
 
     // Dynamic search placeholder based on active tab
     const searchPlaceholder =
@@ -724,6 +727,52 @@ export default function LibraryScreen() {
         }
         router.push('/(tabs)/garden?tab=planning&scanner=1');
     };
+
+    const openPlantDetail = useCallback(
+        (plant: any) => {
+            const query = new URLSearchParams();
+            if (modeParam) query.set('mode', modeParam);
+            if (fromParam) query.set('from', fromParam);
+            if (params.userPlantId) query.set('fromPlantId', String(params.userPlantId));
+            if (bedIdParam) query.set('bedId', bedIdParam);
+            if (xParam !== undefined) query.set('x', xParam);
+            if (yParam !== undefined) query.set('y', yParam);
+            const qs = query.toString();
+            router.push(`/(tabs)/library/${plant._id}${qs ? `?${qs}` : ''}`);
+        },
+        [modeParam, fromParam, params.userPlantId, bedIdParam, xParam, yParam, router]
+    );
+
+    const handleTogglePlantFavorite = useCallback(
+        (plant: any) => {
+            if (isSeedPlant(plant)) return;
+            void toggleFavorite(plant._id).catch(() => undefined);
+        },
+        [isSeedPlant, toggleFavorite]
+    );
+
+    const renderPlantItem = useCallback(
+        ({ item: plant }: { item: any }) => (
+            <PlantCard
+                plant={plant}
+                onPress={() => openPlantDetail(plant)}
+                onToggleFavorite={() => handleTogglePlantFavorite(plant)}
+                isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
+                testID="e2e-library-plant-card"
+            />
+        ),
+        [openPlantDetail, handleTogglePlantFavorite, isSeedPlant, favoriteIds]
+    );
+
+    const renderPestItem = useCallback(
+        ({ item }: { item: any }) => (
+            <PestDiseaseCard item={item} onPress={() => setSelectedPest(item)} />
+        ),
+        []
+    );
+
+    const plantKeyExtractor = useCallback((plant: any) => String(plant._id), []);
+    const pestKeyExtractor = useCallback((item: any) => String(item._id), []);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -859,34 +908,15 @@ export default function LibraryScreen() {
                         <FlatList
                             style={{ flex: 1 }}
                             data={filteredPlants}
-                            keyExtractor={(plant: any) => String(plant._id)}
-                            renderItem={({ item: plant }) => (
-                                <PlantCard
-                                    plant={plant}
-                                    onPress={() => {
-                                        const query = new URLSearchParams();
-                                        if (modeParam) query.set('mode', modeParam);
-                                        if (fromParam) query.set('from', fromParam);
-                                        if (params.userPlantId) query.set('fromPlantId', String(params.userPlantId));
-                                        if (bedIdParam) query.set('bedId', bedIdParam);
-                                        if (xParam !== undefined) query.set('x', xParam);
-                                        if (yParam !== undefined) query.set('y', yParam);
-                                        const qs = query.toString();
-                                        router.push(`/(tabs)/library/${plant._id}${qs ? `?${qs}` : ''}`);
-                                    }}
-                                    onToggleFavorite={() => {
-                                        if (isSeedPlant(plant)) return;
-                                        void toggleFavorite(plant._id).catch(() => undefined);
-                                    }}
-                                    isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
-                                    testID="e2e-library-plant-card"
-                                />
-                            )}
+                            keyExtractor={plantKeyExtractor}
+                            renderItem={renderPlantItem}
                             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={{ padding: 8, paddingTop: 8, paddingBottom: 100 }}
                             removeClippedSubviews
                             initialNumToRender={8}
+                            maxToRenderPerBatch={8}
+                            updateCellsBatchingPeriod={50}
                             windowSize={7}
                         />
                     )}
@@ -910,15 +940,15 @@ export default function LibraryScreen() {
                     ) : (
                         <FlatList
                             data={filteredPests}
-                            keyExtractor={(item: any) => String(item._id)}
-                            renderItem={({ item }) => (
-                                <PestDiseaseCard item={item} onPress={() => setSelectedPest(item)} />
-                            )}
+                            keyExtractor={pestKeyExtractor}
+                            renderItem={renderPestItem}
                             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
                             removeClippedSubviews
                             initialNumToRender={8}
+                            maxToRenderPerBatch={8}
+                            updateCellsBatchingPeriod={50}
                             windowSize={7}
                         />
                     )}
@@ -938,23 +968,19 @@ export default function LibraryScreen() {
                     addLabel={fromParam === 'bed' ? t('bed.add_plant') : undefined}
                     onAdd={async () => {
                         if (selectedPlantIsSeed) return;
-                        const localName = selectedPlant.displayName ?? selectedPlant.scientificName;
                         if (attachMode && params.userPlantId) {
                             await updatePlant(params.userPlantId as any, {
                                 plantMasterId: selectedPlant._id,
-                                nickname: localName,
                             });
                         } else if (fromParam === 'bed' && bedIdParam) {
                             await addPlant({
                                 plantMasterId: selectedPlant._id,
-                                nickname: localName,
                                 bedId: bedIdParam as any,
                                 positionInBed,
                             });
                         } else {
                             await addPlant({
                                 plantMasterId: selectedPlant._id,
-                                nickname: localName,
                             });
                         }
                         setSelectedPlant(null);

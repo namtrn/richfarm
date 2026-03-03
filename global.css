@@ -1,3 +1,236 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    /* Neutral White/Gray Theme */
+    --color-bg-base: #fffffff7;
+    --color-bg-alt: #f1f2f4f7;
+    --color-bg-card: #fffffff7;
+    --color-border: #dee2e6f8;
+    --color-text: #1a1a1a;
+    --color-text-light: #495057;
+    --color-text-muted: #6c757d;
+    --color-scrollbar-thumb: #7b996f;
+    --color-scrollbar-thumb-hover: #5d7f52;
+    --color-scrollbar-track: transparent;
+
+    /* Text Colors */
+    --color-text-primary: #1e293b;
+    --color-text-secondary: #64748b;
+
+    /* Forest Green Accents */
+    --color-primary: #5d7f52;
+    --color-primary-rgb: 93, 127, 82;
+    --color-primary-light: #7b996f;
+    --color-primary-lighter: #96ad8c;
+    --color-primary-dark: #4a6741;
+
+    /* Accent Colors - Forest/Earth Tones */
+    --color-success: #6b8c5f;
+    --color-warning: #c4a678;
+    --color-error: #b87a5a;
+    --color-accent-sage: #8a9a7e;
+    --color-accent-moss: #7a8c6a;
+    --color-accent-bark: #8a7a68;
+    --color-accent-pine: #3e5241;
+    --color-accent-olive: #6b705c;
+    --color-accent-clay: #b07d62;
+    --color-accent-forest: #2d4c3b;
+
+    /* Premium/Gold Colors */
+    --color-premium: #fbbf24;
+    --color-premium-dark: #f59e0b;
+
+    /* Info/Blue Colors */
+    --color-info: #3b82f6;
+    --color-info-light: #60a5fa;
+
+    /* Gray/Slate Colors */
+    --color-gray: #94a3b8;
+    --color-gray-light: #64748b;
+    --color-gray-dark: #1e293b;
+
+    /* Neutral Backgrounds */
+    --color-neutral-100: #f8fafc;
+    --color-neutral-200: #e2e8f0;
+    --color-neutral-300: rgba(240, 240, 240, 0.8);
+    --color-neutral-hover: #e3e7e3;
+
+    /* Warning Orange */
+    --color-warning-orange: #ff9800;
+
+    /* Danger/Red Colors */
+    --color-danger: #ef4444;
+    --color-danger-dark: #cc0000;
+    --color-danger-darker: #990000;
+    --color-danger-light: #dc2626;
+    --color-danger-lighter: #f87171;
+
+
+
+    /* Border Colors */
+    --color-border-subtle: rgba(0, 0, 0, 0.1);
+    --color-border-subtle-hover: rgba(0, 0, 0, 0.15);
+
+    /* Success Message Colors */
+    --color-success-bg: #d1fae5;
+    --color-success-text: #065f46;
+    --color-success-border: #6ee7b7;
+
+    /* Warning Message Colors */
+    --color-warning-bg: #fff7ed;
+    --color-warning-border: #fed7aa;
+    --color-warning-text: #9a3412;
+
+    /* Error Message Colors */
+    --color-error-bg: #fee2e2;
+    --color-error-text: #991b1b;
+    --color-error-border: #fca5a5;
+
+    /* Info Message Colors */
+    --color-info-bg: #dbeafe;
+    --color-info-text: #1e40af;
+    --color-info-border: #93c5fd;
+
+    /* Admin Badge Colors */
+    --color-admin: #8b5cf6;
+    --color-admin-rgb: 139, 92, 246;
+    --color-admin-alt: #6366f1;
+
+    /* Toggle/UI Colors */
+    --color-toggle-bg: #ccc;
+
+    /* Shadows - Adjusted for white backgrounds */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Size Scale */
+    --size-2: 2px;
+    --size-4: 4px;
+    --size-6: 6px;
+    --size-8: 8px;
+    --size-12: 12px;
+    --size-16: 16px;
+    --size-20: 20px;
+    --size-24: 24px;
+    --size-28: 28px;
+    --size-32: 32px;
+    --size-36: 36px;
+    --size-40: 40px;
+
+    /* Border Width */
+    --border-width: 1px;
+    --border-width-md: 2px;
+    --border-width-lg: 3px;
+
+    /* Border Radius */
+    --border-radius-xs: 4px;
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+}
+
+/* Dark Mode Theme */
+:root[data-theme="dark"] {
+    /* Dark Backgrounds */
+    --color-bg-base: #141414;
+    --color-bg-alt: #1c1c1c;
+    --color-bg-card: #242424;
+    --color-border: #2d2d2d;
+    --color-text: #f9fafb;
+    --color-text-light: #d1d5db;
+    --color-text-muted: #9ca3af;
+    --color-scrollbar-thumb: rgba(122, 140, 106, 0.25);
+    --color-scrollbar-thumb-hover: rgba(122, 140, 106, 0.5);
+
+    /* Forest Green - Slightly brighter for dark mode */
+    --color-primary: #7a9670;
+    --color-primary-light: #96ad8c;
+    --color-primary-lighter: #b4c9ab;
+    --color-primary-dark: #5d7f52;
+
+    /* Accent Colors - Adjusted for dark mode */
+    --color-success: #6b8c5f;
+    --color-warning: #c4a678;
+    --color-error: #ef4444;
+    --color-accent-sage: #8a9a7e;
+    --color-accent-moss: #7a8c6a;
+    --color-accent-bark: #8a7a68;
+    --color-accent-pine: #4e6351;
+    --color-accent-olive: #7c8269;
+    --color-accent-clay: #c18e74;
+    --color-accent-forest: #3d5c4b;
+
+    /* Premium/Gold Colors - Dark Mode */
+    --color-premium: #fbbf24;
+    --color-premium-dark: #f59e0b;
+
+    /* Info/Blue Colors - Dark Mode */
+    --color-info: #60a5fa;
+    --color-info-light: #93c5fd;
+
+    /* Gray/Slate Colors - Dark Mode */
+    --color-gray: #9ca3af;
+    --color-gray-light: rgba(255, 255, 255, 0.6);
+    --color-gray-dark: #0a0a0a;
+
+    /* Neutral Backgrounds - Dark Mode */
+    --color-neutral-100: #1a1a1a;
+    --color-neutral-200: #0a0a0a;
+    --color-neutral-300: rgba(30, 30, 30, 0.8);
+    --color-neutral-hover: rgba(255, 255, 255, 0.1);
+
+    /* Warning Orange - Dark Mode */
+    --color-warning-orange: #ff9800;
+
+    /* Danger/Red Colors - Dark Mode */
+    --color-danger: #ef4444;
+    --color-danger-dark: #dc2626;
+    --color-danger-darker: #b91c1c;
+    --color-danger-light: #dc2626;
+    --color-danger-lighter: #f87171;
+
+    /* Text Colors - Dark Mode */
+    --color-text-primary: rgba(255, 255, 255, 0.9);
+    --color-text-secondary: rgba(255, 255, 255, 0.6);
+
+    /* Border Colors - Dark Mode */
+    --color-border-subtle: rgba(255, 255, 255, 0.1);
+    --color-border-subtle-hover: rgba(255, 255, 255, 0.15);
+
+    /* Success Message Colors - Dark Mode */
+    --color-success-bg: rgba(6, 95, 70, 0.2);
+    --color-success-text: #6ee7b7;
+    --color-success-border: rgba(110, 231, 183, 0.3);
+
+    /* Warning Message Colors - Dark Mode */
+    --color-warning-bg: rgba(154, 52, 18, 0.2);
+    --color-warning-text: #fed7aa;
+    --color-warning-border: rgba(253, 215, 170, 0.3);
+
+    /* Error Message Colors - Dark Mode */
+    --color-error-bg: rgba(153, 27, 27, 0.2);
+    --color-error-text: #fca5a5;
+    --color-error-border: rgba(252, 165, 165, 0.3);
+
+    /* Info Message Colors - Dark Mode */
+    --color-info-bg: rgba(30, 64, 175, 0.2);
+    --color-info-text: #93c5fd;
+    --color-info-border: rgba(147, 197, 253, 0.3);
+
+    /* Admin Badge Colors - Dark Mode */
+    --color-admin: #8b5cf6;
+    --color-admin-alt: #6366f1;
+
+    /* Toggle/UI Colors - Dark Mode */
+    --color-toggle-bg: rgba(255, 255, 255, 0.2);
+
+    /* Shadows - Lighter for dark backgrounds */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+}

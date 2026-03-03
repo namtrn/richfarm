@@ -10,13 +10,13 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
 
-    const remoteReminders = useQuery(api.reminders.getReminders, {
+    const remoteReminders = useQuery(api.reminders.getReminders, deviceId ? {
         userPlantId,
         enabledOnly: false,
         deviceId,
-    });
+    } : 'skip');
 
-    const remoteTodayReminders = useQuery(api.reminders.getTodayReminders, { deviceId });
+    const remoteTodayReminders = useQuery(api.reminders.getTodayReminders, deviceId ? { deviceId } : 'skip');
 
     const remindersCacheKey = deviceId
         ? `rf_reminders_v1_${deviceId}${userPlantId ? `_${userPlantId}` : ''}`
@@ -82,8 +82,8 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     };
 
     return {
-        reminders: reminders ?? (shouldBypassRemote ? [] : []),
-        todayReminders: todayReminders ?? (shouldBypassRemote ? [] : []),
+        reminders: reminders ?? [],
+        todayReminders: todayReminders ?? [],
         isLoading: reminders === undefined && !remindersCacheLoaded && !shouldBypassRemote,
         createReminder,
         toggleReminder,

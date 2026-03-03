@@ -249,7 +249,7 @@ export const seedGrowingPlantReminders = internalMutation({
     handler: async (ctx) => {
         const plants = await ctx.db.query("userPlants").collect();
         const activePlants = plants.filter(
-            (p: any) => (p.status === "growing" || p.status === "planting") && !p.isDeleted
+            (p: any) => p.status === "growing" && !p.isDeleted
         );
 
         let plantsUpdated = 0;
@@ -259,6 +259,9 @@ export const seedGrowingPlantReminders = internalMutation({
         for (const plant of activePlants) {
             const key = String(plant._id);
             const hash = hashString(key);
+            const masterPlant = plant.plantMasterId
+                ? await ctx.db.get(plant.plantMasterId)
+                : null;
 
             let plantedAt = plant.plantedAt;
             if (!plantedAt || plantedAt > Date.now()) {
@@ -269,10 +272,7 @@ export const seedGrowingPlantReminders = internalMutation({
             let expectedHarvestDate = plant.expectedHarvestDate;
             if (!expectedHarvestDate || expectedHarvestDate <= plantedAt) {
                 let daysToHarvest: number | undefined;
-                if (plant.plantMasterId) {
-                    const master = await ctx.db.get(plant.plantMasterId);
-                    daysToHarvest = master?.typicalDaysToHarvest;
-                }
+                daysToHarvest = masterPlant?.typicalDaysToHarvest;
                 if (!daysToHarvest || daysToHarvest < 7) {
                     daysToHarvest = 45 + (hash % 35); // 45-79 days after planted
                 }
@@ -292,7 +292,7 @@ export const seedGrowingPlantReminders = internalMutation({
                 plantsUpdated += 1;
             }
 
-            const plantName = plant.nickname ?? "Plant";
+            const plantName = masterPlant?.scientificName ?? "Plant";
             const reminders = await ctx.db
                 .query("reminders")
                 .withIndex("by_user_plant", (q: any) => q.eq("userPlantId", plant._id))

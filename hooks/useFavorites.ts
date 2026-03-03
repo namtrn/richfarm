@@ -23,7 +23,7 @@ export function useFavorites() {
     };
 
     return {
-        favorites: favorites ?? (shouldBypassRemote ? [] : []),
+        favorites: favorites ?? [],
         isLoading: favorites === undefined && !cacheLoaded && !shouldBypassRemote,
         toggleFavorite,
     };

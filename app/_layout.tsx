@@ -19,6 +19,7 @@ import { authClient } from '../lib/auth-client';
 import { SubscriptionProvider } from '../hooks/useSubscription';
 import { palette, useTheme } from '../lib/theme';
 import { ThemeProvider, useThemeContext } from '../lib/ThemeContext';
+import { useAuth } from '../lib/auth';
 
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
@@ -27,11 +28,20 @@ const convex = convexUrl
   : null;
 
 function AuthGuard() {
-  const { isReady, currentUser } = useAppReady();
+  const { isReady, currentUser, deviceId } = useAppReady();
+  const { initUser } = useAuth();
   const router = useRouter();
   const segments = useSegments();
-  useSyncTriggers();
-  useNotifications();
+
+  // Non-critical background hooks
+  useSyncTriggers(isReady);
+  useNotifications(isReady);
+
+  useEffect(() => {
+    if (!isReady) return;
+    // Ensure user session exists (even if anonymous)
+    void initUser();
+  }, [isReady, deviceId]);
 
   useEffect(() => {
     if (!isReady) return;

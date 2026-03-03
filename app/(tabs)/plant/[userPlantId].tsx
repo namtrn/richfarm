@@ -150,8 +150,9 @@ export default function PlantDetailScreen() {
     : undefined;
   const latinName = masterPlant?.scientificName;
   const statusLabel = plant ? t(`plant.status_${plant.status}`) : '';
+  const isPlanning = plant?.status === 'planning' || plant?.status === 'planting';
+  const isGrowing = plant?.status === 'growing';
 
-  const [nickname, setNickname] = useState('');
   const [notes, setNotes] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
   const [bedId, setBedId] = useState<Id<'beds'> | undefined>(undefined);
@@ -190,7 +191,6 @@ export default function PlantDetailScreen() {
 
   useEffect(() => {
     if (!plant) return;
-    setNickname(plant.nickname ?? '');
     setNotes(plant.notes ?? '');
     setExpectedDate(formatDateInput(plant.expectedHarvestDate));
     setBedId(plant.bedId ?? undefined);
@@ -271,7 +271,6 @@ export default function PlantDetailScreen() {
     setSaving(true);
     try {
       await updatePlant(plant._id, {
-        nickname: nickname.trim() || undefined,
         notes: notes.trim() || undefined,
         bedId,
         expectedHarvestDate: expectedDate ? parseDateInput(expectedDate) : undefined,
@@ -452,7 +451,7 @@ export default function PlantDetailScreen() {
           </Animated.View>
         </TouchableOpacity>
         <View style={{ flex: 1, gap: 1 }}>
-          <Animated.Text style={{ fontSize: nameSize, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.nickname ?? t('plant.unnamed')}</Animated.Text>
+          <Animated.Text style={{ fontSize: nameSize, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.displayName ?? plant.scientificName ?? t('plant.unnamed')}</Animated.Text>
           <Animated.Text style={{ fontSize: latinSize, color: theme.textSecondary, fontWeight: '500', fontStyle: latinName ? 'italic' : 'normal' }}>
             {latinName ?? statusLabel}
           </Animated.Text>
@@ -606,17 +605,6 @@ export default function PlantDetailScreen() {
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 16, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
           <View style={{ gap: 8 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.nickname_label')}</Text>
-            <TextInput
-              value={nickname}
-              onChangeText={setNickname}
-              placeholder={t('plant.nickname_placeholder')}
-              placeholderTextColor={theme.textMuted}
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-            />
-          </View>
-
-          <View style={{ gap: 8 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.notes_label')}</Text>
             <TextInput
               value={notes}
@@ -671,7 +659,7 @@ export default function PlantDetailScreen() {
         </View>
 
         <View style={{ gap: 12 }}>
-          {plant.status === 'planting' && (
+          {isPlanning && (
             <TouchableOpacity
               disabled={!canEdit || saving}
               onPress={() => handleStatus('growing')}
@@ -680,10 +668,10 @@ export default function PlantDetailScreen() {
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15, letterSpacing: 0.2 }}>{t('plant.start_growing')}</Text>
             </TouchableOpacity>
           )}
-          {plant.status === 'growing' && (
+          {isGrowing && (
             <TouchableOpacity
               disabled={!canEdit || saving}
-              onPress={() => handleStatus('harvested')}
+              onPress={() => handleStatus('archived')}
               style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', shadowColor: theme.primary, shadowOpacity: 0.1, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } }}
             >
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15, letterSpacing: 0.2 }}>{t('plant.mark_harvested')}</Text>

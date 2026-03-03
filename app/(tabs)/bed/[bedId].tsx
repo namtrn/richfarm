@@ -112,7 +112,7 @@ export default function BedDetailScreen() {
     () => plants.filter(
       (p: any) =>
         p.bedId === bed?._id &&
-        (p.status === 'planting' || p.status === 'growing')
+        (p.status === 'growing' || p.status === 'planning' || p.status === 'planting')
     ),
     [plants, bed?._id]
   );
@@ -229,13 +229,12 @@ export default function BedDetailScreen() {
     setPlantSelectorOpen(true);
   };
 
-  const handleAddPlantFromSelector = async (plantMasterId: string, nickname: string) => {
+  const handleAddPlantFromSelector = async (plantMasterId: string) => {
     if (!bed || !targetCell) return;
     setAddingPlant(true);
     try {
       await addPlant({
         plantMasterId: plantMasterId as any,
-        nickname,
         bedId: bed._id,
         positionInBed: { ...targetCell, width: 1, height: 1 },
       });
@@ -276,7 +275,7 @@ export default function BedDetailScreen() {
     }
 
     Alert.alert(
-      plantEntry.plant.nickname ?? t('bed.plant_in_cell'),
+      plantEntry.plant.displayName ?? plantEntry.plant.scientificName ?? t('bed.plant_in_cell'),
       t('bed.choose_action'),
       [
         {
@@ -670,7 +669,7 @@ export default function BedDetailScreen() {
             ) : filteredLibrary.map(plant => (
               <TouchableOpacity
                 key={plant._id}
-                onPress={() => handleAddPlantFromSelector(plant._id, plant.displayName ?? plant.scientificName)}
+                onPress={() => handleAddPlantFromSelector(plant._id)}
                 disabled={addingPlant}
                 style={{ backgroundColor: theme.background, borderRadius: 16, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: theme.border }}
               >

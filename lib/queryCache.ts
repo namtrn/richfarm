@@ -52,5 +52,9 @@ export function useQueryCache<T>(key: string | null, remote: T | undefined) {
         AsyncStorage.setItem(key, JSON.stringify(remote)).catch(() => undefined);
     }, [remote, key]);
 
-    return { cached, cacheLoaded };
+    // remoteResolved: true once Convex query returns (even null).
+    // Use this to avoid the `null ?? undefined = undefined` trap.
+    const remoteResolved = remote !== undefined;
+
+    return { cached, cacheLoaded, remoteResolved };
 }

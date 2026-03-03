@@ -10,12 +10,17 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   const { isKnown, isOffline } = useNetworkStatus();
   const shouldBypassRemote = isKnown && isOffline;
 
-  const remoteBeds = gardenId
-    ? useQuery(
-      api.gardens.getBedsInGarden,
-      deviceId ? { gardenId, deviceId } : 'skip'
-    )
-    : useQuery(api.beds.getBeds, deviceId ? { deviceId } : 'skip');
+  // Two unconditional hooks — React rules require hooks to always be called.
+  // The correct one runs; the other is skipped via 'skip'.
+  const bedsFromGarden = useQuery(
+    api.gardens.getBedsInGarden,
+    gardenId && deviceId ? { gardenId, deviceId } : 'skip'
+  );
+  const allBeds = useQuery(
+    api.beds.getBeds,
+    !gardenId && deviceId ? { deviceId } : 'skip'
+  );
+  const remoteBeds = bedsFromGarden ?? allBeds;
 
   const cacheKey = deviceId
     ? `rf_beds_v1_${deviceId}${gardenId ? `_${gardenId}` : ''}`
@@ -64,7 +69,7 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   };
 
   return {
-    beds: beds ?? (shouldBypassRemote ? [] : []),
+    beds: beds ?? [],
     isLoading: beds === undefined && !cacheLoaded && !shouldBypassRemote,
     createBed,
     updateBed,
