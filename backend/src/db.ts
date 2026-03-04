@@ -76,11 +76,20 @@ function runMigrations(db: SqliteDatabase): void {
       common_name TEXT NOT NULL,
       scientific_name TEXT,
       category TEXT NOT NULL DEFAULT 'general',
+      "group" TEXT NOT NULL DEFAULT 'other',
+      family TEXT,
+      purposes_json TEXT NOT NULL DEFAULT '[]',
       growth_stage TEXT NOT NULL DEFAULT 'seedling' CHECK (growth_stage IN ('seedling', 'vegetative', 'flowering', 'harvest')),
+      typical_days_to_harvest INTEGER,
+      germination_days INTEGER,
       soil_ph_min REAL CHECK (soil_ph_min IS NULL OR (soil_ph_min >= 0 AND soil_ph_min <= 14)),
       soil_ph_max REAL CHECK (soil_ph_max IS NULL OR (soil_ph_max >= 0 AND soil_ph_max <= 14)),
       moisture_target INTEGER CHECK (moisture_target IS NULL OR (moisture_target >= 0 AND moisture_target <= 100)),
       light_hours INTEGER CHECK (light_hours IS NULL OR (light_hours >= 0 AND light_hours <= 24)),
+      spacing_cm REAL,
+      water_liters_per_m2 REAL,
+      yield_kg_per_m2 REAL,
+      image_url TEXT,
       is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
       notes TEXT,
       metadata_json TEXT NOT NULL DEFAULT '{}',
@@ -95,6 +104,30 @@ function runMigrations(db: SqliteDatabase): void {
     WHEN NEW.updated_at = OLD.updated_at
     BEGIN
       UPDATE master_plants
+      SET updated_at = datetime('now')
+      WHERE id = OLD.id;
+    END;
+
+    CREATE TABLE IF NOT EXISTS master_plant_i18n (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      master_plant_id INTEGER NOT NULL,
+      locale TEXT NOT NULL, -- 'vi', 'en'
+      common_name TEXT NOT NULL,
+      description TEXT,
+      care_content_json TEXT NOT NULL DEFAULT '{}',
+      content_version INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(master_plant_id, locale),
+      FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
+    );
+
+    CREATE TRIGGER IF NOT EXISTS trg_master_plant_i18n_updated_at
+    AFTER UPDATE ON master_plant_i18n
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+    BEGIN
+      UPDATE master_plant_i18n
       SET updated_at = datetime('now')
       WHERE id = OLD.id;
     END;

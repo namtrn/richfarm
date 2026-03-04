@@ -12,6 +12,7 @@ import type { ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
 import { createGenericDataRouter } from "./generic-data";
 import { createMasterPlantsRouter, handleMasterPlantsError } from "./master-plants";
+import { createMasterPlantI18nRouter } from "./master-plant-i18n";
 
 function resolveDashboardDirectory(): string | null {
   const candidateDirectories = [
@@ -58,6 +59,7 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   app.use("/api/auth", createAuthRouter(db, options.auth));
 
   app.use("/api/master-plants", requireAuth(options.auth), createMasterPlantsRouter(db, options.syncService));
+  app.use("/api/master-plants-i18n", requireAuth(options.auth), createMasterPlantI18nRouter(db, options.syncService));
   app.use(
     "/api",
     requireAuth(options.auth),

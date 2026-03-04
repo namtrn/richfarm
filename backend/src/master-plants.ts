@@ -12,11 +12,20 @@ const masterPlantObjectSchema = z.object({
   common_name: z.string().trim().min(1).max(120),
   scientific_name: z.string().trim().max(160).nullish(),
   category: z.string().trim().min(1).max(80).default("general"),
+  group: z.string().trim().min(1).max(80).default("other"),
+  family: z.string().trim().max(120).nullish(),
+  purposes: z.array(z.string()).default([]),
   growth_stage: growthStageSchema.default("seedling"),
+  typical_days_to_harvest: z.number().int().min(0).nullish(),
+  germination_days: z.number().int().min(0).nullish(),
   soil_ph_min: z.number().min(0).max(14).nullish(),
   soil_ph_max: z.number().min(0).max(14).nullish(),
   moisture_target: z.number().int().min(0).max(100).nullish(),
   light_hours: z.number().int().min(0).max(24).nullish(),
+  spacing_cm: z.number().min(0).nullish(),
+  water_liters_per_m2: z.number().min(0).nullish(),
+  yield_kg_per_m2: z.number().min(0).nullish(),
+  image_url: z.string().url().nullish(),
   is_active: z.boolean().default(true),
   notes: z.string().max(5000).nullish(),
   metadata_json: z.record(z.string(), z.unknown()).default({}),
@@ -78,11 +87,20 @@ interface MasterPlantRow {
   common_name: string;
   scientific_name: string | null;
   category: string;
+  group: string;
+  family: string | null;
+  purposes_json: string;
   growth_stage: string;
+  typical_days_to_harvest: number | null;
+  germination_days: number | null;
   soil_ph_min: number | null;
   soil_ph_max: number | null;
   moisture_target: number | null;
   light_hours: number | null;
+  spacing_cm: number | null;
+  water_liters_per_m2: number | null;
+  yield_kg_per_m2: number | null;
+  image_url: string | null;
   is_active: number;
   notes: string | null;
   metadata_json: string;
@@ -90,17 +108,13 @@ interface MasterPlantRow {
   updated_at: string;
 }
 
-function parseMetadata(rawValue: string): Record<string, unknown> {
+function parseJson(rawValue: string): any {
   try {
     const parsed = JSON.parse(rawValue);
-    if (typeof parsed === "object" && parsed !== null) {
-      return parsed as Record<string, unknown>;
-    }
+    return parsed;
   } catch {
-    // Ignore JSON parse errors and return empty object.
+    return null;
   }
-
-  return {};
 }
 
 function normalizeMasterPlant(row: MasterPlantRow) {
@@ -110,14 +124,23 @@ function normalizeMasterPlant(row: MasterPlantRow) {
     common_name: row.common_name,
     scientific_name: row.scientific_name,
     category: row.category,
+    group: row.group,
+    family: row.family,
+    purposes: parseJson(row.purposes_json) ?? [],
     growth_stage: row.growth_stage,
+    typical_days_to_harvest: row.typical_days_to_harvest,
+    germination_days: row.germination_days,
     soil_ph_min: row.soil_ph_min,
     soil_ph_max: row.soil_ph_max,
     moisture_target: row.moisture_target,
     light_hours: row.light_hours,
+    spacing_cm: row.spacing_cm,
+    water_liters_per_m2: row.water_liters_per_m2,
+    yield_kg_per_m2: row.yield_kg_per_m2,
+    image_url: row.image_url,
     is_active: Boolean(row.is_active),
     notes: row.notes,
-    metadata_json: parseMetadata(row.metadata_json),
+    metadata_json: parseJson(row.metadata_json) || {},
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -203,26 +226,44 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
             common_name,
             scientific_name,
             category,
+            "group",
+            family,
+            purposes_json,
             growth_stage,
+            typical_days_to_harvest,
+            germination_days,
             soil_ph_min,
             soil_ph_max,
             moisture_target,
             light_hours,
+            spacing_cm,
+            water_liters_per_m2,
+            yield_kg_per_m2,
+            image_url,
             is_active,
             notes,
             metadata_json
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           payload.plant_code,
           payload.common_name,
           payload.scientific_name ?? null,
           payload.category,
+          payload.group,
+          payload.family ?? null,
+          JSON.stringify(payload.purposes),
           payload.growth_stage,
+          payload.typical_days_to_harvest ?? null,
+          payload.germination_days ?? null,
           payload.soil_ph_min ?? null,
           payload.soil_ph_max ?? null,
           payload.moisture_target ?? null,
           payload.light_hours ?? null,
+          payload.spacing_cm ?? null,
+          payload.water_liters_per_m2 ?? null,
+          payload.yield_kg_per_m2 ?? null,
+          payload.image_url ?? null,
           toSqliteBoolean(payload.is_active),
           payload.notes ?? null,
           JSON.stringify(payload.metadata_json),
@@ -267,11 +308,20 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           common_name = ?,
           scientific_name = ?,
           category = ?,
+          "group" = ?,
+          family = ?,
+          purposes_json = ?,
           growth_stage = ?,
+          typical_days_to_harvest = ?,
+          germination_days = ?,
           soil_ph_min = ?,
           soil_ph_max = ?,
           moisture_target = ?,
           light_hours = ?,
+          spacing_cm = ?,
+          water_liters_per_m2 = ?,
+          yield_kg_per_m2 = ?,
+          image_url = ?,
           is_active = ?,
           notes = ?,
           metadata_json = ?,
@@ -282,11 +332,20 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         mergedPayload.common_name,
         mergedPayload.scientific_name ?? null,
         mergedPayload.category,
+        mergedPayload.group,
+        mergedPayload.family ?? null,
+        JSON.stringify(mergedPayload.purposes),
         mergedPayload.growth_stage,
+        mergedPayload.typical_days_to_harvest ?? null,
+        mergedPayload.germination_days ?? null,
         mergedPayload.soil_ph_min ?? null,
         mergedPayload.soil_ph_max ?? null,
         mergedPayload.moisture_target ?? null,
         mergedPayload.light_hours ?? null,
+        mergedPayload.spacing_cm ?? null,
+        mergedPayload.water_liters_per_m2 ?? null,
+        mergedPayload.yield_kg_per_m2 ?? null,
+        mergedPayload.image_url ?? null,
         toSqliteBoolean(mergedPayload.is_active),
         mergedPayload.notes ?? null,
         JSON.stringify(mergedPayload.metadata_json),
