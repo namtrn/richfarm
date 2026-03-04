@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-
 import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
@@ -14,16 +11,6 @@ import { createGenericDataRouter } from "./generic-data";
 import { createMasterPlantsRouter, handleMasterPlantsError } from "./master-plants";
 import { createMasterPlantI18nRouter } from "./master-plant-i18n";
 
-function resolveDashboardDirectory(): string | null {
-  const candidateDirectories = [
-    path.resolve(__dirname, "public"),
-    path.resolve(process.cwd(), "dist/public"),
-    path.resolve(process.cwd(), "src/public"),
-  ];
-
-  return candidateDirectories.find((directory) => fs.existsSync(directory)) ?? null;
-}
-
 interface CreateAppOptions {
   auth: AuthConfig;
   syncService?: ConvexSyncService;
@@ -31,6 +18,8 @@ interface CreateAppOptions {
 
 export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   const app = express();
+  app.set("etag", false);
+  const authMiddleware = requireAuth(options.auth);
 
   app.use(
     helmet({
@@ -39,6 +28,10 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   );
   app.use(cors());
   app.use(express.json({ limit: "1mb" }));
+  app.use("/api", (_req, res, next) => {
+    res.setHeader("Cache-Control", "no-store");
+    next();
+  });
   app.use(
     "/api/auth/login",
     rateLimit({
@@ -58,29 +51,26 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
 
   app.use("/api/auth", createAuthRouter(db, options.auth));
 
-  app.use("/api/master-plants", requireAuth(options.auth), createMasterPlantsRouter(db, options.syncService));
-  app.use("/api/master-plants-i18n", requireAuth(options.auth), createMasterPlantI18nRouter(db, options.syncService));
+  app.use("/api/master-plants", (req, res, next) => {
+    if (req.method === "GET") {
+      next();
+      return;
+    }
+
+    authMiddleware(req, res, next);
+  });
+  app.use("/api/master-plants", createMasterPlantsRouter(db, options.syncService));
+  app.use("/api/master-plants-i18n", authMiddleware, createMasterPlantI18nRouter(db, options.syncService));
   app.use(
     "/api",
-    requireAuth(options.auth),
+    authMiddleware,
     requireRole(["admin", "editor"]),
     createGenericDataRouter(db),
   );
 
-  const dashboardDirectory = resolveDashboardDirectory();
-  if (dashboardDirectory) {
-    app.use(
-      "/dashboard",
-      express.static(dashboardDirectory, {
-        index: "index.html",
-      }),
-    );
-  }
-
   app.get("/", (_req, res) => {
     res.json({
       message: "RichFarm backend is running",
-      dashboard: "/dashboard",
       health: "/api/health",
     });
   });

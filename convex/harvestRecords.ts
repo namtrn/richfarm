@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { requireUser } from "./auth";
+import { requireUser } from "./lib/user";
 
 export const addHarvest = mutation({
     args: {

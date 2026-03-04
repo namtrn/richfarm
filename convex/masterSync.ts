@@ -24,6 +24,16 @@ const backendRowValidator = v.object({
   is_active: v.boolean(),
   notes: v.optional(v.union(v.string(), v.null())),
   metadata_json: v.optional(v.any()),
+  i18n: v.object({
+    vi: v.object({
+      common_name: v.string(),
+      description: v.optional(v.string()),
+    }),
+    en: v.object({
+      common_name: v.string(),
+      description: v.optional(v.string()),
+    }),
+  }),
   created_at: v.string(),
   updated_at: v.string(),
 });
@@ -52,7 +62,10 @@ export const upsertPlantFromBackend = mutation({
       .withIndex("by_scientific_name", (q) => q.eq("scientificName", scientificName))
       .first();
 
-    const commonNames = [{ locale: "vi", name: args.row.common_name }];
+    const commonNames = [
+      { locale: "vi", name: args.row.i18n.vi.common_name },
+      { locale: "en", name: args.row.i18n.en.common_name },
+    ];
 
     const patch = {
       scientificName,
@@ -78,13 +91,41 @@ export const upsertPlantFromBackend = mutation({
       source: `backend:${args.source}:id_${args.row.id}`,
     };
 
-    if (!existing) {
-      const inserted = await ctx.db.insert("plantsMaster", patch);
-      return { action: "inserted", id: inserted };
+    let plantId = existing?._id;
+
+    if (!plantId) {
+      plantId = await ctx.db.insert("plantsMaster", patch);
+    } else {
+      await ctx.db.patch(plantId, patch);
     }
 
-    await ctx.db.patch(existing._id, patch);
-    return { action: "updated", id: existing._id };
+    const locales = [
+      { locale: "vi", data: args.row.i18n.vi },
+      { locale: "en", data: args.row.i18n.en },
+    ];
+
+    for (const item of locales) {
+      const existingI18n = await ctx.db
+        .query("plantI18n")
+        .withIndex("by_plant_locale", (q) => q.eq("plantId", plantId).eq("locale", item.locale))
+        .first();
+
+      if (!existingI18n) {
+        await ctx.db.insert("plantI18n", {
+          plantId,
+          locale: item.locale,
+          commonName: item.data.common_name,
+          description: item.data.description ?? undefined,
+        });
+      } else {
+        await ctx.db.patch(existingI18n._id, {
+          commonName: item.data.common_name,
+          description: item.data.description ?? undefined,
+        });
+      }
+    }
+
+    return { action: existing ? "updated" : "inserted", id: plantId };
   },
 });
 

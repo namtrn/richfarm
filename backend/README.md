@@ -1,6 +1,6 @@
 # RichFarm Backend (TypeScript)
 
-Backend quản lý `master_plants` + dashboard CRUD tự động theo schema database (SQLite).
+Backend API quản lý `master_plants` (SQLite + Convex sync).
 
 ## Chạy local
 
@@ -12,7 +12,6 @@ npm run dev
 
 Mặc định chạy tại:
 - API: `http://localhost:4000`
-- Dashboard: `http://localhost:4000/dashboard`
 
 ## Biến môi trường
 
@@ -29,7 +28,7 @@ Mặc định chạy tại:
 
 ## Auth
 
-- Dashboard/API yêu cầu login qua `POST /api/auth/login`
+- API yêu cầu login qua `POST /api/auth/login` cho các route cần auth
 - Nhận JWT rồi gửi `Authorization: Bearer <token>`
 - Đã bật rate limit cho endpoint login
 

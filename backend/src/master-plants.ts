@@ -2,14 +2,14 @@ import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { ZodError, z } from "zod";
 
-import type { ConvexSyncService } from "./convex-sync";
+import type { ConvexPlantLibraryItem, ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
 
 const growthStageSchema = z.enum(["seedling", "vegetative", "flowering", "harvest"]);
 
 const masterPlantObjectSchema = z.object({
   plant_code: z.string().trim().min(3).max(40).regex(/^[A-Za-z0-9_-]+$/),
-  common_name: z.string().trim().min(1).max(120),
+  common_name: z.string().trim().min(1).max(120).optional(),
   scientific_name: z.string().trim().max(160).nullish(),
   category: z.string().trim().min(1).max(80).default("general"),
   group: z.string().trim().min(1).max(80).default("other"),
@@ -29,10 +29,38 @@ const masterPlantObjectSchema = z.object({
   is_active: z.boolean().default(true),
   notes: z.string().max(5000).nullish(),
   metadata_json: z.record(z.string(), z.unknown()).default({}),
+  i18n: z
+    .object({
+      vi: z.object({
+        common_name: z.string().trim().min(1).max(120),
+        description: z.string().trim().max(2000).optional(),
+      }),
+      en: z.object({
+        common_name: z.string().trim().min(1).max(120),
+        description: z.string().trim().max(2000).optional(),
+      }),
+    })
+    .optional(),
 });
 
 const createMasterPlantSchema = masterPlantObjectSchema
   .superRefine((data, ctx) => {
+    if (!data.common_name && !data.i18n?.vi?.common_name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "common_name or i18n.vi.common_name is required",
+        path: ["common_name"],
+      });
+    }
+
+    if (!data.i18n?.vi || !data.i18n?.en) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "i18n with both vi and en is required",
+        path: ["i18n"],
+      });
+    }
+
     if (
       typeof data.soil_ph_min === "number" &&
       typeof data.soil_ph_max === "number" &&
@@ -49,6 +77,14 @@ const createMasterPlantSchema = masterPlantObjectSchema
 const updateMasterPlantSchema = masterPlantObjectSchema
   .partial()
   .superRefine((data, ctx) => {
+    if (data.i18n && (!data.i18n.vi || !data.i18n.en)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "i18n must include both vi and en",
+        path: ["i18n"],
+      });
+    }
+
     if (
       typeof data.soil_ph_min === "number" &&
       typeof data.soil_ph_max === "number" &&
@@ -108,6 +144,16 @@ interface MasterPlantRow {
   updated_at: string;
 }
 
+interface MasterPlantI18nRow {
+  id: number;
+  master_plant_id: number;
+  locale: "vi" | "en";
+  common_name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 function parseJson(rawValue: string): any {
   try {
     const parsed = JSON.parse(rawValue);
@@ -146,16 +192,144 @@ function normalizeMasterPlant(row: MasterPlantRow) {
   };
 }
 
+function normalizeI18n(rows: MasterPlantI18nRow[]) {
+  const result: Record<"vi" | "en", { common_name: string; description?: string }> = {
+    vi: { common_name: "" },
+    en: { common_name: "" },
+  };
+
+  for (const row of rows) {
+    result[row.locale] = {
+      common_name: row.common_name,
+      ...(row.description ? { description: row.description } : {}),
+    };
+  }
+
+  return result;
+}
+
+function upsertI18n(
+  db: SqliteDatabase,
+  masterPlantId: number,
+  i18n: { vi: { common_name: string; description?: string }; en: { common_name: string; description?: string } },
+) {
+  const locales: Array<["vi" | "en", { common_name: string; description?: string }]> = [
+    ["vi", i18n.vi],
+    ["en", i18n.en],
+  ];
+
+  for (const [locale, payload] of locales) {
+    db.prepare(
+      `INSERT INTO master_plant_i18n (master_plant_id, locale, common_name, description)
+       VALUES (?, ?, ?, ?)
+       ON CONFLICT(master_plant_id, locale) DO UPDATE SET
+         common_name = excluded.common_name,
+         description = excluded.description,
+         updated_at = datetime('now')`,
+    ).run(masterPlantId, locale, payload.common_name, payload.description ?? null);
+  }
+}
+
+function fetchI18n(db: SqliteDatabase, masterPlantId: number) {
+  const rows = db
+    .prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ?`)
+    .all(masterPlantId) as MasterPlantI18nRow[];
+  return normalizeI18n(rows);
+}
+
 function toSqliteBoolean(value: boolean): 0 | 1 {
   return value ? 1 : 0;
+}
+
+function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
+  const i18n = {
+    vi: { common_name: plant.displayName },
+    en: { common_name: plant.scientificName },
+  };
+
+  for (const row of plant.i18nRows ?? []) {
+    if (row.locale === "vi") {
+      i18n.vi = {
+        common_name: row.commonName,
+        ...(row.description ? { description: row.description } : {}),
+      };
+    }
+    if (row.locale === "en") {
+      i18n.en = {
+        common_name: row.commonName,
+        ...(row.description ? { description: row.description } : {}),
+      };
+    }
+  }
+
+  return {
+    id: plant._id,
+    plant_code: plant.scientificName,
+    common_name: plant.displayName,
+    scientific_name: plant.scientificName,
+    category: "general",
+    group: plant.group ?? "other",
+    family: null,
+    purposes: plant.purposes ?? [],
+    growth_stage: "seedling",
+    typical_days_to_harvest: plant.typicalDaysToHarvest ?? null,
+    germination_days: plant.germinationDays ?? null,
+    soil_ph_min: null,
+    soil_ph_max: null,
+    moisture_target: null,
+    light_hours: null,
+    spacing_cm: plant.spacingCm ?? null,
+    water_liters_per_m2: plant.waterLitersPerM2 ?? null,
+    yield_kg_per_m2: plant.yieldKgPerM2 ?? null,
+    image_url: plant.imageUrl ?? null,
+    is_active: true,
+    notes: plant.description ?? null,
+    metadata_json: {
+      source: plant.source ?? "convex",
+    },
+    created_at: null,
+    updated_at: null,
+    i18n,
+  };
 }
 
 export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: ConvexSyncService): Router {
   const router = Router();
 
-  router.get("/", (req: Request, res: Response, next: NextFunction) => {
+  router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const query = listQuerySchema.parse(req.query);
+
+      if (syncService?.canReadFromConvex()) {
+        const remotePlants = await syncService.fetchMasterPlants("vi");
+        const normalized = (remotePlants ?? []).map(normalizeConvexPlant);
+        const filtered = normalized.filter((plant) => {
+          if (typeof query.is_active === "boolean" && plant.is_active !== query.is_active) {
+            return false;
+          }
+          if (!query.search) {
+            return true;
+          }
+          const needle = query.search.toLowerCase();
+          return [plant.plant_code, plant.common_name, plant.scientific_name]
+            .filter(Boolean)
+            .some((value) => String(value).toLowerCase().includes(needle));
+        });
+
+        const offset = (query.page - 1) * query.page_size;
+        const data = filtered.slice(offset, offset + query.page_size);
+
+        res.json({
+          data,
+          pagination: {
+            page: query.page,
+            page_size: query.page_size,
+            total: filtered.length,
+          },
+        });
+        return;
+      }
+
       const offset = (query.page - 1) * query.page_size;
 
       const conditions: string[] = [];
@@ -184,8 +358,13 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         )
         .all(...conditionParams, query.page_size, offset) as MasterPlantRow[];
 
+      const normalized = rows.map((row) => ({
+        ...normalizeMasterPlant(row),
+        i18n: fetchI18n(db, row.id),
+      }));
+
       res.json({
-        data: rows.map(normalizeMasterPlant),
+        data: normalized,
         pagination: {
           page: query.page,
           page_size: query.page_size,
@@ -209,7 +388,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      res.json({ data: normalizeMasterPlant(row) });
+      res.json({ data: { ...normalizeMasterPlant(row), i18n: fetchI18n(db, row.id) } });
     } catch (error) {
       next(error);
     }
@@ -218,6 +397,8 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
   router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const payload = createMasterPlantSchema.parse(req.body);
+      const i18nPayload = payload.i18n!;
+      const resolvedCommonName = payload.common_name ?? i18nPayload.vi.common_name;
 
       const result = db
         .prepare(
@@ -247,7 +428,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         )
         .run(
           payload.plant_code,
-          payload.common_name,
+          resolvedCommonName,
           payload.scientific_name ?? null,
           payload.category,
           payload.group,
@@ -273,11 +454,25 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         | MasterPlantRow
         | undefined;
 
-      if (row && syncService) {
-        await syncService.syncUpsert(normalizeMasterPlant(row));
+      if (row) {
+        upsertI18n(db, row.id, i18nPayload);
       }
 
-      res.status(201).json({ data: row ? normalizeMasterPlant(row) : null });
+      if (row && syncService) {
+        await syncService.syncUpsert({
+          ...normalizeMasterPlant(row),
+          i18n: i18nPayload,
+        });
+      }
+
+      res.status(201).json({
+        data: row
+          ? {
+              ...normalizeMasterPlant(row),
+              i18n: fetchI18n(db, row.id),
+            }
+          : null,
+      });
     } catch (error) {
       next(error);
     }
@@ -297,8 +492,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
+      const currentI18n = fetchI18n(db, currentRow.id);
       const mergedPayload = createMasterPlantSchema.parse({
         ...normalizeMasterPlant(currentRow),
+        i18n: currentI18n,
         ...payload,
       });
 
@@ -353,10 +550,16 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       );
 
       const updatedRow = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow;
+      const updatedI18n = mergedPayload.i18n!;
+      upsertI18n(db, id, updatedI18n);
+
       if (syncService) {
-        await syncService.syncUpsert(normalizeMasterPlant(updatedRow));
+        await syncService.syncUpsert({
+          ...normalizeMasterPlant(updatedRow),
+          i18n: updatedI18n,
+        });
       }
-      res.json({ data: normalizeMasterPlant(updatedRow) });
+      res.json({ data: { ...normalizeMasterPlant(updatedRow), i18n: fetchI18n(db, id) } });
     } catch (error) {
       next(error);
     }

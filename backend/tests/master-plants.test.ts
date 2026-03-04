@@ -40,6 +40,10 @@ describe("master plants API", () => {
       metadata_json: {
         source: "seed-bank",
       },
+      i18n: {
+        vi: { common_name: "Cà chua", description: "Cây cà chua" },
+        en: { common_name: "Tomato", description: "Tomato plant" },
+      },
     });
 
     expect(createResponse.status).toBe(201);
@@ -65,10 +69,30 @@ describe("master plants API", () => {
       common_name: "Pepper",
       soil_ph_min: 7,
       soil_ph_max: 6,
+      i18n: {
+        vi: { common_name: "Ớt" },
+        en: { common_name: "Pepper" },
+      },
     });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe("Validation failed");
+  });
+
+  it("requires i18n for create", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email: "admin@example.com",
+      password: "password123",
+    });
+    const authHeader = `Bearer ${loginResponse.body.token}`;
+
+    const response = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
+      plant_code: "NO_I18N",
+      common_name: "Missing I18n",
+    });
+
+    expect(response.status).toBe(400);
   });
 
   it("rejects duplicate plant_code with conflict status", async () => {
@@ -82,6 +106,10 @@ describe("master plants API", () => {
     const payload = {
       plant_code: "LETTUCE_001",
       common_name: "Lettuce",
+      i18n: {
+        vi: { common_name: "Xà lách" },
+        en: { common_name: "Lettuce" },
+      },
     };
 
     const firstResponse = await request(app).post("/api/master-plants").set("Authorization", authHeader).send(payload);
@@ -122,9 +150,22 @@ describe("master plants API", () => {
     expect(response.body.error).toBe("Validation failed");
   });
 
-  it("blocks unauthenticated access", async () => {
+  it("allows unauthenticated read access", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const response = await request(app).get("/api/master-plants");
+    expect(response.status).toBe(200);
+  });
+
+  it("blocks unauthenticated write access", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const response = await request(app).post("/api/master-plants").send({
+      plant_code: "NOAUTH_001",
+      common_name: "No Auth",
+      i18n: {
+        vi: { common_name: "Khong auth" },
+        en: { common_name: "No auth" },
+      },
+    });
     expect(response.status).toBe(401);
   });
 });

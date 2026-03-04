@@ -134,6 +134,10 @@ function getTableOrThrow(db: SqliteDatabase, tableName: string): TableMetadata {
   return table;
 }
 
+function isProtectedTable(tableName: string): boolean {
+  return tableName === "master_plants" || tableName === "master_plant_i18n";
+}
+
 function getSingleParam(value: string | string[] | undefined, name: string): string {
   if (typeof value === "string") {
     return value;
@@ -216,6 +220,10 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
   router.post("/tables/:tableName/rows", (req: Request, res: Response, next: NextFunction) => {
     try {
       const tableName = getSingleParam(req.params.tableName, "tableName");
+      if (isProtectedTable(tableName)) {
+        res.status(400).json({ error: `Use /api/master-plants for ${tableName}` });
+        return;
+      }
       const table = getTableOrThrow(db, tableName);
       const primaryKey = getPrimaryKey(table);
       const entries = sanitizePayload(req.body, table);
@@ -260,6 +268,10 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
   router.patch("/tables/:tableName/rows/:id", (req: Request, res: Response, next: NextFunction) => {
     try {
       const tableName = getSingleParam(req.params.tableName, "tableName");
+      if (isProtectedTable(tableName)) {
+        res.status(400).json({ error: `Use /api/master-plants for ${tableName}` });
+        return;
+      }
       const table = getTableOrThrow(db, tableName);
       const primaryKey = getPrimaryKey(table);
 
@@ -312,6 +324,10 @@ export function createGenericDataRouter(db: SqliteDatabase): Router {
   router.delete("/tables/:tableName/rows/:id", (req: Request, res: Response, next: NextFunction) => {
     try {
       const tableName = getSingleParam(req.params.tableName, "tableName");
+      if (isProtectedTable(tableName)) {
+        res.status(400).json({ error: `Use /api/master-plants for ${tableName}` });
+        return;
+      }
       const table = getTableOrThrow(db, tableName);
       const primaryKey = getPrimaryKey(table);
 

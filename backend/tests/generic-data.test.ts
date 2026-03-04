@@ -16,6 +16,10 @@ describe("generic data API", () => {
       "admin@example.com",
       hash,
     );
+    db.prepare(
+      `INSERT INTO master_plants (plant_code, common_name, category, "group", purposes_json, growth_stage, is_active, metadata_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run("GENERIC_001", "Generic Plant", "general", "other", "[]", "seedling", 1, "{}");
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const loginResponse = await request(app).post("/api/auth/login").send({
       email: "admin@example.com",
@@ -56,11 +60,13 @@ describe("generic data API", () => {
   it("rejects unknown columns on dynamic create", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
 
-    const response = await request(app).post("/api/tables/master_plants/rows").set("Authorization", authHeader).send({
-      plant_code: "CABBAGE_001",
-      common_name: "Cabbage",
-      hacked_field: "should fail",
-    });
+    const response = await request(app)
+      .post("/api/tables/plant_measurements/rows")
+      .set("Authorization", authHeader)
+      .send({
+        master_plant_id: 1,
+        hacked_field: "should fail",
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toContain("Unknown column");
@@ -69,11 +75,13 @@ describe("generic data API", () => {
   it("rejects invalid numeric value on dynamic create", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
 
-    const response = await request(app).post("/api/tables/master_plants/rows").set("Authorization", authHeader).send({
-      plant_code: "SPINACH_001",
-      common_name: "Spinach",
-      moisture_target: "abc",
-    });
+    const response = await request(app)
+      .post("/api/tables/plant_measurements/rows")
+      .set("Authorization", authHeader)
+      .send({
+        master_plant_id: 1,
+        humidity: "abc",
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.error).toContain("expects a numeric value");
@@ -82,33 +90,35 @@ describe("generic data API", () => {
   it("supports full dynamic CRUD lifecycle", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
 
-    const createResponse = await request(app).post("/api/tables/master_plants/rows").set("Authorization", authHeader).send({
-      plant_code: "BASIL_001",
-      common_name: "Basil",
-      is_active: 1,
-    });
+    const createResponse = await request(app)
+      .post("/api/tables/plant_measurements/rows")
+      .set("Authorization", authHeader)
+      .send({
+        master_plant_id: 1,
+        temperature_c: 24.5,
+      });
 
     expect(createResponse.status).toBe(201);
     const id = createResponse.body.data.id;
     expect(typeof id).toBe("number");
 
     const patchResponse = await request(app)
-      .patch(`/api/tables/master_plants/rows/${id}`)
+      .patch(`/api/tables/plant_measurements/rows/${id}`)
       .set("Authorization", authHeader)
       .send({
-      common_name: "Sweet Basil",
-    });
+        note: "Morning reading",
+      });
 
     expect(patchResponse.status).toBe(200);
-    expect(patchResponse.body.data.common_name).toBe("Sweet Basil");
+    expect(patchResponse.body.data.note).toBe("Morning reading");
 
     const deleteResponse = await request(app)
-      .delete(`/api/tables/master_plants/rows/${id}`)
+      .delete(`/api/tables/plant_measurements/rows/${id}`)
       .set("Authorization", authHeader);
     expect(deleteResponse.status).toBe(204);
 
     const secondDelete = await request(app)
-      .delete(`/api/tables/master_plants/rows/${id}`)
+      .delete(`/api/tables/plant_measurements/rows/${id}`)
       .set("Authorization", authHeader);
     expect(secondDelete.status).toBe(404);
   });

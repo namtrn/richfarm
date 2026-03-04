@@ -32,8 +32,6 @@ const server = app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`RichFarm backend listening on http://localhost:${port}`);
   // eslint-disable-next-line no-console
-  console.log(`Dashboard available at http://localhost:${port}/dashboard`);
-  // eslint-disable-next-line no-console
   console.log(`Using database at: ${dbPath}`);
   // eslint-disable-next-line no-console
   console.log(`Convex sync: ${syncService.isEnabled() ? "enabled" : "disabled"}`);

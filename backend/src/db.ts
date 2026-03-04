@@ -111,7 +111,7 @@ function runMigrations(db: SqliteDatabase): void {
     CREATE TABLE IF NOT EXISTS master_plant_i18n (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       master_plant_id INTEGER NOT NULL,
-      locale TEXT NOT NULL, -- 'vi', 'en'
+      locale TEXT NOT NULL CHECK (locale IN ('vi', 'en')),
       common_name TEXT NOT NULL,
       description TEXT,
       care_content_json TEXT NOT NULL DEFAULT '{}',
@@ -122,15 +122,6 @@ function runMigrations(db: SqliteDatabase): void {
       FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
     );
 
-    CREATE TRIGGER IF NOT EXISTS trg_master_plant_i18n_updated_at
-    AFTER UPDATE ON master_plant_i18n
-    FOR EACH ROW
-    WHEN NEW.updated_at = OLD.updated_at
-    BEGIN
-      UPDATE master_plant_i18n
-      SET updated_at = datetime('now')
-      WHERE id = OLD.id;
-    END;
 
     CREATE TABLE IF NOT EXISTS plant_measurements (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -146,6 +137,19 @@ function runMigrations(db: SqliteDatabase): void {
 
     CREATE INDEX IF NOT EXISTS idx_plant_measurements_master_plant_id
     ON plant_measurements(master_plant_id);
+
+    CREATE INDEX IF NOT EXISTS idx_master_plant_i18n_master_plant_id
+    ON master_plant_i18n(master_plant_id);
+
+    CREATE TRIGGER IF NOT EXISTS trg_master_plant_i18n_updated_at
+    AFTER UPDATE ON master_plant_i18n
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+    BEGIN
+      UPDATE master_plant_i18n
+      SET updated_at = datetime('now')
+      WHERE id = OLD.id;
+    END;
   `);
 }
 

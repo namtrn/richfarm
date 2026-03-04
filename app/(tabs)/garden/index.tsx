@@ -1142,11 +1142,9 @@ function GrowingTabContent() {
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function GardenScreen() {
+function FarmerGardenScreen() {
     const { t } = useTranslation();
     const theme = useTheme();
-    const { appMode } = useAppMode();
-    const isGardener = appMode === 'gardener';
     const params = useLocalSearchParams<{ tab?: string | string[]; scanner?: string | string[]; create?: string | string[] }>();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -1161,10 +1159,6 @@ export default function GardenScreen() {
     const [gardenLimitError, setGardenLimitError] = useState('');
     const scannerHandledRef = useRef(false);
     const unitSystem = useUnitSystem();
-
-    if (isGardener) {
-        return <GardenerMyPlantsView />;
-    }
 
     const TABS = [
         { key: 'garden', label: t('garden.tab_garden') },
@@ -1287,4 +1281,15 @@ export default function GardenScreen() {
             <CreateGardenModal visible={showCreate} onClose={() => setShowCreate(false)} unitSystem={unitSystem} />
         </View>
     );
+}
+
+export default function GardenScreen() {
+    const { appMode } = useAppMode();
+    const isGardener = appMode === 'gardener';
+
+    if (isGardener) {
+        return <GardenerMyPlantsView />;
+    }
+
+    return <FarmerGardenScreen />;
 }
