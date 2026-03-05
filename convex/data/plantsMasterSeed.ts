@@ -25,6 +25,30 @@ function normalizeKey(value: string) {
     return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+const DEFAULT_SEED_VARIANT_TOKEN = "__default__";
+
+function normalizeSeedScientificName(value: string) {
+    return value
+        .toLowerCase()
+        .replaceAll("×", "x")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function normalizeSeedCultivar(value?: string | null) {
+    const normalized = (value ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+    return normalized || DEFAULT_SEED_VARIANT_TOKEN;
+}
+
+export function buildPlantSeedKey(input: {
+    scientificName: string;
+    cultivar?: string | null;
+}) {
+    return `${normalizeSeedScientificName(input.scientificName)}|${normalizeSeedCultivar(
+        input.cultivar
+    )}`;
+}
+
 const WATER_INCHES_BY_COMMON: Record<string, [number, number]> = {
     "basil": [1, 1.5],
     "beans": [1, 1.5],
@@ -112,6 +136,7 @@ function toYieldKgPerM2(commonName: string | undefined, fallbackKgPerM2: number)
 
 type PlantSeed = {
     scientificName: string;
+    cultivar?: string;
     group: string;
     purposes: string[];
     typicalDaysToHarvest?: number;
@@ -130,6 +155,11 @@ type PlantSeed = {
     seedRatePerM2?: number;
     waterLitersPerM2?: number;
     yieldKgPerM2?: number;
+};
+
+type CultivarExpansionEntry = {
+    scientificName: string;
+    cultivars: string[];
 };
 
 const rawPlantsMasterSeed: PlantSeed[] = [
@@ -215,6 +245,48 @@ const rawPlantsMasterSeed: PlantSeed[] = [
         wateringFrequencyDays: 2,
         fertilizingFrequencyDays: 14,
         spacingCm: 60,
+        source: "seed",
+    },
+
+    {
+        scientificName: "Solanum lycopersicum",
+        cultivar: "Roma",
+        group: "nightshades",
+        purposes: ["cooking", "salad"],
+        typicalDaysToHarvest: 75,
+        germinationDays: 7,
+        lightRequirements: "full_sun",
+        wateringFrequencyDays: 2,
+        fertilizingFrequencyDays: 14,
+        spacingCm: 50,
+        source: "seed",
+    },
+
+    {
+        scientificName: "Solanum lycopersicum",
+        cultivar: "Beefsteak",
+        group: "nightshades",
+        purposes: ["cooking", "salad"],
+        typicalDaysToHarvest: 85,
+        germinationDays: 8,
+        lightRequirements: "full_sun",
+        wateringFrequencyDays: 2,
+        fertilizingFrequencyDays: 14,
+        spacingCm: 65,
+        source: "seed",
+    },
+
+    {
+        scientificName: "Solanum lycopersicum",
+        cultivar: "Cherry",
+        group: "nightshades",
+        purposes: ["cooking", "salad"],
+        typicalDaysToHarvest: 65,
+        germinationDays: 7,
+        lightRequirements: "full_sun",
+        wateringFrequencyDays: 2,
+        fertilizingFrequencyDays: 14,
+        spacingCm: 45,
         source: "seed",
     },
 
@@ -743,7 +815,135 @@ const rawPlantsMasterSeed: PlantSeed[] = [
     },
 ];
 
-const plantI18nEnSeed = [
+const cultivarExpansionSeed: CultivarExpansionEntry[] = [
+    { scientificName: "Ocimum basilicum", cultivars: ["Genovese", "Thai", "Lemon", "Purple Ruffles", "Sweet"] },
+    { scientificName: "Mentha × piperita", cultivars: ["Chocolate", "Orange", "Variegata"] },
+    { scientificName: "Coriandrum sativum", cultivars: ["Santo", "Leisure", "Calypso"] },
+    { scientificName: "Ipomoea aquatica", cultivars: ["Green Stem", "Red Stem", "Broad Leaf"] },
+    { scientificName: "Lactuca sativa", cultivars: ["Romaine", "Butterhead", "Iceberg", "Oakleaf", "Lollo Rosso"] },
+    { scientificName: "Brassica rapa subsp. chinensis", cultivars: ["White Stem", "Shanghai Green", "Joi Choi"] },
+    { scientificName: "Solanum lycopersicum", cultivars: ["San Marzano", "Brandywine", "Early Girl", "Grape"] },
+    { scientificName: "Capsicum annuum", cultivars: ["California Wonder", "Purple Beauty", "Sweet Banana", "Cubanelle"] },
+    { scientificName: "Capsicum frutescens", cultivars: ["Thai Bird", "Tabasco", "Piri Piri", "Malagueta"] },
+    { scientificName: "Allium fistulosum", cultivars: ["Evergreen", "Ishikura", "Parade"] },
+    { scientificName: "Allium sativum", cultivars: ["Music", "German Extra Hardy", "California Early", "Elephant"] },
+    { scientificName: "Raphanus sativus", cultivars: ["Cherry Belle", "French Breakfast", "Watermelon", "White Icicle"] },
+    { scientificName: "Daucus carota", cultivars: ["Nantes", "Danvers", "Imperator", "Chantenay", "Purple Haze"] },
+    { scientificName: "Vigna unguiculata", cultivars: ["Red Noodle", "Black Seeded", "Purple Pod"] },
+    { scientificName: "Cucumis sativus", cultivars: ["Marketmore 76", "English Telegraph", "Persian", "Armenian", "Diva"] },
+    { scientificName: "Momordica charantia", cultivars: ["White Pearl", "Jade Star", "Taiwan Long"] },
+    { scientificName: "Aloe vera", cultivars: ["Barbadensis", "Blue Elf", "Chinensis"] },
+    { scientificName: "Chlorophytum comosum", cultivars: ["Vittatum", "Variegatum", "Bonnie"] },
+    { scientificName: "Perilla frutescens", cultivars: ["Green Shiso", "Red Shiso", "Bicolor Shiso"] },
+    { scientificName: "Eryngium foetidum", cultivars: ["Broad Leaf", "Compact Leaf"] },
+    { scientificName: "Rosmarinus officinalis", cultivars: ["Tuscan Blue", "Arp", "Blue Spires"] },
+    { scientificName: "Thymus vulgaris", cultivars: ["French Thyme", "English Thyme", "Lemon Thyme"] },
+    { scientificName: "Origanum vulgare", cultivars: ["Greek Oregano", "Golden Oregano", "Hot and Spicy"] },
+    { scientificName: "Petroselinum crispum", cultivars: ["Curly", "Italian Flat Leaf", "Dark Green"] },
+    { scientificName: "Anethum graveolens", cultivars: ["Bouquet", "Mammoth", "Fernleaf"] },
+    { scientificName: "Brassica oleracea var. capitata", cultivars: ["Green Acre", "Red Express", "Savoy Ace", "Golden Acre"] },
+    { scientificName: "Brassica oleracea var. italica", cultivars: ["Calabrese", "Waltham 29", "Green Magic", "Marathon"] },
+    { scientificName: "Brassica oleracea var. botrytis", cultivars: ["Snowball", "Romanesco", "Graffiti", "Veronica"] },
+    { scientificName: "Spinacia oleracea", cultivars: ["Bloomsdale", "Baby Leaf", "Space", "Giant Winter"] },
+    { scientificName: "Brassica rapa subsp. pekinensis", cultivars: ["Michihili", "Bilko", "Rubicon"] },
+    { scientificName: "Beta vulgaris", cultivars: ["Detroit Dark Red", "Chioggia", "Golden Beet"] },
+    { scientificName: "Solanum melongena", cultivars: ["Black Beauty", "Japanese Long", "Fairy Tale", "Rosa Bianca"] },
+    { scientificName: "Phaseolus vulgaris", cultivars: ["Blue Lake", "Kentucky Wonder", "Provider", "Dragon Tongue"] },
+    { scientificName: "Pisum sativum", cultivars: ["Sugar Snap", "Snow Pea", "Little Marvel", "Green Arrow"] },
+    { scientificName: "Arachis hypogaea", cultivars: ["Valencia", "Virginia", "Spanish Redskin"] },
+    { scientificName: "Cucurbita pepo", cultivars: ["Black Beauty", "Gold Rush", "Cocozelle", "Eight Ball"] },
+    { scientificName: "Cucurbita moschata", cultivars: ["Butternut Waltham", "Musquee de Provence", "Tahitian"] },
+    { scientificName: "Citrullus lanatus", cultivars: ["Crimson Sweet", "Sugar Baby", "Charleston Gray", "Yellow Crimson"] },
+    { scientificName: "Cucumis melo", cultivars: ["Honeydew", "Cantaloupe", "Galia", "Hami"] },
+    { scientificName: "Fragaria x ananassa", cultivars: ["Albion", "Camarosa", "Chandler", "Seascape"] },
+    { scientificName: "Citrus limon", cultivars: ["Eureka", "Lisbon", "Meyer"] },
+    { scientificName: "Citrus sinensis", cultivars: ["Navel", "Valencia", "Blood Orange"] },
+    { scientificName: "Carica papaya", cultivars: ["Red Lady", "Sunrise Solo", "Tainung"] },
+    { scientificName: "Hibiscus rosa-sinensis", cultivars: ["Red Single", "Yellow Double", "Pink Giant"] },
+    { scientificName: "Tagetes erecta", cultivars: ["Orange Giant", "Yellow Supreme", "Antigua"] },
+    { scientificName: "Rosa chinensis", cultivars: ["Iceberg", "Double Delight", "Mister Lincoln", "Peace"] },
+    { scientificName: "Helianthus annuus", cultivars: ["Mammoth", "Teddy Bear", "Sunrich Gold"] },
+    { scientificName: "Epipremnum aureum", cultivars: ["Marble Queen", "Neon", "N Joy", "Jade"] },
+    { scientificName: "Sansevieria trifasciata", cultivars: ["Laurentii", "Moonshine", "Hahnii", "Black Coral"] },
+    { scientificName: "Ficus elastica", cultivars: ["Burgundy", "Tineke", "Ruby", "Decora"] },
+];
+
+function dedupePlantsBySeedKey(plants: PlantSeed[]) {
+    const seen = new Set<string>();
+    const result: PlantSeed[] = [];
+    for (const plant of plants) {
+        const key = buildPlantSeedKey({
+            scientificName: plant.scientificName,
+            cultivar: plant.cultivar,
+        });
+        if (seen.has(key)) continue;
+        seen.add(key);
+        result.push(plant);
+    }
+    return result;
+}
+
+function buildCultivarPlantSeed(
+    basePlants: PlantSeed[],
+    expansion: CultivarExpansionEntry[]
+) {
+    const baseByScientific = new Map<string, PlantSeed>();
+    for (const plant of basePlants) {
+        if (plant.cultivar?.trim()) continue;
+        const key = normalizeSeedScientificName(plant.scientificName);
+        if (!baseByScientific.has(key)) {
+            baseByScientific.set(key, plant);
+        }
+    }
+
+    const dayOffsets = [-8, -4, 0, 4, 8];
+    const spacingOffsets = [-8, -4, 0, 4, 8];
+    const generated: PlantSeed[] = [];
+    for (const entry of expansion) {
+        const base = baseByScientific.get(normalizeSeedScientificName(entry.scientificName));
+        if (!base) continue;
+        for (let index = 0; index < entry.cultivars.length; index += 1) {
+            const cultivar = entry.cultivars[index];
+            const daysOffset = dayOffsets[index % dayOffsets.length];
+            const spacingOffset = spacingOffsets[index % spacingOffsets.length];
+            const nextDays =
+                typeof base.typicalDaysToHarvest === "number"
+                    ? Math.max(20, base.typicalDaysToHarvest + daysOffset)
+                    : undefined;
+            const nextSpacing =
+                typeof base.spacingCm === "number"
+                    ? Math.max(10, base.spacingCm + spacingOffset)
+                    : base.spacingCm;
+            generated.push({
+                ...base,
+                cultivar,
+                typicalDaysToHarvest: nextDays,
+                spacingCm: nextSpacing,
+                maxPlantsPerM2: undefined,
+                seedRatePerM2: undefined,
+                waterLitersPerM2: undefined,
+                yieldKgPerM2: undefined,
+            });
+        }
+    }
+
+    return generated;
+}
+
+const expandedRawPlantsMasterSeed: PlantSeed[] = dedupePlantsBySeedKey([
+    ...rawPlantsMasterSeed,
+    ...buildCultivarPlantSeed(rawPlantsMasterSeed, cultivarExpansionSeed),
+]);
+
+type PlantI18nSeedRow = {
+    scientificName: string;
+    cultivar?: string;
+    locale: string;
+    commonName: string;
+    description?: string;
+};
+
+const plantI18nEnSeed: PlantI18nSeedRow[] = [
     {
         scientificName: "Ocimum basilicum",
         locale: "en",
@@ -791,6 +991,30 @@ const plantI18nEnSeed = [
         locale: "en",
         commonName: "Tomato",
         description: "Popular fruiting vegetable with many varieties.",
+    },
+
+    {
+        scientificName: "Solanum lycopersicum",
+        cultivar: "Roma",
+        locale: "en",
+        commonName: "Roma Tomato",
+        description: "Plum-shaped tomato variety ideal for sauce and cooking.",
+    },
+
+    {
+        scientificName: "Solanum lycopersicum",
+        cultivar: "Beefsteak",
+        locale: "en",
+        commonName: "Beefsteak Tomato",
+        description: "Large, meaty slicing tomato commonly used fresh.",
+    },
+
+    {
+        scientificName: "Solanum lycopersicum",
+        cultivar: "Cherry",
+        locale: "en",
+        commonName: "Cherry Tomato",
+        description: "Small, sweet tomato variety great for salads and snacks.",
     },
 
     {
@@ -1095,7 +1319,7 @@ const plantI18nEnSeed = [
     },
 ];
 
-const plantI18nViSeed = [
+const plantI18nViSeed: PlantI18nSeedRow[] = [
     { scientificName: "Ocimum basilicum", locale: "vi", commonName: "Húng quế", description: "Rau gia vi thom, de trong va de cham soc." },
     { scientificName: "Mentha × piperita", locale: "vi", commonName: "Bac ha", description: "Rau thom mat, lon nhanh, de cham soc." },
     { scientificName: "Coriandrum sativum", locale: "vi", commonName: "Ngo ri", description: "Rau gia vi pho bien, dung ca la va hat." },
@@ -1103,6 +1327,9 @@ const plantI18nViSeed = [
     { scientificName: "Lactuca sativa", locale: "vi", commonName: "Xa lach", description: "Rau an la gion, hop trong chau va khi hau mat." },
     { scientificName: "Brassica rapa subsp. chinensis", locale: "vi", commonName: "Cai thi", description: "Rau cai lon nhanh, than la mem de an." },
     { scientificName: "Solanum lycopersicum", locale: "vi", commonName: "Ca chua", description: "Cay an qua pho bien, nhieu giong va de trong." },
+    { scientificName: "Solanum lycopersicum", cultivar: "Roma", locale: "vi", commonName: "Ca chua Roma", description: "Giong ca chua dang dai, thich hop lam sot va nau an." },
+    { scientificName: "Solanum lycopersicum", cultivar: "Beefsteak", locale: "vi", commonName: "Ca chua Beefsteak", description: "Giong ca chua qua to, thit day, thuong dung an tuoi." },
+    { scientificName: "Solanum lycopersicum", cultivar: "Cherry", locale: "vi", commonName: "Ca chua bi", description: "Giong ca chua qua nho, vi ngot, phu hop salad." },
     { scientificName: "Capsicum annuum", locale: "vi", commonName: "Ot chuong", description: "Qua ngot, mau sac da dang, giau vitamin C." },
     { scientificName: "Capsicum frutescens", locale: "vi", commonName: "Ot hiem", description: "Qua nho vi cay, cay khoe va cho nang suat tot." },
     { scientificName: "Allium fistulosum", locale: "vi", commonName: "Hanh la", description: "Cay hanh vi nhe, thu hoach som hoac de lon deu duoc." },
@@ -1148,17 +1375,126 @@ const plantI18nViSeed = [
     { scientificName: "Ficus elastica", locale: "vi", commonName: "Da bun", description: "Cay la to trong nha, ua sang gian tiep." },
 ];
 
-export const plantI18nSeed = [...plantI18nEnSeed, ...plantI18nViSeed];
+function dedupeI18nByPlantLocale(rows: PlantI18nSeedRow[]) {
+    const seen = new Set<string>();
+    const result: PlantI18nSeedRow[] = [];
+    for (const row of rows) {
+        const key = `${buildPlantSeedKey({
+            scientificName: row.scientificName,
+            cultivar: row.cultivar,
+        })}|${row.locale.toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        result.push(row);
+    }
+    return result;
+}
 
-const commonNameByScientific = new Map(
+function buildCultivarI18nSeed(
+    locale: "en" | "vi",
+    expansion: CultivarExpansionEntry[],
+    baseCommonNameByScientific: Map<string, string>
+) {
+    const rows: PlantI18nSeedRow[] = [];
+    for (const entry of expansion) {
+        const baseCommonName =
+            baseCommonNameByScientific.get(
+                normalizeSeedScientificName(entry.scientificName)
+            ) ?? entry.scientificName;
+        for (const cultivar of entry.cultivars) {
+            const commonName =
+                locale === "en"
+                    ? `${cultivar} ${baseCommonName}`
+                    : `${baseCommonName} ${cultivar}`;
+            const description =
+                locale === "en"
+                    ? `Popular cultivar of ${baseCommonName} with stable growth profile.`
+                    : `Giong pho bien cua ${baseCommonName}, sinh truong on dinh.`;
+            rows.push({
+                scientificName: entry.scientificName,
+                cultivar,
+                locale,
+                commonName,
+                description,
+            });
+        }
+    }
+    return rows;
+}
+
+const enBaseCommonNameByScientific = new Map(
+    plantI18nEnSeed
+        .filter((row) => !row.cultivar?.trim())
+        .map(
+            (row) =>
+                [normalizeSeedScientificName(row.scientificName), row.commonName] as const
+        )
+);
+
+const viBaseCommonNameByScientific = new Map(
+    plantI18nViSeed
+        .filter((row) => !row.cultivar?.trim())
+        .map(
+            (row) =>
+                [normalizeSeedScientificName(row.scientificName), row.commonName] as const
+        )
+);
+
+const generatedCultivarI18nEnSeed = buildCultivarI18nSeed(
+    "en",
+    cultivarExpansionSeed,
+    enBaseCommonNameByScientific
+);
+
+const generatedCultivarI18nViSeed = buildCultivarI18nSeed(
+    "vi",
+    cultivarExpansionSeed,
+    viBaseCommonNameByScientific
+);
+
+export const plantI18nSeed: PlantI18nSeedRow[] = dedupeI18nByPlantLocale([
+    ...plantI18nEnSeed,
+    ...generatedCultivarI18nEnSeed,
+    ...plantI18nViSeed,
+    ...generatedCultivarI18nViSeed,
+]);
+
+const commonNameByPlantKey = new Map(
     plantI18nSeed
         .filter((row) => row.locale === "en")
-        .map((row) => [row.scientificName, row.commonName] as const)
+        .map(
+            (row) =>
+                [
+                    buildPlantSeedKey({
+                        scientificName: row.scientificName,
+                        cultivar: row.cultivar,
+                    }),
+                    row.commonName,
+                ] as const
+        )
+);
+
+const commonNameByScientificBase = new Map(
+    plantI18nSeed
+        .filter((row) => row.locale === "en" && !row.cultivar?.trim())
+        .map(
+            (row) =>
+                [normalizeSeedScientificName(row.scientificName), row.commonName] as const
+        )
 );
 
 const yieldsByGroup: Record<string, number[]> = {};
-for (const plant of rawPlantsMasterSeed) {
-    const commonName = commonNameByScientific.get(plant.scientificName);
+for (const plant of expandedRawPlantsMasterSeed) {
+    const commonName =
+        commonNameByPlantKey.get(
+            buildPlantSeedKey({
+                scientificName: plant.scientificName,
+                cultivar: plant.cultivar,
+            })
+        ) ??
+        commonNameByScientificBase.get(
+            normalizeSeedScientificName(plant.scientificName)
+        );
     const key = commonName ? normalizeKey(commonName) : "";
     const range = YIELD_QT_HA_BY_COMMON[key];
     if (!range) continue;
@@ -1176,8 +1512,17 @@ const globalYieldFallback = (() => {
     return Math.round(avg * 100) / 100;
 })();
 
-export const plantsMasterSeed = rawPlantsMasterSeed.map((plant) => {
-    const commonName = commonNameByScientific.get(plant.scientificName);
+export const plantsMasterSeed = expandedRawPlantsMasterSeed.map((plant) => {
+    const commonName =
+        commonNameByPlantKey.get(
+            buildPlantSeedKey({
+                scientificName: plant.scientificName,
+                cultivar: plant.cultivar,
+            })
+        ) ??
+        commonNameByScientificBase.get(
+            normalizeSeedScientificName(plant.scientificName)
+        );
     const maxPlantsPerM2 = plant.maxPlantsPerM2 ?? deriveMaxPlantsPerM2(plant.spacingCm);
     const seedRatePerM2 = maxPlantsPerM2 ? Math.round(maxPlantsPerM2 * 1.2 * 10) / 10 : undefined;
     const waterLitersPerM2 = plant.waterLitersPerM2 ?? toWaterLitersPerM2(commonName);

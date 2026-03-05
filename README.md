@@ -1,121 +1,116 @@
-# Richfarm 🌿
+# Richfarm
 
-Richfarm is a premium, comprehensive garden management application designed to help you plan, grow, and harvest your plants with ease. Whether you are a beginner or an experienced urban gardener, Richfarm provides the tools and information you need to maintain a thriving garden.
+Richfarm is a React Native gardening app with a Convex backend, a plant knowledge library, and admin tooling for maintaining multilingual crop data.
 
-## ✨ Features
+## Features
 
--   **🌱 Garden & Bed Management**: Organize your planting spaces into multiple gardens and beds.
--   **📅 Smart Planning**: track your plant lifecycle from planning to growing to harvest.
--   **🔔 Actionable Reminders**: Never miss a watering or fertilizing task with smart, localized notifications.
--   **📚 Extensive Plant Library**: Access a curated collection of plants with detailed care instructions.
--   **🌍 Multilingual Support**: Fully localized UI and content supporting 6 languages (English, Vietnamese, Spanish, Portuguese, French, Chinese).
--   **🍯 Preservation Recipes**: Learn how to preserve your harvest with recipes for drying, fermenting, and more.
--   **🎨 Premium Aesthetics**: A modern, responsive design built with NativeWind and Lucide icons.
+- Garden, bed, and personal plant tracking.
+- Plant library with taxonomy-aware species and cultivar variants.
+- AI plant scanner that can jump directly into the matching library entry.
+- Multilingual UI and plant content for 6 locales: `en`, `vi`, `es`, `pt`, `fr`, `zh`.
+- Admin dashboard for editing plant taxonomy, localized names, images, and growing parameters.
 
-## 🛠️ Tech Stack
+## Stack
 
--   **Frontend**: React Native (Expo)
--   **Backend**: [Convex](https://www.convex.dev/) (Real-time DB & Functions)
--   **Styling**: NativeWind (Tailwind CSS for React Native)
--   **Navigation**: Expo Router
--   **Localization**: i18next & Expo Localization
--   **Icons**: Lucide React Native
+- Mobile app: Expo + React Native + Expo Router
+- Backend data layer: Convex
+- Admin/API workspace: TypeScript in [`backend/`](./backend)
+- Styling: NativeWind
+- Localization: `i18next`
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
--   Node.js (LTS version)
--   npm or bun
--   Expo Go app on your mobile device (for development)
+- Node.js LTS
+- npm
+- Expo iOS/Android toolchain if you want native builds
 
-### Installation
+### Install
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/namtrn/richfarm.git
-    cd richfarm
-    ```
+```bash
+git clone https://github.com/namtrn/richfarm.git
+cd richfarm
+npm install
+```
 
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
+### Start Convex
 
-3.  **Set up Convex**:
-    Initialize your Convex project and start the development server:
-    ```bash
-    npx convex dev
-    ```
-    This will create a `.env.local` file with your Convex URL.
+```bash
+npx convex dev
+```
 
-4.  **Start the app**:
-    ```bash
-    npm run ios # for iOS
-    # or
-    npm run android # for Android
-    # or
-    npm start # for Expo menu
-    ```
+### Start the mobile app
 
-## 🤖 UI Smoke Test (Maestro)
+```bash
+npm run ios
+# or
+npm run android
+# or
+npm start
+```
 
-1. Install Maestro CLI (macOS):
-   ```bash
-   brew install maestro
-   ```
-2. Start the app on iOS simulator:
-   ```bash
-   npm run ios
-   ```
-3. In another terminal, run the smoke flow:
-   ```bash
-   npm run test:smoke:ios
-   ```
+### Start the backend workspace
 
-## 📂 Project Structure
+```bash
+cd backend
+npm install
+npm run dev
+```
 
--   `app/`: Main application screens and routing logic using Expo Router.
--   `components/`: Reusable UI components.
--   `convex/`: Backend functions, schema, and database triggers.
--   `docs/specs/`: Product and technical specifications.
--   `docs/reports/`: Reviews, daily reports, and audits.
--   `features/`: Feature-slice modules (domain-specific components and hooks).
--   `hooks/`: Custom React hooks for global state and data fetching.
--   `lib/`: Core utilities, internationalization setup, and constants.
--   `modules/`: Feature-specific modules.
--   `scripts/`: Project automation and setup scripts.
--   `widgets/`: Specialized UI widgets.
+## Plant Taxonomy Workflow
 
-## 🌐 Localization (i18n)
+Richfarm now identifies library plants by normalized taxonomy instead of `scientificName` alone.
 
-Richfarm prioritizes global accessibility. UI strings are managed via `i18next` in `lib/locales/`, while plant and recipe content are served dynamically based on the user's locale from Convex i18n tables.
+- Identity key: `(genusNormalized, speciesNormalized, cultivarNormalized)`
+- Base species rows use `cultivarNormalized="__default__"`
+- Localized display names live in `plantI18n`
+- Library, scanner, seed sync, and backend sync all resolve plants through the taxonomy key
 
-For more details, see [LOCALIZATION.md](./docs/specs/LOCALIZATION.md) and [Plant Multilingual Data Solution](./docs/specs/plant-multilingual-data-solution.md).
+Useful commands:
 
-## 📄 Documentation
+```bash
+npm run check:taxonomy
+npx convex run plantTaxonomyMigration:listTaxonomyManualReview '{"limit":50}'
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":true,"limit":200}'
+```
 
--   [Business Requirements (BRD)](./docs/specs/BA_REQUIREMENTS.md)
--   [BA User Stories](./docs/specs/BA_USER_STORIES.md)
--   [Functional Plan](./docs/specs/APP_FUNCTIONAL_PLAN.md)
--   [My Garden Specification](./docs/specs/MY_GARDEN_SPEC.md)
--   [Unit System Specification](./docs/specs/UNIT_SYSTEM.md)
--   [Image Storage Strategy](./docs/specs/image-storage-strategy.md)
+For the full workflow, see [PLANT_TAXONOMY_WORKFLOW.md](./docs/specs/PLANT_TAXONOMY_WORKFLOW.md).
 
-## ✅ Requirements Source Of Truth
+## UI Smoke Test
 
--   `README.md` is an onboarding and developer guide.
--   BA-level requirements live in:
--   `docs/specs/BA_REQUIREMENTS.md`
--   `docs/specs/BA_USER_STORIES.md`
--   Detailed supporting specs live in:
--   `docs/specs/APP_FUNCTIONAL_PLAN.md`
--   `docs/specs/MY_GARDEN_SPEC.md`
+```bash
+brew install maestro
+npm run ios
+npm run test:smoke:ios
+```
 
-## 🤝 Contributing
+## Project Structure
 
-Contributions are welcome! Please read our [Functional Plan](./docs/specs/APP_FUNCTIONAL_PLAN.md) to understand the product scope before submitting pull requests.
+- [`app/`](./app): Expo Router screens
+- [`components/`](./components): shared UI
+- [`convex/`](./convex): schema, queries, mutations, seeds, migrations
+- [`backend/`](./backend): API and dashboard workspace
+- [`docs/specs/`](./docs/specs): product and technical specs
+- [`docs/reports/`](./docs/reports): audits and working reports
 
-## 📝 License
+## Key Documentation
 
-This project is private and proprietary.
+- [Plant taxonomy workflow](./docs/specs/PLANT_TAXONOMY_WORKFLOW.md)
+- [Plant schema decision](./docs/specs/PLANT_SCHEMA_DECISION.md)
+- [Plant schema review](./docs/specs/PLANT_SCHEMA_REVIEW.md)
+- [Localization](./docs/specs/LOCALIZATION.md)
+- [My Garden specification](./docs/specs/MY_GARDEN_SPEC.md)
+- [Functional plan](./docs/specs/APP_FUNCTIONAL_PLAN.md)
+
+## Contributing
+
+Before changing plant data flows, review:
+
+- [`convex/lib/plantTaxonomy.ts`](./convex/lib/plantTaxonomy.ts)
+- [`convex/plantTaxonomyChecks.ts`](./convex/plantTaxonomyChecks.ts)
+- [`.github/workflows/taxonomy-invariants.yml`](./.github/workflows/taxonomy-invariants.yml)
+
+## License
+
+Private and proprietary.

@@ -1,90 +1,47 @@
-# Welcome to your Convex functions directory!
+# Convex Workspace
 
-Write your Convex functions here.
-See https://docs.convex.dev/functions for more.
+This directory contains the Richfarm application schema, queries, mutations, seeds, and data maintenance utilities.
 
-A query function that takes two arguments looks like:
+## Main Files
 
-```ts
-// convex/myFunctions.ts
-import { query } from "./_generated/server";
-import { v } from "convex/values";
+- [`schema.ts`](./schema.ts): database schema and indexes
+- [`plantLibrary.ts`](./plantLibrary.ts): library list, search, and taxonomy-aware matching
+- [`plantImages.ts`](./plantImages.ts): plant detail, image updates, variant lookup
+- [`plantAdmin.ts`](./plantAdmin.ts): admin CRUD for plants and groups
+- [`masterSync.ts`](./masterSync.ts): sync entrypoints from the backend workspace
+- [`seed.ts`](./seed.ts): seed bootstrap for plant data and related tables
+- [`plantI18n.ts`](./plantI18n.ts): localized plant content sync helpers
+- [`plantTaxonomyChecks.ts`](./plantTaxonomyChecks.ts): invariant and seed-alignment checks
+- [`plantTaxonomyMigration.ts`](./plantTaxonomyMigration.ts): backfill and cleanup utilities
+- [`lib/plantTaxonomy.ts`](./lib/plantTaxonomy.ts): parsing and normalization helpers
 
-export const myQueryFunction = query({
-  // Validators for arguments.
-  args: {
-    first: v.number(),
-    second: v.string(),
-  },
+## Local Development
 
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Read the database as many times as you need here.
-    // See https://docs.convex.dev/database/reading-data.
-    const documents = await ctx.db.query("tablename").collect();
-
-    // Arguments passed from the client are properties of the args object.
-    console.log(args.first, args.second);
-
-    // Write arbitrary JavaScript here: filter, aggregate, build derived data,
-    // remove non-public properties, or create new objects.
-    return documents;
-  },
-});
+```bash
+npx convex dev
 ```
 
-Using this query function in a React component looks like:
+Deploy functions:
 
-```ts
-const data = useQuery(api.myFunctions.myQueryFunction, {
-  first: 10,
-  second: "hello",
-});
+```bash
+npx convex deploy
 ```
 
-A mutation function looks like:
+## Taxonomy Notes
 
-```ts
-// convex/myFunctions.ts
-import { mutation } from "./_generated/server";
-import { v } from "convex/values";
+`plantsMaster` now supports species and cultivar variants.
 
-export const myMutationFunction = mutation({
-  // Validators for arguments.
-  args: {
-    first: v.string(),
-    second: v.string(),
-  },
+- identity key: `(genusNormalized, speciesNormalized, cultivarNormalized)`
+- base species row token: `__default__`
+- localized names belong in `plantI18n`
+- seed sync, backend sync, and admin writes all enforce the same invariant checks
 
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Insert or modify documents in the database here.
-    // Mutations can also read from the database like queries.
-    // See https://docs.convex.dev/database/writing-data.
-    const message = { body: args.first, author: args.second };
-    const id = await ctx.db.insert("messages", message);
+See [PLANT_TAXONOMY_WORKFLOW.md](../docs/specs/PLANT_TAXONOMY_WORKFLOW.md) for the full workflow.
 
-    // Optionally, return a value from your mutation.
-    return await ctx.db.get("messages", id);
-  },
-});
+## Checks
+
+```bash
+npm run check:taxonomy
+npx convex run plantTaxonomyMigration:listTaxonomyManualReview '{"limit":50}'
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":true,"limit":200}'
 ```
-
-Using this mutation function in a React component looks like:
-
-```ts
-const mutation = useMutation(api.myFunctions.myMutationFunction);
-function handleButtonPress() {
-  // fire and forget, the most common way to use mutations
-  mutation({ first: "Hello!", second: "me" });
-  // OR
-  // use the result once the mutation has completed
-  mutation({ first: "Hello!", second: "me" }).then((result) =>
-    console.log(result),
-  );
-}
-```
-
-Use the Convex CLI to push your functions to a deployment. See everything
-the Convex CLI can do by running `npx convex -h` in your project root
-directory. To learn more, launch the docs with `npx convex docs`.

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
     View,
     Text,
@@ -8,6 +8,8 @@ import {
     Pressable,
     ActivityIndicator,
     Alert,
+    Animated,
+    PanResponder,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PlantLocalData, PlantActivityType } from '../../lib/plantLocalData';
@@ -54,6 +56,39 @@ export function PlantActivitySection({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
+    const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+
+    useEffect(() => {
+        if (!modalOpen) {
+            pan.setValue({ x: 0, y: 0 });
+        }
+    }, [modalOpen, pan]);
+
+    const closeModal = () => {
+        pan.setValue({ x: 0, y: 0 });
+        onCloseModal();
+    };
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+            onPanResponderMove: (_, gestureState) => {
+                if (gestureState.dy > 0) {
+                    pan.setValue({ x: 0, y: gestureState.dy });
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+                    closeModal();
+                } else {
+                    Animated.spring(pan, {
+                        toValue: { x: 0, y: 0 },
+                        useNativeDriver: false,
+                    }).start();
+                }
+            },
+        })
+    ).current;
 
     const activityLabels = useMemo(
         () => ({
@@ -136,13 +171,25 @@ export function PlantActivitySection({
                 visible={modalOpen}
                 transparent
                 animationType="slide"
-                onRequestClose={onCloseModal}
+                onRequestClose={closeModal}
             >
                 <Pressable
                     style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
-                    onPress={onCloseModal}
+                    onPress={closeModal}
                 />
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 20 }}>
+                <Animated.View
+                    {...panResponder.panHandlers}
+                    style={{
+                        backgroundColor: theme.card,
+                        borderTopLeftRadius: 28,
+                        borderTopRightRadius: 28,
+                        paddingHorizontal: 20,
+                        paddingTop: 16,
+                        paddingBottom: 40,
+                        gap: 20,
+                        transform: [{ translateY: pan.y }],
+                    }}
+                >
                     <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
                     <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('plant.activity_add')}</Text>
 
@@ -189,7 +236,7 @@ export function PlantActivitySection({
 
                     <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
                         <TouchableOpacity
-                            onPress={onCloseModal}
+                            onPress={closeModal}
                             style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
                         >
                             <Text style={{ fontSize: 15, fontWeight: '700', color: theme.textSecondary }}>{t('common.cancel')}</Text>
@@ -202,7 +249,7 @@ export function PlantActivitySection({
                             <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>{t('plant.activity_save')}</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </Animated.View>
             </Modal>
         </>
     );

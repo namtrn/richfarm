@@ -8,7 +8,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "init:app": "node scripts/init-app.js",
-    "test:smoke:ios": "maestro test .maestro/smoke-all-buttons.yaml .maestro/smoke-home-library-health.yaml .maestro/smoke-library-deeplink.yaml"
+    "test:smoke:ios": "maestro test .maestro/smoke-all-buttons.yaml .maestro/smoke-home-library-health.yaml .maestro/smoke-library-deeplink.yaml",
+    "check:taxonomy": "npx convex run plantTaxonomyChecks:assertTaxonomyInvariants '{\"sampleLimit\":100,\"failOnMissingI18nLocales\":true}' && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
   },
   "dependencies": {
     "@better-auth/expo": "1.4.9",

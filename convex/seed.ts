@@ -4,8 +4,19 @@
 
 import { internalMutation } from "./_generated/server";
 import type { Doc, TableNames, Id } from "./_generated/dataModel";
-import { plantGroupsSeed, plantsMasterSeed, plantI18nSeed } from "./data/plantsMasterSeed";
+import {
+    plantGroupsSeed,
+    plantsMasterSeed,
+    plantI18nSeed,
+    buildPlantSeedKey,
+} from "./data/plantsMasterSeed";
 import { pestsDiseasesSeed } from "./data/pestsDiseasesSeed";
+import {
+    buildTaxonomyFields,
+    DEFAULT_CULTIVAR_NORMALIZED,
+    isInfraspecificCultivar,
+    requireTaxonomyIdentity,
+} from "./lib/plantTaxonomy";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -32,39 +43,93 @@ function formatYmd(timestamp: number) {
 
 async function seedPlantsAndI18n(ctx: any) {
     const plants = plantsMasterSeed;
-    const idByScientificName = new Map<string, Id<"plantsMaster">>();
+    const idByPlantKey = new Map<string, Id<"plantsMaster">>();
 
     let plantsInserted = 0;
     for (const plant of plants) {
+        const cultivar = (plant as any).cultivar;
+        const plantKey = buildPlantSeedKey({
+            scientificName: plant.scientificName,
+            cultivar,
+        });
+        const taxonomy = buildTaxonomyFields({
+            scientificName: plant.scientificName,
+            cultivar,
+        });
+        const taxonomyIdentity = requireTaxonomyIdentity(
+            taxonomy,
+            `Seed plant ${plant.scientificName}${cultivar ? ` (${cultivar})` : ""}`
+        );
+        if (
+            taxonomyIdentity.cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED &&
+            !isInfraspecificCultivar(taxonomyIdentity.cultivarNormalized)
+        ) {
+            const baseRow = await ctx.db
+                .query("plantsMaster")
+                .withIndex("by_genus_species_cultivar", (q: any) =>
+                    q
+                        .eq("genusNormalized", taxonomyIdentity.genusNormalized)
+                        .eq("speciesNormalized", taxonomyIdentity.speciesNormalized)
+                        .eq("cultivarNormalized", DEFAULT_CULTIVAR_NORMALIZED)
+                )
+                .first();
+            if (!baseRow) {
+                throw new Error(
+                    `Seed variant requires base species row first: ${plant.scientificName} (${cultivar})`
+                );
+            }
+        }
+
         const existing = await ctx.db
             .query("plantsMaster")
-            .withIndex("by_scientific_name", (q: any) =>
-                q.eq("scientificName", plant.scientificName)
+            .withIndex("by_genus_species_cultivar", (q: any) =>
+                q
+                    .eq("genusNormalized", taxonomyIdentity.genusNormalized)
+                    .eq("speciesNormalized", taxonomyIdentity.speciesNormalized)
+                    .eq("cultivarNormalized", taxonomyIdentity.cultivarNormalized)
             )
-            .unique();
+            .first();
 
         if (!existing) {
             const basePlant: InsertDoc<"plantsMaster"> = {
                 ...plant,
                 companionPlants: undefined,
                 avoidPlants: undefined,
+                ...taxonomy,
             };
             const insertedId = await ctx.db.insert("plantsMaster", basePlant);
-            idByScientificName.set(plant.scientificName, insertedId);
+            idByPlantKey.set(plantKey, insertedId);
             plantsInserted++;
         } else {
-            idByScientificName.set(plant.scientificName, existing._id);
+            idByPlantKey.set(plantKey, existing._id);
         }
     }
 
     for (const plant of plants) {
-        const plantId = idByScientificName.get(plant.scientificName);
+        const plantId = idByPlantKey.get(
+            buildPlantSeedKey({
+                scientificName: plant.scientificName,
+                cultivar: (plant as any).cultivar,
+            })
+        );
         if (!plantId) continue;
         const companionIds = (plant.companionPlants ?? [])
-            .map((name) => idByScientificName.get(name))
+            .map((name) =>
+                idByPlantKey.get(
+                    buildPlantSeedKey({
+                        scientificName: name,
+                    })
+                )
+            )
             .filter((id): id is Id<"plantsMaster"> => Boolean(id));
         const avoidIds = (plant.avoidPlants ?? [])
-            .map((name) => idByScientificName.get(name))
+            .map((name) =>
+                idByPlantKey.get(
+                    buildPlantSeedKey({
+                        scientificName: name,
+                    })
+                )
+            )
             .filter((id): id is Id<"plantsMaster"> => Boolean(id));
 
         if (companionIds.length === 0 && avoidIds.length === 0) continue;
@@ -79,7 +144,12 @@ async function seedPlantsAndI18n(ctx: any) {
     let i18nUpdated = 0;
     let i18nSkipped = 0;
     for (const row of plantI18nSeed) {
-        const plantId = idByScientificName.get(row.scientificName);
+        const plantId = idByPlantKey.get(
+            buildPlantSeedKey({
+                scientificName: row.scientificName,
+                cultivar: row.cultivar,
+            })
+        );
         if (!plantId) continue;
 
         const existing = await ctx.db

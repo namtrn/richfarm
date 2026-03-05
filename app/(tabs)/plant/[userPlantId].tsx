@@ -10,9 +10,10 @@ import {
   Animated,
   useWindowDimensions,
   Alert,
+  PanResponder,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart } from 'lucide-react-native';
+import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from 'lucide-react-native';
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { useAuth } from '../../../lib/auth';
@@ -195,6 +196,33 @@ export default function PlantDetailScreen() {
   const [harvestNote, setHarvestNote] = useState('');
   const [harvestDate, setHarvestDate] = useState(formatDateInput(Date.now()));
   const scrollY = useRef(new Animated.Value(0)).current;
+  const photoModalPan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+
+  const closePhotoModal = () => {
+    photoModalPan.setValue({ x: 0, y: 0 });
+    setPhotoModalOpen(false);
+  };
+
+  const photoModalPanResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          photoModalPan.setValue({ x: 0, y: gestureState.dy });
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+          closePhotoModal();
+        } else {
+          Animated.spring(photoModalPan, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: false,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
     if (!plant) return;
@@ -202,6 +230,12 @@ export default function PlantDetailScreen() {
     setExpectedDate(formatDateInput(plant.expectedHarvestDate));
     setBedId(plant.bedId ?? undefined);
   }, [plant]);
+
+  useEffect(() => {
+    if (!photoModalOpen) {
+      photoModalPan.setValue({ x: 0, y: 0 });
+    }
+  }, [photoModalOpen, photoModalPan]);
 
   useEffect(() => {
     if (!resolvedPlantId) return;
@@ -517,6 +551,40 @@ export default function PlantDetailScreen() {
             </Animated.View>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={() => {
+              if (!plantMasterId) return;
+              router.push({
+                pathname: '/(tabs)/library/[masterPlantId]',
+                params: {
+                  masterPlantId: String(plantMasterId),
+                },
+              });
+            }}
+            disabled={!plantMasterId}
+            style={{ opacity: plantMasterId ? 1 : 0.5 }}
+          >
+            <Animated.View
+              style={{
+                width: buttonSize,
+                height: buttonSize,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: theme.card,
+                borderRadius: buttonRadius,
+                borderWidth: 1,
+                borderColor: theme.border,
+                shadowColor: '#1a1a18',
+                shadowOpacity: 0.04,
+                shadowRadius: 8,
+                shadowOffset: { width: 0, height: 2 },
+              }}
+            >
+              <Animated.View style={{ transform: [{ scale: iconScale }] }}>
+                <GitBranch size={20} color={theme.textSecondary} />
+              </Animated.View>
+            </Animated.View>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={handleSave}
             disabled={!canEdit || saving}
             style={{ opacity: (!canEdit || saving) ? 0.6 : 1 }}
@@ -805,13 +873,25 @@ export default function PlantDetailScreen() {
         visible={photoModalOpen}
         transparent
         animationType="slide"
-        onRequestClose={() => setPhotoModalOpen(false)}
+        onRequestClose={closePhotoModal}
       >
         <Pressable
           style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
-          onPress={() => setPhotoModalOpen(false)}
+          onPress={closePhotoModal}
         />
-        <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 16 }}>
+        <Animated.View
+          {...photoModalPanResponder.panHandlers}
+          style={{
+            backgroundColor: theme.card,
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            paddingHorizontal: 20,
+            paddingTop: 16,
+            paddingBottom: 40,
+            gap: 16,
+            transform: [{ translateY: photoModalPan.y }],
+          }}
+        >
           <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: 4 }} />
           <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, marginBottom: 4, letterSpacing: -0.5 }}>{t('plant.photos_source_title')}</Text>
 
@@ -832,11 +912,11 @@ export default function PlantDetailScreen() {
 
           <TouchableOpacity
             style={{ borderRadius: 16, paddingVertical: 16, alignItems: 'center', marginTop: 8 }}
-            onPress={() => setPhotoModalOpen(false)}
+            onPress={closePhotoModal}
           >
             <Text style={{ fontSize: 15, fontWeight: '700', color: theme.textSecondary }}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </Modal>
     </View>
   );

@@ -2,6 +2,30 @@
 
 All notable changes to the **Richfarm** project will be documented in this file.
 
+## [2026-03-06]
+- **Documentation**:
+  - Refreshed [`README.md`](./README.md) for the current Convex, backend, and taxonomy workflow.
+  - Added [Plant taxonomy workflow](./docs/specs/PLANT_TAXONOMY_WORKFLOW.md) as the implementation-oriented reference for plant identity, migration, and checks.
+  - Replaced placeholder Convex docs in [`convex/README.md`](./convex/README.md).
+  - Updated [`backend/README.md`](./backend/README.md) to describe the current Convex sync contract.
+- **Data Model**:
+  - Added taxonomy fields to `plantsMaster`: `genus`, `species`, `cultivar`, normalized variants, and parse status.
+  - Introduced taxonomy indexes for species grouping and cultivar uniqueness checks.
+  - Moved plant identity matching away from `scientificName`-only lookups.
+- **Plant Library**:
+  - Grouped library entries by species and surfaced cultivar variants in plant detail.
+  - Improved search and matching so scientific-name hits resolve to the preferred base row when applicable.
+  - Added variant-aware fallback handling for seeded plant content and localized names.
+- **Scanner**:
+  - Scanner results can now carry `plantMasterId` and open the matched library entry directly.
+  - Added UI feedback when the detected plant already exists in the user's garden.
+- **Admin / Backend**:
+  - Expanded dashboard plant editing to include taxonomy fields and growing metrics.
+  - Updated backend-to-Convex sync to enforce taxonomy invariants and optional cultivar support.
+- **Quality Gates**:
+  - Added taxonomy invariant checks and seed-alignment reporting in `convex/plantTaxonomyChecks.ts`.
+  - Added GitHub Actions workflow [`.github/workflows/taxonomy-invariants.yml`](./.github/workflows/taxonomy-invariants.yml).
+
 ## [2026-03-03]
 - [2026-03-03-daily-report.md](./docs/reports/2026-03-03-daily-report.md)
 - **Features**:

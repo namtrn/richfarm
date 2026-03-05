@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { useNetworkStatus } from './useNetworkStatus';
-import { plantGroupsSeed, plantI18nSeed, plantsMasterSeed } from '../convex/data/plantsMasterSeed';
+import { buildPlantSeedKey, plantGroupsSeed, plantI18nSeed, plantsMasterSeed } from '../convex/data/plantsMasterSeed';
 
 const PLANTS_CACHE_VERSION = 2;
 const GROUPS_CACHE_VERSION = 1;
@@ -36,7 +36,10 @@ function groupsCacheKey(locale: string) {
 const seedI18nMap = (() => {
     const map = new Map<string, { commonName: string; description?: string }>();
     for (const row of plantI18nSeed) {
-        const key = `${row.locale.toLowerCase()}|${normalizeScientificName(row.scientificName)}`;
+        const key = `${row.locale.toLowerCase()}|${buildPlantSeedKey({
+            scientificName: row.scientificName,
+            cultivar: row.cultivar,
+        })}`;
         map.set(key, {
             commonName: row.commonName,
             description: row.description ?? undefined,
@@ -48,17 +51,26 @@ const seedI18nMap = (() => {
 function buildSeedPlantLibrary(locale: string) {
     const normalizedLocale = normalizeLocale(locale);
     return plantsMasterSeed.map((plant) => {
-        const key = normalizeScientificName(plant.scientificName);
-        const localeRow = seedI18nMap.get(`${normalizedLocale}|${key}`);
-        const fallbackEnRow = seedI18nMap.get(`en|${key}`);
+        const seedKey = buildPlantSeedKey({
+            scientificName: plant.scientificName,
+            cultivar: (plant as any).cultivar,
+        });
+        const localeRow = seedI18nMap.get(`${normalizedLocale}|${seedKey}`);
+        const fallbackEnRow =
+            seedI18nMap.get(`en|${seedKey}`) ??
+            seedI18nMap.get(`en|${buildPlantSeedKey({ scientificName: plant.scientificName })}`);
         const localized = localeRow ?? fallbackEnRow;
         const localeUsed = localeRow ? normalizedLocale : 'en';
         const displayName = localized?.commonName ?? plant.scientificName;
         const description = localized?.description;
+        const cultivar = (plant as any).cultivar;
 
         return {
-            _id: `seed:${plant.scientificName}`,
+            _id: `seed:${encodeURIComponent(seedKey)}`,
             scientificName: plant.scientificName,
+            cultivar: cultivar ?? null,
+            speciesKey: normalizeScientificName(plant.scientificName),
+            isBaseVariant: !cultivar,
             displayName,
             description,
             localeUsed,

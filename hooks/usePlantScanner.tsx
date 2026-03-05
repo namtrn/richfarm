@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Alert, Animated, Image, Modal, NativeModules, PanResponder, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -27,7 +27,14 @@ if (isBlurAvailable) {
 
 type UsePlantScannerResult = {
   openScanner: () => void;
-  scannerModals: JSX.Element;
+  scannerModals: ReactElement;
+};
+
+type DetectPlantResponse = {
+  match?: {
+    name?: string;
+    plantMasterId?: string | null;
+  } | null;
 };
 
 export function usePlantScanner(): UsePlantScannerResult {
@@ -37,7 +44,7 @@ export function usePlantScanner(): UsePlantScannerResult {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
-  const { addPlant } = usePlants();
+  const { addPlant, plants: userPlants } = usePlants();
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const { plants: libraryPlants } = usePlantLibrary(locale);
   const detectPlantAction = useAction((api as any).plantScan.detectPlant);
@@ -46,6 +53,7 @@ export function usePlantScanner(): UsePlantScannerResult {
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
+  const [detectedPlantMasterId, setDetectedPlantMasterId] = useState<string | null>(null);
   const [photoSaving, setPhotoSaving] = useState(false);
   const [aiLimitError, setAiLimitError] = useState('');
   const [aiSessionActive, setAiSessionActive] = useState(false);
@@ -101,6 +109,61 @@ export function usePlantScanner(): UsePlantScannerResult {
     );
   }, [libraryPlants, normalize]);
 
+  const findLibraryMatch = useCallback((name: string, plantMasterId?: string | null) => {
+    if (plantMasterId) {
+      const byId = libraryPlants.find((plant: any) => String(plant._id) === String(plantMasterId));
+      if (byId) return byId;
+    }
+    return findLibraryMatchByName(name);
+  }, [findLibraryMatchByName, libraryPlants]);
+
+  const findUserPlantMatch = useCallback((libraryPlant: any) => {
+    if (!libraryPlant) return null;
+    const libraryId = String(libraryPlant._id ?? '');
+    return (
+      userPlants.find((plant: any) => plant?.plantMasterId && String(plant.plantMasterId) === libraryId) ??
+      userPlants.find((plant: any) => {
+        const plantDisplay = normalize(plant?.displayName ?? '');
+        const plantScientific = normalize(plant?.scientificName ?? '');
+        return (
+          plantDisplay === normalize(libraryPlant?.displayName ?? '') ||
+          plantScientific === normalize(libraryPlant?.scientificName ?? '')
+        );
+      }) ??
+      null
+    );
+  }, [normalize, userPlants]);
+
+  const detectedLibraryMatch = useMemo(() => {
+    const detected = detectedName.trim();
+    const unknown = t('planning.unknown_plant');
+    if (!detected || normalize(detected) === normalize(unknown)) return null;
+    return findLibraryMatch(detected, detectedPlantMasterId);
+  }, [detectedName, detectedPlantMasterId, findLibraryMatch, normalize, t]);
+
+  const detectedUserPlantMatch = useMemo(
+    () => findUserPlantMatch(detectedLibraryMatch),
+    [detectedLibraryMatch, findUserPlantMatch]
+  );
+
+  const navigateToMatchedLibraryPlant = useCallback((matchedPlant: any) => {
+    if (!matchedPlant) return;
+    setPhotoOpen(false);
+    setPhotoUri(null);
+    setDetectedPlantMasterId(null);
+    setAiSessionActive(false);
+    setAiLimitError('');
+    router.push({
+      pathname: '/(tabs)/library/[masterPlantId]',
+      params: {
+        masterPlantId: String(matchedPlant._id),
+        mode: 'select',
+        from: 'scanner',
+        scannedPhotoUri: photoUri ?? undefined,
+      },
+    });
+  }, [photoUri, router]);
+
   const canStartAiScan = useCallback(async () => {
     if (isAuthLoading) return false;
     if (!isAuthenticated) {
@@ -141,15 +204,17 @@ export function usePlantScanner(): UsePlantScannerResult {
     setAiSessionActive(true);
     setPhotoUri(result.assets[0].uri);
     setDetectedName(t('planning.unknown_plant'));
+    setDetectedPlantMasterId(null);
     setDetectNoMatch(false);
     setPhotoOpen(true);
     if (result.assets[0].base64) {
       setIsDetecting(true);
       try {
-        const detected = await detectPlantAction({ images: [result.assets[0].base64], locale: i18n.language });
+        const detected = await detectPlantAction({ images: [result.assets[0].base64], locale: i18n.language }) as DetectPlantResponse;
         if (detected?.match?.name) {
           setDetectedName(detected.match.name);
         }
+        setDetectedPlantMasterId(detected?.match?.plantMasterId ? String(detected.match.plantMasterId) : null);
       } catch (error) {
         console.error('AI detection failed:', error);
       } finally {
@@ -218,28 +283,13 @@ export function usePlantScanner(): UsePlantScannerResult {
     const detected = detectedName.trim();
     const unknown = t('planning.unknown_plant');
     const hasDetectedName = detected.length > 0 && normalize(detected) !== normalize(unknown);
-    if (hasDetectedName) {
-      const matchedPlant = findLibraryMatchByName(detected);
-      if (matchedPlant) {
-        setPhotoOpen(false);
-        setPhotoUri(null);
-        setAiSessionActive(false);
-        setAiLimitError('');
-        router.push({
-          pathname: '/(tabs)/library/[masterPlantId]',
-          params: {
-            masterPlantId: String(matchedPlant._id),
-            mode: 'select',
-            from: 'scanner',
-            scannedPhotoUri: photoUri ?? undefined,
-          },
-        });
-        return;
-      }
+    if (hasDetectedName && detectedLibraryMatch) {
+      navigateToMatchedLibraryPlant(detectedLibraryMatch);
+      return;
     }
 
     setDetectNoMatch(true);
-  }, [canEdit, detectedName, findLibraryMatchByName, normalize, photoUri, router, t]);
+  }, [canEdit, detectedLibraryMatch, detectedName, navigateToMatchedLibraryPlant, normalize, t]);
 
   const handleSaveAsUnknown = useCallback(async () => {
     if (!canEdit) return;
@@ -277,6 +327,7 @@ export function usePlantScanner(): UsePlantScannerResult {
     if (!photoOpen) {
       setAiSessionActive(false);
       setIsDetecting(false);
+      setDetectedPlantMasterId(null);
     }
   }, [photoOpen]);
 
@@ -382,10 +433,31 @@ export function usePlantScanner(): UsePlantScannerResult {
               value={detectedName}
               onChangeText={(value) => {
                 setDetectedName(value);
+                setDetectedPlantMasterId(null);
                 if (detectNoMatch) setDetectNoMatch(false);
               }}
             />
           </View>
+          {!!detectedLibraryMatch && !detectNoMatch && (
+            <View style={{ borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.success, backgroundColor: theme.successBg, gap: 6 }}>
+              <Text style={{ fontSize: 12, color: theme.success, textAlign: 'center', fontWeight: '700' }}>
+                {t('planning.detect_found_in_library')}
+              </Text>
+              {!!detectedUserPlantMatch && (
+                <Text style={{ fontSize: 12, color: theme.success, textAlign: 'center' }}>
+                  {t('planning.detect_already_in_garden')}
+                </Text>
+              )}
+              <TouchableOpacity
+                style={{ borderRadius: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: theme.primary }}
+                onPress={() => navigateToMatchedLibraryPlant(detectedLibraryMatch)}
+              >
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>
+                  {t('planning.detect_open_library')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
           {detectNoMatch && (
             <View style={{ gap: 8 }}>
               <Text style={{ fontSize: 12, color: theme.warning, textAlign: 'center' }}>{t('planning.detect_not_found')}</Text>

@@ -251,7 +251,7 @@ export default function ProfileScreen() {
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 16 }}
     >
       <View style={{ gap: 16 }}>
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <UserRound size={18} color={theme.textSecondary} />
@@ -309,7 +309,7 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 12, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <Crown size={18} color={theme.textSecondary} />
@@ -340,7 +340,7 @@ export default function ProfileScreen() {
           {paywallMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{paywallMessage}</Text>}
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <Globe size={18} color={theme.textSecondary} />
@@ -380,7 +380,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <Clock size={18} color={theme.textSecondary} />
@@ -396,7 +396,7 @@ export default function ProfileScreen() {
           />
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <Ruler size={18} color={theme.textSecondary} />
@@ -424,7 +424,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <Sun size={18} color={theme.textSecondary} />
@@ -460,7 +460,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
               <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.app_mode')}</Text>
@@ -496,7 +496,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.backup_title')}</Text>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
             {isCloudBackupLinked ? t('profile.backup_subtitle') : t('profile.backup_subtitle_unlinked')}

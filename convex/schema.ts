@@ -82,15 +82,19 @@ export default defineSchema({
   // Master Data: Plant Database
   // ==========================================
   plantsMaster: defineTable({
+    // Backward-compat display field (not identity).
     scientificName: v.string(),
     description: v.optional(v.string()),
-    commonNames: v.optional(
-      v.array(
-        v.object({
-          locale: v.string(),
-          name: v.string(),
-        })
-      )
+
+    // Taxonomy identity (Phase 1 additive; required will be enforced later).
+    genus: v.optional(v.string()),
+    species: v.optional(v.string()),
+    cultivar: v.optional(v.string()), // null/undefined means base species row
+    genusNormalized: v.optional(v.string()),
+    speciesNormalized: v.optional(v.string()),
+    cultivarNormalized: v.optional(v.string()), // "__default__" if cultivar is null/empty
+    taxonomyParseStatus: v.optional(
+      v.union(v.literal("ok"), v.literal("manual_review"))
     ),
 
     // Classification
@@ -125,7 +129,13 @@ export default defineSchema({
     source: v.optional(v.string()),
   })
     .index("by_scientific_name", ["scientificName"])
-    .index("by_group", ["group"]),
+    .index("by_group", ["group"])
+    .index("by_genus_species", ["genusNormalized", "speciesNormalized"])
+    .index("by_genus_species_cultivar", [
+      "genusNormalized",
+      "speciesNormalized",
+      "cultivarNormalized",
+    ]),
 
   // ==========================================
   // Master Data: Plant i18n

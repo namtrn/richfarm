@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Tabs } from 'expo-router';
-import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { BottomTabBar, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Bell, BookOpen, UserRound, Home, Fence } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -32,6 +32,7 @@ if (isBlurAvailable) {
 
 // Use pixel values so centering is reliable on all devices
 const TAB_BAR_WIDTH = 370;
+const TAB_BAR_SIDE_GAP = 24;
 
 type AnimatedTabButtonProps = BottomTabBarButtonProps & {
   activePillColor: string;
@@ -143,6 +144,20 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      tabBar={(props) => (
+        <View
+          pointerEvents="box-none"
+          style={[
+            styles.tabBarOuter,
+            {
+              paddingHorizontal: TAB_BAR_SIDE_GAP,
+              paddingBottom: floatBottom,
+            },
+          ]}
+        >
+          <BottomTabBar {...props} />
+        </View>
+      )}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: theme.primary,
@@ -157,10 +172,9 @@ export default function TabLayout() {
         tabBarStyle: [
           styles.tabBar,
           {
-            bottom: floatBottom,
-            left: 0,
-            right: 0,
-            width: TAB_BAR_WIDTH,
+            position: 'relative',
+            bottom: 0,
+            width: windowWidth > TAB_BAR_WIDTH ? TAB_BAR_WIDTH : '100%',
             alignSelf: 'center',
             backgroundColor: 'transparent',
             borderColor,
@@ -224,8 +238,14 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
+  tabBarOuter: {
     position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  tabBar: {
+    position: 'relative',
     // left/right/bottom are set dynamically in the component using safe area insets
     height: 56,
     borderWidth: 2,

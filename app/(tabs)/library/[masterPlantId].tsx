@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
     View,
     Text,
@@ -24,11 +24,12 @@ import {
     AlertTriangle,
     FlaskConical,
     MapPin,
+    Dna,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-import { plantI18nSeed, plantsMasterSeed } from '../../../convex/data/plantsMasterSeed';
+import { buildPlantSeedKey, plantI18nSeed, plantsMasterSeed } from '../../../convex/data/plantsMasterSeed';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePlants } from '../../../hooks/usePlants';
 import { useDeviceId } from '../../../lib/deviceId';
@@ -156,30 +157,52 @@ function normalizeScientificName(value: string) {
         .trim();
 }
 
-function buildSeedMasterPlant(scientificName: string, locale: string) {
-    const normalizedScientific = normalizeScientificName(scientificName);
-    const normalizedLocale = (locale ?? 'en').split('-')[0].toLowerCase();
-
-    const plant = plantsMasterSeed.find(
-        (item) => normalizeScientificName(item.scientificName) === normalizedScientific
+function buildSeedMasterPlant(seedKeyOrScientificName: string, locale: string) {
+    const normalizedSeedInput = seedKeyOrScientificName.trim();
+    let plant = plantsMasterSeed.find(
+        (item) =>
+            buildPlantSeedKey({
+                scientificName: item.scientificName,
+                cultivar: (item as any).cultivar,
+            }) === normalizedSeedInput
     );
+
+    // Backward compatibility for older cached seed IDs: `seed:${scientificName}`.
+    if (!plant && !normalizedSeedInput.includes('|')) {
+        const normalizedScientific = normalizeScientificName(normalizedSeedInput);
+        plant = plantsMasterSeed.find(
+            (item) => normalizeScientificName(item.scientificName) === normalizedScientific
+        );
+    }
+
+    const normalizedLocale = (locale ?? 'en').split('-')[0].toLowerCase();
     if (!plant) return null;
 
+    const plantSeedKey = buildPlantSeedKey({
+        scientificName: plant.scientificName,
+        cultivar: (plant as any).cultivar,
+    });
     const localeRow = plantI18nSeed.find(
         (row) =>
             row.locale === normalizedLocale &&
-            normalizeScientificName(row.scientificName) === normalizedScientific
+            buildPlantSeedKey({
+                scientificName: row.scientificName,
+                cultivar: row.cultivar,
+            }) === plantSeedKey
     );
     const fallbackRow = plantI18nSeed.find(
         (row) =>
             row.locale === 'en' &&
-            normalizeScientificName(row.scientificName) === normalizedScientific
+            buildPlantSeedKey({
+                scientificName: row.scientificName,
+                cultivar: row.cultivar,
+            }) === plantSeedKey
     );
     const localized = localeRow ?? fallbackRow;
 
     return {
         ...plant,
-        _id: `seed:${plant.scientificName}`,
+        _id: `seed:${encodeURIComponent(plantSeedKey)}`,
         displayName: localized?.commonName ?? plant.scientificName,
         description: localized?.description ?? undefined,
         contentVersion: 0,
@@ -210,12 +233,8 @@ function CareSection({
     return (
         <View
             style={{
-                backgroundColor: theme.card,
-                borderRadius: 18,
-                borderWidth: 1,
-                borderColor: theme.border,
                 overflow: 'hidden',
-                marginBottom: 10,
+                marginBottom: 6,
             }}
         >
             <TouchableOpacity
@@ -333,9 +352,10 @@ export default function LibraryPlantDetailScreen() {
     const bedIdParam = Array.isArray(bedId) ? bedId[0] : bedId;
     const xParam = Array.isArray(x) ? x[0] : x;
     const yParam = Array.isArray(y) ? y[0] : y;
+    const scannedPhotoUriParam = Array.isArray(scannedPhotoUri) ? scannedPhotoUri[0] : scannedPhotoUri;
     const locale = i18n.language?.split('-')[0] ?? 'en';
     const isSeedFallbackId = !!resolvedId && resolvedId.startsWith('seed:');
-    const seedScientificName = useMemo(() => {
+    const seedPlantKey = useMemo(() => {
         if (!isSeedFallbackId || !resolvedId) return null;
         const raw = resolvedId.slice('seed:'.length);
         try {
@@ -357,11 +377,19 @@ export default function LibraryPlantDetailScreen() {
         api.plantImages.getPlantById,
         resolvedId && !isSeedFallbackId ? { plantId: resolvedId as any, locale } : 'skip',
     );
+    const plantVariants = useQuery(
+        api.plantImages.getPlantVariants,
+        resolvedId && !isSeedFallbackId ? { plantId: resolvedId as any, locale } : 'skip',
+    );
     const seedMasterPlant = useMemo(
-        () => (seedScientificName ? buildSeedMasterPlant(seedScientificName, locale) : null),
-        [seedScientificName, locale]
+        () => (seedPlantKey ? buildSeedMasterPlant(seedPlantKey, locale) : null),
+        [seedPlantKey, locale]
     );
     const currentPlant = masterPlant ?? seedMasterPlant;
+    const variantOptions = useMemo(
+        () => (Array.isArray(plantVariants) ? plantVariants : []),
+        [plantVariants]
+    );
     const canMutateMaster = Boolean(resolvedId && !isSeedFallbackId);
 
     const isFavorite = canMutateMaster
@@ -370,6 +398,8 @@ export default function LibraryPlantDetailScreen() {
 
     // ── Care content: offline-first cache ──────────────────────────────────────
     const [care, setCare] = useState<PlantCareContent | null>(null);
+    const scrollRef = useRef<ScrollView>(null);
+    const [variantsSectionY, setVariantsSectionY] = useState(0);
 
     useEffect(() => {
         if (!resolvedId) return;
@@ -441,11 +471,10 @@ export default function LibraryPlantDetailScreen() {
             addedPlantId = await addPlant({ plantMasterId: resolvedId as any });
         }
 
-        const resolvedScannedUri = Array.isArray(scannedPhotoUri) ? scannedPhotoUri[0] : scannedPhotoUri;
-        if (fromParam === 'scanner' && addedPlantId && resolvedScannedUri) {
+        if (fromParam === 'scanner' && addedPlantId && scannedPhotoUriParam) {
             try {
                 const uploadUrl = await generateUploadUrl({ deviceId });
-                const response = await fetch(resolvedScannedUri);
+                const response = await fetch(scannedPhotoUriParam);
                 const blob = await response.blob();
                 const uploadResponse = await fetch(uploadUrl, {
                     method: 'POST',
@@ -485,6 +514,36 @@ export default function LibraryPlantDetailScreen() {
     const heroImageUri =
         currentPlant?.imageUrl ||
         'https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=1600&q=80';
+
+    const openVariant = useCallback(
+        (variantId: string) => {
+            if (!variantId || String(variantId) === String(resolvedId)) return;
+            router.replace({
+                pathname: '/(tabs)/library/[masterPlantId]',
+                params: {
+                    masterPlantId: String(variantId),
+                    ...(modeParam ? { mode: modeParam } : {}),
+                    ...(fromParam ? { from: fromParam } : {}),
+                    ...(fromPlantId ? { fromPlantId: String(fromPlantId) } : {}),
+                    ...(bedIdParam ? { bedId: String(bedIdParam) } : {}),
+                    ...(xParam !== undefined ? { x: String(xParam) } : {}),
+                    ...(yParam !== undefined ? { y: String(yParam) } : {}),
+                    ...(scannedPhotoUriParam ? { scannedPhotoUri: String(scannedPhotoUriParam) } : {}),
+                },
+            });
+        },
+        [
+            resolvedId,
+            router,
+            modeParam,
+            fromParam,
+            fromPlantId,
+            bedIdParam,
+            xParam,
+            yParam,
+            scannedPhotoUriParam,
+        ]
+    );
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -531,6 +590,27 @@ export default function LibraryPlantDetailScreen() {
 
                 {canMutateMaster && (
                     <TouchableOpacity
+                        onPress={() => scrollRef.current?.scrollTo({ y: Math.max(variantsSectionY - 12, 0), animated: true })}
+                        disabled={variantOptions.length <= 1}
+                        style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 12,
+                            backgroundColor: theme.background,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderWidth: 1,
+                            borderColor: theme.border,
+                            opacity: variantOptions.length > 1 ? 1 : 0.5,
+                            marginRight: 8,
+                        }}
+                    >
+                        <Dna size={20} stroke={theme.textMuted} />
+                    </TouchableOpacity>
+                )}
+
+                {canMutateMaster && (
+                    <TouchableOpacity
                         onPress={() => {
                             if (!resolvedId) return;
                             void toggleFavorite(resolvedId as any).catch(() => undefined);
@@ -558,6 +638,7 @@ export default function LibraryPlantDetailScreen() {
                 </View>
             ) : (
                 <ScrollView
+                    ref={scrollRef}
                     contentContainerStyle={{ paddingBottom: 100 }}
                     showsVerticalScrollIndicator={false}
                 >
@@ -613,8 +694,68 @@ export default function LibraryPlantDetailScreen() {
 
                         {/* Description */}
                         {!!currentPlant.description && (
-                            <View style={{ backgroundColor: theme.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: theme.border, marginBottom: 16 }}>
+                            <View style={{ marginBottom: 12 }}>
                                 <Text style={{ fontSize: 14, color: theme.textAccent, lineHeight: 22 }}>{currentPlant.description}</Text>
+                            </View>
+                        )}
+
+                        {variantOptions.length > 1 && (
+                            <View
+                                onLayout={(event) => {
+                                    setVariantsSectionY(event.nativeEvent.layout.y);
+                                }}
+                                style={{
+                                    marginBottom: 16,
+                                    gap: 10,
+                                }}
+                            >
+                                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                    {t('library.varieties_title', { defaultValue: 'Varieties' })}
+                                </Text>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 2 }}>
+                                    {variantOptions.map((variant: any) => {
+                                        const active = String(variant._id) === String(resolvedId);
+                                        return (
+                                            <TouchableOpacity
+                                                key={String(variant._id)}
+                                                onPress={() => openVariant(String(variant._id))}
+                                                disabled={active}
+                                                style={{
+                                                    width: 132,
+                                                    borderWidth: 1,
+                                                    borderColor: active ? theme.primary : theme.border,
+                                                    backgroundColor: active ? theme.accent : theme.background,
+                                                    borderRadius: 12,
+                                                    overflow: 'hidden',
+                                                    opacity: active ? 1 : 0.95,
+                                                }}
+                                            >
+                                                <Image
+                                                    source={{
+                                                        uri:
+                                                            variant.imageUrl ||
+                                                            currentPlant.imageUrl ||
+                                                            heroImageUri,
+                                                    }}
+                                                    style={{ width: '100%', height: 80 }}
+                                                    resizeMode="cover"
+                                                />
+                                                <Text
+                                                    style={{
+                                                        fontSize: 12,
+                                                        fontWeight: active ? '700' : '600',
+                                                        color: active ? theme.primary : theme.textSecondary,
+                                                        paddingHorizontal: 10,
+                                                        paddingVertical: 8,
+                                                    }}
+                                                    numberOfLines={2}
+                                                >
+                                                    {variant.displayName ?? variant.scientificName}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
                             </View>
                         )}
 
@@ -657,8 +798,16 @@ export default function LibraryPlantDetailScreen() {
                         )}
 
                         {/* Detailed stats */}
-                        {(currentPlant.germinationDays ?? currentPlant.spacingCm ?? currentPlant.maxPlantsPerM2 ?? currentPlant.seedRatePerM2 ?? currentPlant.waterLitersPerM2 ?? currentPlant.yieldKgPerM2 ?? currentPlant.source) && (
-                            <View style={{ backgroundColor: theme.card, borderRadius: 18, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, marginTop: 6, marginBottom: 10 }}>
+                        {Boolean(
+                            currentPlant.germinationDays ??
+                            currentPlant.spacingCm ??
+                            currentPlant.maxPlantsPerM2 ??
+                            currentPlant.seedRatePerM2 ??
+                            currentPlant.waterLitersPerM2 ??
+                            currentPlant.yieldKgPerM2 ??
+                            currentPlant.source
+                        ) && (
+                            <View style={{ paddingHorizontal: 2, marginTop: 2, marginBottom: 4 }}>
                                 {!!currentPlant.germinationDays && <StatRow label={t('library.detail_germination')} value={`${currentPlant.germinationDays} days`} />}
                                 {!!currentPlant.spacingCm && <StatRow label={t('library.detail_spacing')} value={formatLengthCm(currentPlant.spacingCm, unitSystem)} />}
                                 {!!currentPlant.maxPlantsPerM2 && <StatRow label={t('library.detail_max_plants')} value={formatPlantsPerArea(currentPlant.maxPlantsPerM2, unitSystem)} />}

@@ -7,6 +7,7 @@ import { v } from "convex/values";
 import { requireUser } from "./lib/user";
 import { localizePlantRows, PlantI18nRow } from "./lib/localizePlant";
 import { plantI18nSeed } from "./data/plantsMasterSeed";
+import { DEFAULT_CULTIVAR_NORMALIZED } from "./lib/plantTaxonomy";
 
 function normalizeScientificName(value: string) {
     return value
@@ -16,12 +17,31 @@ function normalizeScientificName(value: string) {
         .trim();
 }
 
+function normalizeCultivar(value?: string | null) {
+    const normalized = (value ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+    return normalized || DEFAULT_CULTIVAR_NORMALIZED;
+}
+
+function buildSeedLocaleKey(args: {
+    locale: string;
+    scientificName: string;
+    cultivar?: string | null;
+}) {
+    return `${args.locale}|${normalizeScientificName(args.scientificName)}|${normalizeCultivar(
+        args.cultivar
+    )}`;
+}
+
 const seedI18nByLocaleAndScientific = new Map<
     string,
     { commonName: string; description?: string }
 >();
 for (const row of plantI18nSeed) {
-    const key = `${row.locale}|${normalizeScientificName(row.scientificName)}`;
+    const key = buildSeedLocaleKey({
+        locale: row.locale.toLowerCase(),
+        scientificName: row.scientificName,
+        cultivar: row.cultivar,
+    });
     seedI18nByLocaleAndScientific.set(key, {
         commonName: row.commonName,
         description: row.description ?? undefined,
@@ -31,13 +51,27 @@ for (const row of plantI18nSeed) {
 function withSeedLocaleFallback(
     rows: PlantI18nRow[] | undefined,
     scientificName: string,
-    locale: string | undefined
+    locale: string | undefined,
+    cultivar?: string | null
 ): PlantI18nRow[] | undefined {
     const normalizedLocale = (locale ?? "en").split("-")[0].toLowerCase();
     const base = rows ?? [];
-    const fallback = seedI18nByLocaleAndScientific.get(
-        `${normalizedLocale}|${normalizeScientificName(scientificName)}`
-    );
+    const fallback =
+        seedI18nByLocaleAndScientific.get(
+            buildSeedLocaleKey({
+                locale: normalizedLocale,
+                scientificName,
+                cultivar,
+            })
+        ) ??
+        (cultivar
+            ? seedI18nByLocaleAndScientific.get(
+                buildSeedLocaleKey({
+                    locale: normalizedLocale,
+                    scientificName,
+                })
+            )
+            : undefined);
     if (!fallback) {
         return base.length > 0 ? base : undefined;
     }
@@ -94,7 +128,8 @@ export const getPlantsWithImages = query({
                     ? i18nForPlant
                     : undefined,
                 p.scientificName,
-                args.locale
+                args.locale,
+                (p as any).cultivar
             );
             const localized = localizePlantRows(
                 rows,
@@ -215,7 +250,8 @@ export const getPlantsWithoutImages = query({
                         ? i18nForPlant
                         : undefined,
                     p.scientificName,
-                    args.locale
+                    args.locale,
+                    (p as any).cultivar
                 );
                 const localized = localizePlantRows(
                     rows,
@@ -272,7 +308,8 @@ export const getPlantById = query({
         const localizedRows = withSeedLocaleFallback(
             rows.length > 0 ? rows : undefined,
             plant.scientificName,
-            args.locale
+            args.locale,
+            (plant as any).cultivar
         );
         const localized = localizePlantRows(
             localizedRows,
@@ -289,5 +326,89 @@ export const getPlantById = query({
             contentVersion: localized.contentVersion,
             i18nRows: localizedRows ?? [],
         };
+    },
+});
+
+// ==========================================
+// Lấy variants cùng species cho 1 plant
+// ==========================================
+export const getPlantVariants = query({
+    args: {
+        plantId: v.id("plantsMaster"),
+        locale: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const selected = await ctx.db.get(args.plantId);
+        if (!selected) return [];
+
+        let siblings: any[] = [];
+        if ((selected as any).genusNormalized && (selected as any).speciesNormalized) {
+            siblings = await ctx.db
+                .query("plantsMaster")
+                .withIndex("by_genus_species", (q) =>
+                    q
+                        .eq("genusNormalized", (selected as any).genusNormalized)
+                        .eq("speciesNormalized", (selected as any).speciesNormalized)
+                )
+                .collect();
+        } else {
+            siblings = await ctx.db
+                .query("plantsMaster")
+                .withIndex("by_scientific_name", (q) =>
+                    q.eq("scientificName", selected.scientificName)
+                )
+                .collect();
+        }
+
+        const rows = await Promise.all(
+            siblings.map(async (plant) => {
+                const i18nRows = await ctx.db
+                    .query("plantI18n")
+                    .withIndex("by_plant_locale", (q) => q.eq("plantId", plant._id))
+                    .collect();
+                const localizedRows = withSeedLocaleFallback(
+                    i18nRows.map((row) => ({
+                        locale: row.locale,
+                        commonName: row.commonName,
+                        description: row.description ?? undefined,
+                    })),
+                    plant.scientificName,
+                    args.locale,
+                    (plant as any).cultivar
+                );
+                const localized = localizePlantRows(
+                    localizedRows,
+                    args.locale,
+                    plant.scientificName
+                );
+                const isBaseVariant =
+                    ((plant as any).cultivarNormalized ??
+                        DEFAULT_CULTIVAR_NORMALIZED) ===
+                    DEFAULT_CULTIVAR_NORMALIZED;
+
+                return {
+                    _id: plant._id,
+                    scientificName: plant.scientificName,
+                    displayName: localized.displayName,
+                    cultivar: (plant as any).cultivar ?? null,
+                    cultivarNormalized:
+                        (plant as any).cultivarNormalized ??
+                        DEFAULT_CULTIVAR_NORMALIZED,
+                    isBaseVariant,
+                    speciesKey:
+                        (plant as any).genusNormalized &&
+                            (plant as any).speciesNormalized
+                            ? `${(plant as any).genusNormalized}:${(plant as any).speciesNormalized}`
+                            : normalizeScientificName(plant.scientificName),
+                };
+            })
+        );
+
+        return rows.sort((a, b) => {
+            if (a.isBaseVariant !== b.isBaseVariant) {
+                return a.isBaseVariant ? -1 : 1;
+            }
+            return String(a.displayName).localeCompare(String(b.displayName));
+        });
     },
 });

@@ -43,6 +43,18 @@ function normalizeTab(value?: string): LibraryTab {
     return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : 'plants';
 }
 
+function normalizeSpeciesKey(plant: any) {
+    if (typeof plant?.speciesKey === 'string' && plant.speciesKey.trim()) {
+        return plant.speciesKey.trim().toLowerCase();
+    }
+    return String(plant?.scientificName ?? '').trim().toLowerCase();
+}
+
+function isBaseVariantPlant(plant: any) {
+    if (typeof plant?.isBaseVariant === 'boolean') return plant.isBaseVariant;
+    return true;
+}
+
 const GROUP_ICONS: Record<string, string> = {
     herbs: '🌿',
     vegetables: '🥦',
@@ -373,6 +385,31 @@ function PlantCard({
                 />
             </Pressable>
         </TouchableOpacity>
+    );
+}
+
+function SpeciesGroupHeader({ basePlant, count }: { basePlant: any; count: number }) {
+    const theme = useTheme();
+    const title = basePlant?.displayName ?? basePlant?.scientificName ?? 'Plant';
+    const subtitle = basePlant?.scientificName ?? '';
+
+    return (
+        <View
+            style={{
+                paddingHorizontal: 4,
+                paddingTop: 4,
+                paddingBottom: 2,
+            }}
+        >
+            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary }}>
+                {title} ({count})
+            </Text>
+            {!!subtitle && (
+                <Text style={{ fontSize: 11, color: theme.textMuted, fontStyle: 'italic' }}>
+                    {subtitle}
+                </Text>
+            )}
+        </View>
     );
 }
 
@@ -768,6 +805,71 @@ export default function LibraryScreen() {
         return result;
     }, [plants, selectedGroup, normalizedSearch]);
 
+    const groupedPlantRows = useMemo(() => {
+        const groupsBySpecies = new Map<string, { basePlant: any; plants: any[] }>();
+
+        for (const plant of filteredPlants) {
+            const speciesKey = normalizeSpeciesKey(plant);
+            const existing = groupsBySpecies.get(speciesKey);
+            if (!existing) {
+                groupsBySpecies.set(speciesKey, {
+                    basePlant: plant,
+                    plants: [plant],
+                });
+                continue;
+            }
+
+            existing.plants.push(plant);
+            if (!isBaseVariantPlant(existing.basePlant) && isBaseVariantPlant(plant)) {
+                existing.basePlant = plant;
+            }
+        }
+
+        const speciesGroups = Array.from(groupsBySpecies.entries())
+            .map(([speciesKey, group]) => ({
+                speciesKey,
+                basePlant: group.basePlant,
+                plants: group.plants.sort((a, b) => {
+                    if (isBaseVariantPlant(a) !== isBaseVariantPlant(b)) {
+                        return isBaseVariantPlant(a) ? -1 : 1;
+                    }
+                    const aName = String(a.displayName ?? a.scientificName ?? '').toLowerCase();
+                    const bName = String(b.displayName ?? b.scientificName ?? '').toLowerCase();
+                    return aName.localeCompare(bName);
+                }),
+            }))
+            .sort((a, b) => {
+                const aName = String(a.basePlant?.displayName ?? a.basePlant?.scientificName ?? '').toLowerCase();
+                const bName = String(b.basePlant?.displayName ?? b.basePlant?.scientificName ?? '').toLowerCase();
+                return aName.localeCompare(bName);
+            });
+
+        const rows: Array<
+            | { rowType: 'header'; key: string; basePlant: any; count: number }
+            | { rowType: 'plant'; key: string; plant: any }
+        > = [];
+
+        for (const group of speciesGroups) {
+            if (group.plants.length > 1) {
+                rows.push({
+                    rowType: 'header',
+                    key: `header:${group.speciesKey}`,
+                    basePlant: group.basePlant,
+                    count: group.plants.length,
+                });
+            }
+            for (const plant of group.plants) {
+                rows.push({
+                    rowType: 'plant',
+                    key: `plant:${String(plant._id)}`,
+                    plant,
+                });
+            }
+        }
+
+        return rows;
+    }, [filteredPlants]);
+
     const filteredPests = useMemo(() => {
         if (!normalizedSearch) return pestItems;
         return pestItems.filter((item: any) =>
@@ -812,15 +914,22 @@ export default function LibraryScreen() {
     );
 
     const renderPlantItem = useCallback(
-        ({ item: plant }: { item: any }) => (
-            <PlantCard
-                plant={plant}
-                onPress={() => openPlantDetail(plant)}
-                onToggleFavorite={() => handleTogglePlantFavorite(plant)}
-                isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
-                testID="e2e-library-plant-card"
-            />
-        ),
+        ({ item }: { item: any }) => {
+            if (item.rowType === 'header') {
+                return <SpeciesGroupHeader basePlant={item.basePlant} count={item.count} />;
+            }
+
+            const plant = item.plant;
+            return (
+                <PlantCard
+                    plant={plant}
+                    onPress={() => openPlantDetail(plant)}
+                    onToggleFavorite={() => handleTogglePlantFavorite(plant)}
+                    isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
+                    testID="e2e-library-plant-card"
+                />
+            );
+        },
         [openPlantDetail, handleTogglePlantFavorite, isSeedPlant, favoriteIds]
     );
 
@@ -831,7 +940,7 @@ export default function LibraryScreen() {
         []
     );
 
-    const plantKeyExtractor = useCallback((plant: any) => String(plant._id), []);
+    const plantKeyExtractor = useCallback((row: any) => String(row.key), []);
     const pestKeyExtractor = useCallback((item: any) => String(item._id), []);
 
     return (
@@ -967,7 +1076,7 @@ export default function LibraryScreen() {
                     ) : (
                         <FlatList
                             style={{ flex: 1 }}
-                            data={filteredPlants}
+                            data={groupedPlantRows}
                             keyExtractor={plantKeyExtractor}
                             renderItem={renderPlantItem}
                             ItemSeparatorComponent={() => <View style={{ height: 10 }} />}

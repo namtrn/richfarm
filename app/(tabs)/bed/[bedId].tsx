@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions, Modal, TextInput, Pressable, Alert } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions, Modal, TextInput, Pressable, Alert, Animated, PanResponder } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Search, X, Sprout, Leaf } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -74,6 +74,8 @@ export default function BedDetailScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [targetCell, setTargetCell] = useState<{ x: number; y: number } | null>(null);
   const [addingPlant, setAddingPlant] = useState(false);
+  const adjustPan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const plantSelectorPan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
 
   const { beds, isLoading: bedsLoading, updateBed } = useBeds();
   const { plants, addPlant, deletePlant } = usePlants();
@@ -237,6 +239,54 @@ export default function BedDetailScreen() {
     setPlantSelectorOpen(true);
   };
 
+  const closeAdjustModal = () => {
+    adjustPan.setValue({ x: 0, y: 0 });
+    setAdjustOpen(false);
+  };
+
+  const closePlantSelectorModal = () => {
+    plantSelectorPan.setValue({ x: 0, y: 0 });
+    setPlantSelectorOpen(false);
+  };
+
+  const adjustPanResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+    onPanResponderMove: (_, gestureState) => {
+      if (gestureState.dy > 0) {
+        adjustPan.setValue({ x: 0, y: gestureState.dy });
+      }
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+        closeAdjustModal();
+      } else {
+        Animated.spring(adjustPan, {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: false,
+        }).start();
+      }
+    },
+  });
+
+  const plantSelectorPanResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
+    onPanResponderMove: (_, gestureState) => {
+      if (gestureState.dy > 0) {
+        plantSelectorPan.setValue({ x: 0, y: gestureState.dy });
+      }
+    },
+    onPanResponderRelease: (_, gestureState) => {
+      if (gestureState.dy > 120 || gestureState.vy > 0.5) {
+        closePlantSelectorModal();
+      } else {
+        Animated.spring(plantSelectorPan, {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: false,
+        }).start();
+      }
+    },
+  });
+
   const handleAddPlantFromSelector = async (plantMasterId: string) => {
     if (!bed || !targetCell) return;
     setAddingPlant(true);
@@ -246,7 +296,7 @@ export default function BedDetailScreen() {
         bedId: bed._id,
         positionInBed: { ...targetCell, width: 1, height: 1 },
       });
-      setPlantSelectorOpen(false);
+      closePlantSelectorModal();
       setPlantSearch('');
       setSelectedCategory(undefined);
     } finally {
@@ -333,7 +383,7 @@ export default function BedDetailScreen() {
         areaM2: adjustAreaM2,
         tiers: isRaised ? adjustTiers : undefined,
       });
-      setAdjustOpen(false);
+      closeAdjustModal();
     } finally {
       setAdjustSaving(false);
     }
@@ -487,9 +537,12 @@ export default function BedDetailScreen() {
         </View>
       </ScrollView>
 
-      <Modal visible={adjustOpen} transparent animationType="slide" onRequestClose={() => setAdjustOpen(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setAdjustOpen(false)} />
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}>
+      <Modal visible={adjustOpen} transparent animationType="slide" onRequestClose={closeAdjustModal}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={closeAdjustModal} />
+        <Animated.View
+          {...adjustPanResponder.panHandlers}
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, transform: [{ translateY: adjustPan.y }] }}
+        >
           <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 16 }} />
           <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, marginBottom: 20, letterSpacing: -0.5 }}>
             {t('bed.adjust_title')}
@@ -598,7 +651,7 @@ export default function BedDetailScreen() {
 
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <TouchableOpacity
-              onPress={() => setAdjustOpen(false)}
+              onPress={closeAdjustModal}
               style={{ flex: 1, borderWidth: 1, borderColor: theme.border, borderRadius: 16, paddingVertical: 16, alignItems: 'center' }}
             >
               <Text style={{ fontSize: 15, fontWeight: '700', color: theme.textSecondary }}>{t('common.cancel')}</Text>
@@ -611,18 +664,21 @@ export default function BedDetailScreen() {
               <Text style={{ fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: 0.2 }}>{t('common.save')}</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       </Modal>
 
       {/* Plant Selector Modal */}
-      <Modal visible={plantSelectorOpen} transparent animationType="slide" onRequestClose={() => setPlantSelectorOpen(false)}>
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} onPress={() => setPlantSelectorOpen(false)} />
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, top: 120, backgroundColor: theme.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 16 }}>
+      <Modal visible={plantSelectorOpen} transparent animationType="slide" onRequestClose={closePlantSelectorModal}>
+        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} onPress={closePlantSelectorModal} />
+        <Animated.View
+          {...plantSelectorPanResponder.panHandlers}
+          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, top: 120, backgroundColor: theme.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 16, transform: [{ translateY: plantSelectorPan.y }] }}
+        >
           <View style={{ width: 40, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 20 }} />
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('bed.add_plant')}</Text>
-            <TouchableOpacity onPress={() => setPlantSelectorOpen(false)} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent, borderRadius: 16 }}>
+            <TouchableOpacity onPress={closePlantSelectorModal} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.accent, borderRadius: 16 }}>
               <X size={18} color={theme.textSecondary} />
             </TouchableOpacity>
           </View>
@@ -690,7 +746,7 @@ export default function BedDetailScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       </Modal>
     </View>
   );

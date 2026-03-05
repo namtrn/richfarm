@@ -10,7 +10,6 @@ import { WeatherCard } from '../../components/ui/WeatherCard';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useAuth } from '../../lib/auth';
 import { useTheme } from '../../lib/theme';
-import { useThemeContext } from '../../lib/ThemeContext';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -34,7 +33,6 @@ export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { user } = useAuth();
-  const { isDark } = useThemeContext();
   const { todayReminders, isLoading } = useReminders();
   const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
@@ -127,7 +125,7 @@ export default function HomeScreen() {
 
       <WeatherCard model={weatherModel} />
 
-      <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: isDark ? '#000000' : '#1a1a18', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+      <View style={{ paddingHorizontal: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
@@ -196,7 +194,7 @@ export default function HomeScreen() {
         )}
       </View>
 
-      <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+      <View style={{ paddingHorizontal: 2 }}>
         <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>
           {t('home.quick_stats')}
         </Text>

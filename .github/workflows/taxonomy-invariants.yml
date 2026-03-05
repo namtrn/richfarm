@@ -1,0 +1,36 @@
+name: Taxonomy Invariants
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-taxonomy:
+    runs-on: ubuntu-latest
+    env:
+      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+      CONVEX_DEPLOYMENT: ${{ secrets.CONVEX_DEPLOYMENT }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate Convex Secrets
+        run: |
+          if [ -z "$CONVEX_DEPLOY_KEY" ]; then
+            echo "Missing CONVEX_DEPLOY_KEY secret."
+            exit 1
+          fi
+
+      - name: Run Taxonomy Checks
+        run: npm run check:taxonomy

@@ -6,6 +6,12 @@ import {
     plantsMasterSeed,
     plantI18nSeed,
 } from "./data/plantsMasterSeed";
+import {
+    buildTaxonomyFields,
+    DEFAULT_CULTIVAR_NORMALIZED,
+    isInfraspecificCultivar,
+    requireTaxonomyIdentity,
+} from "./lib/plantTaxonomy";
 
 export const upsertPlantI18n = mutation({
     args: {
@@ -96,22 +102,54 @@ export const syncEnglishSeedContent = internalMutation({
         }
 
         for (const seed of plantsMasterSeed) {
+            const cultivar = (seed as any).cultivar;
+            const taxonomy = buildTaxonomyFields({
+                scientificName: seed.scientificName,
+                cultivar,
+            });
+            const taxonomyIdentity = requireTaxonomyIdentity(
+                taxonomy,
+                `Seed plant ${seed.scientificName}${cultivar ? ` (${cultivar})` : ""}`
+            );
+            if (
+                taxonomyIdentity.cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED &&
+                !isInfraspecificCultivar(taxonomyIdentity.cultivarNormalized)
+            ) {
+                const baseRow = await ctx.db
+                    .query("plantsMaster")
+                    .withIndex("by_genus_species_cultivar", (q) =>
+                        q
+                            .eq("genusNormalized", taxonomyIdentity.genusNormalized)
+                            .eq("speciesNormalized", taxonomyIdentity.speciesNormalized)
+                            .eq("cultivarNormalized", DEFAULT_CULTIVAR_NORMALIZED)
+                    )
+                    .first();
+                if (!baseRow) {
+                    throw new Error(
+                        `Seed variant requires base species row first: ${seed.scientificName} (${cultivar})`
+                    );
+                }
+            }
+            const seedWithTaxonomy = { ...seed, ...taxonomy };
             const existing = await ctx.db
                 .query("plantsMaster")
-                .withIndex("by_scientific_name", (q) =>
-                    q.eq("scientificName", seed.scientificName)
+                .withIndex("by_genus_species_cultivar", (q) =>
+                    q
+                        .eq("genusNormalized", taxonomyIdentity.genusNormalized)
+                        .eq("speciesNormalized", taxonomyIdentity.speciesNormalized)
+                        .eq("cultivarNormalized", taxonomyIdentity.cultivarNormalized)
                 )
-                .unique();
+                .first();
 
             let plantId = existing?._id;
             if (!existing) {
                 if (!dryRun) {
-                    plantId = await ctx.db.insert("plantsMaster", seed as any);
+                    plantId = await ctx.db.insert("plantsMaster", seedWithTaxonomy as any);
                 }
                 plantsInserted++;
             } else {
                 const updates: Record<string, unknown> = {};
-                for (const [key, value] of Object.entries(seed)) {
+                for (const [key, value] of Object.entries(seedWithTaxonomy)) {
                     const current = (existing as any)[key];
                     const same =
                         Array.isArray(value) || typeof value === "object"
@@ -133,12 +171,23 @@ export const syncEnglishSeedContent = internalMutation({
         }
 
         for (const row of plantI18nSeed) {
+            const rowTaxonomy = buildTaxonomyFields({
+                scientificName: row.scientificName,
+                cultivar: row.cultivar,
+            });
+            const taxonomyIdentity = requireTaxonomyIdentity(
+                rowTaxonomy,
+                `Seed i18n ${row.scientificName}${row.cultivar ? ` (${row.cultivar})` : ""}`
+            );
             const plant = await ctx.db
                 .query("plantsMaster")
-                .withIndex("by_scientific_name", (q) =>
-                    q.eq("scientificName", row.scientificName)
+                .withIndex("by_genus_species_cultivar", (q) =>
+                    q
+                        .eq("genusNormalized", taxonomyIdentity.genusNormalized)
+                        .eq("speciesNormalized", taxonomyIdentity.speciesNormalized)
+                        .eq("cultivarNormalized", taxonomyIdentity.cultivarNormalized)
                 )
-                .unique();
+                .first();
             if (!plant) continue;
 
             const existingI18n = await ctx.db
@@ -180,82 +229,5 @@ export const syncEnglishSeedContent = internalMutation({
             plants: { inserted: plantsInserted, updated: plantsUpdated },
             plantI18n: { inserted: i18nInserted, updated: i18nUpdated },
         };
-    },
-});
-
-export const migratePlantsMasterToI18n = internalMutation({
-    args: {
-        dryRun: v.optional(v.boolean()),
-    },
-    handler: async (ctx, args) => {
-        const dryRun = args.dryRun ?? false;
-        const plants = await ctx.db.query("plantsMaster").collect();
-
-        let inserted = 0;
-        let updated = 0;
-        let skipped = 0;
-
-        for (const plant of plants) {
-            const commonNames = (plant as any).commonNames ?? [];
-            if (commonNames.length === 0) {
-                skipped++;
-                continue;
-            }
-
-            const normalized = commonNames.map((n: any) => ({
-                locale: String(n.locale ?? "").toLowerCase().trim(),
-                commonName: n.name,
-            }));
-
-            const locales = normalized.map((n: any) => n.locale);
-            const defaultLocale = locales.includes("en")
-                ? "en"
-                : locales.includes("vi")
-                    ? "vi"
-                    : locales[0];
-
-            for (const row of normalized) {
-                if (!row.locale) continue;
-                const existing = await ctx.db
-                    .query("plantI18n")
-                    .withIndex("by_plant_locale", (q) =>
-                        q.eq("plantId", plant._id).eq("locale", row.locale)
-                    )
-                    .unique();
-
-                const legacyDescription = (plant as any).description;
-                const description =
-                    row.locale === defaultLocale ? legacyDescription : undefined;
-
-                if (existing) {
-                    const needsUpdate =
-                        existing.commonName !== row.commonName ||
-                        existing.description !== description;
-                    if (needsUpdate) {
-                        if (!dryRun) {
-                            await ctx.db.patch(existing._id, {
-                                commonName: row.commonName,
-                                description,
-                            });
-                        }
-                        updated++;
-                    } else {
-                        skipped++;
-                    }
-                } else {
-                    if (!dryRun) {
-                        await ctx.db.insert("plantI18n", {
-                            plantId: plant._id,
-                            locale: row.locale,
-                            commonName: row.commonName,
-                            description,
-                        });
-                    }
-                    inserted++;
-                }
-            }
-        }
-
-        return { dryRun, inserted, updated, skipped };
     },
 });

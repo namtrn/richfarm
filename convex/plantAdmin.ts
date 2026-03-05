@@ -1,5 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  buildTaxonomyFields,
+  DEFAULT_CULTIVAR_NORMALIZED,
+  isInfraspecificCultivar,
+  requireTaxonomyIdentity,
+  type TaxonomyIdentity,
+} from "./lib/plantTaxonomy";
 
 async function upsertPlantI18n(
   ctx: any,
@@ -29,10 +36,50 @@ async function upsertPlantI18n(
   });
 }
 
+async function findDuplicateByTaxonomy(ctx: any, taxonomy: TaxonomyIdentity) {
+  return await ctx.db
+    .query("plantsMaster")
+    .withIndex("by_genus_species_cultivar", (q: any) =>
+      q
+        .eq("genusNormalized", taxonomy.genusNormalized)
+        .eq("speciesNormalized", taxonomy.speciesNormalized)
+        .eq("cultivarNormalized", taxonomy.cultivarNormalized)
+    )
+    .first();
+}
+
+async function assertBaseExistsForVariant(
+  ctx: any,
+  taxonomy: TaxonomyIdentity,
+  options?: { excludingPlantId?: any }
+) {
+  if (taxonomy.cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED) {
+    return;
+  }
+  if (isInfraspecificCultivar(taxonomy.cultivarNormalized)) {
+    return;
+  }
+
+  const base = await ctx.db
+    .query("plantsMaster")
+    .withIndex("by_genus_species_cultivar", (q: any) =>
+      q
+        .eq("genusNormalized", taxonomy.genusNormalized)
+        .eq("speciesNormalized", taxonomy.speciesNormalized)
+        .eq("cultivarNormalized", DEFAULT_CULTIVAR_NORMALIZED)
+    )
+    .first();
+
+  if (!base || (options?.excludingPlantId && base._id === options.excludingPlantId)) {
+    throw new Error("Base species row is required before creating or updating a variant");
+  }
+}
+
 export const updatePlant = mutation({
   args: {
     plantId: v.id("plantsMaster"),
     scientificName: v.string(),
+    cultivar: v.optional(v.string()),
     group: v.string(),
     purposes: v.optional(v.array(v.string())),
     description: v.optional(v.string()),
@@ -41,6 +88,16 @@ export const updatePlant = mutation({
     viDescription: v.optional(v.string()),
     enCommonName: v.string(),
     enDescription: v.optional(v.string()),
+    // Growing parameters
+    typicalDaysToHarvest: v.optional(v.number()),
+    wateringFrequencyDays: v.optional(v.number()),
+    germinationDays: v.optional(v.number()),
+    spacingCm: v.optional(v.number()),
+    lightRequirements: v.optional(v.string()),
+    maxPlantsPerM2: v.optional(v.number()),
+    seedRatePerM2: v.optional(v.number()),
+    waterLitersPerM2: v.optional(v.number()),
+    yieldKgPerM2: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const plant = await ctx.db.get(args.plantId);
@@ -48,18 +105,39 @@ export const updatePlant = mutation({
       throw new Error("Plant not found");
     }
 
+    const scientificName = args.scientificName.trim();
+    const cultivar = args.cultivar ?? (plant as any).cultivar;
+    const taxonomy = buildTaxonomyFields({ scientificName, cultivar });
+    const taxonomyIdentity = requireTaxonomyIdentity(
+      taxonomy,
+      `Plant ${args.plantId}`
+    );
+    const duplicate = await findDuplicateByTaxonomy(ctx, taxonomyIdentity);
+    if (duplicate && duplicate._id !== args.plantId) {
+      throw new Error("Another plant with the same taxonomy already exists");
+    }
+    await assertBaseExistsForVariant(ctx, taxonomyIdentity, {
+      excludingPlantId: args.plantId,
+    });
+
     await ctx.db.patch(args.plantId, {
-      scientificName: args.scientificName.trim(),
+      scientificName,
       group: args.group.trim(),
       description: args.description?.trim() || undefined,
       imageUrl: args.imageUrl ?? undefined,
-      commonNames: [
-        { locale: "vi", name: args.viCommonName.trim() },
-        { locale: "en", name: args.enCommonName.trim() },
-      ],
+      ...taxonomy,
       ...(args.purposes !== undefined && {
         purposes: args.purposes.map((item) => item.trim()).filter(Boolean),
       }),
+      typicalDaysToHarvest: args.typicalDaysToHarvest,
+      wateringFrequencyDays: args.wateringFrequencyDays,
+      germinationDays: args.germinationDays,
+      spacingCm: args.spacingCm,
+      lightRequirements: args.lightRequirements?.trim() || undefined,
+      maxPlantsPerM2: args.maxPlantsPerM2,
+      seedRatePerM2: args.seedRatePerM2,
+      waterLitersPerM2: args.waterLitersPerM2,
+      yieldKgPerM2: args.yieldKgPerM2,
     });
 
     await upsertPlantI18n(ctx, args.plantId, "vi", args.viCommonName, args.viDescription);
@@ -98,6 +176,13 @@ export const listPlants = query({
     return plants.map((plant) => ({
       _id: plant._id,
       scientificName: plant.scientificName,
+      // Taxonomy fields (optional in schema — may be undefined for legacy rows)
+      genus: plant.genus ?? undefined,
+      species: plant.species ?? undefined,
+      cultivar: plant.cultivar ?? undefined,
+      genusNormalized: plant.genusNormalized ?? undefined,
+      speciesNormalized: plant.speciesNormalized ?? undefined,
+      cultivarNormalized: plant.cultivarNormalized ?? undefined,
       group: plant.group,
       description: plant.description ?? undefined,
       imageUrl: plant.imageUrl ?? null,
@@ -114,12 +199,15 @@ export const listPlants = query({
       source: plant.source ?? undefined,
       i18nRows: i18nByPlantId.get(plant._id.toString()) ?? [],
     }));
+
+
   },
 });
 
 export const createPlant = mutation({
   args: {
     scientificName: v.string(),
+    cultivar: v.optional(v.string()),
     group: v.string(),
     purposes: v.optional(v.array(v.string())),
     description: v.optional(v.string()),
@@ -128,12 +216,36 @@ export const createPlant = mutation({
     viDescription: v.optional(v.string()),
     enCommonName: v.string(),
     enDescription: v.optional(v.string()),
+    // Growing parameters
+    typicalDaysToHarvest: v.optional(v.number()),
+    wateringFrequencyDays: v.optional(v.number()),
+    germinationDays: v.optional(v.number()),
+    spacingCm: v.optional(v.number()),
+    lightRequirements: v.optional(v.string()),
+    maxPlantsPerM2: v.optional(v.number()),
+    seedRatePerM2: v.optional(v.number()),
+    waterLitersPerM2: v.optional(v.number()),
+    yieldKgPerM2: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const scientificName = args.scientificName.trim();
     if (!scientificName) {
       throw new Error("Scientific name is required");
     }
+    const taxonomy = buildTaxonomyFields({
+      scientificName,
+      cultivar: args.cultivar,
+    });
+    const taxonomyIdentity = requireTaxonomyIdentity(
+      taxonomy,
+      `Plant ${scientificName}${args.cultivar ? ` (${args.cultivar})` : ""}`
+    );
+    const duplicate = await findDuplicateByTaxonomy(ctx, taxonomyIdentity);
+    if (duplicate) {
+      throw new Error("Plant with the same taxonomy already exists");
+    }
+    await assertBaseExistsForVariant(ctx, taxonomyIdentity);
+
     const group = args.group.trim() || "other";
     const purposes = (args.purposes ?? []).map((item) => item.trim()).filter(Boolean);
 
@@ -143,10 +255,16 @@ export const createPlant = mutation({
       description: args.description?.trim() || undefined,
       imageUrl: args.imageUrl ?? undefined,
       purposes,
-      commonNames: [
-        { locale: "vi", name: args.viCommonName.trim() },
-        { locale: "en", name: args.enCommonName.trim() },
-      ],
+      typicalDaysToHarvest: args.typicalDaysToHarvest,
+      wateringFrequencyDays: args.wateringFrequencyDays,
+      germinationDays: args.germinationDays,
+      spacingCm: args.spacingCm,
+      lightRequirements: args.lightRequirements?.trim() || undefined,
+      maxPlantsPerM2: args.maxPlantsPerM2,
+      seedRatePerM2: args.seedRatePerM2,
+      waterLitersPerM2: args.waterLitersPerM2,
+      yieldKgPerM2: args.yieldKgPerM2,
+      ...taxonomy,
     });
 
     await upsertPlantI18n(ctx, plantId, "vi", args.viCommonName, args.viDescription);
@@ -161,6 +279,37 @@ export const deletePlant = mutation({
     plantId: v.id("plantsMaster"),
   },
   handler: async (ctx, args) => {
+    const plant = await ctx.db.get(args.plantId);
+    if (!plant) {
+      throw new Error("Plant not found");
+    }
+
+    // Enforce base invariant: base row cannot be deleted while variants still exist.
+    if (
+      (plant as any).cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED &&
+      (plant as any).genusNormalized &&
+      (plant as any).speciesNormalized
+    ) {
+      const sameSpeciesRows = await ctx.db
+        .query("plantsMaster")
+        .withIndex("by_genus_species", (q: any) =>
+          q
+            .eq("genusNormalized", (plant as any).genusNormalized)
+            .eq("speciesNormalized", (plant as any).speciesNormalized)
+        )
+        .collect();
+
+      const hasVariants = sameSpeciesRows.some(
+        (row: any) =>
+          row._id !== args.plantId &&
+          row.cultivarNormalized &&
+          row.cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED
+      );
+      if (hasVariants) {
+        throw new Error("Cannot delete base plant while variants still exist");
+      }
+    }
+
     const i18nRows = await ctx.db
       .query("plantI18n")
       .withIndex("by_plant_locale", (q: any) => q.eq("plantId", args.plantId))
@@ -211,9 +360,9 @@ export const createPlantGroup = mutation({
     const description =
       args.descriptionVi?.trim() || args.descriptionEn?.trim()
         ? {
-            vi: args.descriptionVi?.trim() ?? "",
-            en: args.descriptionEn?.trim() ?? "",
-          }
+          vi: args.descriptionVi?.trim() ?? "",
+          en: args.descriptionEn?.trim() ?? "",
+        }
         : undefined;
 
     const groupId = await ctx.db.insert("plantGroups", {
@@ -264,9 +413,9 @@ export const updatePlantGroup = mutation({
     const description =
       args.descriptionVi?.trim() || args.descriptionEn?.trim()
         ? {
-            vi: args.descriptionVi?.trim() ?? "",
-            en: args.descriptionEn?.trim() ?? "",
-          }
+          vi: args.descriptionVi?.trim() ?? "",
+          en: args.descriptionEn?.trim() ?? "",
+        }
         : undefined;
 
     await ctx.db.patch(args.groupId, {

@@ -1,5 +1,11 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  buildTaxonomyFields,
+  DEFAULT_CULTIVAR_NORMALIZED,
+  isInfraspecificCultivar,
+  requireTaxonomyIdentity,
+} from "./lib/plantTaxonomy";
 
 const backendRowValidator = v.object({
   id: v.number(),
@@ -49,6 +55,45 @@ function toScientificName(row: { scientific_name?: string | null; common_name: s
   return `${row.common_name.trim()} (${row.plant_code.trim()})`;
 }
 
+function extractCultivar(row: { metadata_json?: any }) {
+  if (!row.metadata_json || typeof row.metadata_json !== "object") {
+    return undefined;
+  }
+  const raw = row.metadata_json.cultivar;
+  if (typeof raw !== "string") return undefined;
+  const trimmed = raw.trim();
+  return trimmed || undefined;
+}
+
+async function assertBaseExistsForVariant(ctx: any, taxonomy: {
+  genusNormalized: string;
+  speciesNormalized: string;
+  cultivarNormalized: string;
+}) {
+  if (taxonomy.cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED) {
+    return;
+  }
+  if (isInfraspecificCultivar(taxonomy.cultivarNormalized)) {
+    return;
+  }
+
+  const base = await ctx.db
+    .query("plantsMaster")
+    .withIndex("by_genus_species_cultivar", (q: any) =>
+      q
+        .eq("genusNormalized", taxonomy.genusNormalized)
+        .eq("speciesNormalized", taxonomy.speciesNormalized)
+        .eq("cultivarNormalized", DEFAULT_CULTIVAR_NORMALIZED)
+    )
+    .first();
+
+  if (!base) {
+    throw new Error(
+      `Backend row requires base species before variant: ${taxonomy.genusNormalized} ${taxonomy.speciesNormalized}`
+    );
+  }
+}
+
 export const upsertPlantFromBackend = mutation({
   args: {
     source: sourceValidator,
@@ -56,21 +101,27 @@ export const upsertPlantFromBackend = mutation({
   },
   handler: async (ctx, args) => {
     const scientificName = toScientificName(args.row);
+    const cultivar = extractCultivar(args.row);
+    const taxonomy = buildTaxonomyFields({ scientificName, cultivar });
+    const taxonomyIdentity = requireTaxonomyIdentity(
+      taxonomy,
+      `Backend row ${args.row.id}`
+    );
+    await assertBaseExistsForVariant(ctx, taxonomyIdentity);
 
     const existing = await ctx.db
       .query("plantsMaster")
-      .withIndex("by_scientific_name", (q) => q.eq("scientificName", scientificName))
+      .withIndex("by_genus_species_cultivar", (q) =>
+        q
+          .eq("genusNormalized", taxonomyIdentity.genusNormalized)
+          .eq("speciesNormalized", taxonomyIdentity.speciesNormalized)
+          .eq("cultivarNormalized", taxonomyIdentity.cultivarNormalized)
+      )
       .first();
-
-    const commonNames = [
-      { locale: "vi", name: args.row.i18n.vi.common_name },
-      { locale: "en", name: args.row.i18n.en.common_name },
-    ];
 
     const patch = {
       scientificName,
       description: args.row.notes ?? undefined,
-      commonNames,
       group: args.row.group || "other",
       family: args.row.family ?? undefined,
       purposes: args.row.purposes,
@@ -89,6 +140,7 @@ export const upsertPlantFromBackend = mutation({
       imageUrl: args.row.image_url ?? undefined,
       isActive: args.row.is_active,
       source: `backend:${args.source}:id_${args.row.id}`,
+      ...taxonomy,
     };
 
     let plantId = existing?._id;
