@@ -6,6 +6,9 @@ import {
     emptyPlantForm,
     getLocaleRow,
     parsePurposes,
+    computeScientificName,
+    parseOptionalNumber,
+    DEFAULT_CULTIVAR_NORMALIZED,
 } from "../constants";
 
 export function usePlants() {
@@ -51,6 +54,10 @@ export function usePlants() {
         return Array.from(unique).sort((a, b) => a.localeCompare(b));
     }, [plants]);
 
+    /**
+     * Sort: group variants under their base.
+     * Within same (genus, species): base (__default__) first, then variants alphabetically.
+     */
     const filtered = useMemo(() => {
         const normalized = search.trim().toLowerCase();
         let result = plants.slice();
@@ -74,6 +81,9 @@ export function usePlants() {
                 const en = getLocaleRow(p.i18nRows, "en")?.commonName ?? "";
                 const haystack = [
                     p.scientificName,
+                    p.genus ?? "",
+                    p.species ?? "",
+                    p.cultivar ?? "",
                     p.group,
                     p.description ?? "",
                     vi,
@@ -86,7 +96,25 @@ export function usePlants() {
             });
         }
 
-        return result.sort((a, b) => a.scientificName.localeCompare(b.scientificName));
+        return result.sort((a, b) => {
+            const aGenus = (a.genusNormalized ?? a.scientificName).toLowerCase();
+            const bGenus = (b.genusNormalized ?? b.scientificName).toLowerCase();
+            const aSp = a.speciesNormalized ?? "";
+            const bSp = b.speciesNormalized ?? "";
+            const aCult = a.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED;
+            const bCult = b.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED;
+
+            // Primary: genus alpha
+            const genusCmp = aGenus.localeCompare(bGenus);
+            if (genusCmp !== 0) return genusCmp;
+            // Secondary: species alpha
+            const spCmp = aSp.localeCompare(bSp);
+            if (spCmp !== 0) return spCmp;
+            // Tertiary: base (__default__) comes before any cultivar
+            if (aCult === DEFAULT_CULTIVAR_NORMALIZED && bCult !== DEFAULT_CULTIVAR_NORMALIZED) return -1;
+            if (bCult === DEFAULT_CULTIVAR_NORMALIZED && aCult !== DEFAULT_CULTIVAR_NORMALIZED) return 1;
+            return aCult.localeCompare(bCult);
+        });
     }, [plants, search, groupFilter, filterMissingI18n, filterNoImage]);
 
     const stats = useMemo(() => {
@@ -102,8 +130,21 @@ export function usePlants() {
     function toFormState(plant: Plant): PlantFormState {
         const vi = getLocaleRow(plant.i18nRows, "vi");
         const en = getLocaleRow(plant.i18nRows, "en");
+
+        // Taxonomy: use stored fields, fallback to parsing scientificName for legacy rows
+        let genus = plant.genus ?? "";
+        let species = plant.species ?? "";
+        if (!genus && plant.scientificName) {
+            // "Solanum lycopersicum" → genus="Solanum" species="lycopersicum"
+            const parts = plant.scientificName.trim().split(/\s+/);
+            genus = parts[0] ?? "";
+            species = parts[1] ?? "";
+        }
+
         return {
-            scientificName: plant.scientificName ?? "",
+            genus,
+            species,
+            cultivar: plant.cultivar ?? "",
             group: plant.group ?? "other",
             description: plant.description ?? "",
             imageUrl: plant.imageUrl ?? "",
@@ -112,8 +153,18 @@ export function usePlants() {
             viDescription: vi?.description ?? "",
             enCommonName: en?.commonName ?? "",
             enDescription: en?.description ?? "",
+            typicalDaysToHarvest: plant.typicalDaysToHarvest !== undefined ? String(plant.typicalDaysToHarvest) : "",
+            wateringFrequencyDays: plant.wateringFrequencyDays !== undefined ? String(plant.wateringFrequencyDays) : "",
+            germinationDays: plant.germinationDays !== undefined ? String(plant.germinationDays) : "",
+            spacingCm: plant.spacingCm !== undefined ? String(plant.spacingCm) : "",
+            lightRequirements: plant.lightRequirements ?? "",
+            maxPlantsPerM2: plant.maxPlantsPerM2 !== undefined ? String(plant.maxPlantsPerM2) : "",
+            seedRatePerM2: plant.seedRatePerM2 !== undefined ? String(plant.seedRatePerM2) : "",
+            waterLitersPerM2: plant.waterLitersPerM2 !== undefined ? String(plant.waterLitersPerM2) : "",
+            yieldKgPerM2: plant.yieldKgPerM2 !== undefined ? String(plant.yieldKgPerM2) : "",
         };
     }
+
 
     function select(plant: Plant) {
         setSelectedId(plant._id);
@@ -146,8 +197,23 @@ export function usePlants() {
     async function save(): Promise<string | null> {
         if (saving) return null;
 
+        const genus = form.genus.trim();
+        const species = form.species.trim();
+        const cultivar = form.cultivar.trim() || undefined;
+        const scientificName = computeScientificName(genus, species);
+
+        if (!genus || !species) {
+            setError("Genus and Species are required.");
+            return null;
+        }
+        if (!form.viCommonName.trim() || !form.enCommonName.trim()) {
+            setError("Both VI and EN common names are required.");
+            return null;
+        }
+
         const payload = {
-            scientificName: form.scientificName.trim(),
+            scientificName,
+            cultivar,
             group: form.group.trim() || "other",
             description: form.description.trim() || undefined,
             imageUrl: form.imageUrl.trim() ? form.imageUrl.trim() : null,
@@ -156,16 +222,17 @@ export function usePlants() {
             viDescription: form.viDescription.trim() || undefined,
             enCommonName: form.enCommonName.trim(),
             enDescription: form.enDescription.trim() || undefined,
+            // Growing params: parse string → number | undefined
+            typicalDaysToHarvest: parseOptionalNumber(form.typicalDaysToHarvest),
+            wateringFrequencyDays: parseOptionalNumber(form.wateringFrequencyDays),
+            germinationDays: parseOptionalNumber(form.germinationDays),
+            spacingCm: parseOptionalNumber(form.spacingCm),
+            lightRequirements: form.lightRequirements.trim() || undefined,
+            maxPlantsPerM2: parseOptionalNumber(form.maxPlantsPerM2),
+            seedRatePerM2: parseOptionalNumber(form.seedRatePerM2),
+            waterLitersPerM2: parseOptionalNumber(form.waterLitersPerM2),
+            yieldKgPerM2: parseOptionalNumber(form.yieldKgPerM2),
         };
-
-        if (!payload.scientificName) {
-            setError("Scientific name is required.");
-            return null;
-        }
-        if (!payload.viCommonName || !payload.enCommonName) {
-            setError("Both VI and EN common names are required.");
-            return null;
-        }
 
         setSaving(true);
         setError("");
@@ -197,7 +264,10 @@ export function usePlants() {
 
     async function remove(): Promise<string | null> {
         if (!selected || saving) return null;
-        if (!confirm(`Delete "${selected.scientificName}"? This cannot be undone.`)) return null;
+        const displayName = selected.cultivar
+            ? `${selected.scientificName} '${selected.cultivar}'`
+            : selected.scientificName;
+        if (!confirm(`Delete "${displayName}"? This cannot be undone.`)) return null;
 
         setSaving(true);
         setError("");

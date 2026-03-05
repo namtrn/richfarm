@@ -12,11 +12,20 @@ export type I18nRow = {
 
 export type Plant = {
   _id: string;
+  // Taxonomy (new schema)
+  genus?: string;
+  species?: string;
+  cultivar?: string;
+  genusNormalized?: string;
+  speciesNormalized?: string;
+  cultivarNormalized?: string;
+  // Legacy compat field (computed from genus+species)
   scientificName: string;
   group: string;
   description?: string;
   imageUrl?: string | null;
   purposes?: string[];
+  // Growing params
   typicalDaysToHarvest?: number;
   wateringFrequencyDays?: number;
   lightRequirements?: string;
@@ -73,15 +82,30 @@ export type PlantPhoto = {
 // ──────────────────────────────────────────────
 
 export type PlantFormState = {
-  scientificName: string;
+  // Taxonomy (replaces scientificName free-text)
+  genus: string;
+  species: string;
+  cultivar: string; // empty string = base species
+  // Classification
   group: string;
   description: string;
   imageUrl: string;
-  purposes: string;
+  purposes: string; // comma-separated
+  // I18n
   viCommonName: string;
   viDescription: string;
   enCommonName: string;
   enDescription: string;
+  // Growing params (stored as strings for input binding, parsed on save)
+  typicalDaysToHarvest: string;
+  wateringFrequencyDays: string;
+  germinationDays: string;
+  spacingCm: string;
+  lightRequirements: string;
+  maxPlantsPerM2: string;
+  seedRatePerM2: string;
+  waterLitersPerM2: string;
+  yieldKgPerM2: string;
 };
 
 export type GroupFormState = {

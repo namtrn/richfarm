@@ -17,7 +17,9 @@ export const convexReady = Boolean(__CONVEX_URL__);
 // ──────────────────────────────────────────────
 
 export const emptyPlantForm: PlantFormState = {
-    scientificName: "",
+    genus: "",
+    species: "",
+    cultivar: "",
     group: "other",
     description: "",
     imageUrl: "",
@@ -26,6 +28,15 @@ export const emptyPlantForm: PlantFormState = {
     viDescription: "",
     enCommonName: "",
     enDescription: "",
+    typicalDaysToHarvest: "",
+    wateringFrequencyDays: "",
+    germinationDays: "",
+    spacingCm: "",
+    lightRequirements: "",
+    maxPlantsPerM2: "",
+    seedRatePerM2: "",
+    waterLitersPerM2: "",
+    yieldKgPerM2: "",
 };
 
 export const emptyGroupForm: GroupFormState = {
@@ -84,4 +95,36 @@ export function parsePurposes(value: string) {
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean);
+}
+
+/** Compute the scientific name string from genus + species (display only). */
+export function computeScientificName(genus: string, species: string): string {
+    const g = genus.trim();
+    const s = species.trim();
+    if (!g) return "";
+    if (!s) return g;
+    return `${g} ${s}`;
+}
+
+/** Parse a numeric form field — returns undefined if empty/NaN. */
+export function parseOptionalNumber(value: string): number | undefined {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    const n = Number(trimmed);
+    return isNaN(n) ? undefined : n;
+}
+
+export const LIGHT_OPTIONS = [
+    { value: "", label: "— not set —" },
+    { value: "full_sun", label: "Full sun" },
+    { value: "partial_shade", label: "Partial shade" },
+    { value: "shade", label: "Shade" },
+    { value: "indirect", label: "Indirect light" },
+] as const;
+
+export const DEFAULT_CULTIVAR_NORMALIZED = "__default__";
+
+/** Returns true if this plant is a cultivar variant (not the base species). */
+export function isVariant(plant: Plant): boolean {
+    return Boolean(plant.cultivar) && plant.cultivar !== "";
 }

@@ -772,7 +772,8 @@ tr.selected:hover {
 
   .detail-grid,
   .i18n-grid,
-  .grid-2 {
+  .grid-2,
+  .grid-3 {
     grid-template-columns: 1fr;
   }
 
@@ -799,3 +800,38 @@ tr.selected:hover {
     align-items: stretch;
   }
 }
+
+/* ── Form Sections ─────────────────────────── */
+.form-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: var(--color-slate-50);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+}
+
+.form-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-slate-600);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-preview {
+  margin: 0;
+  font-size: 12px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px dashed var(--color-slate-300);
+  border-radius: var(--radius-sm);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+

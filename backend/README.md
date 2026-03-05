@@ -1,47 +1,70 @@
-# RichFarm Backend (TypeScript)
+# Richfarm Backend
 
-Backend API quản lý `master_plants` (SQLite + Convex sync).
+Backend workspace for the plant admin API and the dashboard that syncs `master_plants` into Convex.
 
-## Chạy local
+## Run Local
 
 ```bash
-cd /Users/n/Documents/GitHub/richfarm/backend
+cd backend
 npm install
 npm run dev
 ```
 
-Mặc định chạy tại:
+Default:
+
 - API: `http://localhost:4000`
 
-## Biến môi trường
+## Environment Variables
 
-- `PORT`: cổng server (mặc định `4000`)
-- `DB_PATH`: đường dẫn file SQLite (mặc định `./data/richfarm.db`)
-- `JWT_SECRET`: secret ký JWT (bắt buộc đổi ở production)
-- `JWT_EXPIRES_IN`: TTL token (mặc định `12h`)
-- `ADMIN_EMAIL`: email admin bootstrap lần đầu
-- `ADMIN_PASSWORD`: password admin bootstrap lần đầu
-- `CONVEX_URL`: URL deployment Convex (vd `https://xxx.convex.cloud`)
-- `CONVEX_ADMIN_KEY`: admin key để backend sync
-- `CONVEX_UPSERT_MUTATION`: mutation path upsert (mặc định `masterSync:upsertPlantFromBackend`)
-- `CONVEX_DELETE_MUTATION`: mutation path delete (mặc định `masterSync:deletePlantFromBackend`)
+- `PORT`
+- `DB_PATH`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `CONVEX_URL`
+- `CONVEX_ADMIN_KEY`
+- `CONVEX_UPSERT_MUTATION`
+- `CONVEX_DELETE_MUTATION`
 
 ## Auth
 
-- API yêu cầu login qua `POST /api/auth/login` cho các route cần auth
-- Nhận JWT rồi gửi `Authorization: Bearer <token>`
-- Đã bật rate limit cho endpoint login
+- Login via `POST /api/auth/login`
+- Send `Authorization: Bearer <token>` for protected routes
+- Login endpoint is rate-limited
 
-## Convex sync
+## Convex Sync Contract
 
-- Mỗi lần tạo/sửa/xóa `master_plants`, backend sẽ gọi Convex mutation tương ứng.
-- File Convex tương ứng: `/Users/n/Documents/GitHub/richfarm/convex/masterSync.ts`
-- Cần deploy Convex functions sau khi pull code mới:
+The backend syncs plant rows through [`convex/masterSync.ts`](../convex/masterSync.ts).
+
+Current behavior:
+
+- Convex computes taxonomy fields from `scientific_name`
+- Optional cultivar detail is read from `metadata_json.cultivar`
+- Writes are matched by `(genusNormalized, speciesNormalized, cultivarNormalized)`
+- A cultivar variant requires its base species row to exist first
+
+If you change the sync contract, redeploy Convex functions:
 
 ```bash
-cd /Users/n/Documents/GitHub/richfarm
+cd ..
 npx convex deploy
 ```
+
+## Dashboard Notes
+
+The admin dashboard now manages:
+
+- `genus`, `species`, `cultivar`
+- localized common names and descriptions
+- image URL
+- growing parameters such as harvest days, spacing, light, and yield
+
+Relevant files:
+
+- [`backend/dashboard/src/components/PlantManager.tsx`](./dashboard/src/components/PlantManager.tsx)
+- [`backend/dashboard/src/hooks/usePlants.ts`](./dashboard/src/hooks/usePlants.ts)
+- [`backend/dashboard/src/constants.ts`](./dashboard/src/constants.ts)
 
 ## Test
 
@@ -49,22 +72,14 @@ npx convex deploy
 npm test
 ```
 
-Bao phủ edge cases chính:
-- Validation pH sai range
-- Duplicate `plant_code`
-- Query params sai
-- Unknown table / unknown column
-- Giá trị numeric không hợp lệ
-- CRUD lifecycle + not found
-
-## Build & chạy production
+## Build
 
 ```bash
 npm run build
 npm start
 ```
 
-## Docker deploy (dễ đẩy lên Render/Railway/Fly)
+## Docker
 
 ```bash
 docker build -t richfarm-backend .
