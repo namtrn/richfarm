@@ -2,6 +2,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
+import { getOwnedBedOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
 
 // Lấy tất cả reminders của user
 export const getReminders = query({
@@ -116,6 +117,12 @@ export const createReminder = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        if (args.userPlantId) {
+            await getOwnedPlantOrThrow(ctx, user._id, args.userPlantId);
+        }
+        if (args.bedId) {
+            await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+        }
 
         return await ctx.db.insert("reminders", {
             userId: user._id,
@@ -178,9 +185,35 @@ export const updateReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
+        if (args.userPlantId) {
+            await getOwnedPlantOrThrow(ctx, user._id, args.userPlantId);
+        }
+        if (args.bedId) {
+            await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+        }
 
         const { reminderId, deviceId, ...updates } = args;
         await ctx.db.patch(reminderId, updates);
+    },
+});
+
+export const snoozeReminder = mutation({
+    args: {
+        reminderId: v.id("reminders"),
+        snoozedUntil: v.number(),
+        deviceId: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const user = await requireUser(ctx, args.deviceId);
+        const reminder = await ctx.db.get(args.reminderId);
+
+        if (!reminder || reminder.userId !== user._id) {
+            throw new Error("Reminder not found or unauthorized");
+        }
+
+        await ctx.db.patch(args.reminderId, {
+            snoozedUntil: args.snoozedUntil,
+        });
     },
 });
 
@@ -208,6 +241,7 @@ export const completeReminder = mutation({
         await ctx.db.patch(args.reminderId, {
             lastRunAt: now,
             nextRunAt,
+            snoozedUntil: undefined,
             // One-time reminders should not continue showing up after completion.
             ...(reminder.rrule ? {} : { enabled: false }),
             completedCount: (reminder.completedCount ?? 0) + 1,

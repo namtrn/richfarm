@@ -25,7 +25,7 @@ export function useUserSettings() {
 
     const upsert = useMutation(api.userSettings.upsertUserSettings);
 
-    const updateSettings = async (args: { unitSystem?: string; theme?: string; appMode?: AppMode }) => {
+    const updateSettings = async (args: { unitSystem?: string; theme?: string; appMode?: AppMode; showWeatherCard?: boolean }) => {
         return await upsert({ ...args, deviceId });
     };
 

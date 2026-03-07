@@ -13,6 +13,7 @@ import { isPremiumActive } from '../lib/access';
 import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../lib/aiDetectorLimit';
 import { usePlantLibrary } from './usePlantLibrary';
 import { usePlants } from './usePlants';
+import { normalizeCustomPlantNickname, useAddPlantFlow } from './useAddPlantFlow';
 import { api } from '../convex/_generated/api';
 
 let BlurView: React.ComponentType<{ style?: any; intensity?: number; tint?: string }> | null = null;
@@ -45,6 +46,7 @@ export function usePlantScanner(): UsePlantScannerResult {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
   const { addPlant, plants: userPlants } = usePlants();
+  const { createUserPlant, openLibraryMatch, openLibrarySelect } = useAddPlantFlow({ addPlant });
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const { plants: libraryPlants } = usePlantLibrary(locale);
   const detectPlantAction = useAction((api as any).plantScan.detectPlant);
@@ -153,16 +155,12 @@ export function usePlantScanner(): UsePlantScannerResult {
     setDetectedPlantMasterId(null);
     setAiSessionActive(false);
     setAiLimitError('');
-    router.push({
-      pathname: '/(tabs)/library/[masterPlantId]',
-      params: {
-        masterPlantId: String(matchedPlant._id),
-        mode: 'select',
-        from: 'scanner',
-        scannedPhotoUri: photoUri ?? undefined,
-      },
+    openLibraryMatch(String(matchedPlant._id), {
+      mode: 'select',
+      from: 'scanner',
+      scannedPhotoUri: photoUri ?? undefined,
     });
-  }, [photoUri, router]);
+  }, [openLibraryMatch, photoUri]);
 
   const canStartAiScan = useCallback(async () => {
     if (isAuthLoading) return false;
@@ -295,7 +293,9 @@ export function usePlantScanner(): UsePlantScannerResult {
     if (!canEdit) return;
     setPhotoSaving(true);
     try {
-      await addPlant({});
+      await createUserPlant({
+        nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
+      });
       setPhotoOpen(false);
       setPhotoUri(null);
       setAiSessionActive(false);
@@ -304,7 +304,7 @@ export function usePlantScanner(): UsePlantScannerResult {
     } finally {
       setPhotoSaving(false);
     }
-  }, [addPlant, canEdit]);
+  }, [canEdit, createUserPlant, detectedName, t]);
 
   const openScanner = useCallback(() => {
     if (isAuthLoading) return;
@@ -467,13 +467,18 @@ export function usePlantScanner(): UsePlantScannerResult {
               >
                 <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
-                onPress={() => {
-                  setPhotoOpen(false);
-                  router.push({ pathname: '/(tabs)/library', params: { q: detectedName.trim(), tab: 'plants' } });
-                }}
-              >
+                <TouchableOpacity
+                  style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
+                  onPress={() => {
+                    setPhotoOpen(false);
+                    openLibrarySelect({
+                      mode: 'select',
+                      from: 'scanner',
+                      searchQuery: detectedName.trim(),
+                      tab: 'plants',
+                    });
+                  }}
+                >
                 <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>
               </TouchableOpacity>
               <TouchableOpacity

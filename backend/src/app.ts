@@ -18,6 +18,7 @@ interface CreateAppOptions {
 
 export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   const app = express();
+  app.disable("x-powered-by");
   app.set("etag", false);
   const authMiddleware = requireAuth(options.auth);
 

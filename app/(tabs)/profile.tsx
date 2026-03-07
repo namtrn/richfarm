@@ -52,7 +52,9 @@ export default function ProfileScreen() {
     resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
   const [localThemePref, setLocalThemePref] = useState<string>(settings?.theme ?? 'system');
+  const [showWeatherCard, setShowWeatherCard] = useState(settings?.showWeatherCard ?? true);
   const [saving, setSaving] = useState(false);
+  const [isUpdatingWeatherCard, setIsUpdatingWeatherCard] = useState(false);
   const [backupCount, setBackupCount] = useState(0);
   const [backingUp, setBackingUp] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
@@ -89,7 +91,8 @@ export default function ProfileScreen() {
     // Note: themePreference local state is only used for the unit/save flow;
     // the live theme is controlled by ThemeContext (already synced there).
     setLocalThemePref(settings?.theme ?? 'system');
-  }, [settings?.unitSystem, settings?.theme, currentLang]);
+    setShowWeatherCard(settings?.showWeatherCard ?? true);
+  }, [settings?.unitSystem, settings?.theme, settings?.showWeatherCard, currentLang]);
 
   useEffect(() => {
     void hydrateUnitSystemPreference().then((cached) => {
@@ -113,9 +116,23 @@ export default function ProfileScreen() {
         timezone: timezone.trim() || undefined,
       });
       await setUnitSystemPreference(unitSystem);
-      await updateSettings({ unitSystem, theme: localThemePref });
+      await updateSettings({ unitSystem, theme: localThemePref, showWeatherCard });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleWeatherCardVisibility = async (nextValue: boolean) => {
+    if (nextValue === showWeatherCard) return;
+    const previousValue = showWeatherCard;
+    setShowWeatherCard(nextValue);
+    setIsUpdatingWeatherCard(true);
+    try {
+      await updateSettings({ showWeatherCard: nextValue });
+    } catch {
+      setShowWeatherCard(previousValue);
+    } finally {
+      setIsUpdatingWeatherCard(false);
     }
   };
 
@@ -451,6 +468,48 @@ export default function ProfileScreen() {
                   style={{ flex: 1, paddingVertical: 12, borderRadius: 16, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border, alignItems: 'center', gap: 6 }}
                 >
                   <Icon size={18} color={active ? '#fff' : theme.textSecondary} />
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1, paddingRight: 12 }}>
+              <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.weather_card_title')}</Text>
+              <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
+                {showWeatherCard ? t('profile.weather_card_on_desc') : t('profile.weather_card_off_desc')}
+              </Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {[
+              { value: true, label: t('profile.weather_card_show') },
+              { value: false, label: t('profile.weather_card_hide') },
+            ].map((item) => {
+              const active = item.value === showWeatherCard;
+              return (
+                <TouchableOpacity
+                  key={item.label}
+                  onPress={() => {
+                    void handleWeatherCardVisibility(item.value);
+                  }}
+                  disabled={isSettingsLoading || isUpdatingWeatherCard}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 16,
+                    backgroundColor: active ? theme.primary : theme.accent,
+                    borderWidth: 1,
+                    borderColor: active ? theme.primary : theme.border,
+                    alignItems: 'center',
+                    opacity: isSettingsLoading || isUpdatingWeatherCard ? 0.6 : 1,
+                  }}
+                >
                   <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
                     {item.label}
                   </Text>

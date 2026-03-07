@@ -45,7 +45,7 @@ export function useAuth() {
     return {
         user,
         isLoading: isDeviceLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && user.isAnonymous !== true,
         initUser,
         updateProfile,
         deviceId,

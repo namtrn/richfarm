@@ -2,9 +2,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SyncAction } from './types';
 
 const STORAGE_KEY = 'rf_sync_queue_v1';
+const queueListeners = new Set<(queue: SyncAction[]) => void>();
 
 function normalizeQueue(value: unknown): SyncAction[] {
   return Array.isArray(value) ? (value as SyncAction[]) : [];
+}
+
+function notifyQueueListeners(queue: SyncAction[]) {
+  for (const listener of queueListeners) {
+    listener(queue);
+  }
+}
+
+export function subscribeSyncQueue(listener: (queue: SyncAction[]) => void) {
+  queueListeners.add(listener);
+  return () => {
+    queueListeners.delete(listener);
+  };
 }
 
 export async function loadSyncQueue(): Promise<SyncAction[]> {
@@ -19,6 +33,7 @@ export async function loadSyncQueue(): Promise<SyncAction[]> {
 
 export async function saveSyncQueue(queue: SyncAction[]): Promise<void> {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
+  notifyQueueListeners(queue);
 }
 
 export async function enqueueSyncAction(action: SyncAction): Promise<void> {

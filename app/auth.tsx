@@ -33,6 +33,7 @@ export default function AuthScreen() {
 
   const trimmedAuthName = authName.trim();
   const trimmedAuthEmail = authEmail.trim();
+  const fallbackAuthName = trimmedAuthEmail.split('@')[0]?.trim() || 'User';
   const authPasswordOk = authPassword.length >= 8;
   const authEmailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedAuthEmail);
 
@@ -49,7 +50,7 @@ export default function AuthScreen() {
       const result = await authClient.signUp.email({
         email: trimmedAuthEmail,
         password: authPassword,
-        name: trimmedAuthName || undefined,
+        name: trimmedAuthName || fallbackAuthName,
       });
       if (result.error) {
         setAuthMessage(result.error.message ?? t('profile.auth_sign_up_failed'));

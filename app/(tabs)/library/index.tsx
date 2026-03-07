@@ -22,6 +22,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { usePlants } from '../../../hooks/usePlants';
+import { useBeds } from '../../../hooks/useBeds';
 import { usePlantDisplayName } from '../../../hooks/usePlantLocalized';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { usePlantScanner } from '../../../hooks/usePlantScanner';
@@ -32,6 +33,11 @@ import { usePestsDiseases, PestDiseaseType } from '../../../hooks/usePestsDiseas
 import { loadCachedCareContent, parseCareContent, saveCareContent, type PlantCareContent } from '../../../lib/plantCareCache';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
+import { compareGroupsForOnboarding, getOnboardingFocusItems, scorePlantForOnboarding } from '../../../lib/personalization';
+import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
+import { useAppMode } from '../../../hooks/useAppMode';
+import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
+import { useUserSettings } from '../../../hooks/useUserSettings';
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
 
@@ -654,6 +660,8 @@ export default function LibraryScreen() {
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const { appMode } = useAppMode();
+    const { settings } = useUserSettings();
     const router = useRouter();
     const { openScanner, scannerModals } = usePlantScanner();
     const params = useLocalSearchParams<{
@@ -701,12 +709,16 @@ export default function LibraryScreen() {
     const [selectedPest, setSelectedPest] = useState<any>(null);
     const [selectedPlant, setSelectedPlant] = useState<any>(null);
     const [selectedPlantCare, setSelectedPlantCare] = useState<PlantCareContent | null>(null);
+    const [targetModalOpen, setTargetModalOpen] = useState(false);
+    const [addSaving, setAddSaving] = useState(false);
     const aiRouteHandledRef = useRef<string | null>(null);
 
     // Plants data
     const { plants, isLoading: plantsLoading } = usePlantLibrary(locale, { allowSeedFallback: true });
     const { groups } = usePlantGroups();
     const { addPlant, updatePlant } = usePlants();
+    const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
+    const { beds } = useBeds();
     const { favorites, toggleFavorite } = useFavorites();
 
     // Pests & Diseases data
@@ -716,6 +728,11 @@ export default function LibraryScreen() {
     const favoriteIds = useMemo(
         () => new Set(favorites.map((fav: any) => String(fav.plantMasterId))),
         [favorites]
+    );
+    const focusItems = useMemo(() => getOnboardingFocusItems(settings?.onboarding, 3), [settings?.onboarding]);
+    const sortedGroups = useMemo(
+        () => [...groups].sort((a, b) => compareGroupsForOnboarding(a, b, settings?.onboarding)),
+        [groups, settings?.onboarding]
     );
     const isSeedPlant = useCallback((plant: any) => String(plant?._id ?? '').startsWith('seed:'), []);
     const selectedPlantIsSeed = selectedPlant ? isSeedPlant(selectedPlant) : false;
@@ -794,6 +811,38 @@ export default function LibraryScreen() {
         };
     }, [selectedPlant, selectedPlantIsSeed, locale]);
 
+    const completeAdd = useCallback(async (plant: any, selectionMode: AddPlantTargetMode, selectedBedId?: string) => {
+        if (!plant || isSeedPlant(plant)) return;
+        await completeLibraryAdd({
+            plantMasterId: String(plant._id),
+            selectionMode,
+            mode: modeParam,
+            from: fromParam,
+            attachPlantId: params.userPlantId ? String(params.userPlantId) : undefined,
+            bedId: bedIdParam,
+            x: xParam,
+            y: yParam,
+            backFrom: backFromParam,
+            backBedId: backBedIdParam,
+            backGardenId: backGardenIdParam,
+            selectedBedId,
+        });
+        setSelectedPlant(null);
+    }, [backBedIdParam, backFromParam, backGardenIdParam, bedIdParam, completeLibraryAdd, fromParam, isSeedPlant, modeParam, params.userPlantId, xParam, yParam]);
+
+    const handleAddSelectedPlant = useCallback(async () => {
+        if (!selectedPlant || selectedPlantIsSeed) return;
+        if (attachMode && params.userPlantId) {
+            await completeAdd(selectedPlant, 'planning');
+            return;
+        }
+        if (fromParam === 'bed' && bedIdParam) {
+            await completeAdd(selectedPlant, 'growing', bedIdParam);
+            return;
+        }
+        setTargetModalOpen(true);
+    }, [attachMode, bedIdParam, completeAdd, fromParam, params.userPlantId, selectedPlant, selectedPlantIsSeed]);
+
     const normalizedSearch = deferredSearch.trim();
 
     const filteredPlants = useMemo(() => {
@@ -802,8 +851,14 @@ export default function LibraryScreen() {
         if (normalizedSearch) result = result.filter((p) =>
             matchesSearch(normalizedSearch, [p.displayName, p.scientificName, p.group, p.group?.replace(/_/g, ' ')])
         );
-        return result;
-    }, [plants, selectedGroup, normalizedSearch]);
+        return [...result].sort((a, b) => {
+            const scoreDiff = scorePlantForOnboarding(b, settings?.onboarding) - scorePlantForOnboarding(a, settings?.onboarding);
+            if (scoreDiff !== 0 && !normalizedSearch) return scoreDiff;
+            const aName = String(a.displayName ?? a.scientificName ?? '').toLowerCase();
+            const bName = String(b.displayName ?? b.scientificName ?? '').toLowerCase();
+            return aName.localeCompare(bName);
+        });
+    }, [plants, selectedGroup, normalizedSearch, settings?.onboarding]);
 
     const groupedPlantRows = useMemo(() => {
         const groupsBySpecies = new Map<string, { basePlant: any; plants: any[] }>();
@@ -1014,6 +1069,33 @@ export default function LibraryScreen() {
             {/* ── Plants Tab ── */}
             {activeTab === 'plants' && (
                 <View style={{ flex: 1 }}>
+                    {focusItems.length > 0 && !selectedGroup && !normalizedSearch ? (
+                        <View style={{ paddingHorizontal: 16, paddingTop: 6, gap: 8 }}>
+                            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary }}>
+                                {t('library.personalized_hint')}
+                            </Text>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                                {focusItems.map((item) => (
+                                    <View
+                                        key={`${item.kind}:${item.id}`}
+                                        style={{
+                                            backgroundColor: theme.accent,
+                                            borderRadius: 999,
+                                            paddingHorizontal: 10,
+                                            paddingVertical: 5,
+                                            borderWidth: 1,
+                                            borderColor: theme.border,
+                                        }}
+                                    >
+                                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.text }}>
+                                            {t(item.labelKey)}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    ) : null}
+
                     {/* Group filter chips */}
                     <ScrollView
                         horizontal
@@ -1035,7 +1117,7 @@ export default function LibraryScreen() {
                                 {t('library.filter_all')}
                             </Text>
                         </TouchableOpacity>
-                        {groups.map((g: any) => {
+                        {sortedGroups.map((g: any) => {
                             const active = selectedGroup === g.key;
                             const translated = t(`plantGroups.${g.key}`);
                             const label =
@@ -1135,47 +1217,8 @@ export default function LibraryScreen() {
                     onClose={() => setSelectedPlant(null)}
                     showAdd={(selectMode || attachMode) && !selectedPlantIsSeed}
                     addLabel={fromParam === 'bed' ? t('bed.add_plant') : undefined}
-                    onAdd={async () => {
-                        if (selectedPlantIsSeed) return;
-                        if (attachMode && params.userPlantId) {
-                            await updatePlant(params.userPlantId as any, {
-                                plantMasterId: selectedPlant._id,
-                            });
-                        } else if (fromParam === 'bed' && bedIdParam) {
-                            await addPlant({
-                                plantMasterId: selectedPlant._id,
-                                bedId: bedIdParam as any,
-                                positionInBed,
-                            });
-                        } else {
-                            await addPlant({
-                                plantMasterId: selectedPlant._id,
-                            });
-                        }
-                        setSelectedPlant(null);
-                        if (fromParam === 'planning') {
-                            router.replace('/(tabs)/garden?tab=planning');
-                        } else if (fromParam === 'bed' && bedIdParam) {
-                            router.replace(`/(tabs)/bed/${bedIdParam}`);
-                        } else if (fromParam === 'garden' || fromParam === 'gardener') {
-                            router.replace('/(tabs)/garden');
-                        } else if (fromParam === 'plant') {
-                            if (router.canGoBack()) {
-                                router.back();
-                            } else if (params.userPlantId) {
-                                router.replace({
-                                    pathname: '/(tabs)/plant/[userPlantId]',
-                                    params: {
-                                        userPlantId: String(params.userPlantId),
-                                        from: backFromParam,
-                                        bedId: backBedIdParam,
-                                        gardenId: backGardenIdParam,
-                                    },
-                                });
-                            } else {
-                                router.replace('/(tabs)/garden?tab=growing');
-                            }
-                        }
+                    onAdd={() => {
+                        void handleAddSelectedPlant();
                     }}
                     isFavorite={selectedPlantIsSeed ? false : favoriteIds.has(String(selectedPlant._id))}
                     canFavorite={!selectedPlantIsSeed}
@@ -1185,6 +1228,25 @@ export default function LibraryScreen() {
                     }}
                 />
             )}
+            <AddPlantTargetModal
+                visible={targetModalOpen}
+                beds={beds.map((bed: any) => ({ _id: String(bed._id), name: bed.name }))}
+                loading={addSaving}
+                onClose={() => {
+                    if (addSaving) return;
+                    setTargetModalOpen(false);
+                }}
+                onConfirm={async ({ mode, bedId }) => {
+                    if (!selectedPlant) return;
+                    setAddSaving(true);
+                    try {
+                        await completeAdd(selectedPlant, mode, bedId);
+                        setTargetModalOpen(false);
+                    } finally {
+                        setAddSaving(false);
+                    }
+                }}
+            />
             {/* Pest detail modal */}
             {
                 selectedPest && (

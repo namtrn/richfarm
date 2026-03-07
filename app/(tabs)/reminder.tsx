@@ -11,8 +11,10 @@ import {
   PanResponder,
   Animated,
   StyleSheet,
+  Alert,
 } from 'react-native';
-import { Bell, Check, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from 'lucide-react-native';
+import { Bell, Check, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from 'lucide-react-native';
+import { usePathname, useRouter } from 'expo-router';
 import { useReminders } from '../../hooks/useReminders';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
@@ -87,14 +89,35 @@ function isValidTimeString(value: string) {
   return true;
 }
 
+type ReminderFilter = 'all' | 'overdue' | 'today' | 'upcoming' | 'completed';
+
+function getDayBounds(reference = Date.now()) {
+  const start = new Date(reference);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(reference);
+  end.setHours(23, 59, 59, 999);
+  return { start: start.getTime(), end: end.getTime() };
+}
+
+function buildTomorrowMorning(reference = Date.now()) {
+  const next = new Date(reference);
+  next.setDate(next.getDate() + 1);
+  next.setHours(8, 0, 0, 0);
+  return next.getTime();
+}
+
 function ReminderCard({
   reminder,
   onComplete,
+  onSnooze,
   canEdit,
+  isOverdue,
 }: {
   reminder: any;
   onComplete: () => void;
+  onSnooze: () => void;
   canEdit: boolean;
+  isOverdue: boolean;
 }) {
   const { i18n } = useTranslation();
   const { t } = useTranslation();
@@ -158,23 +181,47 @@ function ReminderCard({
         {displayDescription && (
           <Text style={{ fontSize: 12, color: theme.textSecondary }}>{displayDescription}</Text>
         )}
+        {isOverdue && (
+          <Text style={{ fontSize: 11, color: theme.warning, fontWeight: '700' }}>
+            {t('reminder.filter_overdue', { defaultValue: 'Overdue' })}
+          </Text>
+        )}
         <Text style={{ fontSize: 12, color: theme.textMuted }}>{amountLabel ? `${time} • ${amountLabel}` : time}</Text>
       </View>
-      <TouchableOpacity
-        disabled={!canEdit}
-        onPress={onComplete}
-        style={{
-          width: 38,
-          height: 38,
-          backgroundColor: theme.success,
-          borderRadius: 999,
-          justifyContent: 'center',
-          alignItems: 'center',
-          opacity: !canEdit ? 0.5 : 1
-        }}
-      >
-        <Check size={20} color="white" />
-      </TouchableOpacity>
+      <View style={{ gap: 8 }}>
+        <TouchableOpacity
+          disabled={!canEdit}
+          onPress={onSnooze}
+          style={{
+            width: 38,
+            height: 38,
+            backgroundColor: theme.accent,
+            borderRadius: 999,
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: !canEdit ? 0.5 : 1,
+            borderWidth: 1,
+            borderColor: theme.border,
+          }}
+        >
+          <Clock3 size={18} color={theme.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!canEdit}
+          onPress={onComplete}
+          style={{
+            width: 38,
+            height: 38,
+            backgroundColor: theme.success,
+            borderRadius: 999,
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: !canEdit ? 0.5 : 1
+          }}
+        >
+          <Check size={20} color="white" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -574,7 +621,9 @@ export default function ReminderScreen() {
   const unitSystem = useUnitSystem();
   const { appMode } = useAppMode();
   const isGardener = appMode === 'gardener';
-  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder } = useReminders();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder, snoozeReminder } = useReminders();
   const { plants } = usePlants();
   const { beds } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -582,6 +631,7 @@ export default function ReminderScreen() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+  const [filter, setFilter] = useState<ReminderFilter>('all');
 
   const plantMap = useMemo(() => new Map(plants.map((p) => [p._id, p])), [plants]);
   const bedMap = useMemo(() => new Map(beds.map((b) => [b._id, b])), [beds]);
@@ -618,12 +668,12 @@ export default function ReminderScreen() {
     );
   };
 
-  const historyReminders = useMemo(() => {
-    return sortedReminders.filter((r: any) => isPlantedReminder(r));
+  const completedReminders = useMemo(() => {
+    return sortedReminders.filter((r: any) => isPlantedReminder(r) || !!r.lastRunAt);
   }, [sortedReminders]);
 
-  const upcomingReminders = useMemo(() => {
-    return sortedReminders.filter((r: any) => !isPlantedReminder(r));
+  const activeReminders = useMemo(() => {
+    return sortedReminders.filter((r: any) => !isPlantedReminder(r) && !r.lastRunAt);
   }, [sortedReminders]);
 
   const getStage = (reminder: any): 'planning' | 'growing' | null => {
@@ -717,6 +767,228 @@ export default function ReminderScreen() {
     });
   };
 
+  const handleAuthRequired = () => {
+    if (canEdit) return true;
+    Alert.alert(
+      t('profile.auth_sign_in'),
+      t('reminder.auth_warning'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
+      ]
+    );
+    return false;
+  };
+
+  const now = Date.now();
+  const { start: startOfDay, end: endOfDay } = getDayBounds(now);
+  const overdueReminders = useMemo(
+    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt < now),
+    [activeReminders, now]
+  );
+  const todayActiveReminders = useMemo(
+    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt >= startOfDay && r.nextRunAt <= endOfDay),
+    [activeReminders, startOfDay, endOfDay]
+  );
+  const upcomingReminders = useMemo(
+    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt > endOfDay),
+    [activeReminders, endOfDay]
+  );
+  const filteredReminders = useMemo(() => {
+    switch (filter) {
+      case 'overdue':
+        return overdueReminders;
+      case 'today':
+        return todayActiveReminders;
+      case 'upcoming':
+        return upcomingReminders;
+      case 'completed':
+        return completedReminders;
+      default:
+        return activeReminders;
+    }
+  }, [activeReminders, completedReminders, filter, overdueReminders, todayActiveReminders, upcomingReminders]);
+  const hasAnyReminder = activeReminders.length > 0 || completedReminders.length > 0;
+
+  const handleSnooze = (reminder: any) => {
+    if (!handleAuthRequired()) return;
+    Alert.alert(
+      t('reminder.snooze_title', { defaultValue: 'Snooze reminder' }),
+      getDisplayTitle(reminder),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('reminder.snooze_4h', { defaultValue: '4 hours' }),
+          onPress: () => void snoozeReminder(reminder._id, Date.now() + 4 * 60 * 60 * 1000),
+        },
+        {
+          text: t('reminder.snooze_tomorrow', { defaultValue: 'Tomorrow 8:00' }),
+          onPress: () => void snoozeReminder(reminder._id, buildTomorrowMorning()),
+        },
+      ]
+    );
+  };
+
+  const renderActiveReminderRow = (r: any) => {
+    const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
+    const time = new Date(r.nextRunAt).toLocaleString(i18n.language, {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+    });
+    const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
+    const targetLabel = getTargetLabel(r);
+    const stage = getStage(r);
+    const stageLabel = stage === 'planning'
+      ? t('garden.tab_planning')
+      : stage === 'growing'
+        ? t('garden.tab_growing')
+        : null;
+    const stageColor = stage === 'planning' ? theme.warning : theme.success;
+    const stageBg = stage === 'planning' ? theme.warningBg : theme.successBg;
+    const isOverdue = r.nextRunAt < now;
+
+    return (
+      <View
+        key={r._id}
+        style={{
+          backgroundColor: theme.card,
+          borderRadius: 18,
+          padding: 14,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          borderWidth: 1,
+          borderColor: isOverdue ? theme.warning : theme.border,
+          shadowColor: '#1a1a18',
+          shadowOpacity: 0.05,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: 2 },
+        }}
+      >
+        <View style={{ width: 44, height: 44, backgroundColor: theme.successBg, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+          <Icon size={20} color={theme.success} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+            {getDisplayTitle(r)}
+          </Text>
+          {!!stageLabel && (
+            <View style={{ marginTop: 2, alignSelf: 'flex-start', backgroundColor: stageBg, borderRadius: 999, borderWidth: 1, borderColor: stageColor, paddingHorizontal: 8, paddingVertical: 2 }}>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: stageColor, letterSpacing: 0.3, textTransform: 'uppercase' }}>
+                {stageLabel}
+              </Text>
+            </View>
+          )}
+          {isOverdue && (
+            <Text style={{ fontSize: 11, color: theme.warning, fontWeight: '700' }}>
+              {t('reminder.filter_overdue', { defaultValue: 'Overdue' })}
+            </Text>
+          )}
+          {!!r.snoozedUntil && r.snoozedUntil > now && (
+            <Text style={{ fontSize: 11, color: theme.textMuted }}>
+              {t('reminder.snoozed_until', { defaultValue: 'Snoozed until {{time}}', time: new Date(r.snoozedUntil).toLocaleString(i18n.language, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) })}
+            </Text>
+          )}
+          <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
+            {amountLabel ? `${time} • ${amountLabel} • ${targetLabel}` : `${time} • ${targetLabel}`}
+          </Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <TouchableOpacity
+            onPress={() => handleSnooze(r)}
+            style={{ width: 34, height: 34, backgroundColor: theme.accent, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
+          >
+            <Clock3 size={16} color={theme.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (!handleAuthRequired()) return;
+              void toggleReminder(r._id);
+            }}
+            style={{ width: 34, height: 34, backgroundColor: theme.accent, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
+          >
+            <Power size={16} color={r.enabled ? theme.success : theme.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (!handleAuthRequired()) return;
+              setEditing(r);
+              setFormOpen(true);
+            }}
+            style={{ width: 34, height: 34, backgroundColor: theme.accent, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
+          >
+            <Pencil size={16} color={theme.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (!handleAuthRequired()) return;
+              setConfirmDelete(r);
+            }}
+            style={{ width: 34, height: 34, backgroundColor: theme.dangerBg, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
+          >
+            <Trash2 size={16} color={theme.danger} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const renderCompletedReminderRow = (r: any) => {
+    const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
+    const completedOrScheduledAt = r.lastRunAt ?? r.nextRunAt;
+    const time = completedOrScheduledAt
+      ? new Date(completedOrScheduledAt).toLocaleString(i18n.language, {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+      })
+      : '—';
+    const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
+    const targetLabel = getTargetLabel(r);
+    const statusLabel = r.lastRunAt
+      ? t('reminder.status_completed')
+      : t('reminder.status_scheduled');
+    const description = getDisplayDescription(r).trim();
+    return (
+      <View
+        key={`history-${r._id}`}
+        style={{
+          backgroundColor: theme.card,
+          borderRadius: 18,
+          padding: 14,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          borderWidth: 1,
+          borderColor: theme.border,
+          opacity: 0.85,
+        }}
+      >
+        <View style={{ width: 44, height: 44, backgroundColor: theme.accent, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+          <Icon size={20} color={theme.textMuted} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+            {getDisplayTitle(r)}
+          </Text>
+          {!!description && (
+            <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={2}>
+              {description}
+            </Text>
+          )}
+          <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
+            {amountLabel
+              ? `${statusLabel}: ${time} • ${amountLabel} • ${targetLabel}`
+              : `${statusLabel}: ${time} • ${targetLabel}`}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 0, gap: 16, paddingBottom: 100 }}>
       {/* Header */}
@@ -730,8 +1002,11 @@ export default function ReminderScreen() {
           </Text>
         </View>
         <TouchableOpacity
-          disabled={!canEdit}
-          onPress={() => { setEditing(null); setFormOpen(true); }}
+          onPress={() => {
+            if (!handleAuthRequired()) return;
+            setEditing(null);
+            setFormOpen(true);
+          }}
           testID="e2e-reminder-add-button"
           style={{
             flexDirection: 'row',
@@ -759,11 +1034,75 @@ export default function ReminderScreen() {
         </View>
       )}
 
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 8 }}>
+        {([
+          ['all', t('common.all', { defaultValue: 'All' })],
+          ['overdue', t('reminder.filter_overdue', { defaultValue: 'Overdue' })],
+          ['today', t('reminder.today', { defaultValue: 'Today' })],
+          ['upcoming', t('reminder.filter_upcoming', { defaultValue: 'Upcoming' })],
+          ['completed', t('reminder.filter_completed', { defaultValue: 'Completed' })],
+        ] as Array<[ReminderFilter, string]>).map(([value, label]) => {
+          const active = filter === value;
+          return (
+            <TouchableOpacity
+              key={value}
+              onPress={() => setFilter(value)}
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderRadius: 20,
+                backgroundColor: active ? theme.primary : theme.card,
+                borderWidth: 1,
+                borderColor: active ? theme.primary : theme.border,
+              }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       {isLoading ? (
         <View style={{ paddingVertical: 40, alignItems: 'center' }}>
           <ActivityIndicator size="small" color={theme.primary} />
         </View>
-      ) : todayReminders.length === 0 ? (
+      ) : filter !== 'all' ? (
+        <View style={{ gap: 10 }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
+            {filter === 'completed'
+              ? t('reminder.filter_completed', { defaultValue: 'Completed' })
+              : filter === 'overdue'
+                ? t('reminder.filter_overdue', { defaultValue: 'Overdue' })
+                : filter === 'today'
+                  ? t('reminder.today', { defaultValue: 'Today' })
+                  : t('reminder.filter_upcoming', { defaultValue: 'Upcoming' })}
+          </Text>
+          {filteredReminders.length === 0 ? (
+            <View style={{
+              backgroundColor: theme.card,
+              borderRadius: 20,
+              padding: 24,
+              borderWidth: 1,
+              borderColor: theme.border,
+              alignItems: 'center',
+              gap: 10,
+            }}>
+              <Bell size={24} color={theme.textMuted} />
+              <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>
+                {t('reminder.filter_empty', { defaultValue: 'Nothing here yet.' })}
+              </Text>
+            </View>
+          ) : (
+            <View style={{ gap: 10 }}>
+              {filter === 'completed'
+                ? filteredReminders.map((r: any) => renderCompletedReminderRow(r))
+                : filteredReminders.map((r: any) => renderActiveReminderRow(r))}
+            </View>
+          )}
+        </View>
+      ) : !hasAnyReminder ? (
         <View style={{
           backgroundColor: theme.card,
           borderRadius: 20,
@@ -787,6 +1126,17 @@ export default function ReminderScreen() {
             {t('reminder.no_reminders_desc')}
           </Text>
         </View>
+      ) : todayReminders.length === 0 ? (
+        <View style={{ gap: 10 }}>
+          <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
+            {t('reminder.today_label', { count: 0 })}
+          </Text>
+          <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border }}>
+            <Text style={{ fontSize: 13, color: theme.textMuted }}>
+              {t('reminder.today_empty', { defaultValue: 'Nothing due today. Check upcoming reminders below.' })}
+            </Text>
+          </View>
+        </View>
       ) : (
         <View style={{ gap: 10 }}>
           <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
@@ -796,8 +1146,13 @@ export default function ReminderScreen() {
             <ReminderCard
               key={reminder._id}
               reminder={reminder}
-              onComplete={() => completeReminder(reminder._id)}
+              onComplete={() => {
+                if (!handleAuthRequired()) return;
+                void completeReminder(reminder._id);
+              }}
+              onSnooze={() => handleSnooze(reminder)}
               canEdit={canEdit}
+              isOverdue={reminder.nextRunAt < now}
             />
           ))}
         </View>
@@ -813,87 +1168,7 @@ export default function ReminderScreen() {
           </Text>
         ) : (
           <View style={{ gap: 10 }}>
-            {upcomingReminders.map((r) => {
-              const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
-              const time = new Date(r.nextRunAt).toLocaleString(i18n.language, {
-                hour: '2-digit',
-                minute: '2-digit',
-                day: '2-digit',
-                month: '2-digit',
-              });
-              const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
-              const targetLabel = getTargetLabel(r);
-              const stage = getStage(r);
-              const stageLabel = stage === 'planning'
-                ? t('garden.tab_planning')
-                : stage === 'growing'
-                  ? t('garden.tab_growing')
-                  : null;
-              const stageColor = stage === 'planning' ? theme.warning : theme.success;
-              const stageBg = stage === 'planning' ? theme.warningBg : theme.successBg;
-
-              return (
-                <View
-                  key={r._id}
-                  style={{
-                    backgroundColor: theme.card,
-                    borderRadius: 18,
-                    padding: 14,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                    borderWidth: 1,
-                    borderColor: theme.border,
-                    shadowColor: '#1a1a18',
-                    shadowOpacity: 0.05,
-                    shadowRadius: 8,
-                    shadowOffset: { width: 0, height: 2 },
-                  }}
-                >
-                  <View style={{ width: 44, height: 44, backgroundColor: theme.successBg, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
-                    <Icon size={20} color={theme.success} />
-                  </View>
-                  <View style={{ flex: 1, gap: 2 }}>
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
-                      {getDisplayTitle(r)}
-                    </Text>
-                    {!!stageLabel && (
-                      <View style={{ marginTop: 2, alignSelf: 'flex-start', backgroundColor: stageBg, borderRadius: 999, borderWidth: 1, borderColor: stageColor, paddingHorizontal: 8, paddingVertical: 2 }}>
-                        <Text style={{ fontSize: 10, fontWeight: '800', color: stageColor, letterSpacing: 0.3, textTransform: 'uppercase' }}>
-                          {stageLabel}
-                        </Text>
-                      </View>
-                    )}
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
-                      {amountLabel ? `${time} • ${amountLabel} • ${targetLabel}` : `${time} • ${targetLabel}`}
-                    </Text>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <TouchableOpacity
-                      onPress={() => toggleReminder(r._id)}
-                      disabled={!canEdit}
-                      style={{ width: 34, height: 34, backgroundColor: theme.accent, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
-                    >
-                      <Power size={16} color={r.enabled ? theme.success : theme.textMuted} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => { setEditing(r); setFormOpen(true); }}
-                      disabled={!canEdit}
-                      style={{ width: 34, height: 34, backgroundColor: theme.accent, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
-                    >
-                      <Pencil size={16} color={theme.textSecondary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setConfirmDelete(r)}
-                      disabled={!canEdit}
-                      style={{ width: 34, height: 34, backgroundColor: theme.dangerBg, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
-                    >
-                      <Trash2 size={16} color={theme.danger} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-            })}
+            {activeReminders.map((r) => renderActiveReminderRow(r))}
           </View>
         )}
       </View>
@@ -902,65 +1177,13 @@ export default function ReminderScreen() {
         <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
           {t('reminder.history_label')}
         </Text>
-        {historyReminders.length === 0 ? (
+        {completedReminders.length === 0 ? (
           <Text style={{ fontSize: 13, color: theme.textMuted, fontStyle: 'italic', paddingLeft: 4 }}>
             {t('reminder.none_history')}
           </Text>
         ) : (
           <View style={{ gap: 10 }}>
-            {historyReminders.map((r) => {
-              const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
-              const completedOrScheduledAt = r.lastRunAt ?? r.nextRunAt;
-              const time = completedOrScheduledAt
-                ? new Date(completedOrScheduledAt).toLocaleString(i18n.language, {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  day: '2-digit',
-                  month: '2-digit',
-                })
-                : '—';
-              const amountLabel = r.waterLiters ? formatVolume(r.waterLiters, unitSystem) : '';
-              const targetLabel = getTargetLabel(r);
-              const statusLabel = r.lastRunAt
-                ? t('reminder.status_completed')
-                : t('reminder.status_scheduled');
-              const description = getDisplayDescription(r).trim();
-              return (
-                <View
-                  key={`history-${r._id}`}
-                  style={{
-                    backgroundColor: theme.card,
-                    borderRadius: 18,
-                    padding: 14,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                    borderWidth: 1,
-                    borderColor: theme.border,
-                    opacity: 0.85,
-                  }}
-                >
-                  <View style={{ width: 44, height: 44, backgroundColor: theme.accent, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
-                    <Icon size={20} color={theme.textMuted} />
-                  </View>
-                  <View style={{ flex: 1, gap: 2 }}>
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
-                      {getDisplayTitle(r)}
-                    </Text>
-                    {!!description && (
-                      <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={2}>
-                        {description}
-                      </Text>
-                    )}
-                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
-                      {amountLabel
-                        ? `${statusLabel}: ${time} • ${amountLabel} • ${targetLabel}`
-                        : `${statusLabel}: ${time} • ${targetLabel}`}
-                    </Text>
-                  </View>
-                </View>
-              );
-            })}
+            {completedReminders.map((r) => renderCompletedReminderRow(r))}
           </View>
         )}
       </View>

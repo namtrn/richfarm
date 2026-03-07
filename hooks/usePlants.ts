@@ -50,6 +50,7 @@ export function usePlants(status?: string) {
 
     const addPlant = async (args: {
         plantMasterId?: Id<'plantsMaster'>;
+        nickname?: string;
         bedId?: Id<'beds'>;
         positionInBed?: { x: number; y: number; width: number; height: number };
         plantedAt?: number;
@@ -70,6 +71,7 @@ export function usePlants(status?: string) {
         plantId: Id<'userPlants'>,
         updates: {
             plantMasterId?: Id<'plantsMaster'>;
+            nickname?: string;
             notes?: string;
             bedId?: Id<'beds'>;
             positionInBed?: { x: number; y: number; width: number; height: number };

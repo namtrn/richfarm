@@ -14,6 +14,13 @@ appId: com.mygarden.app
     commands:
       - tapOn:
           id: e2e-onboarding-start-button
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
 - extendedWaitUntil:
     visible:
       id: e2e-tab-home

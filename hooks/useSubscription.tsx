@@ -70,6 +70,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return;
     }
+    const validatedApiKey = (apiKey ?? '').trim();
 
     if (configuredRef.current) return;
 
@@ -78,7 +79,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
 
     purchases.configure({
-      apiKey,
+      apiKey: validatedApiKey,
       appUserID: appUserId ?? undefined,
     });
 

@@ -15,6 +15,7 @@ import { api } from '../../convex/_generated/api';
 import { isPremiumActive } from '../../lib/access';
 import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../lib/aiDetectorLimit';
 import { usePlantLibrary } from '../../hooks/usePlantLibrary';
+import { normalizeCustomPlantNickname, useAddPlantFlow } from '../../hooks/useAddPlantFlow';
 
 import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
@@ -24,6 +25,7 @@ export default function PlanningScreen() {
   const theme = useTheme();
   const { appMode } = useAppMode();
   const { plants, isLoading, addPlant } = usePlants();
+  const { createUserPlant, openLibrarySelect, openLibraryMatch } = useAddPlantFlow({ addPlant });
   const { beds, isLoading: isBedsLoading } = useBeds();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
@@ -117,7 +119,7 @@ export default function PlanningScreen() {
     if (!canCreatePlant || !nickname.trim()) return;
     setSaving(true);
     try {
-      await addPlant({});
+      await createUserPlant({ nickname: nickname.trim() });
       setNickname('');
       setSheetOpen(false);
     } finally {
@@ -144,7 +146,7 @@ export default function PlanningScreen() {
   const handleSearchLibrary = () => {
     if (!canCreatePlant) return;
     setSheetOpen(false);
-    router.push('/(tabs)/library?mode=select&from=planning');
+    openLibrarySelect({ mode: 'select', from: 'planning' });
   };
 
   const canStartAiScan = async () => {
@@ -295,14 +297,10 @@ export default function PlanningScreen() {
         setPhotoUri(null);
         setAiSessionActive(false);
         setAiLimitError('');
-        router.push({
-          pathname: '/(tabs)/library/[masterPlantId]',
-          params: {
-            masterPlantId: String(matchedPlant._id),
-            mode: 'select',
-            from: 'scanner',
-            scannedPhotoUri: photoUri ?? undefined,
-          },
+        openLibraryMatch(String(matchedPlant._id), {
+          mode: 'select',
+          from: 'scanner',
+          scannedPhotoUri: photoUri ?? undefined,
         });
         return;
       }
@@ -315,7 +313,9 @@ export default function PlanningScreen() {
     if (!canCreatePlant) return;
     setPhotoSaving(true);
     try {
-      await addPlant({});
+      await createUserPlant({
+        nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
+      });
       setPhotoOpen(false);
       setPhotoUri(null);
       setAiSessionActive(false);
@@ -643,7 +643,12 @@ export default function PlanningScreen() {
                   style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
                   onPress={() => {
                     setPhotoOpen(false);
-                    router.push({ pathname: '/(tabs)/library', params: { q: detectedName.trim(), tab: 'plants' } });
+                    openLibrarySelect({
+                      mode: 'select',
+                      from: 'scanner',
+                      searchQuery: detectedName.trim(),
+                      tab: 'plants',
+                    });
                   }}
                 >
                   <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>

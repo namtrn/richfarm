@@ -16,6 +16,7 @@ export type SyncExecutorResult = {
 
 type SyncExecuteOptions = {
     types?: SyncActionType[];
+    plantId?: string;
 };
 
 export function useSyncExecutor() {
@@ -26,12 +27,24 @@ export function useSyncExecutor() {
     const inflightRef = useRef(false);
     const lastQueuedCountRef = useRef(0);
 
+    const filterQueue = useCallback(
+        (queue: Awaited<ReturnType<typeof loadSyncQueue>>, options?: SyncExecuteOptions) => {
+            let filteredQueue = queue;
+            if (options?.types?.length) {
+                filteredQueue = filteredQueue.filter((item) => options.types!.includes(item.type));
+            }
+            if (options?.plantId) {
+                filteredQueue = filteredQueue.filter((item) => item.plantId === options.plantId);
+            }
+            return filteredQueue;
+        },
+        []
+    );
+
     const execute = useCallback(async (options?: SyncExecuteOptions): Promise<SyncExecutorResult> => {
         if (inflightRef.current) {
             const queue = await loadSyncQueue();
-            const filteredQueue = options?.types?.length
-                ? queue.filter((item) => options.types!.includes(item.type))
-                : queue;
+            const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
             return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: filteredQueue.length };
         }
@@ -39,9 +52,7 @@ export function useSyncExecutor() {
         inflightRef.current = true;
         try {
             const queue = await loadSyncQueue();
-            const filteredQueue = options?.types?.length
-                ? queue.filter((item) => options.types!.includes(item.type))
-                : queue;
+            const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
             if (filteredQueue.length === 0) {
                 return { ok: true, syncedCount: 0, errorCount: 0, queuedCount: 0 };
@@ -166,9 +177,7 @@ export function useSyncExecutor() {
             };
         } catch {
             const queue = await loadSyncQueue();
-            const filteredQueue = options?.types?.length
-                ? queue.filter((item) => options.types!.includes(item.type))
-                : queue;
+            const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
             return {
                 ok: false,
@@ -179,7 +188,7 @@ export function useSyncExecutor() {
         } finally {
             inflightRef.current = false;
         }
-    }, [batchSync, deviceId, generateUploadUrl, savePhoto]);
+    }, [batchSync, deviceId, filterQueue, generateUploadUrl, savePhoto]);
 
     return { execute };
 }

@@ -36,6 +36,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const completeReminderMutation = useMutation(api.reminders.completeReminder);
     const updateReminderMutation = useMutation(api.reminders.updateReminder);
     const deleteReminderMutation = useMutation(api.reminders.deleteReminder);
+    const snoozeReminderMutation = useMutation(api.reminders.snoozeReminder);
 
     const createReminder = async (args: {
         userPlantId?: Id<'userPlants'>;
@@ -81,6 +82,10 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         return await deleteReminderMutation({ reminderId, deviceId });
     };
 
+    const snoozeReminder = async (reminderId: Id<'reminders'>, snoozedUntil: number) => {
+        return await snoozeReminderMutation({ reminderId, snoozedUntil, deviceId });
+    };
+
     return {
         reminders: reminders ?? [],
         todayReminders: todayReminders ?? [],
@@ -90,5 +95,6 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         completeReminder,
         updateReminder,
         deleteReminder,
+        snoozeReminder,
     };
 }

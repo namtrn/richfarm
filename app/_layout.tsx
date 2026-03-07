@@ -11,6 +11,7 @@ import { getLocales } from 'expo-localization';
 import i18n from '../lib/i18n';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
+import { SyncStatusBanner } from '../components/ui/SyncStatusBanner';
 import { useAppReady } from '../hooks/useAppReady';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
 import { useNotifications } from '../hooks/useNotifications';
@@ -132,6 +133,7 @@ export default function RootLayout() {
           <ThemeProvider>
             <AppShellWithSettings>
               <OfflineBanner />
+              <SyncStatusBanner compact style={styles.syncBanner} />
               <AuthGuard />
             </AppShellWithSettings>
           </ThemeProvider>
@@ -158,5 +160,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  syncBanner: {
+    marginHorizontal: 12,
+    marginBottom: 4,
   },
 });

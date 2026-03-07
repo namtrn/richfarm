@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { isPremiumActive } from "./lib/subscription";
+import { getOwnedBedOrThrow, getOwnedGardenOrThrow } from "./lib/ownership";
 
 const NAME_MAX = 40;
 const FREE_BED_LIMIT = 3;
@@ -49,6 +50,9 @@ export const createBed = mutation({
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
         assertNameLength(args.name);
+        if (args.gardenId) {
+            await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
+        }
 
         if (!isPremiumActive(user)) {
             const existingBeds = await ctx.db
@@ -95,14 +99,13 @@ export const updateBed = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const bed = await ctx.db.get(args.bedId);
-
-        if (!bed || bed.userId !== user._id) {
-            throw new Error("Bed not found or unauthorized");
-        }
+        await getOwnedBedOrThrow(ctx, user._id, args.bedId);
 
         if (args.name !== undefined) {
             assertNameLength(args.name);
+        }
+        if (args.gardenId !== undefined && args.gardenId) {
+            await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
         }
 
         await ctx.db.patch(args.bedId, {
@@ -127,11 +130,7 @@ export const deleteBed = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const bed = await ctx.db.get(args.bedId);
-
-        if (!bed || bed.userId !== user._id) {
-            throw new Error("Bed not found or unauthorized");
-        }
+        await getOwnedBedOrThrow(ctx, user._id, args.bedId);
 
         await ctx.db.delete(args.bedId);
     },

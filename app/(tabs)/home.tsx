@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { useMemo, useState, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
 import { Bell, Droplets, Scissors, Sprout, ChevronRight, ScanSearch } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -9,7 +9,9 @@ import { usePlantScanner } from '../../hooks/usePlantScanner';
 import { WeatherCard } from '../../components/ui/WeatherCard';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useAuth } from '../../lib/auth';
+import { getOnboardingFocusItems } from '../../lib/personalization';
 import { useTheme } from '../../lib/theme';
+import { useUserSettings } from '../../hooks/useUserSettings';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -37,6 +39,10 @@ export default function HomeScreen() {
   const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
   const { openScanner, scannerModals } = usePlantScanner();
+  const { settings, updateSettings } = useUserSettings();
+  const [isWeatherCardDismissed, setIsWeatherCardDismissed] = useState(false);
+  const [isSavingWeatherPreference, setIsSavingWeatherPreference] = useState(false);
+  const shouldShowWeatherCard = settings?.showWeatherCard ?? true;
 
   const displayName = user?.name || t('home.welcome_default');
   const initials = displayName
@@ -48,6 +54,7 @@ export default function HomeScreen() {
   const sortedToday = useMemo(() => {
     return [...todayReminders].sort((a, b) => a.nextRunAt - b.nextRunAt);
   }, [todayReminders]);
+  const focusItems = useMemo(() => getOnboardingFocusItems(settings?.onboarding), [settings?.onboarding]);
   const plantMap = useMemo(() => new Map((plants ?? []).map((p: any) => [String(p._id), p])), [plants]);
 
   const getPlantName = (reminder: any) => {
@@ -75,6 +82,43 @@ export default function HomeScreen() {
 
   const upcoming = sortedToday.slice(0, 6);
   const overdueCount = sortedToday.filter((r) => r.nextRunAt < Date.now()).length;
+
+  useEffect(() => {
+    if (shouldShowWeatherCard) {
+      setIsWeatherCardDismissed(false);
+    }
+  }, [shouldShowWeatherCard]);
+
+  const handleOpenReminder = (reminder: any) => {
+    if (reminder?.userPlantId) {
+      router.push({
+        pathname: '/(tabs)/plant/[userPlantId]',
+        params: {
+          userPlantId: String(reminder.userPlantId),
+          from: 'reminder',
+        },
+      });
+      return;
+    }
+    router.push('/(tabs)/reminder');
+  };
+
+  const handleHideWeatherCard = async () => {
+    setIsWeatherCardDismissed(true);
+    setIsSavingWeatherPreference(true);
+    try {
+      await updateSettings({ showWeatherCard: false });
+      Alert.alert(
+        t('weather_card.hidden_title'),
+        t('weather_card.hidden_message')
+      );
+    } catch {
+      setIsWeatherCardDismissed(false);
+    } finally {
+      setIsSavingWeatherPreference(false);
+    }
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
       {/* Welcome header */}
@@ -123,7 +167,45 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <WeatherCard model={weatherModel} />
+      {shouldShowWeatherCard && !isWeatherCardDismissed ? (
+        <WeatherCard
+          model={weatherModel}
+          onHide={handleHideWeatherCard}
+          isHiding={isSavingWeatherPreference}
+        />
+      ) : null}
+
+      {focusItems.length > 0 ? (
+        <View style={{ paddingHorizontal: 2, gap: 10 }}>
+          <View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+              {t('home.focus_title')}
+            </Text>
+            <Text style={{ fontSize: 12, color: theme.textSecondary }}>
+              {t('home.focus_desc')}
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {focusItems.map((item) => (
+              <View
+                key={`${item.kind}:${item.id}`}
+                style={{
+                  backgroundColor: item.kind === 'goal' ? theme.successBg : theme.accent,
+                  borderRadius: 999,
+                  paddingHorizontal: 12,
+                  paddingVertical: 7,
+                  borderWidth: 1,
+                  borderColor: item.kind === 'goal' ? theme.primary : theme.border,
+                }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>
+                  {t(item.labelKey)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
 
       <View style={{ paddingHorizontal: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -158,8 +240,10 @@ export default function HomeScreen() {
             {upcoming.map((reminder) => {
               const Icon = REMINDER_ICONS[reminder.type] ?? REMINDER_ICONS.default;
               return (
-                <View
+                <TouchableOpacity
                   key={reminder._id}
+                  onPress={() => handleOpenReminder(reminder)}
+                  activeOpacity={0.8}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -182,7 +266,7 @@ export default function HomeScreen() {
                     </Text>
                   </View>
                   <ChevronRight size={16} stroke={theme.textMuted} />
-                </View>
+                </TouchableOpacity>
               );
             })}
             {sortedToday.length > upcoming.length && (

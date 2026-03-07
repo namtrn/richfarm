@@ -27,12 +27,12 @@ import {
     Dna,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQuery } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { buildPlantSeedKey, plantI18nSeed, plantsMasterSeed } from '../../../convex/data/plantsMasterSeed';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePlants } from '../../../hooks/usePlants';
-import { useDeviceId } from '../../../lib/deviceId';
+import { useBeds } from '../../../hooks/useBeds';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import {
     formatLengthCm,
@@ -50,6 +50,9 @@ import {
 } from '../../../lib/plantCareCache';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
+import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
+import { useAppMode } from '../../../hooks/useAppMode';
+import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -334,6 +337,7 @@ export default function LibraryPlantDetailScreen() {
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const { appMode } = useAppMode();
     const router = useRouter();
     const { masterPlantId, mode, from, fromPlantId, bedId, x, y, scannedPhotoUri } = useLocalSearchParams<{
         masterPlantId: string;
@@ -369,9 +373,8 @@ export default function LibraryPlantDetailScreen() {
 
     const { favorites, toggleFavorite } = useFavorites();
     const { addPlant, updatePlant } = usePlants();
-    const { deviceId } = useDeviceId();
-    const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
-    const savePhoto = useMutation(api.storage.savePhoto);
+    const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
+    const { beds } = useBeds();
 
     const masterPlant = useQuery(
         api.plantImages.getPlantById,
@@ -400,6 +403,8 @@ export default function LibraryPlantDetailScreen() {
     const [care, setCare] = useState<PlantCareContent | null>(null);
     const scrollRef = useRef<ScrollView>(null);
     const [variantsSectionY, setVariantsSectionY] = useState(0);
+    const [targetModalOpen, setTargetModalOpen] = useState(false);
+    const [addSaving, setAddSaving] = useState(false);
 
     useEffect(() => {
         if (!resolvedId) return;
@@ -452,57 +457,33 @@ export default function LibraryPlantDetailScreen() {
                 ? t('library.add_to_my_garden', { defaultValue: 'Add to My Garden' })
                 : undefined;
 
+    const completeAdd = async (selectionMode: AddPlantTargetMode, selectedBedId?: string) => {
+        if (!currentPlant || !resolvedId || !canMutateMaster) return;
+        await completeLibraryAdd({
+            plantMasterId: String(resolvedId),
+            selectionMode,
+            mode: modeParam,
+            from: fromParam,
+            attachPlantId: fromPlantId ? String(fromPlantId) : undefined,
+            bedId: bedIdParam,
+            x: xParam,
+            y: yParam,
+            scannedPhotoUri: scannedPhotoUriParam,
+            selectedBedId,
+        });
+    };
+
     const handleAdd = async () => {
         if (!currentPlant || !resolvedId || !canMutateMaster) return;
-        const xValue = xParam !== undefined ? Number(xParam) : undefined;
-        const yValue = yParam !== undefined ? Number(yParam) : undefined;
-        const positionInBed =
-            typeof xValue === 'number' && Number.isFinite(xValue) &&
-                typeof yValue === 'number' && Number.isFinite(yValue)
-                ? { x: xValue, y: yValue, width: 1, height: 1 }
-                : undefined;
-
-        let addedPlantId: any = null;
         if (modeParam === 'attach' && fromPlantId) {
-            await updatePlant(fromPlantId as any, { plantMasterId: resolvedId as any });
-        } else if (fromParam === 'bed' && bedIdParam) {
-            addedPlantId = await addPlant({ plantMasterId: resolvedId as any, bedId: bedIdParam as any, positionInBed });
-        } else {
-            addedPlantId = await addPlant({ plantMasterId: resolvedId as any });
+            await completeAdd('planning');
+            return;
         }
-
-        if (fromParam === 'scanner' && addedPlantId && scannedPhotoUriParam) {
-            try {
-                const uploadUrl = await generateUploadUrl({ deviceId });
-                const response = await fetch(scannedPhotoUriParam);
-                const blob = await response.blob();
-                const uploadResponse = await fetch(uploadUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': blob.type || 'application/octet-stream' },
-                    body: blob,
-                });
-                if (uploadResponse.ok) {
-                    const { storageId } = await uploadResponse.json();
-                    await savePhoto({
-                        deviceId,
-                        plantId: addedPlantId,
-                        storageId,
-                        capturedAt: Date.now(),
-                        source: 'scanner',
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to upload scanner photo:', error);
-            }
+        if (fromParam === 'bed' && bedIdParam) {
+            await completeAdd('growing', bedIdParam);
+            return;
         }
-
-        if (fromParam === 'scanner' || fromParam === 'planning') {
-            router.replace('/(tabs)/garden?tab=planning');
-        } else if (fromParam === 'bed' && bedIdParam) {
-            router.replace(`/(tabs)/bed/${bedIdParam}`);
-        } else if (router.canGoBack()) {
-            router.back();
-        }
+        setTargetModalOpen(true);
     };
 
     const lightMeta: Record<string, { label: string; color: string; bg: string }> = {
@@ -821,6 +802,24 @@ export default function LibraryPlantDetailScreen() {
                     </View>
                 </ScrollView>
             )}
+            <AddPlantTargetModal
+                visible={targetModalOpen}
+                beds={beds.map((bed: any) => ({ _id: String(bed._id), name: bed.name }))}
+                loading={addSaving}
+                onClose={() => {
+                    if (addSaving) return;
+                    setTargetModalOpen(false);
+                }}
+                onConfirm={async ({ mode, bedId }) => {
+                    setAddSaving(true);
+                    try {
+                        await completeAdd(mode, bedId);
+                        setTargetModalOpen(false);
+                    } finally {
+                        setAddSaving(false);
+                    }
+                }}
+            />
         </View>
     );
 }

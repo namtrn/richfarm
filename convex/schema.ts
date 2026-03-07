@@ -222,6 +222,7 @@ export default defineSchema({
     plantMasterId: v.optional(v.id("plantsMaster")), // null nếu custom plant
 
     // Customization
+    nickname: v.optional(v.string()),
     photoUrl: v.optional(v.string()), // Ảnh đại diện
 
     // Location
@@ -493,6 +494,7 @@ export default defineSchema({
     appMode: v.optional(v.string()), // "farmer" | "gardener"
     theme: v.optional(v.string()), // "light", "dark", "system"
     defaultView: v.optional(v.string()), // "list", "grid", "calendar"
+    showWeatherCard: v.optional(v.boolean()),
 
     // Units
     unitSystem: v.optional(v.string()), // "metric", "imperial"
@@ -507,11 +509,14 @@ export default defineSchema({
     // Onboarding profile (farm-first)
     onboarding: v.optional(
       v.object({
+        role: v.optional(v.string()),
         goals: v.array(v.string()),
         scaleEnvironment: v.array(v.string()),
         crops: v.array(v.string()),
         experience: v.string(),
         needs: v.array(v.string()),
+        purposeWeights: v.optional(v.record(v.string(), v.number())),
+        environmentWeights: v.optional(v.record(v.string(), v.number())),
         completedAt: v.number(),
         version: v.optional(v.number()),
       })

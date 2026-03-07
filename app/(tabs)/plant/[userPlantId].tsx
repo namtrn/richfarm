@@ -24,6 +24,7 @@ import { api } from '../../../convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
 import { useFavorites } from '../../../hooks/useFavorites';
+import { useSyncExecutor } from '../../../lib/sync/useSyncExecutor';
 import {
   createLocalId,
   loadPlantLocalData,
@@ -35,6 +36,8 @@ import {
 import { PlantPhotosSection } from '../../../components/plant/PlantPhotosSection';
 import { PlantActivitySection } from '../../../components/plant/PlantActivitySection';
 import { PlantHarvestSection } from '../../../components/plant/PlantHarvestSection';
+import { PlantHealthTimelineSection } from '../../../components/plant/PlantHealthTimelineSection';
+import { SyncStatusBanner } from '../../../components/ui/SyncStatusBanner';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { useAppMode } from '../../../hooks/useAppMode';
@@ -89,6 +92,7 @@ export default function PlantDetailScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { queuePhoto, queueActivity, queueHarvest } = usePlantSync();
   const { favorites, toggleFavorite } = useFavorites();
+  const { execute: executeSyncNow } = useSyncExecutor();
   const canEdit = !isAuthLoading && isAuthenticated;
   const navigateBackOrGrowing = () => {
     if (fromParam === 'bed') {
@@ -162,6 +166,7 @@ export default function PlantDetailScreen() {
   const isGrowing = plant?.status === 'growing';
 
   const [notes, setNotes] = useState('');
+  const [nickname, setNickname] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
   const [bedId, setBedId] = useState<Id<'beds'> | undefined>(undefined);
   const [saving, setSaving] = useState(false);
@@ -174,6 +179,7 @@ export default function PlantDetailScreen() {
   });
   const [localLoading, setLocalLoading] = useState(true);
   const [localSaving, setLocalSaving] = useState(false);
+  const [retryingSync, setRetryingSync] = useState(false);
 
   // Separate error states per section
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -227,6 +233,7 @@ export default function PlantDetailScreen() {
   useEffect(() => {
     if (!plant) return;
     setNotes(plant.notes ?? '');
+    setNickname(plant.nickname ?? '');
     setExpectedDate(formatDateInput(plant.expectedHarvestDate));
     setBedId(plant.bedId ?? undefined);
   }, [plant]);
@@ -312,6 +319,7 @@ export default function PlantDetailScreen() {
     setSaving(true);
     try {
       await updatePlant(plant._id, {
+        nickname: nickname.trim() || undefined,
         notes: notes.trim() || undefined,
         bedId,
         expectedHarvestDate: expectedDate ? parseDateInput(expectedDate) : undefined,
@@ -364,6 +372,25 @@ export default function PlantDetailScreen() {
       await deletePlant(plantIdToDelete);
     } catch {
       setSaving(false);
+    }
+  };
+
+  const formatDisplayDate = (value?: number) => {
+    if (!value) return '—';
+    return new Date(value).toLocaleDateString(i18n.language, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    });
+  };
+
+  const handleRetrySync = async () => {
+    if (!resolvedPlantId || retryingSync) return;
+    setRetryingSync(true);
+    try {
+      await executeSyncNow({ plantId: resolvedPlantId });
+    } finally {
+      setRetryingSync(false);
     }
   };
 
@@ -604,6 +631,12 @@ export default function PlantDetailScreen() {
         </View>
       )}
 
+      <SyncStatusBanner
+        plantId={resolvedPlantId}
+        onRetry={retryingSync ? undefined : handleRetrySync}
+        style={{ marginHorizontal: 16, marginBottom: 8 }}
+      />
+
       <Animated.ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 0, gap: 16, paddingBottom: 100 }}
         onScroll={Animated.event(
@@ -703,6 +736,17 @@ export default function PlantDetailScreen() {
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 16, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
           <View style={{ gap: 8 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.nickname_label')}</Text>
+            <TextInput
+              value={nickname}
+              onChangeText={setNickname}
+              placeholder={t('planning.nickname_placeholder')}
+              placeholderTextColor={theme.textMuted}
+              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+            />
+          </View>
+
+          <View style={{ gap: 8 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.notes_label')}</Text>
             <TextInput
               value={notes}
@@ -728,6 +772,12 @@ export default function PlantDetailScreen() {
             />
           </View>
         </View>
+
+        <PlantHealthTimelineSection
+          localData={localData}
+          localLoading={localLoading}
+          formatDate={formatDisplayDate}
+        />
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 12, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
           <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.bed_label')}</Text>

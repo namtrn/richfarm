@@ -24,13 +24,17 @@ export const upsertUserSettings = mutation({
         appMode: v.optional(v.string()),
         unitSystem: v.optional(v.string()),
         theme: v.optional(v.string()),
+        showWeatherCard: v.optional(v.boolean()),
         onboarding: v.optional(
             v.object({
+                role: v.optional(v.string()),
                 goals: v.array(v.string()),
                 scaleEnvironment: v.array(v.string()),
                 crops: v.array(v.string()),
                 experience: v.string(),
                 needs: v.array(v.string()),
+                purposeWeights: v.optional(v.record(v.string(), v.number())),
+                environmentWeights: v.optional(v.record(v.string(), v.number())),
                 completedAt: v.number(),
                 version: v.optional(v.number()),
             })
@@ -53,6 +57,7 @@ export const upsertUserSettings = mutation({
                 ...(derivedAppMode !== undefined && { appMode: derivedAppMode }),
                 ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
                 ...(args.theme !== undefined && { theme: args.theme }),
+                ...(args.showWeatherCard !== undefined && { showWeatherCard: args.showWeatherCard }),
                 ...(args.onboarding !== undefined && { onboarding: args.onboarding }),
             });
             return existing._id;
@@ -64,6 +69,7 @@ export const upsertUserSettings = mutation({
             ...(derivedAppMode !== undefined && { appMode: derivedAppMode }),
             ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
             ...(args.theme !== undefined && { theme: args.theme }),
+            ...(args.showWeatherCard !== undefined && { showWeatherCard: args.showWeatherCard }),
             ...(args.onboarding !== undefined && { onboarding: args.onboarding }),
         });
     },

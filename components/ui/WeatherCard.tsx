@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
     MapPin,
@@ -15,6 +15,7 @@ import {
     CloudHail,
     Wind,
     Tornado,
+    EyeOff,
 } from 'lucide-react-native';
 import type { WeatherCardModel, WeatherConditionKey } from '../../features/weather/weatherLogic';
 import { useTheme } from '../../lib/theme';
@@ -23,9 +24,11 @@ import { useThemeContext } from '../../lib/ThemeContext';
 
 type WeatherCardProps = {
     model: WeatherCardModel;
+    onHide?: () => void | Promise<void>;
+    isHiding?: boolean;
 };
 
-export function WeatherCard({ model }: WeatherCardProps) {
+export function WeatherCard({ model, onHide, isHiding = false }: WeatherCardProps) {
     const { t } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
@@ -72,6 +75,21 @@ export function WeatherCard({ model }: WeatherCardProps) {
                     <Text style={[styles.badgeText, badgeStyle.text]}>{localizedCondition}</Text>
                 </View>
             </View>
+
+            {onHide ? (
+                <TouchableOpacity
+                    onPress={() => {
+                        void onHide();
+                    }}
+                    disabled={isHiding}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('weather_card.hide')}
+                    style={[styles.hideButton, isHiding && styles.hideButtonDisabled]}
+                >
+                    <EyeOff size={14} stroke={theme.textSecondary} />
+                    <Text style={styles.hideButtonText}>{t('weather_card.hide')}</Text>
+                </TouchableOpacity>
+            ) : null}
 
             {/* ── Temperature row with sun icon ── */}
             <View style={styles.tempRow}>
@@ -364,6 +382,27 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
+        },
+        hideButton: {
+            alignSelf: 'flex-end',
+            marginTop: -2,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: 999,
+            backgroundColor: theme.accent,
+            borderWidth: 1,
+            borderColor: theme.border,
+        },
+        hideButtonDisabled: {
+            opacity: 0.5,
+        },
+        hideButtonText: {
+            fontSize: 12,
+            fontWeight: '700',
+            color: theme.textSecondary,
         },
         locationRow: {
             flexDirection: 'row',

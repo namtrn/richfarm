@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { isPremiumActive } from "./lib/subscription";
+import { getOwnedGardenOrThrow } from "./lib/ownership";
 
 const NAME_MAX = 40;
 const FREE_GARDEN_LIMIT = 1;
@@ -76,11 +77,7 @@ export const updateGarden = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const garden = await ctx.db.get(args.gardenId);
-
-        if (!garden || garden.userId !== user._id) {
-            throw new Error("Garden not found or unauthorized");
-        }
+        const garden = await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
 
         if (args.name !== undefined) {
             assertNameLength(args.name);
@@ -99,11 +96,7 @@ export const deleteGarden = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const garden = await ctx.db.get(args.gardenId);
-
-        if (!garden || garden.userId !== user._id) {
-            throw new Error("Garden not found or unauthorized");
-        }
+        await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
 
         await ctx.db.patch(args.gardenId, { isDeleted: true });
     },
@@ -118,10 +111,12 @@ export const getBedsInGarden = query({
     handler: async (ctx, args) => {
         const user = await getUserByIdentityOrDevice(ctx, args.deviceId);
         if (!user) return [];
+        await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
 
         return await ctx.db
             .query("beds")
             .withIndex("by_garden", (q: any) => q.eq("gardenId", args.gardenId))
+            .filter((q: any) => q.eq(q.field("userId"), user._id))
             .collect();
     },
 });

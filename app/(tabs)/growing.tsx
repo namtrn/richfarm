@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Sprout, Leaf, Fence } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ export default function GrowingScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
   const { appMode } = useAppMode();
   const { plants, isLoading, updateStatus } = usePlants();
   const { beds } = useBeds();
@@ -55,6 +56,19 @@ export default function GrowingScreen() {
       month: 'short',
       day: '2-digit',
     });
+  };
+
+  const handleAuthRequired = () => {
+    if (canEdit) return true;
+    Alert.alert(
+      t('profile.auth_sign_in'),
+      t('growing.auth_warning'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
+      ]
+    );
+    return false;
   };
 
   return (
@@ -154,8 +168,10 @@ export default function GrowingScreen() {
                       </View>
                       <TouchableOpacity
                         style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, opacity: !canEdit ? 0.6 : 1 }}
-                        disabled={!canEdit}
-                        onPress={() => updateStatus(plant._id, 'archived')}
+                        onPress={() => {
+                          if (!handleAuthRequired()) return;
+                          void updateStatus(plant._id, 'archived');
+                        }}
                         testID="e2e-growing-harvest-button"
                       >
                         <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800' }}>{t('growing.harvest')}</Text>

@@ -3,6 +3,7 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { localizePlantRows } from "./lib/localizePlant";
+import { getOwnedBedOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const AUTO_GROWING_WATERING_MARKER = "auto_growing_watering";
@@ -29,6 +30,11 @@ function buildNextRunAt(intervalDays: number) {
     base.setHours(8, 0, 0, 0);
     const ts = base.getTime();
     return ts > now ? ts : ts + DAY_MS;
+}
+
+function normalizeNickname(value?: string) {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : undefined;
 }
 
 async function syncAutoGrowingWateringReminder(
@@ -74,7 +80,10 @@ async function syncAutoGrowingWateringReminder(
         ? await ctx.db.get(plant.plantMasterId)
         : null;
     const intervalDays = normalizeIntervalDays(masterPlant?.wateringFrequencyDays);
-    const plantName = (masterPlant?.scientificName ?? "").trim() || "Plant";
+    const plantName =
+        normalizeNickname(plant?.nickname) ??
+        ((masterPlant?.scientificName ?? "").trim() || undefined) ??
+        "Plant";
 
     await ctx.db.insert("reminders", {
         userId: user._id,
@@ -120,13 +129,28 @@ export const getUserPlants = query({
 
         const localizedPlants = await Promise.all(
             visiblePlants.map(async (plant: any) => {
+                const nickname = normalizeNickname(plant.nickname);
                 const normalizedPlant = {
                     ...plant,
                     status: normalizeStatus(plant.status),
                 };
-                if (!plant.plantMasterId) return normalizedPlant;
+                if (!plant.plantMasterId) {
+                    return nickname
+                        ? {
+                            ...normalizedPlant,
+                            displayName: nickname,
+                        }
+                        : normalizedPlant;
+                }
                 const master: any = await ctx.db.get(plant.plantMasterId);
-                if (!master) return normalizedPlant;
+                if (!master) {
+                    return nickname
+                        ? {
+                            ...normalizedPlant,
+                            displayName: nickname,
+                        }
+                        : normalizedPlant;
+                }
 
                 const i18nRows = await ctx.db
                     .query("plantI18n")
@@ -148,7 +172,7 @@ export const getUserPlants = query({
 
                 return {
                     ...normalizedPlant,
-                    displayName: localized.displayName,
+                    displayName: nickname ?? localized.displayName,
                     scientificName: localized.scientificName,
                     localeUsed: localized.localeUsed,
                 };
@@ -163,6 +187,7 @@ export const getUserPlants = query({
 export const addPlant = mutation({
     args: {
         plantMasterId: v.optional(v.id("plantsMaster")),
+        nickname: v.optional(v.string()),
         bedId: v.optional(v.id("beds")),
         positionInBed: v.optional(v.object({
             x: v.number(),
@@ -179,14 +204,22 @@ export const addPlant = mutation({
         if (args.notes !== undefined) {
             throw new Error("Notes are only allowed for plants in growing status");
         }
+        if (args.bedId) {
+            await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+        }
+        if (args.positionInBed && !args.bedId) {
+            throw new Error("Bed is required when setting a plant position");
+        }
 
         const hasBed = !!args.bedId || !!args.positionInBed;
         const initialStatus = hasBed ? "growing" : "planning";
         const plantedAt = hasBed ? (args.plantedAt ?? Date.now()) : args.plantedAt;
+        const nickname = normalizeNickname(args.nickname);
 
         const plantId = await ctx.db.insert("userPlants", {
             userId: user._id,
             plantMasterId: args.plantMasterId,
+            nickname,
             bedId: args.bedId,
             positionInBed: args.positionInBed,
             plantedAt,
@@ -219,11 +252,7 @@ export const updatePlantStatus = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const plant = await ctx.db.get(args.plantId);
-
-        if (!plant || plant.userId !== user._id) {
-            throw new Error("Plant not found or unauthorized");
-        }
+        const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
         const normalizedStatus = normalizeStatus(args.status);
 
         if (args.notes !== undefined && normalizedStatus !== "growing") {
@@ -260,6 +289,7 @@ export const updatePlant = mutation({
     args: {
         plantId: v.id("userPlants"),
         plantMasterId: v.optional(v.id("plantsMaster")),
+        nickname: v.optional(v.string()),
         notes: v.optional(v.string()),
         bedId: v.optional(v.id("beds")),
         positionInBed: v.optional(v.object({
@@ -273,17 +303,20 @@ export const updatePlant = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const plant = await ctx.db.get(args.plantId);
-
-        if (!plant || plant.userId !== user._id) {
-            throw new Error("Plant not found or unauthorized");
-        }
+        const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
         if (args.notes !== undefined && plant.status !== "growing") {
             throw new Error("Notes are only allowed for plants in growing status");
+        }
+        if (args.bedId !== undefined && args.bedId) {
+            await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+        }
+        if (args.positionInBed !== undefined && !args.bedId && !plant.bedId) {
+            throw new Error("Bed is required when setting a plant position");
         }
 
         await ctx.db.patch(args.plantId, {
             ...(args.plantMasterId !== undefined && { plantMasterId: args.plantMasterId }),
+            ...(args.nickname !== undefined && { nickname: normalizeNickname(args.nickname) }),
             ...(args.notes !== undefined && { notes: args.notes }),
             ...(args.bedId !== undefined && { bedId: args.bedId }),
             ...(args.positionInBed !== undefined && { positionInBed: args.positionInBed }),
@@ -301,11 +334,7 @@ export const deletePlant = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        const plant = await ctx.db.get(args.plantId);
-
-        if (!plant || plant.userId !== user._id) {
-            throw new Error("Plant not found or unauthorized");
-        }
+        const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
 
         await ctx.db.patch(args.plantId, {
             isDeleted: true,
