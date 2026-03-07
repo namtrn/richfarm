@@ -127,8 +127,6 @@ export default function TabLayout() {
   const { bottom: safeBottom } = useSafeAreaInsets();
   const { appMode } = useAppMode();
   const isGardener = appMode === 'gardener';
-
-
   const isDark = theme.background === palette.dark.background;
 
   const activePillColor = isDark
@@ -185,6 +183,7 @@ export default function TabLayout() {
       }}
     >
       {/* Hidden routes */}
+      <Tabs.Screen name="garden/GardenerMyPlantsView" options={{ href: null }} />
       <Tabs.Screen name="garden/[gardenId]" options={{ href: null }} />
       <Tabs.Screen name="bed/[bedId]" options={{ href: null }} />
       <Tabs.Screen name="plant" options={{ href: null }} />

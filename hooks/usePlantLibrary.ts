@@ -5,7 +5,7 @@ import { api } from '../convex/_generated/api';
 import { useNetworkStatus } from './useNetworkStatus';
 import { buildPlantSeedKey, plantGroupsSeed, plantI18nSeed, plantsMasterSeed } from '../convex/data/plantsMasterSeed';
 
-const PLANTS_CACHE_VERSION = 2;
+const PLANTS_CACHE_VERSION = 4;
 const GROUPS_CACHE_VERSION = 1;
 
 function normalizeLocale(locale?: string) {

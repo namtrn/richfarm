@@ -141,6 +141,16 @@ export const getPlantsWithImages = query({
                 _id: p._id,
                 scientificName: p.scientificName,
                 displayName: localized.displayName,
+                cultivar: (p as any).cultivar ?? null,
+                cultivarNormalized:
+                    (p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED,
+                isBaseVariant:
+                    ((p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED) ===
+                    DEFAULT_CULTIVAR_NORMALIZED,
+                speciesKey:
+                    (p as any).genusNormalized && (p as any).speciesNormalized
+                        ? `${(p as any).genusNormalized}:${(p as any).speciesNormalized}`
+                        : normalizeScientificName(p.scientificName),
                 description: localized.description,
                 localeUsed: localized.localeUsed,
                 careContent: localized.careContent,
@@ -263,6 +273,16 @@ export const getPlantsWithoutImages = query({
                     _id: p._id,
                     scientificName: p.scientificName,
                     displayName: localized.displayName,
+                    cultivar: (p as any).cultivar ?? null,
+                    cultivarNormalized:
+                        (p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED,
+                    isBaseVariant:
+                        ((p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED) ===
+                        DEFAULT_CULTIVAR_NORMALIZED,
+                    speciesKey:
+                        (p as any).genusNormalized && (p as any).speciesNormalized
+                            ? `${(p as any).genusNormalized}:${(p as any).speciesNormalized}`
+                            : normalizeScientificName(p.scientificName),
                     description: localized.description,
                     localeUsed: localized.localeUsed,
                     i18nRows: rows ?? [],

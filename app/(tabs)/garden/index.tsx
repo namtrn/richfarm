@@ -167,102 +167,6 @@ function GardenCard({ garden, onPress, unitSystem, testID }: { garden: any; onPr
     );
 }
 
-function GardenOverviewSummary({
-    gardensCount,
-    bedsCount,
-    growingCount,
-    dueTodayCount,
-    harvestWindowCount,
-    unassignedCount,
-    planningCount,
-}: {
-    gardensCount: number;
-    bedsCount: number;
-    growingCount: number;
-    dueTodayCount: number;
-    harvestWindowCount: number;
-    unassignedCount: number;
-    planningCount: number;
-}) {
-    const { t } = useTranslation();
-    const theme = useTheme();
-
-    const metrics = [
-        { key: 'gardens', label: t('garden.metric_gardens'), value: gardensCount, icon: Fence, tone: theme.primary, background: theme.accent },
-        { key: 'beds', label: t('garden.metric_beds'), value: bedsCount, icon: Leaf, tone: theme.success, background: theme.successBg },
-        { key: 'growing', label: t('garden.metric_growing'), value: growingCount, icon: Sprout, tone: theme.primary, background: theme.accent },
-        { key: 'dueToday', label: t('garden.metric_due_today'), value: dueTodayCount, icon: Calendar, tone: theme.warning, background: theme.warningBg },
-    ];
-
-    const focusItems = [
-        { key: 'harvest', count: harvestWindowCount, label: t('garden.focus_harvest', { count: harvestWindowCount }), color: theme.success, background: theme.successBg },
-        { key: 'unassigned', count: unassignedCount, label: t('garden.focus_unassigned', { count: unassignedCount }), color: theme.warning, background: theme.warningBg },
-        { key: 'planning', count: planningCount, label: t('garden.focus_planning', { count: planningCount }), color: theme.textSecondary, background: theme.accent },
-    ].filter((item) => item.count > 0);
-
-    return (
-        <View style={{ backgroundColor: theme.card, borderRadius: 22, borderWidth: 1, borderColor: theme.border, padding: 16, gap: 14 }}>
-            <View style={{ gap: 3 }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>{t('garden.overview_title')}</Text>
-                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('garden.overview_subtitle')}</Text>
-            </View>
-
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-                {metrics.map((metric) => {
-                    const Icon = metric.icon;
-                    return (
-                        <View
-                            key={metric.key}
-                            style={{
-                                width: '47%',
-                                minWidth: 140,
-                                backgroundColor: metric.background,
-                                borderRadius: 16,
-                                paddingHorizontal: 12,
-                                paddingVertical: 12,
-                                gap: 10,
-                            }}
-                        >
-                            <View style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: theme.card, alignItems: 'center', justifyContent: 'center' }}>
-                                <Icon size={16} stroke={metric.tone} />
-                            </View>
-                            <View>
-                                <Text style={{ fontSize: 21, fontWeight: '800', color: theme.text }}>{metric.value}</Text>
-                                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{metric.label}</Text>
-                            </View>
-                        </View>
-                    );
-                })}
-            </View>
-
-            <View style={{ gap: 8 }}>
-                <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
-                    {t('garden.focus_title')}
-                </Text>
-                {focusItems.length === 0 ? (
-                    <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('garden.focus_clear')}</Text>
-                ) : (
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                        {focusItems.map((item) => (
-                            <View
-                                key={item.key}
-                                style={{
-                                    backgroundColor: item.background,
-                                    borderRadius: 999,
-                                    paddingHorizontal: 12,
-                                    paddingVertical: 7,
-                                }}
-                            >
-                                <Text style={{ fontSize: 12, fontWeight: '700', color: item.color }}>{item.label}</Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
-            </View>
-        </View>
-    );
-}
-
 // ─── Create Garden Modal ──────────────────────────────────────────────────────
 function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean; onClose: () => void; unitSystem: UnitSystem }) {
     const { t } = useTranslation();
@@ -515,23 +419,10 @@ function GardenTabContent({
         () => plants.filter((p: any) => !p.bedId),
         [plants]
     );
-    const growingPlants = useMemo(
-        () => plants.filter((p: any) => p.status === 'growing'),
-        [plants]
-    );
     const planningPlants = useMemo(
         () => plants.filter((p: any) => p.status === 'planning' || p.status === 'planting'),
         [plants]
     );
-    const harvestWindowCount = useMemo(() => {
-        const now = Date.now();
-        const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
-        return plants.filter((plant: any) => {
-            if (!plant.expectedHarvestDate) return false;
-            if (plant.status === 'archived' || plant.status === 'harvested') return false;
-            return plant.expectedHarvestDate >= now && plant.expectedHarvestDate <= sevenDaysFromNow;
-        }).length;
-    }, [plants]);
 
     if (isLoading) {
         return (
@@ -565,15 +456,6 @@ function GardenTabContent({
 
     return (
         <View style={{ gap: 12 }}>
-            <GardenOverviewSummary
-                gardensCount={gardens.length}
-                bedsCount={beds.length}
-                growingCount={growingPlants.length}
-                dueTodayCount={todayReminders.length}
-                harvestWindowCount={harvestWindowCount}
-                unassignedCount={unassignedPlants.length}
-                planningCount={planningPlants.length}
-            />
             {(gardens as any[]).map((g) => (
                 <GardenCard
                     key={g._id}

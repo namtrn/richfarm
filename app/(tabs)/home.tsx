@@ -1,13 +1,18 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
 import { Bell, Droplets, Scissors, Sprout, ChevronRight, ScanSearch } from 'lucide-react-native';
+import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { api } from '../../convex/_generated/api';
+import { GardenOverviewSummary } from '../../components/garden/GardenOverviewSummary';
 import { useReminders } from '../../hooks/useReminders';
+import { useBeds } from '../../hooks/useBeds';
 import { usePlants } from '../../hooks/usePlants';
 import { usePlantScanner } from '../../hooks/usePlantScanner';
 import { WeatherCard } from '../../components/ui/WeatherCard';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
+import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { useAuth } from '../../lib/auth';
 import { getOnboardingFocusItems } from '../../lib/personalization';
 import { useTheme } from '../../lib/theme';
@@ -34,15 +39,20 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, deviceId } = useAuth();
   const { todayReminders, isLoading } = useReminders();
+  const { beds } = useBeds();
   const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
   const { openScanner, scannerModals } = usePlantScanner();
-  const { settings, updateSettings } = useUserSettings();
-  const [isWeatherCardDismissed, setIsWeatherCardDismissed] = useState(false);
-  const [isSavingWeatherPreference, setIsSavingWeatherPreference] = useState(false);
-  const shouldShowWeatherCard = settings?.showWeatherCard ?? true;
+  const { settings } = useUserSettings();
+  const {
+    showWeatherCard,
+    setWeatherCardVisible,
+    isHydrated: isWeatherCardReady,
+    isSaving: isSavingWeatherPreference,
+  } = useWeatherCardPreference();
+  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
 
   const displayName = user?.name || t('home.welcome_default');
   const initials = displayName
@@ -82,12 +92,27 @@ export default function HomeScreen() {
 
   const upcoming = sortedToday.slice(0, 6);
   const overdueCount = sortedToday.filter((r) => r.nextRunAt < Date.now()).length;
-
-  useEffect(() => {
-    if (shouldShowWeatherCard) {
-      setIsWeatherCardDismissed(false);
-    }
-  }, [shouldShowWeatherCard]);
+  const growingPlants = useMemo(
+    () => plants.filter((plant: any) => plant.status !== 'planning' && plant.status !== 'planting' && plant.status !== 'harvested' && plant.status !== 'archived'),
+    [plants]
+  );
+  const unassignedPlants = useMemo(
+    () => plants.filter((plant: any) => !plant.bedId && plant.status !== 'archived' && plant.status !== 'harvested'),
+    [plants]
+  );
+  const planningPlants = useMemo(
+    () => plants.filter((plant: any) => plant.status === 'planning' || plant.status === 'planting'),
+    [plants]
+  );
+  const harvestWindowCount = useMemo(() => {
+    const now = Date.now();
+    const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
+    return plants.filter((plant: any) => {
+      if (!plant.expectedHarvestDate) return false;
+      if (plant.status === 'archived' || plant.status === 'harvested') return false;
+      return plant.expectedHarvestDate >= now && plant.expectedHarvestDate <= sevenDaysFromNow;
+    }).length;
+  }, [plants]);
 
   const handleOpenReminder = (reminder: any) => {
     if (reminder?.userPlantId) {
@@ -104,19 +129,13 @@ export default function HomeScreen() {
   };
 
   const handleHideWeatherCard = async () => {
-    setIsWeatherCardDismissed(true);
-    setIsSavingWeatherPreference(true);
     try {
-      await updateSettings({ showWeatherCard: false });
+      await setWeatherCardVisible(false);
       Alert.alert(
         t('weather_card.hidden_title'),
         t('weather_card.hidden_message')
       );
-    } catch {
-      setIsWeatherCardDismissed(false);
-    } finally {
-      setIsSavingWeatherPreference(false);
-    }
+    } catch {}
   };
 
   return (
@@ -167,7 +186,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {shouldShowWeatherCard && !isWeatherCardDismissed ? (
+      {isWeatherCardReady && showWeatherCard ? (
         <WeatherCard
           model={weatherModel}
           onHide={handleHideWeatherCard}
@@ -206,6 +225,18 @@ export default function HomeScreen() {
           </View>
         </View>
       ) : null}
+
+      <View style={{ paddingHorizontal: 2 }}>
+        <GardenOverviewSummary
+          gardensCount={gardens.length}
+          bedsCount={beds.length}
+          growingCount={growingPlants.length}
+          dueTodayCount={sortedToday.length}
+          harvestWindowCount={harvestWindowCount}
+          unassignedCount={unassignedPlants.length}
+          planningCount={planningPlants.length}
+        />
+      </View>
 
       <View style={{ paddingHorizontal: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

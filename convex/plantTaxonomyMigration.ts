@@ -24,13 +24,34 @@ async function runBackfillTaxonomy(
   const candidates = allPlants
     .filter((plant: any) => {
       if (!plant.scientificName) return false;
+      const parsed = parseTaxonomyFromScientificName(plant.scientificName);
+      const parsedGenus = parsed.genus ? formatGenus(parsed.genus) : "";
+      const parsedSpecies = parsed.species ? formatSpecies(parsed.species) : "";
+      const currentGenus =
+        typeof plant.genus === "string" ? formatGenus(plant.genus) : "";
+      const currentSpecies =
+        typeof plant.species === "string" ? formatSpecies(plant.species) : "";
+      const currentGenusNormalized =
+        typeof plant.genusNormalized === "string"
+          ? normalizeTaxonomyToken(plant.genusNormalized)
+          : "";
+      const currentSpeciesNormalized =
+        typeof plant.speciesNormalized === "string"
+          ? normalizeTaxonomyToken(plant.speciesNormalized)
+          : "";
       return (
         !plant.genus ||
         !plant.species ||
         !plant.genusNormalized ||
         !plant.speciesNormalized ||
         !plant.cultivarNormalized ||
-        !plant.taxonomyParseStatus
+        !plant.taxonomyParseStatus ||
+        (parsedGenus && parsedGenus !== currentGenus) ||
+        (parsedSpecies && parsedSpecies !== currentSpecies) ||
+        (currentGenus &&
+          currentGenusNormalized !== normalizeTaxonomyToken(currentGenus)) ||
+        (currentSpecies &&
+          currentSpeciesNormalized !== normalizeTaxonomyToken(currentSpecies))
       );
     })
     .slice(0, limit);
@@ -49,17 +70,25 @@ async function runBackfillTaxonomy(
       typeof current.species === "string" ? current.species.trim() : "";
     const existingCultivar =
       typeof current.cultivar === "string" ? current.cultivar.trim() : "";
+    const parsed = parseTaxonomyFromScientificName(current.scientificName);
 
     let genus = existingGenus ? formatGenus(existingGenus) : "";
     let species = existingSpecies ? formatSpecies(existingSpecies) : "";
     let parseStatus: TaxonomyParseStatus =
       current.taxonomyParseStatus === "manual_review" ? "manual_review" : "ok";
 
+    if (parsed.genus) {
+      genus = formatGenus(parsed.genus);
+    }
+    if (parsed.species) {
+      species = formatSpecies(parsed.species);
+    }
     if (!genus || !species) {
-      const parsed = parseTaxonomyFromScientificName(current.scientificName);
       if (!genus) genus = parsed.genus ?? "";
       if (!species) species = parsed.species ?? "";
       parseStatus = parsed.parseStatus;
+    } else if (parsed.parseStatus === "ok") {
+      parseStatus = "ok";
     }
 
     if (!genus || !species) {
@@ -305,6 +334,130 @@ const dedupeIdArray = (ids: any[]) => {
   return out;
 };
 
+async function mergePlantRecords(
+  ctx: any,
+  args: {
+    legacyId: any;
+    canonicalId: any;
+    dryRun: boolean;
+  }
+) {
+  let userPlantsRewired = 0;
+  let favoritesRewired = 0;
+  let recipesRewired = 0;
+  let masterLinksRewired = 0;
+  let i18nMerged = 0;
+
+  const legacyI18n = await ctx.db
+    .query("plantI18n")
+    .withIndex("by_plant_locale", (q: any) => q.eq("plantId", args.legacyId))
+    .collect();
+  for (const row of legacyI18n) {
+    const existing = await ctx.db
+      .query("plantI18n")
+      .withIndex("by_plant_locale", (q: any) =>
+        q.eq("plantId", args.canonicalId).eq("locale", row.locale)
+      )
+      .unique();
+    if (!existing) {
+      if (!args.dryRun) {
+        await ctx.db.insert("plantI18n", {
+          plantId: args.canonicalId,
+          locale: row.locale,
+          commonName: row.commonName,
+          description: row.description ?? undefined,
+          careContent: row.careContent ?? undefined,
+          contentVersion: row.contentVersion ?? undefined,
+        });
+      }
+      i18nMerged += 1;
+    }
+    if (!args.dryRun) {
+      await ctx.db.delete(row._id);
+    }
+  }
+
+  const userPlants = await ctx.db.query("userPlants").collect();
+  for (const row of userPlants) {
+    if (!idEquals((row as any).plantMasterId, args.legacyId)) continue;
+    if (!args.dryRun) {
+      await ctx.db.patch((row as any)._id, { plantMasterId: args.canonicalId });
+    }
+    userPlantsRewired += 1;
+  }
+
+  const favorites = await ctx.db
+    .query("userFavorites")
+    .withIndex("by_plant", (q: any) => q.eq("plantMasterId", args.legacyId))
+    .collect();
+  for (const row of favorites) {
+    const collision = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_user_plant", (q: any) =>
+        q.eq("userId", row.userId).eq("plantMasterId", args.canonicalId)
+      )
+      .first();
+    if (!args.dryRun) {
+      if (collision) {
+        await ctx.db.delete((row as any)._id);
+      } else {
+        await ctx.db.patch((row as any)._id, { plantMasterId: args.canonicalId });
+      }
+    }
+    favoritesRewired += 1;
+  }
+
+  const recipes = await ctx.db.query("preservationRecipes").collect();
+  for (const recipe of recipes) {
+    const suitablePlants = ((recipe as any).suitablePlants ?? []) as any[];
+    if (!suitablePlants.some((id) => idEquals(id, args.legacyId))) continue;
+    const replaced = dedupeIdArray(
+      suitablePlants.map((id) => (idEquals(id, args.legacyId) ? args.canonicalId : id))
+    );
+    if (!args.dryRun) {
+      await ctx.db.patch((recipe as any)._id, { suitablePlants: replaced });
+    }
+    recipesRewired += 1;
+  }
+
+  const masterRows = await ctx.db.query("plantsMaster").collect();
+  for (const row of masterRows) {
+    const companion = (((row as any).companionPlants ?? []) as any[]);
+    const avoid = (((row as any).avoidPlants ?? []) as any[]);
+    const companionHit = companion.some((id) => idEquals(id, args.legacyId));
+    const avoidHit = avoid.some((id) => idEquals(id, args.legacyId));
+    if (!companionHit && !avoidHit) continue;
+
+    const patch: Record<string, unknown> = {};
+    if (companionHit) {
+      patch.companionPlants = dedupeIdArray(
+        companion.map((id) => (idEquals(id, args.legacyId) ? args.canonicalId : id))
+      );
+    }
+    if (avoidHit) {
+      patch.avoidPlants = dedupeIdArray(
+        avoid.map((id) => (idEquals(id, args.legacyId) ? args.canonicalId : id))
+      );
+    }
+    if (!args.dryRun) {
+      await ctx.db.patch((row as any)._id, patch);
+    }
+    masterLinksRewired += 1;
+  }
+
+  if (!args.dryRun) {
+    await ctx.db.delete(args.legacyId);
+  }
+
+  return {
+    userPlantsRewired,
+    favoritesRewired,
+    recipesRewired,
+    masterLinksRewired,
+    i18nMerged,
+  };
+}
+
 export const resolveLegacyInfraspecificDuplicates = internalMutation({
   args: {
     dryRun: v.optional(v.boolean()),
@@ -372,110 +525,17 @@ export const resolveLegacyInfraspecificDuplicates = internalMutation({
     let i18nMerged = 0;
 
     for (const pair of candidates) {
-      const legacyId = pair.legacyId;
-      const canonicalId = pair.canonicalId;
-
-      const legacyI18n = await ctx.db
-        .query("plantI18n")
-        .withIndex("by_plant_locale", (q: any) => q.eq("plantId", legacyId))
-        .collect();
-      for (const row of legacyI18n) {
-        const existing = await ctx.db
-          .query("plantI18n")
-          .withIndex("by_plant_locale", (q: any) =>
-            q.eq("plantId", canonicalId).eq("locale", row.locale)
-          )
-          .unique();
-        if (!existing) {
-          if (!dryRun) {
-            await ctx.db.insert("plantI18n", {
-              plantId: canonicalId,
-              locale: row.locale,
-              commonName: row.commonName,
-              description: row.description ?? undefined,
-              careContent: row.careContent ?? undefined,
-              contentVersion: row.contentVersion ?? undefined,
-            });
-          }
-          i18nMerged += 1;
-        }
-        if (!dryRun) {
-          await ctx.db.delete(row._id);
-        }
-      }
-
-      const userPlants = await ctx.db.query("userPlants").collect();
-      for (const row of userPlants) {
-        if (!idEquals((row as any).plantMasterId, legacyId)) continue;
-        if (!dryRun) {
-          await ctx.db.patch((row as any)._id, { plantMasterId: canonicalId });
-        }
-        userPlantsRewired += 1;
-      }
-
-      const favorites = await ctx.db
-        .query("userFavorites")
-        .withIndex("by_plant", (q: any) => q.eq("plantMasterId", legacyId))
-        .collect();
-      for (const row of favorites) {
-        const collision = await ctx.db
-          .query("userFavorites")
-          .withIndex("by_user_plant", (q: any) =>
-            q.eq("userId", row.userId).eq("plantMasterId", canonicalId)
-          )
-          .first();
-        if (!dryRun) {
-          if (collision) {
-            await ctx.db.delete((row as any)._id);
-          } else {
-            await ctx.db.patch((row as any)._id, { plantMasterId: canonicalId });
-          }
-        }
-        favoritesRewired += 1;
-      }
-
-      const recipes = await ctx.db.query("preservationRecipes").collect();
-      for (const recipe of recipes) {
-        const suitablePlants = ((recipe as any).suitablePlants ?? []) as any[];
-        if (!suitablePlants.some((id) => idEquals(id, legacyId))) continue;
-        const replaced = dedupeIdArray(
-          suitablePlants.map((id) => (idEquals(id, legacyId) ? canonicalId : id))
-        );
-        if (!dryRun) {
-          await ctx.db.patch((recipe as any)._id, { suitablePlants: replaced });
-        }
-        recipesRewired += 1;
-      }
-
-      const masterRows = await ctx.db.query("plantsMaster").collect();
-      for (const row of masterRows) {
-        const companion = (((row as any).companionPlants ?? []) as any[]);
-        const avoid = (((row as any).avoidPlants ?? []) as any[]);
-        const companionHit = companion.some((id) => idEquals(id, legacyId));
-        const avoidHit = avoid.some((id) => idEquals(id, legacyId));
-        if (!companionHit && !avoidHit) continue;
-
-        const patch: Record<string, unknown> = {};
-        if (companionHit) {
-          patch.companionPlants = dedupeIdArray(
-            companion.map((id) => (idEquals(id, legacyId) ? canonicalId : id))
-          );
-        }
-        if (avoidHit) {
-          patch.avoidPlants = dedupeIdArray(
-            avoid.map((id) => (idEquals(id, legacyId) ? canonicalId : id))
-          );
-        }
-        if (!dryRun) {
-          await ctx.db.patch((row as any)._id, patch);
-        }
-        masterLinksRewired += 1;
-      }
-
-      if (!dryRun) {
-        await ctx.db.delete(legacyId);
-      }
+      const mergeResult = await mergePlantRecords(ctx, {
+        legacyId: pair.legacyId,
+        canonicalId: pair.canonicalId,
+        dryRun,
+      });
       merged += 1;
+      userPlantsRewired += mergeResult.userPlantsRewired;
+      favoritesRewired += mergeResult.favoritesRewired;
+      recipesRewired += mergeResult.recipesRewired;
+      masterLinksRewired += mergeResult.masterLinksRewired;
+      i18nMerged += mergeResult.i18nMerged;
     }
 
     return {
@@ -490,6 +550,105 @@ export const resolveLegacyInfraspecificDuplicates = internalMutation({
         i18nMerged,
       },
       samples: candidates.slice(0, 20),
+    };
+  },
+});
+
+export const resolveDuplicateTaxonomyIdentities = mutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    limit: v.optional(v.number()),
+    confirm: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const dryRun = args.dryRun ?? true;
+    if (!dryRun && args.confirm !== "RESOLVE_DUPLICATE_TAXONOMY") {
+      throw new Error(
+        "Missing confirm token. Re-run with { confirm: \"RESOLVE_DUPLICATE_TAXONOMY\" } when dryRun=false"
+      );
+    }
+
+    const limit = Math.max(1, Math.min(args.limit ?? 200, MAX_BATCH));
+    const plants = await ctx.db.query("plantsMaster").collect();
+    const groups = new Map<string, any[]>();
+
+    for (const plant of plants) {
+      const current = plant as any;
+      if (
+        !current.genusNormalized ||
+        !current.speciesNormalized ||
+        !current.cultivarNormalized
+      ) {
+        continue;
+      }
+      const key = `${current.genusNormalized}|${current.speciesNormalized}|${current.cultivarNormalized}`;
+      const list = groups.get(key) ?? [];
+      list.push(current);
+      groups.set(key, list);
+    }
+
+    const candidates = Array.from(groups.entries())
+      .filter(([, rows]) => rows.length > 1)
+      .slice(0, limit);
+
+    let merged = 0;
+    let userPlantsRewired = 0;
+    let favoritesRewired = 0;
+    let recipesRewired = 0;
+    let masterLinksRewired = 0;
+    let i18nMerged = 0;
+
+    const samples: Array<{
+      key: string;
+      canonicalId: any;
+      legacyIds: any[];
+      scientificNames: string[];
+    }> = [];
+
+    for (const [key, rows] of candidates) {
+      const sorted = [...rows].sort((a, b) => {
+        const aSeed = a.source === "seed" ? 1 : 0;
+        const bSeed = b.source === "seed" ? 1 : 0;
+        if (aSeed !== bSeed) return bSeed - aSeed;
+        return Number(a._creationTime ?? 0) - Number(b._creationTime ?? 0);
+      });
+      const canonical = sorted[0];
+      const legacyRows = sorted.slice(1);
+
+      samples.push({
+        key,
+        canonicalId: canonical._id,
+        legacyIds: legacyRows.map((row) => row._id),
+        scientificNames: sorted.map((row) => row.scientificName),
+      });
+
+      for (const legacy of legacyRows) {
+        const mergeResult = await mergePlantRecords(ctx, {
+          legacyId: legacy._id,
+          canonicalId: canonical._id,
+          dryRun,
+        });
+        merged += 1;
+        userPlantsRewired += mergeResult.userPlantsRewired;
+        favoritesRewired += mergeResult.favoritesRewired;
+        recipesRewired += mergeResult.recipesRewired;
+        masterLinksRewired += mergeResult.masterLinksRewired;
+        i18nMerged += mergeResult.i18nMerged;
+      }
+    }
+
+    return {
+      dryRun,
+      scanned: candidates.length,
+      merged,
+      rewired: {
+        userPlants: userPlantsRewired,
+        favorites: favoritesRewired,
+        recipes: recipesRewired,
+        masterLinks: masterLinksRewired,
+        i18nMerged,
+      },
+      samples: samples.slice(0, 20),
     };
   },
 });

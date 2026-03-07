@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Clock3, CloudUpload, Leaf, Plus, Search, Sprout } from 'lucide-react-native';
+import { Plus, Search } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { usePlants } from '../../../hooks/usePlants';
-import { useReminders } from '../../../hooks/useReminders';
-import { useSyncStatus } from '../../../hooks/useSyncStatus';
 import { useTheme } from '../../../lib/theme';
 import { PlantImageSmall } from '../../../components/ui/PlantImage';
 
@@ -25,110 +23,11 @@ function getPlantGroup(status?: string): PlantGroupKey {
   return 'planning';
 }
 
-function GardenerOverviewCard({
-  totalPlants,
-  growingCount,
-  dueTodayCount,
-  queuedSyncCount,
-  archivedCount,
-}: {
-  totalPlants: number;
-  growingCount: number;
-  dueTodayCount: number;
-  queuedSyncCount: number;
-  archivedCount: number;
-}) {
-  const { t } = useTranslation();
-  const theme = useTheme();
-
-  const metrics = [
-    {
-      key: 'total',
-      icon: Leaf,
-      label: t('garden.metric_total_plants'),
-      value: totalPlants,
-      tone: theme.primary,
-      background: theme.accent,
-    },
-    {
-      key: 'growing',
-      icon: Sprout,
-      label: t('garden.metric_growing'),
-      value: growingCount,
-      tone: theme.success,
-      background: theme.successBg,
-    },
-    {
-      key: 'due',
-      icon: Clock3,
-      label: t('garden.metric_due_today'),
-      value: dueTodayCount,
-      tone: theme.warning,
-      background: theme.warningBg,
-    },
-    {
-      key: 'sync',
-      icon: CloudUpload,
-      label: t('garden.metric_pending_sync'),
-      value: queuedSyncCount,
-      tone: theme.textSecondary,
-      background: theme.card,
-    },
-  ];
-
-  return (
-    <View style={{ backgroundColor: theme.card, borderRadius: 20, borderWidth: 1, borderColor: theme.border, padding: 16, gap: 14 }}>
-      <View style={{ gap: 3 }}>
-        <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>{t('garden.my_plants_overview_title')}</Text>
-        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('garden.my_plants_overview_subtitle')}</Text>
-      </View>
-
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-          return (
-            <View
-              key={metric.key}
-              style={{
-                width: '47%',
-                minWidth: 140,
-                backgroundColor: metric.background,
-                borderRadius: 16,
-                paddingHorizontal: 12,
-                paddingVertical: 12,
-                gap: 10,
-                borderWidth: metric.key === 'sync' ? 1 : 0,
-                borderColor: metric.key === 'sync' ? theme.border : 'transparent',
-              }}
-            >
-              <View style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: theme.card, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon size={16} color={metric.tone} />
-              </View>
-              <View>
-                <Text style={{ fontSize: 21, fontWeight: '800', color: theme.text }}>{metric.value}</Text>
-                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{metric.label}</Text>
-              </View>
-            </View>
-          );
-        })}
-      </View>
-
-      <Text style={{ fontSize: 12, color: theme.textSecondary }}>
-        {t('garden.focus_planning', { count: Math.max(totalPlants - growingCount - archivedCount, 0) })}
-        {' • '}
-        {t('garden.metric_archived', { count: archivedCount })}
-      </Text>
-    </View>
-  );
-}
-
 export function GardenerMyPlantsView() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const { plants, isLoading } = usePlants();
-  const { todayReminders } = useReminders();
-  const { queuedCount } = useSyncStatus();
   const [search, setSearch] = useState('');
 
   const filteredPlants = useMemo(() => {
@@ -153,8 +52,6 @@ export function GardenerMyPlantsView() {
   }, [filteredPlants]);
 
   const hasPlants = filteredPlants.length > 0;
-  const growingCount = grouped.growing.length;
-  const archivedCount = grouped.archived.length;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, paddingBottom: 100, gap: 16 }}>
@@ -183,14 +80,6 @@ export function GardenerMyPlantsView() {
           />
         </View>
       </View>
-
-      <GardenerOverviewCard
-        totalPlants={plants.length}
-        growingCount={growingCount}
-        dueTodayCount={todayReminders.length}
-        queuedSyncCount={queuedCount}
-        archivedCount={archivedCount}
-      />
 
       {isLoading ? (
         <View style={{ paddingVertical: 40, alignItems: 'center' }}>

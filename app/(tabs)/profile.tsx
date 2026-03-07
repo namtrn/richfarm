@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown } from 'lucide-react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
@@ -18,6 +18,7 @@ import { useThemeContext } from '../../lib/ThemeContext';
 import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
 import { usePathname, useRouter } from 'expo-router';
 import { useAppMode } from '../../hooks/useAppMode';
+import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { type AppMode } from '../../lib/appMode';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
@@ -52,9 +53,7 @@ export default function ProfileScreen() {
     resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
   const [localThemePref, setLocalThemePref] = useState<string>(settings?.theme ?? 'system');
-  const [showWeatherCard, setShowWeatherCard] = useState(settings?.showWeatherCard ?? true);
   const [saving, setSaving] = useState(false);
-  const [isUpdatingWeatherCard, setIsUpdatingWeatherCard] = useState(false);
   const [backupCount, setBackupCount] = useState(0);
   const [backingUp, setBackingUp] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
@@ -64,6 +63,7 @@ export default function ProfileScreen() {
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
   const [switchingMode, setSwitchingMode] = useState(false);
+  const { showWeatherCard, setWeatherCardVisible, isSaving: isUpdatingWeatherCard } = useWeatherCardPreference();
 
   const email = user?.email ?? '—';
   const isAnonymous = !user || user.isAnonymous;
@@ -91,8 +91,7 @@ export default function ProfileScreen() {
     // Note: themePreference local state is only used for the unit/save flow;
     // the live theme is controlled by ThemeContext (already synced there).
     setLocalThemePref(settings?.theme ?? 'system');
-    setShowWeatherCard(settings?.showWeatherCard ?? true);
-  }, [settings?.unitSystem, settings?.theme, settings?.showWeatherCard, currentLang]);
+  }, [settings?.unitSystem, settings?.theme, currentLang]);
 
   useEffect(() => {
     void hydrateUnitSystemPreference().then((cached) => {
@@ -116,7 +115,7 @@ export default function ProfileScreen() {
         timezone: timezone.trim() || undefined,
       });
       await setUnitSystemPreference(unitSystem);
-      await updateSettings({ unitSystem, theme: localThemePref, showWeatherCard });
+      await updateSettings({ unitSystem, theme: localThemePref });
     } finally {
       setSaving(false);
     }
@@ -124,16 +123,9 @@ export default function ProfileScreen() {
 
   const handleWeatherCardVisibility = async (nextValue: boolean) => {
     if (nextValue === showWeatherCard) return;
-    const previousValue = showWeatherCard;
-    setShowWeatherCard(nextValue);
-    setIsUpdatingWeatherCard(true);
     try {
-      await updateSettings({ showWeatherCard: nextValue });
-    } catch {
-      setShowWeatherCard(previousValue);
-    } finally {
-      setIsUpdatingWeatherCard(false);
-    }
+      await setWeatherCardVisible(nextValue);
+    } catch {}
   };
 
   const handleBackupNow = async () => {
@@ -478,13 +470,16 @@ export default function ProfileScreen() {
         </View>
 
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flex: 1, paddingRight: 12 }}>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.weather_card_title')}</Text>
-              <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
-                {showWeatherCard ? t('profile.weather_card_on_desc') : t('profile.weather_card_off_desc')}
-              </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <CloudSun size={18} color={theme.textSecondary} />
             </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.weather_card_title')}</Text>
+          </View>
+          <View>
+            <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
+              {showWeatherCard ? t('profile.weather_card_on_desc') : t('profile.weather_card_off_desc')}
+            </Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {[

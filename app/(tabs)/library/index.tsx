@@ -50,15 +50,48 @@ function normalizeTab(value?: string): LibraryTab {
 }
 
 function normalizeSpeciesKey(plant: any) {
+    const scientificName = String(plant?.scientificName ?? '').trim();
+    if (scientificName) {
+        return scientificName.toLowerCase().replaceAll('×', 'x').replace(/\s+/g, ' ').trim();
+    }
     if (typeof plant?.speciesKey === 'string' && plant.speciesKey.trim()) {
         return plant.speciesKey.trim().toLowerCase();
     }
-    return String(plant?.scientificName ?? '').trim().toLowerCase();
+    return '';
 }
 
 function isBaseVariantPlant(plant: any) {
     if (typeof plant?.isBaseVariant === 'boolean') return plant.isBaseVariant;
-    return true;
+    const cultivar = typeof plant?.cultivar === 'string' ? plant.cultivar.trim() : '';
+    return cultivar.length === 0;
+}
+
+function pickSpeciesBasePlant(plants: any[]) {
+    const explicitBase = plants.find((plant) => isBaseVariantPlant(plant));
+    if (explicitBase) return explicitBase;
+    return plants[0] ?? null;
+}
+
+function formatScientificLabel(plant: any) {
+    const scientificName = String(plant?.scientificName ?? '').trim();
+    const cultivar = typeof plant?.cultivar === 'string' ? plant.cultivar.trim() : '';
+    const normalizedScientific = scientificName.toLowerCase().replace(/\s+/g, ' ').trim();
+    const normalizedCultivar = cultivar.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    if (!scientificName) return '—';
+    if (!cultivar) return scientificName;
+    if (normalizedScientific.includes(normalizedCultivar)) return scientificName;
+    return `${scientificName} '${cultivar}'`;
+}
+
+function getSpeciesGroupTitle(basePlant: any) {
+    if (!basePlant) return 'Plant';
+
+    if (isBaseVariantPlant(basePlant)) {
+        return String(basePlant.displayName ?? basePlant.scientificName ?? 'Plant');
+    }
+
+    return String(basePlant.scientificName ?? basePlant.displayName ?? 'Plant');
 }
 
 const GROUP_ICONS: Record<string, string> = {
@@ -347,7 +380,8 @@ function PlantCard({
 }) {
     const theme = useTheme();
     const { isDark } = useThemeContext();
-    const { displayName, scientificName } = usePlantDisplayName(plant);
+    const { displayName } = usePlantDisplayName(plant);
+    const scientificLabel = formatScientificLabel(plant);
 
     return (
         <TouchableOpacity
@@ -373,7 +407,7 @@ function PlantCard({
             <View style={{ flex: 1, gap: 3 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text, letterSpacing: -0.3 }} numberOfLines={1}>{displayName}</Text>
                 <Text style={{ fontSize: 12, color: theme.textMuted, fontStyle: 'italic' }} numberOfLines={1}>
-                    {scientificName || '—'}
+                    {scientificLabel}
                 </Text>
             </View>
             <Pressable
@@ -396,25 +430,26 @@ function PlantCard({
 
 function SpeciesGroupHeader({ basePlant, count }: { basePlant: any; count: number }) {
     const theme = useTheme();
-    const title = basePlant?.displayName ?? basePlant?.scientificName ?? 'Plant';
-    const subtitle = basePlant?.scientificName ?? '';
+    const title = getSpeciesGroupTitle(basePlant);
+    const subtitle = String(basePlant?.scientificName ?? '');
 
     return (
-        <View
-            style={{
-                paddingHorizontal: 4,
-                paddingTop: 4,
-                paddingBottom: 2,
-            }}
-        >
-            <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary }}>
-                {title} ({count})
-            </Text>
-            {!!subtitle && (
-                <Text style={{ fontSize: 11, color: theme.textMuted, fontStyle: 'italic' }}>
-                    {subtitle}
+        <View style={{ gap: 10, paddingTop: 8, paddingBottom: 4 }}>
+            <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 4 }} />
+            <View
+                style={{
+                    paddingHorizontal: 4,
+                }}
+            >
+                <Text style={{ fontSize: 13, fontWeight: '700', color: theme.textSecondary }}>
+                    {title} ({count})
                 </Text>
-            )}
+                {!!subtitle && (
+                    <Text style={{ fontSize: 11, color: theme.textMuted, fontStyle: 'italic' }}>
+                        {subtitle}
+                    </Text>
+                )}
+            </View>
         </View>
     );
 }
@@ -883,7 +918,7 @@ export default function LibraryScreen() {
         const speciesGroups = Array.from(groupsBySpecies.entries())
             .map(([speciesKey, group]) => ({
                 speciesKey,
-                basePlant: group.basePlant,
+                basePlant: pickSpeciesBasePlant(group.plants),
                 plants: group.plants.sort((a, b) => {
                     if (isBaseVariantPlant(a) !== isBaseVariantPlant(b)) {
                         return isBaseVariantPlant(a) ? -1 : 1;
