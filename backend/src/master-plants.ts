@@ -293,8 +293,156 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
   };
 }
 
+const bulkSchema = z.object({
+  action: z.enum(["activate", "deactivate", "delete"]),
+  ids: z.array(z.number().int().positive()).min(1).max(500),
+});
+
+const exportQuerySchema = z.object({
+  format: z.enum(["json", "csv"]).default("json"),
+  is_active: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === "true" || v === "1")),
+});
+
+function toCsv(rows: ReturnType<typeof normalizeMasterPlant>[], i18nMap: Map<number, ReturnType<typeof normalizeI18n>>): string {
+  const headers = [
+    "id", "plant_code", "common_name", "scientific_name", "category", "group", "family",
+    "growth_stage", "typical_days_to_harvest", "germination_days",
+    "soil_ph_min", "soil_ph_max", "moisture_target", "light_hours",
+    "spacing_cm", "water_liters_per_m2", "yield_kg_per_m2",
+    "image_url", "is_active", "notes",
+    "vi_common_name", "vi_description", "en_common_name", "en_description",
+    "created_at", "updated_at",
+  ];
+  const escape = (v: unknown) => {
+    if (v === null || v === undefined) return "";
+    const str = String(v);
+    if (str.includes(",") || str.includes("\"") || str.includes("\n")) {
+      return `"${str.replace(/"/g, "\"\"")}"`;
+    }
+    return str;
+  };
+  const lines = [headers.join(",")];
+  for (const row of rows) {
+    const i18n = i18nMap.get(row.id) ?? { vi: { common_name: "" }, en: { common_name: "" } };
+    lines.push([
+      row.id, row.plant_code, row.common_name, row.scientific_name, row.category, row.group, row.family,
+      row.growth_stage, row.typical_days_to_harvest, row.germination_days,
+      row.soil_ph_min, row.soil_ph_max, row.moisture_target, row.light_hours,
+      row.spacing_cm, row.water_liters_per_m2, row.yield_kg_per_m2,
+      row.image_url, row.is_active, row.notes,
+      i18n.vi.common_name, i18n.vi.description ?? "",
+      i18n.en.common_name, i18n.en.description ?? "",
+      row.created_at, row.updated_at,
+    ].map(escape).join(","));
+  }
+  return lines.join("\n");
+}
+
 export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: ConvexSyncService): Router {
   const router = Router();
+
+  // ── GET /stats ───────────────────────────────────────
+  router.get("/stats", (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const total = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants`).get() as { n: number }).n;
+      const active = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE is_active = 1`).get() as { n: number }).n;
+      const inactive = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE is_active = 0`).get() as { n: number }).n;
+      const missingVi = (db.prepare(`
+        SELECT COUNT(*) AS n FROM master_plants mp
+        WHERE NOT EXISTS (
+          SELECT 1 FROM master_plant_i18n i
+          WHERE i.master_plant_id = mp.id AND i.locale = 'vi' AND i.common_name != ''
+        )`).get() as { n: number }).n;
+      const missingEn = (db.prepare(`
+        SELECT COUNT(*) AS n FROM master_plants mp
+        WHERE NOT EXISTS (
+          SELECT 1 FROM master_plant_i18n i
+          WHERE i.master_plant_id = mp.id AND i.locale = 'en' AND i.common_name != ''
+        )`).get() as { n: number }).n;
+      const missingImage = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE image_url IS NULL OR image_url = ''`).get() as { n: number }).n;
+
+      res.json({ total, active, inactive, missingVi, missingEn, missingImage });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // ── POST /bulk ────────────────────────────────────────
+  router.post("/bulk", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const payload = bulkSchema.parse(req.body);
+      const placeholders = payload.ids.map(() => "?").join(",");
+
+      if (payload.action === "activate") {
+        const result = db
+          .prepare(`UPDATE master_plants SET is_active = 1, updated_at = datetime('now') WHERE id IN (${placeholders})`)
+          .run(...payload.ids);
+        res.json({ affected: result.changes });
+      } else if (payload.action === "deactivate") {
+        const result = db
+          .prepare(`UPDATE master_plants SET is_active = 0, updated_at = datetime('now') WHERE id IN (${placeholders})`)
+          .run(...payload.ids);
+        res.json({ affected: result.changes });
+      } else if (payload.action === "delete") {
+        // delete within a transaction so i18n cascade fires correctly
+        const deleteFn = db.transaction(() => {
+          for (const id of payload.ids) {
+            db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(id);
+          }
+        });
+        deleteFn();
+
+        if (syncService) {
+          for (const id of payload.ids) {
+            try { await syncService.syncDelete(id); } catch { /* best-effort */ }
+          }
+        }
+        res.json({ affected: payload.ids.length });
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // ── GET /export ───────────────────────────────────────
+  router.get("/export", (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = exportQuerySchema.parse(req.query);
+      const conditions: string[] = [];
+      const params: unknown[] = [];
+      if (typeof query.is_active === "boolean") {
+        conditions.push("is_active = ?");
+        params.push(toSqliteBoolean(query.is_active));
+      }
+      const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+      const rows = db
+        .prepare(`SELECT * FROM master_plants ${where} ORDER BY id ASC`)
+        .all(...params) as MasterPlantRow[];
+
+      const normalized = rows.map(normalizeMasterPlant);
+
+      if (query.format === "csv") {
+        const i18nMap = new Map<number, ReturnType<typeof normalizeI18n>>();
+        for (const row of rows) {
+          i18nMap.set(row.id, fetchI18n(db, row.id));
+        }
+        const csv = toCsv(normalized, i18nMap);
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader("Content-Disposition", `attachment; filename="master-plants-${Date.now()}.csv"`);
+        res.send(csv);
+      } else {
+        const withI18n = normalized.map((row) => ({ ...row, i18n: fetchI18n(db, row.id) }));
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Content-Disposition", `attachment; filename="master-plants-${Date.now()}.json"`);
+        res.json(withI18n);
+      }
+    } catch (error) {
+      next(error);
+    }
+  });
 
   router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -468,9 +616,9 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       res.status(201).json({
         data: row
           ? {
-              ...normalizeMasterPlant(row),
-              i18n: fetchI18n(db, row.id),
-            }
+            ...normalizeMasterPlant(row),
+            i18n: fetchI18n(db, row.id),
+          }
           : null,
       });
     } catch (error) {

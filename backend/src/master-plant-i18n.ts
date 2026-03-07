@@ -13,7 +13,10 @@ const i18nSchema = z.object({
     care_content_json: z.record(z.string(), z.unknown()).default({}),
 });
 
-const updateI18nSchema = i18nSchema.omit({ master_plant_id: true, locale: true }).partial();
+const updateI18nSchema = i18nSchema.omit({ master_plant_id: true, locale: true }).partial().refine(
+    (data) => Object.keys(data).length > 0,
+    { message: "At least one field is required" }
+);
 
 interface I18nRow {
     id: number;
@@ -87,6 +90,46 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
             // We should probably update Convex to support i18n sync.
 
             res.status(201).json({ data: normalizeI18n(row) });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    router.patch("/:id", (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = z.coerce.number().int().positive().parse(req.params.id);
+            const payload = updateI18nSchema.parse(req.body);
+
+            const existing = db.prepare(`SELECT * FROM master_plant_i18n WHERE id = ?`).get(id) as I18nRow | undefined;
+            if (!existing) {
+                res.status(404).json({ error: "i18n row not found" });
+                return;
+            }
+
+            const updates: string[] = [];
+            const params: unknown[] = [];
+
+            if (payload.common_name !== undefined) {
+                updates.push("common_name = ?");
+                params.push(payload.common_name.trim());
+            }
+            if (payload.description !== undefined) {
+                updates.push("description = ?");
+                params.push(payload.description?.trim() ?? null);
+            }
+            if (payload.care_content_json !== undefined) {
+                updates.push("care_content_json = ?");
+                params.push(JSON.stringify(payload.care_content_json));
+            }
+
+            updates.push("content_version = content_version + 1");
+            updates.push("updated_at = datetime('now')");
+            params.push(id);
+
+            db.prepare(`UPDATE master_plant_i18n SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+
+            const updated = db.prepare(`SELECT * FROM master_plant_i18n WHERE id = ?`).get(id) as I18nRow;
+            res.json({ data: normalizeI18n(updated) });
         } catch (error) {
             next(error);
         }

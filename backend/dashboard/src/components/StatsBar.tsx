@@ -1,9 +1,13 @@
+import type { BackendPlantStats } from "../types";
+
 export function StatsBar({
     stats,
     groupCount,
+    backendStats,
 }: {
     stats: { total: number; missingI18n: number; missingImages: number };
     groupCount: number;
+    backendStats?: BackendPlantStats | null;
 }) {
     const cards = [
         {
@@ -30,6 +34,22 @@ export function StatsBar({
             icon: "📂",
             color: "var(--color-blue)",
         },
+        ...(backendStats
+            ? [
+                {
+                    label: "Active",
+                    value: backendStats.active,
+                    icon: "✅",
+                    color: "var(--color-green)",
+                },
+                {
+                    label: "Inactive",
+                    value: backendStats.inactive,
+                    icon: "⊘",
+                    color: "var(--color-muted)",
+                },
+            ]
+            : []),
     ];
 
     return (

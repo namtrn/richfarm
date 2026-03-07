@@ -1,20 +1,33 @@
+import { useState, useMemo } from "react";
 import type { usePlants } from "../hooks/usePlants";
 import type { useI18n } from "../hooks/useI18n";
-import { getDisplayName, getLocaleRow, computeScientificName, LIGHT_OPTIONS, DEFAULT_CULTIVAR_NORMALIZED } from "../constants";
+import type { useBackendPlants } from "../hooks/useBackendPlants";
+import {
+    getDisplayName,
+    getLocaleRow,
+    computeScientificName,
+    LIGHT_OPTIONS,
+    DEFAULT_CULTIVAR_NORMALIZED,
+} from "../constants";
 
 type PlantHook = ReturnType<typeof usePlants>;
 type I18nHook = ReturnType<typeof useI18n>;
+type BackendHook = ReturnType<typeof useBackendPlants>;
+
+type FormTab = "taxonomy" | "i18n" | "classification" | "growing" | "advanced";
 
 function NumericInput({
     label,
     value,
     onChange,
     placeholder,
+    step = "any",
 }: {
     label: string;
     value: string;
     onChange: (v: string) => void;
     placeholder?: string;
+    step?: string;
 }) {
     return (
         <label>
@@ -22,7 +35,7 @@ function NumericInput({
             <input
                 type="number"
                 min={0}
-                step="any"
+                step={step}
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -31,19 +44,73 @@ function NumericInput({
     );
 }
 
+function isVariantRow(cultivarNormalized?: string) {
+    return cultivarNormalized && cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED;
+}
+
 export function PlantManager({
     p,
     i18n,
+    backend,
     onToast,
 }: {
     p: PlantHook;
     i18n: I18nHook;
-    onToast: (type: "success" | "error", msg: string) => void;
+    backend: BackendHook;
+    onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
 }) {
-    function renderI18nBadge(
-        rows: { locale: string; commonName: string }[],
-        locale: "vi" | "en",
-    ) {
+    const [formTab, setFormTab] = useState<FormTab>("taxonomy");
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [showImport, setShowImport] = useState(false);
+
+    // toggle single row selection
+    function toggleSelect(id: string) {
+        setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }
+
+    // toggle all visible rows
+    function toggleAll() {
+        if (selectedIds.size === p.filtered.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(p.filtered.map((pl) => pl._id)));
+        }
+    }
+
+    const selectedCount = selectedIds.size;
+
+    // Numeric IDs from Convex IDs are not applicable here — bulk ops use SQLite numeric IDs.
+    // We surface a warning when user tries to bulk-op on Convex-only ids.
+    const selectedNumericIds = useMemo(() => {
+        const ids: number[] = [];
+        for (const id of selectedIds) {
+            const n = Number(id);
+            if (!isNaN(n) && n > 0) ids.push(n);
+        }
+        return ids;
+    }, [selectedIds]);
+
+    async function handleBulk(action: "activate" | "deactivate" | "delete") {
+        if (selectedNumericIds.length === 0) {
+            onToast("warning", "Selected plants don't have numeric SQLite IDs (Convex-only data — use the backend writer for bulk ops)");
+            return;
+        }
+        if (action === "delete" && !confirm(`Delete ${selectedNumericIds.length} plants? This cannot be undone.`)) return;
+        const affected = await backend.bulkAction(action, selectedNumericIds);
+        if (affected > 0) {
+            onToast("success", `${action}: ${affected} plants updated`);
+            setSelectedIds(new Set());
+            void p.load();
+            void backend.loadStats();
+        }
+    }
+
+    function renderI18nBadge(rows: { locale: string; commonName: string }[], locale: "vi" | "en") {
         const row = rows.find((r) => r.locale === locale);
         const ok = Boolean(row?.commonName);
         return <span className={`badge ${ok ? "ok" : "warn"}`}>{locale.toUpperCase()}</span>;
@@ -51,17 +118,27 @@ export function PlantManager({
 
     async function handleSave() {
         const msg = await p.save();
-        if (msg) onToast("success", msg);
+        if (msg) {
+            onToast("success", msg);
+            void backend.loadStats();
+        }
     }
 
     async function handleDelete() {
         const msg = await p.remove();
-        if (msg) onToast("success", msg);
+        if (msg) {
+            onToast("success", msg);
+            void backend.loadStats();
+        }
     }
 
-    function isVariantRow(cultivarNormalized?: string) {
-        return cultivarNormalized && cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED;
-    }
+    const FORM_TABS: { key: FormTab; label: string }[] = [
+        { key: "taxonomy", label: "🌿 Taxonomy" },
+        { key: "i18n", label: "🌐 Translations" },
+        { key: "classification", label: "📋 Classification" },
+        { key: "growing", label: "🌱 Growing" },
+        { key: "advanced", label: "⚙️ Advanced" },
+    ];
 
     return (
         <div className="page-content">
@@ -69,16 +146,19 @@ export function PlantManager({
             <div className="page-header">
                 <div>
                     <h2 className="page-title">Plants Master</h2>
-                    <p className="page-desc">
-                        Manage plant database, translations, and metadata
-                    </p>
+                    <p className="page-desc">Manage plant database, translations, and metadata</p>
                 </div>
                 <div className="actions">
-                    <button
-                        className="btn secondary"
-                        onClick={() => void p.load()}
-                        disabled={p.loading}
-                    >
+                    <button className="btn secondary" onClick={() => void backend.exportData("json")} disabled={backend.exportLoading}>
+                        ⬇ JSON
+                    </button>
+                    <button className="btn secondary" onClick={() => void backend.exportData("csv")} disabled={backend.exportLoading}>
+                        ⬇ CSV
+                    </button>
+                    <button className="btn secondary" onClick={() => setShowImport(true)}>
+                        ⬆ Import
+                    </button>
+                    <button className="btn secondary" onClick={() => void p.load()} disabled={p.loading}>
                         ↻ Refresh
                     </button>
                     <button className="btn primary" onClick={p.startCreate}>
@@ -88,6 +168,23 @@ export function PlantManager({
             </div>
 
             {p.error && <p className="error-message">{p.error}</p>}
+            {backend.error && <p className="error-message">{backend.error}</p>}
+
+            {/* Bulk action toolbar */}
+            {selectedCount > 0 && (
+                <div className="bulk-toolbar">
+                    <span className="bulk-count">{selectedCount} selected</span>
+                    <button className="btn ghost" onClick={() => void handleBulk("activate")} disabled={backend.bulkLoading}>✓ Activate</button>
+                    <button className="btn ghost" onClick={() => void handleBulk("deactivate")} disabled={backend.bulkLoading}>⊘ Deactivate</button>
+                    <button className="btn danger" onClick={() => void handleBulk("delete")} disabled={backend.bulkLoading}>🗑 Delete</button>
+                    <button className="btn ghost" onClick={() => setSelectedIds(new Set())} style={{ marginLeft: "auto" }}>✕ Clear</button>
+                </div>
+            )}
+
+            {/* Import modal */}
+            {showImport && (
+                <ImportInline backend={backend} onClose={() => setShowImport(false)} onToast={onToast} onDone={() => void p.load()} />
+            )}
 
             <div className="layout">
                 {/* Left: table */}
@@ -111,9 +208,7 @@ export function PlantManager({
                         >
                             <option value="all">All groups</option>
                             {p.groupOptions.map((g) => (
-                                <option key={g} value={g}>
-                                    {g}
-                                </option>
+                                <option key={g} value={g}>{g}</option>
                             ))}
                         </select>
                         <label className="checkbox">
@@ -138,28 +233,36 @@ export function PlantManager({
                         <table>
                             <thead>
                                 <tr>
+                                    <th style={{ width: 36 }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCount === p.filtered.length && p.filtered.length > 0}
+                                            onChange={toggleAll}
+                                        />
+                                    </th>
                                     <th>Name</th>
                                     <th>Type</th>
                                     <th>Group</th>
-                                    <th>I18n</th>
-                                    <th>Image</th>
+                                    <th>i18n</th>
+                                    <th>Img</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {p.filtered.map((plant) => {
                                     const variant = isVariantRow(plant.cultivarNormalized);
+                                    const checked = selectedIds.has(plant._id);
                                     return (
                                         <tr
                                             key={plant._id}
-                                            className={plant._id === p.selectedId ? "selected" : ""}
+                                            className={`${plant._id === p.selectedId ? "selected" : ""} ${checked ? "row-checked" : ""}`}
                                             onClick={() => p.select(plant)}
                                         >
+                                            <td onClick={(e) => { e.stopPropagation(); toggleSelect(plant._id); }}>
+                                                <input type="checkbox" checked={checked} onChange={() => toggleSelect(plant._id)} />
+                                            </td>
                                             <td>
-                                                <div
-                                                    className="row-title"
-                                                    style={variant ? { paddingLeft: "1rem" } : undefined}
-                                                >
+                                                <div className="row-title" style={variant ? { paddingLeft: "1rem" } : undefined}>
                                                     {variant ? "· " : ""}{getDisplayName(plant)}
                                                 </div>
                                                 <div className="row-sub">
@@ -169,34 +272,22 @@ export function PlantManager({
                                                 </div>
                                             </td>
                                             <td>
-                                                {variant ? (
-                                                    <span className="badge warn">VAR</span>
-                                                ) : (
-                                                    <span className="badge ok">BASE</span>
-                                                )}
+                                                {variant
+                                                    ? <span className="badge warn">VAR</span>
+                                                    : <span className="badge ok">BASE</span>}
                                             </td>
-                                            <td>
-                                                <span className="pill">{plant.group}</span>
-                                            </td>
+                                            <td><span className="pill">{plant.group}</span></td>
                                             <td className="badge-group">
                                                 {renderI18nBadge(plant.i18nRows, "vi")}
                                                 {renderI18nBadge(plant.i18nRows, "en")}
                                             </td>
                                             <td>
-                                                {plant.imageUrl ? (
-                                                    <span className="badge ok">✓</span>
-                                                ) : (
-                                                    <span className="badge warn">✕</span>
-                                                )}
+                                                {plant.imageUrl
+                                                    ? <span className="badge ok">✓</span>
+                                                    : <span className="badge warn">✕</span>}
                                             </td>
                                             <td>
-                                                <button
-                                                    className="btn ghost"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        p.startEdit(plant);
-                                                    }}
-                                                >
+                                                <button className="btn ghost" onClick={(e) => { e.stopPropagation(); p.startEdit(plant); }}>
                                                     Edit
                                                 </button>
                                             </td>
@@ -215,386 +306,397 @@ export function PlantManager({
                 <section className="card">
                     <div className="section-title">
                         <h3>
-                            {p.mode === "create"
-                                ? "Create Plant"
-                                : p.mode === "edit"
-                                    ? "Edit Plant"
-                                    : "Plant Details"}
+                            {p.mode === "create" ? "Create Plant" : p.mode === "edit" ? "Edit Plant" : "Plant Details"}
                         </h3>
                         {p.mode === "view" && p.selected && (
                             <div className="actions">
-                                <button
-                                    className="btn secondary"
-                                    onClick={() => p.startEdit(p.selected!)}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    className="btn danger"
-                                    onClick={() => void handleDelete()}
-                                    disabled={p.saving}
-                                >
-                                    Delete
-                                </button>
+                                <button className="btn secondary" onClick={() => p.startEdit(p.selected!)}>Edit</button>
+                                <button className="btn danger" onClick={() => void handleDelete()} disabled={p.saving}>Delete</button>
                             </div>
                         )}
                     </div>
 
                     {p.mode === "view" ? (
                         p.selected ? (
-                            <div className="detail">
-                                {/* Header */}
-                                <div className="detail-header">
-                                    <div>
-                                        <h3>{getDisplayName(p.selected)}</h3>
-                                        <p className="muted">
-                                            {p.selected.genus && p.selected.species
-                                                ? `${p.selected.genus} ${p.selected.species}${p.selected.cultivar ? ` '${p.selected.cultivar}'` : ""}`
-                                                : p.selected.scientificName}
-                                        </p>
-                                        {p.selected.genus && (
-                                            <p className="muted" style={{ fontSize: "0.8rem" }}>
-                                                Genus: {p.selected.genus} · Species: {p.selected.species}{" "}
-                                                {p.selected.cultivar ? `· Cultivar: ${p.selected.cultivar}` : "· (base species)"}
-                                            </p>
-                                        )}
-                                        <div className="badge-group" style={{ marginTop: 8 }}>
-                                            {isVariantRow(p.selected.cultivarNormalized) ? (
-                                                <span className="badge warn">VARIANT</span>
-                                            ) : (
-                                                <span className="badge ok">BASE</span>
-                                            )}
-                                            {renderI18nBadge(p.selected.i18nRows, "vi")}
-                                            {renderI18nBadge(p.selected.i18nRows, "en")}
-                                            <span
-                                                className={`badge ${p.selected.imageUrl ? "ok" : "warn"}`}
-                                            >
-                                                Image
-                                            </span>
-                                        </div>
-                                    </div>
-                                    {p.selected.imageUrl ? (
-                                        <img
-                                            src={p.selected.imageUrl}
-                                            alt="plant"
-                                            className="thumb"
-                                        />
-                                    ) : (
-                                        <div className="thumb placeholder">No image</div>
-                                    )}
-                                </div>
-
-                                {/* Overview + Growth */}
-                                <div className="detail-grid">
-                                    <div>
-                                        <h4>Overview</h4>
-                                        <p className="muted">Group: {p.selected.group}</p>
-                                        <p>{p.selected.description || "No description"}</p>
-                                        <p className="muted">
-                                            Purposes:{" "}
-                                            {(p.selected.purposes ?? []).length > 0
-                                                ? p.selected.purposes?.join(", ")
-                                                : "—"}
-                                        </p>
-                                        <p className="muted">
-                                            Source: {p.selected.source ?? "—"}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <h4>Growth Data</h4>
-                                        <ul className="meta-list">
-                                            <li>Days to harvest: {p.selected.typicalDaysToHarvest ?? "—"}</li>
-                                            <li>Watering (days): {p.selected.wateringFrequencyDays ?? "—"}</li>
-                                            <li>Germination (days): {p.selected.germinationDays ?? "—"}</li>
-                                            <li>Light: {p.selected.lightRequirements ?? "—"}</li>
-                                            <li>Spacing (cm): {p.selected.spacingCm ?? "—"}</li>
-                                            <li>Max plants/m²: {p.selected.maxPlantsPerM2 ?? "—"}</li>
-                                            <li>Seed rate/m²: {p.selected.seedRatePerM2 ?? "—"}</li>
-                                            <li>Water liters/m²: {p.selected.waterLitersPerM2 ?? "—"}</li>
-                                            <li>Yield kg/m²: {p.selected.yieldKgPerM2 ?? "—"}</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                {/* Inline i18n */}
-                                <div className="i18n-inline">
-                                    <div className="i18n-inline-header">
-                                        <h4>🌐 Translations</h4>
-                                    </div>
-                                    <div className="i18n-grid">
-                                        <div className="i18n-lang-card">
-                                            <div className="i18n-lang-header">
-                                                <span className="i18n-flag">🇻🇳</span>
-                                                <span className="i18n-lang-name">Vietnamese</span>
-                                                {getLocaleRow(p.selected.i18nRows, "vi") ? (
-                                                    <span className="badge ok small">Complete</span>
-                                                ) : (
-                                                    <span className="badge warn small">Missing</span>
-                                                )}
-                                            </div>
-                                            <p className="i18n-common-name">
-                                                {getLocaleRow(p.selected.i18nRows, "vi")?.commonName ?? "—"}
-                                            </p>
-                                            <p className="i18n-desc">
-                                                {getLocaleRow(p.selected.i18nRows, "vi")?.description ?? "No description"}
-                                            </p>
-                                        </div>
-                                        <div className="i18n-lang-card">
-                                            <div className="i18n-lang-header">
-                                                <span className="i18n-flag">🇬🇧</span>
-                                                <span className="i18n-lang-name">English</span>
-                                                {getLocaleRow(p.selected.i18nRows, "en") ? (
-                                                    <span className="badge ok small">Complete</span>
-                                                ) : (
-                                                    <span className="badge warn small">Missing</span>
-                                                )}
-                                            </div>
-                                            <p className="i18n-common-name">
-                                                {getLocaleRow(p.selected.i18nRows, "en")?.commonName ?? "—"}
-                                            </p>
-                                            <p className="i18n-desc">
-                                                {getLocaleRow(p.selected.i18nRows, "en")?.description ?? "No description"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <PlantDetail plant={p.selected} />
                         ) : (
                             <p className="empty">Select a plant to see details.</p>
                         )
                     ) : (
-                        /* Create / Edit form */
-                        <div className="form">
-                            {/* ── Section: Taxonomy ── */}
-                            <div className="form-section">
-                                <h4 className="form-section-title">🌿 Taxonomy</h4>
-                                <div className="grid-3">
-                                    <label>
-                                        Genus *
-                                        <input
-                                            placeholder="e.g. Solanum"
-                                            value={p.form.genus}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, genus: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                    <label>
-                                        Species *
-                                        <input
-                                            placeholder="e.g. lycopersicum"
-                                            value={p.form.species}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, species: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                    <label>
-                                        Cultivar
-                                        <input
-                                            placeholder="e.g. Cherry — empty = base"
-                                            value={p.form.cultivar}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, cultivar: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                </div>
-                                {(p.form.genus || p.form.species) && (
-                                    <p className="form-preview muted">
-                                        Scientific name preview:{" "}
-                                        <em>
-                                            {computeScientificName(p.form.genus, p.form.species)}
-                                            {p.form.cultivar.trim() ? ` '${p.form.cultivar.trim()}'` : " (base)"}
-                                        </em>
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* ── Section: I18n ── */}
-                            <div className="form-section">
-                                <h4 className="form-section-title">🌐 Translations</h4>
-                                <div className="grid-2">
-                                    <label>
-                                        Vietnamese common name *
-                                        <input
-                                            value={p.form.viCommonName}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, viCommonName: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                    <label>
-                                        English common name *
-                                        <input
-                                            value={p.form.enCommonName}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, enCommonName: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                </div>
-                                <div className="grid-2">
-                                    <label>
-                                        Vietnamese description
-                                        <textarea
-                                            rows={3}
-                                            value={p.form.viDescription}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, viDescription: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                    <label>
-                                        English description
-                                        <textarea
-                                            rows={3}
-                                            value={p.form.enDescription}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, enDescription: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* ── Section: Classification ── */}
-                            <div className="form-section">
-                                <h4 className="form-section-title">📋 Classification</h4>
-                                <div className="grid-2">
-                                    <label>
-                                        Group
-                                        <input
-                                            value={p.form.group}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, group: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                    <label>
-                                        Purposes (comma separated)
-                                        <input
-                                            placeholder="e.g. vegetable, fruit"
-                                            value={p.form.purposes}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, purposes: e.target.value })
-                                            }
-                                        />
-                                    </label>
-                                </div>
-                                <label>
-                                    Image URL
-                                    <input
-                                        value={p.form.imageUrl}
-                                        onChange={(e) =>
-                                            p.setForm({ ...p.form, imageUrl: e.target.value })
-                                        }
-                                    />
-                                </label>
-                                <label>
-                                    Description
-                                    <textarea
-                                        rows={2}
-                                        value={p.form.description}
-                                        onChange={(e) =>
-                                            p.setForm({ ...p.form, description: e.target.value })
-                                        }
-                                    />
-                                </label>
-                            </div>
-
-                            {/* ── Section: Growing Data ── */}
-                            <div className="form-section">
-                                <h4 className="form-section-title">🌱 Growing Data</h4>
-                                <div className="grid-3">
-                                    <NumericInput
-                                        label="Days to harvest"
-                                        value={p.form.typicalDaysToHarvest}
-                                        onChange={(v) => p.setForm({ ...p.form, typicalDaysToHarvest: v })}
-                                        placeholder="e.g. 80"
-                                    />
-                                    <NumericInput
-                                        label="Watering (days)"
-                                        value={p.form.wateringFrequencyDays}
-                                        onChange={(v) => p.setForm({ ...p.form, wateringFrequencyDays: v })}
-                                        placeholder="e.g. 2"
-                                    />
-                                    <NumericInput
-                                        label="Germination (days)"
-                                        value={p.form.germinationDays}
-                                        onChange={(v) => p.setForm({ ...p.form, germinationDays: v })}
-                                        placeholder="e.g. 7"
-                                    />
-                                    <NumericInput
-                                        label="Spacing (cm)"
-                                        value={p.form.spacingCm}
-                                        onChange={(v) => p.setForm({ ...p.form, spacingCm: v })}
-                                        placeholder="e.g. 45"
-                                    />
-                                    <label>
-                                        Light requirements
-                                        <select
-                                            value={p.form.lightRequirements}
-                                            onChange={(e) =>
-                                                p.setForm({ ...p.form, lightRequirements: e.target.value })
-                                            }
-                                        >
-                                            {LIGHT_OPTIONS.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </label>
-                                    <NumericInput
-                                        label="Max plants/m²"
-                                        value={p.form.maxPlantsPerM2}
-                                        onChange={(v) => p.setForm({ ...p.form, maxPlantsPerM2: v })}
-                                        placeholder="e.g. 4"
-                                    />
-                                    <NumericInput
-                                        label="Seed rate/m²"
-                                        value={p.form.seedRatePerM2}
-                                        onChange={(v) => p.setForm({ ...p.form, seedRatePerM2: v })}
-                                    />
-                                    <NumericInput
-                                        label="Water liters/m²"
-                                        value={p.form.waterLitersPerM2}
-                                        onChange={(v) => p.setForm({ ...p.form, waterLitersPerM2: v })}
-                                    />
-                                    <NumericInput
-                                        label="Yield kg/m²"
-                                        value={p.form.yieldKgPerM2}
-                                        onChange={(v) => p.setForm({ ...p.form, yieldKgPerM2: v })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-actions">
-                                <button
-                                    className="btn secondary"
-                                    onClick={p.cancel}
-                                    type="button"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="btn primary"
-                                    onClick={() => void handleSave()}
-                                    disabled={p.saving}
-                                    type="button"
-                                >
-                                    {p.saving
-                                        ? "Saving..."
-                                        : p.mode === "create"
-                                            ? "Create"
-                                            : "Save"}
-                                </button>
-                            </div>
-                        </div>
+                        <PlantForm p={p} formTab={formTab} setFormTab={setFormTab} FORM_TABS={FORM_TABS} onSave={handleSave} />
                     )}
                 </section>
             </div>
+        </div>
+    );
+}
+
+// ── Plant Detail View ──────────────────────────────────────────────────────
+
+function PlantDetail({ plant }: { plant: ReturnType<typeof usePlants>["selected"] & {} }) {
+    if (!plant) return null;
+    const vi = getLocaleRow(plant.i18nRows, "vi");
+    const en = getLocaleRow(plant.i18nRows, "en");
+    const variant = isVariantRow(plant.cultivarNormalized);
+
+    return (
+        <div className="detail">
+            <div className="detail-header">
+                <div>
+                    <h3>{getDisplayName(plant)}</h3>
+                    <p className="muted">
+                        {plant.genus && plant.species
+                            ? `${plant.genus} ${plant.species}${plant.cultivar ? ` '${plant.cultivar}'` : ""}`
+                            : plant.scientificName}
+                    </p>
+                    {plant.genus && (
+                        <p className="muted" style={{ fontSize: "0.8rem" }}>
+                            Genus: {plant.genus} · Species: {plant.species}{" "}
+                            {plant.cultivar ? `· Cultivar: ${plant.cultivar}` : "· (base species)"}
+                        </p>
+                    )}
+                    <div className="badge-group" style={{ marginTop: 8 }}>
+                        {variant ? <span className="badge warn">VARIANT</span> : <span className="badge ok">BASE</span>}
+                        {vi ? <span className="badge ok">VI</span> : <span className="badge warn">VI</span>}
+                        {en ? <span className="badge ok">EN</span> : <span className="badge warn">EN</span>}
+                        <span className={`badge ${plant.imageUrl ? "ok" : "warn"}`}>Image</span>
+                    </div>
+                </div>
+                {plant.imageUrl ? (
+                    <img src={plant.imageUrl} alt="plant" className="thumb" />
+                ) : (
+                    <div className="thumb placeholder">No image</div>
+                )}
+            </div>
+
+            <div className="detail-grid">
+                <div>
+                    <h4>Overview</h4>
+                    <p className="muted">Group: {plant.group}</p>
+                    <p>{plant.description || "No description"}</p>
+                    <p className="muted">Purposes: {(plant.purposes ?? []).join(", ") || "—"}</p>
+                    <p className="muted">Source: {plant.source ?? "—"}</p>
+                </div>
+                <div>
+                    <h4>Growth Data</h4>
+                    <ul className="meta-list">
+                        <li>Days to harvest: {plant.typicalDaysToHarvest ?? "—"}</li>
+                        <li>Watering (days): {plant.wateringFrequencyDays ?? "—"}</li>
+                        <li>Germination (days): {plant.germinationDays ?? "—"}</li>
+                        <li>Light: {plant.lightRequirements ?? "—"}</li>
+                        <li>Spacing (cm): {plant.spacingCm ?? "—"}</li>
+                        <li>Max plants/m²: {plant.maxPlantsPerM2 ?? "—"}</li>
+                        <li>Seed rate/m²: {plant.seedRatePerM2 ?? "—"}</li>
+                        <li>Water liters/m²: {plant.waterLitersPerM2 ?? "—"}</li>
+                        <li>Yield kg/m²: {plant.yieldKgPerM2 ?? "—"}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="i18n-inline">
+                <div className="i18n-inline-header"><h4>🌐 Translations</h4></div>
+                <div className="i18n-grid">
+                    {(["vi", "en"] as const).map((locale) => {
+                        const row = locale === "vi" ? vi : en;
+                        return (
+                            <div className="i18n-lang-card" key={locale}>
+                                <div className="i18n-lang-header">
+                                    <span className="i18n-flag">{locale === "vi" ? "🇻🇳" : "🇬🇧"}</span>
+                                    <span className="i18n-lang-name">{locale === "vi" ? "Vietnamese" : "English"}</span>
+                                    {row ? <span className="badge ok small">Complete</span> : <span className="badge warn small">Missing</span>}
+                                </div>
+                                <p className="i18n-common-name">{row?.commonName ?? "—"}</p>
+                                <p className="i18n-desc">{row?.description ?? "No description"}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ── Plant Form ─────────────────────────────────────────────────────────────
+
+function PlantForm({
+    p,
+    formTab,
+    setFormTab,
+    FORM_TABS,
+    onSave,
+}: {
+    p: PlantHook;
+    formTab: FormTab;
+    setFormTab: (t: FormTab) => void;
+    FORM_TABS: { key: FormTab; label: string }[];
+    onSave: () => void;
+}) {
+    const f = p.form;
+    const set = (patch: Partial<PlantHook["form"]>) => p.setForm({ ...f, ...patch });
+
+    return (
+        <div className="form">
+            {/* Tab bar */}
+            <div className="form-tabs">
+                {FORM_TABS.map((tab) => (
+                    <button
+                        key={tab.key}
+                        type="button"
+                        className={`form-tab ${formTab === tab.key ? "active" : ""}`}
+                        onClick={() => setFormTab(tab.key)}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* ── Taxonomy ── */}
+            {formTab === "taxonomy" && (
+                <div className="form-section">
+                    <div className="grid-3">
+                        <label>
+                            Genus *
+                            <input placeholder="e.g. Solanum" value={f.genus} onChange={(e) => set({ genus: e.target.value })} />
+                        </label>
+                        <label>
+                            Species *
+                            <input placeholder="e.g. lycopersicum" value={f.species} onChange={(e) => set({ species: e.target.value })} />
+                        </label>
+                        <label>
+                            Cultivar
+                            <input placeholder="e.g. Cherry — empty = base" value={f.cultivar} onChange={(e) => set({ cultivar: e.target.value })} />
+                        </label>
+                    </div>
+                    {(f.genus || f.species) && (
+                        <p className="form-preview muted">
+                            Scientific name preview:{" "}
+                            <em>
+                                {computeScientificName(f.genus, f.species)}
+                                {f.cultivar.trim() ? ` '${f.cultivar.trim()}'` : " (base)"}
+                            </em>
+                        </p>
+                    )}
+                    <label>
+                        Family
+                        <input placeholder="e.g. Solanaceae" value={f.family} onChange={(e) => set({ family: e.target.value })} />
+                    </label>
+                </div>
+            )}
+
+            {/* ── I18n ── */}
+            {formTab === "i18n" && (
+                <div className="form-section">
+                    <div className="i18n-form-grid">
+                        <div className="i18n-lang-block">
+                            <div className="i18n-lang-header">
+                                <span className="i18n-flag">🇻🇳</span>
+                                <span className="i18n-lang-name">Vietnamese</span>
+                            </div>
+                            <label>
+                                Common name *
+                                <input value={f.viCommonName} onChange={(e) => set({ viCommonName: e.target.value })} />
+                            </label>
+                            <label>
+                                Description
+                                <textarea rows={5} value={f.viDescription} onChange={(e) => set({ viDescription: e.target.value })} />
+                            </label>
+                        </div>
+                        <div className="i18n-lang-block">
+                            <div className="i18n-lang-header">
+                                <span className="i18n-flag">🇬🇧</span>
+                                <span className="i18n-lang-name">English</span>
+                            </div>
+                            <label>
+                                Common name *
+                                <input value={f.enCommonName} onChange={(e) => set({ enCommonName: e.target.value })} />
+                            </label>
+                            <label>
+                                Description
+                                <textarea rows={5} value={f.enDescription} onChange={(e) => set({ enDescription: e.target.value })} />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Classification ── */}
+            {formTab === "classification" && (
+                <div className="form-section">
+                    <div className="grid-2">
+                        <label>
+                            Group
+                            <input value={f.group} onChange={(e) => set({ group: e.target.value })} />
+                        </label>
+                        <label>
+                            Purposes (comma separated)
+                            <input placeholder="e.g. vegetable, fruit" value={f.purposes} onChange={(e) => set({ purposes: e.target.value })} />
+                        </label>
+                    </div>
+                    <label>
+                        Image URL
+                        <input value={f.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} />
+                    </label>
+                    {f.imageUrl && (
+                        <div style={{ marginTop: 8 }}>
+                            <img src={f.imageUrl} alt="preview" className="thumb" onError={(e) => (e.currentTarget.style.display = "none")} />
+                        </div>
+                    )}
+                    <label>
+                        Description (internal)
+                        <textarea rows={3} value={f.description} onChange={(e) => set({ description: e.target.value })} />
+                    </label>
+                    <label className="checkbox">
+                        <input
+                            type="checkbox"
+                            checked={f.isActive}
+                            onChange={(e) => set({ isActive: e.target.checked })}
+                        />
+                        Active (visible to app users)
+                    </label>
+                </div>
+            )}
+
+            {/* ── Growing Data ── */}
+            {formTab === "growing" && (
+                <div className="form-section">
+                    <div className="grid-3">
+                        <NumericInput label="Days to harvest" value={f.typicalDaysToHarvest} onChange={(v) => set({ typicalDaysToHarvest: v })} placeholder="e.g. 80" />
+                        <NumericInput label="Watering (days)" value={f.wateringFrequencyDays} onChange={(v) => set({ wateringFrequencyDays: v })} placeholder="e.g. 2" />
+                        <NumericInput label="Germination (days)" value={f.germinationDays} onChange={(v) => set({ germinationDays: v })} placeholder="e.g. 7" />
+                        <NumericInput label="Spacing (cm)" value={f.spacingCm} onChange={(v) => set({ spacingCm: v })} placeholder="e.g. 45" />
+                        <label>
+                            Light requirements
+                            <select value={f.lightRequirements} onChange={(e) => set({ lightRequirements: e.target.value })}>
+                                {LIGHT_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </label>
+                        <NumericInput label="Light hours/day" value={f.lightHours} onChange={(v) => set({ lightHours: v })} placeholder="e.g. 8" />
+                        <NumericInput label="Max plants/m²" value={f.maxPlantsPerM2} onChange={(v) => set({ maxPlantsPerM2: v })} placeholder="e.g. 4" />
+                        <NumericInput label="Seed rate/m²" value={f.seedRatePerM2} onChange={(v) => set({ seedRatePerM2: v })} />
+                        <NumericInput label="Water liters/m²" value={f.waterLitersPerM2} onChange={(v) => set({ waterLitersPerM2: v })} />
+                        <NumericInput label="Yield kg/m²" value={f.yieldKgPerM2} onChange={(v) => set({ yieldKgPerM2: v })} />
+                    </div>
+                </div>
+            )}
+
+            {/* ── Advanced ── */}
+            {formTab === "advanced" && (
+                <div className="form-section">
+                    <div className="grid-2">
+                        <NumericInput label="Soil pH min" value={f.soilPhMin} onChange={(v) => set({ soilPhMin: v })} placeholder="e.g. 5.5" step="0.1" />
+                        <NumericInput label="Soil pH max" value={f.soilPhMax} onChange={(v) => set({ soilPhMax: v })} placeholder="e.g. 7.0" step="0.1" />
+                    </div>
+                    <div className="grid-2">
+                        <NumericInput label="Moisture target (%)" value={f.moistureTarget} onChange={(v) => set({ moistureTarget: v })} placeholder="e.g. 60" />
+                    </div>
+                    <label>
+                        Notes (internal)
+                        <textarea rows={4} placeholder="Admin notes about this plant entry…" value={f.notes} onChange={(e) => set({ notes: e.target.value })} />
+                    </label>
+                </div>
+            )}
+
+            <div className="form-actions">
+                <button className="btn secondary" onClick={p.cancel} type="button">Cancel</button>
+                <button className="btn primary" onClick={onSave} disabled={p.saving} type="button">
+                    {p.saving ? "Saving…" : p.mode === "create" ? "Create" : "Save"}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ── Inline Import Panel ────────────────────────────────────────────────────
+
+function ImportInline({
+    backend,
+    onClose,
+    onToast,
+    onDone,
+}: {
+    backend: BackendHook;
+    onClose: () => void;
+    onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+    onDone: () => void;
+}) {
+    const [rows, setRows] = useState<unknown[]>([]);
+    const [parseErr, setParseErr] = useState("");
+    const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+    const [result, setResult] = useState<{ created: number; failed: number; errors: string[] } | null>(null);
+
+    function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setParseErr(""); setRows([]); setResult(null);
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const text = ev.target?.result as string;
+            try {
+                if (file.name.endsWith(".json")) {
+                    const arr = JSON.parse(text);
+                    if (!Array.isArray(arr)) throw new Error("JSON must be an array");
+                    setRows(arr);
+                } else {
+                    // simple CSV parse
+                    const lines = text.split(/\r?\n/).filter((l) => l.trim());
+                    const headers = lines[0].split(",").map((h) => h.trim());
+                    const parsed = lines.slice(1).map((line) => {
+                        const cells = line.split(",");
+                        const obj: Record<string, string> = {};
+                        headers.forEach((h, i) => { obj[h] = (cells[i] ?? "").trim(); });
+                        return obj;
+                    });
+                    setRows(parsed);
+                }
+            } catch (err) {
+                setParseErr(err instanceof Error ? err.message : "Parse error");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    async function run() {
+        setResult(null);
+        setProgress({ done: 0, total: rows.length });
+        const r = await backend.importPlants(rows, (d, t) => setProgress({ done: d, total: t }));
+        setProgress(null);
+        setResult(r);
+        if (r.created > 0) { onToast("success", `Imported ${r.created} plants`); onDone(); }
+        if (r.failed > 0) onToast("error", `${r.failed} rows failed`);
+    }
+
+    return (
+        <div className="import-panel card">
+            <div className="import-panel-header">
+                <h4>⬆ Import Plants</h4>
+                <button className="btn ghost icon-btn" onClick={onClose}>✕</button>
+            </div>
+            <p className="muted" style={{ marginBottom: 8 }}>
+                Upload a <strong>.json</strong> array or <strong>.csv</strong> with columns: plant_code, vi_common_name, en_common_name…
+            </p>
+            <input type="file" accept=".json,.csv" onChange={handleFile} />
+            {parseErr && <p className="error-message">{parseErr}</p>}
+            {rows.length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                    <p className="muted">{rows.length} rows ready</p>
+                    {progress && (
+                        <div className="import-progress">
+                            <div className="progress-bar">
+                                <div className="progress-fill" style={{ width: `${Math.round((progress.done / progress.total) * 100)}%` }} />
+                            </div>
+                            <span className="muted">{progress.done}/{progress.total}</span>
+                        </div>
+                    )}
+                    {result && <p>✅ {result.created} created &nbsp; ❌ {result.failed} failed</p>}
+                    {!progress && (
+                        <button className="btn primary" onClick={() => void run()} disabled={backend.importLoading} style={{ marginTop: 8 }}>
+                            {backend.importLoading ? "Importing…" : `Import ${rows.length} rows`}
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

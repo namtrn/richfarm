@@ -56,6 +56,7 @@ function ToastItem({
         success: "✓",
         error: "✕",
         info: "ℹ",
+        warning: "⚠",
     };
 
     return (

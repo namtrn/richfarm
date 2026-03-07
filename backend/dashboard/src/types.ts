@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// Data models (match Convex schema)
+// Data models (match Convex schema + SQLite backend)
 // ──────────────────────────────────────────────
 
 export type I18nRow = {
@@ -77,6 +77,15 @@ export type PlantPhoto = {
   aiModelVersion?: string;
 };
 
+export type BackendPlantStats = {
+  total: number;
+  active: number;
+  inactive: number;
+  missingVi: number;
+  missingEn: number;
+  missingImage: number;
+};
+
 // ──────────────────────────────────────────────
 // Form state types
 // ──────────────────────────────────────────────
@@ -106,6 +115,14 @@ export type PlantFormState = {
   seedRatePerM2: string;
   waterLitersPerM2: string;
   yieldKgPerM2: string;
+  // Extra
+  soilPhMin: string;
+  soilPhMax: string;
+  moistureTarget: string;
+  lightHours: string;
+  family: string;
+  notes: string;
+  isActive: boolean;
 };
 
 export type GroupFormState = {
@@ -149,9 +166,9 @@ export type PhotoFormState = {
 
 export type Mode = "view" | "edit" | "create";
 
-export type PageKey = "plants" | "groups" | "photos";
+export type PageKey = "plants" | "groups" | "photos" | "import";
 
-export type ToastType = "success" | "error" | "info";
+export type ToastType = "success" | "error" | "info" | "warning";
 
 export type Toast = {
   id: number;

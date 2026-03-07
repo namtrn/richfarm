@@ -163,19 +163,21 @@ export function ensureBootstrapAdmin(db: SqliteDatabase, email?: string, passwor
     return;
   }
 
+  const hash = bcrypt.hashSync(password, 12);
+
   const existing = db
     .prepare(`SELECT id FROM users WHERE email = ? LIMIT 1`)
     .get(normalizedEmail) as { id: number } | undefined;
 
   if (existing) {
-    return;
+    // Update password in case it changed in .env
+    db.prepare(`UPDATE users SET password_hash = ?, is_active = 1 WHERE email = ?`).run(hash, normalizedEmail);
+  } else {
+    db.prepare(`INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, 'admin', 1)`).run(
+      normalizedEmail,
+      hash,
+    );
   }
-
-  const hash = bcrypt.hashSync(password, 12);
-  db.prepare(`INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, 'admin', 1)`).run(
-    normalizedEmail,
-    hash,
-  );
 }
 
 export function listUserTables(db: SqliteDatabase): string[] {

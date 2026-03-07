@@ -6,25 +6,31 @@ import { StatsBar } from "./components/StatsBar";
 import { PlantManager } from "./components/PlantManager";
 import { GroupManager } from "./components/GroupManager";
 import { PhotoManager } from "./components/PhotoManager";
+import { LoginPage } from "./components/LoginPage";
 import { ToastContainer, useToast } from "./components/Toast";
 
 import { usePlants } from "./hooks/usePlants";
 import { useGroups } from "./hooks/useGroups";
 import { usePhotos } from "./hooks/usePhotos";
 import { useI18n } from "./hooks/useI18n";
+import { useAuth } from "./hooks/useAuth";
+import { useBackendPlants } from "./hooks/useBackendPlants";
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageKey>("plants");
   const { toasts, addToast, dismiss } = useToast();
 
+  const auth = useAuth();
   const plants = usePlants();
   const groups = useGroups();
   const photos = usePhotos();
   const i18n = useI18n();
+  const backend = useBackendPlants(auth.authedFetch);
 
-  // Load plants on mount
+  // Load plants + stats on mount
   useEffect(() => {
     void plants.load();
+    void backend.loadStats();
   }, []);
 
   // Lazy-load other data on tab switch
@@ -59,18 +65,33 @@ export default function App() {
     }
   }, [photos.photos]);
 
+  if (!auth.isLoggedIn) {
+    return (
+      <>
+        <LoginPage auth={auth} />
+        <ToastContainer toasts={toasts} dismiss={dismiss} />
+      </>
+    );
+  }
+
   return (
     <div className="app-shell">
-      <Sidebar activePage={activePage} onNavigate={setActivePage} />
+      <Sidebar
+        activePage={activePage}
+        onNavigate={setActivePage}
+        email={auth.email}
+        onLogout={auth.logout}
+      />
 
       <main className="main-area">
         <StatsBar
           stats={plants.stats}
           groupCount={groups.groups.length}
+          backendStats={backend.stats}
         />
 
         {activePage === "plants" && (
-          <PlantManager p={plants} i18n={i18n} onToast={addToast} />
+          <PlantManager p={plants} i18n={i18n} backend={backend} onToast={addToast} />
         )}
         {activePage === "groups" && (
           <GroupManager g={groups} onToast={addToast} />

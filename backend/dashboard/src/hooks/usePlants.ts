@@ -162,6 +162,14 @@ export function usePlants() {
             seedRatePerM2: plant.seedRatePerM2 !== undefined ? String(plant.seedRatePerM2) : "",
             waterLitersPerM2: plant.waterLitersPerM2 !== undefined ? String(plant.waterLitersPerM2) : "",
             yieldKgPerM2: plant.yieldKgPerM2 !== undefined ? String(plant.yieldKgPerM2) : "",
+            // Advanced fields (may not be on Convex schema — default to empty)
+            soilPhMin: "",
+            soilPhMax: "",
+            moistureTarget: "",
+            lightHours: "",
+            family: "",
+            notes: "",
+            isActive: true,
         };
     }
 

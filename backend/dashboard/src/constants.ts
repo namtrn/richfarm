@@ -9,8 +9,27 @@ import type {
 declare const __CONVEX_URL__: string;
 
 export const convex = new ConvexHttpClient(__CONVEX_URL__);
-
 export const convexReady = Boolean(__CONVEX_URL__);
+
+// Backend REST base URL — prefer env, fallback to same host
+export const API_BASE = (import.meta as any).env?.VITE_API_URL ?? "";
+
+// ──────────────────────────────────────────────
+// Authenticated REST helper
+// ──────────────────────────────────────────────
+
+export async function apiFetch(
+    path: string,
+    options: RequestInit & { token?: string } = {},
+): Promise<Response> {
+    const { token, ...rest } = options;
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(rest.headers as Record<string, string> | undefined),
+    };
+    return fetch(`${API_BASE}${path}`, { ...rest, headers });
+}
 
 // ──────────────────────────────────────────────
 // Empty form defaults
@@ -37,6 +56,13 @@ export const emptyPlantForm: PlantFormState = {
     seedRatePerM2: "",
     waterLitersPerM2: "",
     yieldKgPerM2: "",
+    soilPhMin: "",
+    soilPhMax: "",
+    moistureTarget: "",
+    lightHours: "",
+    family: "",
+    notes: "",
+    isActive: true,
 };
 
 export const emptyGroupForm: GroupFormState = {
@@ -122,9 +148,26 @@ export const LIGHT_OPTIONS = [
     { value: "indirect", label: "Indirect light" },
 ] as const;
 
+export const GROWTH_STAGE_OPTIONS = [
+    { value: "seedling", label: "Seedling" },
+    { value: "vegetative", label: "Vegetative" },
+    { value: "flowering", label: "Flowering" },
+    { value: "harvest", label: "Harvest" },
+] as const;
+
 export const DEFAULT_CULTIVAR_NORMALIZED = "__default__";
 
 /** Returns true if this plant is a cultivar variant (not the base species). */
 export function isVariant(plant: Plant): boolean {
     return Boolean(plant.cultivar) && plant.cultivar !== "";
+}
+
+/** Download a blob as a file. */
+export function downloadBlob(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
 }

@@ -38,9 +38,27 @@ const app = createApp(db, {
   syncService,
 });
 
-const server = app.listen(port, () => {
+const server = app.listen(port, "0.0.0.0", () => {
+  const os = require("os");
+  const networkInterfaces = os.networkInterfaces();
+  const addresses: string[] = [];
+
+  for (const name of Object.keys(networkInterfaces)) {
+    for (const net of networkInterfaces[name]!) {
+      if (net.family === "IPv4" && !net.internal) {
+        addresses.push(net.address);
+      }
+    }
+  }
+
   // eslint-disable-next-line no-console
-  console.log(`RichFarm backend listening on http://localhost:${port}`);
+  console.log(`RichFarm backend listening on:`);
+  // eslint-disable-next-line no-console
+  console.log(`  - Local:   http://localhost:${port}`);
+  for (const addr of addresses) {
+    // eslint-disable-next-line no-console
+    console.log(`  - Network: http://${addr}:${port}`);
+  }
   // eslint-disable-next-line no-console
   console.log(`Using database at: ${dbPath}`);
   // eslint-disable-next-line no-console
