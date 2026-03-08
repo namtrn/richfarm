@@ -5,6 +5,7 @@ import {
     normalizeTaxonomyToken,
     parseTaxonomyFromScientificName,
 } from "./lib/plantTaxonomy";
+import { isDisplayBasePlant } from "../lib/plantBase";
 
 const normalize = (value: string) =>
     value
@@ -13,9 +14,7 @@ const normalize = (value: string) =>
         .toLowerCase()
         .trim();
 
-const isBasePlant = (plant: any) =>
-    (plant?.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED) ===
-    DEFAULT_CULTIVAR_NORMALIZED;
+const isBasePlant = (plant: any) => isDisplayBasePlant(plant);
 
 const pickPreferredPlant = (plants: any[]) => {
     if (!plants || plants.length === 0) return null;
@@ -184,6 +183,9 @@ export const list = query({
                     ...p,
                     commonName: i18n?.commonName ?? p.scientificName,
                     description: i18n?.description,
+                    uiGroupKey: (p as any).uiGroupKey ?? undefined,
+                    uiGroupLabelVi: (p as any).uiGroupLabelVi ?? undefined,
+                    uiGroupLabelEn: (p as any).uiGroupLabelEn ?? undefined,
                     speciesKey: speciesKeyOf(p),
                     isBaseVariant: isBasePlant(p),
                 };
@@ -228,6 +230,9 @@ export const search = query({
                 ...plant,
                 commonName: m.commonName,
                 description: m.description,
+                uiGroupKey: (plant as any).uiGroupKey ?? undefined,
+                uiGroupLabelVi: (plant as any).uiGroupLabelVi ?? undefined,
+                uiGroupLabelEn: (plant as any).uiGroupLabelEn ?? undefined,
                 speciesKey: speciesKeyOf(plant),
                 isBaseVariant: isBasePlant(plant),
             });

@@ -8,6 +8,7 @@ import { requireUser } from "./lib/user";
 import { localizePlantRows, PlantI18nRow } from "./lib/localizePlant";
 import { plantI18nSeed } from "./data/plantsMasterSeed";
 import { DEFAULT_CULTIVAR_NORMALIZED } from "./lib/plantTaxonomy";
+import { isDisplayBasePlant } from "../lib/plantBase";
 
 function normalizeScientificName(value: string) {
     return value
@@ -56,6 +57,10 @@ function withSeedLocaleFallback(
 ): PlantI18nRow[] | undefined {
     const normalizedLocale = (locale ?? "en").split("-")[0].toLowerCase();
     const base = rows ?? [];
+    const hasLocaleRow = base.some((r) => r.locale === normalizedLocale);
+    if (hasLocaleRow) {
+        return base;
+    }
     const fallback =
         seedI18nByLocaleAndScientific.get(
             buildSeedLocaleKey({
@@ -77,8 +82,8 @@ function withSeedLocaleFallback(
     }
 
     return [
-        // Force seed locale content to win for current locale to avoid stale English rows in DB.
-        ...base.filter((r) => r.locale !== normalizedLocale),
+        // Use seed only when DB lacks the requested locale.
+        ...base,
         {
             locale: normalizedLocale,
             commonName: fallback.commonName,
@@ -140,13 +145,15 @@ export const getPlantsWithImages = query({
             return {
                 _id: p._id,
                 scientificName: p.scientificName,
+                groupBasePlantId: (p as any).groupBasePlantId ?? undefined,
+                uiGroupKey: (p as any).uiGroupKey ?? undefined,
+                uiGroupLabelVi: (p as any).uiGroupLabelVi ?? undefined,
+                uiGroupLabelEn: (p as any).uiGroupLabelEn ?? undefined,
                 displayName: localized.displayName,
                 cultivar: (p as any).cultivar ?? null,
                 cultivarNormalized:
                     (p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED,
-                isBaseVariant:
-                    ((p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED) ===
-                    DEFAULT_CULTIVAR_NORMALIZED,
+                isBaseVariant: isDisplayBasePlant(p),
                 speciesKey:
                     (p as any).genusNormalized && (p as any).speciesNormalized
                         ? `${(p as any).genusNormalized}:${(p as any).speciesNormalized}`
@@ -272,13 +279,15 @@ export const getPlantsWithoutImages = query({
                 return {
                     _id: p._id,
                     scientificName: p.scientificName,
+                    groupBasePlantId: (p as any).groupBasePlantId ?? undefined,
+                    uiGroupKey: (p as any).uiGroupKey ?? undefined,
+                    uiGroupLabelVi: (p as any).uiGroupLabelVi ?? undefined,
+                    uiGroupLabelEn: (p as any).uiGroupLabelEn ?? undefined,
                     displayName: localized.displayName,
                     cultivar: (p as any).cultivar ?? null,
                     cultivarNormalized:
                         (p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED,
-                    isBaseVariant:
-                        ((p as any).cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED) ===
-                        DEFAULT_CULTIVAR_NORMALIZED,
+                    isBaseVariant: isDisplayBasePlant(p),
                     speciesKey:
                         (p as any).genusNormalized && (p as any).speciesNormalized
                             ? `${(p as any).genusNormalized}:${(p as any).speciesNormalized}`
@@ -339,6 +348,10 @@ export const getPlantById = query({
 
         return {
             ...plant,
+            groupBasePlantId: (plant as any).groupBasePlantId ?? undefined,
+            uiGroupKey: (plant as any).uiGroupKey ?? undefined,
+            uiGroupLabelVi: (plant as any).uiGroupLabelVi ?? undefined,
+            uiGroupLabelEn: (plant as any).uiGroupLabelEn ?? undefined,
             displayName: localized.displayName,
             description: localized.description,
             localeUsed: localized.localeUsed,
@@ -362,7 +375,13 @@ export const getPlantVariants = query({
         if (!selected) return [];
 
         let siblings: any[] = [];
-        if ((selected as any).genusNormalized && (selected as any).speciesNormalized) {
+        if ((selected as any).groupBasePlantId) {
+            siblings = (await ctx.db.query("plantsMaster").collect()).filter(
+                (plant) =>
+                    String((plant as any).groupBasePlantId ?? "") ===
+                    String((selected as any).groupBasePlantId)
+            );
+        } else if ((selected as any).genusNormalized && (selected as any).speciesNormalized) {
             siblings = await ctx.db
                 .query("plantsMaster")
                 .withIndex("by_genus_species", (q) =>
@@ -401,14 +420,15 @@ export const getPlantVariants = query({
                     args.locale,
                     plant.scientificName
                 );
-                const isBaseVariant =
-                    ((plant as any).cultivarNormalized ??
-                        DEFAULT_CULTIVAR_NORMALIZED) ===
-                    DEFAULT_CULTIVAR_NORMALIZED;
+                const isBaseVariant = isDisplayBasePlant(plant);
 
                 return {
                     _id: plant._id,
                     scientificName: plant.scientificName,
+                    groupBasePlantId: (plant as any).groupBasePlantId ?? undefined,
+                    uiGroupKey: (plant as any).uiGroupKey ?? undefined,
+                    uiGroupLabelVi: (plant as any).uiGroupLabelVi ?? undefined,
+                    uiGroupLabelEn: (plant as any).uiGroupLabelEn ?? undefined,
                     displayName: localized.displayName,
                     cultivar: (plant as any).cultivar ?? null,
                     cultivarNormalized:

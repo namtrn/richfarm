@@ -34,6 +34,8 @@ import { loadCachedCareContent, parseCareContent, saveCareContent, type PlantCar
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
 import { compareGroupsForOnboarding, getOnboardingFocusItems, scorePlantForOnboarding } from '../../../lib/personalization';
+import { buildPlantUiGroupMap } from '../../../lib/plantUiGrouping';
+import { isDisplayBasePlant } from '../../../lib/plantBase';
 import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
@@ -61,9 +63,7 @@ function normalizeSpeciesKey(plant: any) {
 }
 
 function isBaseVariantPlant(plant: any) {
-    if (typeof plant?.isBaseVariant === 'boolean') return plant.isBaseVariant;
-    const cultivar = typeof plant?.cultivar === 'string' ? plant.cultivar.trim() : '';
-    return cultivar.length === 0;
+    return isDisplayBasePlant(plant);
 }
 
 function pickSpeciesBasePlant(plants: any[]) {
@@ -86,6 +86,9 @@ function formatScientificLabel(plant: any) {
 
 function getSpeciesGroupTitle(basePlant: any) {
     if (!basePlant) return 'Plant';
+    if (basePlant.uiGroupLabel) {
+        return String(basePlant.uiGroupLabel);
+    }
 
     if (isBaseVariantPlant(basePlant)) {
         return String(basePlant.displayName ?? basePlant.scientificName ?? 'Plant');
@@ -896,15 +899,18 @@ export default function LibraryScreen() {
     }, [plants, selectedGroup, normalizedSearch, settings?.onboarding]);
 
     const groupedPlantRows = useMemo(() => {
-        const groupsBySpecies = new Map<string, { basePlant: any; plants: any[] }>();
+        const uiGroupMap = buildPlantUiGroupMap(filteredPlants, i18n.language);
+        const groupsBySpecies = new Map<string, { basePlant: any; plants: any[]; label: string }>();
 
         for (const plant of filteredPlants) {
-            const speciesKey = normalizeSpeciesKey(plant);
+            const uiGroup = uiGroupMap.get(String(plant._id));
+            const speciesKey = uiGroup?.key ?? normalizeSpeciesKey(plant);
             const existing = groupsBySpecies.get(speciesKey);
             if (!existing) {
                 groupsBySpecies.set(speciesKey, {
                     basePlant: plant,
                     plants: [plant],
+                    label: uiGroup?.label ?? getSpeciesGroupTitle(plant),
                 });
                 continue;
             }
@@ -919,6 +925,7 @@ export default function LibraryScreen() {
             .map(([speciesKey, group]) => ({
                 speciesKey,
                 basePlant: pickSpeciesBasePlant(group.plants),
+                label: group.label,
                 plants: group.plants.sort((a, b) => {
                     if (isBaseVariantPlant(a) !== isBaseVariantPlant(b)) {
                         return isBaseVariantPlant(a) ? -1 : 1;
@@ -929,8 +936,8 @@ export default function LibraryScreen() {
                 }),
             }))
             .sort((a, b) => {
-                const aName = String(a.basePlant?.displayName ?? a.basePlant?.scientificName ?? '').toLowerCase();
-                const bName = String(b.basePlant?.displayName ?? b.basePlant?.scientificName ?? '').toLowerCase();
+                const aName = String(a.label ?? a.basePlant?.displayName ?? a.basePlant?.scientificName ?? '').toLowerCase();
+                const bName = String(b.label ?? b.basePlant?.displayName ?? b.basePlant?.scientificName ?? '').toLowerCase();
                 return aName.localeCompare(bName);
             });
 
@@ -944,7 +951,7 @@ export default function LibraryScreen() {
                 rows.push({
                     rowType: 'header',
                     key: `header:${group.speciesKey}`,
-                    basePlant: group.basePlant,
+                    basePlant: { ...group.basePlant, uiGroupLabel: group.label },
                     count: group.plants.length,
                 });
             }
@@ -958,7 +965,7 @@ export default function LibraryScreen() {
         }
 
         return rows;
-    }, [filteredPlants]);
+    }, [filteredPlants, i18n.language]);
 
     const filteredPests = useMemo(() => {
         if (!normalizedSearch) return pestItems;

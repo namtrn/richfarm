@@ -1,0 +1,2282 @@
+[
+  {
+    "plantId": "k175xc48k3ddq2yjjkc4zeyaph82f4dv",
+    "locale": "vi",
+    "commonName": "Đậu bắp",
+    "description": "Đậu bắp nổi tiếng với những quả màu xanh đặc trưng giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình."
+  },
+  {
+    "plantId": "k17649ezk513hh117t93tz0h0582enj7",
+    "locale": "vi",
+    "commonName": "Đậu bắp đỏ Burgundy",
+    "description": "Đậu bắp Burgundy nổi tiếng với những quả màu đỏ tía bắt mắt giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình."
+  },
+  {
+    "plantId": "k17fhvetwmcgetzmq4v0b3t3ds82fd2h",
+    "locale": "vi",
+    "commonName": "Đậu bắp Clemson Spineless",
+    "description": "Đậu bắp Clemson Spineless nổi tiếng với những quả xanh dài không gai giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình."
+  },
+  {
+    "plantId": "k17fv385fkap4tfgvqymd9mqsn82e8ky",
+    "locale": "vi",
+    "commonName": "Đậu bắp Emerald",
+    "description": "Đậu bắp Emerald nổi tiếng với những quả xanh ngọc mượt giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình."
+  },
+  {
+    "plantId": "k171cz6ymcck7at314wregcjqh82e0pw",
+    "locale": "vi",
+    "commonName": "Đậu bắp Jambalaya",
+    "description": "Đậu bắp Jambalaya nổi tiếng với những quả xanh đậm giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình."
+  },
+  {
+    "plantId": "k1723zb3aq0vreeyvdka9qb82h82e18j",
+    "locale": "vi",
+    "commonName": "Đậu bắp Silver Queen",
+    "description": "Đậu bắp Silver Queen nổi tiếng với những quả xanh ngà kem giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình."
+  },
+  {
+    "plantId": "k170f464ae4swr78hr29mbq5ks82enre",
+    "locale": "vi",
+    "commonName": "Hành tây",
+    "description": "Hành tây cho củ vàng nâu với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn."
+  },
+  {
+    "plantId": "k171yefrva1vckjc57f8xes4gx82endp",
+    "locale": "vi",
+    "commonName": "Hành tây tím Red Burgundy",
+    "description": "Hành tây Red Burgundy cho củ đỏ tím với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn."
+  },
+  {
+    "plantId": "k170xedzcpnry1cpf111p3s4td82fy0m",
+    "locale": "vi",
+    "commonName": "Hành tây Texas Early Grano",
+    "description": "Hành tây Texas Early Grano cho củ vàng nhạt, ruột trắng giòn với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn."
+  },
+  {
+    "plantId": "k170dpq9gtm601svrv9ahcphb182e4am",
+    "locale": "vi",
+    "commonName": "Hành tây Walla Walla",
+    "description": "Hành tây Walla Walla cho củ vàng óng, vị ngọt với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn."
+  },
+  {
+    "plantId": "k17dz830789k5dg7w1xxca6zsh82ez4n",
+    "locale": "vi",
+    "commonName": "Hành lá White Lisbon",
+    "description": "Hành lá White Lisbon có thân trắng ở gốc, lá xanh, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn."
+  },
+  {
+    "plantId": "k170pp2g03zrmxramf1trhtngx82ekw0",
+    "locale": "vi",
+    "commonName": "Hành tây vàng Yellow Sweet Spanish",
+    "description": "Hành tây Yellow Sweet Spanish cho củ vàng nâu, vị ngọt với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn."
+  },
+  {
+    "plantId": "k17bnta7mf8zzyby02ab80jk8h81c0ak",
+    "locale": "vi",
+    "commonName": "Hành lá",
+    "description": "Hành lá có thân trắng ở gốc và xanh ở lá, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn."
+  },
+  {
+    "plantId": "k175w7tps6hcqt0ehvqtew13ys82e2cz",
+    "locale": "vi",
+    "commonName": "Hành lá Evergreen",
+    "description": "Hành lá Evergreen có thân trắng ở gốc và lá xanh, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn."
+  },
+  {
+    "plantId": "k17fcf0q5a2gjwfc40b29dzqjh82enyz",
+    "locale": "vi",
+    "commonName": "Hành lá Ishikura",
+    "description": "Hành lá Ishikura có thân trắng ở gốc và lá xanh, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn."
+  },
+  {
+    "plantId": "k174fn8tytfvrzkz6ejn81ymy982fpp1",
+    "locale": "vi",
+    "commonName": "Hành lá Parade",
+    "description": "Hành lá Parade có thân trắng ở gốc và lá xanh, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn."
+  },
+  {
+    "plantId": "k17cfv13dkkgt99y2pwh837m9582e8b8",
+    "locale": "vi",
+    "commonName": "Tỏi tây",
+    "description": "Tỏi tây có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn."
+  },
+  {
+    "plantId": "k178y7jj9shjdtmcm7rwq6y7x982emk1",
+    "locale": "vi",
+    "commonName": "Tỏi tây American Flag",
+    "description": "Tỏi tây American Flag có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn."
+  },
+  {
+    "plantId": "k17f8eyxa1zpmgn88ng12b52n982fege",
+    "locale": "vi",
+    "commonName": "Tỏi tây Bandit",
+    "description": "Tỏi tây Bandit có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn."
+  },
+  {
+    "plantId": "k171ag3mcec3nmzkr4g3zwda7d82e5zb",
+    "locale": "vi",
+    "commonName": "Tỏi tây Blue Solaise",
+    "description": "Tỏi tây Blue Solaise có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn."
+  },
+  {
+    "plantId": "k17c28na5q8ap8q10v6r71dq2s82ef9j",
+    "locale": "vi",
+    "commonName": "Tỏi tây King Richard",
+    "description": "Tỏi tây King Richard có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn."
+  },
+  {
+    "plantId": "k173envswcxkbce0dapt66by9n82fhj1",
+    "locale": "vi",
+    "commonName": "Tỏi tây Lancelot",
+    "description": "Tỏi tây Lancelot có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn."
+  },
+  {
+    "plantId": "k174craamq59d91qddjj5vxpns81crp5",
+    "locale": "vi",
+    "commonName": "Tỏi",
+    "description": "Tỏi cho củ chắc với nhiều tép thơm nồng, giàu tinh dầu tốt cho sức khỏe. Giống tỏi này chịu hạn tốt, ưa đất tơi xốp và nhiều nắng. Tỏi là gia vị không thể thiếu để tăng hương vị cho món ăn và hỗ trợ sức đề kháng."
+  },
+  {
+    "plantId": "k172xjd80czpkz95mefvk8tdsd82ezym",
+    "locale": "vi",
+    "commonName": "Tỏi California Early",
+    "description": "Tỏi California Early cho củ chắc với nhiều tép thơm nồng, giàu tinh dầu tốt cho sức khỏe. Giống tỏi này chịu hạn tốt, ưa đất tơi xốp và nhiều nắng. Tỏi là gia vị không thể thiếu để tăng hương vị cho món ăn và hỗ trợ sức đề kháng."
+  },
+  {
+    "plantId": "k17dk57cqs6ffc5grs67zas7hd82e1by",
+    "locale": "vi",
+    "commonName": "Tỏi Elephant",
+    "description": "Tỏi Elephant cho củ chắc với nhiều tép thơm nồng, giàu tinh dầu tốt cho sức khỏe. Giống tỏi này chịu hạn tốt, ưa đất tơi xốp và nhiều nắng. Tỏi là gia vị không thể thiếu để tăng hương vị cho món ăn và hỗ trợ sức đề kháng."
+  },
+  {
+    "plantId": "k173zshrataqbewwa1yn7gd5vn82fn0q",
+    "locale": "vi",
+    "commonName": "Tỏi German Extra Hardy",
+    "description": "Tỏi German Extra Hardy cho củ chắc với nhiều tép thơm nồng, giàu tinh dầu tốt cho sức khỏe. Giống tỏi này chịu hạn tốt, ưa đất tơi xốp và nhiều nắng. Tỏi là gia vị không thể thiếu để tăng hương vị cho món ăn và hỗ trợ sức đề kháng."
+  },
+  {
+    "plantId": "k175p96gdgk0m86mghd77jp2yh82e3an",
+    "locale": "vi",
+    "commonName": "Tỏi Music",
+    "description": "Tỏi Music cho củ chắc với nhiều tép thơm nồng, giàu tinh dầu tốt cho sức khỏe. Giống tỏi này chịu hạn tốt, ưa đất tơi xốp và nhiều nắng. Tỏi là gia vị không thể thiếu để tăng hương vị cho món ăn và hỗ trợ sức đề kháng."
+  },
+  {
+    "plantId": "k172dmhker5mr4gzs9mwfq5k3181c5pp",
+    "locale": "vi",
+    "commonName": "Nha đam",
+    "description": "Nha đam có lá dày chứa gel mát, được ưa chuộng trong chăm sóc da và pha chế thức uống. Cây chịu hạn tốt, cần ánh sáng nhẹ và thoát nước, chỉ cần tưới ít để tránh úng. Bạn có thể dùng gel nha đam tươi để làm đẹp, nấu chè hoặc giải khát trong những ngày nóng."
+  },
+  {
+    "plantId": "k17003xpzqrvmykvht88nsv65582fqf6",
+    "locale": "vi",
+    "commonName": "Nha đam Barbadensis",
+    "description": "Nha đam Barbadensis có lá dày chứa gel mát, được ưa chuộng trong chăm sóc da và pha chế thức uống. Cây chịu hạn tốt, cần ánh sáng nhẹ và thoát nước, chỉ cần tưới ít để tránh úng. Bạn có thể dùng gel nha đam tươi để làm đẹp, nấu chè hoặc giải khát trong những ngày nóng."
+  },
+  {
+    "plantId": "k170evmw8ame5w8b9tam2zgpq182f9pb",
+    "locale": "vi",
+    "commonName": "Nha đam Blue Elf",
+    "description": "Nha đam Blue Elf có lá dày chứa gel mát, được ưa chuộng trong chăm sóc da và pha chế thức uống. Cây chịu hạn tốt, cần ánh sáng nhẹ và thoát nước, chỉ cần tưới ít để tránh úng. Bạn có thể dùng gel nha đam tươi để làm đẹp, nấu chè hoặc giải khát trong những ngày nóng."
+  },
+  {
+    "plantId": "k172edhqqz1pfhatvn8bvnw6hx82fkyz",
+    "locale": "vi",
+    "commonName": "Nha đam Chinensis",
+    "description": "Nha đam Chinensis có lá dày chứa gel mát, được ưa chuộng trong chăm sóc da và pha chế thức uống. Cây chịu hạn tốt, cần ánh sáng nhẹ và thoát nước, chỉ cần tưới ít để tránh úng. Bạn có thể dùng gel nha đam tươi để làm đẹp, nấu chè hoặc giải khát trong những ngày nóng."
+  },
+  {
+    "plantId": "k17bwnegdcqbknw81zhyq57qvd81c8r7",
+    "locale": "vi",
+    "commonName": "Thì là",
+    "description": "Thì là là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn."
+  },
+  {
+    "plantId": "k17bg3wjjtd2n850fhwffehrpx82fs0z",
+    "locale": "vi",
+    "commonName": "Thì là Bouquet",
+    "description": "Thì là Bouquet là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn."
+  },
+  {
+    "plantId": "k17faz91ksv1snm8ez4cm5mft582fz85",
+    "locale": "vi",
+    "commonName": "Thì là Fernleaf",
+    "description": "Thì là Fernleaf là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn."
+  },
+  {
+    "plantId": "k1781t59agwgrp9q55erx6714582ehay",
+    "locale": "vi",
+    "commonName": "Thì là Mammoth",
+    "description": "Thì là Mammoth là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn."
+  },
+  {
+    "plantId": "k17b5fbemc1nngv26exvycx2y182fmdv",
+    "locale": "vi",
+    "commonName": "Cần tây",
+    "description": "Cần tây cho cọng màu xanh giòn, mùi thơm đặc trưng và vị hơi mặn. Cây ưa đất ẩm, giàu hữu cơ và ánh sáng vừa phải, cần tưới thường xuyên để cọng giòn chắc. Cần tây được dùng trong súp, salad hoặc ép lấy nước uống bổ dưỡng."
+  },
+  {
+    "plantId": "k17abkhpcmg6nkz9czmhjz8ee582e4mt",
+    "locale": "vi",
+    "commonName": "Cần tây Conquistador",
+    "description": "Cần tây Conquistador cho cọng dài xanh mướt, mùi thơm đặc trưng và vị hơi mặn. Cây ưa đất ẩm, giàu hữu cơ và ánh sáng vừa phải, cần tưới thường xuyên để cọng giòn chắc. Cần tây được dùng trong súp, salad hoặc ép lấy nước uống bổ dưỡng."
+  },
+  {
+    "plantId": "k175ppfepxzb5077k7spwgmcts82ftw5",
+    "locale": "vi",
+    "commonName": "Cần tây Golden Self Blanching",
+    "description": "Cần tây Golden Self Blanching cho cọng vàng nhạt tự trắng, mùi thơm đặc trưng và vị hơi mặn. Cây ưa đất ẩm, giàu hữu cơ và ánh sáng vừa phải, cần tưới thường xuyên để cọng giòn chắc. Cần tây được dùng trong súp, salad hoặc ép lấy nước uống bổ dưỡng."
+  },
+  {
+    "plantId": "k17bqs3jpnz52nkn550yn0xxbs82fbs2",
+    "locale": "vi",
+    "commonName": "Cần tây Redventure",
+    "description": "Cần tây Redventure cho cọng đỏ hơi tím, mùi thơm đặc trưng và vị hơi mặn. Cây ưa đất ẩm, giàu hữu cơ và ánh sáng vừa phải, cần tưới thường xuyên để cọng giòn chắc. Cần tây được dùng trong súp, salad hoặc ép lấy nước uống bổ dưỡng."
+  },
+  {
+    "plantId": "k17ae69fmemnmfp8aqbj9gqt4s82eah8",
+    "locale": "vi",
+    "commonName": "Cần tây Tall Utah",
+    "description": "Cần tây Tall Utah cho cọng cao, cọng dày, mùi thơm đặc trưng và vị hơi mặn. Cây ưa đất ẩm, giàu hữu cơ và ánh sáng vừa phải, cần tưới thường xuyên để cọng giòn chắc. Cần tây được dùng trong súp, salad hoặc ép lấy nước uống bổ dưỡng."
+  },
+  {
+    "plantId": "k176bx4h40gpxh1jxhpthb72as82fmdg",
+    "locale": "vi",
+    "commonName": "Cần tây Tango",
+    "description": "Cần tây Tango cho cọng giòn ngọt, mùi thơm đặc trưng và vị hơi mặn. Cây ưa đất ẩm, giàu hữu cơ và ánh sáng vừa phải, cần tưới thường xuyên để cọng giòn chắc. Cần tây được dùng trong súp, salad hoặc ép lấy nước uống bổ dưỡng."
+  },
+  {
+    "plantId": "k177qeqvdyhjj3yebvpyf0x5z581dsx5",
+    "locale": "vi",
+    "commonName": "Đậu phộng",
+    "description": "Đậu phộng là cây họ đậu cho quả vỏ mỏng chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng."
+  },
+  {
+    "plantId": "k17fz9vaddfvjavdzsa3nbnhv582ek6g",
+    "locale": "vi",
+    "commonName": "Đậu phộng Spanish Redskin",
+    "description": "Đậu phộng Spanish Redskin là cây họ đậu cho quả vỏ đỏ nhạt, hạt nhỏ chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng."
+  },
+  {
+    "plantId": "k175bzcwdjd0mmcpmkwdfxdt2d82exxy",
+    "locale": "vi",
+    "commonName": "Đậu phộng Valencia",
+    "description": "Đậu phộng Valencia là cây họ đậu cho quả vỏ mỏng, nhiều hạt chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng."
+  },
+  {
+    "plantId": "k176mbc7398bgy1jc3j5pk11hs82frdy",
+    "locale": "vi",
+    "commonName": "Đậu phộng Virginia",
+    "description": "Đậu phộng Virginia là cây họ đậu cho quả hạt lớn, vỏ xù chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng."
+  },
+  {
+    "plantId": "k176k94d617apsmz0w9ztbv5qn82f3fc",
+    "locale": "vi",
+    "commonName": "Bí đao",
+    "description": "Bí đao cho quả thon dài, vỏ xanh phấn với thịt trắng và vị mát. Cây là dạng dây leo mạnh mẽ, ưa nắng và đất giàu hữu cơ, cần leo giàn để quả phát triển tốt. Bí đao thường được nấu canh, hầm hoặc làm mứt, giúp thanh nhiệt và giải khát."
+  },
+  {
+    "plantId": "k176g3gt0eqvf6pcw3h67s6hjh82eanz",
+    "locale": "vi",
+    "commonName": "Bí đao Jade",
+    "description": "Bí đao Jade cho quả vỏ xanh ngọc với thịt trắng và vị mát. Cây là dạng dây leo mạnh mẽ, ưa nắng và đất giàu hữu cơ, cần leo giàn để quả phát triển tốt. Bí đao thường được nấu canh, hầm hoặc làm mứt, giúp thanh nhiệt và giải khát."
+  },
+  {
+    "plantId": "k1755datk57aeffhq2nna5mten82env1",
+    "locale": "vi",
+    "commonName": "Bí đao Large Round",
+    "description": "Bí đao Large Round cho quả tròn to với thịt trắng và vị mát. Cây là dạng dây leo mạnh mẽ, ưa nắng và đất giàu hữu cơ, cần leo giàn để quả phát triển tốt. Bí đao thường được nấu canh, hầm hoặc làm mứt, giúp thanh nhiệt và giải khát."
+  },
+  {
+    "plantId": "k175k9xysjhg0cya8fcvt5edzn82efw3",
+    "locale": "vi",
+    "commonName": "Bí đao Long Green",
+    "description": "Bí đao Long Green cho quả dài xanh với thịt trắng và vị mát. Cây là dạng dây leo mạnh mẽ, ưa nắng và đất giàu hữu cơ, cần leo giàn để quả phát triển tốt. Bí đao thường được nấu canh, hầm hoặc làm mứt, giúp thanh nhiệt và giải khát."
+  },
+  {
+    "plantId": "k1766ffnsmqnn15efsfmma180d82fx25",
+    "locale": "vi",
+    "commonName": "Bí đao Snow White",
+    "description": "Bí đao Snow White cho quả vỏ trắng xám với thịt trắng và vị mát. Cây là dạng dây leo mạnh mẽ, ưa nắng và đất giàu hữu cơ, cần leo giàn để quả phát triển tốt. Bí đao thường được nấu canh, hầm hoặc làm mứt, giúp thanh nhiệt và giải khát."
+  },
+  {
+    "plantId": "k17dh25jb741zeq3hrt9v8117d82f9sh",
+    "locale": "vi",
+    "commonName": "Bí đao Winter Giant",
+    "description": "Bí đao Winter Giant cho quả siêu lớn với thịt trắng và vị mát. Cây là dạng dây leo mạnh mẽ, ưa nắng và đất giàu hữu cơ, cần leo giàn để quả phát triển tốt. Bí đao thường được nấu canh, hầm hoặc làm mứt, giúp thanh nhiệt và giải khát."
+  },
+  {
+    "plantId": "k17frzbs29c4aa511f1kc2974x81c4de",
+    "locale": "vi",
+    "commonName": "Củ dền",
+    "description": "Củ dền nổi bật với củ màu đỏ tím, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất."
+  },
+  {
+    "plantId": "k177bxg9yz4zctkxcv22g74rm182e51q",
+    "locale": "vi",
+    "commonName": "Củ dền sọc Chioggia",
+    "description": "Củ dền Chioggia nổi bật với củ sọc trắng hồng như kẹo, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất."
+  },
+  {
+    "plantId": "k172148gkv8d4kkpa0sn79fbyd82eywq",
+    "locale": "vi",
+    "commonName": "Củ dền đỏ Detroit Dark Red",
+    "description": "Củ dền Detroit Dark Red nổi bật với củ đỏ sẫm, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất."
+  },
+  {
+    "plantId": "k17dakfe92zwc5jz1tg71v6wvd82ew6t",
+    "locale": "vi",
+    "commonName": "Củ dền vàng Golden Beet",
+    "description": "Củ dền Golden Beet nổi bật với củ vàng rực, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất."
+  },
+  {
+    "plantId": "k179b6r6reg6x0wggctb4n9yrn82ee2d",
+    "locale": "vi",
+    "commonName": "Cải bẹ xanh",
+    "description": "Cải bẹ xanh sở hữu lá xanh đậm với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính."
+  },
+  {
+    "plantId": "k17d0q7mx9fydqf3xe3v641mkx82ex3e",
+    "locale": "vi",
+    "commonName": "Cải bẹ xanh Green Wave",
+    "description": "Cải bẹ xanh Green Wave sở hữu lá xanh uốn lượn với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính."
+  },
+  {
+    "plantId": "k173yvsyrswd30r5m63e0mspf582fta2",
+    "locale": "vi",
+    "commonName": "Cải bẹ xanh Mizuna",
+    "description": "Cải bẹ xanh Mizuna sở hữu lá xẻ lông chim với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính."
+  },
+  {
+    "plantId": "k17cyx27q2y4g2na8324rfczyn82ey4h",
+    "locale": "vi",
+    "commonName": "Cải bẹ xanh Red Giant",
+    "description": "Cải bẹ xanh Red Giant sở hữu lá đỏ tím nổi bật với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính."
+  },
+  {
+    "plantId": "k17da8bxffkg1d5f582r0ast1x82fe2v",
+    "locale": "vi",
+    "commonName": "Cải bẹ xanh Southern Giant",
+    "description": "Cải bẹ xanh Southern Giant sở hữu lá bản rộng với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính."
+  },
+  {
+    "plantId": "k179pxgwj9nwqfcwna0qkafkk582f12x",
+    "locale": "vi",
+    "commonName": "Cải bẹ xanh Tendergreen",
+    "description": "Cải bẹ xanh Tendergreen sở hữu lá mềm mại với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính."
+  },
+  {
+    "plantId": "k172pf6sk3zws1d6x57q68qnsx82ff1x",
+    "locale": "vi",
+    "commonName": "Bông cải xanh Calabrese",
+    "description": "Bông cải xanh Calabrese tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc."
+  },
+  {
+    "plantId": "k17204dzdz3pbsw5fvh5et80gh82fy6r",
+    "locale": "vi",
+    "commonName": "Bắp cải Golden Acre",
+    "description": "Bắp cải Golden Acre hình thành bắp vàng nhạt, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C."
+  },
+  {
+    "plantId": "k17bh02sct53jz0n0bmr97zg0182f9mk",
+    "locale": "vi",
+    "commonName": "Súp lơ tím Graffiti",
+    "description": "Súp lơ Graffiti cho hoa màu tím sẫm, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào."
+  },
+  {
+    "plantId": "k17be0qhpv1mkzs7hz14x4atzn82exg9",
+    "locale": "vi",
+    "commonName": "Bắp cải Green Acre",
+    "description": "Bắp cải Green Acre hình thành bắp màu xanh sáng, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C."
+  },
+  {
+    "plantId": "k173mw74bkrbahrwh3bdpckjan82f0dz",
+    "locale": "vi",
+    "commonName": "Bông cải xanh Green Magic",
+    "description": "Bông cải xanh Green Magic tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc."
+  },
+  {
+    "plantId": "k17ek7qn6pzc5qk63zxbqfck3x82e5cr",
+    "locale": "vi",
+    "commonName": "Bông cải xanh Marathon",
+    "description": "Bông cải xanh Marathon tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc."
+  },
+  {
+    "plantId": "k17fgsydqjavaqcryq2hp66rqs82e1vc",
+    "locale": "vi",
+    "commonName": "Bắp cải Red Express",
+    "description": "Bắp cải Red Express hình thành bắp đỏ tím rực, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C."
+  },
+  {
+    "plantId": "k17amp6m6rt6v31bh7dm2zvryx82en78",
+    "locale": "vi",
+    "commonName": "Bông cải Romanesco",
+    "description": "Bông cải Romanesco có hoa màu xanh nhạt, sắp xếp theo dạng xoắn ốc độc đáo. Cây ưa khí hậu mát, đất sâu và giàu dinh dưỡng, cần tưới đều. Loại bông cải này vừa ngon mắt vừa giàu vitamin, thích hợp hấp hoặc xào nhẹ."
+  },
+  {
+    "plantId": "k1701r73f0c7p4ecagd4zjaqk982ezyd",
+    "locale": "vi",
+    "commonName": "Bắp cải Savoy Ace",
+    "description": "Bắp cải Savoy Ace hình thành bắp lá xoăn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C."
+  },
+  {
+    "plantId": "k179ywmvvphbvzv4rxny5hwqah82evpk",
+    "locale": "vi",
+    "commonName": "Súp lơ trắng Snowball",
+    "description": "Súp lơ Snowball cho hoa trắng mịn như tuyết, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào."
+  },
+  {
+    "plantId": "k179hynq0d9raxsy9104gayz5582adyz",
+    "locale": "vi",
+    "commonName": "Súp lơ trắng",
+    "description": "Súp lơ cho hoa màu trắng tinh, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào."
+  },
+  {
+    "plantId": "k174ytry6nff4z1gavgxqnap7982bpxb",
+    "locale": "vi",
+    "commonName": "Bắp cải",
+    "description": "Bắp cải hình thành bắp tròn phổ thông, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C."
+  },
+  {
+    "plantId": "k17f2grmkxc951rz8mry75fj4982bn3p",
+    "locale": "vi",
+    "commonName": "Bông cải xanh",
+    "description": "Bông cải xanh tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc."
+  },
+  {
+    "plantId": "k172zqmc4extwpz58z48abhmrn82ezdj",
+    "locale": "vi",
+    "commonName": "Bông cải Romanesco Veronica",
+    "description": "Bông cải Romanesco Veronica có hoa màu xanh nhạt, sắp xếp theo dạng xoắn ốc độc đáo. Cây ưa khí hậu mát, đất sâu và giàu dinh dưỡng, cần tưới đều. Loại bông cải này vừa ngon mắt vừa giàu vitamin, thích hợp hấp hoặc xào nhẹ."
+  },
+  {
+    "plantId": "k17avkbsdf2wtsb28svycpah8982f8wg",
+    "locale": "vi",
+    "commonName": "Bông cải xanh Waltham 29",
+    "description": "Bông cải xanh Waltham 29 tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc."
+  },
+  {
+    "plantId": "k178tqy8qfsn4easjdvtcmkmpn82fkg0",
+    "locale": "vi",
+    "commonName": "Cải thảo Bilko",
+    "description": "Cải thảo Bilko tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin."
+  },
+  {
+    "plantId": "k170a3dq859pn24ffwnqcky69582fe9q",
+    "locale": "vi",
+    "commonName": "Cải thìa Joi Choi",
+    "description": "Cải thìa Joi Choi có bẹ trắng dày, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng."
+  },
+  {
+    "plantId": "k17dzdh93zxmxq1qy1gjq2ttes82evaz",
+    "locale": "vi",
+    "commonName": "Cải thảo Michihili",
+    "description": "Cải thảo Michihili tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin."
+  },
+  {
+    "plantId": "k179bkjxyyza1cbeg8s5ddac8182fq13",
+    "locale": "vi",
+    "commonName": "Cải thảo Rubicon",
+    "description": "Cải thảo Rubicon tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin."
+  },
+  {
+    "plantId": "k1716h2agayh23fa15xpcgbach82efqc",
+    "locale": "vi",
+    "commonName": "Cải thìa Shanghai Green",
+    "description": "Cải thìa Shanghai Green có bẹ xanh nhạt, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng."
+  },
+  {
+    "plantId": "k17eg31yfsvc77wac3p8b5yyfs82ac8h",
+    "locale": "vi",
+    "commonName": "Cải thìa",
+    "description": "Cải thìa có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng."
+  },
+  {
+    "plantId": "k17a73a9gcnqw8pbqrrpstnsv182bgvd",
+    "locale": "vi",
+    "commonName": "Cải thảo",
+    "description": "Cải thảo tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin."
+  },
+  {
+    "plantId": "k1728fg7nhpyvwk9wngx3prn4582eky8",
+    "locale": "vi",
+    "commonName": "Cải thìa White Stem",
+    "description": "Cải thìa White Stem có bẹ trắng như ngà, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng."
+  },
+  {
+    "plantId": "k170xv3yjk8b976gqbmgbxkj3982f0yp",
+    "locale": "vi",
+    "commonName": "Củ cải tròn Golden Ball",
+    "description": "Củ cải Golden Ball có củ màu vàng như bóng tròn, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad."
+  },
+  {
+    "plantId": "k17byejrwe65ayw8mtz247e17182e4ca",
+    "locale": "vi",
+    "commonName": "Củ cải tròn Hakurei",
+    "description": "Củ cải Hakurei có củ vỏ trắng mịn, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad."
+  },
+  {
+    "plantId": "k17f1cp2dk99fetxx48hrrdrkx82ez0w",
+    "locale": "vi",
+    "commonName": "Củ cải tròn Purple Top",
+    "description": "Củ cải Purple Top có củ vỏ trắng pha tím ở phần đầu, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad."
+  },
+  {
+    "plantId": "k17d0mkkqfa7535zn4nwpcwfc582e06p",
+    "locale": "vi",
+    "commonName": "Củ cải tròn Scarlet Queen",
+    "description": "Củ cải Scarlet Queen có củ vỏ đỏ tươi, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad."
+  },
+  {
+    "plantId": "k1758zfsmtevk0w5aegjrvf8sx82evwk",
+    "locale": "vi",
+    "commonName": "Củ cải tròn",
+    "description": "Củ cải có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad."
+  },
+  {
+    "plantId": "k17fprm6pvayytg58b5mdppspx82fsj3",
+    "locale": "vi",
+    "commonName": "Củ cải tròn Tokyo Cross",
+    "description": "Củ cải Tokyo Cross có củ vỏ trắng thuần khiết, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad."
+  },
+  {
+    "plantId": "k175dymnrqsqfd2p4htavvdq8h81d5zk",
+    "locale": "vi",
+    "commonName": "Ớt chuông",
+    "description": "Ớt chuông cho trái màu xanh hoặc đỏ, thịt dày và vị ngọt. Cây ưa nắng, đất phì nhiêu và tưới nước đều, kết trái nhiều trong mùa nóng. Ớt chuông được dùng trong salad, xào hoặc nướng, bổ sung vitamin C và A."
+  },
+  {
+    "plantId": "k176h8hvx1ecpn0e6c71jneqyd82f372",
+    "locale": "vi",
+    "commonName": "Ớt chuông California Wonder",
+    "description": "Ớt chuông California Wonder cho trái to, màu đỏ khi chín, thịt dày và vị ngọt. Cây ưa nắng, đất phì nhiêu và tưới nước đều, kết trái nhiều trong mùa nóng. Ớt chuông được dùng trong salad, xào hoặc nướng, bổ sung vitamin C và A."
+  },
+  {
+    "plantId": "k17d84veyanxdngadas99reh6s82f79d",
+    "locale": "vi",
+    "commonName": "Ớt chuông Cubanelle",
+    "description": "Ớt chuông Cubanelle cho trái mỏng, vàng nhạt chuyển đỏ, thịt dày và vị ngọt. Cây ưa nắng, đất phì nhiêu và tưới nước đều, kết trái nhiều trong mùa nóng. Ớt chuông được dùng trong salad, xào hoặc nướng, bổ sung vitamin C và A."
+  },
+  {
+    "plantId": "k17eq50gjxk7r6bahaezxxwjm982ee7c",
+    "locale": "vi",
+    "commonName": "Ớt chuông Purple Beauty",
+    "description": "Ớt chuông Purple Beauty cho trái màu tím, thịt dày và vị ngọt. Cây ưa nắng, đất phì nhiêu và tưới nước đều, kết trái nhiều trong mùa nóng. Ớt chuông được dùng trong salad, xào hoặc nướng, bổ sung vitamin C và A."
+  },
+  {
+    "plantId": "k1725zp5r10ntp0vqzq65c8bsd82fab3",
+    "locale": "vi",
+    "commonName": "Ớt chuông Sweet Banana",
+    "description": "Ớt chuông Sweet Banana cho trái dài, vàng nhạt chuyển đỏ, thịt dày và vị ngọt. Cây ưa nắng, đất phì nhiêu và tưới nước đều, kết trái nhiều trong mùa nóng. Ớt chuông được dùng trong salad, xào hoặc nướng, bổ sung vitamin C và A."
+  },
+  {
+    "plantId": "k1753zj0185h4dzfpwp5g12mcs82ecg2",
+    "locale": "vi",
+    "commonName": "Ớt Habanero",
+    "description": "Ớt Habanero cho trái màu cam với độ cay rất cay. Cây phát triển mạnh ở khí hậu ấm và nhiều nắng, cần tưới vừa phải. Ớt Habanero thường được dùng làm nước sốt và gia vị cho món ăn thêm phần bùng nổ."
+  },
+  {
+    "plantId": "k171jdpe410ydcaa2fxwy63xjn82fgsf",
+    "locale": "vi",
+    "commonName": "Ớt Habanero Caribbean Red",
+    "description": "Ớt Habanero Caribbean Red cho trái đỏ sẫm với độ cay cực cay. Cây phát triển mạnh ở khí hậu ấm và nhiều nắng, cần tưới vừa phải. Ớt Habanero thường được dùng làm nước sốt và gia vị cho món ăn thêm phần bùng nổ."
+  },
+  {
+    "plantId": "k17bg5sv02zh9hhj6dshw3fskx82f6vs",
+    "locale": "vi",
+    "commonName": "Ớt Habanero Chocolate",
+    "description": "Ớt Habanero Chocolate cho trái nâu socola với độ cay cay nồng. Cây phát triển mạnh ở khí hậu ấm và nhiều nắng, cần tưới vừa phải. Ớt Habanero thường được dùng làm nước sốt và gia vị cho món ăn thêm phần bùng nổ."
+  },
+  {
+    "plantId": "k176hhkyzy96dkxr55peftspn182fk3b",
+    "locale": "vi",
+    "commonName": "Ớt Habanero Orange Habanero",
+    "description": "Ớt Habanero Orange Habanero cho trái cam rực với độ cay rất cay. Cây phát triển mạnh ở khí hậu ấm và nhiều nắng, cần tưới vừa phải. Ớt Habanero thường được dùng làm nước sốt và gia vị cho món ăn thêm phần bùng nổ."
+  },
+  {
+    "plantId": "k17ax2y6va21109evm5y1qwzhs82ek8e",
+    "locale": "vi",
+    "commonName": "Ớt Habanero Paper Lantern",
+    "description": "Ớt Habanero Paper Lantern cho trái đỏ dài như đèn lồng với độ cay cay gắt. Cây phát triển mạnh ở khí hậu ấm và nhiều nắng, cần tưới vừa phải. Ớt Habanero thường được dùng làm nước sốt và gia vị cho món ăn thêm phần bùng nổ."
+  },
+  {
+    "plantId": "k17fxvq0bmt8wchzhjbwbcrpd582fmtp",
+    "locale": "vi",
+    "commonName": "Ớt Habanero Red Savina",
+    "description": "Ớt Habanero Red Savina cho trái đỏ tươi với độ cay siêu cay. Cây phát triển mạnh ở khí hậu ấm và nhiều nắng, cần tưới vừa phải. Ớt Habanero thường được dùng làm nước sốt và gia vị cho món ăn thêm phần bùng nổ."
+  },
+  {
+    "plantId": "k17crj2fc9nhtf5mc3tep6exrs81d11r",
+    "locale": "vi",
+    "commonName": "Ớt hiểm",
+    "description": "Ớt hiểm cho trái nhỏ màu xanh rồi đỏ, độ cay rất cay. Cây thích nắng và khí hậu ấm áp, dễ trồng và cho thu hoạch liên tục. Trái ớt nhỏ này được dùng trong nước chấm, ngâm giấm hoặc chế biến nhiều món cay."
+  },
+  {
+    "plantId": "k17f3vxzravn3aj443py663m1n82efan",
+    "locale": "vi",
+    "commonName": "Ớt hiểm Malagueta",
+    "description": "Ớt hiểm Malagueta cho trái đỏ tươi, độ cay cay nồng. Cây thích nắng và khí hậu ấm áp, dễ trồng và cho thu hoạch liên tục. Trái ớt nhỏ này được dùng trong nước chấm, ngâm giấm hoặc chế biến nhiều món cay."
+  },
+  {
+    "plantId": "k171hep2rv20df0q2493vdv9d182ef1h",
+    "locale": "vi",
+    "commonName": "Ớt hiểm Piri Piri",
+    "description": "Ớt hiểm Piri Piri cho trái nhỏ đỏ, độ cay cực cay. Cây thích nắng và khí hậu ấm áp, dễ trồng và cho thu hoạch liên tục. Trái ớt nhỏ này được dùng trong nước chấm, ngâm giấm hoặc chế biến nhiều món cay."
+  },
+  {
+    "plantId": "k1724dkf3q0cdkvp55grydd2gd82ezwv",
+    "locale": "vi",
+    "commonName": "Ớt hiểm Tabasco",
+    "description": "Ớt hiểm Tabasco cho trái dài nhỏ, độ cay cay vừa. Cây thích nắng và khí hậu ấm áp, dễ trồng và cho thu hoạch liên tục. Trái ớt nhỏ này được dùng trong nước chấm, ngâm giấm hoặc chế biến nhiều món cay."
+  },
+  {
+    "plantId": "k17084p8m96zjqpgd5d69g0zhh82frty",
+    "locale": "vi",
+    "commonName": "Ớt hiểm Thai Bird",
+    "description": "Ớt hiểm Thai Bird cho trái nhỏ, xanh chuyển đỏ, độ cay cay mạnh. Cây thích nắng và khí hậu ấm áp, dễ trồng và cho thu hoạch liên tục. Trái ớt nhỏ này được dùng trong nước chấm, ngâm giấm hoặc chế biến nhiều món cay."
+  },
+  {
+    "plantId": "k17cq2f20y866wgz74m1dhq27x81ctrn",
+    "locale": "vi",
+    "commonName": "Đu đủ",
+    "description": "Đu đủ là cây ăn quả nhiệt đới cho trái xanh khi non, chín vàng cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon."
+  },
+  {
+    "plantId": "k170f4wbqsp84a2rccjnfcwky982fh86",
+    "locale": "vi",
+    "commonName": "Đu đủ Red Lady",
+    "description": "Đu đủ Red Lady là cây ăn quả nhiệt đới cho trái ruột đỏ cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon."
+  },
+  {
+    "plantId": "k176nyv2fsw6qrh05zh5mkbvpd82ev9h",
+    "locale": "vi",
+    "commonName": "Đu đủ Sunrise Solo",
+    "description": "Đu đủ Sunrise Solo là cây ăn quả nhiệt đới cho trái trái nhỏ, ruột vàng hồng, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon."
+  },
+  {
+    "plantId": "k17b7j4e57z6kmnbyg28ng8qd182edas",
+    "locale": "vi",
+    "commonName": "Đu đủ Tainung",
+    "description": "Đu đủ Tainung là cây ăn quả nhiệt đới cho trái trái dài, ruột cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon."
+  },
+  {
+    "plantId": "k172dvygfjg17y27nxkdhdchk181ctg8",
+    "locale": "vi",
+    "commonName": "Cây dây nhện",
+    "description": "Cây dây nhện là cây nội thất với lá dài cong và tạo ra nhiều cây con. Cây chịu bóng tốt, ưa đất thoát nước và tưới vừa phải. Trồng cây dây nhện giúp lọc không khí và trang trí không gian."
+  },
+  {
+    "plantId": "k171akkjqrctthgzk0v0zp676982fjan",
+    "locale": "vi",
+    "commonName": "Cây dây nhện Bonnie",
+    "description": "Cây dây nhện Bonnie là cây nội thất với lá dài cong và tạo ra nhiều cây con. Cây chịu bóng tốt, ưa đất thoát nước và tưới vừa phải. Trồng cây dây nhện giúp lọc không khí và trang trí không gian."
+  },
+  {
+    "plantId": "k17c5xky1fq921mav1rwmqgp6182es3c",
+    "locale": "vi",
+    "commonName": "Cây dây nhện Variegatum",
+    "description": "Cây dây nhện Variegatum là cây nội thất với lá dài cong và tạo ra nhiều cây con. Cây chịu bóng tốt, ưa đất thoát nước và tưới vừa phải. Trồng cây dây nhện giúp lọc không khí và trang trí không gian."
+  },
+  {
+    "plantId": "k17181na4338ggs4g11bc8kged82ewr2",
+    "locale": "vi",
+    "commonName": "Cây dây nhện Vittatum",
+    "description": "Cây dây nhện Vittatum là cây nội thất với lá dài cong và tạo ra nhiều cây con. Cây chịu bóng tốt, ưa đất thoát nước và tưới vừa phải. Trồng cây dây nhện giúp lọc không khí và trang trí không gian."
+  },
+  {
+    "plantId": "k1741k3csqb8vqpk79b4t9hw9h82egd2",
+    "locale": "vi",
+    "commonName": "Cúc mâm xôi",
+    "description": "Cúc mâm xôi là cây hoa lâu năm với bông hoa lớn và nhiều cánh nở rực rỡ vào mùa thu. Cây ưa nắng, đất màu mỡ và thoát nước tốt. Hoa được dùng trang trí sân vườn hoặc làm hoa cắt cắm."
+  },
+  {
+    "plantId": "k17bzs7h40p33f3rrrejd9rax982ehm2",
+    "locale": "vi",
+    "commonName": "Cúc mâm xôi Anastasia",
+    "description": "Cúc mâm xôi Anastasia là cây hoa lâu năm với bông hoa lớn và nhiều cánh nở rực rỡ vào mùa thu. Cây ưa nắng, đất màu mỡ và thoát nước tốt. Hoa được dùng trang trí sân vườn hoặc làm hoa cắt cắm."
+  },
+  {
+    "plantId": "k17axgzhhtxswr9czgx6e2042982fvm8",
+    "locale": "vi",
+    "commonName": "Cúc mâm xôi Red Charm",
+    "description": "Cúc mâm xôi Red Charm là cây hoa lâu năm với bông hoa lớn và nhiều cánh nở rực rỡ vào mùa thu. Cây ưa nắng, đất màu mỡ và thoát nước tốt. Hoa được dùng trang trí sân vườn hoặc làm hoa cắt cắm."
+  },
+  {
+    "plantId": "k17ekc4gzgtjwjh5923bkxasbx82f232",
+    "locale": "vi",
+    "commonName": "Cúc mâm xôi Snowball",
+    "description": "Cúc mâm xôi Snowball là cây hoa lâu năm với bông hoa lớn và nhiều cánh nở rực rỡ vào mùa thu. Cây ưa nắng, đất màu mỡ và thoát nước tốt. Hoa được dùng trang trí sân vườn hoặc làm hoa cắt cắm."
+  },
+  {
+    "plantId": "k174drys2scsgecb6fmb5076h982fszh",
+    "locale": "vi",
+    "commonName": "Cúc mâm xôi Spider Bronze",
+    "description": "Cúc mâm xôi Spider Bronze là cây hoa lâu năm với bông hoa lớn và nhiều cánh nở rực rỡ vào mùa thu. Cây ưa nắng, đất màu mỡ và thoát nước tốt. Hoa được dùng trang trí sân vườn hoặc làm hoa cắt cắm."
+  },
+  {
+    "plantId": "k17csk1v42nds22s6rk9e8xcdx82ft00",
+    "locale": "vi",
+    "commonName": "Cúc mâm xôi Yellow Cushion",
+    "description": "Cúc mâm xôi Yellow Cushion là cây hoa lâu năm với bông hoa lớn và nhiều cánh nở rực rỡ vào mùa thu. Cây ưa nắng, đất màu mỡ và thoát nước tốt. Hoa được dùng trang trí sân vườn hoặc làm hoa cắt cắm."
+  },
+  {
+    "plantId": "k175r143zs6hmgd4xpf7aw6w6x82e3bp",
+    "locale": "vi",
+    "commonName": "Đậu gà",
+    "description": "Đậu gà là cây họ đậu thấp với hạt tròn màu kem. Cây chịu hạn, ưa khí hậu ấm và đất nhẹ. Hạt đậu gà dùng nấu cà ri, salad hoặc nghiền làm hummus."
+  },
+  {
+    "plantId": "k1737beqp90t2bqhav9v3v20ed82eg4g",
+    "locale": "vi",
+    "commonName": "Đậu gà CDC Orion",
+    "description": "Đậu gà CDC Orion là cây họ đậu thấp với hạt tròn màu kem. Cây chịu hạn, ưa khí hậu ấm và đất nhẹ. Hạt đậu gà dùng nấu cà ri, salad hoặc nghiền làm hummus."
+  },
+  {
+    "plantId": "k1760wpqdfdp4s2vjzr83ff4ts82fv1a",
+    "locale": "vi",
+    "commonName": "Đậu gà Desi",
+    "description": "Đậu gà Desi là cây họ đậu thấp với hạt tròn màu kem. Cây chịu hạn, ưa khí hậu ấm và đất nhẹ. Hạt đậu gà dùng nấu cà ri, salad hoặc nghiền làm hummus."
+  },
+  {
+    "plantId": "k179eaxc6cd8dwp289hntpehws82es3z",
+    "locale": "vi",
+    "commonName": "Đậu gà Kabuli",
+    "description": "Đậu gà Kabuli là cây họ đậu thấp với hạt tròn màu kem. Cây chịu hạn, ưa khí hậu ấm và đất nhẹ. Hạt đậu gà dùng nấu cà ri, salad hoặc nghiền làm hummus."
+  },
+  {
+    "plantId": "k175jk7tvzx4m1ge06dy7bbg6582e04k",
+    "locale": "vi",
+    "commonName": "Đậu gà Myles",
+    "description": "Đậu gà Myles là cây họ đậu thấp với hạt tròn màu kem. Cây chịu hạn, ưa khí hậu ấm và đất nhẹ. Hạt đậu gà dùng nấu cà ri, salad hoặc nghiền làm hummus."
+  },
+  {
+    "plantId": "k17fs1bbhcep1372erkm9rd3ph82fp35",
+    "locale": "vi",
+    "commonName": "Đậu gà Sarah",
+    "description": "Đậu gà Sarah là cây họ đậu thấp với hạt tròn màu kem. Cây chịu hạn, ưa khí hậu ấm và đất nhẹ. Hạt đậu gà dùng nấu cà ri, salad hoặc nghiền làm hummus."
+  },
+  {
+    "plantId": "k170j0gr54jv8en0kgstcht11h81cn5q",
+    "locale": "vi",
+    "commonName": "Dưa hấu",
+    "description": "Dưa hấu là dây leo sinh quả lớn với ruột đỏ ngọt và nhiều nước. Cây cần nắng và đất tơi xốp. Dưa hấu dùng ăn tươi, làm sinh tố hoặc tráng miệng."
+  },
+  {
+    "plantId": "k1711pn7yjwfqarwjjg7cgqn9s82f2yg",
+    "locale": "vi",
+    "commonName": "Dưa hấu Charleston Gray",
+    "description": "Dưa hấu Charleston Gray là dây leo sinh quả lớn với ruột đỏ ngọt và nhiều nước. Cây cần nắng và đất tơi xốp. Dưa hấu dùng ăn tươi, làm sinh tố hoặc tráng miệng."
+  },
+  {
+    "plantId": "k17aq2ppvwkwtjt594stmk0syn82ejyr",
+    "locale": "vi",
+    "commonName": "Dưa hấu Crimson Sweet",
+    "description": "Dưa hấu Crimson Sweet là dây leo sinh quả lớn với ruột đỏ ngọt ngọt và nhiều nước. Cây cần nắng và đất tơi xốp. Dưa hấu dùng ăn tươi, làm sinh tố hoặc tráng miệng."
+  },
+  {
+    "plantId": "k17f0tczjdng2jtnayqyepdwx982fr25",
+    "locale": "vi",
+    "commonName": "Dưa hấu Sugar Baby",
+    "description": "Dưa hấu Sugar Baby là dây leo sinh quả lớn với ruột đỏ ngọt và nhiều nước. Cây cần nắng và đất tơi xốp. Dưa hấu dùng ăn tươi, làm sinh tố hoặc tráng miệng."
+  },
+  {
+    "plantId": "k174v8g8enfwxedt3ke509p71n82fasb",
+    "locale": "vi",
+    "commonName": "Dưa hấu Yellow Crimson",
+    "description": "Dưa hấu Yellow Crimson là dây leo sinh quả lớn với ruột vàng ngọt và nhiều nước. Cây cần nắng và đất tơi xốp. Dưa hấu dùng ăn tươi, làm sinh tố hoặc tráng miệng."
+  },
+  {
+    "plantId": "k179m061z0pytkkyqnkcd13fy581cmmr",
+    "locale": "vi",
+    "commonName": "Chanh vàng",
+    "description": "Chanh vàng có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt."
+  },
+  {
+    "plantId": "k17bryx1xhcgpbadr54w94vhzd82fk5k",
+    "locale": "vi",
+    "commonName": "Chanh vàng Eureka",
+    "description": "Chanh vàng Eureka có vỏ vàng tươi và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt."
+  },
+  {
+    "plantId": "k1787tz1yjphzhmv4ea1xxkwex82f2z7",
+    "locale": "vi",
+    "commonName": "Chanh vàng Lisbon",
+    "description": "Chanh vàng Lisbon có vỏ vàng dày và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt."
+  },
+  {
+    "plantId": "k1783d2m5e8gp6z9e0c5ttzhph82f9ps",
+    "locale": "vi",
+    "commonName": "Chanh vàng Meyer",
+    "description": "Chanh vàng Meyer có vỏ vàng cam và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt."
+  },
+  {
+    "plantId": "k17f42nymtva4r7sm66pz6mt3s81ck2w",
+    "locale": "vi",
+    "commonName": "Cam",
+    "description": "Cam là cây ăn quả cho trái màu vàng, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước."
+  },
+  {
+    "plantId": "k17ah2p9722hd9ywftzejjbx9x82ft37",
+    "locale": "vi",
+    "commonName": "Cam Blood Orange",
+    "description": "Cam Blood Orange là cây ăn quả cho trái màu đỏ thẫm, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước."
+  },
+  {
+    "plantId": "k17dyb6ps5qza01t1zj5q59srx82f26f",
+    "locale": "vi",
+    "commonName": "Cam Navel",
+    "description": "Cam Navel là cây ăn quả cho trái màu vàng không hạt, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước."
+  },
+  {
+    "plantId": "k170c3dqbchn27246c60e5mnf582fg27",
+    "locale": "vi",
+    "commonName": "Cam Valencia",
+    "description": "Cam Valencia là cây ăn quả cho trái màu vàng ngọt, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước."
+  },
+  {
+    "plantId": "k177feb3x8bv3jjsqx043jcegs81dmeg",
+    "locale": "vi",
+    "commonName": "Ngò rí",
+    "description": "Ngò rí là thảo mộc với lá mềm và hương thơm đặc trưng. Cây phát triển nhanh, ưa mát và dễ trồng. Lá và hạt ngò rí được dùng nêm nếm nhiều món ăn."
+  },
+  {
+    "plantId": "k178mwmmbce4zcbja2z2thywt582e1ah",
+    "locale": "vi",
+    "commonName": "Ngò rí Calypso",
+    "description": "Ngò rí Calypso là thảo mộc với lá mềm và hương thơm đặc trưng. Cây phát triển nhanh, ưa mát và dễ trồng. Lá và hạt ngò rí được dùng nêm nếm nhiều món ăn."
+  },
+  {
+    "plantId": "k1713qcp0z396a3mhvh626vxen82fesj",
+    "locale": "vi",
+    "commonName": "Ngò rí Leisure",
+    "description": "Ngò rí Leisure là thảo mộc với lá mềm và hương thơm đặc trưng. Cây phát triển nhanh, ưa mát và dễ trồng. Lá và hạt ngò rí được dùng nêm nếm nhiều món ăn."
+  },
+  {
+    "plantId": "k17em2hd1acm0ca0v4d76zj32582e2pe",
+    "locale": "vi",
+    "commonName": "Ngò rí Santo",
+    "description": "Ngò rí Santo là thảo mộc với lá mềm và hương thơm đặc trưng. Cây phát triển nhanh, ưa mát và dễ trồng. Lá và hạt ngò rí được dùng nêm nếm nhiều món ăn."
+  },
+  {
+    "plantId": "k17f3sykwhp7r9taf1s346g66d81d8rc",
+    "locale": "vi",
+    "commonName": "Dưa lưới",
+    "description": "Dưa lưới cho quả tròn hoặc bầu dục với ruột cam ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố."
+  },
+  {
+    "plantId": "k17b8atehbja4kks4zvs5x802982e607",
+    "locale": "vi",
+    "commonName": "Dưa lưới Cantaloupe",
+    "description": "Dưa lưới Cantaloupe cho quả tròn hoặc bầu dục với ruột cam ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố."
+  },
+  {
+    "plantId": "k177m8pppe6cep55xh2g81njtx82f5he",
+    "locale": "vi",
+    "commonName": "Dưa lưới Galia",
+    "description": "Dưa lưới Galia cho quả tròn hoặc bầu dục với ruột xanh ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố."
+  },
+  {
+    "plantId": "k17e8gp2q2cz9mqyd1b41fjzqh82ec81",
+    "locale": "vi",
+    "commonName": "Dưa lưới Hami",
+    "description": "Dưa lưới Hami cho quả tròn hoặc bầu dục với ruột vàng ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố."
+  },
+  {
+    "plantId": "k17byws0grgq2gcjdag7b10mm182em95",
+    "locale": "vi",
+    "commonName": "Dưa lưới Honeydew",
+    "description": "Dưa lưới Honeydew cho quả tròn hoặc bầu dục với ruột xanh nhạt ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố."
+  },
+  {
+    "plantId": "k175rb6s5yzzda5c4p8tkmt8y981cmbn",
+    "locale": "vi",
+    "commonName": "Dưa leo",
+    "description": "Dưa leo là dây leo ngắn cho quả thon dài với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua."
+  },
+  {
+    "plantId": "k17c1hbba65mp57eym2x3t2hnx82eacm",
+    "locale": "vi",
+    "commonName": "Dưa leo Armenian",
+    "description": "Dưa leo Armenian là dây leo ngắn cho quả dài hơi xoắn với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua."
+  },
+  {
+    "plantId": "k172mghbfph4avb0d52sm0mtr182fjc0",
+    "locale": "vi",
+    "commonName": "Dưa leo Diva",
+    "description": "Dưa leo Diva là dây leo ngắn cho quả không hạt, vỏ mỏng với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua."
+  },
+  {
+    "plantId": "k1757qhvz3t08ze30nxt93cs8982f1aa",
+    "locale": "vi",
+    "commonName": "Dưa leo English Telegraph",
+    "description": "Dưa leo English Telegraph là dây leo ngắn cho quả dài, vỏ nhẵn với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua."
+  },
+  {
+    "plantId": "k17e68q32as351gjknkjp5w3zs82f6nq",
+    "locale": "vi",
+    "commonName": "Dưa leo Marketmore 76",
+    "description": "Dưa leo Marketmore 76 là dây leo ngắn cho quả vỏ sẫm, chịu bệnh với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua."
+  },
+  {
+    "plantId": "k1781jx6pt9cyt7j44t61ykeqd82f5xa",
+    "locale": "vi",
+    "commonName": "Dưa leo Persian",
+    "description": "Dưa leo Persian là dây leo ngắn cho quả ngắn giòn với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua."
+  },
+  {
+    "plantId": "k17953en4cp16tv8tz5d8pz64181cjrg",
+    "locale": "vi",
+    "commonName": "Bí đỏ",
+    "description": "Bí đỏ sinh ra quả to tròn với thịt ngọt và giàu beta‑caroten. Cây dạng dây leo, thích đất màu mỡ và nhiều nắng. Quả bí đỏ được dùng nấu súp, hấp hoặc làm bánh rất bổ dưỡng."
+  },
+  {
+    "plantId": "k178a70p2z577yhgffq1z96sgx82e7gp",
+    "locale": "vi",
+    "commonName": "Bí đỏ Butternut Waltham",
+    "description": "Bí đỏ Butternut Waltham sinh ra quả dáng hồ lô với thịt ngọt và giàu beta‑caroten. Cây dạng dây leo, thích đất màu mỡ và nhiều nắng. Quả bí đỏ được dùng nấu súp, hấp hoặc làm bánh rất bổ dưỡng."
+  },
+  {
+    "plantId": "k17csbwsvjjqc6evsrfwt1z4es82exyq",
+    "locale": "vi",
+    "commonName": "Bí đỏ Musquee de Provence",
+    "description": "Bí đỏ Musquee de Provence sinh ra quả màu nâu đồng, đường gân sâu với thịt ngọt và giàu beta‑caroten. Cây dạng dây leo, thích đất màu mỡ và nhiều nắng. Quả bí đỏ được dùng nấu súp, hấp hoặc làm bánh rất bổ dưỡng."
+  },
+  {
+    "plantId": "k174wwtmsepnp8qvfv7b6dk0yn82fv46",
+    "locale": "vi",
+    "commonName": "Bí đỏ Tahitian",
+    "description": "Bí đỏ Tahitian sinh ra quả dài hình hồ lô với thịt ngọt và giàu beta‑caroten. Cây dạng dây leo, thích đất màu mỡ và nhiều nắng. Quả bí đỏ được dùng nấu súp, hấp hoặc làm bánh rất bổ dưỡng."
+  },
+  {
+    "plantId": "k170rbvp0tvpjejm5jqgqm513181c83d",
+    "locale": "vi",
+    "commonName": "Bí ngòi",
+    "description": "Bí ngòi có quả màu xanh đậm, thịt mềm và vị ngọt nhẹ. Cây sinh trưởng mạnh trong khí hậu ấm và đất tơi xốp, cần tưới đều và thu hoạch khi quả còn non. Bí ngòi thích hợp xào, nướng hoặc làm salad."
+  },
+  {
+    "plantId": "k17arj015a05g8dh9h4w0g34d982f285",
+    "locale": "vi",
+    "commonName": "Bí ngòi Black Beauty",
+    "description": "Bí ngòi Black Beauty có quả xanh sẫm, thịt mềm và vị ngọt nhẹ. Cây sinh trưởng mạnh trong khí hậu ấm và đất tơi xốp, cần tưới đều và thu hoạch khi quả còn non. Bí ngòi thích hợp xào, nướng hoặc làm salad."
+  },
+  {
+    "plantId": "k17ep9cr1wfaqp9wpywahmrgm582f3ew",
+    "locale": "vi",
+    "commonName": "Bí ngòi Cocozelle",
+    "description": "Bí ngòi Cocozelle có quả xanh sọc nhạt, thịt mềm và vị ngọt nhẹ. Cây sinh trưởng mạnh trong khí hậu ấm và đất tơi xốp, cần tưới đều và thu hoạch khi quả còn non. Bí ngòi thích hợp xào, nướng hoặc làm salad."
+  },
+  {
+    "plantId": "k17eshay3krvp4ctk6t2a0pm5d82emjp",
+    "locale": "vi",
+    "commonName": "Bí ngòi Eight Ball",
+    "description": "Bí ngòi Eight Ball có quả tròn như bóng, thịt mềm và vị ngọt nhẹ. Cây sinh trưởng mạnh trong khí hậu ấm và đất tơi xốp, cần tưới đều và thu hoạch khi quả còn non. Bí ngòi thích hợp xào, nướng hoặc làm salad."
+  },
+  {
+    "plantId": "k173e7yxysnb52hw1n5tvacwq182etg0",
+    "locale": "vi",
+    "commonName": "Bí ngòi Gold Rush",
+    "description": "Bí ngòi Gold Rush có quả vàng ươm, thịt mềm và vị ngọt nhẹ. Cây sinh trưởng mạnh trong khí hậu ấm và đất tơi xốp, cần tưới đều và thu hoạch khi quả còn non. Bí ngòi thích hợp xào, nướng hoặc làm salad."
+  },
+  {
+    "plantId": "k17003bf3fd01rvz8pnhhbck8h82ff24",
+    "locale": "vi",
+    "commonName": "Sả",
+    "description": "Sả là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi."
+  },
+  {
+    "plantId": "k174agy5w25601cymk86t6wbzh82f6k5",
+    "locale": "vi",
+    "commonName": "Sả Cochin",
+    "description": "Sả Cochin là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi."
+  },
+  {
+    "plantId": "k177012chzds3cnyt1czgctsqh82fwe3",
+    "locale": "vi",
+    "commonName": "Sả East Indian",
+    "description": "Sả East Indian là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi."
+  },
+  {
+    "plantId": "k17e5sssbhk77f1qd56pmq892182e78w",
+    "locale": "vi",
+    "commonName": "Sả Krishna",
+    "description": "Sả Krishna là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi."
+  },
+  {
+    "plantId": "k17dqjpcbvvncn1tdpgh3fw9cn82fmzm",
+    "locale": "vi",
+    "commonName": "Sả Pragati",
+    "description": "Sả Pragati là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi."
+  },
+  {
+    "plantId": "k17adyk0mtk9yy3sy880t76tm582fqrc",
+    "locale": "vi",
+    "commonName": "Sả West Indian",
+    "description": "Sả West Indian là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi."
+  },
+  {
+    "plantId": "k171mds8tzdcaxdjy86ahsbs5581d3xq",
+    "locale": "vi",
+    "commonName": "Cà rốt",
+    "description": "Cà rốt có củ màu cam, giòn và ngọt. Cây thích khí hậu mát, đất nhẹ và cần tưới đều. Củ cà rốt dùng ăn sống, nấu canh hoặc ép nước."
+  },
+  {
+    "plantId": "k17fmvb6efg9xs3zdjgjmzbzyh82f9e8",
+    "locale": "vi",
+    "commonName": "Cà rốt Chantenay",
+    "description": "Cà rốt Chantenay có củ ngắn dày, giòn và ngọt. Cây thích khí hậu mát, đất nhẹ và cần tưới đều. Củ cà rốt dùng ăn sống, nấu canh hoặc ép nước."
+  },
+  {
+    "plantId": "k1788j57gnyvv9fpz8mrhptaes82ew03",
+    "locale": "vi",
+    "commonName": "Cà rốt Danvers",
+    "description": "Cà rốt Danvers có củ trung bình mập, giòn và ngọt. Cây thích khí hậu mát, đất nhẹ và cần tưới đều. Củ cà rốt dùng ăn sống, nấu canh hoặc ép nước."
+  },
+  {
+    "plantId": "k176yppj1vy3s13m4k6fmsdc9x82f06k",
+    "locale": "vi",
+    "commonName": "Cà rốt Imperator",
+    "description": "Cà rốt Imperator có củ dài thon, giòn và ngọt. Cây thích khí hậu mát, đất nhẹ và cần tưới đều. Củ cà rốt dùng ăn sống, nấu canh hoặc ép nước."
+  },
+  {
+    "plantId": "k176kzhd0w1a73cfb5e685zxs182fbqd",
+    "locale": "vi",
+    "commonName": "Cà rốt Nantes",
+    "description": "Cà rốt Nantes có củ trụ ngọt, giòn và ngọt. Cây thích khí hậu mát, đất nhẹ và cần tưới đều. Củ cà rốt dùng ăn sống, nấu canh hoặc ép nước."
+  },
+  {
+    "plantId": "k174gappkb4rvnjyhc3h4cr0e582e4cd",
+    "locale": "vi",
+    "commonName": "Cà rốt Purple Haze",
+    "description": "Cà rốt Purple Haze có củ màu tím, giòn và ngọt. Cây thích khí hậu mát, đất nhẹ và cần tưới đều. Củ cà rốt dùng ăn sống, nấu canh hoặc ép nước."
+  },
+  {
+    "plantId": "k178gnjnsty5c02a9rx9xckvq181dd4y",
+    "locale": "vi",
+    "commonName": "Trầu bà",
+    "description": "Trầu bà là cây leo trong nhà với lá xanh bóng, dễ chăm sóc. Cây ưa bóng và đất ẩm. Trầu bà giúp lọc không khí và trang trí nội thất."
+  },
+  {
+    "plantId": "k173ps2nwwt900h6dpw21bhped82fg33",
+    "locale": "vi",
+    "commonName": "Trầu bà Jade",
+    "description": "Trầu bà Jade là cây leo trong nhà với lá xanh bóng, dễ chăm sóc. Cây ưa bóng và đất ẩm. Trầu bà giúp lọc không khí và trang trí nội thất."
+  },
+  {
+    "plantId": "k17302rsm06frr5z7bbrjp5v6182endy",
+    "locale": "vi",
+    "commonName": "Trầu bà Marble Queen",
+    "description": "Trầu bà Marble Queen là cây leo trong nhà với lá xanh bóng, dễ chăm sóc. Cây ưa bóng và đất ẩm. Trầu bà giúp lọc không khí và trang trí nội thất."
+  },
+  {
+    "plantId": "k1798q21kcpx5mwjqa6f1ed3k582fe3g",
+    "locale": "vi",
+    "commonName": "Trầu bà N Joy",
+    "description": "Trầu bà N Joy là cây leo trong nhà với lá xanh bóng, dễ chăm sóc. Cây ưa bóng và đất ẩm. Trầu bà giúp lọc không khí và trang trí nội thất."
+  },
+  {
+    "plantId": "k1757edwtk9fj99fbkasce95nh82fta8",
+    "locale": "vi",
+    "commonName": "Trầu bà Neon",
+    "description": "Trầu bà Neon là cây leo trong nhà với lá xanh bóng, dễ chăm sóc. Cây ưa bóng và đất ẩm. Trầu bà giúp lọc không khí và trang trí nội thất."
+  },
+  {
+    "plantId": "k17ddg0yfaxvg2mhvwyhjbrk2182e874",
+    "locale": "vi",
+    "commonName": "Xà lách rocket",
+    "description": "Xà lách rocket là rau ăn lá có vị cay nồng đặc trưng. Cây phát triển nhanh, ưa mát và ánh sáng. Lá rocket dùng trong salad, pizza hoặc sandwich."
+  },
+  {
+    "plantId": "k1754vzn1cq33jh613psmy8k6d82feth",
+    "locale": "vi",
+    "commonName": "Xà lách rocket Astro",
+    "description": "Xà lách rocket Astro là rau ăn lá có vị cay nồng đặc trưng. Cây phát triển nhanh, ưa mát và ánh sáng. Lá rocket dùng trong salad, pizza hoặc sandwich."
+  },
+  {
+    "plantId": "k175bcwn3qs5pmsv2d98jyhk9h82fpe1",
+    "locale": "vi",
+    "commonName": "Xà lách rocket Esmee",
+    "description": "Xà lách rocket Esmee là rau ăn lá có vị cay nồng đặc trưng. Cây phát triển nhanh, ưa mát và ánh sáng. Lá rocket dùng trong salad, pizza hoặc sandwich."
+  },
+  {
+    "plantId": "k174h2fn7b90htz1n92d2q8ta582f2g9",
+    "locale": "vi",
+    "commonName": "Xà lách rocket Rocket",
+    "description": "Xà lách rocket Rocket là rau ăn lá có vị cay nồng đặc trưng. Cây phát triển nhanh, ưa mát và ánh sáng. Lá rocket dùng trong salad, pizza hoặc sandwich."
+  },
+  {
+    "plantId": "k171f1gngm9y8hk21zrqefgwh182f36b",
+    "locale": "vi",
+    "commonName": "Xà lách rocket Slow Bolt",
+    "description": "Xà lách rocket Slow Bolt là rau ăn lá có vị cay nồng đặc trưng. Cây phát triển nhanh, ưa mát và ánh sáng. Lá rocket dùng trong salad, pizza hoặc sandwich."
+  },
+  {
+    "plantId": "k17d1yg51maamese5kmgtbcw9h82f5x6",
+    "locale": "vi",
+    "commonName": "Xà lách rocket Sylvetta",
+    "description": "Xà lách rocket Sylvetta là rau ăn lá có vị cay nồng đặc trưng. Cây phát triển nhanh, ưa mát và ánh sáng. Lá rocket dùng trong salad, pizza hoặc sandwich."
+  },
+  {
+    "plantId": "k179kstsbvg2hgxkyemztmazdn81ddzf",
+    "locale": "vi",
+    "commonName": "Ngò gai",
+    "description": "Ngò gai là cây gia vị với lá dài có mép răng cưa và mùi thơm nồng. Cây ưa bóng râm và đất ẩm. Lá ngò gai được dùng trong món canh, phở hoặc làm gia vị."
+  },
+  {
+    "plantId": "k178s9r789h9zcbrz7ddjs7a6182ebbs",
+    "locale": "vi",
+    "commonName": "Ngò gai Broad Leaf",
+    "description": "Ngò gai Broad Leaf là cây gia vị với lá dài có mép răng cưa và mùi thơm nồng. Cây ưa bóng râm và đất ẩm. Lá ngò gai được dùng trong món canh, phở hoặc làm gia vị."
+  },
+  {
+    "plantId": "k170gb074b1qqtcfn5mccgphz182emmx",
+    "locale": "vi",
+    "commonName": "Ngò gai Compact Leaf",
+    "description": "Ngò gai Compact Leaf là cây gia vị với lá dài có mép răng cưa và mùi thơm nồng. Cây ưa bóng râm và đất ẩm. Lá ngò gai được dùng trong món canh, phở hoặc làm gia vị."
+  },
+  {
+    "plantId": "k17akv42hmzv9kxz2ssh58hdkd81cxna",
+    "locale": "vi",
+    "commonName": "Đa búp đỏ",
+    "description": "Đa búp đỏ là cây cảnh nội thất với lá dày và bóng, màu sắc đa dạng. Cây ưa sáng tán xạ và đất ẩm. Đa búp đỏ giúp thanh lọc không khí và trang trí hiện đại."
+  },
+  {
+    "plantId": "k171v780bmba2np7ghhr30prg582f2zq",
+    "locale": "vi",
+    "commonName": "Đa búp đỏ Burgundy",
+    "description": "Đa búp đỏ Burgundy là cây cảnh nội thất với lá dày và bóng, màu sắc đa dạng. Cây ưa sáng tán xạ và đất ẩm. Đa búp đỏ giúp thanh lọc không khí và trang trí hiện đại."
+  },
+  {
+    "plantId": "k179rav6hj4wtvfjngp7j3anbh82fpnc",
+    "locale": "vi",
+    "commonName": "Đa búp đỏ Decora",
+    "description": "Đa búp đỏ Decora là cây cảnh nội thất với lá dày và bóng, màu sắc đa dạng. Cây ưa sáng tán xạ và đất ẩm. Đa búp đỏ giúp thanh lọc không khí và trang trí hiện đại."
+  },
+  {
+    "plantId": "k17dfmgwkw77xtq7xbba499c6n82e1jh",
+    "locale": "vi",
+    "commonName": "Đa búp đỏ Ruby",
+    "description": "Đa búp đỏ Ruby là cây cảnh nội thất với lá dày và bóng, màu sắc đa dạng. Cây ưa sáng tán xạ và đất ẩm. Đa búp đỏ giúp thanh lọc không khí và trang trí hiện đại."
+  },
+  {
+    "plantId": "k175c3gy8w7xnakhek2zanq5r982en8e",
+    "locale": "vi",
+    "commonName": "Đa búp đỏ Tineke",
+    "description": "Đa búp đỏ Tineke là cây cảnh nội thất với lá dày và bóng, màu sắc đa dạng. Cây ưa sáng tán xạ và đất ẩm. Đa búp đỏ giúp thanh lọc không khí và trang trí hiện đại."
+  },
+  {
+    "plantId": "k17c2rb90evh26sejse86z74t181d475",
+    "locale": "vi",
+    "commonName": "Dâu tây",
+    "description": "Dâu tây là cây lâu năm thấp cho quả đỏ mọng, ngọt và thơm. Cây thích khí hậu mát, đất thoát nước và ánh sáng. Dâu tây dùng ăn tươi, làm mứt hoặc bánh."
+  },
+  {
+    "plantId": "k17at9gwp78sm9d046py0b6e7582e3kj",
+    "locale": "vi",
+    "commonName": "Dâu tây Albion",
+    "description": "Dâu tây Albion là cây lâu năm thấp cho quả đỏ mọng, ngọt và thơm. Cây thích khí hậu mát, đất thoát nước và ánh sáng. Dâu tây dùng ăn tươi, làm mứt hoặc bánh."
+  },
+  {
+    "plantId": "k17agbk6atb7pr3qjt83dt233n82eyyr",
+    "locale": "vi",
+    "commonName": "Dâu tây Camarosa",
+    "description": "Dâu tây Camarosa là cây lâu năm thấp cho quả đỏ mọng, ngọt và thơm. Cây thích khí hậu mát, đất thoát nước và ánh sáng. Dâu tây dùng ăn tươi, làm mứt hoặc bánh."
+  },
+  {
+    "plantId": "k175hr6x7j9wfhkyk6z3nf1wxd82fg5n",
+    "locale": "vi",
+    "commonName": "Dâu tây Chandler",
+    "description": "Dâu tây Chandler là cây lâu năm thấp cho quả đỏ mọng, ngọt và thơm. Cây thích khí hậu mát, đất thoát nước và ánh sáng. Dâu tây dùng ăn tươi, làm mứt hoặc bánh."
+  },
+  {
+    "plantId": "k17044d5z8988r5m37av9p7n2h82ef1f",
+    "locale": "vi",
+    "commonName": "Dâu tây Seascape",
+    "description": "Dâu tây Seascape là cây lâu năm thấp cho quả đỏ mọng, ngọt và thơm. Cây thích khí hậu mát, đất thoát nước và ánh sáng. Dâu tây dùng ăn tươi, làm mứt hoặc bánh."
+  },
+  {
+    "plantId": "k171gv2b7g22zj847emabxjjrx82fzwb",
+    "locale": "vi",
+    "commonName": "Đậu nành",
+    "description": "Đậu nành là cây họ đậu có hạt giàu đạm. Cây ưa khí hậu ấm, đất phì nhiêu và ẩm. Hạt đậu nành dùng làm sữa, đậu phụ hoặc nấu ăn."
+  },
+  {
+    "plantId": "k17adjk3x2fetv9rrz2m35tya982eq30",
+    "locale": "vi",
+    "commonName": "Đậu nành Chiba Green",
+    "description": "Đậu nành Chiba Green là cây họ đậu có hạt giàu đạm. Cây ưa khí hậu ấm, đất phì nhiêu và ẩm. Hạt đậu nành dùng làm sữa, đậu phụ hoặc nấu ăn."
+  },
+  {
+    "plantId": "k1702dtsdyy6bvn7ez2mwffz6x82e442",
+    "locale": "vi",
+    "commonName": "Đậu nành Envy",
+    "description": "Đậu nành Envy là cây họ đậu có hạt giàu đạm. Cây ưa khí hậu ấm, đất phì nhiêu và ẩm. Hạt đậu nành dùng làm sữa, đậu phụ hoặc nấu ăn."
+  },
+  {
+    "plantId": "k170qmmz8brqpmv71banzhhpjs82e4fp",
+    "locale": "vi",
+    "commonName": "Đậu nành Midori Giant",
+    "description": "Đậu nành Midori Giant là cây họ đậu có hạt giàu đạm. Cây ưa khí hậu ấm, đất phì nhiêu và ẩm. Hạt đậu nành dùng làm sữa, đậu phụ hoặc nấu ăn."
+  },
+  {
+    "plantId": "k176jtydd6nnd9hkbrgda2085582fkck",
+    "locale": "vi",
+    "commonName": "Đậu nành Sayamusume",
+    "description": "Đậu nành Sayamusume là cây họ đậu có hạt giàu đạm. Cây ưa khí hậu ấm, đất phì nhiêu và ẩm. Hạt đậu nành dùng làm sữa, đậu phụ hoặc nấu ăn."
+  },
+  {
+    "plantId": "k1707ktf597zcm70ptg6v008p982e6g4",
+    "locale": "vi",
+    "commonName": "Đậu nành Tankuro",
+    "description": "Đậu nành Tankuro là cây họ đậu có hạt giàu đạm. Cây ưa khí hậu ấm, đất phì nhiêu và ẩm. Hạt đậu nành dùng làm sữa, đậu phụ hoặc nấu ăn."
+  },
+  {
+    "plantId": "k170tfgwd6k1bvdz3exs332bt981d4t4",
+    "locale": "vi",
+    "commonName": "Hướng dương",
+    "description": "Hướng dương là cây thân cao với hoa lớn màu vàng rực rỡ. Cây ưa nắng và đất giàu dinh dưỡng. Hoa hướng dương vừa dùng làm cảnh vừa cung cấp hạt ăn được."
+  },
+  {
+    "plantId": "k170p19mt773h34657x33x4aqd82e5xm",
+    "locale": "vi",
+    "commonName": "Hướng dương Mammoth",
+    "description": "Hướng dương Mammoth là cây thân cao với hoa lớn màu vàng rực rỡ. Cây ưa nắng và đất giàu dinh dưỡng. Hoa hướng dương vừa dùng làm cảnh vừa cung cấp hạt ăn được."
+  },
+  {
+    "plantId": "k178qy6zkypt02cdafb5rjqbsh82fhw9",
+    "locale": "vi",
+    "commonName": "Hướng dương Sunrich Gold",
+    "description": "Hướng dương Sunrich Gold là cây thân cao với hoa lớn màu vàng rực rỡ. Cây ưa nắng và đất giàu dinh dưỡng. Hoa hướng dương vừa dùng làm cảnh vừa cung cấp hạt ăn được."
+  },
+  {
+    "plantId": "k17ffcqt20xyrr81zz7szq19ys82e0f7",
+    "locale": "vi",
+    "commonName": "Hướng dương Teddy Bear",
+    "description": "Hướng dương Teddy Bear là cây thân cao với hoa lớn màu vàng rực rỡ. Cây ưa nắng và đất giàu dinh dưỡng. Hoa hướng dương vừa dùng làm cảnh vừa cung cấp hạt ăn được."
+  },
+  {
+    "plantId": "k1731phc680c49b8qrq2r29z2981cxan",
+    "locale": "vi",
+    "commonName": "Dâm bụt",
+    "description": "Dâm bụt là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k171r3kzkbsd4qgx80d8r75mjh82ea90",
+    "locale": "vi",
+    "commonName": "Dâm bụt Pink Giant",
+    "description": "Dâm bụt Pink Giant là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k176bcm6wsqgaaegxy4b81dhv982e24d",
+    "locale": "vi",
+    "commonName": "Dâm bụt Red Single",
+    "description": "Dâm bụt Red Single là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k17ax75sngxycdre376cyfjch982eeg7",
+    "locale": "vi",
+    "commonName": "Dâm bụt Yellow Double",
+    "description": "Dâm bụt Yellow Double là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k179rbed6wcznn326xbn9tk0dx81dz8c",
+    "locale": "vi",
+    "commonName": "Rau muống",
+    "description": "Rau muống là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh."
+  },
+  {
+    "plantId": "k179rghnhd5vdxea4qsn3v4sk182egdn",
+    "locale": "vi",
+    "commonName": "Rau muống Broad Leaf",
+    "description": "Rau muống Broad Leaf là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh."
+  },
+  {
+    "plantId": "k17bgxqyxeyymyh0twj940a1ah82fp6n",
+    "locale": "vi",
+    "commonName": "Rau muống Green Stem",
+    "description": "Rau muống Green Stem là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh."
+  },
+  {
+    "plantId": "k179r24w55qxp4vzk8wvv8b1md82fnxb",
+    "locale": "vi",
+    "commonName": "Rau muống Red Stem",
+    "description": "Rau muống Red Stem là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh."
+  },
+  {
+    "plantId": "k17cescbstcjz8ac6vt0p9ewg182ekby",
+    "locale": "vi",
+    "commonName": "Khoai lang",
+    "description": "Khoai lang là cây dây leo cho củ vàng ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh."
+  },
+  {
+    "plantId": "k174asww8kk83500f0ebtxz9es82e2v0",
+    "locale": "vi",
+    "commonName": "Khoai lang Beauregard",
+    "description": "Khoai lang Beauregard là cây dây leo cho củ ruột cam ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh."
+  },
+  {
+    "plantId": "k17bpfvd79zddzfbj3ht3remes82eydz",
+    "locale": "vi",
+    "commonName": "Khoai lang Georgia Jet",
+    "description": "Khoai lang Georgia Jet là cây dây leo cho củ ruột đỏ cam ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh."
+  },
+  {
+    "plantId": "k1719ctrgzh995gfe4z6ka2x6182etv0",
+    "locale": "vi",
+    "commonName": "Khoai lang Japanese Purple",
+    "description": "Khoai lang Japanese Purple là cây dây leo cho củ ruột tím ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh."
+  },
+  {
+    "plantId": "k170mxhs372642zxx23jwcw6n182eptz",
+    "locale": "vi",
+    "commonName": "Khoai lang Jewel",
+    "description": "Khoai lang Jewel là cây dây leo cho củ ruột cam ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh."
+  },
+  {
+    "plantId": "k17bte8208x49dg75rqdpk4c0d82f94a",
+    "locale": "vi",
+    "commonName": "Khoai lang Okinawan",
+    "description": "Khoai lang Okinawan là cây dây leo cho củ ruột tím đậm ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh."
+  },
+  {
+    "plantId": "k1711z1aazy90vfnms3freed3h82frn6",
+    "locale": "vi",
+    "commonName": "Hoa nhài",
+    "description": "Hoa nhài là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k176rekv4h1epy001vs4gv76e582emqz",
+    "locale": "vi",
+    "commonName": "Hoa nhài Arabian Nights",
+    "description": "Hoa nhài Arabian Nights là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k178xrbfjddy8bvkppkvew9jn182e3d6",
+    "locale": "vi",
+    "commonName": "Hoa nhài Belle of India",
+    "description": "Hoa nhài Belle of India là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k1761ky6h4spy6hb7r5hdhepe182eb41",
+    "locale": "vi",
+    "commonName": "Hoa nhài Grand Duke",
+    "description": "Hoa nhài Grand Duke là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k17edny9kk0y6v4m0aztcqkv0d82esns",
+    "locale": "vi",
+    "commonName": "Hoa nhài Maid of Orleans",
+    "description": "Hoa nhài Maid of Orleans là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k177vynwhrcvtpd458w9x2s1k982edxq",
+    "locale": "vi",
+    "commonName": "Hoa nhài Sambac Single",
+    "description": "Hoa nhài Sambac Single là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà."
+  },
+  {
+    "plantId": "k179538ey031gywkg6qc6tde3581ddx0",
+    "locale": "vi",
+    "commonName": "Xà lách",
+    "description": "Xà lách là rau lá mềm mềm với vị ngọt dịu. Cây phát triển tốt trong điều kiện mát mẻ và đất ẩm. Lá xà lách dùng ăn sống trong salad, cuốn hoặc bánh mì."
+  },
+  {
+    "plantId": "k17cw4pcxy5dy77j4jf7ee7wm182ez59",
+    "locale": "vi",
+    "commonName": "Xà lách Butterhead",
+    "description": "Xà lách Butterhead là rau lá mềm lá mềm như bơ với vị ngọt dịu. Cây phát triển tốt trong điều kiện mát mẻ và đất ẩm. Lá xà lách dùng ăn sống trong salad, cuốn hoặc bánh mì."
+  },
+  {
+    "plantId": "k17ad111qqmpa13z0ch9k7wf1582earr",
+    "locale": "vi",
+    "commonName": "Xà lách Iceberg",
+    "description": "Xà lách Iceberg là rau lá mềm bắp tròn giòn với vị ngọt dịu. Cây phát triển tốt trong điều kiện mát mẻ và đất ẩm. Lá xà lách dùng ăn sống trong salad, cuốn hoặc bánh mì."
+  },
+  {
+    "plantId": "k17afpqhzxs4r83t4hgcvnp1eh82f0hy",
+    "locale": "vi",
+    "commonName": "Xà lách Lollo Rosso",
+    "description": "Xà lách Lollo Rosso là rau lá mềm lá xoăn đỏ với vị ngọt dịu. Cây phát triển tốt trong điều kiện mát mẻ và đất ẩm. Lá xà lách dùng ăn sống trong salad, cuốn hoặc bánh mì."
+  },
+  {
+    "plantId": "k175s86fnaecgbp2z2tvnhzg2h82ep1d",
+    "locale": "vi",
+    "commonName": "Xà lách Oakleaf",
+    "description": "Xà lách Oakleaf là rau lá mềm lá hình cánh sồi với vị ngọt dịu. Cây phát triển tốt trong điều kiện mát mẻ và đất ẩm. Lá xà lách dùng ăn sống trong salad, cuốn hoặc bánh mì."
+  },
+  {
+    "plantId": "k176wn1v8gny15cktcbsm0g6bn82fepe",
+    "locale": "vi",
+    "commonName": "Xà lách Romaine",
+    "description": "Xà lách Romaine là rau lá mềm lá dài giòn với vị ngọt dịu. Cây phát triển tốt trong điều kiện mát mẻ và đất ẩm. Lá xà lách dùng ăn sống trong salad, cuốn hoặc bánh mì."
+  },
+  {
+    "plantId": "k175x9yb411cp6ksrxzxj9k90h82f7tk",
+    "locale": "vi",
+    "commonName": "Oải hương",
+    "description": "Oải hương là cây bụi thơm với hoa màu tím và mùi hương thư giãn. Cây ưa nắng, đất khô thoát nước. Hoa oải hương dùng trang trí, làm túi thơm hoặc pha trà."
+  },
+  {
+    "plantId": "k177jfzsmmx9gfffshzzkk16b982eg9z",
+    "locale": "vi",
+    "commonName": "Oải hương Ellagance Purple",
+    "description": "Oải hương Ellagance Purple là cây bụi thơm với hoa màu tím và mùi hương thư giãn. Cây ưa nắng, đất khô thoát nước. Hoa oải hương dùng trang trí, làm túi thơm hoặc pha trà."
+  },
+  {
+    "plantId": "k17138jqn9ha2k9sjgkt6jfzs582e2b4",
+    "locale": "vi",
+    "commonName": "Oải hương Hidcote",
+    "description": "Oải hương Hidcote là cây bụi thơm với hoa màu tím và mùi hương thư giãn. Cây ưa nắng, đất khô thoát nước. Hoa oải hương dùng trang trí, làm túi thơm hoặc pha trà."
+  },
+  {
+    "plantId": "k172n2zpra1t1rprhzqs3674p982fs1d",
+    "locale": "vi",
+    "commonName": "Oải hương Melissa",
+    "description": "Oải hương Melissa là cây bụi thơm với hoa màu tím và mùi hương thư giãn. Cây ưa nắng, đất khô thoát nước. Hoa oải hương dùng trang trí, làm túi thơm hoặc pha trà."
+  },
+  {
+    "plantId": "k17axrb1ybcsc6g5ag04tzke7s82f63h",
+    "locale": "vi",
+    "commonName": "Oải hương Munstead",
+    "description": "Oải hương Munstead là cây bụi thơm với hoa màu tím và mùi hương thư giãn. Cây ưa nắng, đất khô thoát nước. Hoa oải hương dùng trang trí, làm túi thơm hoặc pha trà."
+  },
+  {
+    "plantId": "k171gqeazgfw8ngbwr2ps5p6g182e3vg",
+    "locale": "vi",
+    "commonName": "Oải hương Royal Velvet",
+    "description": "Oải hương Royal Velvet là cây bụi thơm với hoa màu tím và mùi hương thư giãn. Cây ưa nắng, đất khô thoát nước. Hoa oải hương dùng trang trí, làm túi thơm hoặc pha trà."
+  },
+  {
+    "plantId": "k17bk9fbwtkg72qykdd1ke481182e533",
+    "locale": "vi",
+    "commonName": "Mướp hương",
+    "description": "Mướp hương là dây leo cho quả dài, thịt mềm và vị thanh. Cây ưa nắng và đất ẩm, cần giàn leo. Quả mướp được dùng nấu canh, xào và có thể làm xơ mướp khi già."
+  },
+  {
+    "plantId": "k174mjt5q7q9rj88tgw25abs3582ed23",
+    "locale": "vi",
+    "commonName": "Mướp hương Early White",
+    "description": "Mướp hương Early White là dây leo cho quả dài, thịt mềm và vị thanh. Cây ưa nắng và đất ẩm, cần giàn leo. Quả mướp được dùng nấu canh, xào và có thể làm xơ mướp khi già."
+  },
+  {
+    "plantId": "k176y1ak6052p817de6r8xvqjs82fm06",
+    "locale": "vi",
+    "commonName": "Mướp hương Hybrid Green",
+    "description": "Mướp hương Hybrid Green là dây leo cho quả dài, thịt mềm và vị thanh. Cây ưa nắng và đất ẩm, cần giàn leo. Quả mướp được dùng nấu canh, xào và có thể làm xơ mướp khi già."
+  },
+  {
+    "plantId": "k17a04zykzzc8a8edqt78n11n182f60h",
+    "locale": "vi",
+    "commonName": "Mướp hương Lucky Boy",
+    "description": "Mướp hương Lucky Boy là dây leo cho quả dài, thịt mềm và vị thanh. Cây ưa nắng và đất ẩm, cần giàn leo. Quả mướp được dùng nấu canh, xào và có thể làm xơ mướp khi già."
+  },
+  {
+    "plantId": "k17bczh7nnv6q9jyvnwbv7fpk182f1wc",
+    "locale": "vi",
+    "commonName": "Mướp hương Smooth Beauty",
+    "description": "Mướp hương Smooth Beauty là dây leo cho quả dài, thịt mềm và vị thanh. Cây ưa nắng và đất ẩm, cần giàn leo. Quả mướp được dùng nấu canh, xào và có thể làm xơ mướp khi già."
+  },
+  {
+    "plantId": "k177r3dt4fb5d2nqw9c534yf7x82eq6y",
+    "locale": "vi",
+    "commonName": "Mướp hương Summer Long",
+    "description": "Mướp hương Summer Long là dây leo cho quả dài, thịt mềm và vị thanh. Cây ưa nắng và đất ẩm, cần giàn leo. Quả mướp được dùng nấu canh, xào và có thể làm xơ mướp khi già."
+  },
+  {
+    "plantId": "k173hnxjqdpyetwgm54qscrsvd82edd3",
+    "locale": "vi",
+    "commonName": "Xoài",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k175a8s0jn0rce620qrk2hatfx82f426",
+    "locale": "vi",
+    "commonName": "Xoài Cat Hoa Loc",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k1742tj2nzcez47ras248a0jhs82fvg5",
+    "locale": "vi",
+    "commonName": "Xoài Irwin",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k176z1hkxdb2yb43ng5ce1ewcd82esca",
+    "locale": "vi",
+    "commonName": "Xoài Keitt",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k172yfab4y7scdpz7yywjadc5582ee17",
+    "locale": "vi",
+    "commonName": "Xoài Kent",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k1764qqz86yrez5fty84h7scpx82fzbp",
+    "locale": "vi",
+    "commonName": "Xoài Nam Doc Mai",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k170d333c73ankrz7p0956xj6n81dmc4",
+    "locale": "vi",
+    "commonName": "Bạc hà",
+    "description": "Bạc hà là cây thảo mộc thơm dễ chịu, lá xanh và hương mát. Cây lan nhanh, thích đất ẩm và ánh sáng vừa, thích hợp trồng trong chậu. Lá bạc hà được dùng pha trà, làm salad hoặc trang trí món tráng miệng."
+  },
+  {
+    "plantId": "k172vzdd0a9we5hq002ksjaamh82fnd0",
+    "locale": "vi",
+    "commonName": "Bạc hà Chocolate",
+    "description": "Bạc hà Chocolate là cây thảo mộc thơm mang hương socola nhẹ, lá xanh và hương mát. Cây lan nhanh, thích đất ẩm và ánh sáng vừa, thích hợp trồng trong chậu. Lá bạc hà được dùng pha trà, làm salad hoặc trang trí món tráng miệng."
+  },
+  {
+    "plantId": "k175brgf5jp6vb1scf9rfw53xx82e369",
+    "locale": "vi",
+    "commonName": "Bạc hà Orange",
+    "description": "Bạc hà Orange là cây thảo mộc thơm mang hương cam, lá xanh và hương mát. Cây lan nhanh, thích đất ẩm và ánh sáng vừa, thích hợp trồng trong chậu. Lá bạc hà được dùng pha trà, làm salad hoặc trang trí món tráng miệng."
+  },
+  {
+    "plantId": "k177gy4k8vstrththcv64eegpn82ejjn",
+    "locale": "vi",
+    "commonName": "Bạc hà Variegata",
+    "description": "Bạc hà Variegata là cây thảo mộc thơm có lá viền trắng, lá xanh và hương mát. Cây lan nhanh, thích đất ẩm và ánh sáng vừa, thích hợp trồng trong chậu. Lá bạc hà được dùng pha trà, làm salad hoặc trang trí món tráng miệng."
+  },
+  {
+    "plantId": "k1727gds24ya19ntxeas54ev2981dhgj",
+    "locale": "vi",
+    "commonName": "Mướp đắng",
+    "description": "Mướp đắng là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt."
+  },
+  {
+    "plantId": "k174zzakq2aqjhkr0k4sa1agg182fdv3",
+    "locale": "vi",
+    "commonName": "Mướp đắng Jade Star",
+    "description": "Mướp đắng Jade Star là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt."
+  },
+  {
+    "plantId": "k179c05bym5hr0prcs8xdqh66d82ep16",
+    "locale": "vi",
+    "commonName": "Mướp đắng Taiwan Long",
+    "description": "Mướp đắng Taiwan Long là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt."
+  },
+  {
+    "plantId": "k17002kde84dmnnpxsvapchyr582ex2w",
+    "locale": "vi",
+    "commonName": "Mướp đắng White Pearl",
+    "description": "Mướp đắng White Pearl là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt."
+  },
+  {
+    "plantId": "k170m4s49y9vym6nznc3539j5582fmwk",
+    "locale": "vi",
+    "commonName": "Trầu bà lá xẻ",
+    "description": "Trầu bà lá xẻ có lá lớn xẻ thùy đẹp mắt. Cây thích ánh sáng tán xạ và đất ẩm. Đây là loại cây cảnh nội thất nổi tiếng."
+  },
+  {
+    "plantId": "k174cq3m33079f5vp90a6x8nr182e5ez",
+    "locale": "vi",
+    "commonName": "Trầu bà lá xẻ Albo Variegata",
+    "description": "Trầu bà lá xẻ Albo Variegata có lá lớn xẻ thùy đẹp mắt. Cây thích ánh sáng tán xạ và đất ẩm. Đây là loại cây cảnh nội thất nổi tiếng."
+  },
+  {
+    "plantId": "k170fhafqw4rex16zvvag1z31182fvrx",
+    "locale": "vi",
+    "commonName": "Trầu bà lá xẻ Aurea",
+    "description": "Trầu bà lá xẻ Aurea có lá lớn xẻ thùy đẹp mắt. Cây thích ánh sáng tán xạ và đất ẩm. Đây là loại cây cảnh nội thất nổi tiếng."
+  },
+  {
+    "plantId": "k178yhc4yk07yay1qb019hh4ex82fgw3",
+    "locale": "vi",
+    "commonName": "Trầu bà lá xẻ Borsigiana",
+    "description": "Trầu bà lá xẻ Borsigiana có lá lớn xẻ thùy đẹp mắt. Cây thích ánh sáng tán xạ và đất ẩm. Đây là loại cây cảnh nội thất nổi tiếng."
+  },
+  {
+    "plantId": "k17ced04f0vhggp0ewpa514rvd82ercy",
+    "locale": "vi",
+    "commonName": "Trầu bà lá xẻ Mint",
+    "description": "Trầu bà lá xẻ Mint có lá lớn xẻ thùy đẹp mắt. Cây thích ánh sáng tán xạ và đất ẩm. Đây là loại cây cảnh nội thất nổi tiếng."
+  },
+  {
+    "plantId": "k17b2zjka62p5p42v6vjxp4a8982fmsn",
+    "locale": "vi",
+    "commonName": "Trầu bà lá xẻ Thai Constellation",
+    "description": "Trầu bà lá xẻ Thai Constellation có lá lớn xẻ thùy đẹp mắt. Cây thích ánh sáng tán xạ và đất ẩm. Đây là loại cây cảnh nội thất nổi tiếng."
+  },
+  {
+    "plantId": "k178bdcq69nqv0xq67abb28hn181cvdp",
+    "locale": "vi",
+    "commonName": "Húng quế",
+    "description": "Húng quế là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh."
+  },
+  {
+    "plantId": "k1709j6cpbse9wvenaffm3s18h82f538",
+    "locale": "vi",
+    "commonName": "Húng quế Genovese",
+    "description": "Húng quế Genovese là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh."
+  },
+  {
+    "plantId": "k170pbs4mw7rc1n2asfzwvj4md82f9t9",
+    "locale": "vi",
+    "commonName": "Húng quế chanh",
+    "description": "Húng quế Lemon là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh."
+  },
+  {
+    "plantId": "k1760rzcqpm90q14mmpy7bfc0582fm58",
+    "locale": "vi",
+    "commonName": "Húng quế tím",
+    "description": "Húng quế Purple Ruffles là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh."
+  },
+  {
+    "plantId": "k174x1rn29rycr7vcpaf0rncnn82fbxm",
+    "locale": "vi",
+    "commonName": "Húng quế ngọt",
+    "description": "Húng quế Sweet là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh."
+  },
+  {
+    "plantId": "k1730xstgn5mveggx0h5d89s0182eqvd",
+    "locale": "vi",
+    "commonName": "Húng quế Thái",
+    "description": "Húng quế Thai là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh."
+  },
+  {
+    "plantId": "k178hwszkqfwvw4p6bjkj3ns1h81dy0w",
+    "locale": "vi",
+    "commonName": "Kinh giới tây",
+    "description": "Kinh giới tây là thảo mộc thơm nhẹ nhàng với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải."
+  },
+  {
+    "plantId": "k172s4vfve8xkwxhc50nj7mr9582evnz",
+    "locale": "vi",
+    "commonName": "Kinh giới tây Golden Oregano",
+    "description": "Kinh giới tây Golden Oregano là thảo mộc thơm lá vàng nhạt với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải."
+  },
+  {
+    "plantId": "k179wd9vjwdey9fzdb8xjm05mx82efs1",
+    "locale": "vi",
+    "commonName": "Kinh giới tây Greek Oregano",
+    "description": "Kinh giới tây Greek Oregano là thảo mộc thơm hương mạnh với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải."
+  },
+  {
+    "plantId": "k1732yg9954n97jxvjfb8sdpzh82edxp",
+    "locale": "vi",
+    "commonName": "Kinh giới tây Hot and Spicy",
+    "description": "Kinh giới tây Hot and Spicy là thảo mộc thơm cay nồng với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải."
+  },
+  {
+    "plantId": "k17fyykjd66d5ksdyyscjqtw8582eyf7",
+    "locale": "vi",
+    "commonName": "Chanh dây",
+    "description": "Chanh dây là dây leo nhiệt đới cho trái vỏ tím, ruột thơm và chua nhẹ. Cây phát triển nhanh, cần giàn leo và nhiều nắng. Trái chanh dây được dùng pha nước giải khát, làm mứt hoặc hương vị cho món tráng miệng."
+  },
+  {
+    "plantId": "k17cw35ae24bfm2093edysxxph82eyv3",
+    "locale": "vi",
+    "commonName": "Chanh dây Frederick",
+    "description": "Chanh dây Frederick là dây leo nhiệt đới cho trái vỏ tím sẫm, ruột thơm và chua nhẹ. Cây phát triển nhanh, cần giàn leo và nhiều nắng. Trái chanh dây được dùng pha nước giải khát, làm mứt hoặc hương vị cho món tráng miệng."
+  },
+  {
+    "plantId": "k1764a8qf1dt9k0mygnyad022h82f97n",
+    "locale": "vi",
+    "commonName": "Chanh dây Misty Gem",
+    "description": "Chanh dây Misty Gem là dây leo nhiệt đới cho trái vỏ tím nhạt, ruột thơm và chua nhẹ. Cây phát triển nhanh, cần giàn leo và nhiều nắng. Trái chanh dây được dùng pha nước giải khát, làm mứt hoặc hương vị cho món tráng miệng."
+  },
+  {
+    "plantId": "k17bcysxq37w1crrx05jgqw16x82e3xk",
+    "locale": "vi",
+    "commonName": "Chanh dây Panama Red",
+    "description": "Chanh dây Panama Red là dây leo nhiệt đới cho trái vỏ đỏ tía, ruột thơm và chua nhẹ. Cây phát triển nhanh, cần giàn leo và nhiều nắng. Trái chanh dây được dùng pha nước giải khát, làm mứt hoặc hương vị cho món tráng miệng."
+  },
+  {
+    "plantId": "k17dd7qg7r1rcszyccnm8cgzb182et62",
+    "locale": "vi",
+    "commonName": "Chanh dây Possum Purple",
+    "description": "Chanh dây Possum Purple là dây leo nhiệt đới cho trái vỏ tím đậm, ruột thơm và chua nhẹ. Cây phát triển nhanh, cần giàn leo và nhiều nắng. Trái chanh dây được dùng pha nước giải khát, làm mứt hoặc hương vị cho món tráng miệng."
+  },
+  {
+    "plantId": "k175pdgqb5t7tcn4f97tarp7qh82ey6y",
+    "locale": "vi",
+    "commonName": "Chanh dây Sweet Sunrise",
+    "description": "Chanh dây Sweet Sunrise là dây leo nhiệt đới cho trái vỏ vàng cam, ruột thơm và chua nhẹ. Cây phát triển nhanh, cần giàn leo và nhiều nắng. Trái chanh dây được dùng pha nước giải khát, làm mứt hoặc hương vị cho món tráng miệng."
+  },
+  {
+    "plantId": "k17f0jara6fxxc175s6jtbgzwh82ev5x",
+    "locale": "vi",
+    "commonName": "Củ cải vàng",
+    "description": "Củ cải vàng có củ màu vàng kem, vị ngọt và hơi giống cà rốt. Cây thích khí hậu mát, đất sâu và thoát nước tốt. Củ được dùng nướng, hầm hoặc xay súp."
+  },
+  {
+    "plantId": "k172g59ywresn6akkzjr3vfv9x82f78c",
+    "locale": "vi",
+    "commonName": "Củ cải vàng Albion",
+    "description": "Củ cải vàng Albion có củ màu vàng kem, vị ngọt và hơi giống cà rốt. Cây thích khí hậu mát, đất sâu và thoát nước tốt. Củ được dùng nướng, hầm hoặc xay súp."
+  },
+  {
+    "plantId": "k1793a8qesd86arcntemw49arx82fmxg",
+    "locale": "vi",
+    "commonName": "Củ cải vàng Gladiator",
+    "description": "Củ cải vàng Gladiator có củ màu vàng kem, vị ngọt và hơi giống cà rốt. Cây thích khí hậu mát, đất sâu và thoát nước tốt. Củ được dùng nướng, hầm hoặc xay súp."
+  },
+  {
+    "plantId": "k178fd80vnd4q3jjwjdm4v6zz982e09q",
+    "locale": "vi",
+    "commonName": "Củ cải vàng Hollow Crown",
+    "description": "Củ cải vàng Hollow Crown có củ màu vàng kem, vị ngọt và hơi giống cà rốt. Cây thích khí hậu mát, đất sâu và thoát nước tốt. Củ được dùng nướng, hầm hoặc xay súp."
+  },
+  {
+    "plantId": "k17cashzt2wmt996ma3d491vhs82fkx4",
+    "locale": "vi",
+    "commonName": "Củ cải vàng Javelin",
+    "description": "Củ cải vàng Javelin có củ màu vàng kem, vị ngọt và hơi giống cà rốt. Cây thích khí hậu mát, đất sâu và thoát nước tốt. Củ được dùng nướng, hầm hoặc xay súp."
+  },
+  {
+    "plantId": "k1703e5tz6jzrtx9x96zmszyzs82e4hs",
+    "locale": "vi",
+    "commonName": "Củ cải vàng Tender and True",
+    "description": "Củ cải vàng Tender and True có củ màu vàng kem, vị ngọt và hơi giống cà rốt. Cây thích khí hậu mát, đất sâu và thoát nước tốt. Củ được dùng nướng, hầm hoặc xay súp."
+  },
+  {
+    "plantId": "k178wgm1bbm06pd6cxba0cfysx81cf7f",
+    "locale": "vi",
+    "commonName": "Tía tô",
+    "description": "Tía tô là cây gia vị với lá thơm, vị cay dịu. Cây dễ trồng, ưa bóng nhẹ. Lá tía tô dùng ăn sống, cuốn bánh hoặc làm trà."
+  },
+  {
+    "plantId": "k17f0d8gf6khfnjvsa4g1ne3s582fbp4",
+    "locale": "vi",
+    "commonName": "Tía tô Bicolor Shiso",
+    "description": "Tía tô Bicolor Shiso là cây gia vị với lá thơm, vị cay dịu. Cây dễ trồng, ưa bóng nhẹ. Lá tía tô dùng ăn sống, cuốn bánh hoặc làm trà."
+  },
+  {
+    "plantId": "k17bfj97623vgbbdfpvmn6g81582edh3",
+    "locale": "vi",
+    "commonName": "Tía tô Green Shiso",
+    "description": "Tía tô Green Shiso là cây gia vị với lá thơm, vị cay dịu. Cây dễ trồng, ưa bóng nhẹ. Lá tía tô dùng ăn sống, cuốn bánh hoặc làm trà."
+  },
+  {
+    "plantId": "k1756sq0bdz757wthnm7809jb182evq9",
+    "locale": "vi",
+    "commonName": "Tía tô Red Shiso",
+    "description": "Tía tô Red Shiso là cây gia vị với lá thơm, vị cay dịu. Cây dễ trồng, ưa bóng nhẹ. Lá tía tô dùng ăn sống, cuốn bánh hoặc làm trà."
+  },
+  {
+    "plantId": "k17b8ycfn2ssndwn1jv4qr7f3h81cg9p",
+    "locale": "vi",
+    "commonName": "Ngò tây",
+    "description": "Ngò tây là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị."
+  },
+  {
+    "plantId": "k174803pd4q67bbzvy90jwp2hx82eykb",
+    "locale": "vi",
+    "commonName": "Ngò tây Curly",
+    "description": "Ngò tây Curly là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị."
+  },
+  {
+    "plantId": "k17f4nf599nzkmqt6wrsxk3x5d82ezfh",
+    "locale": "vi",
+    "commonName": "Ngò tây Dark Green",
+    "description": "Ngò tây Dark Green là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị."
+  },
+  {
+    "plantId": "k170291hzzfvqvn4yerhx7pxgx82f8j1",
+    "locale": "vi",
+    "commonName": "Ngò tây Italian Flat Leaf",
+    "description": "Ngò tây Italian Flat Leaf là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị."
+  },
+  {
+    "plantId": "k179htehddab14jsqvp0qa28nn81cjg2",
+    "locale": "vi",
+    "commonName": "Đậu cô ve",
+    "description": "Đậu cô ve là cây dạng bụi hoặc leo cho quả dài giòn. Cây ưa nắng và đất phì nhiêu. Đậu được dùng luộc, xào hoặc hấp."
+  },
+  {
+    "plantId": "k174r1fy7j1phn32250g8ccwqd82fszk",
+    "locale": "vi",
+    "commonName": "Đậu cô ve Blue Lake",
+    "description": "Đậu cô ve Blue Lake là cây leo mạnh cho quả dài giòn. Cây ưa nắng và đất phì nhiêu. Đậu được dùng luộc, xào hoặc hấp."
+  },
+  {
+    "plantId": "k17csfrrak98tj2j8ne3a85xbd82eptj",
+    "locale": "vi",
+    "commonName": "Đậu cô ve Dragon Tongue",
+    "description": "Đậu cô ve Dragon Tongue là cây leo với vỏ sọc cho quả dài giòn. Cây ưa nắng và đất phì nhiêu. Đậu được dùng luộc, xào hoặc hấp."
+  },
+  {
+    "plantId": "k17ecfz359d0xfw3c2mtv7gtyh82f6sc",
+    "locale": "vi",
+    "commonName": "Đậu cô ve Kentucky Wonder",
+    "description": "Đậu cô ve Kentucky Wonder là cây leo xanh cổ điển cho quả dài giòn. Cây ưa nắng và đất phì nhiêu. Đậu được dùng luộc, xào hoặc hấp."
+  },
+  {
+    "plantId": "k17a9856y86kckz6b97j45w6f182f4bn",
+    "locale": "vi",
+    "commonName": "Đậu cô ve Provider",
+    "description": "Đậu cô ve Provider là cây bụi, chịu hạn cho quả dài giòn. Cây ưa nắng và đất phì nhiêu. Đậu được dùng luộc, xào hoặc hấp."
+  },
+  {
+    "plantId": "k174aw5a9mqyxt7hemfzaca1e182eths",
+    "locale": "vi",
+    "commonName": "Cà Tomatillo",
+    "description": "Cà Tomatillo cho quả nhỏ xanh được bọc trong lớp vỏ lồng, vị chua nhẹ. Cây thích khí hậu ấm, đất giàu hữu cơ và tưới đều. Quả tomatillo được dùng trong salsa, nướng hoặc nấu canh."
+  },
+  {
+    "plantId": "k17ajj5nf9gs2hcrndnc0d072h82ew3g",
+    "locale": "vi",
+    "commonName": "Cà Tomatillo Grande Rio",
+    "description": "Cà Tomatillo Grande Rio cho quả nhỏ xanh to được bọc trong lớp vỏ lồng, vị chua nhẹ. Cây thích khí hậu ấm, đất giàu hữu cơ và tưới đều. Quả tomatillo được dùng trong salsa, nướng hoặc nấu canh."
+  },
+  {
+    "plantId": "k17cjmkr0cs2scay7h9f3kw7a182f189",
+    "locale": "vi",
+    "commonName": "Cà Tomatillo Milpero",
+    "description": "Cà Tomatillo Milpero cho quả nhỏ nhỏ xanh nhạt được bọc trong lớp vỏ lồng, vị chua nhẹ. Cây thích khí hậu ấm, đất giàu hữu cơ và tưới đều. Quả tomatillo được dùng trong salsa, nướng hoặc nấu canh."
+  },
+  {
+    "plantId": "k17annnnjj8y6zvqz6n17ce7h982ej7t",
+    "locale": "vi",
+    "commonName": "Cà Tomatillo Purple",
+    "description": "Cà Tomatillo Purple cho quả nhỏ tím được bọc trong lớp vỏ lồng, vị chua nhẹ. Cây thích khí hậu ấm, đất giàu hữu cơ và tưới đều. Quả tomatillo được dùng trong salsa, nướng hoặc nấu canh."
+  },
+  {
+    "plantId": "k178z8g44m1bpm3nt521q5br4582f5xw",
+    "locale": "vi",
+    "commonName": "Cà Tomatillo Rio Grande Verde",
+    "description": "Cà Tomatillo Rio Grande Verde cho quả nhỏ xanh đậm được bọc trong lớp vỏ lồng, vị chua nhẹ. Cây thích khí hậu ấm, đất giàu hữu cơ và tưới đều. Quả tomatillo được dùng trong salsa, nướng hoặc nấu canh."
+  },
+  {
+    "plantId": "k1751zv84xpzr1mb2v8f4pn0pn82ff5x",
+    "locale": "vi",
+    "commonName": "Cà Tomatillo Toma Verde",
+    "description": "Cà Tomatillo Toma Verde cho quả nhỏ xanh lục được bọc trong lớp vỏ lồng, vị chua nhẹ. Cây thích khí hậu ấm, đất giàu hữu cơ và tưới đều. Quả tomatillo được dùng trong salsa, nướng hoặc nấu canh."
+  },
+  {
+    "plantId": "k17cqr37vgyqh4z873v21xh6p181d16c",
+    "locale": "vi",
+    "commonName": "Đậu Hà Lan",
+    "description": "Đậu Hà Lan là cây leo cho quả dài chứa hạt tròn ngọt bùi. Cây ưa mát, cần giàn leo và đất ẩm. Hạt và vỏ non dùng nấu súp, xào hoặc ăn sống."
+  },
+  {
+    "plantId": "k179rfyc9796zhmh062n61tyqn82fr6m",
+    "locale": "vi",
+    "commonName": "Đậu Hà Lan Green Arrow",
+    "description": "Đậu Hà Lan Green Arrow là cây leo cho quả dài mập chứa hạt tròn ngọt bùi. Cây ưa mát, cần giàn leo và đất ẩm. Hạt và vỏ non dùng nấu súp, xào hoặc ăn sống."
+  },
+  {
+    "plantId": "k173vs24qk41hw9fhbb7crv8a182evzv",
+    "locale": "vi",
+    "commonName": "Đậu Hà Lan Little Marvel",
+    "description": "Đậu Hà Lan Little Marvel là cây leo cho quả ngắn chứa hạt tròn ngọt bùi. Cây ưa mát, cần giàn leo và đất ẩm. Hạt và vỏ non dùng nấu súp, xào hoặc ăn sống."
+  },
+  {
+    "plantId": "k17cdkg76fh6sjpf8m7kaewcfh82fqgh",
+    "locale": "vi",
+    "commonName": "Đậu Hà Lan Snow Pea",
+    "description": "Đậu Hà Lan Snow Pea là cây leo cho quả phẳng ăn cả vỏ chứa hạt tròn ngọt bùi. Cây ưa mát, cần giàn leo và đất ẩm. Hạt và vỏ non dùng nấu súp, xào hoặc ăn sống."
+  },
+  {
+    "plantId": "k178x319m0vsmr2zbh34hk4t7182ep76",
+    "locale": "vi",
+    "commonName": "Đậu Hà Lan Sugar Snap",
+    "description": "Đậu Hà Lan Sugar Snap là cây leo cho quả giòn ngọt chứa hạt tròn ngọt bùi. Cây ưa mát, cần giàn leo và đất ẩm. Hạt và vỏ non dùng nấu súp, xào hoặc ăn sống."
+  },
+  {
+    "plantId": "k177n1fafq1a169dh0c47wcmmx82fyhg",
+    "locale": "vi",
+    "commonName": "Ổi",
+    "description": "Ổi là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt."
+  },
+  {
+    "plantId": "k17079bd1sbtz58rgd80f5qx7182fp3b",
+    "locale": "vi",
+    "commonName": "Ổi Barbie Pink",
+    "description": "Ổi Barbie Pink là cây ăn quả nhiệt đới cho trái ruột hồng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt."
+  },
+  {
+    "plantId": "k1779a47rrfhcvjg2qqnjs928582fqht",
+    "locale": "vi",
+    "commonName": "Ổi Crystal",
+    "description": "Ổi Crystal là cây ăn quả nhiệt đới cho trái ruột trắng giòn ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt."
+  },
+  {
+    "plantId": "k176v29zhgbzs12f4evwwd3k2582es6h",
+    "locale": "vi",
+    "commonName": "Ổi Mexican Cream",
+    "description": "Ổi Mexican Cream là cây ăn quả nhiệt đới cho trái ruột kem ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt."
+  },
+  {
+    "plantId": "k1763fmm0q45em7xsbm2hp911d82er6c",
+    "locale": "vi",
+    "commonName": "Ổi Ruby Supreme",
+    "description": "Ổi Ruby Supreme là cây ăn quả nhiệt đới cho trái ruột đỏ ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt."
+  },
+  {
+    "plantId": "k176s9tvrk3bamgdy7d4pjzrv982f77s",
+    "locale": "vi",
+    "commonName": "Ổi White Indian",
+    "description": "Ổi White Indian là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt."
+  },
+  {
+    "plantId": "k174gz71ws130hps6gnh1sn8m181c184",
+    "locale": "vi",
+    "commonName": "Củ cải trắng",
+    "description": "Củ cải trắng có củ trắng, vị giòn và hơi cay. Cây phát triển nhanh, ưa khí hậu mát. Củ được dùng ăn sống, muối chua hoặc nấu canh."
+  },
+  {
+    "plantId": "k172xwvjj2wjbdj7143gwxrhnn82fbmq",
+    "locale": "vi",
+    "commonName": "Củ cải trắng Cherry Belle",
+    "description": "Củ cải trắng Cherry Belle có củ tròn vỏ đỏ, ruột trắng, vị giòn và hơi cay. Cây phát triển nhanh, ưa khí hậu mát. Củ được dùng ăn sống, muối chua hoặc nấu canh."
+  },
+  {
+    "plantId": "k172dder1taqds61bjw50gv8d982ehyt",
+    "locale": "vi",
+    "commonName": "Củ cải trắng French Breakfast",
+    "description": "Củ cải trắng French Breakfast có củ thon dài đỏ trắng, vị giòn và hơi cay. Cây phát triển nhanh, ưa khí hậu mát. Củ được dùng ăn sống, muối chua hoặc nấu canh."
+  },
+  {
+    "plantId": "k171tpbdvcjsdcddmwjjpq7ty582ewnj",
+    "locale": "vi",
+    "commonName": "Củ cải trắng Watermelon",
+    "description": "Củ cải trắng Watermelon có củ vỏ xanh, ruột đỏ hồng, vị giòn và hơi cay. Cây phát triển nhanh, ưa khí hậu mát. Củ được dùng ăn sống, muối chua hoặc nấu canh."
+  },
+  {
+    "plantId": "k17cv0f7yd8x6475d5wcs4vrex82fk83",
+    "locale": "vi",
+    "commonName": "Củ cải trắng White Icicle",
+    "description": "Củ cải trắng White Icicle có củ dài trắng, vị giòn và hơi cay. Cây phát triển nhanh, ưa khí hậu mát. Củ được dùng ăn sống, muối chua hoặc nấu canh."
+  },
+  {
+    "plantId": "k177bgnz4d35vspgfav7xte2wh81dyrd",
+    "locale": "vi",
+    "commonName": "Hoa hồng",
+    "description": "Hoa hồng là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu."
+  },
+  {
+    "plantId": "k17632twbcn5j3eyth3qqjvbhn82fhts",
+    "locale": "vi",
+    "commonName": "Hoa hồng Double Delight",
+    "description": "Hoa hồng Double Delight là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu."
+  },
+  {
+    "plantId": "k17dfsrbpdxza7cxs5mg9vqkhd82f9ck",
+    "locale": "vi",
+    "commonName": "Hoa hồng Iceberg",
+    "description": "Hoa hồng Iceberg là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu."
+  },
+  {
+    "plantId": "k17frqdf9q2yq3m2w4kyh2qcj582etb4",
+    "locale": "vi",
+    "commonName": "Hoa hồng Mister Lincoln",
+    "description": "Hoa hồng Mister Lincoln là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu."
+  },
+  {
+    "plantId": "k173tth606w7zntth4amax5tw982f1nw",
+    "locale": "vi",
+    "commonName": "Hoa hồng Peace",
+    "description": "Hoa hồng Peace là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu."
+  },
+  {
+    "plantId": "k170y9e3scfxnbgxkawxzpjy3d81cnvf",
+    "locale": "vi",
+    "commonName": "Hương thảo",
+    "description": "Hương thảo là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm."
+  },
+  {
+    "plantId": "k17afzskfx439v5ar1m39ryp5h82e23c",
+    "locale": "vi",
+    "commonName": "Hương thảo Arp",
+    "description": "Hương thảo Arp là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm."
+  },
+  {
+    "plantId": "k17dfwf95jdbvv43wsggzhbk7582fhys",
+    "locale": "vi",
+    "commonName": "Hương thảo Blue Spires",
+    "description": "Hương thảo Blue Spires là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm."
+  },
+  {
+    "plantId": "k17432tmhsqw6c0gvq5hqpnys582f8as",
+    "locale": "vi",
+    "commonName": "Hương thảo Tuscan Blue",
+    "description": "Hương thảo Tuscan Blue là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm."
+  },
+  {
+    "plantId": "k1782xekkqam2vccz8vw3k0n6s82fpyh",
+    "locale": "vi",
+    "commonName": "Xô thơm",
+    "description": "Xô thơm là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính."
+  },
+  {
+    "plantId": "k1785grh57w5x3859m39y3wwnd82e34p",
+    "locale": "vi",
+    "commonName": "Xô thơm Berggarten",
+    "description": "Xô thơm Berggarten là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính."
+  },
+  {
+    "plantId": "k179h8we6c8ae8qh1hejk60cz182emdr",
+    "locale": "vi",
+    "commonName": "Xô thơm Common",
+    "description": "Xô thơm Common là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính."
+  },
+  {
+    "plantId": "k1743sj4jtdp9r56d0xppvtmax82e2wa",
+    "locale": "vi",
+    "commonName": "Xô thơm Golden",
+    "description": "Xô thơm Golden là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính."
+  },
+  {
+    "plantId": "k17324kc0561qdg84nfsfbmevx82et2v",
+    "locale": "vi",
+    "commonName": "Xô thơm Purpurascens",
+    "description": "Xô thơm Purpurascens là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính."
+  },
+  {
+    "plantId": "k17egbrfnmv53gv16ns2hhyaz582ed1q",
+    "locale": "vi",
+    "commonName": "Xô thơm Tricolor",
+    "description": "Xô thơm Tricolor là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính."
+  },
+  {
+    "plantId": "k177pcf5q01nw9d01jxm9nkxhd81d90s",
+    "locale": "vi",
+    "commonName": "Lưỡi hổ",
+    "description": "Lưỡi hổ là cây nội thất với lá thẳng đứng như lưỡi kiếm và chịu khô hạn. Cây dễ chăm sóc, thích ánh sáng gián tiếp. Lưỡi hổ giúp thanh lọc không khí."
+  },
+  {
+    "plantId": "k1794rcvn3t0409zaxxea9e2s182ebp2",
+    "locale": "vi",
+    "commonName": "Lưỡi hổ Black Coral",
+    "description": "Lưỡi hổ Black Coral là cây nội thất với lá thẳng đứng như lưỡi kiếm và chịu khô hạn. Cây dễ chăm sóc, thích ánh sáng gián tiếp. Lưỡi hổ giúp thanh lọc không khí."
+  },
+  {
+    "plantId": "k172wp22faeka0zt2qj71r91r182f6dk",
+    "locale": "vi",
+    "commonName": "Lưỡi hổ Hahnii",
+    "description": "Lưỡi hổ Hahnii là cây nội thất với lá thẳng đứng như lưỡi kiếm và chịu khô hạn. Cây dễ chăm sóc, thích ánh sáng gián tiếp. Lưỡi hổ giúp thanh lọc không khí."
+  },
+  {
+    "plantId": "k17cw9y3ympy71a2e12279nnrh82fnyp",
+    "locale": "vi",
+    "commonName": "Lưỡi hổ Laurentii",
+    "description": "Lưỡi hổ Laurentii là cây nội thất với lá thẳng đứng như lưỡi kiếm và chịu khô hạn. Cây dễ chăm sóc, thích ánh sáng gián tiếp. Lưỡi hổ giúp thanh lọc không khí."
+  },
+  {
+    "plantId": "k172jq203ntywb7q1yrq70j4ts82f56c",
+    "locale": "vi",
+    "commonName": "Lưỡi hổ Moonshine",
+    "description": "Lưỡi hổ Moonshine là cây nội thất với lá thẳng đứng như lưỡi kiếm và chịu khô hạn. Cây dễ chăm sóc, thích ánh sáng gián tiếp. Lưỡi hổ giúp thanh lọc không khí."
+  },
+  {
+    "plantId": "k1706848a9540zratne51xd50d81cyhr",
+    "locale": "vi",
+    "commonName": "Cà chua",
+    "description": "Cà chua cho quả tròn đỏ với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k17723k36446zj8jcm93yn987d828b96",
+    "locale": "vi",
+    "commonName": "Cà chua Beefsteak",
+    "description": "Cà chua Beefsteak cho quả rất to nhiều thịt với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k17btz04d9chgx7f00qw563pkn82ex7j",
+    "locale": "vi",
+    "commonName": "Cà chua Brandywine",
+    "description": "Cà chua Brandywine cho quả to mềm ngọt với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k1703b9bn125pqky38qje0xmax829n6h",
+    "locale": "vi",
+    "commonName": "Cà chua Cherry",
+    "description": "Cà chua Cherry cho quả nhỏ như anh đào với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k170wfar7jtsdazn5xqnffac4182ehfs",
+    "locale": "vi",
+    "commonName": "Cà chua Early Girl",
+    "description": "Cà chua Early Girl cho quả trái vừa chín sớm với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k17akjtnb7j45bta32dta47ng982eze0",
+    "locale": "vi",
+    "commonName": "Cà chua Grape",
+    "description": "Cà chua Grape cho quả dài như quả nho với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k17bs847zac41gxjc208hp1d15829yjd",
+    "locale": "vi",
+    "commonName": "Cà chua Roma",
+    "description": "Cà chua Roma cho quả dài ít hạt với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k17cw88ygbx56yy3g0s2ezsvbd82esb4",
+    "locale": "vi",
+    "commonName": "Cà chua San Marzano",
+    "description": "Cà chua San Marzano cho quả dài, thịt dày với vị ngọt và hơi chua. Cây ưa nắng, đất tơi xốp và cần tưới đều. Cà chua là nguyên liệu phổ biến trong món ăn từ salad, súp tới nước sốt."
+  },
+  {
+    "plantId": "k170914r5feg7v47fyrxpdzqr581ds56",
+    "locale": "vi",
+    "commonName": "Cà tím",
+    "description": "Cà tím cho quả tím dài với vỏ bóng và thịt mịn. Cây ưa nắng và đất ấm, cần tưới đều. Cà tím dùng nướng, xào hoặc làm món kho rất ngon."
+  },
+  {
+    "plantId": "k17e09xvdf1gasrqnvqnzgdh5d82et84",
+    "locale": "vi",
+    "commonName": "Cà tím Black Beauty",
+    "description": "Cà tím Black Beauty cho quả tím đen to với vỏ bóng và thịt mịn. Cây ưa nắng và đất ấm, cần tưới đều. Cà tím dùng nướng, xào hoặc làm món kho rất ngon."
+  },
+  {
+    "plantId": "k179rdeqvyyg002wybs504esc982ezct",
+    "locale": "vi",
+    "commonName": "Cà tím Fairy Tale",
+    "description": "Cà tím Fairy Tale cho quả tím sọc trắng nhỏ với vỏ bóng và thịt mịn. Cây ưa nắng và đất ấm, cần tưới đều. Cà tím dùng nướng, xào hoặc làm món kho rất ngon."
+  },
+  {
+    "plantId": "k177hq5eraw885cnwqbf7a2ftd82ezvk",
+    "locale": "vi",
+    "commonName": "Cà tím Japanese Long",
+    "description": "Cà tím Japanese Long cho quả dài tím bóng với vỏ bóng và thịt mịn. Cây ưa nắng và đất ấm, cần tưới đều. Cà tím dùng nướng, xào hoặc làm món kho rất ngon."
+  },
+  {
+    "plantId": "k179r4kcwbz9etybh39m9yzfj982efw1",
+    "locale": "vi",
+    "commonName": "Cà tím Rosa Bianca",
+    "description": "Cà tím Rosa Bianca cho quả tròn tím hồng với vỏ bóng và thịt mịn. Cây ưa nắng và đất ấm, cần tưới đều. Cà tím dùng nướng, xào hoặc làm món kho rất ngon."
+  },
+  {
+    "plantId": "k1705y4gn55q4b87dn88nsqakn82edfy",
+    "locale": "vi",
+    "commonName": "Lan ý",
+    "description": "Lan ý là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất."
+  },
+  {
+    "plantId": "k172x6deprp1dke2nb5zbkh1d582e6vm",
+    "locale": "vi",
+    "commonName": "Lan ý Domino",
+    "description": "Lan ý Domino là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất."
+  },
+  {
+    "plantId": "k17bd9kc3v9569m4j337gv927n82fb6g",
+    "locale": "vi",
+    "commonName": "Lan ý Mauna Loa",
+    "description": "Lan ý Mauna Loa là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất."
+  },
+  {
+    "plantId": "k171bh2r4j6we1r63phd2n49mx82e9xk",
+    "locale": "vi",
+    "commonName": "Lan ý Piccolino",
+    "description": "Lan ý Piccolino là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất."
+  },
+  {
+    "plantId": "k17cwx9pqtyhnvfgtp1p7rww4s82fa46",
+    "locale": "vi",
+    "commonName": "Lan ý Sensation",
+    "description": "Lan ý Sensation là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất."
+  },
+  {
+    "plantId": "k173ks6mtm5mcr57e55q7jnr1982edjp",
+    "locale": "vi",
+    "commonName": "Lan ý Sweet Chico",
+    "description": "Lan ý Sweet Chico là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất."
+  },
+  {
+    "plantId": "k177rgbw4422j2vd7m9tr5qkmn81dxbc",
+    "locale": "vi",
+    "commonName": "Cải bó xôi",
+    "description": "Cải bó xôi là rau lá xanh xanh giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá cải bó xôi dùng trong salad, xào hoặc nấu canh."
+  },
+  {
+    "plantId": "k171yp2hkncywpb0c04qvwh0x982f949",
+    "locale": "vi",
+    "commonName": "Cải bó xôi Baby Leaf",
+    "description": "Cải bó xôi Baby Leaf là rau lá xanh lá nhỏ mềm giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá cải bó xôi dùng trong salad, xào hoặc nấu canh."
+  },
+  {
+    "plantId": "k171c7mftm61paeh1f8vejnmwh82f2tx",
+    "locale": "vi",
+    "commonName": "Cải bó xôi Bloomsdale",
+    "description": "Cải bó xôi Bloomsdale là rau lá xanh lá xoăn dày giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá cải bó xôi dùng trong salad, xào hoặc nấu canh."
+  },
+  {
+    "plantId": "k175qdszdwkm64tr4v5ej744a182fev6",
+    "locale": "vi",
+    "commonName": "Cải bó xôi Giant Winter",
+    "description": "Cải bó xôi Giant Winter là rau lá xanh lá to chịu lạnh giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá cải bó xôi dùng trong salad, xào hoặc nấu canh."
+  },
+  {
+    "plantId": "k17d62fqq3tbwr5zc1ahvr5q0n82e9wk",
+    "locale": "vi",
+    "commonName": "Cải bó xôi Space",
+    "description": "Cải bó xôi Space là rau lá xanh lá nhẵn giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá cải bó xôi dùng trong salad, xào hoặc nấu canh."
+  },
+  {
+    "plantId": "k171vank11bfntbr148w8enyfh81dmc9",
+    "locale": "vi",
+    "commonName": "Vạn thọ",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k17cbd2hjq0zbtxghe8kd48zfh82f2y9",
+    "locale": "vi",
+    "commonName": "Vạn thọ Antigua",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k1708zrjghx3vwstdg0he25e3n82fc8d",
+    "locale": "vi",
+    "commonName": "Vạn thọ Orange Giant",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k1727k181cs877d1yqxcg79s8h82fgxv",
+    "locale": "vi",
+    "commonName": "Vạn thọ Yellow Supreme",
+    "description": "Cây này dễ trồng, yêu cầu đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí."
+  },
+  {
+    "plantId": "k17dd2v8y76m32spgnf8z75mzx81d5ne",
+    "locale": "vi",
+    "commonName": "Xạ hương",
+    "description": "Xạ hương là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà."
+  },
+  {
+    "plantId": "k17brhx5fq5d8hatwcsncq9dbn82e4kt",
+    "locale": "vi",
+    "commonName": "Xạ hương English Thyme",
+    "description": "Xạ hương English Thyme là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà."
+  },
+  {
+    "plantId": "k17czn47cw5e21kcy03hvshwwx82et2b",
+    "locale": "vi",
+    "commonName": "Xạ hương French Thyme",
+    "description": "Xạ hương French Thyme là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà."
+  },
+  {
+    "plantId": "k175p93s15c2dwg1qsyrzskced82eqqz",
+    "locale": "vi",
+    "commonName": "Xạ hương Lemon Thyme",
+    "description": "Xạ hương Lemon Thyme là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà."
+  },
+  {
+    "plantId": "k17a70nx00h8bcs8s93dergrex81d230",
+    "locale": "vi",
+    "commonName": "Đậu đũa",
+    "description": "Đậu đũa là cây dây leo cho quả dài gần một mét. Cây ưa nắng, đất ẩm và cần giàn. Quả được dùng xào, kho hoặc luộc."
+  },
+  {
+    "plantId": "k1749db2yfnw15v24rdv8ge5es82fg5f",
+    "locale": "vi",
+    "commonName": "Đậu đũa Black Seeded",
+    "description": "Đậu đũa Black Seeded là cây dây leo cho quả dài gần một mét. Cây ưa nắng, đất ẩm và cần giàn. Quả được dùng xào, kho hoặc luộc."
+  },
+  {
+    "plantId": "k1732vg8z06qrjbc62cxb4rgps82ecdk",
+    "locale": "vi",
+    "commonName": "Đậu đũa Purple Pod",
+    "description": "Đậu đũa Purple Pod là cây dây leo cho quả dài gần một mét. Cây ưa nắng, đất ẩm và cần giàn. Quả được dùng xào, kho hoặc luộc."
+  },
+  {
+    "plantId": "k17d4j27pxyx3wtfqw46eqgw1d82fe27",
+    "locale": "vi",
+    "commonName": "Đậu đũa Red Noodle",
+    "description": "Đậu đũa Red Noodle là cây dây leo cho quả dài gần một mét. Cây ưa nắng, đất ẩm và cần giàn. Quả được dùng xào, kho hoặc luộc."
+  }
+]

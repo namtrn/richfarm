@@ -1,5 +1,5 @@
 export const DEFAULT_CULTIVAR_NORMALIZED = "__default__";
-const INFRASPECIFIC_PREFIXES = ["subsp.", "subsp", "ssp.", "ssp", "var.", "var", "f.", "f"];
+const INFRASPECIFIC_PATTERN = /^(subsp|ssp|var|f)\.?\s+/i;
 
 export type TaxonomyParseStatus = "ok" | "manual_review";
 
@@ -39,7 +39,7 @@ export const normalizeCultivar = (cultivar?: string | null) => {
 export const isInfraspecificCultivar = (cultivarNormalized?: string | null) => {
   const token = normalizeTaxonomyToken(cultivarNormalized ?? "");
   if (!token || token === DEFAULT_CULTIVAR_NORMALIZED) return false;
-  return INFRASPECIFIC_PREFIXES.some((prefix) => token.startsWith(prefix));
+  return INFRASPECIFIC_PATTERN.test(token);
 };
 
 export const formatGenus = (value: string) => {

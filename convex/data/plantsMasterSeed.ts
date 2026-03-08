@@ -162,7 +162,22 @@ type CultivarExpansionEntry = {
     cultivars: string[];
 };
 
-const rawPlantsMasterSeed: PlantSeed[] = [
+type SupplementalPlantCatalogEntry = {
+    scientificName: string;
+    group: string;
+    enCommonName: string;
+    viCommonName: string;
+    purposes: string[];
+    cultivars: string[];
+    typicalDaysToHarvest?: number;
+    germinationDays?: number;
+    lightRequirements?: string;
+    spacingCm?: number;
+    wateringFrequencyDays?: number;
+    fertilizingFrequencyDays?: number;
+};
+
+const baseRawPlantsMasterSeed: PlantSeed[] = [
     {
         scientificName: "Ocimum basilicum",
         group: "herbs",
@@ -815,6 +830,78 @@ const rawPlantsMasterSeed: PlantSeed[] = [
     },
 ];
 
+const supplementalPlantCatalogSeed: SupplementalPlantCatalogEntry[] = [
+    { scientificName: "Lavandula angustifolia", group: "herbs", enCommonName: "Lavender", viCommonName: "O ai huong", purposes: ["aromatic", "ornamental"], cultivars: ["Munstead", "Hidcote", "Ellagance Purple", "Melissa", "Royal Velvet"], typicalDaysToHarvest: 95, germinationDays: 18, lightRequirements: "full_sun", spacingCm: 35, wateringFrequencyDays: 4, fertilizingFrequencyDays: 28 },
+    { scientificName: "Salvia officinalis", group: "herbs", enCommonName: "Sage", viCommonName: "Xa thom", purposes: ["cooking_spices", "medicinal"], cultivars: ["Common", "Berggarten", "Purpurascens", "Tricolor", "Golden"], typicalDaysToHarvest: 80, germinationDays: 14, lightRequirements: "full_sun", spacingCm: 30, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Cymbopogon citratus", group: "herbs", enCommonName: "Lemongrass", viCommonName: "Sa", purposes: ["cooking_spices", "medicinal"], cultivars: ["West Indian", "East Indian", "Cochin", "Krishna", "Pragati"], typicalDaysToHarvest: 90, germinationDays: 12, lightRequirements: "full_sun", spacingCm: 40, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Brassica juncea", group: "leafy_greens", enCommonName: "Mustard Greens", viCommonName: "Cai be xanh", purposes: ["cooking"], cultivars: ["Green Wave", "Red Giant", "Mizuna", "Southern Giant", "Tendergreen"], typicalDaysToHarvest: 40, germinationDays: 5, lightRequirements: "full_sun", spacingCm: 20, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Eruca vesicaria", group: "leafy_greens", enCommonName: "Arugula", viCommonName: "Xa lach rocket", purposes: ["salad", "cooking"], cultivars: ["Astro", "Rocket", "Sylvetta", "Esmee", "Slow Bolt"], typicalDaysToHarvest: 30, germinationDays: 4, lightRequirements: "partial_shade", spacingCm: 15, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Apium graveolens", group: "leafy_greens", enCommonName: "Celery", viCommonName: "Can tay", purposes: ["cooking", "salad"], cultivars: ["Tall Utah", "Golden Self Blanching", "Tango", "Conquistador", "Redventure"], typicalDaysToHarvest: 95, germinationDays: 14, lightRequirements: "full_sun", spacingCm: 25, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Capsicum chinense", group: "nightshades", enCommonName: "Habanero Pepper", viCommonName: "Ot habanero", purposes: ["cooking"], cultivars: ["Orange Habanero", "Red Savina", "Chocolate", "Caribbean Red", "Paper Lantern"], typicalDaysToHarvest: 110, germinationDays: 12, lightRequirements: "full_sun", spacingCm: 45, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Physalis philadelphica", group: "nightshades", enCommonName: "Tomatillo", viCommonName: "Ca tomatillo", purposes: ["cooking"], cultivars: ["Toma Verde", "Purple", "Rio Grande Verde", "Grande Rio", "Milpero"], typicalDaysToHarvest: 85, germinationDays: 7, lightRequirements: "full_sun", spacingCm: 50, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Allium cepa", group: "alliums", enCommonName: "Bulb Onion", viCommonName: "Hanh tay", purposes: ["cooking"], cultivars: ["Yellow Sweet Spanish", "Red Burgundy", "Walla Walla", "Texas Early Grano"], typicalDaysToHarvest: 100, germinationDays: 7, lightRequirements: "full_sun", spacingCm: 12, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Allium porrum", group: "alliums", enCommonName: "Leek", viCommonName: "Tay hanh", purposes: ["cooking"], cultivars: ["American Flag", "King Richard", "Bandit", "Blue Solaise", "Lancelot"], typicalDaysToHarvest: 110, germinationDays: 10, lightRequirements: "full_sun", spacingCm: 15, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Pastinaca sativa", group: "roots", enCommonName: "Parsnip", viCommonName: "Cu cai vang", purposes: ["cooking"], cultivars: ["Hollow Crown", "Gladiator", "Javelin", "Albion", "Tender and True"], typicalDaysToHarvest: 110, germinationDays: 14, lightRequirements: "full_sun", spacingCm: 12, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Brassica rapa subsp. rapa", group: "roots", enCommonName: "Turnip", viCommonName: "Cu cai tron", purposes: ["cooking"], cultivars: ["Purple Top", "Tokyo Cross", "Hakurei", "Golden Ball", "Scarlet Queen"], typicalDaysToHarvest: 45, germinationDays: 5, lightRequirements: "full_sun", spacingCm: 15, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Ipomoea batatas", group: "roots", enCommonName: "Sweet Potato", viCommonName: "Khoai lang", purposes: ["cooking"], cultivars: ["Beauregard", "Jewel", "Japanese Purple", "Okinawan", "Georgia Jet"], typicalDaysToHarvest: 105, germinationDays: 12, lightRequirements: "full_sun", spacingCm: 30, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Glycine max", group: "legumes", enCommonName: "Soybean", viCommonName: "Dau nanh", purposes: ["cooking"], cultivars: ["Envy", "Midori Giant", "Tankuro", "Sayamusume", "Chiba Green"], typicalDaysToHarvest: 85, germinationDays: 6, lightRequirements: "full_sun", spacingCm: 20, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Cicer arietinum", group: "legumes", enCommonName: "Chickpea", viCommonName: "Dau ga", purposes: ["cooking"], cultivars: ["Kabuli", "Desi", "Myles", "Sarah", "CDC Orion"], typicalDaysToHarvest: 95, germinationDays: 8, lightRequirements: "full_sun", spacingCm: 18, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Abelmoschus esculentus", group: "vegetables", enCommonName: "Okra", viCommonName: "Dau bap", purposes: ["cooking"], cultivars: ["Clemson Spineless", "Jambalaya", "Burgundy", "Emerald", "Silver Queen"], typicalDaysToHarvest: 60, germinationDays: 6, lightRequirements: "full_sun", spacingCm: 35, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Luffa aegyptiaca", group: "vegetables", enCommonName: "Luffa", viCommonName: "Muop huong", purposes: ["cooking"], cultivars: ["Smooth Beauty", "Summer Long", "Lucky Boy", "Hybrid Green", "Early White"], typicalDaysToHarvest: 85, germinationDays: 7, lightRequirements: "full_sun", spacingCm: 60, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Benincasa hispida", group: "vegetables", enCommonName: "Wax Gourd", viCommonName: "Bi dao", purposes: ["cooking"], cultivars: ["Large Round", "Winter Giant", "Jade", "Long Green", "Snow White"], typicalDaysToHarvest: 95, germinationDays: 7, lightRequirements: "full_sun", spacingCm: 70, wateringFrequencyDays: 2, fertilizingFrequencyDays: 14 },
+    { scientificName: "Monstera deliciosa", group: "indoor", enCommonName: "Monstera", viCommonName: "Trau ba Nam My", purposes: ["ornamental", "indoor"], cultivars: ["Thai Constellation", "Albo Variegata", "Borsigiana", "Mint", "Aurea"], typicalDaysToHarvest: 180, germinationDays: 21, lightRequirements: "partial_shade", spacingCm: 60, wateringFrequencyDays: 5, fertilizingFrequencyDays: 30 },
+    { scientificName: "Spathiphyllum wallisii", group: "indoor", enCommonName: "Peace Lily", viCommonName: "Lan y", purposes: ["ornamental", "indoor"], cultivars: ["Domino", "Sensation", "Mauna Loa", "Sweet Chico", "Piccolino"], typicalDaysToHarvest: 150, germinationDays: 18, lightRequirements: "partial_shade", spacingCm: 35, wateringFrequencyDays: 4, fertilizingFrequencyDays: 30 },
+    { scientificName: "Mangifera indica", group: "fruits", enCommonName: "Mango", viCommonName: "Xoai", purposes: ["fresh_eating"], cultivars: ["Nam Doc Mai", "Cat Hoa Loc", "Keitt", "Kent", "Irwin"], typicalDaysToHarvest: 150, germinationDays: 14, lightRequirements: "full_sun", spacingCm: 300, wateringFrequencyDays: 5, fertilizingFrequencyDays: 30 },
+    { scientificName: "Psidium guajava", group: "fruits", enCommonName: "Guava", viCommonName: "Oi", purposes: ["fresh_eating"], cultivars: ["Ruby Supreme", "White Indian", "Crystal", "Mexican Cream", "Barbie Pink"], typicalDaysToHarvest: 130, germinationDays: 12, lightRequirements: "full_sun", spacingCm: 200, wateringFrequencyDays: 4, fertilizingFrequencyDays: 30 },
+    { scientificName: "Passiflora edulis", group: "fruits", enCommonName: "Passion Fruit", viCommonName: "Chanh day", purposes: ["fresh_eating", "juice"], cultivars: ["Frederick", "Possum Purple", "Panama Red", "Sweet Sunrise", "Misty Gem"], typicalDaysToHarvest: 120, germinationDays: 15, lightRequirements: "full_sun", spacingCm: 150, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Jasminum sambac", group: "flowers", enCommonName: "Jasmine", viCommonName: "Hoa nhai", purposes: ["ornamental", "aromatic"], cultivars: ["Maid of Orleans", "Grand Duke", "Belle of India", "Sambac Single", "Arabian Nights"], typicalDaysToHarvest: 120, germinationDays: 18, lightRequirements: "full_sun", spacingCm: 45, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+    { scientificName: "Chrysanthemum morifolium", group: "flowers", enCommonName: "Chrysanthemum", viCommonName: "Cuc mam xoi", purposes: ["ornamental"], cultivars: ["Anastasia", "Spider Bronze", "Snowball", "Yellow Cushion", "Red Charm"], typicalDaysToHarvest: 90, germinationDays: 10, lightRequirements: "full_sun", spacingCm: 25, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
+];
+
+function buildSupplementalRawPlantsSeed(
+    entries: SupplementalPlantCatalogEntry[]
+): PlantSeed[] {
+    return entries.flatMap((entry) => {
+        const base: PlantSeed = {
+            scientificName: entry.scientificName,
+            group: entry.group,
+            purposes: entry.purposes,
+            typicalDaysToHarvest: entry.typicalDaysToHarvest,
+            germinationDays: entry.germinationDays,
+            lightRequirements: entry.lightRequirements,
+            spacingCm: entry.spacingCm,
+            wateringFrequencyDays: entry.wateringFrequencyDays,
+            fertilizingFrequencyDays: entry.fertilizingFrequencyDays,
+            source: "seed",
+        };
+
+        return [
+            base,
+            ...entry.cultivars.map((cultivar, index) => ({
+                ...base,
+                cultivar,
+                typicalDaysToHarvest:
+                    typeof entry.typicalDaysToHarvest === "number"
+                        ? Math.max(20, entry.typicalDaysToHarvest + (index - 2) * 4)
+                        : undefined,
+                spacingCm:
+                    typeof entry.spacingCm === "number"
+                        ? Math.max(10, entry.spacingCm + (index - 2) * 3)
+                        : undefined,
+            })),
+        ];
+    });
+}
+
+const supplementalRawPlantsSeed = buildSupplementalRawPlantsSeed(
+    supplementalPlantCatalogSeed
+);
+
+const rawPlantsMasterSeed: PlantSeed[] = [
+    ...baseRawPlantsMasterSeed,
+    ...supplementalRawPlantsSeed,
+];
+
 const cultivarExpansionSeed: CultivarExpansionEntry[] = [
     { scientificName: "Ocimum basilicum", cultivars: ["Genovese", "Thai", "Lemon", "Purple Ruffles", "Sweet"] },
     { scientificName: "Mentha × piperita", cultivars: ["Chocolate", "Orange", "Variegata"] },
@@ -825,7 +912,7 @@ const cultivarExpansionSeed: CultivarExpansionEntry[] = [
     { scientificName: "Solanum lycopersicum", cultivars: ["San Marzano", "Brandywine", "Early Girl", "Grape"] },
     { scientificName: "Capsicum annuum", cultivars: ["California Wonder", "Purple Beauty", "Sweet Banana", "Cubanelle"] },
     { scientificName: "Capsicum frutescens", cultivars: ["Thai Bird", "Tabasco", "Piri Piri", "Malagueta"] },
-    { scientificName: "Allium fistulosum", cultivars: ["Evergreen", "Ishikura", "Parade"] },
+    { scientificName: "Allium fistulosum", cultivars: ["White Lisbon", "Evergreen", "Ishikura", "Parade"] },
     { scientificName: "Allium sativum", cultivars: ["Music", "German Extra Hardy", "California Early", "Elephant"] },
     { scientificName: "Raphanus sativus", cultivars: ["Cherry Belle", "French Breakfast", "Watermelon", "White Icicle"] },
     { scientificName: "Daucus carota", cultivars: ["Nantes", "Danvers", "Imperator", "Chantenay", "Purple Haze"] },
@@ -942,6 +1029,52 @@ type PlantI18nSeedRow = {
     commonName: string;
     description?: string;
 };
+
+function buildSupplementalI18nSeed(
+    locale: "en" | "vi",
+    entries: SupplementalPlantCatalogEntry[]
+): PlantI18nSeedRow[] {
+    return entries.flatMap((entry) => {
+        const baseCommonName =
+            locale === "en" ? entry.enCommonName : entry.viCommonName;
+        const baseDescription =
+            locale === "en"
+                ? `${entry.enCommonName} for diversified seed coverage in the library.`
+                : `${entry.viCommonName} bo sung de mo rong danh muc giong trong thu vien.`;
+
+        return [
+            {
+                scientificName: entry.scientificName,
+                locale,
+                commonName: baseCommonName,
+                description: baseDescription,
+            },
+            ...entry.cultivars.map((cultivar) => ({
+                scientificName: entry.scientificName,
+                cultivar,
+                locale,
+                commonName:
+                    locale === "en"
+                        ? `${cultivar} ${entry.enCommonName}`
+                        : `${entry.viCommonName} ${cultivar}`,
+                description:
+                    locale === "en"
+                        ? `${cultivar} cultivar of ${entry.enCommonName} for a broader plant mix.`
+                        : `Giong ${cultivar} cua ${entry.viCommonName} de mo rong bo suu tap cay.`,
+            })),
+        ];
+    });
+}
+
+const supplementalPlantI18nEnSeed = buildSupplementalI18nSeed(
+    "en",
+    supplementalPlantCatalogSeed
+);
+
+const supplementalPlantI18nViSeed = buildSupplementalI18nSeed(
+    "vi",
+    supplementalPlantCatalogSeed
+);
 
 const plantI18nEnSeed: PlantI18nSeedRow[] = [
     {
@@ -1317,6 +1450,7 @@ const plantI18nEnSeed: PlantI18nSeedRow[] = [
         commonName: "Rubber Plant",
         description: "Broad-leaf houseplant; prefers bright, indirect light.",
     },
+    ...supplementalPlantI18nEnSeed,
 ];
 
 const plantI18nViSeed: PlantI18nSeedRow[] = [
@@ -1350,7 +1484,7 @@ const plantI18nViSeed: PlantI18nSeedRow[] = [
     { scientificName: "Anethum graveolens", locale: "vi", commonName: "Thi la", description: "Rau mui hoang hoi, hop cho mon ca va do muoi." },
     { scientificName: "Brassica oleracea var. capitata", locale: "vi", commonName: "Bap cai", description: "Bap chat, cay vu mua mat." },
     { scientificName: "Brassica oleracea var. italica", locale: "vi", commonName: "Bong cai xanh", description: "Rau cai bo duong cao, an phan hoa." },
-    { scientificName: "Brassica oleracea var. botrytis", locale: "vi", commonName: "Bong cai trang", description: "Cum hoa mem, phat trien tot khi troi mat." },
+    { scientificName: "Brassica oleracea var. botrytis", locale: "vi", commonName: "Sup lo", description: "Cum hoa mem, phat trien tot khi troi mat." },
     { scientificName: "Spinacia oleracea", locale: "vi", commonName: "Rau bina", description: "Rau an la lon nhanh, hop nhiet do mat." },
     { scientificName: "Brassica rapa subsp. pekinensis", locale: "vi", commonName: "Cai thao", description: "La gion vi nhe, hop xao va lam kim chi." },
     { scientificName: "Beta vulgaris", locale: "vi", commonName: "Cu den", description: "Cu ngot vi dat, la cung co the an." },
@@ -1373,6 +1507,7 @@ const plantI18nViSeed: PlantI18nSeedRow[] = [
     { scientificName: "Epipremnum aureum", locale: "vi", commonName: "Trau ba", description: "Cay noi that de song, chiu thieu sang tot." },
     { scientificName: "Sansevieria trifasciata", locale: "vi", commonName: "Luoi ho", description: "Cay noi that khoe, chiu han va chiu bong ram." },
     { scientificName: "Ficus elastica", locale: "vi", commonName: "Da bun", description: "Cay la to trong nha, ua sang gian tiep." },
+    ...supplementalPlantI18nViSeed,
 ];
 
 function dedupeI18nByPlantLocale(rows: PlantI18nSeedRow[]) {

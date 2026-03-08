@@ -3,10 +3,11 @@ import { v } from "convex/values";
 import {
   buildTaxonomyFields,
   DEFAULT_CULTIVAR_NORMALIZED,
-  isInfraspecificCultivar,
   requireTaxonomyIdentity,
   type TaxonomyIdentity,
 } from "./lib/plantTaxonomy";
+import { isDisplayBasePlant } from "../lib/plantBase";
+import { buildPlantUiGroupMap } from "../lib/plantUiGrouping";
 
 async function upsertPlantI18n(
   ctx: any,
@@ -48,30 +49,119 @@ async function findDuplicateByTaxonomy(ctx: any, taxonomy: TaxonomyIdentity) {
     .first();
 }
 
+function normalizeScientificNameForGrouping(value: unknown) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/×/g, "x")
+    .replace(/[()'",]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function findScientificBasePlant(
+  plants: any[],
+  scientificName: string,
+  excludingPlantId?: any,
+) {
+  const scientificKey = normalizeScientificNameForGrouping(scientificName);
+  if (!scientificKey) return null;
+
+  const candidates = plants.filter(
+    (plant) =>
+      isDisplayBasePlant(plant) &&
+      normalizeScientificNameForGrouping(plant?.scientificName) === scientificKey &&
+      (!excludingPlantId || String(plant._id) !== String(excludingPlantId))
+  );
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => {
+    const aCultivar = String(a?.cultivarNormalized ?? "");
+    const bCultivar = String(b?.cultivarNormalized ?? "");
+    const aIsDefault = aCultivar === DEFAULT_CULTIVAR_NORMALIZED;
+    const bIsDefault = bCultivar === DEFAULT_CULTIVAR_NORMALIZED;
+    if (aIsDefault !== bIsDefault) return aIsDefault ? -1 : 1;
+    return String(a._id).localeCompare(String(b._id));
+  });
+
+  return candidates[0] ?? null;
+}
+
+async function resolveGroupBasePlantId(
+  ctx: any,
+  options: {
+    plants?: any[];
+    plantId?: any;
+    scientificName: string;
+    cultivarNormalized: string;
+    explicitGroupBasePlantId?: any;
+  }
+) {
+  const plants = options.plants ?? (await ctx.db.query("plantsMaster").collect());
+  const isBasePlant = isDisplayBasePlant({
+    cultivarNormalized: options.cultivarNormalized,
+  });
+
+  if (isBasePlant) {
+    return options.plantId;
+  }
+
+  if (options.explicitGroupBasePlantId) {
+    const basePlant = plants.find(
+      (plant: any) => String(plant._id) === String(options.explicitGroupBasePlantId)
+    );
+    if (!basePlant) {
+      throw new Error("Group base plant not found");
+    }
+    if (!isDisplayBasePlant(basePlant)) {
+      throw new Error("Group base plant must be a base plant");
+    }
+    if (
+      normalizeScientificNameForGrouping(basePlant.scientificName) !==
+      normalizeScientificNameForGrouping(options.scientificName)
+    ) {
+      throw new Error("Group base plant must share the same scientific name");
+    }
+    return basePlant._id;
+  }
+
+  const basePlant = findScientificBasePlant(
+    plants,
+    options.scientificName,
+    options.plantId
+  );
+  if (!basePlant) {
+    throw new Error("Base plant is required before creating or updating a variant");
+  }
+
+  return basePlant._id;
+}
+
 async function assertBaseExistsForVariant(
   ctx: any,
-  taxonomy: TaxonomyIdentity,
+  input: {
+    scientificName: string;
+    cultivarNormalized: string;
+  },
   options?: { excludingPlantId?: any }
 ) {
-  if (taxonomy.cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED) {
+  if (
+    input.cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED ||
+    isDisplayBasePlant({ cultivarNormalized: input.cultivarNormalized })
+  ) {
     return;
   }
-  if (isInfraspecificCultivar(taxonomy.cultivarNormalized)) {
-    return;
-  }
-
-  const base = await ctx.db
-    .query("plantsMaster")
-    .withIndex("by_genus_species_cultivar", (q: any) =>
-      q
-        .eq("genusNormalized", taxonomy.genusNormalized)
-        .eq("speciesNormalized", taxonomy.speciesNormalized)
-        .eq("cultivarNormalized", DEFAULT_CULTIVAR_NORMALIZED)
-    )
-    .first();
+  const plants = await ctx.db.query("plantsMaster").collect();
+  const base = findScientificBasePlant(
+    plants,
+    input.scientificName,
+    options?.excludingPlantId
+  );
 
   if (!base || (options?.excludingPlantId && base._id === options.excludingPlantId)) {
-    throw new Error("Base species row is required before creating or updating a variant");
+    throw new Error("Base plant is required before creating or updating a variant");
   }
 }
 
@@ -81,6 +171,10 @@ export const updatePlant = mutation({
     scientificName: v.string(),
     cultivar: v.optional(v.string()),
     group: v.string(),
+    groupBasePlantId: v.optional(v.id("plantsMaster")),
+    uiGroupKey: v.optional(v.string()),
+    uiGroupLabelVi: v.optional(v.string()),
+    uiGroupLabelEn: v.optional(v.string()),
     purposes: v.optional(v.array(v.string())),
     description: v.optional(v.string()),
     imageUrl: v.optional(v.union(v.string(), v.null())),
@@ -116,13 +210,28 @@ export const updatePlant = mutation({
     if (duplicate && duplicate._id !== args.plantId) {
       throw new Error("Another plant with the same taxonomy already exists");
     }
-    await assertBaseExistsForVariant(ctx, taxonomyIdentity, {
+    await assertBaseExistsForVariant(ctx, {
+      scientificName,
+      cultivarNormalized: taxonomyIdentity.cultivarNormalized,
+    }, {
       excludingPlantId: args.plantId,
+    });
+    const allPlants = await ctx.db.query("plantsMaster").collect();
+    const resolvedGroupBasePlantId = await resolveGroupBasePlantId(ctx, {
+      plants: allPlants,
+      plantId: args.plantId,
+      scientificName,
+      cultivarNormalized: taxonomyIdentity.cultivarNormalized,
+      explicitGroupBasePlantId: args.groupBasePlantId ?? (plant as any).groupBasePlantId,
     });
 
     await ctx.db.patch(args.plantId, {
       scientificName,
       group: args.group.trim(),
+      groupBasePlantId: resolvedGroupBasePlantId ?? undefined,
+      uiGroupKey: args.uiGroupKey?.trim() || undefined,
+      uiGroupLabelVi: args.uiGroupLabelVi?.trim() || undefined,
+      uiGroupLabelEn: args.uiGroupLabelEn?.trim() || undefined,
       description: args.description?.trim() || undefined,
       imageUrl: args.imageUrl ?? undefined,
       ...taxonomy,
@@ -148,8 +257,15 @@ export const updatePlant = mutation({
 });
 
 export const listPlants = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    page: v.number(),
+    pageSize: v.number(),
+    search: v.optional(v.string()),
+    groupFilter: v.optional(v.string()),
+    filterMissingI18n: v.optional(v.boolean()),
+    filterNoImage: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
     const plants = await ctx.db.query("plantsMaster").collect();
     const i18nRows = await ctx.db.query("plantI18n").collect();
     const i18nByPlantId = new Map<string, Array<{
@@ -173,7 +289,7 @@ export const listPlants = query({
       i18nByPlantId.set(key, list);
     }
 
-    return plants.map((plant) => ({
+    const hydratedPlants = plants.map((plant) => ({
       _id: plant._id,
       scientificName: plant.scientificName,
       // Taxonomy fields (optional in schema — may be undefined for legacy rows)
@@ -184,6 +300,10 @@ export const listPlants = query({
       speciesNormalized: plant.speciesNormalized ?? undefined,
       cultivarNormalized: plant.cultivarNormalized ?? undefined,
       group: plant.group,
+      groupBasePlantId: (plant as any).groupBasePlantId ?? undefined,
+      uiGroupKey: (plant as any).uiGroupKey ?? undefined,
+      uiGroupLabelVi: (plant as any).uiGroupLabelVi ?? undefined,
+      uiGroupLabelEn: (plant as any).uiGroupLabelEn ?? undefined,
       description: plant.description ?? undefined,
       imageUrl: plant.imageUrl ?? null,
       purposes: plant.purposes ?? [],
@@ -199,8 +319,133 @@ export const listPlants = query({
       source: plant.source ?? undefined,
       i18nRows: i18nByPlantId.get(plant._id.toString()) ?? [],
     }));
+    const groupOptions = Array.from(
+      new Set(hydratedPlants.map((plant) => plant.group).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b));
 
+    const stats = {
+      total: hydratedPlants.length,
+      missingI18n: hydratedPlants.filter((plant) => {
+        const locales = new Set(plant.i18nRows.map((row) => row.locale));
+        return !locales.has("vi") || !locales.has("en");
+      }).length,
+      missingImages: hydratedPlants.filter((plant) => !plant.imageUrl).length,
+    };
 
+    const normalizedSearch = args.search?.trim().toLowerCase() ?? "";
+    let filteredPlants = hydratedPlants;
+
+    if (args.groupFilter && args.groupFilter !== "all") {
+      filteredPlants = filteredPlants.filter((plant) => plant.group === args.groupFilter);
+    }
+    if (args.filterMissingI18n) {
+      filteredPlants = filteredPlants.filter((plant) => {
+        const locales = new Set(plant.i18nRows.map((row) => row.locale));
+        return !locales.has("vi") || !locales.has("en");
+      });
+    }
+    if (args.filterNoImage) {
+      filteredPlants = filteredPlants.filter((plant) => !plant.imageUrl);
+    }
+    if (normalizedSearch) {
+      filteredPlants = filteredPlants.filter((plant) => {
+        const vi = plant.i18nRows.find((row) => row.locale === "vi")?.commonName ?? "";
+        const en = plant.i18nRows.find((row) => row.locale === "en")?.commonName ?? "";
+        const haystack = [
+          plant.scientificName,
+          plant.genus ?? "",
+          plant.species ?? "",
+          plant.cultivar ?? "",
+          plant.group,
+          plant.description ?? "",
+          vi,
+          en,
+          ...(plant.purposes ?? []),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(normalizedSearch);
+      });
+    }
+
+    const groupMap = buildPlantUiGroupMap(filteredPlants, "vi");
+    const sortedPlants = filteredPlants.sort((a, b) => {
+      const aUiGroup = groupMap.get(String(a._id));
+      const bUiGroup = groupMap.get(String(b._id));
+      const aGroupLabel = (aUiGroup?.label ?? "").toLowerCase();
+      const bGroupLabel = (bUiGroup?.label ?? "").toLowerCase();
+      const groupCmp = aGroupLabel.localeCompare(bGroupLabel);
+      if (groupCmp !== 0) return groupCmp;
+
+      const aGenus = (a.genusNormalized ?? a.scientificName).toLowerCase();
+      const bGenus = (b.genusNormalized ?? b.scientificName).toLowerCase();
+      const aSp = a.speciesNormalized ?? "";
+      const bSp = b.speciesNormalized ?? "";
+      const aCult = a.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED;
+      const bCult = b.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED;
+
+      const genusCmp = aGenus.localeCompare(bGenus);
+      if (genusCmp !== 0) return genusCmp;
+      const spCmp = aSp.localeCompare(bSp);
+      if (spCmp !== 0) return spCmp;
+      const aBase = isDisplayBasePlant(a);
+      const bBase = isDisplayBasePlant(b);
+      if (aBase !== bBase) return aBase ? -1 : 1;
+      return aCult.localeCompare(bCult);
+    });
+
+    const clusters = new Map<string, typeof sortedPlants>();
+    const clusterOrder: string[] = [];
+    const uiGroupMap = buildPlantUiGroupMap(sortedPlants, "vi");
+    for (const plant of sortedPlants) {
+      const uiGroup = uiGroupMap.get(String(plant._id));
+      const clusterKey = uiGroup?.key ?? [
+        plant.group,
+        plant.genusNormalized ?? plant.genus ?? plant.scientificName,
+        plant.speciesNormalized ?? plant.species ?? "",
+      ].join("|");
+      const existing = clusters.get(clusterKey);
+      if (existing) {
+        existing.push(plant);
+        continue;
+      }
+      clusters.set(clusterKey, [plant]);
+      clusterOrder.push(clusterKey);
+    }
+
+    const safePageSize = Math.max(1, Math.floor(args.pageSize || 10));
+    const pages: typeof sortedPlants[] = [];
+    let currentPage: typeof sortedPlants = [];
+    let currentCount = 0;
+
+    for (const clusterKey of clusterOrder) {
+      const cluster = clusters.get(clusterKey) ?? [];
+      if (currentCount > 0 && currentCount + cluster.length > safePageSize) {
+        pages.push(currentPage);
+        currentPage = [];
+        currentCount = 0;
+      }
+      currentPage.push(...cluster);
+      currentCount += cluster.length;
+    }
+
+    if (currentPage.length > 0 || pages.length === 0) {
+      pages.push(currentPage);
+    }
+
+    const totalPages = pages.length;
+    const safePage = Math.min(Math.max(1, Math.floor(args.page || 1)), totalPages);
+    const items = pages[safePage - 1] ?? [];
+
+    return {
+      items,
+      page: safePage,
+      pageSize: safePageSize,
+      totalItems: sortedPlants.length,
+      totalPages,
+      groupOptions,
+      stats,
+    };
   },
 });
 
@@ -209,6 +454,10 @@ export const createPlant = mutation({
     scientificName: v.string(),
     cultivar: v.optional(v.string()),
     group: v.string(),
+    groupBasePlantId: v.optional(v.id("plantsMaster")),
+    uiGroupKey: v.optional(v.string()),
+    uiGroupLabelVi: v.optional(v.string()),
+    uiGroupLabelEn: v.optional(v.string()),
     purposes: v.optional(v.array(v.string())),
     description: v.optional(v.string()),
     imageUrl: v.optional(v.union(v.string(), v.null())),
@@ -244,14 +493,28 @@ export const createPlant = mutation({
     if (duplicate) {
       throw new Error("Plant with the same taxonomy already exists");
     }
-    await assertBaseExistsForVariant(ctx, taxonomyIdentity);
+    await assertBaseExistsForVariant(ctx, {
+      scientificName,
+      cultivarNormalized: taxonomyIdentity.cultivarNormalized,
+    });
 
     const group = args.group.trim() || "other";
     const purposes = (args.purposes ?? []).map((item) => item.trim()).filter(Boolean);
+    const allPlants = await ctx.db.query("plantsMaster").collect();
+    const resolvedGroupBasePlantId = await resolveGroupBasePlantId(ctx, {
+      plants: allPlants,
+      scientificName,
+      cultivarNormalized: taxonomyIdentity.cultivarNormalized,
+      explicitGroupBasePlantId: args.groupBasePlantId,
+    });
 
     const plantId = await ctx.db.insert("plantsMaster", {
       scientificName,
       group,
+      groupBasePlantId: resolvedGroupBasePlantId ?? undefined,
+      uiGroupKey: args.uiGroupKey?.trim() || undefined,
+      uiGroupLabelVi: args.uiGroupLabelVi?.trim() || undefined,
+      uiGroupLabelEn: args.uiGroupLabelEn?.trim() || undefined,
       description: args.description?.trim() || undefined,
       imageUrl: args.imageUrl ?? undefined,
       purposes,
@@ -266,6 +529,12 @@ export const createPlant = mutation({
       yieldKgPerM2: args.yieldKgPerM2,
       ...taxonomy,
     });
+
+    if (isDisplayBasePlant({ cultivarNormalized: taxonomyIdentity.cultivarNormalized })) {
+      await ctx.db.patch(plantId, {
+        groupBasePlantId: plantId,
+      });
+    }
 
     await upsertPlantI18n(ctx, plantId, "vi", args.viCommonName, args.viDescription);
     await upsertPlantI18n(ctx, plantId, "en", args.enCommonName, args.enDescription);
@@ -285,25 +554,14 @@ export const deletePlant = mutation({
     }
 
     // Enforce base invariant: base row cannot be deleted while variants still exist.
-    if (
-      (plant as any).cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED &&
-      (plant as any).genusNormalized &&
-      (plant as any).speciesNormalized
-    ) {
-      const sameSpeciesRows = await ctx.db
-        .query("plantsMaster")
-        .withIndex("by_genus_species", (q: any) =>
-          q
-            .eq("genusNormalized", (plant as any).genusNormalized)
-            .eq("speciesNormalized", (plant as any).speciesNormalized)
-        )
-        .collect();
-
-      const hasVariants = sameSpeciesRows.some(
+    if (isDisplayBasePlant(plant)) {
+      const plants = await ctx.db.query("plantsMaster").collect();
+      const scientificKey = normalizeScientificNameForGrouping(plant.scientificName);
+      const hasVariants = plants.some(
         (row: any) =>
           row._id !== args.plantId &&
-          row.cultivarNormalized &&
-          row.cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED
+          normalizeScientificNameForGrouping(row.scientificName) === scientificKey &&
+          !isDisplayBasePlant(row)
       );
       if (hasVariants) {
         throw new Error("Cannot delete base plant while variants still exist");
@@ -321,6 +579,41 @@ export const deletePlant = mutation({
 
     await ctx.db.delete(args.plantId);
     return { ok: true };
+  },
+});
+
+export const backfillGroupBasePlants = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const plants = await ctx.db.query("plantsMaster").collect();
+    const scientificGroups = new Map<string, any[]>();
+    for (const plant of plants) {
+      const key =
+        normalizeScientificNameForGrouping(plant.scientificName) ||
+        String(plant._id);
+      const list = scientificGroups.get(key) ?? [];
+      list.push(plant);
+      scientificGroups.set(key, list);
+    }
+
+    let updated = 0;
+    const invalidScientificGroups: string[] = [];
+
+    for (const [scientificKey, cluster] of scientificGroups.entries()) {
+      const basePlants = cluster.filter((plant) => isDisplayBasePlant(plant));
+      if (basePlants.length !== 1) {
+        invalidScientificGroups.push(scientificKey);
+        continue;
+      }
+      const basePlant = basePlants[0];
+      for (const plant of cluster) {
+        if (String(plant.groupBasePlantId ?? "") === String(basePlant._id)) continue;
+        await ctx.db.patch(plant._id, { groupBasePlantId: basePlant._id });
+        updated += 1;
+      }
+    }
+
+    return { updated, invalidScientificGroups };
   },
 });
 
@@ -666,5 +959,43 @@ export const deletePlantPhoto = mutation({
   handler: async (ctx, args) => {
     await ctx.db.delete(args.photoId);
     return { ok: true };
+  },
+});
+export const bulkUpdatePlantI18n = mutation({
+  args: {
+    updates: v.array(v.object({
+      plantId: v.id("plantsMaster"),
+      locale: v.string(),
+      commonName: v.string(),
+      description: v.optional(v.string()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    let updatedCount = 0;
+    for (const update of args.updates) {
+      const existing = await ctx.db
+        .query("plantI18n")
+        .withIndex("by_plant_locale", (q: any) =>
+          q.eq("plantId", update.plantId).eq("locale", update.locale)
+        )
+        .first();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          commonName: update.commonName,
+          description: update.description?.trim() || undefined,
+        });
+        updatedCount++;
+      } else {
+        await ctx.db.insert("plantI18n", {
+          plantId: update.plantId,
+          locale: update.locale,
+          commonName: update.commonName,
+          description: update.description?.trim() || undefined,
+        });
+        updatedCount++;
+      }
+    }
+    return { updatedCount };
   },
 });

@@ -99,6 +99,10 @@ export default defineSchema({
 
     // Classification
     group: v.string(), // "alliums", "herbs", "nightshades", ...
+    groupBasePlantId: v.optional(v.id("plantsMaster")),
+    uiGroupKey: v.optional(v.string()),
+    uiGroupLabelVi: v.optional(v.string()),
+    uiGroupLabelEn: v.optional(v.string()),
     family: v.optional(v.string()),
     purposes: v.array(v.string()), // ["cooking_spices", "indoor"]
 

@@ -56,12 +56,16 @@ async function seedPlantsAndI18n(ctx: any) {
             scientificName: plant.scientificName,
             cultivar,
         });
+        const baseScientificTaxonomy = buildTaxonomyFields({
+            scientificName: plant.scientificName,
+        });
         const taxonomyIdentity = requireTaxonomyIdentity(
             taxonomy,
             `Seed plant ${plant.scientificName}${cultivar ? ` (${cultivar})` : ""}`
         );
         if (
             taxonomyIdentity.cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED &&
+            baseScientificTaxonomy.cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED &&
             !isInfraspecificCultivar(taxonomyIdentity.cultivarNormalized)
         ) {
             const baseRow = await ctx.db
