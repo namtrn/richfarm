@@ -22,6 +22,10 @@ export type Plant = {
   // Legacy compat field (computed from genus+species)
   scientificName: string;
   group: string;
+  groupBasePlantId?: string;
+  uiGroupKey?: string;
+  uiGroupLabelVi?: string;
+  uiGroupLabelEn?: string;
   description?: string;
   imageUrl?: string | null;
   purposes?: string[];
@@ -37,6 +41,20 @@ export type Plant = {
   yieldKgPerM2?: number;
   source?: string;
   i18nRows: I18nRow[];
+};
+
+export type PlantListPage = {
+  items: Plant[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  groupOptions: string[];
+  stats: {
+    total: number;
+    missingI18n: number;
+    missingImages: number;
+  };
 };
 
 export type PlantGroup = {
@@ -97,6 +115,10 @@ export type PlantFormState = {
   cultivar: string; // empty string = base species
   // Classification
   group: string;
+  groupBasePlantId: string;
+  uiGroupKey: string;
+  uiGroupLabelVi: string;
+  uiGroupLabelEn: string;
   description: string;
   imageUrl: string;
   purposes: string; // comma-separated

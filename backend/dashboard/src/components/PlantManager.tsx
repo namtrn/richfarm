@@ -1,13 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { usePlants } from "../hooks/usePlants";
 import type { useI18n } from "../hooks/useI18n";
 import type { useBackendPlants } from "../hooks/useBackendPlants";
+import { buildPlantUiGroupMap } from "../../../../lib/plantUiGrouping";
+import { isDisplayBasePlant } from "../../../../lib/plantBase";
 import {
     getDisplayName,
     getLocaleRow,
     computeScientificName,
     LIGHT_OPTIONS,
     DEFAULT_CULTIVAR_NORMALIZED,
+    convex,
 } from "../constants";
 
 type PlantHook = ReturnType<typeof usePlants>;
@@ -15,6 +18,16 @@ type I18nHook = ReturnType<typeof useI18n>;
 type BackendHook = ReturnType<typeof useBackendPlants>;
 
 type FormTab = "taxonomy" | "i18n" | "classification" | "growing" | "advanced";
+
+const PLANT_LANGUAGE_OPTIONS = [
+    { value: "vi", label: "Vietnamese" },
+    { value: "en", label: "English" },
+    { value: "es", label: "Spanish" },
+    { value: "pt", label: "Portuguese" },
+    { value: "fr", label: "French" },
+    { value: "zh", label: "Chinese" },
+] as const;
+type PlantLanguageOption = (typeof PLANT_LANGUAGE_OPTIONS)[number]["value"];
 
 function NumericInput({
     label,
@@ -45,7 +58,66 @@ function NumericInput({
 }
 
 function isVariantRow(cultivarNormalized?: string) {
-    return cultivarNormalized && cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED;
+    return Boolean(cultivarNormalized) &&
+        cultivarNormalized !== DEFAULT_CULTIVAR_NORMALIZED &&
+        !isDisplayBasePlant({ cultivarNormalized });
+}
+
+function getUiGroupRows(plants: PlantHook["plants"]) {
+    const groupMap = buildPlantUiGroupMap(plants, "vi");
+    const grouped = new Map<string, {
+        label: string;
+        plants: PlantHook["plants"];
+    }>();
+
+    for (const plant of plants) {
+        const group = groupMap.get(String(plant._id));
+        const key = group?.key ?? `fallback:${plant._id}`;
+        const label = group?.label ?? getDisplayName(plant);
+        const existing = grouped.get(key);
+        if (existing) {
+            existing.plants.push(plant);
+        } else {
+            grouped.set(key, {
+                label,
+                plants: [plant],
+            });
+        }
+    }
+
+    const rows: Array<
+        | { rowType: "header"; key: string; label: string; count: number }
+        | { rowType: "plant"; key: string; plant: PlantHook["plants"][number] }
+    > = [];
+
+    const groups = Array.from(grouped.entries()).sort((a, b) =>
+        a[1].label.localeCompare(b[1].label, "vi")
+    );
+
+    for (const [key, group] of groups) {
+        const sortedPlants = [...group.plants].sort((a, b) => {
+            const aVariant = isVariantRow(a.cultivarNormalized);
+            const bVariant = isVariantRow(b.cultivarNormalized);
+            if (aVariant !== bVariant) return aVariant ? 1 : -1;
+            return getDisplayName(a).localeCompare(getDisplayName(b), "vi");
+        });
+
+        rows.push({
+            rowType: "header",
+            key: `header:${key}`,
+            label: group.label,
+            count: sortedPlants.length,
+        });
+        for (const plant of sortedPlants) {
+            rows.push({
+                rowType: "plant",
+                key: `plant:${plant._id}`,
+                plant,
+            });
+        }
+    }
+
+    return rows;
 }
 
 export function PlantManager({
@@ -59,9 +131,12 @@ export function PlantManager({
     backend: BackendHook;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
 }) {
-    const [formTab, setFormTab] = useState<FormTab>("taxonomy");
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [showImport, setShowImport] = useState(false);
+
+    useEffect(() => {
+        setSelectedIds(new Set());
+    }, [p.page, p.search, p.groupFilter, p.filterMissingI18n, p.filterNoImage]);
 
     // toggle single row selection
     function toggleSelect(id: string) {
@@ -75,14 +150,15 @@ export function PlantManager({
 
     // toggle all visible rows
     function toggleAll() {
-        if (selectedIds.size === p.filtered.length) {
+        if (selectedIds.size === p.plants.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(p.filtered.map((pl) => pl._id)));
+            setSelectedIds(new Set(p.plants.map((pl) => pl._id)));
         }
     }
 
     const selectedCount = selectedIds.size;
+    const groupedRows = useMemo(() => getUiGroupRows(p.plants), [p.plants]);
 
     // Numeric IDs from Convex IDs are not applicable here — bulk ops use SQLite numeric IDs.
     // We surface a warning when user tries to bulk-op on Convex-only ids.
@@ -132,13 +208,6 @@ export function PlantManager({
         }
     }
 
-    const FORM_TABS: { key: FormTab; label: string }[] = [
-        { key: "taxonomy", label: "🌿 Taxonomy" },
-        { key: "i18n", label: "🌐 Translations" },
-        { key: "classification", label: "📋 Classification" },
-        { key: "growing", label: "🌱 Growing" },
-        { key: "advanced", label: "⚙️ Advanced" },
-    ];
 
     return (
         <div className="page-content">
@@ -190,8 +259,20 @@ export function PlantManager({
                 {/* Left: table */}
                 <section className="card">
                     <div className="section-title">
-                        <h3>All Plants</h3>
-                        <span className="muted">{p.filtered.length} results</span>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+                            <h3>All Plants</h3>
+                            <span className="muted">
+                                {p.totalItems} results • page {p.page}/{p.totalPages}
+                            </span>
+                        </div>
+                        <div className="actions">
+                            <button className="btn secondary icon-btn" onClick={() => p.goToPage(p.page - 1)} disabled={p.page <= 1 || p.loading} title="Previous">
+                                ◀
+                            </button>
+                            <button className="btn secondary icon-btn" onClick={() => p.goToPage(p.page + 1)} disabled={p.page >= p.totalPages || p.loading} title="Next">
+                                ▶
+                            </button>
+                        </div>
                     </div>
 
                     <div className="filters">
@@ -236,7 +317,7 @@ export function PlantManager({
                                     <th style={{ width: 36 }}>
                                         <input
                                             type="checkbox"
-                                            checked={selectedCount === p.filtered.length && p.filtered.length > 0}
+                                            checked={selectedCount === p.plants.length && p.plants.length > 0}
                                             onChange={toggleAll}
                                         />
                                     </th>
@@ -249,12 +330,25 @@ export function PlantManager({
                                 </tr>
                             </thead>
                             <tbody>
-                                {p.filtered.map((plant) => {
+                                {groupedRows.map((row) => {
+                                    if (row.rowType === "header") {
+                                        return (
+                                            <tr key={row.key} className="group-header-row">
+                                                <td colSpan={7}>
+                                                    <div style={{ padding: "0.5rem 0", fontWeight: 700, color: "var(--text-secondary)" }}>
+                                                        {row.label} ({row.count})
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    }
+
+                                    const plant = row.plant;
                                     const variant = isVariantRow(plant.cultivarNormalized);
                                     const checked = selectedIds.has(plant._id);
                                     return (
                                         <tr
-                                            key={plant._id}
+                                            key={row.key}
                                             className={`${plant._id === p.selectedId ? "selected" : ""} ${checked ? "row-checked" : ""}`}
                                             onClick={() => p.select(plant)}
                                         >
@@ -296,9 +390,20 @@ export function PlantManager({
                                 })}
                             </tbody>
                         </table>
-                        {p.filtered.length === 0 && (
+                        {p.plants.length === 0 && (
                             <p className="empty">No plants found for current filters.</p>
                         )}
+                    </div>
+                    <div className="actions" style={{ justifyContent: "space-between", marginTop: "1rem" }}>
+                        <span className="muted">30 plants per page. Taxonomy groups stay on one page.</span>
+                        <div className="actions">
+                            <button className="btn secondary" onClick={() => p.goToPage(p.page - 1)} disabled={p.page <= 1 || p.loading}>
+                                Prev
+                            </button>
+                            <button className="btn secondary" onClick={() => p.goToPage(p.page + 1)} disabled={p.page >= p.totalPages || p.loading}>
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -314,16 +419,24 @@ export function PlantManager({
                                 <button className="btn danger" onClick={() => void handleDelete()} disabled={p.saving}>Delete</button>
                             </div>
                         )}
+                        {(p.mode === "create" || p.mode === "edit") && (
+                            <div className="actions">
+                                <button className="btn secondary" onClick={p.cancel} disabled={p.saving}>Cancel</button>
+                                <button className="btn primary" onClick={handleSave} disabled={p.saving}>
+                                    {p.saving ? "Saving…" : "Save"}
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {p.mode === "view" ? (
                         p.selected ? (
-                            <PlantDetail plant={p.selected} />
+                            <PlantDetail plant={p.selected} reload={p.load} onToast={onToast} />
                         ) : (
                             <p className="empty">Select a plant to see details.</p>
                         )
                     ) : (
-                        <PlantForm p={p} formTab={formTab} setFormTab={setFormTab} FORM_TABS={FORM_TABS} onSave={handleSave} />
+                        <PlantForm p={p} onSave={handleSave} />
                     )}
                 </section>
             </div>
@@ -333,7 +446,15 @@ export function PlantManager({
 
 // ── Plant Detail View ──────────────────────────────────────────────────────
 
-function PlantDetail({ plant }: { plant: ReturnType<typeof usePlants>["selected"] & {} }) {
+function PlantDetail({
+    plant,
+    reload,
+    onToast,
+}: {
+    plant: ReturnType<typeof usePlants>["selected"] & {};
+    reload: () => Promise<void>;
+    onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+}) {
     if (!plant) return null;
     const vi = getLocaleRow(plant.i18nRows, "vi");
     const en = getLocaleRow(plant.i18nRows, "en");
@@ -394,24 +515,133 @@ function PlantDetail({ plant }: { plant: ReturnType<typeof usePlants>["selected"
             </div>
 
             <div className="i18n-inline">
-                <div className="i18n-inline-header"><h4>🌐 Translations</h4></div>
+                <div className="i18n-inline-header">
+                    <h4>🌐 Translations</h4>
+                    <AddLanguageButton plant={plant} reload={reload} onToast={onToast} />
+                </div>
                 <div className="i18n-grid">
-                    {(["vi", "en"] as const).map((locale) => {
-                        const row = locale === "vi" ? vi : en;
-                        return (
-                            <div className="i18n-lang-card" key={locale}>
-                                <div className="i18n-lang-header">
-                                    <span className="i18n-flag">{locale === "vi" ? "🇻🇳" : "🇬🇧"}</span>
-                                    <span className="i18n-lang-name">{locale === "vi" ? "Vietnamese" : "English"}</span>
-                                    {row ? <span className="badge ok small">Complete</span> : <span className="badge warn small">Missing</span>}
+                    {plant.i18nRows
+                        .slice()
+                        .sort((a, b) => a.locale.localeCompare(b.locale))
+                        .map((row) => {
+                            const language = PLANT_LANGUAGE_OPTIONS.find((option) => option.value === row.locale);
+                            return (
+                                <div className="i18n-lang-card" key={row.locale}>
+                                    <div className="i18n-lang-header">
+                                        <span className="i18n-lang-name">{language?.label ?? row.locale.toUpperCase()}</span>
+                                        <span className="badge ok small">{row.locale.toUpperCase()}</span>
+                                    </div>
+                                    <p className="i18n-common-name">{row.commonName}</p>
+                                    <p className="i18n-desc">{row.description ?? "No description"}</p>
                                 </div>
-                                <p className="i18n-common-name">{row?.commonName ?? "—"}</p>
-                                <p className="i18n-desc">{row?.description ?? "No description"}</p>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
                 </div>
             </div>
+        </div>
+    );
+}
+
+function AddLanguageButton({
+    plant,
+    reload,
+    onToast,
+}: {
+    plant: NonNullable<ReturnType<typeof usePlants>["selected"]>;
+    reload: () => Promise<void>;
+    onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+}) {
+    const existingLocales = new Set(plant.i18nRows.map((row) => row.locale));
+    const availableLocales = PLANT_LANGUAGE_OPTIONS.filter(
+        (option) => !existingLocales.has(option.value)
+    );
+    const [open, setOpen] = useState(false);
+    const [locale, setLocale] = useState<PlantLanguageOption | "">(availableLocales[0]?.value ?? "");
+    const [commonName, setCommonName] = useState("");
+    const [description, setDescription] = useState("");
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        setLocale(availableLocales[0]?.value ?? "");
+        setCommonName("");
+        setDescription("");
+        setOpen(false);
+    }, [plant._id]);
+
+    if (availableLocales.length === 0) {
+        return <span className="muted">All supported languages added</span>;
+    }
+
+    async function handleSubmit() {
+        if (!locale) {
+            onToast("warning", "Choose a language first");
+            return;
+        }
+        if (!commonName.trim()) {
+            onToast("warning", "Common name is required");
+            return;
+        }
+
+        setSaving(true);
+        try {
+            await convex.mutation("plantAdmin:createPlantI18n" as any, {
+                plantId: plant._id,
+                locale,
+                commonName: commonName.trim(),
+                description: description.trim() || undefined,
+            });
+            await reload();
+            setOpen(false);
+            setCommonName("");
+            setDescription("");
+            onToast("success", `Added ${locale.toUpperCase()} translation`);
+        } catch (error) {
+            onToast("error", error instanceof Error ? error.message : "Cannot add language");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            {!open ? (
+                <button className="btn secondary" onClick={() => setOpen(true)}>
+                    + Add language
+                </button>
+            ) : (
+                <>
+                    <select
+                        className="filter-select"
+                        value={locale}
+                        onChange={(e) => setLocale(e.target.value as PlantLanguageOption)}
+                        disabled={saving}
+                    >
+                        {availableLocales.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                    <input
+                        placeholder="Common name"
+                        value={commonName}
+                        onChange={(e) => setCommonName(e.target.value)}
+                        disabled={saving}
+                    />
+                    <input
+                        placeholder="Description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        disabled={saving}
+                    />
+                    <button className="btn primary" onClick={() => void handleSubmit()} disabled={saving}>
+                        {saving ? "Adding…" : "Add"}
+                    </button>
+                    <button className="btn ghost" onClick={() => setOpen(false)} disabled={saving}>
+                        Cancel
+                    </button>
+                </>
+            )}
         </div>
     );
 }
@@ -420,188 +650,181 @@ function PlantDetail({ plant }: { plant: ReturnType<typeof usePlants>["selected"
 
 function PlantForm({
     p,
-    formTab,
-    setFormTab,
-    FORM_TABS,
     onSave,
 }: {
     p: PlantHook;
-    formTab: FormTab;
-    setFormTab: (t: FormTab) => void;
-    FORM_TABS: { key: FormTab; label: string }[];
     onSave: () => void;
 }) {
     const f = p.form;
     const set = (patch: Partial<PlantHook["form"]>) => p.setForm({ ...f, ...patch });
 
     return (
-        <div className="form">
-            {/* Tab bar */}
-            <div className="form-tabs">
-                {FORM_TABS.map((tab) => (
-                    <button
-                        key={tab.key}
-                        type="button"
-                        className={`form-tab ${formTab === tab.key ? "active" : ""}`}
-                        onClick={() => setFormTab(tab.key)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
+        <div className="form simplified-form">
+            {/* ── Taxonomy ── */}
+            <div className="form-section">
+                <div className="section-header-compact">🌿 Taxonomy</div>
+                <div className="grid-3">
+                    <label>
+                        Genus *
+                        <input placeholder="e.g. Solanum" value={f.genus} onChange={(e) => set({ genus: e.target.value })} />
+                    </label>
+                    <label>
+                        Species *
+                        <input placeholder="e.g. lycopersicum" value={f.species} onChange={(e) => set({ species: e.target.value })} />
+                    </label>
+                    <label>
+                        Cultivar
+                        <input placeholder="e.g. Cherry — empty = base" value={f.cultivar} onChange={(e) => set({ cultivar: e.target.value })} />
+                    </label>
+                </div>
+                {(f.genus || f.species) && (
+                    <p className="form-preview muted">
+                        Scientific name:{" "}
+                        <em>
+                            {computeScientificName(f.genus, f.species)}
+                            {f.cultivar.trim() ? ` '${f.cultivar.trim()}'` : " (base)"}
+                        </em>
+                    </p>
+                )}
+                <label>
+                    Family
+                    <input placeholder="e.g. Solanaceae" value={f.family} onChange={(e) => set({ family: e.target.value })} />
+                </label>
             </div>
 
-            {/* ── Taxonomy ── */}
-            {formTab === "taxonomy" && (
-                <div className="form-section">
-                    <div className="grid-3">
-                        <label>
-                            Genus *
-                            <input placeholder="e.g. Solanum" value={f.genus} onChange={(e) => set({ genus: e.target.value })} />
-                        </label>
-                        <label>
-                            Species *
-                            <input placeholder="e.g. lycopersicum" value={f.species} onChange={(e) => set({ species: e.target.value })} />
-                        </label>
-                        <label>
-                            Cultivar
-                            <input placeholder="e.g. Cherry — empty = base" value={f.cultivar} onChange={(e) => set({ cultivar: e.target.value })} />
-                        </label>
-                    </div>
-                    {(f.genus || f.species) && (
-                        <p className="form-preview muted">
-                            Scientific name preview:{" "}
-                            <em>
-                                {computeScientificName(f.genus, f.species)}
-                                {f.cultivar.trim() ? ` '${f.cultivar.trim()}'` : " (base)"}
-                            </em>
-                        </p>
-                    )}
-                    <label>
-                        Family
-                        <input placeholder="e.g. Solanaceae" value={f.family} onChange={(e) => set({ family: e.target.value })} />
-                    </label>
-                </div>
-            )}
-
             {/* ── I18n ── */}
-            {formTab === "i18n" && (
-                <div className="form-section">
-                    <div className="i18n-form-grid">
-                        <div className="i18n-lang-block">
-                            <div className="i18n-lang-header">
-                                <span className="i18n-flag">🇻🇳</span>
-                                <span className="i18n-lang-name">Vietnamese</span>
-                            </div>
-                            <label>
-                                Common name *
-                                <input value={f.viCommonName} onChange={(e) => set({ viCommonName: e.target.value })} />
-                            </label>
-                            <label>
-                                Description
-                                <textarea rows={5} value={f.viDescription} onChange={(e) => set({ viDescription: e.target.value })} />
-                            </label>
+            <div className="form-section">
+                <div className="section-header-compact">🌐 Translations</div>
+                <div className="i18n-form-grid">
+                    <div className="i18n-lang-block">
+                        <div className="i18n-lang-header">
+                            <span className="i18n-flag">🇻🇳</span>
+                            <span className="i18n-lang-name">Vietnamese</span>
                         </div>
-                        <div className="i18n-lang-block">
-                            <div className="i18n-lang-header">
-                                <span className="i18n-flag">🇬🇧</span>
-                                <span className="i18n-lang-name">English</span>
-                            </div>
-                            <label>
-                                Common name *
-                                <input value={f.enCommonName} onChange={(e) => set({ enCommonName: e.target.value })} />
-                            </label>
-                            <label>
-                                Description
-                                <textarea rows={5} value={f.enDescription} onChange={(e) => set({ enDescription: e.target.value })} />
-                            </label>
+                        <label>
+                            Common name *
+                            <input value={f.viCommonName} onChange={(e) => set({ viCommonName: e.target.value })} />
+                        </label>
+                        <label>
+                            Description
+                            <textarea rows={3} value={f.viDescription} onChange={(e) => set({ viDescription: e.target.value })} />
+                        </label>
+                    </div>
+                    <div className="i18n-lang-block">
+                        <div className="i18n-lang-header">
+                            <span className="i18n-flag">🇬🇧</span>
+                            <span className="i18n-lang-name">English</span>
                         </div>
+                        <label>
+                            Common name *
+                            <input value={f.enCommonName} onChange={(e) => set({ enCommonName: e.target.value })} />
+                        </label>
+                        <label>
+                            Description
+                            <textarea rows={3} value={f.enDescription} onChange={(e) => set({ enDescription: e.target.value })} />
+                        </label>
                     </div>
                 </div>
-            )}
+            </div>
 
             {/* ── Classification ── */}
-            {formTab === "classification" && (
-                <div className="form-section">
-                    <div className="grid-2">
-                        <label>
-                            Group
-                            <input value={f.group} onChange={(e) => set({ group: e.target.value })} />
-                        </label>
-                        <label>
-                            Purposes (comma separated)
-                            <input placeholder="e.g. vegetable, fruit" value={f.purposes} onChange={(e) => set({ purposes: e.target.value })} />
-                        </label>
-                    </div>
+            <div className="form-section">
+                <div className="section-header-compact">📋 Classification</div>
+                <div className="grid-2">
                     <label>
-                        Image URL
-                        <input value={f.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} />
+                        Group
+                        <input value={f.group} onChange={(e) => set({ group: e.target.value })} />
                     </label>
-                    {f.imageUrl && (
-                        <div style={{ marginTop: 8 }}>
-                            <img src={f.imageUrl} alt="preview" className="thumb" onError={(e) => (e.currentTarget.style.display = "none")} />
-                        </div>
-                    )}
                     <label>
-                        Description (internal)
-                        <textarea rows={3} value={f.description} onChange={(e) => set({ description: e.target.value })} />
-                    </label>
-                    <label className="checkbox">
-                        <input
-                            type="checkbox"
-                            checked={f.isActive}
-                            onChange={(e) => set({ isActive: e.target.checked })}
-                        />
-                        Active (visible to app users)
+                        Purposes (comma separated)
+                        <input placeholder="e.g. vegetable, fruit" value={f.purposes} onChange={(e) => set({ purposes: e.target.value })} />
                     </label>
                 </div>
-            )}
+                <div className="grid-3">
+                    <label>
+                        Group Base Plant ID
+                        <input placeholder="Convex plant id" value={f.groupBasePlantId} onChange={(e) => set({ groupBasePlantId: e.target.value })} />
+                    </label>
+                    <label>
+                        UI Group Key
+                        <input placeholder="e.g. hanh-tay" value={f.uiGroupKey} onChange={(e) => set({ uiGroupKey: e.target.value })} />
+                    </label>
+                    <label>
+                        UI Group VI
+                        <input placeholder="e.g. Hanh tay" value={f.uiGroupLabelVi} onChange={(e) => set({ uiGroupLabelVi: e.target.value })} />
+                    </label>
+                    <label>
+                        UI Group EN
+                        <input placeholder="e.g. Onion" value={f.uiGroupLabelEn} onChange={(e) => set({ uiGroupLabelEn: e.target.value })} />
+                    </label>
+                </div>
+                <label>
+                    Image URL
+                    <input value={f.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} />
+                </label>
+                {f.imageUrl && (
+                    <div style={{ marginTop: 8 }}>
+                        <img src={f.imageUrl} alt="preview" className="thumb" onError={(e) => (e.currentTarget.style.display = "none")} />
+                    </div>
+                )}
+                <label>
+                    Description (internal)
+                    <textarea rows={2} value={f.description} onChange={(e) => set({ description: e.target.value })} />
+                </label>
+                <label className="checkbox">
+                    <input
+                        type="checkbox"
+                        checked={f.isActive}
+                        onChange={(e) => set({ isActive: e.target.checked })}
+                    />
+                    Active (visible to app users)
+                </label>
+            </div>
 
             {/* ── Growing Data ── */}
-            {formTab === "growing" && (
-                <div className="form-section">
-                    <div className="grid-3">
-                        <NumericInput label="Days to harvest" value={f.typicalDaysToHarvest} onChange={(v) => set({ typicalDaysToHarvest: v })} placeholder="e.g. 80" />
-                        <NumericInput label="Watering (days)" value={f.wateringFrequencyDays} onChange={(v) => set({ wateringFrequencyDays: v })} placeholder="e.g. 2" />
-                        <NumericInput label="Germination (days)" value={f.germinationDays} onChange={(v) => set({ germinationDays: v })} placeholder="e.g. 7" />
-                        <NumericInput label="Spacing (cm)" value={f.spacingCm} onChange={(v) => set({ spacingCm: v })} placeholder="e.g. 45" />
-                        <label>
-                            Light requirements
-                            <select value={f.lightRequirements} onChange={(e) => set({ lightRequirements: e.target.value })}>
-                                {LIGHT_OPTIONS.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </label>
-                        <NumericInput label="Light hours/day" value={f.lightHours} onChange={(v) => set({ lightHours: v })} placeholder="e.g. 8" />
-                        <NumericInput label="Max plants/m²" value={f.maxPlantsPerM2} onChange={(v) => set({ maxPlantsPerM2: v })} placeholder="e.g. 4" />
-                        <NumericInput label="Seed rate/m²" value={f.seedRatePerM2} onChange={(v) => set({ seedRatePerM2: v })} />
-                        <NumericInput label="Water liters/m²" value={f.waterLitersPerM2} onChange={(v) => set({ waterLitersPerM2: v })} />
-                        <NumericInput label="Yield kg/m²" value={f.yieldKgPerM2} onChange={(v) => set({ yieldKgPerM2: v })} />
-                    </div>
+            <div className="form-section">
+                <div className="section-header-compact">🌱 Growing Data</div>
+                <div className="grid-3">
+                    <NumericInput label="Days to harvest" value={f.typicalDaysToHarvest} onChange={(v) => set({ typicalDaysToHarvest: v })} placeholder="e.g. 80" />
+                    <NumericInput label="Watering (days)" value={f.wateringFrequencyDays} onChange={(v) => set({ wateringFrequencyDays: v })} placeholder="e.g. 2" />
+                    <NumericInput label="Germination (days)" value={f.germinationDays} onChange={(v) => set({ germinationDays: v })} placeholder="e.g. 7" />
+                    <NumericInput label="Spacing (cm)" value={f.spacingCm} onChange={(v) => set({ spacingCm: v })} placeholder="e.g. 45" />
+                    <label>
+                        Light requirements
+                        <select value={f.lightRequirements} onChange={(e) => set({ lightRequirements: e.target.value })}>
+                            {LIGHT_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <NumericInput label="Light hours/day" value={f.lightHours} onChange={(v) => set({ lightHours: v })} placeholder="e.g. 8" />
+                    <NumericInput label="Max plants/m²" value={f.maxPlantsPerM2} onChange={(v) => set({ maxPlantsPerM2: v })} placeholder="e.g. 4" />
+                    <NumericInput label="Seed rate/m²" value={f.seedRatePerM2} onChange={(v) => set({ seedRatePerM2: v })} />
+                    <NumericInput label="Water liters/m²" value={f.waterLitersPerM2} onChange={(v) => set({ waterLitersPerM2: v })} />
+                    <NumericInput label="Yield kg/m²" value={f.yieldKgPerM2} onChange={(v) => set({ yieldKgPerM2: v })} />
                 </div>
-            )}
+            </div>
 
             {/* ── Advanced ── */}
-            {formTab === "advanced" && (
-                <div className="form-section">
-                    <div className="grid-2">
-                        <NumericInput label="Soil pH min" value={f.soilPhMin} onChange={(v) => set({ soilPhMin: v })} placeholder="e.g. 5.5" step="0.1" />
-                        <NumericInput label="Soil pH max" value={f.soilPhMax} onChange={(v) => set({ soilPhMax: v })} placeholder="e.g. 7.0" step="0.1" />
-                    </div>
-                    <div className="grid-2">
-                        <NumericInput label="Moisture target (%)" value={f.moistureTarget} onChange={(v) => set({ moistureTarget: v })} placeholder="e.g. 60" />
-                    </div>
-                    <label>
-                        Notes (internal)
-                        <textarea rows={4} placeholder="Admin notes about this plant entry…" value={f.notes} onChange={(e) => set({ notes: e.target.value })} />
-                    </label>
+            <div className="form-section">
+                <div className="section-header-compact">⚙️ Advanced</div>
+                <div className="grid-2">
+                    <NumericInput label="Soil pH min" value={f.soilPhMin} onChange={(v) => set({ soilPhMin: v })} placeholder="e.g. 5.5" step="0.1" />
+                    <NumericInput label="Soil pH max" value={f.soilPhMax} onChange={(v) => set({ soilPhMax: v })} placeholder="e.g. 7.0" step="0.1" />
                 </div>
-            )}
+                <div className="grid-2">
+                    <NumericInput label="Moisture target (%)" value={f.moistureTarget} onChange={(v) => set({ moistureTarget: v })} placeholder="e.g. 60" />
+                </div>
+                <label>
+                    Notes (internal)
+                    <textarea rows={2} placeholder="Admin notes..." value={f.notes} onChange={(e) => set({ notes: e.target.value })} />
+                </label>
+            </div>
 
-            <div className="form-actions">
+            <div className="form-actions" style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
                 <button className="btn secondary" onClick={p.cancel} type="button">Cancel</button>
                 <button className="btn primary" onClick={onSave} disabled={p.saving} type="button">
-                    {p.saving ? "Saving…" : p.mode === "create" ? "Create" : "Save"}
+                    {p.saving ? "Saving…" : p.mode === "create" ? "Create Plant" : "Save Changes"}
                 </button>
             </div>
         </div>

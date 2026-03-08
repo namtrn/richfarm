@@ -29,7 +29,6 @@ export default function App() {
 
   // Load plants + stats on mount
   useEffect(() => {
-    void plants.load();
     void backend.loadStats();
   }, []);
 

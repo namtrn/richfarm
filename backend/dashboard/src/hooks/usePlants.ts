@@ -1,5 +1,5 @@
-import { useState, useMemo, useCallback } from "react";
-import type { Plant, PlantFormState, Mode, I18nRow } from "../types";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import type { Plant, PlantFormState, Mode, PlantListPage } from "../types";
 import {
     convex,
     convexReady,
@@ -12,6 +12,7 @@ import {
 } from "../constants";
 
 export function usePlants() {
+    const pageSize = 30;
     const [plants, setPlants] = useState<Plant[]>([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -23,6 +24,11 @@ export function usePlants() {
     const [groupFilter, setGroupFilter] = useState("all");
     const [filterMissingI18n, setFilterMissingI18n] = useState(false);
     const [filterNoImage, setFilterNoImage] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [groupOptions, setGroupOptions] = useState<string[]>([]);
+    const [stats, setStats] = useState({ total: 0, missingI18n: 0, missingImages: 0 });
 
     const load = useCallback(async () => {
         if (!convexReady) {
@@ -32,100 +38,42 @@ export function usePlants() {
         setLoading(true);
         setError("");
         try {
-            const data = (await convex.query("plantAdmin:listPlants" as any, {})) as Plant[];
-            setPlants(data);
+            const data = (await convex.query("plantAdmin:listPlants" as any, {
+                page,
+                pageSize,
+                search: search.trim() || undefined,
+                groupFilter,
+                filterMissingI18n,
+                filterNoImage,
+            })) as PlantListPage;
+            setPlants(data.items);
+            setTotalItems(data.totalItems);
+            setTotalPages(data.totalPages);
+            setGroupOptions(data.groupOptions);
+            setStats(data.stats);
+            if (selectedId && !data.items.some((item) => item._id === selectedId)) {
+                setSelectedId(data.items[0]?._id ?? null);
+            } else if (!selectedId && data.items.length > 0 && mode !== "create") {
+                setSelectedId(data.items[0]._id);
+            }
+            if (data.page !== page) {
+                setPage(data.page);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot load plants");
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [filterMissingI18n, filterNoImage, groupFilter, mode, page, search, selectedId]);
 
     const selected = useMemo(
         () => plants.find((p) => p._id === selectedId) ?? null,
         [plants, selectedId],
     );
 
-    const groupOptions = useMemo(() => {
-        const unique = new Set<string>();
-        for (const plant of plants) {
-            if (plant.group) unique.add(plant.group);
-        }
-        return Array.from(unique).sort((a, b) => a.localeCompare(b));
-    }, [plants]);
-
-    /**
-     * Sort: group variants under their base.
-     * Within same (genus, species): base (__default__) first, then variants alphabetically.
-     */
-    const filtered = useMemo(() => {
-        const normalized = search.trim().toLowerCase();
-        let result = plants.slice();
-
-        if (groupFilter !== "all") {
-            result = result.filter((p) => p.group === groupFilter);
-        }
-        if (filterMissingI18n) {
-            result = result.filter((p) => {
-                const vi = getLocaleRow(p.i18nRows, "vi");
-                const en = getLocaleRow(p.i18nRows, "en");
-                return !vi || !en;
-            });
-        }
-        if (filterNoImage) {
-            result = result.filter((p) => !p.imageUrl);
-        }
-        if (normalized) {
-            result = result.filter((p) => {
-                const vi = getLocaleRow(p.i18nRows, "vi")?.commonName ?? "";
-                const en = getLocaleRow(p.i18nRows, "en")?.commonName ?? "";
-                const haystack = [
-                    p.scientificName,
-                    p.genus ?? "",
-                    p.species ?? "",
-                    p.cultivar ?? "",
-                    p.group,
-                    p.description ?? "",
-                    vi,
-                    en,
-                    ...(p.purposes ?? []),
-                ]
-                    .join(" ")
-                    .toLowerCase();
-                return haystack.includes(normalized);
-            });
-        }
-
-        return result.sort((a, b) => {
-            const aGenus = (a.genusNormalized ?? a.scientificName).toLowerCase();
-            const bGenus = (b.genusNormalized ?? b.scientificName).toLowerCase();
-            const aSp = a.speciesNormalized ?? "";
-            const bSp = b.speciesNormalized ?? "";
-            const aCult = a.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED;
-            const bCult = b.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED;
-
-            // Primary: genus alpha
-            const genusCmp = aGenus.localeCompare(bGenus);
-            if (genusCmp !== 0) return genusCmp;
-            // Secondary: species alpha
-            const spCmp = aSp.localeCompare(bSp);
-            if (spCmp !== 0) return spCmp;
-            // Tertiary: base (__default__) comes before any cultivar
-            if (aCult === DEFAULT_CULTIVAR_NORMALIZED && bCult !== DEFAULT_CULTIVAR_NORMALIZED) return -1;
-            if (bCult === DEFAULT_CULTIVAR_NORMALIZED && aCult !== DEFAULT_CULTIVAR_NORMALIZED) return 1;
-            return aCult.localeCompare(bCult);
-        });
-    }, [plants, search, groupFilter, filterMissingI18n, filterNoImage]);
-
-    const stats = useMemo(() => {
-        const missingI18n = plants.filter((p) => {
-            const vi = getLocaleRow(p.i18nRows, "vi");
-            const en = getLocaleRow(p.i18nRows, "en");
-            return !vi || !en;
-        }).length;
-        const missingImages = plants.filter((p) => !p.imageUrl).length;
-        return { total: plants.length, missingI18n, missingImages };
-    }, [plants]);
+    useEffect(() => {
+        void load();
+    }, [load]);
 
     function toFormState(plant: Plant): PlantFormState {
         const vi = getLocaleRow(plant.i18nRows, "vi");
@@ -146,6 +94,10 @@ export function usePlants() {
             species,
             cultivar: plant.cultivar ?? "",
             group: plant.group ?? "other",
+            groupBasePlantId: plant.groupBasePlantId ?? "",
+            uiGroupKey: plant.uiGroupKey ?? "",
+            uiGroupLabelVi: plant.uiGroupLabelVi ?? "",
+            uiGroupLabelEn: plant.uiGroupLabelEn ?? "",
             description: plant.description ?? "",
             imageUrl: plant.imageUrl ?? "",
             purposes: (plant.purposes ?? []).join(", "),
@@ -223,6 +175,10 @@ export function usePlants() {
             scientificName,
             cultivar,
             group: form.group.trim() || "other",
+            groupBasePlantId: form.groupBasePlantId.trim() || undefined,
+            uiGroupKey: form.uiGroupKey.trim() || undefined,
+            uiGroupLabelVi: form.uiGroupLabelVi.trim() || undefined,
+            uiGroupLabelEn: form.uiGroupLabelEn.trim() || undefined,
             description: form.description.trim() || undefined,
             imageUrl: form.imageUrl.trim() ? form.imageUrl.trim() : null,
             purposes: parsePurposes(form.purposes),
@@ -292,6 +248,30 @@ export function usePlants() {
         return null;
     }
 
+    function goToPage(nextPage: number) {
+        setPage(Math.max(1, Math.min(nextPage, totalPages)));
+    }
+
+    function resetAndSetSearch(value: string) {
+        setSearch(value);
+        setPage(1);
+    }
+
+    function resetAndSetGroupFilter(value: string) {
+        setGroupFilter(value);
+        setPage(1);
+    }
+
+    function resetAndSetFilterMissingI18n(value: boolean) {
+        setFilterMissingI18n(value);
+        setPage(1);
+    }
+
+    function resetAndSetFilterNoImage(value: boolean) {
+        setFilterNoImage(value);
+        setPage(1);
+    }
+
     return {
         plants,
         loading,
@@ -304,16 +284,20 @@ export function usePlants() {
         form,
         setForm,
         search,
-        setSearch,
+        setSearch: resetAndSetSearch,
         groupFilter,
-        setGroupFilter,
+        setGroupFilter: resetAndSetGroupFilter,
         filterMissingI18n,
-        setFilterMissingI18n,
+        setFilterMissingI18n: resetAndSetFilterMissingI18n,
         filterNoImage,
-        setFilterNoImage,
+        setFilterNoImage: resetAndSetFilterNoImage,
         groupOptions,
-        filtered,
         stats,
+        page,
+        pageSize,
+        totalItems,
+        totalPages,
+        goToPage,
         load,
         select,
         startCreate,

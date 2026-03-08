@@ -99,6 +99,10 @@ h4 {
   width: var(--sidebar-width-collapsed);
 }
 
+.sidebar-collapsed+.main-area {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
 .sidebar-collapsed .sidebar-brand {
   justify-content: center;
   padding: 0 0 24px;
@@ -310,7 +314,7 @@ h4 {
 /* ── Layout ────────────────────────────────── */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -1205,4 +1209,58 @@ tr.row-checked {
   font-size: 13px;
   color: var(--color-slate-600);
   margin: 0;
+}
+
+/* ── Simplified Form ────────────────────────── */
+.simplified-form {
+  gap: 20px;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding-right: 8px;
+}
+
+.simplified-form .form-section {
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: var(--color-slate-50);
+}
+
+.section-header-compact {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-teal);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-slate-200);
+  padding-bottom: 8px;
+}
+
+.form-preview {
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-teal);
+  margin: 10px 0;
+}
+
+.i18n-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.i18n-lang-block {
+  display: grid;
+  gap: 12px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }

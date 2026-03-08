@@ -18,7 +18,7 @@ export function Sidebar({
     email?: string;
     onLogout?: () => void;
 }) {
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true);
 
     return (
         <aside className={`sidebar${collapsed ? " sidebar-collapsed" : ""}`}>
