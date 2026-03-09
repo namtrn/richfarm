@@ -14,7 +14,7 @@ import {
     PanResponder,
     StyleSheet,
 } from 'react-native';
-import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch } from 'lucide-react-native';
+import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary';
 import { PlantImage } from '../../../components/ui/PlantImage';
@@ -42,13 +42,36 @@ import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
 import { useUserSettings } from '../../../hooks/useUserSettings';
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
+type PlantBrowseMode = 'common' | 'families';
+type LayoutMode = 'list' | 'grid';
 
 const LIBRARY_TABS: LibraryTab[] = ['plants', 'pests', 'guide'];
+const PLANT_BROWSE_MODES: PlantBrowseMode[] = ['common', 'families'];
 
 function normalizeTab(value?: string): LibraryTab {
     if (!value) return 'plants';
     if (value === 'diseases') return 'pests';
     return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : 'plants';
+}
+
+function normalizeBrowseMode(value?: string): PlantBrowseMode {
+    if (!value) return 'common';
+    return PLANT_BROWSE_MODES.includes(value as PlantBrowseMode)
+        ? (value as PlantBrowseMode)
+        : 'common';
+}
+
+function buildLibraryRoutePassthrough(params: Record<string, string | string[] | undefined>) {
+    const keys = ['mode', 'from', 'userPlantId', 'bedId', 'x', 'y', 'backFrom', 'backBedId', 'backGardenId'];
+    const next: Record<string, string> = {};
+    for (const key of keys) {
+        const value = params[key];
+        const normalized = Array.isArray(value) ? value[0] : value;
+        if (typeof normalized === 'string' && normalized.length > 0) {
+            next[key] = normalized;
+        }
+    }
+    return next;
 }
 
 function normalizeSpeciesKey(plant: any) {
@@ -431,6 +454,77 @@ function PlantCard({
     );
 }
 
+function PlantGridCard({
+    plant,
+    onPress,
+    onToggleFavorite,
+    isFavorite,
+    testID,
+}: {
+    plant: any;
+    onPress: () => void;
+    onToggleFavorite: () => void;
+    isFavorite: boolean;
+    testID?: string;
+}) {
+    const theme = useTheme();
+    const { isDark } = useThemeContext();
+    const { displayName } = usePlantDisplayName(plant);
+
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.8}
+            testID={testID}
+            style={{
+                backgroundColor: theme.card,
+                borderRadius: 20,
+                overflow: 'hidden',
+                flex: 1,
+                borderWidth: 1,
+                borderColor: theme.border,
+                shadowColor: isDark ? '#000000' : '#1a1a18',
+                shadowOpacity: 0.05,
+                shadowRadius: 10,
+                shadowOffset: { width: 0, height: 2 },
+            }}
+        >
+            <View style={{ height: 140, width: '100%', backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
+                <PlantImage uri={plant.imageUrl} size="100%" borderRadius={0} />
+                <Pressable
+                    onPress={(event) => {
+                        event.stopPropagation?.();
+                        onToggleFavorite();
+                    }}
+                    hitSlop={12}
+                    style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        width: 32,
+                        height: 32,
+                        borderRadius: 16,
+                        backgroundColor: 'rgba(0,0,0,0.25)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Heart
+                        size={16}
+                        stroke={isFavorite ? '#ef4444' : '#fff'}
+                        fill={isFavorite ? '#ef4444' : 'none'}
+                    />
+                </Pressable>
+            </View>
+            <View style={{ padding: 12, gap: 2 }}>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }} numberOfLines={2}>
+                    {displayName}
+                </Text>
+            </View>
+        </TouchableOpacity>
+    );
+}
+
 function SpeciesGroupHeader({ basePlant, count }: { basePlant: any; count: number }) {
     const theme = useTheme();
     const title = getSpeciesGroupTitle(basePlant);
@@ -610,6 +704,304 @@ function GuideTab() {
     );
 }
 
+function TaxonomyCard({
+    title,
+    subtitle,
+    imageUrl,
+    meta,
+    onPress,
+}: {
+    title: string;
+    subtitle?: string;
+    imageUrl?: string | null;
+    meta: string;
+    onPress: () => void;
+}) {
+    const theme = useTheme();
+    const { isDark } = useThemeContext();
+
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.8}
+            style={{
+                backgroundColor: theme.card,
+                borderRadius: 18,
+                padding: 14,
+                borderWidth: 1,
+                borderColor: theme.border,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                shadowColor: isDark ? '#000000' : '#1a1a18',
+                shadowOpacity: 0.06,
+                shadowRadius: 10,
+                shadowOffset: { width: 0, height: 2 },
+            }}
+        >
+            <PlantImage uri={imageUrl ?? undefined} size={52} borderRadius={14} />
+            <View style={{ flex: 1, gap: 4 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+                    {title}
+                </Text>
+                {!!subtitle && (
+                    <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
+                        {subtitle}
+                    </Text>
+                )}
+                <Text style={{ fontSize: 11, color: theme.textMuted }} numberOfLines={1}>
+                    {meta}
+                </Text>
+            </View>
+        </TouchableOpacity>
+    );
+}
+
+function TaxonomyGridCard({
+    title,
+    subtitle,
+    imageUrl,
+    meta,
+    onPress,
+}: {
+    title: string;
+    subtitle?: string;
+    imageUrl?: string | null;
+    meta: string;
+    onPress: () => void;
+}) {
+    const theme = useTheme();
+    const { isDark } = useThemeContext();
+
+    return (
+        <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.8}
+            style={{
+                backgroundColor: theme.card,
+                borderRadius: 20,
+                overflow: 'hidden',
+                flex: 1,
+                borderWidth: 1,
+                borderColor: theme.border,
+                shadowColor: isDark ? '#000000' : '#1a1a18',
+                shadowOpacity: 0.05,
+                shadowRadius: 10,
+                shadowOffset: { width: 0, height: 2 },
+            }}
+        >
+            <View style={{ height: 120, width: '100%', backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
+                <PlantImage uri={imageUrl} size="100%" borderRadius={0} />
+            </View>
+            <View style={{ padding: 12, gap: 2 }}>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: theme.text }} numberOfLines={1}>
+                    {title}
+                </Text>
+                <Text style={{ fontSize: 11, color: theme.textSecondary, fontStyle: 'italic', marginBottom: 4 }} numberOfLines={1}>
+                    {subtitle}
+                </Text>
+                <Text style={{ fontSize: 10, color: theme.textMuted, fontWeight: '500' }} numberOfLines={1}>
+                    {meta.replace(/ • /g, ' · ')}
+                </Text>
+            </View>
+        </TouchableOpacity>
+    );
+}
+
+function BrowseModeMenu({
+    visible,
+    value,
+    layoutMode,
+    onClose,
+    onSelect,
+    onToggleLayout,
+}: {
+    visible: boolean;
+    value: PlantBrowseMode;
+    layoutMode: LayoutMode;
+    onClose: () => void;
+    onSelect: (next: PlantBrowseMode) => void;
+    onToggleLayout: (next: LayoutMode) => void;
+}) {
+    const theme = useTheme();
+    const { isDark } = useThemeContext();
+    const translateX = useRef(new Animated.Value(320)).current;
+
+    useEffect(() => {
+        Animated.timing(translateX, {
+            toValue: visible ? 0 : 320,
+            duration: 250,
+            useNativeDriver: true,
+        }).start();
+    }, [translateX, visible]);
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) =>
+                Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && gestureState.dx > 6,
+            onPanResponderMove: (_, gestureState) => {
+                if (gestureState.dx > 0) {
+                    translateX.setValue(gestureState.dx);
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dx > 80 || gestureState.vx > 0.5) {
+                    Animated.timing(translateX, {
+                        toValue: 320,
+                        duration: 200,
+                        useNativeDriver: true,
+                    }).start(({ finished }) => {
+                        if (finished) onClose();
+                    });
+                } else {
+                    Animated.spring(translateX, {
+                        toValue: 0,
+                        useNativeDriver: true,
+                        damping: 20,
+                        stiffness: 220,
+                    }).start();
+                }
+            },
+        })
+    ).current;
+
+    return (
+        <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}>
+                <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                    <Animated.View
+                        {...panResponder.panHandlers}
+                        style={{
+                            width: 280,
+                            height: '100%',
+                            backgroundColor: theme.card,
+                            paddingTop: 60,
+                            paddingHorizontal: 20,
+                            transform: [{ translateX }],
+                            shadowColor: '#000000',
+                            shadowOpacity: 0.2,
+                            shadowRadius: 20,
+                            shadowOffset: { width: -4, height: 0 },
+                            elevation: 20,
+                        }}
+                    >
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+                            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+                                View Options
+                            </Text>
+                            <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: theme.background, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
+                                <X size={18} stroke={theme.textSecondary} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 16, paddingLeft: 4 }}>
+                            Browse By
+                        </Text>
+
+                        <View style={{ gap: 12 }}>
+                            {[
+                                {
+                                    key: 'common' as PlantBrowseMode,
+                                    label: 'Common Names',
+                                    desc: 'Standard library view with search and groups.',
+                                    icon: Tags
+                                },
+                                {
+                                    key: 'families' as PlantBrowseMode,
+                                    label: 'Botanical Families',
+                                    desc: 'Organized by scientific plant taxonomy.',
+                                    icon: Dna
+                                },
+                            ].map((item) => {
+                                const Icon = item.icon;
+                                const active = value === item.key;
+                                return (
+                                    <TouchableOpacity
+                                        key={item.key}
+                                        onPress={() => {
+                                            onSelect(item.key);
+                                            onClose();
+                                        }}
+                                        activeOpacity={0.6}
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            paddingVertical: 12,
+                                            paddingHorizontal: 8,
+                                            borderRadius: 16,
+                                            backgroundColor: active ? (isDark ? 'rgba(34, 197, 94, 0.12)' : 'rgba(34, 197, 94, 0.06)') : 'transparent',
+                                            gap: 16,
+                                        }}
+                                    >
+                                        <View style={{
+                                            width: 44,
+                                            height: 44,
+                                            borderRadius: 12,
+                                            backgroundColor: active ? theme.primary : (isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'),
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <Icon size={22} stroke={active ? '#fff' : theme.textSecondary} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontSize: 15, fontWeight: active ? '800' : '600', color: active ? theme.primary : theme.text, marginBottom: 2 }}>
+                                                {item.label}
+                                            </Text>
+                                            <Text style={{ fontSize: 12, color: theme.textMuted, lineHeight: 16 }}>
+                                                {item.desc}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        <View style={{ height: 1.5, backgroundColor: theme.border, marginVertical: 24, marginHorizontal: 4 }} />
+
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 16, paddingLeft: 4 }}>
+                            Display Mode
+                        </Text>
+
+                        <View style={{ flexDirection: 'row', backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)', borderRadius: 16, padding: 4, gap: 4 }}>
+                            {[
+                                { key: 'list' as LayoutMode, icon: BookOpen, label: 'List' },
+                                { key: 'grid' as LayoutMode, icon: ScanSearch, label: 'Grid' },
+                            ].map((item) => {
+                                const Icon = item.icon;
+                                const active = layoutMode === item.key;
+                                return (
+                                    <TouchableOpacity
+                                        key={item.key}
+                                        onPress={() => onToggleLayout(item.key)}
+                                        style={{
+                                            flex: 1,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: 8,
+                                            paddingVertical: 10,
+                                            borderRadius: 12,
+                                            backgroundColor: active ? theme.primary : 'transparent',
+                                        }}
+                                    >
+                                        <Icon size={16} stroke={active ? '#fff' : theme.textSecondary} />
+                                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.text }}>
+                                            {item.label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        <View style={{ flex: 1 }} />
+                    </Animated.View>
+                </View>
+            </View>
+        </Modal>
+    );
+}
+
 // ─── Animated Sliding Tab Bar ─────────────────────────────────────────────────
 function SlidingTabBar({
     tabs,
@@ -713,6 +1105,7 @@ export default function LibraryScreen() {
         y?: string;
         q?: string;
         tab?: string;
+        browse?: string;
         backFrom?: string;
         backBedId?: string;
         backGardenId?: string;
@@ -740,9 +1133,13 @@ export default function LibraryScreen() {
 
     const initialQuery = Array.isArray(params.q) ? params.q[0] : params.q;
     const tabParam = Array.isArray(params.tab) ? params.tab[0] : params.tab;
+    const browseParam = Array.isArray(params.browse) ? params.browse[0] : params.browse;
     const [search, setSearch] = useState(initialQuery ?? '');
     const deferredSearch = useDeferredValue(search);
     const [activeTab, setActiveTab] = useState<LibraryTab>(() => normalizeTab(tabParam));
+    const [plantBrowseMode, setPlantBrowseMode] = useState<PlantBrowseMode>(() => normalizeBrowseMode(browseParam));
+    const [layoutMode, setLayoutMode] = useState<LayoutMode>('list');
+    const [browseMenuOpen, setBrowseMenuOpen] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
     const [selectedPest, setSelectedPest] = useState<any>(null);
     const [selectedPlant, setSelectedPlant] = useState<any>(null);
@@ -758,6 +1155,12 @@ export default function LibraryScreen() {
     const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
     const { favorites, toggleFavorite } = useFavorites();
+    const familyRows = useQuery(
+        api.plantLibrary.listFamilies,
+        activeTab === 'plants' && plantBrowseMode === 'families'
+            ? { locale, limit: 200 }
+            : 'skip'
+    );
 
     // Pests & Diseases data
     const pestType: PestDiseaseType | undefined = undefined; // show all
@@ -793,6 +1196,14 @@ export default function LibraryScreen() {
         const normalized = normalizeTab(nextTab);
         setActiveTab((current) => (current === normalized ? current : normalized));
     }, [params.tab]);
+
+    useEffect(() => {
+        if (params.browse === undefined) return;
+        const nextBrowse = Array.isArray(params.browse) ? params.browse[0] : params.browse;
+        if (typeof nextBrowse !== 'string') return;
+        const normalized = normalizeBrowseMode(nextBrowse);
+        setPlantBrowseMode((current) => (current === normalized ? current : normalized));
+    }, [params.browse]);
 
     useEffect(() => {
         const aiMatchIdParam = Array.isArray(params.aiMatchId) ? params.aiMatchId[0] : params.aiMatchId;
@@ -979,10 +1390,24 @@ export default function LibraryScreen() {
         );
     }, [pestItems, normalizedSearch]);
 
+    const filteredFamilies = useMemo(() => {
+        const rows = familyRows ?? [];
+        if (!normalizedSearch) return rows;
+        return rows.filter((item: any) =>
+            matchesSearch(normalizedSearch, [
+                item.family,
+                item.samplePlant?.commonName,
+                item.samplePlant?.scientificName,
+            ])
+        );
+    }, [familyRows, normalizedSearch]);
+
     // Dynamic search placeholder based on active tab
     const searchPlaceholder =
         activeTab === 'plants'
-            ? t('library.search_plants')
+            ? plantBrowseMode === 'families'
+                ? 'Search families'
+                : t('library.search_plants')
             : activeTab === 'pests'
                 ? t('library.search_pests')
                 : t('library.search_guides');
@@ -1013,10 +1438,24 @@ export default function LibraryScreen() {
     const renderPlantItem = useCallback(
         ({ item }: { item: any }) => {
             if (item.rowType === 'header') {
-                return <SpeciesGroupHeader basePlant={item.basePlant} count={item.count} />;
+                return layoutMode === 'list' || !!normalizedSearch ? (
+                    <SpeciesGroupHeader basePlant={item.basePlant} count={item.count} />
+                ) : null;
             }
 
             const plant = item.plant;
+            if (layoutMode === 'grid' && !normalizedSearch) {
+                return (
+                    <PlantGridCard
+                        plant={plant}
+                        onPress={() => openPlantDetail(plant)}
+                        onToggleFavorite={() => handleTogglePlantFavorite(plant)}
+                        isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
+                        testID="e2e-library-plant-card"
+                    />
+                );
+            }
+
             return (
                 <PlantCard
                     plant={plant}
@@ -1027,7 +1466,7 @@ export default function LibraryScreen() {
                 />
             );
         },
-        [openPlantDetail, handleTogglePlantFavorite, isSeedPlant, favoriteIds]
+        [layoutMode, normalizedSearch, openPlantDetail, handleTogglePlantFavorite, isSeedPlant, favoriteIds]
     );
 
     const renderPestItem = useCallback(
@@ -1039,61 +1478,57 @@ export default function LibraryScreen() {
 
     const plantKeyExtractor = useCallback((row: any) => String(row.key), []);
     const pestKeyExtractor = useCallback((item: any) => String(item._id), []);
+    const passthroughParams = useMemo(
+        () => buildLibraryRoutePassthrough(params as Record<string, string | string[] | undefined>),
+        [params]
+    );
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>
             {/* Top bar: Search + Tabs */}
             <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, gap: 12, backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border }}>
                 {/* Search bar — white card style */}
-                <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    backgroundColor: theme.card,
-                    borderRadius: 14,
-                    paddingHorizontal: 14,
-                    gap: 10,
-                    borderWidth: 1,
-                    borderColor: theme.border,
-                    shadowColor: isDark ? '#000000' : '#1a1a18',
-                    shadowOpacity: 0.05,
-                    shadowRadius: 8,
-                    shadowOffset: { width: 0, height: 2 },
-                }}>
-                    <Search size={15} stroke={theme.textMuted} />
-                    <TextInput
-                        style={{ flex: 1, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                        placeholder={searchPlaceholder}
-                        placeholderTextColor={theme.textMuted}
-                        value={search}
-                        onChangeText={setSearch}
-                        testID="e2e-library-search-input"
-                    />
-                    {!!search && (
-                        <TouchableOpacity onPress={() => setSearch('')}>
-                            <X size={15} stroke={theme.textMuted} />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                        borderRadius: 12,
+                        paddingHorizontal: 12,
+                        gap: 10,
+                    }}>
+                        <Search size={15} stroke={theme.textMuted} />
+                        <TextInput
+                            style={{ flex: 1, paddingVertical: 10, fontSize: 15, color: theme.text }}
+                            placeholder={searchPlaceholder}
+                            placeholderTextColor={theme.textMuted}
+                            value={search}
+                            onChangeText={setSearch}
+                            testID="e2e-library-search-input"
+                        />
+                        {!!search && (
+                            <TouchableOpacity onPress={() => setSearch('')}>
+                                <X size={15} stroke={theme.textMuted} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                    {activeTab === 'plants' && (
+                        <TouchableOpacity
+                            onPress={() => setBrowseMenuOpen(true)}
+                            accessibilityLabel="Browse mode menu"
+                            style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: 12,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                            }}
+                        >
+                            <SlidersHorizontal size={18} stroke={theme.primary} />
                         </TouchableOpacity>
                     )}
-                    <TouchableOpacity
-                        onPress={openScanner}
-                        accessibilityLabel={t('planning.option_camera_title')}
-                        testID="e2e-library-ai-scanner"
-                        style={{
-                            minWidth: 64,
-                            height: 30,
-                            borderRadius: 10,
-                            borderWidth: 1,
-                            borderColor: theme.border,
-                            paddingHorizontal: 8,
-                            flexDirection: 'row',
-                            gap: 4,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: theme.background,
-                        }}
-                    >
-                        <ScanSearch size={13} stroke={theme.primary} />
-                        <Text style={{ fontSize: 10, fontWeight: '700', color: theme.primary }}>{t('planning.ai_scan_short')}</Text>
-                    </TouchableOpacity>
                 </View>
 
                 {/* Internal tabs — animated sliding pill */}
@@ -1111,107 +1546,161 @@ export default function LibraryScreen() {
             {/* ── Plants Tab ── */}
             {activeTab === 'plants' && (
                 <View style={{ flex: 1 }}>
-                    {focusItems.length > 0 && !selectedGroup && !normalizedSearch ? (
-                        <View style={{ paddingHorizontal: 16, paddingTop: 6, gap: 8 }}>
-                            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary }}>
-                                {t('library.personalized_hint')}
-                            </Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                                {focusItems.map((item) => (
-                                    <View
-                                        key={`${item.kind}:${item.id}`}
-                                        style={{
-                                            backgroundColor: theme.accent,
-                                            borderRadius: 999,
-                                            paddingHorizontal: 10,
-                                            paddingVertical: 5,
-                                            borderWidth: 1,
-                                            borderColor: theme.border,
-                                        }}
-                                    >
-                                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.text }}>
-                                            {t(item.labelKey)}
-                                        </Text>
-                                    </View>
-                                ))}
+                    {plantBrowseMode === 'families' ? (
+                        familyRows === undefined ? (
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                <ActivityIndicator size="large" color={theme.primary} />
                             </View>
-                        </View>
-                    ) : null}
+                        ) : filteredFamilies.length === 0 ? (
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+                                <Text style={{ fontSize: 32 }}>🧬</Text>
+                                <Text style={{ fontSize: 16, fontWeight: '600', color: theme.textMuted }}>
+                                    {search ? 'No families found' : 'No family data available'}
+                                </Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                key={`families-${layoutMode}-${normalizedSearch ? 'search' : 'browse'}`}
+                                style={{ flex: 1 }}
+                                data={filteredFamilies}
+                                keyExtractor={(item: any) => String(item.key)}
+                                renderItem={({ item }: { item: any }) => {
+                                    const props = {
+                                        title: item.family,
+                                        subtitle: item.samplePlant?.commonName ?? item.samplePlant?.scientificName,
+                                        imageUrl: item.samplePlant?.imageUrl,
+                                        meta: `${item.genusCount} genera • ${item.speciesCount} species • ${item.plantCount} plants`,
+                                        onPress: () =>
+                                            router.push({
+                                                pathname: '/(tabs)/library/family/[family]',
+                                                params: {
+                                                    family: String(item.family),
+                                                    ...passthroughParams,
+                                                    layout: layoutMode, // pass layout to detail screen
+                                                },
+                                            }),
+                                    };
+                                    return layoutMode === 'grid' ? (
+                                        <TaxonomyGridCard {...props} />
+                                    ) : (
+                                        <TaxonomyCard {...props} />
+                                    );
+                                }}
+                                numColumns={layoutMode === 'grid' ? 2 : 1}
+                                columnWrapperStyle={layoutMode === 'grid' ? { gap: 12, paddingHorizontal: 12 } : undefined}
+                                ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                                showsVerticalScrollIndicator={false}
+                                contentContainerStyle={{ paddingVertical: 12, paddingBottom: 100, paddingHorizontal: layoutMode === 'grid' ? 4 : 12 }}
+                            />
+                        )
+                    ) : (
+                        <>
+                            {focusItems.length > 0 && !selectedGroup && !normalizedSearch ? (
+                                <View style={{ paddingHorizontal: 16, paddingTop: 6, gap: 8 }}>
+                                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary }}>
+                                        {t('library.personalized_hint')}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                                        {focusItems.map((item) => (
+                                            <View
+                                                key={`${item.kind}:${item.id}`}
+                                                style={{
+                                                    backgroundColor: theme.accent,
+                                                    borderRadius: 999,
+                                                    paddingHorizontal: 10,
+                                                    paddingVertical: 5,
+                                                    borderWidth: 1,
+                                                    borderColor: theme.border,
+                                                }}
+                                            >
+                                                <Text style={{ fontSize: 11, fontWeight: '700', color: theme.text }}>
+                                                    {t(item.labelKey)}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </View>
+                            ) : null}
 
-                    {/* Group filter chips */}
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={{ paddingLeft: 16, marginTop: 6, marginBottom: 2, paddingVertical: 2, flexGrow: 0 }}
-                        contentContainerStyle={{ gap: 8, paddingRight: 16, alignItems: 'center', paddingBottom: 4 }}
-                    >
-                        <TouchableOpacity
-                            onPress={() => setSelectedGroup(undefined)}
-                            style={{
-                                paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
-                                backgroundColor: selectedGroup === undefined ? theme.primary : theme.card,
-                                borderWidth: 1,
-                                borderColor: selectedGroup === undefined ? theme.primary : theme.border,
-                                flexShrink: 0,
-                            }}
-                        >
-                            <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '600', lineHeight: 20, color: selectedGroup === undefined ? '#fff' : theme.textSecondary }}>
-                                {t('library.filter_all')}
-                            </Text>
-                        </TouchableOpacity>
-                        {sortedGroups.map((g: any) => {
-                            const active = selectedGroup === g.key;
-                            const translated = t(`plantGroups.${g.key}`);
-                            const label =
-                                translated !== `plantGroups.${g.key}`
-                                    ? translated
-                                    : (g.displayName?.[locale] ?? g.displayName?.en ?? g.key);
-                            return (
+                            {/* Group filter chips */}
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={{ paddingLeft: 16, marginTop: 6, marginBottom: 2, paddingVertical: 2, flexGrow: 0 }}
+                                contentContainerStyle={{ gap: 8, paddingRight: 16, alignItems: 'center', paddingBottom: 4 }}
+                            >
                                 <TouchableOpacity
-                                    key={g.key}
-                                    onPress={() => setSelectedGroup(active ? undefined : g.key)}
+                                    onPress={() => setSelectedGroup(undefined)}
                                     style={{
                                         paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
-                                        backgroundColor: active ? theme.primary : theme.card,
+                                        backgroundColor: selectedGroup === undefined ? theme.primary : theme.card,
                                         borderWidth: 1,
-                                        borderColor: active ? theme.primary : theme.border,
-                                        flexDirection: 'row', alignItems: 'center', gap: 5,
+                                        borderColor: selectedGroup === undefined ? theme.primary : theme.border,
                                         flexShrink: 0,
                                     }}
                                 >
-                                    <Text style={{ fontSize: 14, lineHeight: 20 }}>{GROUP_ICONS[g.key] ?? '🌱'}</Text>
-                                    <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '600', lineHeight: 20, color: active ? '#fff' : theme.textSecondary }}>{label}</Text>
+                                    <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '600', lineHeight: 20, color: selectedGroup === undefined ? '#fff' : theme.textSecondary }}>
+                                        {t('library.filter_all')}
+                                    </Text>
                                 </TouchableOpacity>
-                            );
-                        })}
-                    </ScrollView>
+                                {sortedGroups.map((g: any) => {
+                                    const active = selectedGroup === g.key;
+                                    const translated = t(`plantGroups.${g.key}`);
+                                    const label =
+                                        translated !== `plantGroups.${g.key}`
+                                            ? translated
+                                            : (g.displayName?.[locale] ?? g.displayName?.en ?? g.key);
+                                    return (
+                                        <TouchableOpacity
+                                            key={g.key}
+                                            onPress={() => setSelectedGroup(active ? undefined : g.key)}
+                                            style={{
+                                                paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20,
+                                                backgroundColor: active ? theme.primary : theme.card,
+                                                borderWidth: 1,
+                                                borderColor: active ? theme.primary : theme.border,
+                                                flexDirection: 'row', alignItems: 'center', gap: 5,
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            <Text style={{ fontSize: 14, lineHeight: 20 }}>{GROUP_ICONS[g.key] ?? '🌱'}</Text>
+                                            <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '600', lineHeight: 20, color: active ? '#fff' : theme.textSecondary }}>{label}</Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
 
-                    {plantsLoading ? (
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                            <ActivityIndicator size="large" color={theme.primary} />
-                        </View>
-                    ) : filteredPlants.length === 0 ? (
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
-                            <Text style={{ fontSize: 32 }}>🌱</Text>
-                            <Text style={{ fontSize: 16, fontWeight: '600', color: theme.textMuted }}>
-                                {search ? t('library.no_results') : t('library.no_plants')}
-                            </Text>
-                        </View>
-                    ) : (
-                        <FlatList
-                            style={{ flex: 1 }}
-                            data={groupedPlantRows}
-                            keyExtractor={plantKeyExtractor}
-                            renderItem={renderPlantItem}
-                            ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{ padding: 8, paddingTop: 8, paddingBottom: 100 }}
-                            removeClippedSubviews
-                            initialNumToRender={8}
-                            maxToRenderPerBatch={8}
-                            updateCellsBatchingPeriod={50}
-                            windowSize={7}
-                        />
+                            {plantsLoading ? (
+                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                    <ActivityIndicator size="large" color={theme.primary} />
+                                </View>
+                            ) : filteredPlants.length === 0 ? (
+                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
+                                    <Text style={{ fontSize: 32 }}>🌱</Text>
+                                    <Text style={{ fontSize: 16, fontWeight: '600', color: theme.textMuted }}>
+                                        {search ? t('library.no_results') : t('library.no_plants')}
+                                    </Text>
+                                </View>
+                            ) : (
+                                <FlatList
+                                    key={`${layoutMode}-${normalizedSearch ? 'search' : 'browse'}`}
+                                    style={{ flex: 1 }}
+                                    data={groupedPlantRows}
+                                    keyExtractor={plantKeyExtractor}
+                                    renderItem={renderPlantItem}
+                                    numColumns={layoutMode === 'grid' && !normalizedSearch ? 2 : 1}
+                                    columnWrapperStyle={layoutMode === 'grid' && !normalizedSearch ? { gap: 12, paddingHorizontal: 12 } : undefined}
+                                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                                    showsVerticalScrollIndicator={false}
+                                    contentContainerStyle={{ paddingVertical: 12, paddingBottom: 100, paddingHorizontal: layoutMode === 'grid' && !normalizedSearch ? 4 : 12 }}
+                                    removeClippedSubviews
+                                    initialNumToRender={8}
+                                    maxToRenderPerBatch={8}
+                                    updateCellsBatchingPeriod={50}
+                                    windowSize={7}
+                                />
+                            )}
+                        </>
                     )}
                 </View>
             )}
@@ -1273,6 +1762,7 @@ export default function LibraryScreen() {
             <AddPlantTargetModal
                 visible={targetModalOpen}
                 beds={beds.map((bed: any) => ({ _id: String(bed._id), name: bed.name }))}
+                isGardener={appMode === 'gardener'}
                 loading={addSaving}
                 onClose={() => {
                     if (addSaving) return;
@@ -1295,6 +1785,43 @@ export default function LibraryScreen() {
                     <PestDiseaseDetailModal item={selectedPest} onClose={() => setSelectedPest(null)} />
                 )
             }
+            <BrowseModeMenu
+                visible={browseMenuOpen}
+                value={plantBrowseMode}
+                layoutMode={layoutMode}
+                onClose={() => setBrowseMenuOpen(false)}
+                onSelect={(next) => {
+                    setPlantBrowseMode(next);
+                    setSearch('');
+                }}
+                onToggleLayout={setLayoutMode}
+            />
+            <TouchableOpacity
+                onPress={openScanner}
+                accessibilityLabel={t('planning.option_camera_title')}
+                testID="e2e-library-ai-scanner"
+                activeOpacity={0.9}
+                style={{
+                    position: 'absolute',
+                    right: 18,
+                    bottom: 108,
+                    width: 56,
+                    height: 56,
+                    borderRadius: 999,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: theme.primary,
+                    borderWidth: 1,
+                    borderColor: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.72)',
+                    shadowColor: isDark ? '#000000' : '#1a4731',
+                    shadowOpacity: isDark ? 0.42 : 0.24,
+                    shadowRadius: 14,
+                    shadowOffset: { width: 0, height: 8 },
+                    elevation: 10,
+                }}
+            >
+                <ScanSearch size={24} stroke="#fff" />
+            </TouchableOpacity>
             {scannerModals}
         </View >
     );

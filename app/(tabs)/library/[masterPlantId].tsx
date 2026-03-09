@@ -805,6 +805,7 @@ export default function LibraryPlantDetailScreen() {
             <AddPlantTargetModal
                 visible={targetModalOpen}
                 beds={beds.map((bed: any) => ({ _id: String(bed._id), name: bed.name }))}
+                isGardener={appMode === 'gardener'}
                 loading={addSaving}
                 onClose={() => {
                     if (addSaving) return;

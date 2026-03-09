@@ -14,6 +14,9 @@ const normalize = (value: string) =>
         .toLowerCase()
         .trim();
 
+const normalizeFamily = (value?: string | null) =>
+    (value ?? "").trim();
+
 const isBasePlant = (plant: any) => isDisplayBasePlant(plant);
 
 const pickPreferredPlant = (plants: any[]) => {
@@ -26,6 +29,83 @@ const speciesKeyOf = (plant: any) => {
         return `${plant.genusNormalized}:${plant.speciesNormalized}`;
     }
     return normalize(plant?.scientificName ?? "");
+};
+
+const localizedDisplayNameOf = async (ctx: any, plant: any, locale: string) => {
+    const i18n = await ctx.db
+        .query("plantI18n")
+        .withIndex("by_plant_locale", (q: any) =>
+            q.eq("plantId", plant._id).eq("locale", locale)
+        )
+        .first();
+
+    return {
+        commonName: i18n?.commonName ?? plant.scientificName,
+        description: i18n?.description,
+    };
+};
+
+const localizePlant = async (ctx: any, plant: any, locale: string) => {
+    const localized = await localizedDisplayNameOf(ctx, plant, locale);
+    return {
+        ...plant,
+        commonName: localized.commonName,
+        description: localized.description,
+        uiGroupKey: (plant as any).uiGroupKey ?? undefined,
+        uiGroupLabelVi: (plant as any).uiGroupLabelVi ?? undefined,
+        uiGroupLabelEn: (plant as any).uiGroupLabelEn ?? undefined,
+        speciesKey: speciesKeyOf(plant),
+        isBaseVariant: isBasePlant(plant),
+    };
+};
+
+const loadPlantsForTaxonomyPath = async (ctx: any, args: {
+    family?: string;
+    genusNormalized?: string;
+    speciesNormalized?: string;
+}) => {
+    const family = normalizeFamily(args.family);
+
+    if (family && args.genusNormalized && args.speciesNormalized) {
+        return await ctx.db
+            .query("plantsMaster")
+            .withIndex("by_family_genus_species", (q: any) =>
+                q
+                    .eq("family", family)
+                    .eq("genusNormalized", args.genusNormalized!)
+                    .eq("speciesNormalized", args.speciesNormalized!)
+            )
+            .collect();
+    }
+
+    if (family && args.genusNormalized) {
+        return await ctx.db
+            .query("plantsMaster")
+            .withIndex("by_family_genus", (q: any) =>
+                q.eq("family", family).eq("genusNormalized", args.genusNormalized!)
+            )
+            .collect();
+    }
+
+    if (family) {
+        return await ctx.db
+            .query("plantsMaster")
+            .withIndex("by_family", (q: any) => q.eq("family", family))
+            .collect();
+    }
+
+    if (args.genusNormalized && args.speciesNormalized) {
+        return await ctx.db
+            .query("plantsMaster")
+            .withIndex("by_genus_species", (q: any) =>
+                q
+                    .eq("genusNormalized", args.genusNormalized!)
+                    .eq("speciesNormalized", args.speciesNormalized!)
+            )
+            .collect();
+    }
+
+    return await ctx.db.query("plantsMaster").collect();
 };
 
 const resolveByScientificName = async (ctx: any, scientificName: string) => {
@@ -166,30 +246,264 @@ export const list = query({
     },
     handler: async (ctx, args) => {
         const locale = args.locale ?? "en";
+        let plants = args.group
+            ? await ctx.db
+                .query("plantsMaster")
+                .withIndex("by_group", (q) => q.eq("group", args.group!))
+                .collect()
+            : await loadPlantsForTaxonomyPath(ctx, {
+                family: args.family,
+            });
 
-        const plants = args.group
-            ? await ctx.db.query("plantsMaster").withIndex("by_group", (q) => q.eq("group", args.group!)).collect()
-            : await ctx.db.query("plantsMaster").collect();
+        if (args.group && args.family) {
+            const family = normalizeFamily(args.family);
+            plants = plants.filter((plant: any) => normalizeFamily(plant.family) === family);
+        }
 
-        // Localize
         return await Promise.all(
-            plants.slice(0, args.limit ?? 100).map(async (p) => {
-                const i18n = await ctx.db
-                    .query("plantI18n")
-                    .withIndex("by_plant_locale", (q) => q.eq("plantId", p._id).eq("locale", locale))
-                    .first();
+            plants.slice(0, args.limit ?? 100).map((plant: any) =>
+                localizePlant(ctx, plant, locale)
+            )
+        );
+    },
+});
 
+export const listFamilies = query({
+    args: {
+        locale: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const plants = await ctx.db.query("plantsMaster").collect();
+        const families = new Map<string, {
+            name: string;
+            genusSet: Set<string>;
+            speciesSet: Set<string>;
+            plantCount: number;
+            samplePlant: any | null;
+        }>();
+
+        for (const plant of plants) {
+            const family = normalizeFamily((plant as any).family);
+            if (!family) continue;
+            const entry = families.get(family) ?? {
+                name: family,
+                genusSet: new Set<string>(),
+                speciesSet: new Set<string>(),
+                plantCount: 0,
+                samplePlant: null,
+            };
+
+            if ((plant as any).genusNormalized) {
+                entry.genusSet.add(String((plant as any).genusNormalized));
+            }
+            if ((plant as any).genusNormalized && (plant as any).speciesNormalized) {
+                entry.speciesSet.add(
+                    `${(plant as any).genusNormalized}:${(plant as any).speciesNormalized}`
+                );
+            }
+            entry.plantCount += 1;
+            if (!entry.samplePlant || (isBasePlant(plant) && !isBasePlant(entry.samplePlant))) {
+                entry.samplePlant = plant;
+            }
+            families.set(family, entry);
+        }
+
+        const rows = Array.from(families.values())
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .slice(0, args.limit ?? 200);
+
+        const locale = args.locale ?? "en";
+        return await Promise.all(
+            rows.map(async (row) => {
+                const samplePlant = row.samplePlant
+                    ? await localizePlant(ctx, row.samplePlant, locale)
+                    : null;
                 return {
-                    ...p,
-                    commonName: i18n?.commonName ?? p.scientificName,
-                    description: i18n?.description,
-                    uiGroupKey: (p as any).uiGroupKey ?? undefined,
-                    uiGroupLabelVi: (p as any).uiGroupLabelVi ?? undefined,
-                    uiGroupLabelEn: (p as any).uiGroupLabelEn ?? undefined,
-                    speciesKey: speciesKeyOf(p),
-                    isBaseVariant: isBasePlant(p),
+                    key: row.name,
+                    family: row.name,
+                    genusCount: row.genusSet.size,
+                    speciesCount: row.speciesSet.size,
+                    plantCount: row.plantCount,
+                    samplePlant,
                 };
-            }),
+            })
+        );
+    },
+});
+
+export const listGeneraByFamily = query({
+    args: {
+        family: v.string(),
+        locale: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const family = normalizeFamily(args.family);
+        if (!family) return [];
+
+        const plants = await loadPlantsForTaxonomyPath(ctx, { family });
+        const genera = new Map<string, {
+            genusNormalized: string;
+            genus: string;
+            speciesSet: Set<string>;
+            plantCount: number;
+            samplePlant: any | null;
+        }>();
+
+        for (const plant of plants) {
+            const genusNormalized = String((plant as any).genusNormalized ?? "").trim();
+            if (!genusNormalized) continue;
+            const genus = String((plant as any).genus ?? "").trim() || genusNormalized;
+            const entry = genera.get(genusNormalized) ?? {
+                genusNormalized,
+                genus,
+                speciesSet: new Set<string>(),
+                plantCount: 0,
+                samplePlant: null,
+            };
+
+            if ((plant as any).speciesNormalized) {
+                entry.speciesSet.add(
+                    `${genusNormalized}:${String((plant as any).speciesNormalized)}`
+                );
+            }
+            entry.plantCount += 1;
+            if (!entry.samplePlant || (isBasePlant(plant) && !isBasePlant(entry.samplePlant))) {
+                entry.samplePlant = plant;
+            }
+            genera.set(genusNormalized, entry);
+        }
+
+        const locale = args.locale ?? "en";
+        return await Promise.all(
+            Array.from(genera.values())
+                .sort((a, b) => a.genus.localeCompare(b.genus))
+                .slice(0, args.limit ?? 200)
+                .map(async (entry) => ({
+                    key: entry.genusNormalized,
+                    family,
+                    genus: entry.genus,
+                    genusNormalized: entry.genusNormalized,
+                    speciesCount: entry.speciesSet.size,
+                    plantCount: entry.plantCount,
+                    samplePlant: entry.samplePlant
+                        ? await localizePlant(ctx, entry.samplePlant, locale)
+                        : null,
+                }))
+        );
+    },
+});
+
+export const listSpeciesByFamilyGenus = query({
+    args: {
+        family: v.string(),
+        genusNormalized: v.string(),
+        locale: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const family = normalizeFamily(args.family);
+        const genusNormalized = normalizeTaxonomyToken(args.genusNormalized);
+        if (!family || !genusNormalized) return [];
+
+        const plants = await loadPlantsForTaxonomyPath(ctx, {
+            family,
+            genusNormalized,
+        });
+
+        const speciesMap = new Map<string, {
+            speciesNormalized: string;
+            species: string;
+            speciesKey: string;
+            scientificName: string;
+            plantCount: number;
+            basePlant: any | null;
+        }>();
+
+        for (const plant of plants) {
+            const speciesNormalized = String((plant as any).speciesNormalized ?? "").trim();
+            if (!speciesNormalized) continue;
+            const speciesKey = `${genusNormalized}:${speciesNormalized}`;
+            const species = String((plant as any).species ?? "").trim() || speciesNormalized;
+            const entry = speciesMap.get(speciesKey) ?? {
+                speciesNormalized,
+                species,
+                speciesKey,
+                scientificName: String(plant.scientificName ?? "").trim(),
+                plantCount: 0,
+                basePlant: null,
+            };
+
+            entry.plantCount += 1;
+            if (!entry.basePlant || (isBasePlant(plant) && !isBasePlant(entry.basePlant))) {
+                entry.basePlant = plant;
+                entry.scientificName = String(plant.scientificName ?? entry.scientificName).trim();
+            }
+            speciesMap.set(speciesKey, entry);
+        }
+
+        const locale = args.locale ?? "en";
+        return await Promise.all(
+            Array.from(speciesMap.values())
+                .sort((a, b) => a.scientificName.localeCompare(b.scientificName))
+                .slice(0, args.limit ?? 200)
+                .map(async (entry) => {
+                    const localizedBase = entry.basePlant
+                        ? await localizePlant(ctx, entry.basePlant, locale)
+                        : null;
+                    return {
+                        key: entry.speciesKey,
+                        family,
+                        genusNormalized,
+                        species: entry.species,
+                        speciesNormalized: entry.speciesNormalized,
+                        speciesKey: entry.speciesKey,
+                        scientificName: entry.scientificName,
+                        commonName: localizedBase?.commonName ?? entry.scientificName,
+                        description: localizedBase?.description,
+                        plantCount: entry.plantCount,
+                        basePlantId: entry.basePlant?._id ?? null,
+                        samplePlant: localizedBase,
+                    };
+                })
+        );
+    },
+});
+
+export const listPlantsBySpecies = query({
+    args: {
+        family: v.optional(v.string()),
+        genusNormalized: v.string(),
+        speciesNormalized: v.string(),
+        locale: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const genusNormalized = normalizeTaxonomyToken(args.genusNormalized);
+        const speciesNormalized = normalizeTaxonomyToken(args.speciesNormalized);
+        if (!genusNormalized || !speciesNormalized) return [];
+
+        const plants = await loadPlantsForTaxonomyPath(ctx, {
+            family: args.family,
+            genusNormalized,
+            speciesNormalized,
+        });
+
+        const sorted = [...plants].sort((a: any, b: any) => {
+            if (isBasePlant(a) !== isBasePlant(b)) {
+                return isBasePlant(a) ? -1 : 1;
+            }
+            const aCultivar = String(a.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED);
+            const bCultivar = String(b.cultivarNormalized ?? DEFAULT_CULTIVAR_NORMALIZED);
+            return aCultivar.localeCompare(bCultivar);
+        });
+
+        const locale = args.locale ?? "en";
+        return await Promise.all(
+            sorted.slice(0, args.limit ?? 200).map((plant) =>
+                localizePlant(ctx, plant, locale)
+            )
         );
     },
 });
