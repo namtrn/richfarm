@@ -105,6 +105,11 @@ async function seedPlantsAndI18n(ctx: any) {
             idByPlantKey.set(plantKey, insertedId);
             plantsInserted++;
         } else {
+            if ((plant as any).family && existing.family !== (plant as any).family) {
+                await ctx.db.patch(existing._id, {
+                    family: (plant as any).family,
+                });
+            }
             idByPlantKey.set(plantKey, existing._id);
         }
     }

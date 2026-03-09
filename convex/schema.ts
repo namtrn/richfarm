@@ -134,6 +134,13 @@ export default defineSchema({
   })
     .index("by_scientific_name", ["scientificName"])
     .index("by_group", ["group"])
+    .index("by_family", ["family"])
+    .index("by_family_genus", ["family", "genusNormalized"])
+    .index("by_family_genus_species", [
+      "family",
+      "genusNormalized",
+      "speciesNormalized",
+    ])
     .index("by_genus_species", ["genusNormalized", "speciesNormalized"])
     .index("by_genus_species_cultivar", [
       "genusNormalized",

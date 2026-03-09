@@ -138,6 +138,7 @@ type PlantSeed = {
     scientificName: string;
     cultivar?: string;
     group: string;
+    family?: string;
     purposes: string[];
     typicalDaysToHarvest?: number;
     germinationDays?: number;
@@ -156,6 +157,152 @@ type PlantSeed = {
     waterLitersPerM2?: number;
     yieldKgPerM2?: number;
 };
+
+const FAMILY_BY_GENUS: Record<string, string> = {
+    Abelmoschus: "Malvaceae",
+    Aglaonema: "Araceae",
+    Allium: "Amaryllidaceae",
+    Alocasia: "Araceae",
+    Aloe: "Asphodelaceae",
+    Amaranthus: "Amaranthaceae",
+    Anethum: "Apiaceae",
+    Ananas: "Bromeliaceae",
+    Anthriscus: "Apiaceae",
+    Anthurium: "Araceae",
+    Antirrhinum: "Plantaginaceae",
+    Apium: "Apiaceae",
+    Arachis: "Fabaceae",
+    Arctium: "Asteraceae",
+    Artemisia: "Asteraceae",
+    Asparagus: "Asparagaceae",
+    Basella: "Basellaceae",
+    Begonia: "Begoniaceae",
+    Benincasa: "Cucurbitaceae",
+    Beta: "Amaranthaceae",
+    Brassica: "Brassicaceae",
+    Bougainvillea: "Nyctaginaceae",
+    Cajanus: "Fabaceae",
+    Caladium: "Araceae",
+    Camellia: "Theaceae",
+    Canavalia: "Fabaceae",
+    Capsicum: "Solanaceae",
+    Carica: "Caricaceae",
+    Cichorium: "Asteraceae",
+    Chlorophytum: "Asparagaceae",
+    Chrysanthemum: "Asteraceae",
+    Cicer: "Fabaceae",
+    Citrullus: "Cucurbitaceae",
+    Citrus: "Rutaceae",
+    Colocasia: "Araceae",
+    Coriandrum: "Apiaceae",
+    Cucumis: "Cucurbitaceae",
+    Cucurbita: "Cucurbitaceae",
+    Curcuma: "Zingiberaceae",
+    Cynara: "Asteraceae",
+    Cymbopogon: "Poaceae",
+    Daucus: "Apiaceae",
+    Dianthus: "Caryophyllaceae",
+    Dieffenbachia: "Araceae",
+    Dimocarpus: "Sapindaceae",
+    Dracaena: "Asparagaceae",
+    Epipremnum: "Araceae",
+    Eruca: "Brassicaceae",
+    Eryngium: "Apiaceae",
+    Ficus: "Moraceae",
+    Foeniculum: "Apiaceae",
+    Fragaria: "Rosaceae",
+    Goeppertia: "Marantaceae",
+    Glycine: "Fabaceae",
+    Helianthus: "Asteraceae",
+    Hibiscus: "Malvaceae",
+    Hoya: "Apocynaceae",
+    Hydrangea: "Hydrangeaceae",
+    Impatiens: "Balsaminaceae",
+    Ipomoea: "Convolvulaceae",
+    Jasminum: "Oleaceae",
+    Lablab: "Fabaceae",
+    Lactuca: "Asteraceae",
+    Lagenaria: "Cucurbitaceae",
+    Lavandula: "Lamiaceae",
+    Laurus: "Lauraceae",
+    Lens: "Fabaceae",
+    Litchi: "Sapindaceae",
+    Luffa: "Cucurbitaceae",
+    Malus: "Rosaceae",
+    Mangifera: "Anacardiaceae",
+    Manihot: "Euphorbiaceae",
+    Matricaria: "Asteraceae",
+    Mentha: "Lamiaceae",
+    Melissa: "Lamiaceae",
+    Momordica: "Cucurbitaceae",
+    Monstera: "Araceae",
+    Moringa: "Moringaceae",
+    Musa: "Musaceae",
+    Nelumbo: "Nelumbonaceae",
+    Nepeta: "Lamiaceae",
+    Nicotiana: "Solanaceae",
+    Ocimum: "Lamiaceae",
+    Origanum: "Lamiaceae",
+    Pachyrhizus: "Fabaceae",
+    Passiflora: "Passifloraceae",
+    Pastinaca: "Apiaceae",
+    Pelargonium: "Geraniaceae",
+    Peperomia: "Piperaceae",
+    Perilla: "Lamiaceae",
+    Persea: "Lauraceae",
+    Petroselinum: "Apiaceae",
+    Petunia: "Solanaceae",
+    Phaseolus: "Fabaceae",
+    Phalaenopsis: "Orchidaceae",
+    Philodendron: "Araceae",
+    Physalis: "Solanaceae",
+    Pilea: "Urticaceae",
+    Pisum: "Fabaceae",
+    Prunus: "Rosaceae",
+    Psidium: "Myrtaceae",
+    Punica: "Lythraceae",
+    Pyrus: "Rosaceae",
+    Raphanus: "Brassicaceae",
+    Rosa: "Rosaceae",
+    Rosmarinus: "Lamiaceae",
+    Rubus: "Rosaceae",
+    Rumex: "Polygonaceae",
+    Salvia: "Lamiaceae",
+    Sansevieria: "Asparagaceae",
+    Schefflera: "Araliaceae",
+    Sechium: "Cucurbitaceae",
+    Selenicereus: "Cactaceae",
+    Solanum: "Solanaceae",
+    Spathiphyllum: "Araceae",
+    Spinacia: "Amaranthaceae",
+    Stevia: "Asteraceae",
+    Syngonium: "Araceae",
+    Tagetes: "Asteraceae",
+    Thymus: "Lamiaceae",
+    Tradescantia: "Commelinaceae",
+    Vaccinium: "Ericaceae",
+    Valeriana: "Caprifoliaceae",
+    Verbena: "Verbenaceae",
+    Vigna: "Fabaceae",
+    Vicia: "Fabaceae",
+    Viola: "Violaceae",
+    Vitis: "Vitaceae",
+    Zamioculcas: "Araceae",
+    Zea: "Poaceae",
+    Zingiber: "Zingiberaceae",
+};
+
+function extractSeedGenus(scientificName: string) {
+    const normalized = scientificName.trim().replace(/[,;]+/g, " ");
+    if (!normalized) return "";
+    const [firstToken] = normalized.split(/\s+/);
+    return firstToken?.trim() ?? "";
+}
+
+function inferFamilyFromScientificName(scientificName: string) {
+    const genus = extractSeedGenus(scientificName);
+    return FAMILY_BY_GENUS[genus] ?? undefined;
+}
 
 type CultivarExpansionEntry = {
     scientificName: string;
@@ -176,6 +323,128 @@ type SupplementalPlantCatalogEntry = {
     wateringFrequencyDays?: number;
     fertilizingFrequencyDays?: number;
 };
+
+type SupplementalPlantCatalogCompactEntry = {
+    scientificName: string;
+    group: string;
+    enCommonName: string;
+    viCommonName: string;
+    cultivars: string[];
+    purposes?: string[];
+    typicalDaysToHarvest?: number;
+    germinationDays?: number;
+    lightRequirements?: string;
+    spacingCm?: number;
+    wateringFrequencyDays?: number;
+    fertilizingFrequencyDays?: number;
+};
+
+const SUPPLEMENTAL_GROUP_DEFAULTS: Record<
+    string,
+    Omit<SupplementalPlantCatalogEntry, "scientificName" | "group" | "enCommonName" | "viCommonName" | "cultivars">
+> = {
+    herbs: {
+        purposes: ["cooking_spices", "medicinal"],
+        typicalDaysToHarvest: 80,
+        germinationDays: 10,
+        lightRequirements: "full_sun",
+        spacingCm: 25,
+        wateringFrequencyDays: 3,
+        fertilizingFrequencyDays: 21,
+    },
+    leafy_greens: {
+        purposes: ["cooking", "salad"],
+        typicalDaysToHarvest: 45,
+        germinationDays: 6,
+        lightRequirements: "partial_shade",
+        spacingCm: 18,
+        wateringFrequencyDays: 2,
+        fertilizingFrequencyDays: 14,
+    },
+    nightshades: {
+        purposes: ["cooking"],
+        typicalDaysToHarvest: 95,
+        germinationDays: 10,
+        lightRequirements: "full_sun",
+        spacingCm: 45,
+        wateringFrequencyDays: 2,
+        fertilizingFrequencyDays: 14,
+    },
+    alliums: {
+        purposes: ["cooking"],
+        typicalDaysToHarvest: 95,
+        germinationDays: 8,
+        lightRequirements: "full_sun",
+        spacingCm: 14,
+        wateringFrequencyDays: 3,
+        fertilizingFrequencyDays: 21,
+    },
+    roots: {
+        purposes: ["cooking"],
+        typicalDaysToHarvest: 100,
+        germinationDays: 10,
+        lightRequirements: "full_sun",
+        spacingCm: 20,
+        wateringFrequencyDays: 3,
+        fertilizingFrequencyDays: 21,
+    },
+    legumes: {
+        purposes: ["cooking"],
+        typicalDaysToHarvest: 85,
+        germinationDays: 7,
+        lightRequirements: "full_sun",
+        spacingCm: 25,
+        wateringFrequencyDays: 3,
+        fertilizingFrequencyDays: 21,
+    },
+    vegetables: {
+        purposes: ["cooking"],
+        typicalDaysToHarvest: 85,
+        germinationDays: 7,
+        lightRequirements: "full_sun",
+        spacingCm: 55,
+        wateringFrequencyDays: 2,
+        fertilizingFrequencyDays: 14,
+    },
+    indoor: {
+        purposes: ["ornamental", "indoor"],
+        typicalDaysToHarvest: 150,
+        germinationDays: 18,
+        lightRequirements: "partial_shade",
+        spacingCm: 40,
+        wateringFrequencyDays: 5,
+        fertilizingFrequencyDays: 30,
+    },
+    fruits: {
+        purposes: ["fresh_eating"],
+        typicalDaysToHarvest: 140,
+        germinationDays: 14,
+        lightRequirements: "full_sun",
+        spacingCm: 200,
+        wateringFrequencyDays: 4,
+        fertilizingFrequencyDays: 30,
+    },
+    flowers: {
+        purposes: ["ornamental"],
+        typicalDaysToHarvest: 90,
+        germinationDays: 10,
+        lightRequirements: "full_sun",
+        spacingCm: 30,
+        wateringFrequencyDays: 3,
+        fertilizingFrequencyDays: 21,
+    },
+};
+
+function makeSupplementalCatalogEntry(
+    entry: SupplementalPlantCatalogCompactEntry
+): SupplementalPlantCatalogEntry {
+    return {
+        ...SUPPLEMENTAL_GROUP_DEFAULTS[entry.group],
+        ...entry,
+        purposes:
+            entry.purposes ?? SUPPLEMENTAL_GROUP_DEFAULTS[entry.group]?.purposes ?? ["cooking"],
+    };
+}
 
 const baseRawPlantsMasterSeed: PlantSeed[] = [
     {
@@ -858,6 +1127,112 @@ const supplementalPlantCatalogSeed: SupplementalPlantCatalogEntry[] = [
     { scientificName: "Chrysanthemum morifolium", group: "flowers", enCommonName: "Chrysanthemum", viCommonName: "Cuc mam xoi", purposes: ["ornamental"], cultivars: ["Anastasia", "Spider Bronze", "Snowball", "Yellow Cushion", "Red Charm"], typicalDaysToHarvest: 90, germinationDays: 10, lightRequirements: "full_sun", spacingCm: 25, wateringFrequencyDays: 3, fertilizingFrequencyDays: 21 },
 ];
 
+const expandedSupplementalPlantCatalogSeed: SupplementalPlantCatalogEntry[] = [
+    makeSupplementalCatalogEntry({ scientificName: "Foeniculum vulgare", group: "herbs", enCommonName: "Fennel", viCommonName: "Tieu hoi", cultivars: ["Florence", "Zefa Fino", "Orion", "Solaris", "Finale"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Artemisia dracunculus", group: "herbs", enCommonName: "Tarragon", viCommonName: "Ngo om tay", cultivars: ["French", "Russian", "Sativa", "Monarch", "Green Wonder"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Laurus nobilis", group: "herbs", enCommonName: "Bay Laurel", viCommonName: "Nguyet que", cultivars: ["Sweet Bay", "Little Ragu", "Saratoga", "California Bay", "Compacta"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Anthriscus cerefolium", group: "herbs", enCommonName: "Chervil", viCommonName: "Ngo tuyet", cultivars: ["Curled", "Vertissimo", "Fine Curled", "Brussels Winter", "Plain Leaf"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Melissa officinalis", group: "herbs", enCommonName: "Lemon Balm", viCommonName: "Hung chanh tay", cultivars: ["Lime", "Mandarina", "Aurea", "Citronella", "Compact"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Stevia rebaudiana", group: "herbs", enCommonName: "Stevia", viCommonName: "Co ngot", cultivars: ["Candy", "Sweet Leaf", "Morita", "Eirete", "Criolla"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Nepeta cataria", group: "herbs", enCommonName: "Catnip", viCommonName: "Bac ha meo", cultivars: ["Citriodora", "Select Blue", "White Wonder", "Lemon", "Velvet"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Matricaria chamomilla", group: "herbs", enCommonName: "Chamomile", viCommonName: "Cuc La Ma", cultivars: ["Bodegold", "German", "Zloty Lan", "Astra", "Chamomilla"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Ocimum tenuiflorum", group: "herbs", enCommonName: "Holy Basil", viCommonName: "Hung que tay", cultivars: ["Rama", "Krishna", "Vana", "Kapoor", "Amrita"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Brassica oleracea var. sabellica", group: "leafy_greens", enCommonName: "Kale", viCommonName: "Cai kale", cultivars: ["Curly Green", "Red Russian", "Lacinato", "Winterbor", "Scarlet"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Cichorium endivia", group: "leafy_greens", enCommonName: "Endive", viCommonName: "Cu cai endive", cultivars: ["Frisee", "Batavian", "Green Curled", "Broadleaf", "Nuance"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Cichorium intybus", group: "leafy_greens", enCommonName: "Radicchio", viCommonName: "Xa lach tim", cultivars: ["Chioggia", "Treviso", "Verona", "Indigo", "Rossa di Milano"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Rumex acetosa", group: "leafy_greens", enCommonName: "Sorrel", viCommonName: "Rau chua", cultivars: ["Green de Belleville", "Red Veined", "Large Leaf", "Profusion", "Broad Leaf"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Basella alba", group: "leafy_greens", enCommonName: "Malabar Spinach", viCommonName: "Mong toi", cultivars: ["Green Stem", "Red Stem", "Rubra", "Select", "Vining Giant"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Amaranthus tricolor", group: "leafy_greens", enCommonName: "Amaranth Greens", viCommonName: "Rau den", cultivars: ["Molten Fire", "Josephs Coat", "Red Leaf", "Green Leaf", "Aurora"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Brassica rapa subsp. narinosa", group: "leafy_greens", enCommonName: "Tatsoi", viCommonName: "Cai thia", cultivars: ["Rosette", "Green Spoon", "Summer Fest", "Mei Qing", "Tah Tsai"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Brassica rapa var. perviridis", group: "leafy_greens", enCommonName: "Komatsuna", viCommonName: "Cai Nhat", cultivars: ["Green Boy", "Summerfest", "Tokyo Bekana", "Tendergreen", "Sharaku"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Valeriana locusta", group: "leafy_greens", enCommonName: "Corn Salad", viCommonName: "Xa lach cuu", cultivars: ["Large Dutch", "Vit", "Medaillon", "Favor", "Gala"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Solanum tuberosum", group: "nightshades", enCommonName: "Potato", viCommonName: "Khoai tay", cultivars: ["Yukon Gold", "Russet Burbank", "Kennebec", "Red Pontiac", "Purple Majesty"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Capsicum baccatum", group: "nightshades", enCommonName: "Aji Pepper", viCommonName: "Ot Aji", cultivars: ["Aji Amarillo", "Lemon Drop", "Bishop Crown", "Aji Pineapple", "Sugar Rush"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Capsicum pubescens", group: "nightshades", enCommonName: "Rocoto Pepper", viCommonName: "Ot Rocoto", cultivars: ["Manzano Red", "Canario", "Mini Brown", "Giant Red", "Peron"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Solanum muricatum", group: "nightshades", enCommonName: "Pepino Melon", viCommonName: "Dua pepino", cultivars: ["El Camino", "Miski Prolific", "Golden Globe", "Sweet Long", "Valencia"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Physalis peruviana", group: "nightshades", enCommonName: "Cape Gooseberry", viCommonName: "Tam bop", cultivars: ["Golden Berry", "Inca Red", "Colombia", "Giant Cape", "Aunt Molly"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Nicotiana alata", group: "nightshades", enCommonName: "Flowering Tobacco", viCommonName: "Thuoc la canh", cultivars: ["Lime Green", "Crimson Bedder", "Perfume White", "Domino", "Grandiflora"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Capsicum annuum var. glabriusculum", group: "nightshades", enCommonName: "Chiltepin Pepper", viCommonName: "Ot chim", cultivars: ["Wild Tepin", "Pequin", "Sonoran", "Texas Bird", "Fire Drop"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Solanum quitoense", group: "nightshades", enCommonName: "Naranjilla", viCommonName: "Ca long", cultivars: ["Baeza", "Quito Orange", "Smooth Giant", "Andean Gold", "Selva"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Allium cepa var. aggregatum", group: "alliums", enCommonName: "Shallot", viCommonName: "Hanh tim", cultivars: ["French Gray", "Red Sun", "Matador", "Camelot", "Zebrune"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Allium schoenoprasum", group: "alliums", enCommonName: "Chive", viCommonName: "He", cultivars: ["Fine Leaf", "Staro", "Polyvert", "Purly", "Nelly"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Allium ampeloprasum", group: "alliums", enCommonName: "Elephant Garlic", viCommonName: "Toi voi", cultivars: ["Giant", "Montana", "Ail Blanc", "Mild Giant", "Tuscan"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Allium tuberosum", group: "alliums", enCommonName: "Garlic Chive", viCommonName: "He toa", cultivars: ["Broad Leaf", "Oriental", "Kobold", "Geisha", "Tender"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Allium chinense", group: "alliums", enCommonName: "Rakkyo", viCommonName: "Cu kieu", cultivars: ["White Pearl", "Pink Stem", "Summer Bulb", "Tender Pickle", "Mini Pearl"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Allium victorialis", group: "alliums", enCommonName: "Victory Onion", viCommonName: "Hanh rung", cultivars: ["Alpine", "Green Spear", "Mountain Star", "Forest Leaf", "Siberian"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Manihot esculenta", group: "roots", enCommonName: "Cassava", viCommonName: "Khoai mi", cultivars: ["Golden Stem", "MCol22", "Kasetsart 50", "Rayong 11", "TME 419"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Colocasia esculenta", group: "roots", enCommonName: "Taro", viCommonName: "Khoai mon", cultivars: ["Bun Long", "Elepaio", "Mojito", "Black Magic", "Thai Giant"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Pachyrhizus erosus", group: "roots", enCommonName: "Jicama", viCommonName: "Cu san", cultivars: ["Cristalina", "Agua Dulce", "Yucatan White", "Morado", "Round Root"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Brassica napus var. napobrassica", group: "roots", enCommonName: "Rutabaga", viCommonName: "Cu cai vang", cultivars: ["American Purple Top", "Laurentian", "Helenor", "Joan", "Gowrie"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Apium graveolens var. rapaceum", group: "roots", enCommonName: "Celeriac", viCommonName: "Can tay cu", cultivars: ["Brilliant", "Giant Prague", "Monarch", "Prinz", "Balena"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Curcuma longa", group: "roots", enCommonName: "Turmeric", viCommonName: "Nghe", cultivars: ["Madras", "Alleppey", "Suvarna", "Prabha", "Roma"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Zingiber officinale", group: "roots", enCommonName: "Ginger", viCommonName: "Gung", cultivars: ["Nadia", "Maran", "Rio de Janeiro", "Blue Hawaiian", "Chinese"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Arctium lappa", group: "roots", enCommonName: "Burdock", viCommonName: "Nguu bang", cultivars: ["Takinogawa Long", "Watanabe Early", "Cardiff", "Gobou", "Long Root"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Vicia faba", group: "legumes", enCommonName: "Fava Bean", viCommonName: "Dau tam", cultivars: ["Windsor", "Aquadulce", "Crimson Flowered", "Broad Windsor", "Express"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Lens culinaris", group: "legumes", enCommonName: "Lentil", viCommonName: "Dau lentil", cultivars: ["Pardina", "Eston", "Richlea", "Laird", "Black Beluga"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Vigna radiata", group: "legumes", enCommonName: "Mung Bean", viCommonName: "Dau xanh", cultivars: ["KPS1", "VC1973A", "Camden", "Jade AU", "Berken"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Cajanus cajan", group: "legumes", enCommonName: "Pigeon Pea", viCommonName: "Dau tri", cultivars: ["ICPL 87", "Asha", "Bahar", "Durga", "Maruti"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Lablab purpureus", group: "legumes", enCommonName: "Hyacinth Bean", viCommonName: "Dau vong", cultivars: ["Rongai", "Ruby Moon", "Indian Mix", "White Seeded", "Purple Pod"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Phaseolus lunatus", group: "legumes", enCommonName: "Lima Bean", viCommonName: "Dau lima", cultivars: ["Fordhook 242", "Henderson", "Jackson Wonder", "Christmas", "Dixie"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Vigna mungo", group: "legumes", enCommonName: "Black Gram", viCommonName: "Dau den xanh", cultivars: ["T9", "PU31", "Uttara", "Pant U19", "Mash 1008"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Canavalia ensiformis", group: "legumes", enCommonName: "Jack Bean", viCommonName: "Dau ngua", cultivars: ["White Wonder", "Giant Pod", "Tropical Green", "Robust", "Field Select"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Sechium edule", group: "vegetables", enCommonName: "Chayote", viCommonName: "Su su", cultivars: ["Green Pear", "White Pear", "Spineless", "Mexican Cream", "Tayota"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Lagenaria siceraria", group: "vegetables", enCommonName: "Bottle Gourd", viCommonName: "Bau", cultivars: ["Long Bottle", "Birdhouse", "Calabash", "Round Green", "Kashi Ganga"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Luffa acutangula", group: "vegetables", enCommonName: "Ridge Gourd", viCommonName: "Muop khe", cultivars: ["Pusa Nasdar", "Satputia", "Hybrid Green", "Summer Queen", "Emerald"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Asparagus officinalis", group: "vegetables", enCommonName: "Asparagus", viCommonName: "Mang tay", cultivars: ["Mary Washington", "Jersey Knight", "Purple Passion", "UC157", "Millennium"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Cynara cardunculus var. scolymus", group: "vegetables", enCommonName: "Artichoke", viCommonName: "Atiso", cultivars: ["Green Globe", "Imperial Star", "Violetto", "Opera", "Colorado Star"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Zea mays convar. saccharata", group: "vegetables", enCommonName: "Sweet Corn", viCommonName: "Bap ngot", cultivars: ["Golden Bantam", "Honey Select", "Bodacious", "Peaches and Cream", "Silver Queen"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Moringa oleifera", group: "vegetables", enCommonName: "Moringa", viCommonName: "Chum ngay", cultivars: ["PKM1", "ODC3", "Periyakulam 1", "Dwarf", "High Cut"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Nelumbo nucifera", group: "vegetables", enCommonName: "Lotus Root", viCommonName: "Ngo sen", cultivars: ["Jade Lotus", "Ruby Stem", "Summer White", "Long Section", "Pond Select"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Cucumis metuliferus", group: "vegetables", enCommonName: "Horned Melon", viCommonName: "Dua sung", cultivars: ["Jelly Melon", "Horned King", "Kiwano Gold", "African Orange", "Spiny Star"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Musa acuminata", group: "fruits", enCommonName: "Banana", viCommonName: "Chuoi", cultivars: ["Cavendish", "Lady Finger", "Blue Java", "Namwa", "Red Dacca"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Ananas comosus", group: "fruits", enCommonName: "Pineapple", viCommonName: "Dua", cultivars: ["Smooth Cayenne", "Queen", "MD2", "Sugarloaf", "Red Spanish"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Persea americana", group: "fruits", enCommonName: "Avocado", viCommonName: "Bo", cultivars: ["Hass", "Fuerte", "Reed", "Pinkerton", "Bacon"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Vitis vinifera", group: "fruits", enCommonName: "Grape", viCommonName: "Nho", cultivars: ["Thompson Seedless", "Crimson Seedless", "Concord", "Red Globe", "Autumn Royal"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Vaccinium corymbosum", group: "fruits", enCommonName: "Blueberry", viCommonName: "Viet quat", cultivars: ["Bluecrop", "Duke", "Legacy", "Aurora", "Sunshine Blue"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Rubus idaeus", group: "fruits", enCommonName: "Raspberry", viCommonName: "Mam xoi do", cultivars: ["Heritage", "Caroline", "Tulameen", "Joan J", "Anne"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Punica granatum", group: "fruits", enCommonName: "Pomegranate", viCommonName: "Luu", cultivars: ["Wonderful", "Angel Red", "Parfianka", "Eversweet", "Salavatski"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Ficus carica", group: "fruits", enCommonName: "Fig", viCommonName: "Sung", cultivars: ["Brown Turkey", "Black Mission", "Celeste", "Kadota", "Chicago Hardy"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Malus domestica", group: "fruits", enCommonName: "Apple", viCommonName: "Tao", cultivars: ["Gala", "Fuji", "Granny Smith", "Honeycrisp", "Pink Lady"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Pyrus communis", group: "fruits", enCommonName: "Pear", viCommonName: "Le", cultivars: ["Bartlett", "Bosc", "Anjou", "Comice", "Forelle"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Prunus persica", group: "fruits", enCommonName: "Peach", viCommonName: "Dao", cultivars: ["Elberta", "Redhaven", "Belle of Georgia", "Contender", "Reliance"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Litchi chinensis", group: "fruits", enCommonName: "Lychee", viCommonName: "Vai", cultivars: ["Brewster", "Hak Ip", "Mauritius", "Sweetheart", "Emperor"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Dimocarpus longan", group: "fruits", enCommonName: "Longan", viCommonName: "Nhan", cultivars: ["Kohala", "Biew Kiew", "Diamond River", "Sri Chompoo", "Edau"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Selenicereus undatus", group: "fruits", enCommonName: "Dragon Fruit", viCommonName: "Thanh long", cultivars: ["Vietnam White", "American Beauty", "Physical Graffiti", "Yellow Dragon", "Purple Haze"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Zamioculcas zamiifolia", group: "indoor", enCommonName: "ZZ Plant", viCommonName: "Kim tien", cultivars: ["Raven", "Zenzi", "Lucky Classic", "Super Nova", "Chameleon"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Philodendron hederaceum", group: "indoor", enCommonName: "Heartleaf Philodendron", viCommonName: "Trau ba tim", cultivars: ["Brasil", "Micans", "Cream Splash", "Lemon Lime", "Rio"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Aglaonema commutatum", group: "indoor", enCommonName: "Chinese Evergreen", viCommonName: "Ngan hau", cultivars: ["Silver Queen", "Maria", "Red Valentine", "Emerald Bay", "Pink Dalmatian"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Goeppertia orbifolia", group: "indoor", enCommonName: "Orbifolia", viCommonName: "Duoi cong soc", cultivars: ["Orbifolia", "Big Leaf", "Silver Ring", "Round Wave", "Jungle Moon"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Dracaena fragrans", group: "indoor", enCommonName: "Corn Plant", viCommonName: "Thiet moc lan", cultivars: ["Massangeana", "Lemon Lime", "Janet Craig", "Compacta", "Warneckii"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Syngonium podophyllum", group: "indoor", enCommonName: "Arrowhead Plant", viCommonName: "Truc bach hop", cultivars: ["White Butterfly", "Neon Robusta", "Pink Splash", "Albo", "Berry"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Dieffenbachia seguine", group: "indoor", enCommonName: "Dumb Cane", viCommonName: "Van nien thanh", cultivars: ["Camille", "Tropic Snow", "Reflector", "Compacta", "Carina"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Anthurium andraeanum", group: "indoor", enCommonName: "Anthurium", viCommonName: "Hong mon", cultivars: ["Dakota", "Sierra", "Baby Pink", "White Champion", "Tropical Red"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Hoya carnosa", group: "indoor", enCommonName: "Wax Plant", viCommonName: "Cam cu", cultivars: ["Krimson Queen", "Krimson Princess", "Compacta", "Chelsea", "Australis"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Peperomia obtusifolia", group: "indoor", enCommonName: "Baby Rubber Plant", viCommonName: "Truong sinh", cultivars: ["Green", "Variegata", "Golden Gate", "Marble", "Lemon Lime"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Pilea peperomioides", group: "indoor", enCommonName: "Chinese Money Plant", viCommonName: "Dong tien", cultivars: ["Mojito", "Sugar", "Green Wheel", "Mooncoin", "Compact"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Schefflera arboricola", group: "indoor", enCommonName: "Dwarf Umbrella Tree", viCommonName: "Ngu gia bi", cultivars: ["Gold Capella", "Trinette", "Luseane", "Compacta", "Janine"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Alocasia amazonica", group: "indoor", enCommonName: "Amazonica", viCommonName: "Alocasia amazonica", cultivars: ["Polly", "Bambino", "Ivory Coast", "Aurea", "Dark Star"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Caladium bicolor", group: "indoor", enCommonName: "Caladium", viCommonName: "Mon la", cultivars: ["White Queen", "Red Flash", "Florida Sweetheart", "Aaron", "Candidum"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Tradescantia zebrina", group: "indoor", enCommonName: "Wandering Dude", viCommonName: "Thai duong", cultivars: ["Silver Plus", "Purpusii", "Quadricolor", "Violet Hill", "Burgundy"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Petunia x hybrida", group: "flowers", enCommonName: "Petunia", viCommonName: "Da yen thao", cultivars: ["Wave Purple", "Supertunia Vista", "Daddy Blue", "Dreams Red", "Double Cascade"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Pelargonium x hortorum", group: "flowers", enCommonName: "Geranium", viCommonName: "Phong lu", cultivars: ["Maverick Red", "Orbit White", "Calliope Dark Red", "Pinto Premium", "Patriot"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Begonia semperflorens", group: "flowers", enCommonName: "Wax Begonia", viCommonName: "Thu hai duong", cultivars: ["Ambassador Scarlet", "Cocktail Vodka", "Sprint Plus", "Victory Rose", "Bada Bing"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Impatiens walleriana", group: "flowers", enCommonName: "Impatiens", viCommonName: "Ngoc thao", cultivars: ["Accent Mix", "Super Elfin", "Dazzler", "Beacon Coral", "Imara"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Bougainvillea glabra", group: "flowers", enCommonName: "Bougainvillea", viCommonName: "Hoa giay", cultivars: ["Barbara Karst", "California Gold", "Imperial Thai", "Rosenka", "Torch Glow"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Camellia japonica", group: "flowers", enCommonName: "Camellia", viCommonName: "Tra my", cultivars: ["Debutante", "Kramer Supreme", "Nuccios Pearl", "Pink Perfection", "Professor Sargent"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Hydrangea macrophylla", group: "flowers", enCommonName: "Hydrangea", viCommonName: "Tu cau", cultivars: ["Nikko Blue", "Endless Summer", "Penny Mac", "Bloomstruck", "Mariesii"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Phalaenopsis amabilis", group: "flowers", enCommonName: "Moth Orchid", viCommonName: "Lan ho diep", cultivars: ["White Dream", "Moonlight", "Snow Angel", "Pure Love", "Classic White"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Antirrhinum majus", group: "flowers", enCommonName: "Snapdragon", viCommonName: "Mong soi", cultivars: ["Rocket Mix", "Madame Butterfly", "Snapshot Yellow", "Liberty Classic", "Twinny Peach"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Dianthus caryophyllus", group: "flowers", enCommonName: "Carnation", viCommonName: "Cam chuong", cultivars: ["Chabaud Giant", "Grenadin Red", "Lillipot", "Oscar Mix", "Can Can Scarlet"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Viola tricolor", group: "flowers", enCommonName: "Pansy", viCommonName: "Hoa ban", cultivars: ["Delta Yellow", "Matrix Blue", "Majestic Giants", "Cool Wave", "Swiss Giant"] }),
+    makeSupplementalCatalogEntry({ scientificName: "Verbena x hybrida", group: "flowers", enCommonName: "Verbena", viCommonName: "Van anh", cultivars: ["Quartz Purple", "Obsession Mix", "Lanai Twister", "Homestead Purple", "Endurascape"] }),
+];
+
+const allSupplementalPlantCatalogSeed = [
+    ...supplementalPlantCatalogSeed,
+    ...expandedSupplementalPlantCatalogSeed,
+];
+
 function buildSupplementalRawPlantsSeed(
     entries: SupplementalPlantCatalogEntry[]
 ): PlantSeed[] {
@@ -894,7 +1269,7 @@ function buildSupplementalRawPlantsSeed(
 }
 
 const supplementalRawPlantsSeed = buildSupplementalRawPlantsSeed(
-    supplementalPlantCatalogSeed
+    allSupplementalPlantCatalogSeed
 );
 
 const rawPlantsMasterSeed: PlantSeed[] = [
@@ -953,6 +1328,46 @@ const cultivarExpansionSeed: CultivarExpansionEntry[] = [
     { scientificName: "Epipremnum aureum", cultivars: ["Marble Queen", "Neon", "N Joy", "Jade"] },
     { scientificName: "Sansevieria trifasciata", cultivars: ["Laurentii", "Moonshine", "Hahnii", "Black Coral"] },
     { scientificName: "Ficus elastica", cultivars: ["Burgundy", "Tineke", "Ruby", "Decora"] },
+    { scientificName: "Ocimum tenuiflorum", cultivars: ["Rama", "Krishna", "Vana", "Kapoor", "Amrita"] },
+    { scientificName: "Melissa officinalis", cultivars: ["Citronella", "Lime", "Quedlinburger", "Aurea"] },
+    { scientificName: "Foeniculum vulgare", cultivars: ["Bronze", "Romanesco", "Finale", "Sweet Florence"] },
+    { scientificName: "Brassica oleracea var. sabellica", cultivars: ["Blue Curled", "Redbor", "Black Magic", "Dwarf Green"] },
+    { scientificName: "Cichorium intybus", cultivars: ["Palla Rossa", "Variegata di Castelfranco", "Treviso Tardivo", "Rossa di Verona"] },
+    { scientificName: "Basella alba", cultivars: ["Ruby Vine", "Green Tower", "Ceylon", "Malabar Giant"] },
+    { scientificName: "Solanum tuberosum", cultivars: ["Desiree", "Fingerling", "Katahdin", "Norland"] },
+    { scientificName: "Physalis peruviana", cultivars: ["Aunt Molly", "Golden Nugget", "Peruvian Gold", "Cossack Pineapple"] },
+    { scientificName: "Allium schoenoprasum", cultivars: ["Dolores", "Staro", "Fine Leaf", "Polyvert"] },
+    { scientificName: "Curcuma longa", cultivars: ["Prathibha", "IISR Prabha", "Suroma", "Lakadong"] },
+    { scientificName: "Zingiber officinale", cultivars: ["Himalayan", "Organic White", "Chinese Pink", "Queensland"] },
+    { scientificName: "Lens culinaris", cultivars: ["Richlea", "Laird", "Pardina", "Eston"] },
+    { scientificName: "Vigna radiata", cultivars: ["Jade AU", "KPS2", "Pagasa 7", "Berken"] },
+    { scientificName: "Sechium edule", cultivars: ["Spineless Green", "White Choko", "Round Green", "Long Green"] },
+    { scientificName: "Asparagus officinalis", cultivars: ["Jersey Giant", "Apollo", "Purple Passion", "Millennium"] },
+    { scientificName: "Cynara cardunculus var. scolymus", cultivars: ["Romanesco", "Green Globe Improved", "Opera", "Violetto"] },
+    { scientificName: "Musa acuminata", cultivars: ["Grand Nain", "Williams", "Pisang Raja", "Lakatan"] },
+    { scientificName: "Persea americana", cultivars: ["Lamb Hass", "Sharwil", "Gwen", "Zutano"] },
+    { scientificName: "Vitis vinifera", cultivars: ["Flame Seedless", "Moon Drops", "Cotton Candy", "Italia"] },
+    { scientificName: "Punica granatum", cultivars: ["Bhagwa", "Kandahar", "Desertnyi", "Ariana"] },
+    { scientificName: "Malus domestica", cultivars: ["Jazz", "Envy", "Braeburn", "Cosmic Crisp"] },
+    { scientificName: "Pyrus communis", cultivars: ["Conference", "Packhams Triumph", "Seckel", "Hosui"] },
+    { scientificName: "Litchi chinensis", cultivars: ["No Mai Tze", "Kwai Mai Pink", "Bengal", "Sweet Cliff"] },
+    { scientificName: "Dimocarpus longan", cultivars: ["Chompoo", "Haew", "Ping Pong", "Biew Kiew"] },
+    { scientificName: "Selenicereus undatus", cultivars: ["Condor", "Vietnam Red", "Colombiana", "Lisa"] },
+    { scientificName: "Zamioculcas zamiifolia", cultivars: ["Black Raven", "Lucky Green", "Mini Zenzi", "Dark Zam"] },
+    { scientificName: "Philodendron hederaceum", cultivars: ["Cream Splash", "Silver Stripe", "Gabby", "Lemon Lime"] },
+    { scientificName: "Aglaonema commutatum", cultivars: ["Red Emerald", "Silver Bay", "Anyamanee", "Cutlass"] },
+    { scientificName: "Dracaena fragrans", cultivars: ["Janet Craig Compacta", "Mass Cane", "Lemon Surprise", "Tornado"] },
+    { scientificName: "Anthurium andraeanum", cultivars: ["Champion", "Fire Glow", "Tropical", "Baby Pink"] },
+    { scientificName: "Hoya carnosa", cultivars: ["Chelsea", "Compacta Variegata", "Krinkle", "Pubicalyx Splash"] },
+    { scientificName: "Petunia x hybrida", cultivars: ["Night Sky", "Shock Wave Coral", "Easy Wave Pink", "Opera Supreme"] },
+    { scientificName: "Hydrangea macrophylla", cultivars: ["Mini Penny", "Twist n Shout", "Merritts Supreme", "Blue Deckle"] },
+    { scientificName: "Phalaenopsis amabilis", cultivars: ["Moon Orchid", "Snow Queen", "White Cloud", "Pearl Drop"] },
+    { scientificName: "Dianthus caryophyllus", cultivars: ["Benigna", "Grenadin White", "Oscar Scarlet", "Can Can White"] },
+    { scientificName: "Verbena x hybrida", cultivars: ["Firehouse Red", "Quartz White", "Aztec Violet", "Lanai Blue"] },
+    { scientificName: "Cucumis metuliferus", cultivars: ["Jelly Melon", "Horned King", "Kiwano Gold", "African Orange"] },
+    { scientificName: "Alocasia amazonica", cultivars: ["Polly", "Bambino", "Ivory Coast", "Aurea"] },
+    { scientificName: "Caladium bicolor", cultivars: ["White Queen", "Red Flash", "Florida Sweetheart", "Aaron"] },
+    { scientificName: "Tradescantia zebrina", cultivars: ["Silver Plus", "Purpusii", "Quadricolor", "Violet Hill"] },
 ];
 
 function dedupePlantsBySeedKey(plants: PlantSeed[]) {
@@ -1068,12 +1483,12 @@ function buildSupplementalI18nSeed(
 
 const supplementalPlantI18nEnSeed = buildSupplementalI18nSeed(
     "en",
-    supplementalPlantCatalogSeed
+    allSupplementalPlantCatalogSeed
 );
 
 const supplementalPlantI18nViSeed = buildSupplementalI18nSeed(
     "vi",
-    supplementalPlantCatalogSeed
+    allSupplementalPlantCatalogSeed
 );
 
 const plantI18nEnSeed: PlantI18nSeedRow[] = [
@@ -1672,6 +2087,7 @@ export const plantsMasterSeed = expandedRawPlantsMasterSeed.map((plant) => {
 
     return {
         ...plant,
+        family: plant.family ?? inferFamilyFromScientificName(plant.scientificName),
         ...(maxPlantsPerM2 !== undefined ? { maxPlantsPerM2 } : {}),
         ...(seedRatePerM2 !== undefined ? { seedRatePerM2 } : {}),
         ...(waterLitersPerM2 !== undefined ? { waterLitersPerM2 } : {}),

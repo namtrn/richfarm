@@ -4,6 +4,7 @@ import {
   buildTaxonomyFields,
   DEFAULT_CULTIVAR_NORMALIZED,
   isInfraspecificCultivar,
+  normalizeTaxonomyToken,
   requireTaxonomyIdentity,
 } from "./lib/plantTaxonomy";
 import { plantI18nSeed, plantsMasterSeed } from "./data/plantsMasterSeed";
@@ -46,6 +47,12 @@ function buildSeedTaxonomyKey(input: {
     `Seed taxonomy ${input.scientificName}${input.cultivar ? ` (${input.cultivar})` : ""}`
   );
   return taxonomyIdentityKey(identity);
+}
+
+function normalizeFamilyName(value?: string | null) {
+  const normalized = normalizeTaxonomyToken(value ?? "");
+  if (!normalized) return "";
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
 
 async function buildInvariantReport(ctx: any, sampleLimit: number) {
@@ -254,6 +261,160 @@ export const seedAlignmentReport = query({
         duplicateSeedPlants,
         missingSeedI18n: missingSeedI18n.slice(0, sampleLimit),
       },
+    };
+  },
+});
+
+async function buildFamilyReport(ctx: any, sampleLimit: number) {
+  const plants = await ctx.db.query("plantsMaster").collect();
+  const genusToFamilies = new Map<string, Set<string>>();
+  const missingFamily: Array<{ plantId: any; scientificName: string; genus?: string }> = [];
+
+  for (const plant of plants) {
+    const genusNormalized = String(plant?.genusNormalized ?? "").trim();
+    const genus = String(plant?.genus ?? "").trim() || undefined;
+    const family = normalizeFamilyName((plant as any).family);
+
+    if (!family) {
+      missingFamily.push({
+        plantId: plant._id,
+        scientificName: plant.scientificName ?? "",
+        genus,
+      });
+      continue;
+    }
+
+    if (!genusNormalized) {
+      continue;
+    }
+
+    const families = genusToFamilies.get(genusNormalized) ?? new Set<string>();
+    families.add(family);
+    genusToFamilies.set(genusNormalized, families);
+  }
+
+  const genusFamilyConflicts = Array.from(genusToFamilies.entries())
+    .filter(([, families]) => families.size > 1)
+    .map(([genusNormalized, families]) => ({
+      genusNormalized,
+      families: Array.from(families).sort(),
+    }));
+
+  const backfillableMissingFamily = missingFamily.filter((item) => {
+    const genusNormalized = normalizeTaxonomyToken(item.genus ?? "");
+    if (!genusNormalized) return false;
+    return (genusToFamilies.get(genusNormalized)?.size ?? 0) === 1;
+  });
+
+  return {
+    totals: {
+      plants: plants.length,
+      uniqueFamilies: new Set(
+        plants
+          .map((plant: any) => normalizeFamilyName(plant.family))
+          .filter(Boolean)
+      ).size,
+    },
+    issues: {
+      missingFamilyCount: missingFamily.length,
+      genusFamilyConflictCount: genusFamilyConflicts.length,
+      backfillableMissingFamilyCount: backfillableMissingFamily.length,
+    },
+    samples: {
+      missingFamily: missingFamily.slice(0, sampleLimit),
+      genusFamilyConflicts: genusFamilyConflicts.slice(0, sampleLimit),
+      backfillableMissingFamily: backfillableMissingFamily.slice(0, sampleLimit),
+    },
+  };
+}
+
+export const familyAuditReport = query({
+  args: {
+    sampleLimit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const sampleLimit = Math.max(1, args.sampleLimit ?? SAMPLE_LIMIT_DEFAULT);
+    return await buildFamilyReport(ctx, sampleLimit);
+  },
+});
+
+export const normalizeAndBackfillFamilies = mutation({
+  args: {
+    dryRun: v.optional(v.boolean()),
+    sampleLimit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const dryRun = args.dryRun ?? true;
+    const sampleLimit = Math.max(1, args.sampleLimit ?? SAMPLE_LIMIT_DEFAULT);
+    const plants = await ctx.db.query("plantsMaster").collect();
+
+    const genusToFamily = new Map<string, string>();
+    const genusConflicts = new Set<string>();
+
+    for (const plant of plants) {
+      const genusNormalized = String(plant?.genusNormalized ?? "").trim();
+      const family = normalizeFamilyName((plant as any).family);
+      if (!genusNormalized || !family) continue;
+
+      const current = genusToFamily.get(genusNormalized);
+      if (!current) {
+        genusToFamily.set(genusNormalized, family);
+        continue;
+      }
+
+      if (current !== family) {
+        genusConflicts.add(genusNormalized);
+      }
+    }
+
+    for (const genusNormalized of genusConflicts) {
+      genusToFamily.delete(genusNormalized);
+    }
+
+    const normalizedOnly: Array<{ plantId: any; from: string; to: string }> = [];
+    const backfilled: Array<{ plantId: any; family: string; genusNormalized: string }> = [];
+
+    for (const plant of plants) {
+      const currentFamilyRaw = String((plant as any).family ?? "");
+      const currentFamilyNormalized = normalizeFamilyName(currentFamilyRaw);
+      const genusNormalized = String(plant?.genusNormalized ?? "").trim();
+      const consensusFamily = genusNormalized ? genusToFamily.get(genusNormalized) : undefined;
+
+      if (currentFamilyRaw.trim() && currentFamilyNormalized && currentFamilyRaw.trim() !== currentFamilyNormalized) {
+        normalizedOnly.push({
+          plantId: plant._id,
+          from: currentFamilyRaw.trim(),
+          to: currentFamilyNormalized,
+        });
+        if (!dryRun) {
+          await ctx.db.patch(plant._id, { family: currentFamilyNormalized });
+        }
+        continue;
+      }
+
+      if (!currentFamilyNormalized && consensusFamily && genusNormalized) {
+        backfilled.push({
+          plantId: plant._id,
+          family: consensusFamily,
+          genusNormalized,
+        });
+        if (!dryRun) {
+          await ctx.db.patch(plant._id, { family: consensusFamily });
+        }
+      }
+    }
+
+    return {
+      dryRun,
+      normalizedOnlyCount: normalizedOnly.length,
+      backfilledCount: backfilled.length,
+      skippedConflictedGeneraCount: genusConflicts.size,
+      samples: {
+        normalizedOnly: normalizedOnly.slice(0, sampleLimit),
+        backfilled: backfilled.slice(0, sampleLimit),
+        skippedConflictedGenera: Array.from(genusConflicts).slice(0, sampleLimit),
+      },
+      reportAfter: await buildFamilyReport(ctx, sampleLimit),
     };
   },
 });
