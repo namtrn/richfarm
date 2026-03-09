@@ -5,9 +5,10 @@ import { useTheme } from '../../lib/theme';
 
 interface PlantImageProps {
     uri?: string | null;
-    size?: number;
+    size?: number | string;
     borderRadius?: number;
     showPlaceholder?: boolean;
+    style?: any;
 }
 
 // Blurhash xanh lá — placeholder trong khi ảnh load
@@ -18,6 +19,7 @@ export function PlantImage({
     size = 80,
     borderRadius = 12,
     showPlaceholder = true,
+    style,
 }: PlantImageProps) {
     const theme = useTheme();
 
@@ -25,16 +27,19 @@ export function PlantImage({
         if (!showPlaceholder) return null;
         return (
             <View
-                style={{
-                    width: size,
-                    height: size,
-                    borderRadius,
-                    backgroundColor: theme.accent,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
+                style={[
+                    {
+                        width: size,
+                        height: size,
+                        borderRadius,
+                        backgroundColor: theme.accent,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    },
+                    style,
+                ]}
             >
-                <Leaf size={size * 0.4} stroke={theme.primary} />
+                <Leaf size={typeof size === 'number' ? size * 0.4 : 32} stroke={theme.primary} />
             </View>
         );
     }
@@ -42,12 +47,15 @@ export function PlantImage({
     return (
         <Image
             source={{ uri }}
-            style={{
-                width: size,
-                height: size,
-                borderRadius,
-                backgroundColor: theme.accent,
-            }}
+            style={[
+                {
+                    width: size,
+                    height: size,
+                    borderRadius,
+                    backgroundColor: theme.accent,
+                },
+                style,
+            ]}
             placeholder={{ blurhash: PLANT_BLURHASH }}
             contentFit="cover"
             cachePolicy="disk"

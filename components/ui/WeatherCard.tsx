@@ -15,7 +15,7 @@ import {
     CloudHail,
     Wind,
     Tornado,
-    EyeOff,
+    X,
 } from 'lucide-react-native';
 import type { WeatherCardModel, WeatherConditionKey } from '../../features/weather/weatherLogic';
 import { useTheme } from '../../lib/theme';
@@ -70,26 +70,26 @@ export function WeatherCard({ model, onHide, isHiding = false }: WeatherCardProp
                     <MapPin size={13} stroke={theme.textSecondary} />
                     <Text style={styles.locationText}>{location}</Text>
                 </View>
-                <View style={[styles.badge, badgeStyle.container]}>
-                    <Icon size={12} stroke={badgeIcon.stroke} fill={badgeIcon.fill} />
-                    <Text style={[styles.badgeText, badgeStyle.text]}>{localizedCondition}</Text>
+                <View style={styles.headerRight}>
+                    <View style={[styles.badge, badgeStyle.container]}>
+                        <Icon size={12} stroke={badgeIcon.stroke} fill={badgeIcon.fill} />
+                        <Text style={[styles.badgeText, badgeStyle.text]}>{localizedCondition}</Text>
+                    </View>
+                    {onHide ? (
+                        <TouchableOpacity
+                            onPress={() => {
+                                void onHide();
+                            }}
+                            disabled={isHiding}
+                            accessibilityRole="button"
+                            accessibilityLabel={t('weather_card.hide')}
+                            style={[styles.hideButton, isHiding && styles.hideButtonDisabled]}
+                        >
+                            <X size={14} stroke={theme.textMuted} />
+                        </TouchableOpacity>
+                    ) : null}
                 </View>
             </View>
-
-            {onHide ? (
-                <TouchableOpacity
-                    onPress={() => {
-                        void onHide();
-                    }}
-                    disabled={isHiding}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('weather_card.hide')}
-                    style={[styles.hideButton, isHiding && styles.hideButtonDisabled]}
-                >
-                    <EyeOff size={14} stroke={theme.textSecondary} />
-                    <Text style={styles.hideButtonText}>{t('weather_card.hide')}</Text>
-                </TouchableOpacity>
-            ) : null}
 
             {/* ── Temperature row with sun icon ── */}
             <View style={styles.tempRow}>
@@ -383,26 +383,23 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
             justifyContent: 'space-between',
             alignItems: 'center',
         },
-        hideButton: {
-            alignSelf: 'flex-end',
-            marginTop: -2,
+        headerRight: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 6,
-            paddingHorizontal: 10,
-            paddingVertical: 6,
-            borderRadius: 999,
+            gap: 10,
+        },
+        hideButton: {
+            width: 24,
+            height: 24,
+            borderRadius: 12,
             backgroundColor: theme.accent,
+            alignItems: 'center',
+            justifyContent: 'center',
             borderWidth: 1,
             borderColor: theme.border,
         },
         hideButtonDisabled: {
             opacity: 0.5,
-        },
-        hideButtonText: {
-            fontSize: 12,
-            fontWeight: '700',
-            color: theme.textSecondary,
         },
         locationRow: {
             flexDirection: 'row',

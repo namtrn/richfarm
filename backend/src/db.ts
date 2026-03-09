@@ -48,6 +48,21 @@ export function createDatabase(dbPath: string): SqliteDatabase {
   return db;
 }
 
+function ensureColumn(
+  db: SqliteDatabase,
+  tableName: string,
+  columnName: string,
+  columnSql: string,
+): void {
+  const rows = db.prepare(`PRAGMA table_info(${tableName})`).all() as PragmaRow[];
+  const hasColumn = rows.some((row) => row.name === columnName);
+  if (hasColumn) {
+    return;
+  }
+
+  db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnSql};`);
+}
+
 function runMigrations(db: SqliteDatabase): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -151,6 +166,17 @@ function runMigrations(db: SqliteDatabase): void {
       WHERE id = OLD.id;
     END;
   `);
+
+  // Keep older local SQLite files compatible as new plant metadata fields are introduced.
+  ensureColumn(db, "master_plants", "group", `"group" TEXT NOT NULL DEFAULT 'other'`);
+  ensureColumn(db, "master_plants", "family", `family TEXT`);
+  ensureColumn(db, "master_plants", "purposes_json", `purposes_json TEXT NOT NULL DEFAULT '[]'`);
+  ensureColumn(db, "master_plants", "typical_days_to_harvest", `typical_days_to_harvest INTEGER`);
+  ensureColumn(db, "master_plants", "germination_days", `germination_days INTEGER`);
+  ensureColumn(db, "master_plants", "spacing_cm", `spacing_cm REAL`);
+  ensureColumn(db, "master_plants", "water_liters_per_m2", `water_liters_per_m2 REAL`);
+  ensureColumn(db, "master_plants", "yield_kg_per_m2", `yield_kg_per_m2 REAL`);
+  ensureColumn(db, "master_plants", "image_url", `image_url TEXT`);
 }
 
 export function ensureBootstrapAdmin(db: SqliteDatabase, email?: string, password?: string): void {

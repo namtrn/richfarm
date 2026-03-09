@@ -20,6 +20,7 @@ type BedOption = {
 type Props = {
   visible: boolean;
   beds: BedOption[];
+  isGardener?: boolean;
   initialMode?: AddPlantTargetMode;
   loading?: boolean;
   onClose: () => void;
@@ -29,6 +30,7 @@ type Props = {
 export function AddPlantTargetModal({
   visible,
   beds,
+  isGardener = false,
   initialMode = 'planning',
   loading = false,
   onClose,
@@ -45,7 +47,7 @@ export function AddPlantTargetModal({
     setSelectedBedId(undefined);
   }, [visible, initialMode]);
 
-  const canConfirm = mode === 'planning' || !!selectedBedId;
+  const canConfirm = isGardener || mode === 'planning' || !!selectedBedId;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -67,39 +69,43 @@ export function AddPlantTargetModal({
             {t('library.add_target_title', { defaultValue: 'Add this plant to' })}
           </Text>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-            {t('library.add_target_subtitle', { defaultValue: 'Choose whether to save it for planning or place it directly in a growing bed.' })}
+            {isGardener
+              ? t('library.add_target_subtitle_gardener', { defaultValue: 'Add it directly to My Plants.' })
+              : t('library.add_target_subtitle', { defaultValue: 'Choose whether to save it for planning or place it directly in a growing bed.' })}
           </Text>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          {([
-            { key: 'planning', label: t('garden.tab_planning', { defaultValue: 'Planning' }) },
-            { key: 'growing', label: t('garden.tab_growing', { defaultValue: 'Growing' }) },
-          ] as const).map((option) => {
-            const active = option.key === mode;
-            return (
-              <TouchableOpacity
-                key={option.key}
-                onPress={() => setMode(option.key)}
-                style={{
-                  flex: 1,
-                  borderRadius: 16,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                  backgroundColor: active ? theme.primary : theme.accent,
-                  borderWidth: 1,
-                  borderColor: active ? theme.primary : theme.border,
-                }}
-              >
-                <Text style={{ color: active ? '#fff' : theme.text, fontWeight: '800', fontSize: 14 }}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {!isGardener && (
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {([
+              { key: 'planning', label: t('garden.tab_planning', { defaultValue: 'Planning' }) },
+              { key: 'growing', label: t('garden.tab_growing', { defaultValue: 'Growing' }) },
+            ] as const).map((option) => {
+              const active = option.key === mode;
+              return (
+                <TouchableOpacity
+                  key={option.key}
+                  onPress={() => setMode(option.key)}
+                  style={{
+                    flex: 1,
+                    borderRadius: 16,
+                    paddingVertical: 14,
+                    alignItems: 'center',
+                    backgroundColor: active ? theme.primary : theme.accent,
+                    borderWidth: 1,
+                    borderColor: active ? theme.primary : theme.border,
+                  }}
+                >
+                  <Text style={{ color: active ? '#fff' : theme.text, fontWeight: '800', fontSize: 14 }}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
-        {mode === 'growing' && (
+        {!isGardener && mode === 'growing' && (
           <View style={{ gap: 10 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
               {t('plant.bed_label', { defaultValue: 'Bed' })}
@@ -149,7 +155,7 @@ export function AddPlantTargetModal({
           </TouchableOpacity>
           <TouchableOpacity
             disabled={!canConfirm || loading}
-            onPress={() => void onConfirm({ mode, bedId: mode === 'growing' ? selectedBedId : undefined })}
+            onPress={() => void onConfirm({ mode: isGardener ? 'planning' : mode, bedId: !isGardener && mode === 'growing' ? selectedBedId : undefined })}
             style={{
               flex: 1,
               backgroundColor: theme.primary,
