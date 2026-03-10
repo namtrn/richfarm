@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking, AppState } from 'react-native';
 import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
@@ -77,7 +77,7 @@ export default function ProfileScreen() {
   const [changePwMessage, setChangePwMessage] = useState<string | null>(null);
 
   // Notification permission
-  const [notifStatus, setNotifStatus] = useState<'granted' | 'denied' | 'undetermined'>('undetermined');
+  const [notifStatus, setNotifStatus] = useState<'enabled' | 'provisional' | 'denied' | 'undetermined'>('undetermined');
 
   const email = user?.email ?? '—';
   const appVersion = Constants.expoConfig?.version ?? Constants.manifest?.version ?? '—';
@@ -101,11 +101,35 @@ export default function ProfileScreen() {
     refreshBackupCount();
   }, [refreshBackupCount]);
 
-  useEffect(() => {
-    Notifications.getPermissionsAsync().then(({ status }) => {
-      setNotifStatus(status as 'granted' | 'denied' | 'undetermined');
-    });
+  const refreshNotificationStatus = useCallback(async () => {
+    const perm = await Notifications.getPermissionsAsync();
+    if (perm.granted) {
+      setNotifStatus('enabled');
+      return;
+    }
+    if (perm.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) {
+      setNotifStatus('provisional');
+      return;
+    }
+    if (perm.status === Notifications.PermissionStatus.DENIED) {
+      setNotifStatus('denied');
+      return;
+    }
+    setNotifStatus('undetermined');
   }, []);
+
+  useEffect(() => {
+    void refreshNotificationStatus();
+  }, [refreshNotificationStatus]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void refreshNotificationStatus();
+      }
+    });
+    return () => subscription.remove();
+  }, [refreshNotificationStatus]);
 
   useEffect(() => {
     setUnitSystem(resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
@@ -146,7 +170,7 @@ export default function ProfileScreen() {
     if (nextValue === showWeatherCard) return;
     try {
       await setWeatherCardVisible(nextValue);
-    } catch {}
+    } catch { }
   };
 
   const handleBackupNow = async () => {
@@ -219,8 +243,8 @@ export default function ProfileScreen() {
   };
 
   const handleEnableNotifications = async () => {
-    const { status } = await Notifications.requestPermissionsAsync();
-    setNotifStatus(status as 'granted' | 'denied' | 'undetermined');
+    await Notifications.requestPermissionsAsync();
+    await refreshNotificationStatus();
   };
 
   const handleDeleteAccount = () => {
@@ -702,13 +726,13 @@ export default function ProfileScreen() {
             <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.notifications_title')}</Text>
           </View>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-            {notifStatus === 'granted'
+            {notifStatus === 'enabled' || notifStatus === 'provisional'
               ? t('profile.notifications_enabled')
               : notifStatus === 'denied'
-              ? t('profile.notifications_denied')
-              : t('profile.notifications_undetermined')}
+                ? t('profile.notifications_denied')
+                : t('profile.notifications_undetermined')}
           </Text>
-          {notifStatus !== 'granted' && (
+          {notifStatus !== 'enabled' && notifStatus !== 'provisional' && (
             <TouchableOpacity
               onPress={notifStatus === 'denied' ? () => Linking.openSettings() : handleEnableNotifications}
               style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}

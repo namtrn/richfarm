@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { ChevronLeft, Eye, EyeOff, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +49,7 @@ export default function AuthScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const trimmedAuthName = authName.trim();
   const trimmedAuthEmail = authEmail.trim();
@@ -70,7 +71,19 @@ export default function AuthScreen() {
     setResetSent(false);
   }, [authMode]);
 
+  useEffect(() => {
+    return () => {
+      if (navigateTimeoutRef.current) {
+        clearTimeout(navigateTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const navigateBack = () => {
+    if (navigateTimeoutRef.current) {
+      clearTimeout(navigateTimeoutRef.current);
+      navigateTimeoutRef.current = null;
+    }
     if (returnTo) {
       router.replace(returnTo as any);
     } else {
@@ -101,8 +114,9 @@ export default function AuthScreen() {
         await updateProfile({ name: trimmedAuthName });
       }
       setSuccess(t('profile.auth_account_created'));
-      // Auto-navigate after short delay so user sees success message
-      setTimeout(navigateBack, 1200);
+      navigateTimeoutRef.current = setTimeout(() => {
+        navigateBack();
+      }, 1200);
     } catch {
       setError(t('profile.auth_err_network'));
     } finally {
@@ -125,7 +139,9 @@ export default function AuthScreen() {
         return;
       }
       setSuccess(t('profile.auth_signed_in'));
-      setTimeout(navigateBack, 900);
+      navigateTimeoutRef.current = setTimeout(() => {
+        navigateBack();
+      }, 900);
     } catch {
       setError(t('profile.auth_err_network'));
     } finally {
