@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun } from 'lucide-react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking } from 'react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
 import { api } from '../../../../packages/convex/_generated/api';
@@ -20,6 +20,8 @@ import { usePathname, useRouter } from 'expo-router';
 import { useAppMode } from '../../hooks/useAppMode';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { type AppMode } from '../../lib/appMode';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -36,7 +38,7 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { themePreference, setThemePreference: setGlobalTheme } = useThemeContext();
-  const { user, updateProfile, isLoading, deviceId } = useAuth();
+  const { user, updateProfile, isLoading } = useAuth();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
   const { appMode, switchMode, isLoading: isAppModeLoading } = useAppMode();
@@ -65,7 +67,20 @@ export default function ProfileScreen() {
   const [switchingMode, setSwitchingMode] = useState(false);
   const { showWeatherCard, setWeatherCardVisible, isSaving: isUpdatingWeatherCard } = useWeatherCardPreference();
 
+  // Change password
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [changePwLoading, setChangePwLoading] = useState(false);
+  const [changePwMessage, setChangePwMessage] = useState<string | null>(null);
+
+  // Notification permission
+  const [notifStatus, setNotifStatus] = useState<'granted' | 'denied' | 'undetermined'>('undetermined');
+
   const email = user?.email ?? '—';
+  const appVersion = Constants.expoConfig?.version ?? Constants.manifest?.version ?? '—';
   const isAnonymous = !user || user.isAnonymous;
   const selectedLangLabel = useMemo(
     () => LANGUAGES.find((l) => l.code === currentLang)?.label ?? currentLang,
@@ -85,6 +100,12 @@ export default function ProfileScreen() {
   useEffect(() => {
     refreshBackupCount();
   }, [refreshBackupCount]);
+
+  useEffect(() => {
+    Notifications.getPermissionsAsync().then(({ status }) => {
+      setNotifStatus(status as 'granted' | 'denied' | 'undetermined');
+    });
+  }, []);
 
   useEffect(() => {
     setUnitSystem(resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
@@ -172,6 +193,36 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (newPw.length < 8) return;
+    setChangePwLoading(true);
+    setChangePwMessage(null);
+    try {
+      const authClient = await getAuthClient();
+      const result = await (authClient as any).changePassword({
+        currentPassword: currentPw,
+        newPassword: newPw,
+      });
+      if (result?.error) {
+        setChangePwMessage(result.error.message ?? t('profile.change_password_failed'));
+        return;
+      }
+      setChangePwMessage(t('profile.change_password_success'));
+      setCurrentPw('');
+      setNewPw('');
+      setShowChangePw(false);
+    } catch (error) {
+      setChangePwMessage(error instanceof Error ? error.message : t('profile.change_password_failed'));
+    } finally {
+      setChangePwLoading(false);
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    setNotifStatus(status as 'granted' | 'denied' | 'undetermined');
+  };
+
   const handleDeleteAccount = () => {
     Alert.alert(
       t('profile.delete_account_title'),
@@ -186,7 +237,7 @@ export default function ProfileScreen() {
             setAuthMessage(null);
             try {
               const authClient = await getAuthClient();
-              await deleteAccountMutation({ deviceId });
+              await deleteAccountMutation({});
               await authClient.signOut();
               setAuthMessage(t('profile.account_deleted'));
             } catch (error) {
@@ -576,6 +627,148 @@ export default function ProfileScreen() {
               {isCloudBackupLinked ? t('profile.backup_button') : t('profile.backup_link_button')}
             </Text>
           </TouchableOpacity>
+        </View>
+
+        {/* ── Change Password ─────────────────────────────── */}
+        {!isAnonymous && (
+          <View style={{ paddingHorizontal: 2, gap: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+                <Lock size={18} color={theme.textSecondary} />
+              </View>
+              <Text style={{ flex: 1, fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.change_password_title')}</Text>
+              <TouchableOpacity onPress={() => { setShowChangePw((v) => !v); setChangePwMessage(null); }}>
+                {showChangePw ? <ChevronUp size={18} color={theme.textSecondary} /> : <ChevronDown size={18} color={theme.textSecondary} />}
+              </TouchableOpacity>
+            </View>
+            {showChangePw && (
+              <View style={{ gap: 10 }}>
+                <View style={{ gap: 4 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>{t('profile.change_password_current')}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14 }}>
+                    <TextInput
+                      value={currentPw}
+                      onChangeText={setCurrentPw}
+                      secureTextEntry={!showCurrentPw}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      placeholder="••••••••"
+                      placeholderTextColor={theme.textMuted}
+                      style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                    />
+                    <TouchableOpacity onPress={() => setShowCurrentPw((v) => !v)} style={{ paddingHorizontal: 12 }}>
+                      {showCurrentPw ? <EyeOff size={16} color={theme.textSecondary} /> : <Eye size={16} color={theme.textSecondary} />}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View style={{ gap: 4 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>{t('profile.change_password_new')}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.background, borderWidth: 1, borderColor: newPw.length > 0 && newPw.length < 8 ? theme.warning ?? '#f59e0b' : theme.border, borderRadius: 14 }}>
+                    <TextInput
+                      value={newPw}
+                      onChangeText={setNewPw}
+                      secureTextEntry={!showNewPw}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="newPassword"
+                      placeholder="••••••••"
+                      placeholderTextColor={theme.textMuted}
+                      style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+                    />
+                    <TouchableOpacity onPress={() => setShowNewPw((v) => !v)} style={{ paddingHorizontal: 12 }}>
+                      {showNewPw ? <EyeOff size={16} color={theme.textSecondary} /> : <Eye size={16} color={theme.textSecondary} />}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                {changePwMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{changePwMessage}</Text>}
+                <TouchableOpacity
+                  onPress={handleChangePassword}
+                  disabled={changePwLoading || currentPw.length === 0 || newPw.length < 8}
+                  style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: changePwLoading || currentPw.length === 0 || newPw.length < 8 ? 0.5 : 1 }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('profile.change_password_save')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* ── Notifications ────────────────────────────────── */}
+        <View style={{ paddingHorizontal: 2, gap: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Bell size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.notifications_title')}</Text>
+          </View>
+          <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+            {notifStatus === 'granted'
+              ? t('profile.notifications_enabled')
+              : notifStatus === 'denied'
+              ? t('profile.notifications_denied')
+              : t('profile.notifications_undetermined')}
+          </Text>
+          {notifStatus !== 'granted' && (
+            <TouchableOpacity
+              onPress={notifStatus === 'denied' ? () => Linking.openSettings() : handleEnableNotifications}
+              style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
+            >
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>
+                {notifStatus === 'denied' ? t('profile.notifications_open_settings') : t('profile.notifications_enable')}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* ── Support ──────────────────────────────────────── */}
+        <View style={{ paddingHorizontal: 2, gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Mail size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.support_title')}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => Linking.openURL('mailto:support@richfarm.app')}
+            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+          >
+            <Mail size={16} color={theme.textSecondary} />
+            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.support_contact')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://github.com/namtrn/richfarm/issues')}
+            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+          >
+            <Bug size={16} color={theme.textSecondary} />
+            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.support_report_bug')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ── Legal + App Version ───────────────────────────── */}
+        <View style={{ paddingHorizontal: 2, gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Shield size={18} color={theme.textSecondary} />
+            </View>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.legal_title')}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://richfarm.app/privacy')}
+            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+          >
+            <Shield size={16} color={theme.textSecondary} />
+            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.legal_privacy')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://richfarm.app/terms')}
+            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+          >
+            <FileText size={16} color={theme.textSecondary} />
+            <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.legal_terms')}</Text>
+          </TouchableOpacity>
+          <Text style={{ textAlign: 'center', fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
+            {t('profile.app_version', { version: appVersion })}
+          </Text>
         </View>
 
         <TouchableOpacity
