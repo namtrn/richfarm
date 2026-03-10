@@ -31,7 +31,7 @@ const widgetPackage = `${androidPackage}.widget`;
 const root = path.resolve(__dirname, '..');
 const updated = [];
 
-updateJson('app.json', (data) => {
+updateJson('apps/mobile/app.json', (data) => {
   if (!data.expo) data.expo = {};
   data.expo.name = appName;
   data.expo.slug = slug;
@@ -46,33 +46,33 @@ updateJson('app.json', (data) => {
   data.expo.android.package = androidPackage;
 });
 
-updateJson('package.json', (data) => {
+updateJson('apps/mobile/package.json', (data) => {
   data.name = npmName;
 });
 
-replaceInFile('widgets/ios/MyGardenWidget.swift', (text) =>
+replaceInFile('packages/widgets/ios/MyGardenWidget.swift', (text) =>
   text
     .replace(/widgetAppName = ".*?"/, `widgetAppName = "${appName}"`)
     .replace(/widgetAppScheme = ".*?"/, `widgetAppScheme = "${scheme}"`)
     .replace(/widgetAppGroupId = ".*?"/, `widgetAppGroupId = "${groupId}"`)
 );
 
-replaceInFile('modules/widget-bridge/ios/WidgetBridge.swift', (text) =>
+replaceInFile('packages/native-modules/widget-bridge/ios/WidgetBridge.swift', (text) =>
   text.replace(/suiteName:\s*".*?"/, `suiteName: "${groupId}"`)
 );
 
-replaceInFileIfExists('ios/MyGarden/WidgetBridge.swift', (text) =>
+replaceInFileIfExists('apps/mobile/ios/MyGarden/WidgetBridge.swift', (text) =>
   text.replace(/suiteName:\s*".*?"/, `suiteName: "${groupId}"`)
 );
 
-replaceInFileIfExists('ios/MyGardenWidget/MyGardenWidget.swift', (text) =>
+replaceInFileIfExists('apps/mobile/ios/MyGardenWidget/MyGardenWidget.swift', (text) =>
   text
     .replace(/widgetAppName = ".*?"/, `widgetAppName = "${appName}"`)
     .replace(/widgetAppScheme = ".*?"/, `widgetAppScheme = "${scheme}"`)
     .replace(/widgetAppGroupId = ".*?"/, `widgetAppGroupId = "${groupId}"`)
 );
 
-replaceInFileIfExists('ios/MyGarden/Info.plist', (text) =>
+replaceInFileIfExists('apps/mobile/ios/MyGarden/Info.plist', (text) =>
   text
     .replace(
       /<key>CFBundleDisplayName<\/key>\s*<string>.*?<\/string>/s,
@@ -82,61 +82,61 @@ replaceInFileIfExists('ios/MyGarden/Info.plist', (text) =>
     .replace(/<string>com\.mygarden\.app<\/string>/g, `<string>${bundleId}</string>`)
 );
 
-replaceInFileIfExists('ios/MyGardenWidget/MyGardenWidget-Info.plist', (text) =>
+replaceInFileIfExists('apps/mobile/ios/MyGardenWidget/MyGardenWidget-Info.plist', (text) =>
   text.replace(
     /<key>CFBundleDisplayName<\/key>\s*<string>.*?<\/string>/s,
     `<key>CFBundleDisplayName</key>\n    <string>${escapeXml(appName)}Widget</string>`
   )
 );
 
-replaceInFileIfExists('ios/MyGarden/MyGarden.entitlements', (text) =>
+replaceInFileIfExists('apps/mobile/ios/MyGarden/MyGarden.entitlements', (text) =>
   text.replace(/<string>group\.[^<]+<\/string>/g, `<string>${groupId}</string>`)
 );
 
-replaceInFileIfExists('ios/MyGardenWidget/MyGardenWidget.entitlements', (text) =>
+replaceInFileIfExists('apps/mobile/ios/MyGardenWidget/MyGardenWidget.entitlements', (text) =>
   text.replace(/<string>group\.[^<]+<\/string>/g, `<string>${groupId}</string>`)
 );
 
 updateIosXcodeProject(bundleId);
 
-replaceInFile('widgets/android/PlantWidgetProvider.kt', (text) =>
+replaceInFile('packages/widgets/android/PlantWidgetProvider.kt', (text) =>
   text
     .replace(/package\s+com\.mygarden\.app\.widget/g, `package ${widgetPackage}`)
     .replace(/com\.mygarden\.app\.widget/g, widgetPackage)
     .replace(/com\.mygarden\.app\./g, `${androidPackage}.`)
 );
 
-replaceInFile('modules/widget-bridge/android/WidgetBridgeModule.kt', (text) =>
+replaceInFile('packages/native-modules/widget-bridge/android/WidgetBridgeModule.kt', (text) =>
   text
     .replace(/package\s+com\.mygarden\.app\.widget/g, `package ${widgetPackage}`)
     .replace(/com\.mygarden\.app\.widget/g, widgetPackage)
 );
 
-replaceInFile('modules/widget-bridge/android/WidgetBridgePackage.kt', (text) =>
+replaceInFile('packages/native-modules/widget-bridge/android/WidgetBridgePackage.kt', (text) =>
   text
     .replace(/package\s+com\.mygarden\.app\.widget/g, `package ${widgetPackage}`)
     .replace(/com\.mygarden\.app\.widget/g, widgetPackage)
 );
 
-replaceInFile('widgets/android/res/values/strings.xml', (text) =>
+replaceInFile('packages/widgets/android/res/values/strings.xml', (text) =>
   text.replace(
     /<string name="app_name">.*?<\/string>/,
     `<string name="app_name">${escapeXml(appName)}</string>`
   )
 );
 
-replaceInFileIfExists('android/app/src/main/res/values/strings.xml', (text) =>
+replaceInFileIfExists('apps/mobile/android/app/src/main/res/values/strings.xml', (text) =>
   text.replace(
     /<string name="app_name">.*?<\/string>/,
     `<string name="app_name">${escapeXml(appName)}</string>`
   )
 );
 
-replaceInFileIfExists('android/app/src/main/AndroidManifest.xml', (text) =>
+replaceInFileIfExists('apps/mobile/android/app/src/main/AndroidManifest.xml', (text) =>
   text.replace(/android:scheme="my-garden"/g, `android:scheme="${scheme}"`)
 );
 
-replaceInFileIfExists('android/app/build.gradle', (text) =>
+replaceInFileIfExists('apps/mobile/android/app/build.gradle', (text) =>
   text
     .replace(/namespace\s+'[^']+'/g, `namespace '${androidPackage}'`)
     .replace(/applicationId\s+'[^']+'/g, `applicationId '${androidPackage}'`)
@@ -144,8 +144,8 @@ replaceInFileIfExists('android/app/build.gradle', (text) =>
 
 updateAndroidPackage(androidPackage);
 
-replaceInFile('app/index.tsx', (text) => text.replace(/Richfarm/g, appName));
-replaceInFile('components/ui/LoadingScreen.tsx', (text) => text.replace(/Richfarm/g, appName));
+replaceInFile('apps/mobile/app/index.tsx', (text) => text.replace(/Richfarm/g, appName));
+replaceInFile('apps/mobile/components/ui/LoadingScreen.tsx', (text) => text.replace(/Richfarm/g, appName));
 
 console.log('Updated files:');
 for (const file of updated) {
@@ -184,7 +184,7 @@ function replaceInFileIfExists(relPath, replacer) {
 
 function updateIosXcodeProject(newBundleId) {
   if (!xcode) return;
-  const projectPath = path.join(root, 'ios/MyGarden.xcodeproj/project.pbxproj');
+  const projectPath = path.join(root, 'apps/mobile/ios/MyGarden.xcodeproj/project.pbxproj');
   if (!fs.existsSync(projectPath)) return;
 
   const project = xcode.project(projectPath);
@@ -199,11 +199,11 @@ function updateIosXcodeProject(newBundleId) {
     project.updateBuildProperty('TARGETED_DEVICE_FAMILY', '"1,2"', null, target);
   }
   fs.writeFileSync(projectPath, project.writeSync());
-  updated.push('ios/MyGarden.xcodeproj/project.pbxproj');
+  updated.push('apps/mobile/ios/MyGarden.xcodeproj/project.pbxproj');
 }
 
 function updateAndroidPackage(newPackage) {
-  const javaRoot = path.join(root, 'android/app/src/main/java');
+  const javaRoot = path.join(root, 'apps/mobile/android/app/src/main/java');
   if (!fs.existsSync(javaRoot)) return;
 
   const mainApplication = findFileByName(javaRoot, 'MainApplication.kt');
@@ -222,7 +222,7 @@ function updateAndroidPackage(newPackage) {
   if (fs.existsSync(oldDir)) {
     fs.mkdirSync(path.dirname(newDir), { recursive: true });
     fs.renameSync(oldDir, newDir);
-    updated.push(`android/app/src/main/java/${newPackage.replace(/\./g, '/')}`);
+    updated.push(`apps/mobile/android/app/src/main/java/${newPackage.replace(/\./g, '/')}`);
 
     const files = walkFiles(newDir, (file) => file.endsWith('.kt'));
     for (const file of files) {

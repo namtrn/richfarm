@@ -1,19 +1,19 @@
 {
-  "extends": "expo/tsconfig.base",
-  "compilerOptions": {
-    "strict": true,
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ]
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "types/**/*.d.ts"
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/mobile/tsconfig.json"
+    },
+    {
+      "path": "./apps/api/tsconfig.json"
+    },
+    {
+      "path": "./apps/dashboard/tsconfig.json"
+    },
+    {
+      "path": "./packages/convex/tsconfig.json"
+    }
   ],
-  "exclude": [
-    "docs/**",
-    "node_modules"
-  ]
+  "compilerOptions": {},
+  "extends": "expo/tsconfig.base"
 }

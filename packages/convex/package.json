@@ -1,0 +1,10 @@
+{
+  "name": "@richfarm/convex",
+  "version": "1.0.0",
+  "private": true,
+  "main": "_generated/api.js",
+  "types": "_generated/api.d.ts",
+  "dependencies": {
+    "convex": "^1.32.0"
+  }
+}

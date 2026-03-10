@@ -1,0 +1,7 @@
+{
+  "name": "@richfarm/native-modules",
+  "version": "1.0.0",
+  "private": true,
+  "main": "widget-bridge/index.ts",
+  "types": "widget-bridge/index.ts"
+}

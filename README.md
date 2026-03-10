@@ -1,6 +1,14 @@
 # Richfarm
 
-Richfarm is a React Native gardening app with a Convex backend, a plant knowledge library, and admin tooling for maintaining multilingual crop data.
+cd /Users/n/Documents/GitHub/richfarm/apps/mobile
+npx expo run:ios --device "iPhone 17 Pro"
+
+cd /Users/n/Documents/GitHub/richfarm/apps/dashboard
+npm run dev
+
+
+
+Richfarm is a lightweight monorepo for the mobile app, admin dashboard, API, and Convex backend that power the Richfarm gardening product.
 
 ## Features
 
@@ -13,8 +21,9 @@ Richfarm is a React Native gardening app with a Convex backend, a plant knowledg
 ## Stack
 
 - Mobile app: Expo + React Native + Expo Router
-- Backend data layer: Convex
-- Admin/API workspace: TypeScript in [`backend/`](./backend)
+- Backend data layer: Convex in [`packages/convex/`](./packages/convex)
+- Admin dashboard: React/Vite in [`apps/dashboard/`](./apps/dashboard)
+- API workspace: TypeScript in [`apps/api/`](./apps/api)
 - Styling: NativeWind
 - Localization: `i18next`
 
@@ -37,7 +46,7 @@ npm install
 ### Start Convex
 
 ```bash
-npx convex dev
+npm run convex:dev
 ```
 
 ### Start the mobile app
@@ -50,12 +59,10 @@ npm run android
 npm start
 ```
 
-### Start the backend workspace
+### Start the API workspace
 
 ```bash
-cd backend
-npm install
-npm run dev
+npm run api:dev
 ```
 
 ## Plant Taxonomy Workflow
@@ -87,10 +94,13 @@ npm run test:smoke:ios
 
 ## Project Structure
 
-- [`app/`](./app): Expo Router screens
-- [`components/`](./components): shared UI
-- [`convex/`](./convex): schema, queries, mutations, seeds, migrations
-- [`backend/`](./backend): API and dashboard workspace
+- [`apps/mobile/`](./apps/mobile): Expo Router app, UI, hooks, and native projects
+- [`apps/dashboard/`](./apps/dashboard): dashboard web app
+- [`apps/api/`](./apps/api): Express API/auth service
+- [`packages/convex/`](./packages/convex): schema, queries, mutations, seeds, migrations
+- [`packages/shared/`](./packages/shared): shared pure TypeScript helpers
+- [`packages/widgets/`](./packages/widgets): native widget assets/code
+- [`packages/native-modules/`](./packages/native-modules): custom native bridge modules
 - [`docs/specs/`](./docs/specs): product and technical specs
 - [`docs/reports/`](./docs/reports): audits and working reports
 
@@ -107,8 +117,8 @@ npm run test:smoke:ios
 
 Before changing plant data flows, review:
 
-- [`convex/lib/plantTaxonomy.ts`](./convex/lib/plantTaxonomy.ts)
-- [`convex/plantTaxonomyChecks.ts`](./convex/plantTaxonomyChecks.ts)
+- [`packages/convex/lib/plantTaxonomy.ts`](./packages/convex/lib/plantTaxonomy.ts)
+- [`packages/convex/plantTaxonomyChecks.ts`](./packages/convex/plantTaxonomyChecks.ts)
 - [`.github/workflows/taxonomy-invariants.yml`](./.github/workflows/taxonomy-invariants.yml)
 
 ## License

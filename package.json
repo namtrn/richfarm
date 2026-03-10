@@ -1,57 +1,40 @@
 {
   "name": "richfarm",
   "version": "1.0.0",
+  "private": true,
   "main": "expo-router/entry",
+  "expo": {
+    "autolinking": {
+      "searchPaths": [
+        "./node_modules"
+      ]
+    }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
+    "start": "npm --prefix apps/mobile start",
+    "android": "npm --prefix apps/mobile run android",
+    "ios": "npm --prefix apps/mobile run ios",
+    "web": "npm --prefix apps/mobile run web",
+    "dashboard:dev": "npm --prefix apps/dashboard run dev",
+    "dashboard:build": "npm --prefix apps/dashboard run build",
+    "api:dev": "npm --prefix apps/api run dev",
+    "api:build": "npm --prefix apps/api run build",
     "init:app": "node scripts/init-app.js",
+    "build:plant-i18n": "node scripts/build-plant-i18n.js",
+    "sync:convex-to-json": "node scripts/sync-convex-plant-i18n-source.js && npm run build:plant-i18n",
+    "convex:dev": "cd packages/convex && npx convex dev",
+    "convex:deploy": "cd packages/convex && npx convex deploy",
     "test:smoke:ios": "maestro test .maestro/smoke-all-buttons.yaml .maestro/smoke-home-library-health.yaml .maestro/smoke-library-deeplink.yaml",
-    "check:taxonomy": "npx convex run plantTaxonomyChecks:assertTaxonomyInvariants '{\"sampleLimit\":100,\"failOnMissingI18nLocales\":true}' && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
+    "check:taxonomy": "cd packages/convex && npx convex run plantTaxonomyChecks:assertTaxonomyInvariants '{\"sampleLimit\":100,\"failOnMissingI18nLocales\":true}' && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
   },
+  "devDependencies": {},
   "dependencies": {
-    "@better-auth/expo": "1.4.9",
-    "@convex-dev/better-auth": "0.10.10",
-    "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-native-community/netinfo": "11.4.1",
-    "babel-plugin-react-compiler": "^1.0.0",
-    "babel-preset-expo": "^54.0.10",
-    "better-auth": "1.4.9",
-    "convex": "^1.31.7",
     "expo": "~54.0.33",
-    "expo-blur": "~15.0.8",
-    "expo-build-properties": "^1.0.10",
-    "expo-constants": "~18.0.13",
-    "expo-image": "~3.0.11",
-    "expo-image-picker": "~17.0.10",
-    "expo-linking": "^8.0.11",
-    "expo-localization": "^17.0.8",
-    "expo-network": "~8.0.8",
-    "expo-notifications": "~0.32.16",
-    "expo-router": "^6.0.23",
-    "expo-secure-store": "~15.0.8",
-    "expo-sensors": "~15.0.8",
-    "expo-status-bar": "~3.0.9",
-    "i18next": "^25.8.10",
-    "lucide-react-native": "^0.574.0",
-    "nativewind": "^2.0.11",
     "react": "19.1.0",
-    "react-dom": "^19.1.0",
-    "react-i18next": "^16.5.4",
-    "react-native": "0.81.5",
-    "react-native-purchases": "^9.5.4",
-    "react-native-purchases-ui": "^9.5.4",
-    "react-native-safe-area-context": "^5.6.2",
-    "react-native-screens": "~4.16.0",
-    "react-native-svg": "15.12.1"
-  },
-  "devDependencies": {
-    "@types/react": "~19.1.0",
-    "postcss": "^8.4.21",
-    "tailwindcss": "^3.2.7",
-    "typescript": "~5.9.2"
-  },
-  "private": true
+    "react-native": "0.81.5"
+  }
 }

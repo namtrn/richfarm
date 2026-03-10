@@ -20,7 +20,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
-target 'MyGarden' do
+target 'richfarm' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -33,6 +33,7 @@ target 'MyGarden' do
       'require(\'expo/bin/autolinking\')',
       'expo-modules-autolinking',
       'react-native-config',
+      './node_modules',
       '--json',
       '--platform',
       'ios'

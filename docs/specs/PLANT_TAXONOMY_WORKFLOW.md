@@ -92,7 +92,7 @@ User-visible effects:
   Variant switcher in library detail.
 - [`hooks/usePlantScanner.tsx`](../../hooks/usePlantScanner.tsx)
   Scanner match handoff into the library.
-- [`backend/dashboard/src/components/PlantManager.tsx`](../../backend/dashboard/src/components/PlantManager.tsx)
+- [`dashboard/src/components/PlantManager.tsx`](../../dashboard/src/components/PlantManager.tsx)
   Admin UI for genus/species/cultivar and growing parameters.
 
 ## Seed And Sync Flow
