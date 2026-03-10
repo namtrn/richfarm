@@ -1,17 +1,18 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Plant, PlantFormState, Mode, PlantListPage } from "../types";
 import {
-    convex,
-    convexReady,
+    convexAdminMutation,
+    convexAdminQuery,
     emptyPlantForm,
     getLocaleRow,
     parsePurposes,
     computeScientificName,
     parseOptionalNumber,
     DEFAULT_CULTIVAR_NORMALIZED,
+    type AuthedFetch,
 } from "../constants";
 
-export function usePlants() {
+export function usePlants(authedFetch: AuthedFetch) {
     const pageSize = 30;
     const [viewMode, setViewMode] = useState<"common" | "family">("common");
     const [plants, setPlants] = useState<Plant[]>([]);
@@ -32,14 +33,10 @@ export function usePlants() {
     const [stats, setStats] = useState({ total: 0, missingI18n: 0, missingImages: 0 });
 
     const load = useCallback(async () => {
-        if (!convexReady) {
-            setError("Missing Convex URL. Set EXPO_PUBLIC_CONVEX_URL or VITE_CONVEX_URL.");
-            return;
-        }
         setLoading(true);
         setError("");
         try {
-            const data = (await convex.query("plantAdmin:listPlants" as any, {
+            const data = await convexAdminQuery<PlantListPage>(authedFetch, "plantAdmin:listPlants", {
                 page,
                 pageSize,
                 viewMode,
@@ -47,7 +44,7 @@ export function usePlants() {
                 groupFilter,
                 filterMissingI18n,
                 filterNoImage,
-            })) as PlantListPage;
+            });
             setPlants(data.items);
             setTotalItems(data.totalItems);
             setTotalPages(data.totalPages);
@@ -66,7 +63,7 @@ export function usePlants() {
         } finally {
             setLoading(false);
         }
-    }, [filterMissingI18n, filterNoImage, groupFilter, mode, page, search, selectedId, viewMode]);
+    }, [authedFetch, filterMissingI18n, filterNoImage, groupFilter, mode, page, search, selectedId, viewMode]);
 
     const selected = useMemo(
         () => plants.find((p) => p._id === selectedId) ?? null,
@@ -211,15 +208,17 @@ export function usePlants() {
         setError("");
         try {
             if (mode === "create") {
-                const result = (await convex.mutation("plantAdmin:createPlant" as any, payload)) as {
-                    plantId: string;
-                };
+                const result = await convexAdminMutation<{ plantId: string }>(
+                    authedFetch,
+                    "plantAdmin:createPlant",
+                    payload,
+                );
                 await load();
                 setSelectedId(result.plantId);
                 setMode("view");
                 return "Plant created successfully";
             } else if (mode === "edit" && selected) {
-                await convex.mutation("plantAdmin:updatePlant" as any, {
+                await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlant", {
                     plantId: selected._id,
                     ...payload,
                 });
@@ -245,7 +244,7 @@ export function usePlants() {
         setSaving(true);
         setError("");
         try {
-            await convex.mutation("plantAdmin:deletePlant" as any, { plantId: selected._id });
+            await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlant", { plantId: selected._id });
             setSelectedId(null);
             await load();
             return "Plant deleted";

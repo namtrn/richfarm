@@ -10,6 +10,7 @@ import {
   withComputedPlantTaxonomy,
 } from "./lib/plantTaxonomy";
 import { upsertPlantCareProfile } from "./lib/plantCare";
+import { requireAdminAccess } from "./lib/admin";
 
 const backendRowValidator = v.object({
   id: v.number(),
@@ -100,10 +101,12 @@ async function assertBaseExistsForVariant(ctx: any, taxonomy: {
 
 export const upsertPlantFromBackend = mutation({
   args: {
+    adminKey: v.string(),
     source: sourceValidator,
     row: backendRowValidator,
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const scientificName = toScientificName(args.row);
     const cultivar = extractCultivar(args.row);
     const taxonomy = buildTaxonomyFields({ scientificName, cultivar });
@@ -186,10 +189,12 @@ export const upsertPlantFromBackend = mutation({
 
 export const deletePlantFromBackend = mutation({
   args: {
+    adminKey: v.string(),
     source: sourceValidator,
     id: v.number(),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const sourceTag = `backend:${args.source}:id_${args.id}`;
     const candidate = await ctx.db
       .query("plantsMaster")

@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import type { PlantI18nRow, I18nFormState, Mode, Plant } from "../types";
-import { convex, convexReady, emptyI18nForm } from "../constants";
+import { convexAdminMutation, convexAdminQuery, emptyI18nForm, type AuthedFetch } from "../constants";
 
 function toFormState(row: PlantI18nRow): I18nFormState {
     return {
@@ -13,7 +13,7 @@ function toFormState(row: PlantI18nRow): I18nFormState {
     };
 }
 
-export function useI18n() {
+export function useI18n(authedFetch: AuthedFetch) {
     const [rows, setRows] = useState<PlantI18nRow[]>([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -24,21 +24,17 @@ export function useI18n() {
     const [search, setSearch] = useState("");
 
     const load = useCallback(async () => {
-        if (!convexReady) return;
         setLoading(true);
         setError("");
         try {
-            const data = (await convex.query(
-                "plantAdmin:listPlantI18n" as any,
-                {},
-            )) as PlantI18nRow[];
+            const data = await convexAdminQuery<PlantI18nRow[]>(authedFetch, "plantAdmin:listPlantI18n");
             setRows(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot load plant i18n");
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [authedFetch]);
 
     const selected = useMemo(
         () => rows.find((r) => r._id === selectedId) ?? null,
@@ -129,16 +125,17 @@ export function useI18n() {
             };
 
             if (mode === "create") {
-                const result = (await convex.mutation(
-                    "plantAdmin:createPlantI18n" as any,
+                const result = await convexAdminMutation<{ rowId: string }>(
+                    authedFetch,
+                    "plantAdmin:createPlantI18n",
                     payload,
-                )) as { rowId: string };
+                );
                 await load();
                 setSelectedId(result.rowId);
                 setMode("view");
                 return "Translation created successfully";
             } else if (mode === "edit" && selected) {
-                await convex.mutation("plantAdmin:updatePlantI18n" as any, {
+                await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlantI18n", {
                     rowId: selected._id,
                     ...payload,
                 });
@@ -161,7 +158,7 @@ export function useI18n() {
         setSaving(true);
         setError("");
         try {
-            await convex.mutation("plantAdmin:deletePlantI18n" as any, {
+            await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlantI18n", {
                 rowId: selected._id,
             });
             setSelectedId(null);
@@ -173,6 +170,17 @@ export function useI18n() {
             setSaving(false);
         }
         return null;
+    }
+
+    async function createTranslation(input: {
+        plantId: string;
+        locale: string;
+        commonName: string;
+        description?: string;
+        careContent?: string;
+        contentVersion?: number;
+    }) {
+        return convexAdminMutation<{ rowId: string }>(authedFetch, "plantAdmin:createPlantI18n", input);
     }
 
     return {
@@ -196,5 +204,6 @@ export function useI18n() {
         cancel,
         save,
         remove,
+        createTranslation,
     };
 }

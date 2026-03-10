@@ -71,9 +71,7 @@ export function getRevenueCatApiKeyValidationError(apiKey: string | null): strin
 
 export function getRevenueCatAppUserId(args: {
   tokenIdentifier?: string | null;
-  deviceId?: string | null;
 }) {
   if (args.tokenIdentifier) return args.tokenIdentifier;
-  if (args.deviceId) return `device:${args.deviceId}`;
   return null;
 }

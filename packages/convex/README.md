@@ -27,6 +27,8 @@ Deploy functions:
 npx convex deploy
 ```
 
+Admin and sync mutations now require `CONVEX_ADMIN_FUNCTION_KEY` from a trusted server-side caller. Do not pass that key to mobile or dashboard clients.
+
 ## Taxonomy Notes
 
 `plantsMaster` now supports species and cultivar variants.

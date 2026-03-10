@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
 import type { PlantGroup, GroupFormState, Mode } from "../types";
-import { convex, convexReady, emptyGroupForm } from "../constants";
+import { convexAdminMutation, convexAdminQuery, emptyGroupForm, type AuthedFetch } from "../constants";
 
-export function useGroups() {
+export function useGroups(authedFetch: AuthedFetch) {
     const [groups, setGroups] = useState<PlantGroup[]>([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -13,21 +13,17 @@ export function useGroups() {
     const [search, setSearch] = useState("");
 
     const load = useCallback(async () => {
-        if (!convexReady) return;
         setLoading(true);
         setError("");
         try {
-            const data = (await convex.query(
-                "plantAdmin:listPlantGroups" as any,
-                {},
-            )) as PlantGroup[];
+            const data = await convexAdminQuery<PlantGroup[]>(authedFetch, "plantAdmin:listPlantGroups");
             setGroups(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot load plant groups");
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [authedFetch]);
 
     const selected = useMemo(
         () => groups.find((g) => g._id === selectedId) ?? null,
@@ -125,16 +121,17 @@ export function useGroups() {
             };
 
             if (mode === "create") {
-                const result = (await convex.mutation(
-                    "plantAdmin:createPlantGroup" as any,
+                const result = await convexAdminMutation<{ groupId: string }>(
+                    authedFetch,
+                    "plantAdmin:createPlantGroup",
                     payload,
-                )) as { groupId: string };
+                );
                 await load();
                 setSelectedId(result.groupId);
                 setMode("view");
                 return "Group created successfully";
             } else if (mode === "edit" && selected) {
-                await convex.mutation("plantAdmin:updatePlantGroup" as any, {
+                await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlantGroup", {
                     groupId: selected._id,
                     ...payload,
                 });
@@ -157,7 +154,7 @@ export function useGroups() {
         setSaving(true);
         setError("");
         try {
-            await convex.mutation("plantAdmin:deletePlantGroup" as any, {
+            await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlantGroup", {
                 groupId: selected._id,
             });
             setSelectedId(null);

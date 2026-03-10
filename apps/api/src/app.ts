@@ -11,6 +11,7 @@ import { createGenericDataRouter } from "./generic-data";
 import { createContentSyncRouter } from "./content-sync";
 import { createMasterPlantsRouter, handleMasterPlantsError } from "./master-plants";
 import { createMasterPlantI18nRouter } from "./master-plant-i18n";
+import { createConvexAdminRouter } from "./convex-admin";
 
 interface CreateAppOptions {
   auth: AuthConfig;
@@ -101,6 +102,7 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   app.use("/api/master-plants", createMasterPlantsRouter(db, options.syncService));
   app.use("/api/master-plants-i18n", authMiddleware, createMasterPlantI18nRouter(db, options.syncService));
   app.use("/api/content-sync", authMiddleware, requireRole(["admin"]), createContentSyncRouter());
+  app.use("/api/convex-admin", authMiddleware, requireRole(["admin", "editor"]), createConvexAdminRouter(options.syncService));
   app.use(
     "/api",
     authMiddleware,

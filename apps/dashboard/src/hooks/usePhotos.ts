@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import type { PlantPhoto, PhotoFormState, Mode } from "../types";
-import { convex, convexReady, emptyPhotoForm } from "../constants";
+import { convexAdminMutation, convexAdminQuery, emptyPhotoForm, type AuthedFetch } from "../constants";
 
 function toFormState(photo: PlantPhoto): PhotoFormState {
     return {
@@ -20,7 +20,7 @@ function toFormState(photo: PlantPhoto): PhotoFormState {
     };
 }
 
-export function usePhotos() {
+export function usePhotos(authedFetch: AuthedFetch) {
     const [photos, setPhotos] = useState<PlantPhoto[]>([]);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -31,21 +31,17 @@ export function usePhotos() {
     const [search, setSearch] = useState("");
 
     const load = useCallback(async () => {
-        if (!convexReady) return;
         setLoading(true);
         setError("");
         try {
-            const data = (await convex.query(
-                "plantAdmin:listPlantPhotos" as any,
-                {},
-            )) as PlantPhoto[];
+            const data = await convexAdminQuery<PlantPhoto[]>(authedFetch, "plantAdmin:listPlantPhotos");
             setPhotos(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot load plant photos");
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [authedFetch]);
 
     const selected = useMemo(
         () => photos.find((p) => p._id === selectedId) ?? null,
@@ -149,16 +145,17 @@ export function usePhotos() {
             }
 
             if (mode === "create") {
-                const result = (await convex.mutation(
-                    "plantAdmin:createPlantPhoto" as any,
+                const result = await convexAdminMutation<{ photoId: string }>(
+                    authedFetch,
+                    "plantAdmin:createPlantPhoto",
                     payload,
-                )) as { photoId: string };
+                );
                 await load();
                 setSelectedId(result.photoId);
                 setMode("view");
                 return "Photo created successfully";
             } else if (mode === "edit" && selected) {
-                await convex.mutation("plantAdmin:updatePlantPhoto" as any, {
+                await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlantPhoto", {
                     photoId: selected._id,
                     ...payload,
                 });
@@ -181,7 +178,7 @@ export function usePhotos() {
         setSaving(true);
         setError("");
         try {
-            await convex.mutation("plantAdmin:deletePlantPhoto" as any, {
+            await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlantPhoto", {
                 photoId: selected._id,
             });
             setSelectedId(null);

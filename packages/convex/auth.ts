@@ -2,8 +2,10 @@ import { createClient } from "@convex-dev/better-auth";
 import { convex as convexPlugin } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { expo } from "@better-auth/expo";
+import { anonymous } from "better-auth/plugins";
 import { components } from "./_generated/api";
 import authConfig from "./auth.config";
+import { mergeAnonymousUserIntoAccount } from "./lib/userAccounts";
 
 export const authComponent = createClient(components.betterAuth);
 
@@ -21,5 +23,18 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
     emailAndPassword: {
       enabled: true,
     },
-    plugins: [expo(), convexPlugin({ authConfig })],
+    plugins: [
+      expo(),
+      anonymous({
+        async onLinkAccount({ anonymousUser, newUser }) {
+          await mergeAnonymousUserIntoAccount(ctx, {
+            anonymousAuthUserId: anonymousUser.user.id,
+            authenticatedAuthUserId: newUser.user.id,
+            authenticatedName: newUser.user.name,
+            authenticatedEmail: newUser.user.email,
+          });
+        },
+      }),
+      convexPlugin({ authConfig }),
+    ],
   });

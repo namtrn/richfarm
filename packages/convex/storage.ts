@@ -94,8 +94,19 @@ export const savePhoto = mutation({
 export const getStorageUrl = query({
     args: {
         storageId: v.id("_storage"),
+        deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
+        const user = await requireUser(ctx, args.deviceId);
+        const photo = await ctx.db
+            .query("plantPhotos")
+            .filter((q) => q.eq(q.field("storageId"), args.storageId))
+            .first();
+
+        if (!photo || photo.userId !== user._id) {
+            throw new Error("Storage file not found or unauthorized");
+        }
+
         return await ctx.storage.getUrl(args.storageId);
     },
 });
@@ -109,7 +120,16 @@ export const deleteStorageFile = mutation({
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        await requireUser(ctx, args.deviceId);
+        const user = await requireUser(ctx, args.deviceId);
+        const photo = await ctx.db
+            .query("plantPhotos")
+            .filter((q) => q.eq(q.field("storageId"), args.storageId))
+            .first();
+
+        if (!photo || photo.userId !== user._id) {
+            throw new Error("Storage file not found or unauthorized");
+        }
+
         await ctx.storage.delete(args.storageId);
     },
 });

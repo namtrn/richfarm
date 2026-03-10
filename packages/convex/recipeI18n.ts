@@ -1,9 +1,11 @@
 // Richfarm — Recipe i18n
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdminAccess } from "./lib/admin";
 
 export const upsertRecipeI18n = mutation({
     args: {
+        adminKey: v.string(),
         recipeId: v.id("preservationRecipes"),
         locale: v.string(),
         name: v.string(),
@@ -11,6 +13,7 @@ export const upsertRecipeI18n = mutation({
         safetyNotes: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
+        requireAdminAccess(args.adminKey);
         const normalized = args.locale.toLowerCase().trim();
         if (!normalized) {
             throw new Error("Locale is required");

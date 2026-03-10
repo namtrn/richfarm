@@ -1,15 +1,9 @@
-import { ConvexHttpClient } from "convex/browser";
 import type {
     PlantFormState,
     GroupFormState,
     I18nFormState,
     PhotoFormState,
 } from "./types";
-
-declare const __CONVEX_URL__: string;
-
-export const convex = new ConvexHttpClient(__CONVEX_URL__);
-export const convexReady = Boolean(__CONVEX_URL__);
 
 // Backend REST base URL — prefer env, fallback to same host
 export const API_BASE = (import.meta as any).env?.VITE_API_URL ?? "";
@@ -29,6 +23,40 @@ export async function apiFetch(
         ...(rest.headers as Record<string, string> | undefined),
     };
     return fetch(`${API_BASE}${path}`, { ...rest, headers });
+}
+
+export type AuthedFetch = (path: string, options?: RequestInit) => Promise<Response>;
+
+async function parseApiResponse<T>(response: Response): Promise<T> {
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(body.error ?? "Request failed");
+    }
+    return body.data as T;
+}
+
+export async function convexAdminQuery<T>(
+    authedFetch: AuthedFetch,
+    path: string,
+    args: Record<string, unknown> = {},
+): Promise<T> {
+    const response = await authedFetch("/api/convex-admin/query", {
+        method: "POST",
+        body: JSON.stringify({ path, args }),
+    });
+    return parseApiResponse<T>(response);
+}
+
+export async function convexAdminMutation<T>(
+    authedFetch: AuthedFetch,
+    path: string,
+    args: Record<string, unknown> = {},
+): Promise<T> {
+    const response = await authedFetch("/api/convex-admin/mutation", {
+        method: "POST",
+        body: JSON.stringify({ path, args }),
+    });
+    return parseApiResponse<T>(response);
 }
 
 // ──────────────────────────────────────────────

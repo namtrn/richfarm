@@ -24,6 +24,7 @@ Default:
 - `ADMIN_PASSWORD`
 - `CONVEX_URL`
 - `CONVEX_ADMIN_KEY`
+- `CONVEX_ADMIN_FUNCTION_KEY`
 - `CONVEX_UPSERT_MUTATION`
 - `CONVEX_DELETE_MUTATION`
 
@@ -36,6 +37,7 @@ Default:
 ## Convex Sync Contract
 
 The backend syncs plant rows through [`masterSync.ts`](/Users/n/Documents/GitHub/richfarm/packages/convex/masterSync.ts).
+Admin-only Convex CRUD now also requires `CONVEX_ADMIN_FUNCTION_KEY`; keep it server-side and do not expose it to dashboard/mobile clients.
 
 Current behavior:
 

@@ -26,6 +26,7 @@ ensureBootstrapAdmin(db, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD);
 const syncService = new ConvexSyncService({
   deployUrl: process.env.CONVEX_URL,
   adminKey: process.env.CONVEX_ADMIN_KEY,
+  adminFunctionKey: process.env.CONVEX_ADMIN_FUNCTION_KEY,
   upsertMutation: process.env.CONVEX_UPSERT_MUTATION ?? "masterSync:upsertPlantFromBackend",
   deleteMutation: process.env.CONVEX_DELETE_MUTATION ?? "masterSync:deletePlantFromBackend",
 });

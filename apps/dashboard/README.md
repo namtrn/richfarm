@@ -21,7 +21,6 @@ Create a separate Vercel project for this folder only.
 Environment variables:
 
 - `VITE_API_URL=https://your-backend-domain.com`
-- `VITE_CONVEX_URL=https://your-convex-deployment.convex.cloud`
 
 Backend environment variables:
 

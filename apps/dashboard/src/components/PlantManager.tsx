@@ -10,7 +10,6 @@ import {
     computeScientificName,
     LIGHT_OPTIONS,
     DEFAULT_CULTIVAR_NORMALIZED,
-    convex,
 } from "../constants";
 
 type PlantHook = ReturnType<typeof usePlants>;
@@ -497,7 +496,12 @@ export function PlantManager({
 
                     {p.mode === "view" ? (
                         p.selected ? (
-                            <PlantDetail plant={p.selected} reload={p.load} onToast={onToast} />
+                            <PlantDetail
+                                plant={p.selected}
+                                reload={p.load}
+                                onToast={onToast}
+                                createTranslation={i18n.createTranslation}
+                            />
                         ) : (
                             <p className="empty">Select a plant to see details.</p>
                         )
@@ -516,10 +520,12 @@ function PlantDetail({
     plant,
     reload,
     onToast,
+    createTranslation,
 }: {
     plant: ReturnType<typeof usePlants>["selected"] & {};
     reload: () => Promise<void>;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+    createTranslation: I18nHook["createTranslation"];
 }) {
     if (!plant) return null;
     const vi = getLocaleRow(plant.i18nRows, "vi");
@@ -598,7 +604,12 @@ function PlantDetail({
             <div className="i18n-inline">
                 <div className="i18n-inline-header">
                     <h4>🌐 Translations</h4>
-                    <AddLanguageButton plant={plant} reload={reload} onToast={onToast} />
+                    <AddLanguageButton
+                        plant={plant}
+                        reload={reload}
+                        onToast={onToast}
+                        createTranslation={createTranslation}
+                    />
                 </div>
                 <div className="i18n-grid">
                     {plant.i18nRows
@@ -627,10 +638,12 @@ function AddLanguageButton({
     plant,
     reload,
     onToast,
+    createTranslation,
 }: {
     plant: NonNullable<ReturnType<typeof usePlants>["selected"]>;
     reload: () => Promise<void>;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+    createTranslation: I18nHook["createTranslation"];
 }) {
     const existingLocales = new Set(plant.i18nRows.map((row) => row.locale));
     const availableLocales = PLANT_LANGUAGE_OPTIONS.filter(
@@ -665,7 +678,7 @@ function AddLanguageButton({
 
         setSaving(true);
         try {
-            await convex.mutation("plantAdmin:createPlantI18n" as any, {
+            await createTranslation({
                 plantId: plant._id,
                 locale,
                 commonName: commonName.trim(),

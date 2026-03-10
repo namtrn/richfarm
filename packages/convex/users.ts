@@ -1,16 +1,15 @@
 // Richfarm — Convex Users
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { deviceToken, getUserByIdentityOrDevice, requireUser } from "./lib/user";
+import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
+import { authComponent } from "./auth";
 import type { Id } from "./_generated/dataModel";
 
 // Lấy user hiện tại dựa trên tokenIdentifier
 export const getCurrentUser = query({
-    args: {
-        deviceId: v.optional(v.string()),
-    },
-    handler: async (ctx, args) => {
-        return await getUserByIdentityOrDevice(ctx, args.deviceId);
+    args: {},
+    handler: async (ctx) => {
+        return await getUserByIdentityOrDevice(ctx);
     },
 });
 
@@ -22,33 +21,11 @@ export const getOrCreateUser = mutation({
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) {
-            if (!args.deviceId) throw new Error("Not authenticated");
-
-            const tokenIdentifier = deviceToken(args.deviceId);
-            const existing = await ctx.db
-                .query("users")
-                .withIndex("by_token", (q) =>
-                    q.eq("tokenIdentifier", tokenIdentifier)
-                )
-                .unique();
-
-            if (existing) {
-                await ctx.db.patch(existing._id, {
-                    lastSyncAt: Date.now(),
-                    deviceId: existing.deviceId ?? args.deviceId,
-                    isAnonymous: existing.isAnonymous ?? true,
-                });
-                return existing._id;
-            }
-
-            return await ctx.db.insert("users", {
-                tokenIdentifier,
-                deviceId: args.deviceId,
-                isAnonymous: true,
-                isActive: true,
-                lastSyncAt: Date.now(),
-            });
+            throw new Error("Not authenticated");
         }
+
+        const authUser = await authComponent.safeGetAuthUser(ctx);
+        const isAnonymous = authUser?.isAnonymous === true;
 
         const existing = await ctx.db
             .query("users")
@@ -60,8 +37,10 @@ export const getOrCreateUser = mutation({
         if (existing) {
             // Cập nhật thông tin nếu thay đổi
             await ctx.db.patch(existing._id, {
-                name: identity.name ?? existing.name,
-                email: identity.email ?? existing.email,
+                name: authUser?.name ?? identity.name ?? existing.name,
+                email: authUser?.email ?? identity.email ?? existing.email,
+                deviceId: args.deviceId ?? existing.deviceId,
+                isAnonymous,
                 lastSyncAt: Date.now(),
             });
             return existing._id;
@@ -70,45 +49,25 @@ export const getOrCreateUser = mutation({
         // Tạo user mới
         return await ctx.db.insert("users", {
             tokenIdentifier: identity.tokenIdentifier,
-            name: identity.name,
-            email: identity.email,
+            name: authUser?.name ?? identity.name,
+            email: authUser?.email ?? identity.email,
+            ...(args.deviceId ? { deviceId: args.deviceId } : {}),
+            isAnonymous,
             isActive: true,
             lastSyncAt: Date.now(),
         });
     },
 });
 
-// Tạo hoặc lấy user theo deviceId (anonymous per-device)
+// Deprecated: guest auth must go through Better Auth anonymous sessions.
 export const getOrCreateDeviceUser = mutation({
     args: {
         deviceId: v.string(),
     },
-    handler: async (ctx, args) => {
-        const tokenIdentifier = deviceToken(args.deviceId);
-
-        const existing = await ctx.db
-            .query("users")
-            .withIndex("by_token", (q) =>
-                q.eq("tokenIdentifier", tokenIdentifier)
-            )
-            .unique();
-
-        if (existing) {
-            await ctx.db.patch(existing._id, {
-                lastSyncAt: Date.now(),
-                deviceId: existing.deviceId ?? args.deviceId,
-                isAnonymous: existing.isAnonymous ?? true,
-            });
-            return existing._id;
-        }
-
-        return await ctx.db.insert("users", {
-            tokenIdentifier,
-            deviceId: args.deviceId,
-            isAnonymous: true,
-            isActive: true,
-            lastSyncAt: Date.now(),
-        });
+    handler: async () => {
+        throw new Error(
+            "Device-based guest auth has been removed. Use Better Auth anonymous sign-in."
+        );
     },
 });
 

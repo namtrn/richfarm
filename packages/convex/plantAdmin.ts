@@ -27,6 +27,11 @@ import {
   upsertPlantCareI18n,
   upsertPlantCareProfile,
 } from "./lib/plantCare";
+import { requireAdminAccess } from "./lib/admin";
+
+const adminArgs = {
+  adminKey: v.string(),
+};
 
 async function upsertPlantI18n(
   ctx: any,
@@ -352,6 +357,7 @@ async function assertBaseExistsForVariant(
 
 export const updatePlant = mutation({
   args: {
+    ...adminArgs,
     plantId: v.id("plantsMaster"),
     scientificName: v.string(),
     cultivar: v.optional(v.string()),
@@ -383,6 +389,7 @@ export const updatePlant = mutation({
     yieldKgPerM2: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const plant = await ctx.db.get(args.plantId);
     if (!plant) {
       throw new Error("Plant not found");
@@ -461,6 +468,7 @@ export const updatePlant = mutation({
 
 export const listPlants = query({
   args: {
+    ...adminArgs,
     page: v.number(),
     pageSize: v.number(),
     viewMode: v.optional(v.union(v.literal("common"), v.literal("family"))),
@@ -470,6 +478,7 @@ export const listPlants = query({
     filterNoImage: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const viewMode = args.viewMode ?? "common";
     const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
     const i18nRows = await ctx.db.query("plantI18n").collect();
@@ -734,6 +743,7 @@ export const listPlants = query({
 
 export const createPlant = mutation({
   args: {
+    ...adminArgs,
     scientificName: v.string(),
     cultivar: v.optional(v.string()),
     family: v.optional(v.string()),
@@ -764,6 +774,7 @@ export const createPlant = mutation({
     yieldKgPerM2: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const scientificName = args.scientificName.trim();
     if (!scientificName) {
       throw new Error("Scientific name is required");
@@ -846,9 +857,11 @@ export const createPlant = mutation({
 
 export const deletePlant = mutation({
   args: {
+    ...adminArgs,
     plantId: v.id("plantsMaster"),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const plant = await ctx.db.get(args.plantId);
     if (!plant) {
       throw new Error("Plant not found");
@@ -892,8 +905,11 @@ export const deletePlant = mutation({
 });
 
 export const backfillGroupBasePlants = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    ...adminArgs,
+  },
+  handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
     const scientificGroups = new Map<string, any[]>();
     for (const plant of plants) {
@@ -927,8 +943,11 @@ export const backfillGroupBasePlants = mutation({
 });
 
 export const listPlantGroups = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    ...adminArgs,
+  },
+  handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     return await ctx.db
       .query("plantGroups")
       .withIndex("by_sort_order")
@@ -938,6 +957,7 @@ export const listPlantGroups = query({
 
 export const createPlantGroup = mutation({
   args: {
+    ...adminArgs,
     key: v.string(),
     displayNameVi: v.string(),
     displayNameEn: v.string(),
@@ -947,6 +967,7 @@ export const createPlantGroup = mutation({
     sortOrder: v.number(),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const key = args.key.trim();
     if (!key) {
       throw new Error("Group key is required");
@@ -984,6 +1005,7 @@ export const createPlantGroup = mutation({
 
 export const updatePlantGroup = mutation({
   args: {
+    ...adminArgs,
     groupId: v.id("plantGroups"),
     key: v.string(),
     displayNameVi: v.string(),
@@ -994,6 +1016,7 @@ export const updatePlantGroup = mutation({
     sortOrder: v.number(),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const group = await ctx.db.get(args.groupId);
     if (!group) {
       throw new Error("Group not found");
@@ -1037,17 +1060,22 @@ export const updatePlantGroup = mutation({
 
 export const deletePlantGroup = mutation({
   args: {
+    ...adminArgs,
     groupId: v.id("plantGroups"),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     await ctx.db.delete(args.groupId);
     return { ok: true };
   },
 });
 
 export const listPlantI18n = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    ...adminArgs,
+  },
+  handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const rows = await ctx.db.query("plantI18n").collect();
     const careByPlantLocale = await getPlantCareI18nMap(ctx);
     const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
@@ -1072,11 +1100,13 @@ export const listPlantI18n = query({
 
 export const exportPlantI18nSource = query({
   args: {
+    ...adminArgs,
     locale: v.optional(v.string()),
     offset: v.optional(v.number()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const localeFilter = args.locale?.trim().toLowerCase();
     const rows = await ctx.db.query("plantI18n").collect();
     const careByPlantLocale = await getPlantCareI18nMap(ctx);
@@ -1118,6 +1148,7 @@ export const exportPlantI18nSource = query({
 
 export const createPlantI18n = mutation({
   args: {
+    ...adminArgs,
     plantId: v.id("plantsMaster"),
     locale: v.string(),
     commonName: v.string(),
@@ -1126,6 +1157,7 @@ export const createPlantI18n = mutation({
     contentVersion: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const locale = args.locale.trim().toLowerCase();
     if (!locale) {
       throw new Error("Locale is required");
@@ -1160,6 +1192,7 @@ export const createPlantI18n = mutation({
 
 export const updatePlantI18n = mutation({
   args: {
+    ...adminArgs,
     rowId: v.id("plantI18n"),
     locale: v.string(),
     commonName: v.string(),
@@ -1168,6 +1201,7 @@ export const updatePlantI18n = mutation({
     contentVersion: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const row = await ctx.db.get(args.rowId);
     if (!row) {
       throw new Error("Row not found");
@@ -1216,9 +1250,11 @@ export const updatePlantI18n = mutation({
 
 export const deletePlantI18n = mutation({
   args: {
+    ...adminArgs,
     rowId: v.id("plantI18n"),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const row = await ctx.db.get(args.rowId);
     if (row) {
       const careRows = await getPlantCareI18nRowsByPlantId(ctx, row.plantId);
@@ -1233,8 +1269,11 @@ export const deletePlantI18n = mutation({
 });
 
 export const listPlantPhotos = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    ...adminArgs,
+  },
+  handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const photos = await ctx.db.query("plantPhotos").collect();
     return photos.map((photo) => ({
       _id: photo._id,
@@ -1257,6 +1296,7 @@ export const listPlantPhotos = query({
 
 export const createPlantPhoto = mutation({
   args: {
+    ...adminArgs,
     userPlantId: v.id("userPlants"),
     userId: v.id("users"),
     localId: v.optional(v.string()),
@@ -1272,6 +1312,7 @@ export const createPlantPhoto = mutation({
     aiModelVersion: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const photoId = await ctx.db.insert("plantPhotos", {
       userPlantId: args.userPlantId,
       userId: args.userId,
@@ -1294,6 +1335,7 @@ export const createPlantPhoto = mutation({
 
 export const updatePlantPhoto = mutation({
   args: {
+    ...adminArgs,
     photoId: v.id("plantPhotos"),
     userPlantId: v.id("userPlants"),
     userId: v.id("users"),
@@ -1310,6 +1352,7 @@ export const updatePlantPhoto = mutation({
     aiModelVersion: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     const photo = await ctx.db.get(args.photoId);
     if (!photo) {
       throw new Error("Photo not found");
@@ -1337,15 +1380,18 @@ export const updatePlantPhoto = mutation({
 
 export const deletePlantPhoto = mutation({
   args: {
+    ...adminArgs,
     photoId: v.id("plantPhotos"),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     await ctx.db.delete(args.photoId);
     return { ok: true };
   },
 });
 export const bulkUpdatePlantI18n = mutation({
   args: {
+    ...adminArgs,
     updates: v.array(v.object({
       plantId: v.id("plantsMaster"),
       locale: v.string(),
@@ -1354,6 +1400,7 @@ export const bulkUpdatePlantI18n = mutation({
     })),
   },
   handler: async (ctx, args) => {
+    requireAdminAccess(args.adminKey);
     let updatedCount = 0;
     for (const update of args.updates) {
       const existing = await ctx.db

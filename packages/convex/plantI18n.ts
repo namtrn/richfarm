@@ -16,9 +16,11 @@ import {
     withComputedPlantTaxonomy,
 } from "./lib/plantTaxonomy";
 import { upsertPlantCareI18n, upsertPlantCareProfile } from "./lib/plantCare";
+import { requireAdminAccess } from "./lib/admin";
 
 export const upsertPlantI18n = mutation({
     args: {
+        adminKey: v.string(),
         plantId: v.id("plantsMaster"),
         locale: v.string(),
         commonName: v.string(),
@@ -27,6 +29,7 @@ export const upsertPlantI18n = mutation({
         contentVersion: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
+        requireAdminAccess(args.adminKey);
         const normalized = args.locale.toLowerCase().trim();
         if (!normalized) {
             throw new Error("Locale is required");
@@ -273,8 +276,11 @@ export const syncEnglishSeedContent = internalMutation({
 });
 
 export const migrateLegacyCareToPlantCareI18n = mutation({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        adminKey: v.string(),
+    },
+    handler: async (ctx, args) => {
+        requireAdminAccess(args.adminKey);
         const rows = await ctx.db.query("plantI18n").collect();
         let migrated = 0;
         let cleaned = 0;

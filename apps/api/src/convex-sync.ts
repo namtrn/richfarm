@@ -24,6 +24,7 @@ export interface ConvexPlantLibraryItem {
 export interface ConvexSyncConfig {
   deployUrl?: string;
   adminKey?: string;
+  adminFunctionKey?: string;
   upsertMutation: string;
   deleteMutation: string;
 }
@@ -31,18 +32,24 @@ export interface ConvexSyncConfig {
 export class ConvexSyncService {
   private deployUrl?: string;
   private adminKey?: string;
+  private adminFunctionKey?: string;
   private upsertMutation: string;
   private deleteMutation: string;
 
   constructor(config: ConvexSyncConfig) {
     this.deployUrl = config.deployUrl;
     this.adminKey = config.adminKey;
+    this.adminFunctionKey = config.adminFunctionKey;
     this.upsertMutation = config.upsertMutation;
     this.deleteMutation = config.deleteMutation;
   }
 
   isEnabled(): boolean {
     return Boolean(this.deployUrl && this.adminKey);
+  }
+
+  isAdminProxyEnabled(): boolean {
+    return Boolean(this.deployUrl && this.adminKey && this.adminFunctionKey);
   }
 
   canReadFromConvex(): boolean {
@@ -54,10 +61,10 @@ export class ConvexSyncService {
       return;
     }
 
-    await this.callMutation(this.upsertMutation, {
+    await this.callMutation(this.upsertMutation, this.withAdminFunctionKey({
       source: "sqlite",
       row,
-    });
+    }));
   }
 
   async syncDelete(rowId: number): Promise<void> {
@@ -65,10 +72,10 @@ export class ConvexSyncService {
       return;
     }
 
-    await this.callMutation(this.deleteMutation, {
+    await this.callMutation(this.deleteMutation, this.withAdminFunctionKey({
       source: "sqlite",
       id: rowId,
-    });
+    }));
   }
 
   async fetchMasterPlants(locale = "vi"): Promise<ConvexPlantLibraryItem[] | null> {
@@ -79,7 +86,34 @@ export class ConvexSyncService {
     return this.callQuery<ConvexPlantLibraryItem[]>("plantImages:getPlantsWithImages", { locale });
   }
 
-  private async callMutation(path: string, args: Record<string, unknown>): Promise<void> {
+  async adminQuery<T>(path: string, args: Record<string, unknown>): Promise<T> {
+    if (!this.isAdminProxyEnabled()) {
+      throw new Error("Convex admin proxy is not configured");
+    }
+
+    return this.callQuery<T>(path, this.withAdminFunctionKey(args), true);
+  }
+
+  async adminMutation<T>(path: string, args: Record<string, unknown>): Promise<T> {
+    if (!this.isAdminProxyEnabled()) {
+      throw new Error("Convex admin proxy is not configured");
+    }
+
+    return this.callMutation<T>(path, this.withAdminFunctionKey(args));
+  }
+
+  private withAdminFunctionKey(args: Record<string, unknown>): Record<string, unknown> {
+    if (!this.adminFunctionKey) {
+      throw new Error("Convex admin functions are not configured");
+    }
+
+    return {
+      ...args,
+      adminKey: this.adminFunctionKey,
+    };
+  }
+
+  private async callMutation<T>(path: string, args: Record<string, unknown>): Promise<T> {
     const endpoint = `${this.deployUrl!.replace(/\/$/, "")}/api/mutation`;
 
     const response = await fetch(endpoint, {
@@ -95,16 +129,39 @@ export class ConvexSyncService {
       const body = await response.text();
       throw new Error(`Convex sync failed (${response.status}): ${body.slice(0, 400)}`);
     }
+
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          status?: string;
+          value?: T;
+          errorMessage?: string;
+        }
+      | null;
+
+    if (payload && payload.status && payload.status !== "success") {
+      throw new Error(`Convex mutation failed: ${payload.errorMessage ?? "unknown error"}`);
+    }
+
+    return (payload?.value ?? undefined) as T;
   }
 
-  private async callQuery<T>(path: string, args: Record<string, unknown>): Promise<T> {
+  private async callQuery<T>(
+    path: string,
+    args: Record<string, unknown>,
+    includeAdminAuth = false,
+  ): Promise<T> {
     const endpoint = `${this.deployUrl!.replace(/\/$/, "")}/api/query`;
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (includeAdminAuth && this.adminKey) {
+      headers.Authorization = `Convex ${this.adminKey}`;
+    }
 
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({ path, args, format: "convex_encoded_json" }),
     });
 

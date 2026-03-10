@@ -1,8 +1,4 @@
-export function deviceToken(deviceId: string) {
-  return `device:${deviceId}`;
-}
-
-export async function getUserByIdentityOrDevice(ctx: any, deviceId?: string) {
+export async function getUserByIdentityOrDevice(ctx: any, _deviceId?: string) {
   const identity = await ctx.auth.getUserIdentity();
   if (identity) {
     return await ctx.db
@@ -13,18 +9,11 @@ export async function getUserByIdentityOrDevice(ctx: any, deviceId?: string) {
       .unique();
   }
 
-  if (deviceId) {
-    return await ctx.db
-      .query('users')
-      .withIndex('by_token', (q: any) => q.eq('tokenIdentifier', deviceToken(deviceId)))
-      .unique();
-  }
-
   return null;
 }
 
-export async function requireUser(ctx: any, deviceId?: string) {
-  const user = await getUserByIdentityOrDevice(ctx, deviceId);
+export async function requireUser(ctx: any, _deviceId?: string) {
+  const user = await getUserByIdentityOrDevice(ctx);
   if (!user) throw new Error('Not authenticated');
   return user;
 }

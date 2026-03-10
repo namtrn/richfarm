@@ -36,7 +36,7 @@ const purchases = Purchases as PurchasesWithListeners;
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null);
 
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
-  const { currentUser, deviceId, isReady } = useAppReady();
+  const { currentUser, isReady } = useAppReady();
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isConfigured, setIsConfigured] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,9 +47,8 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     () =>
       getRevenueCatAppUserId({
         tokenIdentifier: currentUser?.tokenIdentifier,
-        deviceId,
       }),
-    [currentUser?.tokenIdentifier, deviceId]
+    [currentUser?.tokenIdentifier]
   );
 
   useEffect(() => {

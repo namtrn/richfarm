@@ -21,10 +21,10 @@ export default function App() {
   const { toasts, addToast, dismiss } = useToast();
 
   const auth = useAuth();
-  const plants = usePlants();
-  const groups = useGroups();
-  const photos = usePhotos();
-  const i18n = useI18n();
+  const plants = usePlants(auth.authedFetch);
+  const groups = useGroups(auth.authedFetch);
+  const photos = usePhotos(auth.authedFetch);
+  const i18n = useI18n(auth.authedFetch);
   const backend = useBackendPlants(auth.authedFetch);
 
   // Load plants + stats on mount

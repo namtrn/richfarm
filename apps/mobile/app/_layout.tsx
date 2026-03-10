@@ -1,5 +1,4 @@
-import { ConvexProvider } from 'convex/react';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { useEffect } from 'react';
@@ -17,27 +16,15 @@ import { useNotifications } from '../hooks/useNotifications';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { SubscriptionProvider } from '../hooks/useSubscription';
 import { convex } from '../lib/convex';
+import { BetterAuthConvexProvider } from '../lib/convexAuth';
 import { palette, useTheme } from '../lib/theme';
 import { ThemeProvider, useThemeContext } from '../lib/ThemeContext';
-import { useAuth } from '../lib/auth';
 
 function AuthGuard() {
-  const { isReady, currentUser, deviceId } = useAppReady();
-  const { initUser } = useAuth();
-  const router = useRouter();
-  const segments = useSegments();
+  const { isReady, currentUser } = useAppReady();
 
   useSyncTriggers(isReady);
   useNotifications(isReady);
-
-  useEffect(() => {
-    if (!isReady) return;
-    void initUser();
-  }, [isReady, deviceId, initUser]);
-
-  useEffect(() => {
-    if (!isReady) return;
-  }, [isReady, currentUser, segments, router]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -118,7 +105,7 @@ export default function RootLayout() {
 
   return (
     <I18nextProvider i18n={i18n}>
-      <ConvexProvider client={convex}>
+      <BetterAuthConvexProvider>
         <SubscriptionProvider>
           <ThemeProvider>
             <AppShellWithSettings>
@@ -128,7 +115,7 @@ export default function RootLayout() {
             </AppShellWithSettings>
           </ThemeProvider>
         </SubscriptionProvider>
-      </ConvexProvider>
+      </BetterAuthConvexProvider>
     </I18nextProvider>
   );
 }
