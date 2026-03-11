@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useBeds } from '../../hooks/useBeds';
 import { useDeviceId } from '../../lib/deviceId';
 import { useQuery } from 'convex/react';
-import { api } from '../../../../packages/convex/_generated/api';
+import { api } from '../../../../packages/convex/convex/_generated/api';
 
 import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';

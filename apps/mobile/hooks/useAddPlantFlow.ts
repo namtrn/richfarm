@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import { useMutation } from 'convex/react';
-import { api } from '../../../packages/convex/_generated/api';
+import { api } from '../../../packages/convex/convex/_generated/api';
 import { useAppMode } from './useAppMode';
 import { useDeviceId } from '../lib/deviceId';
 

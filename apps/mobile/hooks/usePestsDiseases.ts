@@ -1,5 +1,5 @@
 import { useQuery } from 'convex/react';
-import { api } from '../../../packages/convex/_generated/api';
+import { api } from '../../../packages/convex/convex/_generated/api';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 

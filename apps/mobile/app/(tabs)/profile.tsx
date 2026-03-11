@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking, Ap
 import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff, Sprout, Cloud } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
-import { api } from '../../../../packages/convex/_generated/api';
+import { api } from '../../../../packages/convex/convex/_generated/api';
 import { useAuth } from '../../lib/auth';
 import { loadSyncQueue } from '../../lib/sync/queue';
 import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';

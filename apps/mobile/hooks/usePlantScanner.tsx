@@ -15,7 +15,7 @@ import { addScanEntry, updateScanEntry } from '../lib/scanHistory';
 import { usePlantLibrary } from './usePlantLibrary';
 import { usePlants } from './usePlants';
 import { normalizeCustomPlantNickname, useAddPlantFlow } from './useAddPlantFlow';
-import { api } from '../../../packages/convex/_generated/api';
+import { api } from '../../../packages/convex/convex/_generated/api';
 
 let BlurView: React.ComponentType<{ style?: any; intensity?: number; tint?: string }> | null = null;
 const isBlurAvailable = !!NativeModules?.ExpoBlurViewManager || !!NativeModules?.ExpoBlurModule;

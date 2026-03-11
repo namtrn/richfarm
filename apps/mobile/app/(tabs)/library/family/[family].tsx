@@ -4,7 +4,7 @@ import { ArrowLeft, Search } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../../../../../packages/convex/_generated/api';
+import { api } from '../../../../../../packages/convex/convex/_generated/api';
 import { PlantImage } from '../../../../components/ui/PlantImage';
 import { useTheme } from '../../../../lib/theme';
 import { useThemeContext } from '../../../../lib/ThemeContext';

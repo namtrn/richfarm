@@ -4,7 +4,7 @@ import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from 'lucide
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { api } from '../../../../packages/convex/_generated/api';
+import { api } from '../../../../packages/convex/convex/_generated/api';
 import { GardenOverviewSummary } from '../../components/garden/GardenOverviewSummary';
 import { useReminders } from '../../hooks/useReminders';
 import { useBeds } from '../../hooks/useBeds';

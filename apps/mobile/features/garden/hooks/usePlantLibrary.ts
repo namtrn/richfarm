@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../../../packages/convex/_generated/api';
-import { Id } from '../../../../../packages/convex/_generated/dataModel';
+import { api } from '../../../../../packages/convex/convex/_generated/api';
+import { Id } from '../../../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../../../lib/deviceId';
 
 // Hook để lấy danh sách plants từ library (plantsMaster)

@@ -1,15 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from 'convex/react';
-import { api } from '../../../packages/convex/_generated/api';
+import { api } from '../../../packages/convex/convex/_generated/api';
 import { useNetworkStatus } from './useNetworkStatus';
-import { buildPlantSeedKey, plantGroupsSeed, plantI18nSeed, plantsMasterSeed } from '../../../packages/convex/data/plantsMasterSeed';
-import { plantTaxonomyI18nSeed } from '../../../packages/convex/data/plantTaxonomyI18nSeed';
-import { buildTaxonomyFields } from '../../../packages/convex/lib/plantTaxonomy';
+import { buildPlantSeedKey, plantGroupsSeed, plantI18nSeed, plantsMasterSeed } from '../../../packages/convex/convex/data/plantsMasterSeed';
+import { plantTaxonomyI18nSeed } from '../../../packages/convex/convex/data/plantTaxonomyI18nSeed';
+import { buildTaxonomyFields } from '../../../packages/convex/convex/lib/plantTaxonomy';
 import {
     buildGenusTaxonomyKey,
     buildSpeciesTaxonomyKey,
-} from '../../../packages/convex/lib/plantTaxonomyI18n';
+} from '../../../packages/convex/convex/lib/plantTaxonomyI18n';
 
 const PLANTS_CACHE_VERSION = 6;
 const GROUPS_CACHE_VERSION = 1;

@@ -20,7 +20,7 @@ import { useQuery, useMutation, useAction } from 'convex/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../../../../packages/convex/_generated/api';
+import { api } from '../../../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
 import {
     formatArea,

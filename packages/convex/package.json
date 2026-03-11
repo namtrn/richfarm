@@ -2,8 +2,8 @@
   "name": "@richfarm/convex",
   "version": "1.0.0",
   "private": true,
-  "main": "_generated/api.js",
-  "types": "_generated/api.d.ts",
+  "main": "convex/_generated/api.js",
+  "types": "convex/_generated/api.d.ts",
   "dependencies": {
     "convex": "^1.32.0",
     "resend": "^6.9.3"

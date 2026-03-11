@@ -21,7 +21,7 @@ import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary'
 import { PlantImage } from '../../../components/ui/PlantImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
-import { api } from '../../../../../packages/convex/_generated/api';
+import { api } from '../../../../../packages/convex/convex/_generated/api';
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { usePlantDisplayName } from '../../../hooks/usePlantLocalized';

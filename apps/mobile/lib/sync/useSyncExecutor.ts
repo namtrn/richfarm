@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useMutation } from 'convex/react';
-import { api } from '../../../../packages/convex/_generated/api';
-import type { Id } from '../../../../packages/convex/_generated/dataModel';
+import { api } from '../../../../packages/convex/convex/_generated/api';
+import type { Id } from '../../../../packages/convex/convex/_generated/dataModel';
 import { loadSyncQueue, markSyncAttempt, removeSyncActions } from './queue';
 import { buildSyncBatch, mapSyncActionToPhoto } from './mappers';
 import { useDeviceId } from '../deviceId';

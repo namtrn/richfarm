@@ -17,10 +17,10 @@ import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch 
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { useAuth } from '../../../lib/auth';
-import { Id } from '../../../../../packages/convex/_generated/dataModel';
+import { Id } from '../../../../../packages/convex/convex/_generated/dataModel';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from 'convex/react';
-import { api } from '../../../../../packages/convex/_generated/api';
+import { api } from '../../../../../packages/convex/convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
 import { useFavorites } from '../../../hooks/useFavorites';

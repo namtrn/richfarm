@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Search, X, Sprout, Leaf } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from 'convex/react';
-import { api } from '../../../../../packages/convex/_generated/api';
+import { api } from '../../../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
 import { useBeds } from '../../../hooks/useBeds';
 import { usePlants } from '../../../hooks/usePlants';

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../packages/convex/_generated/api';
+import { api } from '../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from './deviceId';
 import { useQueryCache } from './queryCache';
 import { authClient } from './auth-client';
@@ -9,6 +9,8 @@ import { sanitizeAnonymousProfile } from '../../../packages/shared/src/authProfi
 export function useAuth() {
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
     const { data: session, isPending: isSessionLoading } = authClient.useSession();
+
+    // getCurrentUser không nhận deviceId nữa (Auth-first: identity only)
     const rawUser = useQuery(api.users.getCurrentUser, session ? {} : 'skip');
     const sessionUserId =
         typeof session?.user?.id === 'string' && session.user.id.trim()
@@ -22,7 +24,8 @@ export function useAuth() {
     const { cached: cachedUser, remoteResolved } = useQueryCache(cacheKey, rawUser);
 
     // If Convex has answered → use it. Otherwise fall back to local cache.
-    // Fresh install: both are null/undefined → user = null (no auth needed to boot).
+    // rawUser === null (not undefined) means: Convex responded but no record yet
+    // → this is the "admin deleted row" case, handled in initUser below.
     const user = !session ? null : remoteResolved ? rawUser : (cachedUser ?? null);
     const normalizedUser = user ? sanitizeAnonymousProfile(user) : null;
 
@@ -47,12 +50,20 @@ export function useAuth() {
 
         const initKey = `${session.session.id}:${deviceId ?? 'no-device-id'}`;
         if (initializedKeyRef.current === initKey) {
-            return normalizedUser?._id ?? null;
+            // Edge case: đã init với key này rồi, nhưng rawUser === null
+            // → server đã trả về "không có user" → user row bị xóa khỏi Convex
+            // → reset initKey để trigger getOrCreateUser lại
+            if (remoteResolved && rawUser === null) {
+                initializedKeyRef.current = null;
+            } else {
+                return normalizedUser?._id ?? null;
+            }
         }
 
         initializedKeyRef.current = initKey;
         return await getOrCreateUserMutation({ deviceId });
     };
+
 
     useEffect(() => {
         let cancelled = false;

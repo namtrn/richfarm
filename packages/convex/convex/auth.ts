@@ -22,5 +22,13 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
     emailAndPassword: {
       enabled: true,
     },
+    // Bật deleteUser API — cần thiết cho deleteAccount mutation
+    // auth.api.deleteUser({ headers, body: {} }) sẽ throw nếu không bật
+    user: {
+      deleteUser: {
+        enabled: true,
+      },
+    },
     plugins: [expo(), anonymous(), convexPlugin({ authConfig })],
   });
+

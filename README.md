@@ -123,8 +123,8 @@ npm run test:smoke:ios
 
 Before changing plant data flows, review:
 
-- [`packages/convex/lib/plantTaxonomy.ts`](./packages/convex/lib/plantTaxonomy.ts)
-- [`packages/convex/plantTaxonomyChecks.ts`](./packages/convex/plantTaxonomyChecks.ts)
+- [`packages/convex/convex/lib/plantTaxonomy.ts`](./packages/convex/convex/lib/plantTaxonomy.ts)
+- [`packages/convex/convex/plantTaxonomyChecks.ts`](./packages/convex/convex/plantTaxonomyChecks.ts)
 - [`.github/workflows/taxonomy-invariants.yml`](./.github/workflows/taxonomy-invariants.yml)
 
 ## License

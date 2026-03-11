@@ -1,4 +1,4 @@
-import type { Doc } from '../../../packages/convex/_generated/dataModel';
+import type { Doc } from '../../../packages/convex/convex/_generated/dataModel';
 
 export type UserWithSubscription = Doc<'users'> | null | undefined;
 

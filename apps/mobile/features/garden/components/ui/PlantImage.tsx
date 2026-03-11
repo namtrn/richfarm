@@ -22,8 +22,10 @@ export function PlantImage({
         if (!showPlaceholder) return null;
         return (
             <View
-                style={{ width: size, height: size, borderRadius }}
-                className="bg-green-100 justify-center items-center"
+                style={[
+                    styles.placeholder,
+                    { width: size, height: size, borderRadius },
+                ]}
             >
                 <Leaf size={size * 0.4} stroke="#16a34a" />
             </View>
@@ -55,5 +57,10 @@ export function PlantImageLarge({ uri }: { uri?: string | null }) {
 const styles = StyleSheet.create({
     image: {
         backgroundColor: '#e8f5e9',
+    },
+    placeholder: {
+        alignItems: 'center',
+        backgroundColor: '#dcfce7',
+        justifyContent: 'center',
     },
 });

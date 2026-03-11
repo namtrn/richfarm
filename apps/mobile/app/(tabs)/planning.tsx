@@ -11,7 +11,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 import { useDeviceId } from '../../lib/deviceId';
-import { api } from '../../../../packages/convex/_generated/api';
+import { api } from '../../../../packages/convex/convex/_generated/api';
 import { isPremiumActive } from '../../lib/access';
 import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../lib/aiDetectorLimit';
 import { usePlantLibrary } from '../../hooks/usePlantLibrary';

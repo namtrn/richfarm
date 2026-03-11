@@ -28,8 +28,8 @@ import {
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from 'convex/react';
-import { api } from '../../../../../packages/convex/_generated/api';
-import { buildPlantSeedKey, plantI18nSeed, plantsMasterSeed } from '../../../../../packages/convex/data/plantsMasterSeed';
+import { api } from '../../../../../packages/convex/convex/_generated/api';
+import { buildPlantSeedKey, plantI18nSeed, plantsMasterSeed } from '../../../../../packages/convex/convex/data/plantsMasterSeed';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';

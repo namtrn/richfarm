@@ -36,7 +36,7 @@ Default:
 
 ## Convex Sync Contract
 
-The backend syncs plant rows through [`masterSync.ts`](/Users/n/Documents/GitHub/richfarm/packages/convex/masterSync.ts).
+The backend syncs plant rows through [`masterSync.ts`](/Users/n/Documents/GitHub/richfarm/packages/convex/convex/masterSync.ts).
 Admin-only Convex CRUD now also requires `CONVEX_ADMIN_FUNCTION_KEY`; keep it server-side and do not expose it to dashboard/mobile clients.
 
 Current behavior:

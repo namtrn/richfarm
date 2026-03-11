@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useMutation, useQuery } from 'convex/react';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { useAuth } from '../lib/auth';
-import { api } from '../../../packages/convex/_generated/api';
+import { api } from '../../../packages/convex/convex/_generated/api';
 import { loadOnboardingData, saveOnboardingData, type OnboardingData } from '../lib/onboardingLocalData';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { deriveAppModeFromOnboarding } from '../lib/appMode';

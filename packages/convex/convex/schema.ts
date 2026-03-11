@@ -1,5 +1,5 @@
 // Richfarm — Convex Schema
-// File: packages/convex/schema.ts
+// File: packages/convex/convex/schema.ts
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
