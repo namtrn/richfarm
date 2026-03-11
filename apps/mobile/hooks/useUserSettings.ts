@@ -17,9 +17,7 @@ export function useUserSettings() {
     const { cached, cacheLoaded, remoteResolved } = useQueryCache(cacheKey, rawSettings);
 
     // When rawSettings has resolved (even to null), use it directly.
-    const settings = !hasSession
-        ? null
-        : remoteResolved
+    const settings = remoteResolved
         ? rawSettings
         : cached !== undefined
             ? cached

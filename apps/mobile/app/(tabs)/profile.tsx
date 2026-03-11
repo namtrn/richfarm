@@ -23,6 +23,7 @@ import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { type AppMode } from '../../lib/appMode';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import { TimezoneModal } from '../../components/ui/TimezoneModal';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -74,6 +75,7 @@ export default function ProfileScreen() {
   const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
   const [switchingMode, setSwitchingMode] = useState(false);
   const { showWeatherCard, setWeatherCardVisible, isSaving: isUpdatingWeatherCard } = useWeatherCardPreference();
+  const [timezoneModalOpen, setTimezoneModalOpen] = useState(false);
 
   // Change password
   const [showChangePw, setShowChangePw] = useState(false);
@@ -491,24 +493,23 @@ export default function ProfileScreen() {
                 <Clock size={20} color={theme.primary} />
                 <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.timezone_label')}</Text>
               </View>
-              <TextInput
-                value={timezone}
-                onChangeText={setTimezone}
-                placeholder={t('profile.timezone_placeholder')}
-                placeholderTextColor={theme.textMuted}
+              <TouchableOpacity
+                onPress={() => setTimezoneModalOpen(true)}
                 style={{
                   backgroundColor: 'white',
                   borderRadius: 20,
                   paddingHorizontal: 12,
                   paddingVertical: 6,
-                  fontSize: 14,
-                  color: theme.text,
-                  width: 160,
-                  textAlign: 'right',
                   borderWidth: 1,
                   borderColor: theme.border,
+                  minWidth: 140,
+                  alignItems: 'flex-end',
                 }}
-              />
+              >
+                <Text style={{ fontSize: 14, color: timezone ? theme.text : theme.textMuted }}>
+                  {timezone ? timezone.replace(/_/g, ' ') : t('profile.timezone_placeholder')}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* Units */}
@@ -853,6 +854,15 @@ export default function ProfileScreen() {
           </View>
         </TouchableOpacity>
       </View>
+      <TimezoneModal
+        visible={timezoneModalOpen}
+        onClose={() => setTimezoneModalOpen(false)}
+        selectedTimezone={timezone}
+        onSelect={async (tz) => {
+          setTimezone(tz);
+          await updateProfile({ timezone: tz });
+        }}
+      />
     </ScrollView>
   );
 }
