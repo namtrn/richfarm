@@ -98,7 +98,7 @@ function LiquidGlassBackground({ isDark }: { isDark: boolean }) {
 
   return (
     // overflow:hidden + borderRadius here so the blur clips to the shape
-    <View style={[StyleSheet.absoluteFill, { borderRadius: 12, overflow: 'hidden' }]} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { borderRadius: 28, overflow: 'hidden' }]} pointerEvents="none">
       {BlurView ? (
         <BlurView
           style={StyleSheet.absoluteFill}
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     // left/right/bottom are set dynamically in the component using safe area insets
     height: 56,
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 28,
     elevation: 12,
     // NOTE: DO NOT add overflow:hidden here — it clips the borderRadius pill shape
     // Clipping is handled inside LiquidGlassBackground
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   },
   itemPill: {
     minWidth: 44,
-    borderRadius: 12,
+    borderRadius: 20,
     paddingHorizontal: 6,
     paddingVertical: 2,
     alignItems: 'center',
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   activePill: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 12,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   itemContent: {
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    borderRadius: 12,
+    borderRadius: 28,
   },
   glassShimmer: {
     position: 'absolute',
@@ -318,6 +318,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    borderRadius: 12,
+    borderRadius: 28,
   },
 });

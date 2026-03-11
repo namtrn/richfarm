@@ -11,6 +11,7 @@ export function GardenOverviewSummary({
   harvestWindowCount,
   unassignedCount,
   planningCount,
+  appMode = 'farmer',
 }: {
   gardensCount: number;
   bedsCount: number;
@@ -19,6 +20,7 @@ export function GardenOverviewSummary({
   harvestWindowCount: number;
   unassignedCount: number;
   planningCount: number;
+  appMode?: 'gardener' | 'farmer';
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -28,7 +30,12 @@ export function GardenOverviewSummary({
     { key: 'beds', label: t('garden.metric_beds'), value: bedsCount, icon: Leaf, tone: theme.success, background: theme.successBg },
     { key: 'growing', label: t('garden.metric_growing'), value: growingCount, icon: Sprout, tone: theme.primary, background: theme.accent },
     { key: 'dueToday', label: t('garden.metric_due_today'), value: dueTodayCount, icon: Calendar, tone: theme.warning, background: theme.warningBg },
-  ];
+  ].filter((metric) => {
+    if (appMode === 'gardener') {
+      return metric.key === 'growing' || metric.key === 'dueToday';
+    }
+    return true;
+  });
 
   const focusItems = [
     { key: 'harvest', count: harvestWindowCount, label: t('garden.focus_harvest', { count: harvestWindowCount }), color: theme.success, background: theme.successBg },

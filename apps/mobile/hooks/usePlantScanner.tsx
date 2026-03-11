@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Alert, Animated, Image, Modal, NativeModules, PanResponder, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAction } from 'convex/react';
@@ -48,6 +48,7 @@ export function usePlantScanner(): UsePlantScannerResult {
   const theme = useTheme();
   const isDark = theme.background === palette.dark.background;
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
   const { addPlant, plants: userPlants } = usePlants();
@@ -188,7 +189,7 @@ export function usePlantScanner(): UsePlantScannerResult {
         t('planning.scanner_signin_required'),
         [
           { text: t('common.cancel'), style: 'cancel' },
-          { text: t('profile.auth_sign_in'), onPress: () => router.push('/(tabs)/profile') },
+          { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
         ]
       );
       return false;
@@ -361,7 +362,7 @@ export function usePlantScanner(): UsePlantScannerResult {
         t('planning.scanner_signin_required'),
         [
           { text: t('common.cancel'), style: 'cancel' },
-          { text: t('profile.auth_sign_in'), onPress: () => router.push('/(tabs)/profile') },
+          { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
         ]
       );
       return;

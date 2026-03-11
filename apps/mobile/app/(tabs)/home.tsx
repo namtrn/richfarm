@@ -14,6 +14,7 @@ import { useTheme } from '../../lib/theme';
 import { useAuth } from '../../lib/auth';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
+import { useAppMode } from '../../hooks/useAppMode';
 import { getOnboardingFocusItems } from '../../lib/personalization';
 import { WeatherCard } from '../../components/ui/WeatherCard';
 
@@ -44,6 +45,7 @@ export default function HomeScreen() {
   const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
   const { settings } = useUserSettings();
+  const { appMode } = useAppMode();
   const {
     showWeatherCard,
     setWeatherCardVisible,
@@ -227,6 +229,7 @@ export default function HomeScreen() {
           harvestWindowCount={harvestWindowCount}
           unassignedCount={unassignedPlants.length}
           planningCount={planningPlants.length}
+          appMode={appMode}
         />
       </View>
 

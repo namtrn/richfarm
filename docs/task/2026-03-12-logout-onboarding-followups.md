@@ -10,6 +10,9 @@ Date: 2026-03-12
 - Sau `delete account`, app cũng `redirect` về `/auth` thay vì để user ở lại màn hiện tại.
 - **Sửa lỗi sync settings của anonymous user**: Implement User Merging trên Convex để gộp data từ anonymous device vào Better Auth session.
 - **Timezone Selection**: Thay thế text input bằng searchable modal, hỗ trợ tìm kiếm và lưu ngay lập tức.
+- **User Mode filtering (Gardener/Farmer)**: Ẩn/hiện card ở home screen dựa trên app mode. Gardener chỉ hiện "Growing" và "Due Today".
+- **Sửa lỗi navigation scanner**: Guest user bấm sign in từ scanner alert giờ về `/auth` thay vì `/profile`.
+- **Đồng bộ app mode khi signed out**: HomeScreen dùng `useAppMode` hook để đảm bảo UI nhất quán với local onboarding/cached mode kể cả khi chưa đăng nhập.
 
 ## Việc còn lại nên làm
 
