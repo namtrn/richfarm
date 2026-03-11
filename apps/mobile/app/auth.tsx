@@ -52,6 +52,7 @@ export default function AuthScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [verificationResent, setVerificationResent] = useState(false);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
   const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const trimmedAuthName = authName.trim();
@@ -74,6 +75,12 @@ export default function AuthScreen() {
     setResetSent(false);
     setVerificationResent(false);
   }, [authMode]);
+
+  useEffect(() => {
+    if (pendingVerificationEmail && trimmedAuthEmail && trimmedAuthEmail !== pendingVerificationEmail) {
+      setPendingVerificationEmail(null);
+    }
+  }, [pendingVerificationEmail, trimmedAuthEmail]);
 
   useEffect(() => {
     return () => {
@@ -117,6 +124,7 @@ export default function AuthScreen() {
       }
       setAuthPassword('');
       setAuthConfirm('');
+      setPendingVerificationEmail(trimmedAuthEmail);
       setAuthMode('signIn');
       setSuccess(t('profile.auth_verify_email_sent'));
     } catch {
@@ -137,9 +145,13 @@ export default function AuthScreen() {
       });
       if (result.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_sign_in_failed');
+        if (errKey === 'profile.auth_err_verify_email') {
+          setPendingVerificationEmail(trimmedAuthEmail);
+        }
         setError(t(errKey));
         return;
       }
+      setPendingVerificationEmail(null);
       setSuccess(t('profile.auth_signed_in'));
       navigateTimeoutRef.current = setTimeout(() => {
         navigateBack();
@@ -234,6 +246,7 @@ export default function AuthScreen() {
         return;
       }
       setVerificationResent(true);
+      setPendingVerificationEmail(trimmedAuthEmail);
       setSuccess(t('profile.auth_verify_email_resent'));
     } catch {
       setError(t('profile.auth_err_network'));
@@ -445,6 +458,13 @@ export default function AuthScreen() {
               <Text style={{ fontSize: 12, color: theme.textMuted, lineHeight: 18 }}>
                 {t('profile.auth_reset_success_hint')}
               </Text>
+            )}
+
+            {authMode === 'signIn' && pendingVerificationEmail && (
+              <View style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('profile.auth_verify_email_sent')}</Text>
+                <Text style={{ fontSize: 12, color: theme.text, fontWeight: '500', marginTop: 4 }}>{pendingVerificationEmail}</Text>
+              </View>
             )}
 
             {authMode === 'signIn' && (

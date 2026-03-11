@@ -15,6 +15,7 @@ import { useSyncTriggers } from '../hooks/useSyncTriggers';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { SubscriptionProvider } from '../hooks/useSubscription';
+import { AuthProvider } from '../lib/auth';
 import { convex } from '../lib/convex';
 import { BetterAuthConvexProvider } from '../lib/convexAuth';
 import { palette, useTheme } from '../lib/theme';
@@ -106,15 +107,17 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <BetterAuthConvexProvider>
-        <SubscriptionProvider>
-          <ThemeProvider>
-            <AppShellWithSettings>
-              <OfflineBanner />
-              <SyncStatusBanner compact style={styles.syncBanner} />
-              <AuthGuard />
-            </AppShellWithSettings>
-          </ThemeProvider>
-        </SubscriptionProvider>
+        <AuthProvider>
+          <SubscriptionProvider>
+            <ThemeProvider>
+              <AppShellWithSettings>
+                <OfflineBanner />
+                <SyncStatusBanner compact style={styles.syncBanner} />
+                <AuthGuard />
+              </AppShellWithSettings>
+            </ThemeProvider>
+          </SubscriptionProvider>
+        </AuthProvider>
       </BetterAuthConvexProvider>
     </I18nextProvider>
   );
