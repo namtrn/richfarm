@@ -219,7 +219,7 @@ export default function ProfileScreen() {
         return;
       }
       await clearCachedCurrentUser(deviceId);
-      setAuthMessage(t('profile.auth_signed_out'));
+      router.replace({ pathname: '/auth', params: { returnTo: '/' } });
     } finally {
       setAuthLoading(false);
     }
@@ -271,8 +271,8 @@ export default function ProfileScreen() {
               const authClient = await getAuthClient();
               await deleteAccountMutation({});
               await authClient.signOut();
-              await clearCachedCurrentUser(deviceId);
-              setAuthMessage(t('profile.account_deleted'));
+              await clearCachedCurrentUser(deviceId, { includeOnboarding: true });
+              router.replace({ pathname: '/auth', params: { returnTo: '/' } });
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : t('profile.delete_account_failed');

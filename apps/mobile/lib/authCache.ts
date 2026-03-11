@@ -21,13 +21,17 @@ const USER_SCOPED_KEY_PREFIXES = [
 
 const USER_SCOPED_EXACT_KEYS = ['onboarding_profile_v1'];
 
-export async function clearCachedCurrentUser(deviceId?: string | null) {
+export async function clearCachedCurrentUser(
+  deviceId?: string | null,
+  options?: { includeOnboarding?: boolean }
+) {
   if (!deviceId) return;
 
+  const includeOnboarding = options?.includeOnboarding ?? false;
   const keys = await AsyncStorage.getAllKeys();
   const keysToRemove = keys.filter(
     (key) =>
-      USER_SCOPED_EXACT_KEYS.includes(key) ||
+      (includeOnboarding && USER_SCOPED_EXACT_KEYS.includes(key)) ||
       USER_SCOPED_KEY_PREFIXES.some((prefix) => key.startsWith(prefix) && key.includes(deviceId))
   );
 
