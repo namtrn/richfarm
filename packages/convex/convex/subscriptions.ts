@@ -10,7 +10,9 @@ export const upsertSubscriptionFromRevenueCat = internalMutation({
     handler: async (ctx, args) => {
         const user = await ctx.db
             .query("users")
-            .withIndex("by_token", (q) => q.eq("tokenIdentifier", args.appUserId))
+            .withIndex("by_revenuecat_app_user_id", (q) =>
+                q.eq("revenueCatAppUserId", args.appUserId)
+            )
             .unique();
 
         if (!user) {

@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking, AppState } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff } from 'lucide-react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking, AppState, Image } from 'react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff, Sprout, Cloud } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
 import { api } from '../../../../packages/convex/_generated/api';
@@ -13,6 +13,7 @@ import { usePaywall } from '../../hooks/usePaywall';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { getAuthClient } from '../../lib/auth-client';
+import { clearCachedCurrentUser } from '../../lib/authCache';
 import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
 import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
@@ -26,19 +27,19 @@ import Constants from 'expo-constants';
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
 const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'vi', label: 'Tiếng Việt' },
-  { code: 'es', label: 'Español' },
-  { code: 'pt', label: 'Português' },
-  { code: 'fr', label: 'Français' },
-  { code: 'zh', label: '中文' },
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'pt', label: 'Português', flag: '🇵🇹' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
 ];
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { themePreference, setThemePreference: setGlobalTheme } = useThemeContext();
-  const { user, updateProfile, isLoading } = useAuth();
+  const { user, deviceId, updateProfile, isLoading } = useAuth();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
   const { appMode, switchMode, isLoading: isAppModeLoading } = useAppMode();
@@ -56,6 +57,13 @@ export default function ProfileScreen() {
   );
   const [localThemePref, setLocalThemePref] = useState<string>(settings?.theme ?? 'system');
   const [saving, setSaving] = useState(false);
+  const isAnonymous = !user || user.isAnonymous;
+  const displayName = isAnonymous ? t('profile.anonymous') : (user?.name || t('home.welcome_default'));
+  const initials = displayName
+    .split(' ')
+    .slice(0, 2)
+    .map((w: string) => w[0]?.toUpperCase() ?? '')
+    .join('');
   const [backupCount, setBackupCount] = useState(0);
   const [backingUp, setBackingUp] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
@@ -81,9 +89,8 @@ export default function ProfileScreen() {
 
   const email = user?.email ?? '—';
   const appVersion = Constants.expoConfig?.version ?? Constants.manifest?.version ?? '—';
-  const isAnonymous = !user || user.isAnonymous;
-  const selectedLangLabel = useMemo(
-    () => LANGUAGES.find((l) => l.code === currentLang)?.label ?? currentLang,
+  const selectedLang = useMemo(
+    () => LANGUAGES.find((l) => l.code === currentLang) ?? LANGUAGES[0],
     [currentLang]
   );
 
@@ -211,6 +218,7 @@ export default function ProfileScreen() {
         setAuthMessage(result.error.message ?? t('profile.auth_sign_out_failed'));
         return;
       }
+      await clearCachedCurrentUser(deviceId);
       setAuthMessage(t('profile.auth_signed_out'));
     } finally {
       setAuthLoading(false);
@@ -263,6 +271,7 @@ export default function ProfileScreen() {
               const authClient = await getAuthClient();
               await deleteAccountMutation({});
               await authClient.signOut();
+              await clearCachedCurrentUser(deviceId);
               setAuthMessage(t('profile.account_deleted'));
             } catch (error) {
               const message =
@@ -338,15 +347,25 @@ export default function ProfileScreen() {
     >
       <View style={{ gap: 16 }}>
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <UserRound size={18} color={theme.textSecondary} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: theme.accent, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+              {(user?.image || user?.avatarUrl) ? (
+                <Image source={{ uri: user?.image || user?.avatarUrl }} style={{ width: '100%', height: '100%' }} />
+              ) : (
+                <Text style={{ fontSize: 20, fontWeight: '500', color: theme.primary }}>{initials}</Text>
+              )}
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.user_section')}</Text>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>
+                {isAnonymous ? t('profile.not_signed_in') : (user?.name || t('profile.user_section'))}
+              </Text>
+              {isAnonymous && (
+                <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.auth_create_to_sync')}</Text>
+              )}
+            </View>
           </View>
           {isAnonymous ? (
             <View style={{ gap: 12 }}>
-              <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>{t('profile.auth_create_to_sync')}</Text>
               <TouchableOpacity
                 onPress={() => {
                   setAuthMessage(null);
@@ -396,12 +415,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Crown size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.subscription_title')}</Text>
-          </View>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.subscription_title')}</Text>
 
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
             {!isSubConfigured ? t('profile.sub_not_configured') : isSubLoading ? t('profile.sub_checking') : isPremium ? t('profile.sub_premium_active') : t('profile.sub_free_plan')}
@@ -426,170 +440,241 @@ export default function ProfileScreen() {
           {paywallMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{paywallMessage}</Text>}
         </View>
 
-        <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Globe size={18} color={theme.textSecondary} />
+        {/* ── Preferences ─────────────────────────────────── */}
+        <View style={{ paddingHorizontal: 2, gap: 10 }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{t('profile.preferences_title')}</Text>
+          <View style={{ gap: 16, paddingVertical: 4 }}>
+
+            {/* Language */}
+            <View style={{ zIndex: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <Globe size={20} color={theme.primary} />
+                  <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.language_label')}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setLanguageMenuOpen((v) => !v)}
+                  style={{ backgroundColor: 'white', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border }}
+                >
+                  <Text style={{ fontSize: 16 }}>{selectedLang.flag}</Text>
+                  <Text style={{ fontSize: 14, color: theme.text }}>{selectedLang.label}</Text>
+                  <Check size={14} color={theme.success} />
+                </TouchableOpacity>
+              </View>
+              {languageMenuOpen && (
+                <View style={{ position: 'absolute', top: 40, right: 0, width: 180, backgroundColor: theme.card, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: theme.border, zIndex: 1000, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 }}>
+                  {LANGUAGES.map((lang, index) => {
+                    const active = lang.code === currentLang;
+                    return (
+                      <TouchableOpacity
+                        key={lang.code}
+                        onPress={async () => {
+                          setLanguageMenuOpen(false);
+                          await handleLanguageChange(lang.code);
+                        }}
+                        style={{ paddingHorizontal: 14, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1, borderColor: theme.accent }}
+                      >
+                        <Text style={{ fontSize: 18 }}>{lang.flag}</Text>
+                        <Text style={{ flex: 1, fontSize: 14, fontWeight: active ? '700' : '400', color: active ? theme.success : theme.text }}>
+                          {lang.label}
+                        </Text>
+                        {active && <Check size={16} color={theme.success} />}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.language_label')}</Text>
-          </View>
-          <View>
-            <TouchableOpacity
-              onPress={() => setLanguageMenuOpen((v) => !v)}
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
-            >
-              <Text style={{ flex: 1, fontSize: 15, fontWeight: '700', color: theme.text }}>{selectedLangLabel}</Text>
-              {languageMenuOpen ? <ChevronUp size={18} color={theme.textSecondary} /> : <ChevronDown size={18} color={theme.textSecondary} />}
-            </TouchableOpacity>
-            {languageMenuOpen && (
-              <View style={{ marginTop: 8, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, overflow: 'hidden' }}>
-                {LANGUAGES.map((lang, index) => {
-                  const active = lang.code === currentLang;
+            {/* Timezone */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Clock size={20} color={theme.primary} />
+                <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.timezone_label')}</Text>
+              </View>
+              <TextInput
+                value={timezone}
+                onChangeText={setTimezone}
+                placeholder={t('profile.timezone_placeholder')}
+                placeholderTextColor={theme.textMuted}
+                style={{
+                  backgroundColor: 'white',
+                  borderRadius: 20,
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  fontSize: 14,
+                  color: theme.text,
+                  width: 160,
+                  textAlign: 'right',
+                  borderWidth: 1,
+                  borderColor: theme.border,
+                }}
+              />
+            </View>
+
+            {/* Units */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Sprout size={20} color={theme.primary} />
+                <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.units_label')}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', backgroundColor: theme.accent, borderRadius: 20, padding: 2, gap: 4 }}>
+                {(['metric', 'imperial'] as UnitSystem[]).map((unit) => {
+                  const active = unit === unitSystem;
                   return (
                     <TouchableOpacity
-                      key={lang.code}
-                      onPress={async () => {
-                        setLanguageMenuOpen(false);
-                        await handleLanguageChange(lang.code);
+                      key={unit}
+                      onPress={() => {
+                        setUnitSystem(unit);
+                        void setUnitSystemPreference(unit);
                       }}
-                      style={{ paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1, borderColor: theme.accent }}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 4,
+                        borderRadius: 18,
+                        backgroundColor: active ? theme.primary : 'transparent',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
                     >
-                      <Text style={{ fontSize: 14, fontWeight: active ? '700' : '500', color: active ? theme.success : theme.text }}>
-                        {lang.label}
+                      <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? 'white' : theme.textSecondary }}>
+                        {unit === 'metric' ? t('profile.unit_metric') : t('profile.unit_imperial')}
                       </Text>
-                      {active && <Check size={16} color={theme.success} />}
                     </TouchableOpacity>
                   );
                 })}
               </View>
-            )}
+            </View>
+
+            {/* Weather Card */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Cloud size={20} color={theme.primary} />
+                <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.weather_card_title')}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', backgroundColor: theme.accent, borderRadius: 20, padding: 2, gap: 4 }}>
+                {[
+                  { value: true, label: t('profile.weather_card_show') },
+                  { value: false, label: t('profile.weather_card_hide') },
+                ].map((item) => {
+                  const active = item.value === showWeatherCard;
+                  return (
+                    <TouchableOpacity
+                      key={item.label}
+                      onPress={() => {
+                        void handleWeatherCardVisibility(item.value);
+                      }}
+                      disabled={isSettingsLoading || isUpdatingWeatherCard}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 4,
+                        borderRadius: 18,
+                        backgroundColor: active ? theme.primary : 'transparent',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                        opacity: isSettingsLoading || isUpdatingWeatherCard ? 0.6 : 1,
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? 'white' : theme.textSecondary }}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Notifications */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Bell size={20} color={theme.primary} />
+                <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.notifications_title')}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', backgroundColor: theme.accent, borderRadius: 20, padding: 2, gap: 4 }}>
+                {[
+                  { value: true, label: 'On' },
+                  { value: false, label: 'Off' },
+                ].map((item) => {
+                  const isActuallyEnabled = notifStatus === 'enabled' || notifStatus === 'provisional';
+                  const active = item.value === isActuallyEnabled;
+                  return (
+                    <TouchableOpacity
+                      key={item.label}
+                      onPress={() => {
+                        if (item.value) {
+                          if (notifStatus === 'denied') {
+                            Linking.openSettings();
+                          } else {
+                            handleEnableNotifications();
+                          }
+                        } else {
+                          // Note: You can't programmatically "disable" permissions on iOS easily,
+                          // but we could just show an alert or hide it.
+                          // For now, let's just make it do nothing or open settings.
+                          if (isActuallyEnabled) {
+                            Linking.openSettings();
+                          }
+                        }
+                      }}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 4,
+                        borderRadius: 18,
+                        backgroundColor: active ? theme.primary : 'transparent',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? 'white' : theme.textSecondary }}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Theme (Appearance) */}
+            <View style={{ backgroundColor: theme.accent, borderRadius: 20, padding: 4, flexDirection: 'row', gap: 4 }}>
+              {[
+                { id: 'light', label: t('profile.theme_light'), icon: Sun },
+                { id: 'dark', label: t('profile.theme_dark'), icon: Moon },
+                { id: 'system', label: t('profile.theme_system'), icon: Monitor },
+              ].map((item) => {
+                const active = item.id === themePreference;
+                const Icon = item.icon;
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    onPress={async () => {
+                      setLocalThemePref(item.id);
+                      setGlobalTheme(item.id as 'light' | 'dark' | 'system');
+                      await updateSettings({ theme: item.id });
+                    }}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 10,
+                      borderRadius: 18,
+                      backgroundColor: active ? theme.primary : 'transparent',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <Icon size={20} color={active ? 'white' : theme.primaryLight} />
+                    <Text style={{ fontSize: 12, fontWeight: active ? '600' : '400', color: active ? 'white' : theme.primaryLight }}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         </View>
 
-        <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.timezone_label')}</Text>
-          </View>
-          <TextInput
-            value={timezone}
-            onChangeText={setTimezone}
-            placeholder={t('profile.timezone_placeholder')}
-            placeholderTextColor={theme.textMuted}
-            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-          />
-        </View>
 
-        <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Ruler size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.units_label')}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {(['metric', 'imperial'] as UnitSystem[]).map((unit) => {
-              const active = unit === unitSystem;
-              return (
-                <TouchableOpacity
-                  key={unit}
-                  onPress={() => {
-                    setUnitSystem(unit);
-                    void setUnitSystemPreference(unit);
-                  }}
-                  style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
-                >
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
-                    {unit === 'metric' ? t('profile.unit_metric') : t('profile.unit_imperial')}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
 
-        <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Sun size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.theme_label')}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {[
-              { id: 'light', label: t('profile.theme_light'), icon: Sun },
-              { id: 'dark', label: t('profile.theme_dark'), icon: Moon },
-              { id: 'system', label: t('profile.theme_system'), icon: Monitor },
-            ].map((item) => {
-              const active = item.id === themePreference;
-              const Icon = item.icon;
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  onPress={async () => {
-                    setLocalThemePref(item.id);
-                    setGlobalTheme(item.id as 'light' | 'dark' | 'system');
-                    // Auto-save theme immediately so it persists without needing Save
-                    await updateSettings({ theme: item.id });
-                  }}
-                  style={{ flex: 1, paddingVertical: 12, borderRadius: 16, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border, alignItems: 'center', gap: 6 }}
-                >
-                  <Icon size={18} color={active ? '#fff' : theme.textSecondary} />
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <CloudSun size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.weather_card_title')}</Text>
-          </View>
-          <View>
-            <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 4 }}>
-              {showWeatherCard ? t('profile.weather_card_on_desc') : t('profile.weather_card_off_desc')}
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {[
-              { value: true, label: t('profile.weather_card_show') },
-              { value: false, label: t('profile.weather_card_hide') },
-            ].map((item) => {
-              const active = item.value === showWeatherCard;
-              return (
-                <TouchableOpacity
-                  key={item.label}
-                  onPress={() => {
-                    void handleWeatherCardVisibility(item.value);
-                  }}
-                  disabled={isSettingsLoading || isUpdatingWeatherCard}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    borderRadius: 16,
-                    backgroundColor: active ? theme.primary : theme.accent,
-                    borderWidth: 1,
-                    borderColor: active ? theme.primary : theme.border,
-                    alignItems: 'center',
-                    opacity: isSettingsLoading || isUpdatingWeatherCard ? 0.6 : 1,
-                  }}
-                >
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
 
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -647,7 +732,7 @@ export default function ProfileScreen() {
             testID="e2e-profile-backup-now"
             style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: backingUp ? 0.5 : 1 }}
           >
-            <Text style={{ color: 'white', fontWeight: '700', fontSize: 14 }}>
+            <Text style={{ color: theme.background, fontWeight: '700', fontSize: 14 }}>
               {isCloudBackupLinked ? t('profile.backup_button') : t('profile.backup_link_button')}
             </Text>
           </TouchableOpacity>
@@ -657,9 +742,6 @@ export default function ProfileScreen() {
         {!isAnonymous && (
           <View style={{ paddingHorizontal: 2, gap: 14 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-                <Lock size={18} color={theme.textSecondary} />
-              </View>
               <Text style={{ flex: 1, fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.change_password_title')}</Text>
               <TouchableOpacity onPress={() => { setShowChangePw((v) => !v); setChangePwMessage(null); }}>
                 {showChangePw ? <ChevronUp size={18} color={theme.textSecondary} /> : <ChevronDown size={18} color={theme.textSecondary} />}
@@ -710,48 +792,17 @@ export default function ProfileScreen() {
                   disabled={changePwLoading || currentPw.length === 0 || newPw.length < 8}
                   style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: changePwLoading || currentPw.length === 0 || newPw.length < 8 ? 0.5 : 1 }}
                 >
-                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('profile.change_password_save')}</Text>
+                  <Text style={{ color: theme.background, fontWeight: '700', fontSize: 14 }}>{t('profile.change_password_save')}</Text>
                 </TouchableOpacity>
               </View>
             )}
           </View>
         )}
 
-        {/* ── Notifications ────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 2, gap: 14 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Bell size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.notifications_title')}</Text>
-          </View>
-          <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-            {notifStatus === 'enabled' || notifStatus === 'provisional'
-              ? t('profile.notifications_enabled')
-              : notifStatus === 'denied'
-                ? t('profile.notifications_denied')
-                : t('profile.notifications_undetermined')}
-          </Text>
-          {notifStatus !== 'enabled' && notifStatus !== 'provisional' && (
-            <TouchableOpacity
-              onPress={notifStatus === 'denied' ? () => Linking.openSettings() : handleEnableNotifications}
-              style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
-            >
-              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>
-                {notifStatus === 'denied' ? t('profile.notifications_open_settings') : t('profile.notifications_enable')}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
 
         {/* ── Support ──────────────────────────────────────── */}
         <View style={{ paddingHorizontal: 2, gap: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Mail size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.support_title')}</Text>
-          </View>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.support_title')}</Text>
           <TouchableOpacity
             onPress={() => Linking.openURL('mailto:support@richfarm.app')}
             style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
@@ -770,12 +821,7 @@ export default function ProfileScreen() {
 
         {/* ── Legal + App Version ───────────────────────────── */}
         <View style={{ paddingHorizontal: 2, gap: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Shield size={18} color={theme.textSecondary} />
-            </View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.legal_title')}</Text>
-          </View>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.legal_title')}</Text>
           <TouchableOpacity
             onPress={() => Linking.openURL('https://richfarm.app/privacy')}
             style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
@@ -802,8 +848,8 @@ export default function ProfileScreen() {
           style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: saving || isLoading || isSettingsLoading ? 0.5 : 1, marginTop: 8 }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Save size={20} color="white" />
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('profile.save_settings')}</Text>
+            <Save size={20} color={theme.background} />
+            <Text style={{ color: theme.background, fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('profile.save_settings')}</Text>
           </View>
         </TouchableOpacity>
       </View>

@@ -55,8 +55,8 @@ export function AddPlantTargetModal({
       <View
         style={{
           backgroundColor: theme.card,
-          borderTopLeftRadius: 28,
-          borderTopRightRadius: 28,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
           paddingHorizontal: 20,
           paddingTop: 16,
           paddingBottom: 40,
@@ -65,7 +65,7 @@ export function AddPlantTargetModal({
       >
         <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
         <View style={{ gap: 4 }}>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+          <Text style={{ fontSize: 20, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>
             {t('library.add_target_title', { defaultValue: 'Add this plant to' })}
           </Text>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
@@ -88,7 +88,7 @@ export function AddPlantTargetModal({
                   onPress={() => setMode(option.key)}
                   style={{
                     flex: 1,
-                    borderRadius: 16,
+                    borderRadius: 10,
                     paddingVertical: 14,
                     alignItems: 'center',
                     backgroundColor: active ? theme.primary : theme.accent,
@@ -96,7 +96,7 @@ export function AddPlantTargetModal({
                     borderColor: active ? theme.primary : theme.border,
                   }}
                 >
-                  <Text style={{ color: active ? '#fff' : theme.text, fontWeight: '800', fontSize: 14 }}>
+                  <Text style={{ color: active ? '#fff' : theme.text, fontWeight: '500', fontSize: 14 }}>
                     {option.label}
                   </Text>
                 </TouchableOpacity>
@@ -107,7 +107,7 @@ export function AddPlantTargetModal({
 
         {!isGardener && mode === 'growing' && (
           <View style={{ gap: 10 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 }}>
               {t('plant.bed_label', { defaultValue: 'Bed' })}
             </Text>
             {beds.length === 0 ? (
@@ -127,13 +127,13 @@ export function AddPlantTargetModal({
                       style={{
                         paddingHorizontal: 16,
                         paddingVertical: 10,
-                        borderRadius: 20,
+                        borderRadius: 10,
                         backgroundColor: active ? theme.primary : theme.background,
                         borderWidth: 1,
                         borderColor: active ? theme.primary : theme.border,
                       }}
                     >
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>
+                      <Text style={{ fontSize: 13, fontWeight: '500', color: active ? '#fff' : theme.textSecondary }}>
                         {bed.name}
                       </Text>
                     </TouchableOpacity>
@@ -149,7 +149,7 @@ export function AddPlantTargetModal({
             onPress={onClose}
             style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
           >
-            <Text style={{ fontSize: 15, fontWeight: '700', color: theme.textSecondary }}>
+            <Text style={{ fontSize: 15, fontWeight: '500', color: theme.textSecondary }}>
               {t('common.cancel')}
             </Text>
           </TouchableOpacity>
@@ -159,7 +159,7 @@ export function AddPlantTargetModal({
             style={{
               flex: 1,
               backgroundColor: theme.primary,
-              borderRadius: 16,
+              borderRadius: 10,
               paddingVertical: 16,
               alignItems: 'center',
               opacity: !canConfirm || loading ? 0.6 : 1,
@@ -168,7 +168,7 @@ export function AddPlantTargetModal({
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>
+              <Text style={{ color: '#fff', fontWeight: '500', fontSize: 15 }}>
                 {t('library.add_target_confirm', { defaultValue: 'Add plant' })}
               </Text>
             )}

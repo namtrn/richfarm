@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   offlineBannerText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
     textAlign: 'center',
   },
   syncBanner: {

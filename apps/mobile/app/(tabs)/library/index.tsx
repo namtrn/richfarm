@@ -14,6 +14,7 @@ import {
     PanResponder,
     StyleSheet,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary';
@@ -807,6 +808,7 @@ function BrowseModeMenu({
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const router = useRouter();
     const translateX = useRef(new Animated.Value(400)).current;
 
     useEffect(() => {
@@ -1191,6 +1193,7 @@ export default function LibraryScreen() {
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const { bottom: safeBottom } = useSafeAreaInsets();
     const { appMode } = useAppMode();
     const { settings } = useUserSettings();
     const router = useRouter();
@@ -1661,6 +1664,21 @@ export default function LibraryScreen() {
                                 style={{ flex: 1 }}
                                 data={filteredFamilies}
                                 keyExtractor={(item: any) => String(item.key)}
+                                ListHeaderComponent={
+                                    <View style={{ paddingHorizontal: 12, paddingBottom: 12 }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 11,
+                                                fontWeight: '500',
+                                                color: theme.textMuted,
+                                                textTransform: 'uppercase',
+                                                letterSpacing: 0.4,
+                                            }}
+                                        >
+                                            Families
+                                        </Text>
+                                    </View>
+                                }
                                 renderItem={({ item }: { item: any }) => {
                                     const props = {
                                         title: item.familyDisplayName ?? formatPlantFamilyDisplayName(item.family, i18n.language),
@@ -1848,31 +1866,30 @@ export default function LibraryScreen() {
                 onSelectGroup={setSelectedGroup}
                 onToggleLayout={setLayoutMode}
             />
+            {/* ── Floating scan button (always visible) ── */}
             <TouchableOpacity
                 onPress={openScanner}
                 accessibilityLabel={t('planning.option_camera_title')}
                 testID="e2e-library-ai-scanner"
-                activeOpacity={0.9}
+                activeOpacity={0.85}
                 style={{
                     position: 'absolute',
-                    right: 18,
-                    bottom: 108,
-                    width: 56,
-                    height: 56,
-                    borderRadius: 12,
+                    right: 16,
+                    bottom: safeBottom + 66 + 16,
+                    width: 60,
+                    height: 60,
+                    borderRadius: 30,
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: theme.primary,
-                    borderWidth: 1,
-                    borderColor: isDark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.72)',
-                    shadowColor: isDark ? '#000000' : '#1a4731',
-                    shadowOpacity: isDark ? 0.42 : 0.24,
-                    shadowRadius: 14,
-                    shadowOffset: { width: 0, height: 8 },
+                    shadowColor: '#000',
+                    shadowOpacity: 0.2,
+                    shadowRadius: 8,
+                    shadowOffset: { width: 0, height: 4 },
                     elevation: 10,
                 }}
             >
-                <ScanSearch size={24} stroke="#fff" />
+                <ScanSearch size={22} color="#fff" />
             </TouchableOpacity>
             {scannerModals}
         </View >

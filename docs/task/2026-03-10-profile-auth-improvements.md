@@ -458,3 +458,88 @@ Sau fix của Codex + 1 cleanup bổ sung của Sonnet:
 
 Code hiện tại sạch. Không còn issue tồn đọng ở phạm vi đã review.
 ---
+
+# Startup Loading Screen Fix (by Codex)
+
+Date: 2026-03-10
+Context: Sau auth refactor sang Better Auth + `ConvexProviderWithAuth`, app iOS mở được nhưng bị kẹt mãi ở màn `Loading...` trên fresh install / anonymous flow.
+
+## Symptom
+
+- App launch thành công trên iOS simulator/device.
+- Native splash qua được.
+- UI dừng ở `LoadingScreen` với logo Richfarm và spinner.
+- Trường hợp dễ gặp nhất: app chưa có signed-in user thật, chỉ cần anonymous/onboarding flow.
+
+## Root Cause
+
+Gate khởi động trong [apps/mobile/lib/auth.ts](/Users/n/Documents/GitHub/richfarm/apps/mobile/lib/auth.ts) bị siết quá chặt sau commit auth hardening.
+
+Code trước khi sửa:
+
+```ts
+const isReady = !!deviceId && !!session && !isSessionLoading && !isBootstrapping && rawUser !== undefined;
+```
+
+Điều này làm app chỉ được coi là "ready" khi đồng thời thỏa cả 5 điều kiện:
+
+- Có `deviceId`
+- Có Better Auth `session`
+- `isSessionLoading === false`
+- `isBootstrapping === false`
+- Query `getCurrentUser` từ Convex đã resolve xong (`rawUser !== undefined`)
+
+Với fresh install hoặc anonymous flow, điều kiện cuối cùng là điểm nghẽn:
+
+- session có thể vừa mới được tạo
+- user record trên Convex có thể chưa về kịp
+- `rawUser` còn `undefined`
+- `useAppReady()` vẫn trả `isReady = false`
+- [apps/mobile/app/_layout.tsx](/Users/n/Documents/GitHub/richfarm/apps/mobile/app/_layout.tsx) tiếp tục render `LoadingScreen`
+
+Kết quả là app bị block toàn bộ UI dù thực tế vẫn có thể cho người dùng vào onboarding trước, còn auth/user record hoàn tất ở background.
+
+## Patch Applied
+
+File sửa:
+
+- [apps/mobile/lib/auth.ts](/Users/n/Documents/GitHub/richfarm/apps/mobile/lib/auth.ts)
+
+Đã đổi startup gate thành:
+
+```ts
+const isReady = !!deviceId && !isSessionLoading && !isBootstrapping;
+```
+
+Kèm comment trong code:
+
+```ts
+// Startup must not block on a remote user record. Fresh installs can enter
+// onboarding while Better Auth / Convex finish resolving in the background.
+```
+
+## Why This Fix Is Correct
+
+- `StartScreen` trong [apps/mobile/app/index.tsx](/Users/n/Documents/GitHub/richfarm/apps/mobile/app/index.tsx) đã có logic tự quyết định route onboarding/home.
+- `getUserSettings` phía Convex có thể trả `null`; app không cần chờ có full user profile mới được vào UI.
+- Với anonymous-first app, startup không nên phụ thuộc vào việc `getCurrentUser` đã resolve.
+- Auth bootstrap vẫn được giữ lại: app vẫn chờ `deviceId`, vẫn chờ Better Auth session hết pending, và vẫn chờ `initUser()` hoàn tất vòng bootstrap hiện tại.
+
+Nói ngắn gọn:
+
+- Vẫn chặn khi auth còn đang thực sự bootstrap.
+- Không còn chặn chỉ vì remote user record chưa kịp trả về.
+
+## Verification
+
+Đã verify:
+
+- `npm run typecheck` trong `apps/mobile` pass.
+- `npx expo run:ios --device "iPhone 17 Pro"` build thành công sau patch.
+- App được cài và mở lại trên simulator sau khi sửa gate startup.
+
+## Notes
+
+- Đây là runtime startup bug mức cao vì chặn flow chính của app trên fresh install.
+- Vấn đề không nằm ở signing warning nữa; signing mismatch đã được xử lý riêng trong Xcode project version.
+- Nếu sau này auth flow được siết thêm, cần giữ nguyên nguyên tắc: onboarding/guest boot không được phụ thuộc cứng vào `rawUser !== undefined`.

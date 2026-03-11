@@ -4,20 +4,27 @@ import { api } from '../../../packages/convex/_generated/api';
 import { useDeviceId } from './deviceId';
 import { useQueryCache } from './queryCache';
 import { authClient } from './auth-client';
+import { sanitizeAnonymousProfile } from '../../../packages/shared/src/authProfile';
 
 export function useAuth() {
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
     const { data: session, isPending: isSessionLoading } = authClient.useSession();
     const rawUser = useQuery(api.users.getCurrentUser, session ? {} : 'skip');
+    const sessionUserId =
+        typeof session?.user?.id === 'string' && session.user.id.trim()
+            ? session.user.id.trim()
+            : null;
 
     // Cache: read local first so returning users see their profile instantly,
     // without waiting for Convex. Convex result overwrites once it arrives.
-    const cacheKey = deviceId ? `rf_current_user_v1_${deviceId}` : null;
+    const cacheKey =
+        deviceId && sessionUserId ? `rf_current_user_v2_${deviceId}_${sessionUserId}` : null;
     const { cached: cachedUser, remoteResolved } = useQueryCache(cacheKey, rawUser);
 
     // If Convex has answered → use it. Otherwise fall back to local cache.
     // Fresh install: both are null/undefined → user = null (no auth needed to boot).
-    const user = remoteResolved ? rawUser : (cachedUser ?? null);
+    const user = !session ? null : remoteResolved ? rawUser : (cachedUser ?? null);
+    const normalizedUser = user ? sanitizeAnonymousProfile(user) : null;
 
     const getOrCreateUserMutation = useMutation(api.users.getOrCreateUser);
     const updateProfileMutation = useMutation(api.users.updateProfile);
@@ -40,7 +47,7 @@ export function useAuth() {
 
         const initKey = `${session.session.id}:${deviceId ?? 'no-device-id'}`;
         if (initializedKeyRef.current === initKey) {
-            return user?._id ?? null;
+            return normalizedUser?._id ?? null;
         }
 
         initializedKeyRef.current = initKey;
@@ -90,14 +97,16 @@ export function useAuth() {
         return await updateProfileMutation({ ...args, deviceId });
     };
 
-    const isReady = !!deviceId && !!session && !isSessionLoading && !isBootstrapping && rawUser !== undefined;
+    // Startup must not block on a remote user record. Fresh installs can enter
+    // onboarding while Better Auth / Convex finish resolving in the background.
+    const isReady = !!deviceId && !isSessionLoading && !isBootstrapping;
 
     return {
-        user,
+        user: normalizedUser,
         isLoading: isDeviceLoading || isSessionLoading || isBootstrapping,
         isReady,
         session,
-        isAuthenticated: !!user && user.isAnonymous !== true,
+        isAuthenticated: !!normalizedUser && normalizedUser.isAnonymous !== true,
         initUser,
         updateProfile,
         deviceId,

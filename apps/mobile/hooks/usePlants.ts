@@ -7,21 +7,24 @@ import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary } from './usePlantLibrary';
+import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
 export function usePlants(status?: string) {
     const { deviceId } = useDeviceId();
     const { i18n } = useTranslation();
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
+    const hasSession = useHasAuthSession();
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const remotePlants = useQuery(api.plants.getUserPlants, deviceId ? { status, deviceId } : 'skip');
 
-    const cacheKey = deviceId
-        ? `rf_plants_v1_${deviceId}${status ? `_${status}` : ''}${locale ? `_${locale}` : ''}`
-        : null;
+    const cacheKey = useSessionScopedCacheKey(
+        'rf_plants_v2',
+        `${status ? `_${status}` : ''}${locale ? `_${locale}` : ''}`
+    );
     const { cached, cacheLoaded } = useQueryCache(cacheKey, remotePlants);
 
-    const plants = remotePlants ?? cached;
+    const plants = !hasSession ? [] : remotePlants ?? cached;
     const { plants: libraryPlants } = usePlantLibrary(locale);
     const libraryById = useMemo(
         () => new Map((libraryPlants ?? []).map((plant: any) => [String(plant._id), plant])),

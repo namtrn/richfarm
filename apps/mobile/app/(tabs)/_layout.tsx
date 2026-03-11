@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Tabs } from 'expo-router';
 import { BottomTabBar, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { Bell, BookOpen, UserRound, Home, Fence } from 'lucide-react-native';
+import { Bell, BookOpen, UserRound, Home, Fence, ScanSearch } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import {
   Animated,
@@ -98,7 +98,7 @@ function LiquidGlassBackground({ isDark }: { isDark: boolean }) {
 
   return (
     // overflow:hidden + borderRadius here so the blur clips to the shape
-    <View style={[StyleSheet.absoluteFill, { borderRadius: 24, overflow: 'hidden' }]} pointerEvents="none">
+    <View style={[StyleSheet.absoluteFill, { borderRadius: 12, overflow: 'hidden' }]} pointerEvents="none">
       {BlurView ? (
         <BlurView
           style={StyleSheet.absoluteFill}
@@ -208,6 +208,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="scan"
+        options={{
+          title: t('tabs.scan'),
+          tabBarButtonTestID: 'e2e-tab-scan',
+          tabBarIcon: ({ color }) => <ScanSearch size={22} stroke={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="library"
         options={{
           title: t('tabs.library'),
@@ -228,6 +236,7 @@ export default function TabLayout() {
         options={{
           title: t('tabs.more'),
           tabBarButtonTestID: 'e2e-tab-more',
+          href: null,
           tabBarIcon: ({ color }) => <UserRound size={22} stroke={color} />,
         }}
       />
@@ -247,7 +256,7 @@ const styles = StyleSheet.create({
     // left/right/bottom are set dynamically in the component using safe area insets
     height: 56,
     borderWidth: 2,
-    borderRadius: 24,
+    borderRadius: 12,
     elevation: 12,
     // NOTE: DO NOT add overflow:hidden here — it clips the borderRadius pill shape
     // Clipping is handled inside LiquidGlassBackground
@@ -266,12 +275,12 @@ const styles = StyleSheet.create({
   },
   tabBarLabel: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '500',
     marginTop: -1,
   },
   itemPill: {
     minWidth: 44,
-    borderRadius: 999,
+    borderRadius: 12,
     paddingHorizontal: 6,
     paddingVertical: 2,
     alignItems: 'center',
@@ -279,7 +288,7 @@ const styles = StyleSheet.create({
   },
   activePill: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 999,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   itemContent: {
@@ -292,7 +301,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    borderRadius: 24,
+    borderRadius: 12,
   },
   glassShimmer: {
     position: 'absolute',
@@ -309,6 +318,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    borderRadius: 24,
+    borderRadius: 12,
   },
 });

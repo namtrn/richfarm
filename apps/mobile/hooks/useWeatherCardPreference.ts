@@ -1,21 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDeviceId } from '../lib/deviceId';
 import { useUserSettings } from './useUserSettings';
-
-function weatherCardStorageKey(deviceId?: string) {
-    return deviceId ? `rf_show_weather_card_v1_${deviceId}` : null;
-}
+import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
 export function useWeatherCardPreference() {
-    const { deviceId } = useDeviceId();
     const { settings, updateSettings } = useUserSettings();
+    const hasSession = useHasAuthSession();
     const [showWeatherCard, setShowWeatherCard] = useState(true);
     const [isHydrated, setIsHydrated] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const key = useMemo(() => weatherCardStorageKey(deviceId), [deviceId]);
+    const key = useSessionScopedCacheKey('rf_show_weather_card_v2');
 
     useEffect(() => {
+        if (!hasSession) {
+            setShowWeatherCard(true);
+            setIsHydrated(true);
+            return;
+        }
         if (!key) return;
 
         let cancelled = false;
@@ -46,7 +47,7 @@ export function useWeatherCardPreference() {
         return () => {
             cancelled = true;
         };
-    }, [key, settings?.showWeatherCard]);
+    }, [hasSession, key, settings?.showWeatherCard]);
 
     const setWeatherCardVisible = useCallback(async (nextValue: boolean) => {
         const previousValue = showWeatherCard;

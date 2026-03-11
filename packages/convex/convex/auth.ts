@@ -2,6 +2,7 @@ import { createClient } from "@convex-dev/better-auth";
 import { convex as convexPlugin } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { expo } from "@better-auth/expo";
+import { anonymous } from "better-auth/plugins";
 import { components } from "./_generated/api";
 import authConfig from "./auth.config";
 
@@ -21,5 +22,5 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
     emailAndPassword: {
       enabled: true,
     },
-    plugins: [expo(), convexPlugin({ authConfig })],
+    plugins: [expo(), anonymous(), convexPlugin({ authConfig })],
   });

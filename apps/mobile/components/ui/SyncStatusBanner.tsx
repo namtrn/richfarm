@@ -64,7 +64,7 @@ export function SyncStatusBanner({
         backgroundColor: config.backgroundColor,
         borderWidth: 1,
         borderColor: config.borderColor,
-        borderRadius: compact ? 12 : 16,
+        borderRadius: 12,
         paddingHorizontal: compact ? 12 : 14,
         paddingVertical: compact ? 8 : 12,
         gap: 6,
@@ -77,7 +77,7 @@ export function SyncStatusBanner({
           style={{
             flex: 1,
             fontSize: compact ? 12 : 13,
-            fontWeight: '700',
+            fontWeight: '500',
             color: config.textColor,
           }}
         >
@@ -89,13 +89,13 @@ export function SyncStatusBanner({
             style={{
               paddingHorizontal: 10,
               paddingVertical: 6,
-              borderRadius: 999,
+              borderRadius: 10,
               backgroundColor: theme.card,
               borderWidth: 1,
               borderColor: config.borderColor,
             }}
           >
-            <Text style={{ fontSize: 11, fontWeight: '700', color: config.textColor }}>
+            <Text style={{ fontSize: 11, fontWeight: '500', color: config.textColor }}>
               {t('sync.retry_action')}
             </Text>
           </TouchableOpacity>

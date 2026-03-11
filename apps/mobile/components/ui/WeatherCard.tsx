@@ -179,7 +179,7 @@ function StatItem({
                 style={{
                     fontSize: 9,
                     color: labelColor,
-                    fontWeight: '700',
+                    fontWeight: '500',
                     letterSpacing: 0.6,
                     textAlign: 'center',
                 }}
@@ -366,7 +366,7 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
     return StyleSheet.create({
         card: {
             backgroundColor: theme.card,
-            borderRadius: 20,
+            borderRadius: 12,
             padding: 18,
             borderWidth: 1,
             borderColor: theme.border,
@@ -391,7 +391,7 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
         hideButton: {
             width: 24,
             height: 24,
-            borderRadius: 12,
+            borderRadius: 10,
             backgroundColor: theme.accent,
             alignItems: 'center',
             justifyContent: 'center',
@@ -416,7 +416,7 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
             alignItems: 'center',
             gap: 5,
             backgroundColor: theme.accent,
-            borderRadius: 20,
+            borderRadius: 10,
             paddingHorizontal: 10,
             paddingVertical: 4,
             borderWidth: 1,
@@ -425,7 +425,7 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
         badgeText: {
             fontSize: 11,
             color: theme.textAccent,
-            fontWeight: '700',
+            fontWeight: '500',
             letterSpacing: 0.5,
         },
 
@@ -447,14 +447,14 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
         },
         tempNumber: {
             fontSize: 36,
-            fontWeight: '800',
+            fontWeight: '500',
             color: theme.text,
-            letterSpacing: -1.5,
+            letterSpacing: -0.5,
             lineHeight: 40,
         },
         tempUnit: {
             fontSize: 16,
-            fontWeight: '600',
+            fontWeight: '500',
             color: theme.textSecondary,
             marginTop: 6,
             marginLeft: 2,
@@ -493,7 +493,7 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
         // soil projection
         soilCard: {
             backgroundColor: theme.accent,
-            borderRadius: 14,
+            borderRadius: 10,
             padding: 14,
             gap: 10,
         },
@@ -504,13 +504,13 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
         },
         soilTitle: {
             fontSize: 10,
-            fontWeight: '800',
+            fontWeight: '500',
             color: theme.text,
-            letterSpacing: 0.8,
+            letterSpacing: 0.4,
         },
         soilBadge: {
             backgroundColor: theme.successBg,
-            borderRadius: 20,
+            borderRadius: 10,
             paddingHorizontal: 8,
             paddingVertical: 3,
             borderWidth: 1,
@@ -518,7 +518,7 @@ function createStyles(theme: ThemeColors, isDark: boolean) {
         },
         soilBadgeText: {
             fontSize: 9,
-            fontWeight: '700',
+            fontWeight: '500',
             color: theme.success,
             letterSpacing: 0.5,
         },

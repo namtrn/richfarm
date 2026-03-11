@@ -5,6 +5,7 @@ import { expo } from "@better-auth/expo";
 import { anonymous } from "better-auth/plugins";
 import { components } from "./_generated/api";
 import authConfig from "./auth.config";
+import { sendPasswordResetEmail, sendVerificationEmailMessage } from "./lib/email";
 import { mergeAnonymousUserIntoAccount } from "./lib/userAccounts";
 
 export const authComponent = createClient(components.betterAuth);
@@ -22,6 +23,25 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
     trustedOrigins: [...trustedOriginsFromEnv, "my-garden://"],
     emailAndPassword: {
       enabled: true,
+      requireEmailVerification: true,
+      async sendResetPassword({ user, url }) {
+        await sendPasswordResetEmail({
+          email: user.email,
+          name: user.name,
+          url,
+        });
+      },
+    },
+    emailVerification: {
+      sendOnSignUp: true,
+      sendOnSignIn: true,
+      async sendVerificationEmail({ user, url }) {
+        await sendVerificationEmailMessage({
+          email: user.email,
+          name: user.name,
+          url,
+        });
+      },
     },
     plugins: [
       expo(),

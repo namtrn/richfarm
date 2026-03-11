@@ -1,5 +1,11 @@
 # Richfarm
 
+# Đóng tất cả các process node và metro đang chạy ngầm
+killall -9 node 2>/dev/null || true
+# Xóa cache metro của expo
+npx expo start --clear
+
+
 cd /Users/n/Documents/GitHub/richfarm/apps/mobile
 npx expo run:ios --device "iPhone 17 Pro"
 

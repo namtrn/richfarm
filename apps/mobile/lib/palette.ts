@@ -3,18 +3,18 @@ export const palette = {
         background: '#fffffff7',
         card: '#fffffff7',
         text: '#1a1a1a',
-        textSecondary: '#64748b',
+        textSecondary: '#737373', // Neutral 500
         textAccent: '#1e293b',
-        textMuted: '#6c757d',
-        border: '#dee2e6f8',
+        textMuted: '#a3a3a3', // Neutral 400
+        border: '#e5e5e5', // Neutral 200
         primary: '#5d7f52', // Forest Green
-        accent: '#f1f2f4f7',
-        warning: '#c4a678',
+        accent: '#f5f5f5', // Neutral 100 or close (f1f2f4 was original)
+        warning: '#b89561ff',
         warningBg: '#fff7ed',
         danger: '#b87a5a',
         dangerBg: '#fee2e2',
         success: '#6b8c5f',
-        successBg: '#d1fae5',
+        successBg: '#d4dfceff',
         // Additional colors
         premium: '#fbbf24',
         info: '#3b82f6',
@@ -35,12 +35,12 @@ export const palette = {
         background: '#141414',
         card: '#242424',
         text: '#f9fafb',
-        textSecondary: 'rgba(255, 255, 255, 0.6)',
+        textSecondary: '#a3a3a3', // Neutral 400
         textAccent: 'rgba(255, 255, 255, 0.9)',
-        textMuted: '#9ca3af',
-        border: '#2d2d2d',
+        textMuted: '#737373', // Neutral 500
+        border: '#404040', // Neutral 700
         primary: '#7a9670',
-        accent: '#1c1c1c',
+        accent: '#171717', // Neutral 900 or close (1c1c1c was original)
         warning: '#c4a678',
         warningBg: 'rgba(154, 52, 18, 0.2)',
         danger: '#ef4444',

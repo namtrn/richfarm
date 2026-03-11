@@ -4,18 +4,22 @@ import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { deriveAppModeFromOnboarding, normalizeAppMode, type AppMode } from '../lib/appMode';
+import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
 export function useUserSettings() {
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
     const rawSettings = useQuery(api.userSettings.getUserSettings, deviceId ? { deviceId } : 'skip');
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
+    const hasSession = useHasAuthSession();
 
-    const cacheKey = deviceId ? `rf_user_settings_v1_${deviceId}` : null;
+    const cacheKey = useSessionScopedCacheKey('rf_user_settings_v2');
     const { cached, cacheLoaded, remoteResolved } = useQueryCache(cacheKey, rawSettings);
 
     // When rawSettings has resolved (even to null), use it directly.
-    const settings = remoteResolved
+    const settings = !hasSession
+        ? null
+        : remoteResolved
         ? rawSettings
         : cached !== undefined
             ? cached

@@ -163,7 +163,7 @@ function LanguagePicker({
         <View
           style={{
             backgroundColor: theme.card,
-            borderRadius: 24,
+            borderRadius: 12,
             paddingVertical: 12,
             width: 280,
             borderWidth: 1,
@@ -177,11 +177,11 @@ function LanguagePicker({
           <Text
             style={{
               fontSize: 13,
-              fontWeight: '800',
+              fontWeight: '500',
               color: theme.textMuted,
               textAlign: 'center',
               paddingVertical: 12,
-              letterSpacing: 1.5,
+              letterSpacing: 0.5,
               textTransform: 'uppercase',
             }}
           >
@@ -332,7 +332,7 @@ export default function FarmSetupScreen() {
     }
 
     await persistOnboarding();
-    router.replace('/(tabs)/home');
+    router.replace({ pathname: '/onboarding/final', params: { role: answers.role ?? 'gardener' } });
   };
 
   const handleSkip = async () => {
@@ -365,7 +365,7 @@ export default function FarmSetupScreen() {
         {stepIndex > 0 ? (
           <TouchableOpacity
             onPress={handleBack}
-            style={{ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' }}
+            style={{ width: 42, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
           >
             <ArrowLeft size={22} color={theme.text} />
           </TouchableOpacity>
@@ -381,7 +381,7 @@ export default function FarmSetupScreen() {
             backgroundColor: theme.accent,
             borderWidth: 1,
             borderColor: theme.border,
-            borderRadius: 20,
+            borderRadius: 10,
             paddingHorizontal: 12,
             paddingVertical: 6,
           }}
@@ -389,7 +389,7 @@ export default function FarmSetupScreen() {
           <Text style={{ fontSize: 14 }}>
             {LANGUAGES.find((lang) => lang.code === currentLocale)?.flag ?? '🌐'}
           </Text>
-          <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>
+          <Text style={{ fontSize: 12, fontWeight: '500', color: theme.text }}>
             {LANGUAGES.find((lang) => lang.code === currentLocale)?.label ?? t('profile.language_label')}
           </Text>
           <Globe size={14} color={theme.textMuted} />
@@ -405,15 +405,15 @@ export default function FarmSetupScreen() {
           <Text
             style={{
               fontSize: 12,
-              fontWeight: '800',
-              letterSpacing: 1.2,
+              fontWeight: '500',
+              letterSpacing: 0.4,
               textTransform: 'uppercase',
               color: theme.textMuted,
             }}
           >
             {t('onboarding.progress', { current: stepIndex + 1, total: steps.length })}
           </Text>
-          <View style={{ height: 8, borderRadius: 999, backgroundColor: theme.accent, overflow: 'hidden' }}>
+          <View style={{ height: 8, borderRadius: 12, backgroundColor: theme.accent, overflow: 'hidden' }}>
             <View style={{ width: `${progress}%`, height: '100%', backgroundColor: theme.primary }} />
           </View>
         </View>
@@ -434,9 +434,9 @@ export default function FarmSetupScreen() {
                 onPress={() => toggleOption(option.id)}
                 style={({ pressed }) => ({
                   flexDirection: 'row',
-                  gap: 14,
-                  padding: 16,
-                  borderRadius: 20,
+                  gap: 12,
+                  padding: 8,
+                  borderRadius: 12,
                   backgroundColor: isActive ? theme.successBg : theme.card,
                   borderWidth: 1,
                   borderColor: isActive ? theme.primary : theme.border,
@@ -444,20 +444,8 @@ export default function FarmSetupScreen() {
                   alignItems: 'center',
                 })}
               >
-                <View
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 14,
-                    backgroundColor: theme.accent,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Icon size={22} color={theme.primary} />
-                </View>
-                <View style={{ flex: 1, gap: 4 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: theme.text }}>{t(option.labelKey)}</Text>
+                <View style={{ flex: 1, gap: 2, paddingLeft: 8 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>{t(option.labelKey)}</Text>
                   {option.descriptionKey ? (
                     <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t(option.descriptionKey)}</Text>
                   ) : null}
@@ -472,6 +460,7 @@ export default function FarmSetupScreen() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: isActive ? theme.primary : 'transparent',
+                    marginRight: 4,
                   }}
                 >
                   {isActive ? <Check size={14} color="#fff" /> : null}
@@ -499,7 +488,7 @@ export default function FarmSetupScreen() {
           style={{
             flex: 1,
             paddingVertical: 16,
-            borderRadius: 22,
+            borderRadius: 12,
             backgroundColor: theme.accent,
             alignItems: 'center',
             borderWidth: 1,
@@ -515,7 +504,7 @@ export default function FarmSetupScreen() {
           style={{
             flex: 1,
             paddingVertical: 16,
-            borderRadius: 22,
+            borderRadius: 12,
             alignItems: 'center',
             backgroundColor: canContinue ? theme.primary : theme.accent,
           }}
@@ -523,7 +512,7 @@ export default function FarmSetupScreen() {
           <Text
             style={{
               fontSize: 16,
-              fontWeight: '700',
+              fontWeight: '500',
               color: canContinue ? '#ffffff' : theme.textMuted,
             }}
           >

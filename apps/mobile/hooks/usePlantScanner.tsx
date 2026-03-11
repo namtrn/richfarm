@@ -11,6 +11,7 @@ import { useDeviceId } from '../lib/deviceId';
 import { palette, useTheme } from '../lib/theme';
 import { isPremiumActive } from '../lib/access';
 import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../lib/aiDetectorLimit';
+import { addScanEntry, updateScanEntry } from '../lib/scanHistory';
 import { usePlantLibrary } from './usePlantLibrary';
 import { usePlants } from './usePlants';
 import { normalizeCustomPlantNickname, useAddPlantFlow } from './useAddPlantFlow';
@@ -29,6 +30,8 @@ if (isBlurAvailable) {
 type UsePlantScannerResult = {
   openScanner: () => void;
   scannerModals: ReactElement;
+  /** Call to register a listener that fires after every completed scan */
+  onScanSaved: (cb: () => void) => () => void;
 };
 
 type DetectPlantResponse = {
@@ -63,6 +66,19 @@ export function usePlantScanner(): UsePlantScannerResult {
   const [aiSessionActive, setAiSessionActive] = useState(false);
   const [detectNoMatch, setDetectNoMatch] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+
+  // Listeners that want to be notified when a scan entry is saved
+  const scanSavedListeners = useRef<Set<() => void>>(new Set());
+  const notifyScanSaved = useCallback(() => {
+    scanSavedListeners.current.forEach((cb) => cb());
+  }, []);
+  const onScanSaved = useCallback((cb: () => void) => {
+    scanSavedListeners.current.add(cb);
+    return () => { scanSavedListeners.current.delete(cb); };
+  }, []);
+
+  // Tracks the most-recently created scan history entry id so we can update it later
+  const currentScanIdRef = useRef<string | null>(null);
 
   const isPremium = isPremiumActive(user);
   const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
@@ -202,26 +218,50 @@ export function usePlantScanner(): UsePlantScannerResult {
       }
     }
     setAiSessionActive(true);
-    setPhotoUri(result.assets[0].uri);
-    setDetectedName(t('planning.unknown_plant'));
+    const uri = result.assets[0].uri;
+    setPhotoUri(uri);
+    const unknownLabel = t('planning.unknown_plant');
+    setDetectedName(unknownLabel);
     setDetectedPlantMasterId(null);
     setDetectNoMatch(false);
     setPhotoOpen(true);
+
+    let finalName = unknownLabel;
+    let finalMasterId: string | null = null;
+
     if (result.assets[0].base64) {
       setIsDetecting(true);
       try {
         const detected = await detectPlantAction({ images: [result.assets[0].base64], locale: i18n.language }) as DetectPlantResponse;
         if (detected?.match?.name) {
-          setDetectedName(detected.match.name);
+          finalName = detected.match.name;
+          setDetectedName(finalName);
         }
-        setDetectedPlantMasterId(detected?.match?.plantMasterId ? String(detected.match.plantMasterId) : null);
+        finalMasterId = detected?.match?.plantMasterId ? String(detected.match.plantMasterId) : null;
+        setDetectedPlantMasterId(finalMasterId);
       } catch (error) {
         console.error('AI detection failed:', error);
       } finally {
         setIsDetecting(false);
       }
     }
-  }, [aiDetectorKey, aiSessionActive, detectPlantAction, i18n.language, isPremium, t]);
+
+    // Save to history immediately after detection
+    const isIdentified = finalName.trim().length > 0 && finalName !== unknownLabel;
+    try {
+      const entry = await addScanEntry({
+        photoUri: uri,
+        plantName: finalName,
+        plantMasterId: finalMasterId,
+        userPlantId: null,
+        status: isIdentified ? 'identified' : 'unknown',
+      });
+      currentScanIdRef.current = entry.id;
+      notifyScanSaved();
+    } catch (err) {
+      console.error('Failed to save scan history entry:', err);
+    }
+  }, [aiDetectorKey, aiSessionActive, detectPlantAction, i18n.language, isPremium, notifyScanSaved, t]);
 
   const handleCaptureFromCamera = useCallback(async () => {
     const canStart = await canStartAiScan();
@@ -298,6 +338,11 @@ export function usePlantScanner(): UsePlantScannerResult {
       await createUserPlant({
         nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
       });
+      // Update the existing history entry to 'saved'
+      if (currentScanIdRef.current) {
+        void updateScanEntry(currentScanIdRef.current, { status: 'saved' }).then(notifyScanSaved);
+        currentScanIdRef.current = null;
+      }
       setPhotoOpen(false);
       setPhotoUri(null);
       setAiSessionActive(false);
@@ -306,7 +351,7 @@ export function usePlantScanner(): UsePlantScannerResult {
     } finally {
       setPhotoSaving(false);
     }
-  }, [canEdit, createUserPlant, detectedName, t]);
+  }, [canEdit, createUserPlant, detectedName, notifyScanSaved, t]);
 
   const openScanner = useCallback(() => {
     if (isAuthLoading) return;
@@ -354,8 +399,8 @@ export function usePlantScanner(): UsePlantScannerResult {
     >
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', alignItems: 'center' }}>
         <Pressable style={StyleSheet.absoluteFill} onPress={() => setScanSourceOpen(false)} />
-        <View style={{ width: '70%', borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.85)' }}>
-          <View style={[StyleSheet.absoluteFill, { borderRadius: 20, overflow: 'hidden' }]} pointerEvents="none">
+        <View style={{ width: '70%', borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.85)' }}>
+          <View style={[StyleSheet.absoluteFill, { borderRadius: 12, overflow: 'hidden' }]} pointerEvents="none">
             {BlurView ? (
               <BlurView style={StyleSheet.absoluteFill} intensity={90} tint={isDark ? 'dark' : 'light'} />
             ) : (
@@ -367,7 +412,7 @@ export function usePlantScanner(): UsePlantScannerResult {
             <View style={[styles.glassBottomRim, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.30)' }]} />
           </View>
           <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18, gap: 12 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text, letterSpacing: -0.3, textAlign: 'center' }}>
+            <Text style={{ fontSize: 18, fontWeight: '500', color: theme.text, letterSpacing: -0.3, textAlign: 'center' }}>
               {t('planning.scan_source_title')}
             </Text>
             {!!aiLimitError && (
@@ -376,22 +421,22 @@ export function usePlantScanner(): UsePlantScannerResult {
               </View>
             )}
             <TouchableOpacity
-              style={{ borderRadius: 14, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary }}
+              style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary }}
               onPress={() => { void handleCaptureFromCamera(); }}
             >
-              <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>{t('planning.scan_source_camera')}</Text>
+              <Text style={{ color: '#fff', fontWeight: '500', fontSize: 15 }}>{t('planning.scan_source_camera')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ borderRadius: 14, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
+              style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
               onPress={() => { void handlePickFromLibrary(); }}
             >
-              <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 15 }}>{t('planning.scan_source_library')}</Text>
+              <Text style={{ color: theme.textAccent, fontWeight: '500', fontSize: 15 }}>{t('planning.scan_source_library')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ borderRadius: 14, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
+              style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
               onPress={() => setScanSourceOpen(false)}
             >
-              <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 15 }}>{t('common.cancel')}</Text>
+              <Text style={{ color: theme.textSecondary, fontWeight: '500', fontSize: 15 }}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -410,26 +455,26 @@ export function usePlantScanner(): UsePlantScannerResult {
         <Pressable style={StyleSheet.absoluteFill} onPress={() => setPhotoOpen(false)} />
         <Animated.View
           {...panResponder.panHandlers}
-          style={{ backgroundColor: theme.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40, gap: 20, transform: [{ translateY: pan.y }] }}
+          style={{ backgroundColor: theme.card, borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40, gap: 20, transform: [{ translateY: pan.y }] }}
         >
           <View style={{ width: 40, height: 5, borderRadius: 2.5, backgroundColor: theme.border, alignSelf: 'center', marginBottom: 4 }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.detect_title')}</Text>
-            <TouchableOpacity onPress={() => setPhotoOpen(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 22, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>{t('planning.detect_title')}</Text>
+            <TouchableOpacity onPress={() => setPhotoOpen(false)} style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
               <X size={20} stroke={theme.textSecondary} />
             </TouchableOpacity>
           </View>
           {photoUri && (
             <Image
               source={{ uri: photoUri }}
-              style={{ width: '100%', height: 220, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}
+              style={{ width: '100%', height: 220, borderRadius: 12, borderWidth: 1, borderColor: theme.border }}
               resizeMode="cover"
             />
           )}
           <View style={{ gap: 12 }}>
             <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500', textAlign: 'center' }}>{t('planning.detect_hint')}</Text>
             <TextInput
-              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
+              style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
               placeholder={t('planning.detect_name_placeholder')}
               placeholderTextColor={theme.textMuted}
               value={detectedName}
@@ -442,7 +487,7 @@ export function usePlantScanner(): UsePlantScannerResult {
           </View>
           {!!detectedLibraryMatch && !detectNoMatch && (
             <View style={{ borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.success, backgroundColor: theme.successBg, gap: 6 }}>
-              <Text style={{ fontSize: 12, color: theme.success, textAlign: 'center', fontWeight: '700' }}>
+              <Text style={{ fontSize: 12, color: theme.success, textAlign: 'center', fontWeight: '500' }}>
                 {t('planning.detect_found_in_library')}
               </Text>
               {!!detectedUserPlantMatch && (
@@ -454,7 +499,7 @@ export function usePlantScanner(): UsePlantScannerResult {
                 style={{ borderRadius: 10, paddingVertical: 10, alignItems: 'center', backgroundColor: theme.primary }}
                 onPress={() => navigateToMatchedLibraryPlant(detectedLibraryMatch)}
               >
-                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>
+                <Text style={{ color: '#fff', fontWeight: '500', fontSize: 13 }}>
                   {t('planning.detect_open_library')}
                 </Text>
               </TouchableOpacity>
@@ -467,7 +512,7 @@ export function usePlantScanner(): UsePlantScannerResult {
                 style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
                 onPress={openScanner}
               >
-                <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
+                <Text style={{ color: theme.textAccent, fontWeight: '500', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
@@ -481,7 +526,7 @@ export function usePlantScanner(): UsePlantScannerResult {
                   });
                 }}
               >
-                <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>
+                <Text style={{ color: theme.text, fontWeight: '500', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary, opacity: photoSaving ? 0.6 : 1 }}
@@ -491,7 +536,7 @@ export function usePlantScanner(): UsePlantScannerResult {
                 {photoSaving ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('planning.detect_save_unknown')}</Text>
+                  <Text style={{ color: '#fff', fontWeight: '500', fontSize: 14 }}>{t('planning.detect_save_unknown')}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -502,7 +547,7 @@ export function usePlantScanner(): UsePlantScannerResult {
               onPress={canEdit ? openScanner : undefined}
               disabled={!canEdit}
             >
-              <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 15 }}>{t('planning.detect_retake')}</Text>
+              <Text style={{ color: theme.textAccent, fontWeight: '500', fontSize: 15 }}>{t('planning.detect_retake')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || photoSaving || isDetecting) ? 0.6 : 1 }}
@@ -512,7 +557,7 @@ export function usePlantScanner(): UsePlantScannerResult {
               {(photoSaving || isDetecting) ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>{t('planning.detect_save')}</Text>
+                <Text style={{ color: '#fff', fontWeight: '500', fontSize: 15 }}>{t('planning.detect_save')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -528,7 +573,7 @@ export function usePlantScanner(): UsePlantScannerResult {
     </>
   ), [mounted, scanSourceModal, photoModal]);
 
-  return { openScanner, scannerModals };
+  return { openScanner, scannerModals, onScanSaved };
 }
 
 const styles = StyleSheet.create({
@@ -538,7 +583,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    borderRadius: 20,
+    borderRadius: 12,
   },
   glassShimmer: {
     position: 'absolute',
@@ -555,6 +600,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    borderRadius: 20,
+    borderRadius: 12,
   },
 });

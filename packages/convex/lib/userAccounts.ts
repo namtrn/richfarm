@@ -1,4 +1,5 @@
 import type { Id } from "../_generated/dataModel";
+import { getRevenueCatAppUserIdForAuthSubject } from "./revenuecat";
 
 type UserId = Id<"users">;
 
@@ -206,6 +207,9 @@ export async function mergeAnonymousUserIntoAccount(
 ) {
   const sourceTokenIdentifier = authTokenIdentifier(args.anonymousAuthUserId);
   const targetTokenIdentifier = authTokenIdentifier(args.authenticatedAuthUserId);
+  const targetRevenueCatAppUserId = getRevenueCatAppUserIdForAuthSubject(
+    args.authenticatedAuthUserId
+  );
 
   const [sourceUser, targetUser] = await Promise.all([
     getAppUserByTokenIdentifier(ctx, sourceTokenIdentifier),
@@ -218,6 +222,8 @@ export async function mergeAnonymousUserIntoAccount(
 
   if (!sourceUser && targetUser) {
     await ctx.db.patch(targetUser._id, {
+      revenueCatAppUserId:
+        targetUser.revenueCatAppUserId ?? targetRevenueCatAppUserId,
       isAnonymous: false,
       name: args.authenticatedName ?? targetUser.name,
       email: args.authenticatedEmail ?? targetUser.email,
@@ -233,6 +239,7 @@ export async function mergeAnonymousUserIntoAccount(
   if (!targetUser || targetUser._id === sourceUser._id) {
     await ctx.db.patch(sourceUser._id, {
       tokenIdentifier: targetTokenIdentifier,
+      revenueCatAppUserId: targetRevenueCatAppUserId,
       isAnonymous: false,
       name: args.authenticatedName ?? sourceUser.name,
       email: args.authenticatedEmail ?? sourceUser.email,
@@ -294,6 +301,7 @@ export async function mergeAnonymousUserIntoAccount(
   await ctx.db.patch(targetUser._id, {
     ...mergedUser,
     tokenIdentifier: targetTokenIdentifier,
+    revenueCatAppUserId: targetRevenueCatAppUserId,
     isAnonymous: false,
     isActive: targetUser.isActive || sourceUser.isActive,
   });

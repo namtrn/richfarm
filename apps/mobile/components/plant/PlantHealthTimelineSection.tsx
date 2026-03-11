@@ -66,9 +66,9 @@ export function PlantHealthTimelineSection({ localData, localLoading, formatDate
   };
 
   return (
-    <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+    <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
       <View style={{ marginBottom: 16 }}>
-        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
+        <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 }}>
           {t('plant.timeline_title', { defaultValue: 'Plant timeline' })}
         </Text>
         <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>
@@ -89,7 +89,7 @@ export function PlantHealthTimelineSection({ localData, localLoading, formatDate
           {entries.slice(0, 8).map((entry, index) => (
             <View key={entry.id} style={{ flexDirection: 'row', gap: 12 }}>
               <View style={{ alignItems: 'center' }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
+                <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
                   {getIcon(entry)}
                 </View>
                 {index < Math.min(entries.length, 8) - 1 && (
@@ -98,7 +98,7 @@ export function PlantHealthTimelineSection({ localData, localLoading, formatDate
               </View>
               <View style={{ flex: 1, paddingBottom: 10 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-                  <Text style={{ flex: 1, fontSize: 14, fontWeight: '700', color: theme.text }}>
+                  <Text style={{ flex: 1, fontSize: 14, fontWeight: '500', color: theme.text }}>
                     {entry.title}
                   </Text>
                   <Text style={{ fontSize: 12, color: theme.textMuted }}>
@@ -113,7 +113,7 @@ export function PlantHealthTimelineSection({ localData, localLoading, formatDate
                 {!!entry.imageUri && (
                   <Image
                     source={{ uri: entry.imageUri }}
-                    style={{ width: '100%', height: 120, borderRadius: 14, marginTop: 10, backgroundColor: theme.accent }}
+                    style={{ width: '100%', height: 120, borderRadius: 10, marginTop: 10, backgroundColor: theme.accent }}
                     resizeMode="cover"
                   />
                 )}

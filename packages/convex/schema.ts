@@ -11,6 +11,7 @@ export default defineSchema({
   users: defineTable({
     // Auth fields (từ Convex Auth)
     tokenIdentifier: v.string(),
+    revenueCatAppUserId: v.optional(v.string()),
 
     // Profile
     name: v.optional(v.string()),
@@ -57,6 +58,7 @@ export default defineSchema({
     isActive: v.boolean(),
   })
     .index("by_token", ["tokenIdentifier"])
+    .index("by_revenuecat_app_user_id", ["revenueCatAppUserId"])
     .index("by_email", ["email"]),
 
   // ==========================================

@@ -1,10 +1,29 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useUserSettings } from './useUserSettings';
-import { normalizeAppMode, type AppMode } from '../lib/appMode';
+import { normalizeAppMode, deriveAppModeFromOnboarding, type AppMode } from '../lib/appMode';
+import { loadOnboardingData, type OnboardingData } from '../lib/onboardingLocalData';
 
 export function useAppMode() {
   const { settings, updateSettings, appMode, isLoading } = useUserSettings();
-  const normalized = normalizeAppMode(settings?.appMode) ?? appMode;
+  const [localOnboarding, setLocalOnboarding] = useState<OnboardingData | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (settings?.onboarding || settings?.appMode) return;
+    loadOnboardingData().then((data) => {
+      if (!isMounted) return;
+      setLocalOnboarding(data);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [settings?.onboarding, settings?.appMode]);
+
+  const normalized =
+    normalizeAppMode(settings?.appMode) ??
+    (settings?.onboarding ? deriveAppModeFromOnboarding(settings.onboarding) : undefined) ??
+    (localOnboarding ? deriveAppModeFromOnboarding(localOnboarding) : undefined) ??
+    appMode;
 
   const isFarmer = normalized === 'farmer';
   const isGardener = normalized === 'gardener';

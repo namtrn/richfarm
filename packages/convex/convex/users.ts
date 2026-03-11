@@ -2,6 +2,10 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { deviceToken, getUserByIdentityOrDevice, requireUser } from "./lib/user";
+import {
+    getRevenueCatAppUserIdForAuthSubject,
+    getRevenueCatAppUserIdForDevice,
+} from "./lib/revenuecat";
 import type { Id } from "./_generated/dataModel";
 
 // Lấy user hiện tại dựa trên tokenIdentifier
@@ -34,6 +38,9 @@ export const getOrCreateUser = mutation({
 
             if (existing) {
                 await ctx.db.patch(existing._id, {
+                    revenueCatAppUserId:
+                        existing.revenueCatAppUserId ??
+                        getRevenueCatAppUserIdForDevice(args.deviceId),
                     lastSyncAt: Date.now(),
                     deviceId: existing.deviceId ?? args.deviceId,
                     isAnonymous: existing.isAnonymous ?? true,
@@ -43,6 +50,7 @@ export const getOrCreateUser = mutation({
 
             return await ctx.db.insert("users", {
                 tokenIdentifier,
+                revenueCatAppUserId: getRevenueCatAppUserIdForDevice(args.deviceId),
                 deviceId: args.deviceId,
                 isAnonymous: true,
                 isActive: true,
@@ -60,6 +68,9 @@ export const getOrCreateUser = mutation({
         if (existing) {
             // Cập nhật thông tin nếu thay đổi
             await ctx.db.patch(existing._id, {
+                revenueCatAppUserId:
+                    existing.revenueCatAppUserId ??
+                    getRevenueCatAppUserIdForAuthSubject(identity.subject),
                 name: identity.name ?? existing.name,
                 email: identity.email ?? existing.email,
                 lastSyncAt: Date.now(),
@@ -70,6 +81,7 @@ export const getOrCreateUser = mutation({
         // Tạo user mới
         return await ctx.db.insert("users", {
             tokenIdentifier: identity.tokenIdentifier,
+            revenueCatAppUserId: getRevenueCatAppUserIdForAuthSubject(identity.subject),
             name: identity.name,
             email: identity.email,
             isActive: true,
@@ -95,6 +107,9 @@ export const getOrCreateDeviceUser = mutation({
 
         if (existing) {
             await ctx.db.patch(existing._id, {
+                revenueCatAppUserId:
+                    existing.revenueCatAppUserId ??
+                    getRevenueCatAppUserIdForDevice(args.deviceId),
                 lastSyncAt: Date.now(),
                 deviceId: existing.deviceId ?? args.deviceId,
                 isAnonymous: existing.isAnonymous ?? true,
@@ -104,6 +119,7 @@ export const getOrCreateDeviceUser = mutation({
 
         return await ctx.db.insert("users", {
             tokenIdentifier,
+            revenueCatAppUserId: getRevenueCatAppUserIdForDevice(args.deviceId),
             deviceId: args.deviceId,
             isAnonymous: true,
             isActive: true,

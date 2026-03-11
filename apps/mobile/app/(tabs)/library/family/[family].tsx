@@ -84,6 +84,15 @@ export default function FamilyScreen() {
                     key={layoutMode}
                     data={filtered}
                     keyExtractor={(item: any) => String(item.key)}
+                    ListHeaderComponent={
+                        <View style={{ paddingHorizontal: layoutMode === 'grid' ? 8 : 0, paddingBottom: 12 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, paddingHorizontal: 12 }}>
+                                <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 }}>Families</Text>
+                                <Text style={{ fontSize: 11, color: theme.textMuted }}>›</Text>
+                                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{familyDisplayName || family || 'Family'}</Text>
+                            </View>
+                        </View>
+                    }
                     numColumns={layoutMode === 'grid' ? 2 : 1}
                     columnWrapperStyle={layoutMode === 'grid' ? { gap: 12, paddingHorizontal: 12 } : undefined}
                     renderItem={({ item }: { item: any }) => {

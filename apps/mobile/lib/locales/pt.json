@@ -372,7 +372,12 @@
     "environment_mixed_livestock": "Mixed homestead + livestock area",
     "environment_classroom": "Classroom / school corner",
     "environment_shared_plot": "Shared plot / club garden",
-    "environment_lab_bench": "Lab bench / test setup"
+    "environment_lab_bench": "Lab bench / test setup",
+    "final_title": "Tudo pronto",
+    "final_subtitle": "Personalizamos o app com base no seu onboarding.",
+    "final_role_line": "Você usará o app como {{role}}.",
+    "final_switch_hint": "Para mudar de papel, vá em Ajustes e altere o papel.",
+    "final_cta": "Começar"
   },
   "home": {
     "focus_title": "Your focus",

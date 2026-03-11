@@ -39,7 +39,7 @@ export function GardenOverviewSummary({
   return (
     <View style={{ gap: 14 }}>
       <View style={{ gap: 3 }}>
-        <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>{t('garden.overview_title')}</Text>
+        <Text style={{ fontSize: 18, fontWeight: '500', color: theme.text }}>{t('garden.overview_title')}</Text>
         <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('garden.overview_subtitle')}</Text>
       </View>
 
@@ -53,7 +53,7 @@ export function GardenOverviewSummary({
                 width: '47%',
                 minWidth: 140,
                 backgroundColor: metric.background,
-                borderRadius: 16,
+                borderRadius: 12,
                 paddingHorizontal: 12,
                 paddingVertical: 12,
                 gap: 10,
@@ -63,7 +63,7 @@ export function GardenOverviewSummary({
                 <Icon size={16} stroke={metric.tone} />
               </View>
               <View>
-                <Text style={{ fontSize: 21, fontWeight: '800', color: theme.text }}>{metric.value}</Text>
+                <Text style={{ fontSize: 21, fontWeight: '500', color: theme.text }}>{metric.value}</Text>
                 <Text style={{ fontSize: 12, color: theme.textSecondary }}>{metric.label}</Text>
               </View>
             </View>
@@ -72,7 +72,7 @@ export function GardenOverviewSummary({
       </View>
 
       <View style={{ gap: 8 }}>
-        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
+        <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 }}>
           {t('garden.focus_title')}
         </Text>
         {focusItems.length === 0 ? (
@@ -84,12 +84,12 @@ export function GardenOverviewSummary({
                 key={item.key}
                 style={{
                   backgroundColor: item.background,
-                  borderRadius: 999,
+                  borderRadius: 10,
                   paddingHorizontal: 12,
                   paddingVertical: 7,
                 }}
               >
-                <Text style={{ fontSize: 12, fontWeight: '700', color: item.color }}>{item.label}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '500', color: item.color }}>{item.label}</Text>
               </View>
             ))}
           </View>

@@ -70,8 +70,23 @@ export function getRevenueCatApiKeyValidationError(apiKey: string | null): strin
 }
 
 export function getRevenueCatAppUserId(args: {
-  tokenIdentifier?: string | null;
+  revenueCatAppUserId?: unknown;
 }) {
-  if (args.tokenIdentifier) return args.tokenIdentifier;
-  return null;
+  if (typeof args.revenueCatAppUserId !== 'string') return null;
+
+  const revenueCatAppUserId = args.revenueCatAppUserId.trim();
+  if (!revenueCatAppUserId) return null;
+
+  // RevenueCat rejects blocked IDs and IDs containing `/`.
+  if (
+    revenueCatAppUserId === '[object Object]' ||
+    revenueCatAppUserId === 'undefined' ||
+    revenueCatAppUserId === 'null' ||
+    revenueCatAppUserId.includes('/') ||
+    revenueCatAppUserId.length > 100
+  ) {
+    return null;
+  }
+
+  return revenueCatAppUserId;
 }

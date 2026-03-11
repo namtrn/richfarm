@@ -47,10 +47,10 @@ export function PlantPhotosSection({
     };
 
     return (
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        <View style={{ backgroundColor: theme.card, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <View>
-                    <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.photos_title')}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>{t('plant.photos_title')}</Text>
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.local_only')}</Text>
                 </View>
                 <TouchableOpacity
@@ -58,7 +58,7 @@ export function PlantPhotosSection({
                     disabled={!canEdit || localSaving}
                     style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
                 >
-                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '800' }}>{t('plant.photos_add')}</Text>
+                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '500' }}>{t('plant.photos_add')}</Text>
                 </TouchableOpacity>
             </View>
             {localLoading ? (
@@ -74,14 +74,14 @@ export function PlantPhotosSection({
                             <View key={photo.id} style={{ marginRight: index === localData.photos.length - 1 ? 0 : 16 }}>
                                 <Image
                                     source={{ uri: photo.uri }}
-                                    style={{ width: 140, height: 140, borderRadius: 16, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border }}
+                                    style={{ width: 140, height: 140, borderRadius: 10, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border }}
                                 />
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                                     <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: '500' }}>
                                         {formatDate(photo.date)}
                                     </Text>
                                     <TouchableOpacity onPress={() => confirmRemove(photo.id)} style={{ padding: 4 }}>
-                                        <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '700' }}>{t('plant.photos_remove')}</Text>
+                                        <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '500' }}>{t('plant.photos_remove')}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>

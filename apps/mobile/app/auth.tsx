@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { APP_SCHEME, getAuthClient } from '../lib/auth-client';
 import { useTheme } from '../lib/theme';
-import { useAuth } from '../lib/auth';
 
 /**
  * Feature flags — flip to true once the backend is configured.
@@ -13,7 +12,7 @@ import { useAuth } from '../lib/auth';
  * Reset password: requires emailAndPassword.sendResetPassword in Better Auth config.
  */
 const GOOGLE_OAUTH_ENABLED = false;
-const RESET_PASSWORD_ENABLED = false;
+const RESET_PASSWORD_ENABLED = true;
 
 /** Map common server error messages/codes → friendly i18n key */
 function mapAuthError(raw: string | undefined, fallbackKey: string): string {
@@ -25,6 +24,10 @@ function mapAuthError(raw: string | undefined, fallbackKey: string): string {
     return 'profile.auth_err_invalid_credentials';
   if (lower.includes('rate limit') || lower.includes('too many'))
     return 'profile.auth_err_too_many_requests';
+  if (lower.includes('verify') && lower.includes('email'))
+    return 'profile.auth_err_verify_email';
+  if (lower.includes('invalid token') || lower.includes('token is invalid') || lower.includes('token expired'))
+    return 'profile.auth_reset_link_invalid';
   if (lower.includes('network') || lower.includes('fetch') || lower.includes('econnrefused'))
     return 'profile.auth_err_network';
   return fallbackKey;
@@ -36,7 +39,6 @@ export default function AuthScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ returnTo?: string }>();
   const returnTo = typeof params.returnTo === 'string' ? params.returnTo : undefined;
-  const { updateProfile } = useAuth();
 
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -49,6 +51,7 @@ export default function AuthScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [verificationResent, setVerificationResent] = useState(false);
   const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const trimmedAuthName = authName.trim();
@@ -69,6 +72,7 @@ export default function AuthScreen() {
     setAuthMessage(null);
     setAuthMessageIsError(false);
     setResetSent(false);
+    setVerificationResent(false);
   }, [authMode]);
 
   useEffect(() => {
@@ -104,19 +108,17 @@ export default function AuthScreen() {
         email: trimmedAuthEmail,
         password: authPassword,
         name: trimmedAuthName || fallbackAuthName,
+        callbackURL: `${APP_SCHEME}://verify-email`,
       });
       if (result.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_sign_up_failed');
         setError(t(errKey));
         return;
       }
-      if (trimmedAuthName) {
-        await updateProfile({ name: trimmedAuthName });
-      }
-      setSuccess(t('profile.auth_account_created'));
-      navigateTimeoutRef.current = setTimeout(() => {
-        navigateBack();
-      }, 1200);
+      setAuthPassword('');
+      setAuthConfirm('');
+      setAuthMode('signIn');
+      setSuccess(t('profile.auth_verify_email_sent'));
     } catch {
       setError(t('profile.auth_err_network'));
     } finally {
@@ -191,7 +193,7 @@ export default function AuthScreen() {
       }
       const result = await requestReset({
         email: trimmedAuthEmail,
-        redirectTo: `${APP_SCHEME}://`,
+        redirectTo: `${APP_SCHEME}://reset-password`,
       });
       if (result?.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_forgot_failed');
@@ -200,6 +202,39 @@ export default function AuthScreen() {
       }
       setResetSent(true);
       setSuccess(t('profile.auth_reset_sent'));
+    } catch {
+      setError(t('profile.auth_err_network'));
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!authEmailOk) {
+      setError(t('profile.auth_enter_email_first'));
+      return;
+    }
+    setAuthLoading(true);
+    setAuthMessage(null);
+    try {
+      const authClient = await getAuthClient();
+      type SendVerificationFn = (opts: { email: string; callbackURL: string }) => Promise<{ error?: { message?: string } }>;
+      const sendVerificationEmail = (authClient as unknown as { sendVerificationEmail?: SendVerificationFn }).sendVerificationEmail;
+      if (!sendVerificationEmail) {
+        setError(t('profile.auth_verify_email_resend_unavailable'));
+        return;
+      }
+      const result = await sendVerificationEmail({
+        email: trimmedAuthEmail,
+        callbackURL: `${APP_SCHEME}://verify-email`,
+      });
+      if (result?.error) {
+        const errKey = mapAuthError(result.error.message, 'profile.auth_verify_email_resend_failed');
+        setError(t(errKey));
+        return;
+      }
+      setVerificationResent(true);
+      setSuccess(t('profile.auth_verify_email_resent'));
     } catch {
       setError(t('profile.auth_err_network'));
     } finally {
@@ -241,16 +276,16 @@ export default function AuthScreen() {
             >
               <ChevronLeft size={22} color={theme.text} />
             </TouchableOpacity>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>{t('profile.auth_account')}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '500', color: theme.text }}>{t('profile.auth_account')}</Text>
             <View style={{ width: 32 }} />
           </View>
 
-          <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+          <View style={{ gap: 20 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
                 <UserRound size={18} color={theme.textSecondary} />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+              <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
                 {authMode === 'forgot' ? t('profile.auth_send_reset_link') : t('profile.auth_sign_in_or_create')}
               </Text>
             </View>
@@ -262,7 +297,7 @@ export default function AuthScreen() {
                   onPress={() => setAuthMode('signIn')}
                   style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signIn' ? theme.primary : theme.border, backgroundColor: authMode === 'signIn' ? theme.primary : theme.background }}
                 >
-                  <Text style={{ fontWeight: '700', color: authMode === 'signIn' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
+                  <Text style={{ fontWeight: '500', color: authMode === 'signIn' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
                     {t('profile.auth_sign_in')}
                   </Text>
                 </TouchableOpacity>
@@ -270,7 +305,7 @@ export default function AuthScreen() {
                   onPress={() => setAuthMode('signUp')}
                   style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signUp' ? theme.primary : theme.border, backgroundColor: authMode === 'signUp' ? theme.primary : theme.background }}
                 >
-                  <Text style={{ fontWeight: '700', color: authMode === 'signUp' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
+                  <Text style={{ fontWeight: '500', color: authMode === 'signUp' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
                     {t('profile.auth_sign_up')}
                   </Text>
                 </TouchableOpacity>
@@ -280,14 +315,14 @@ export default function AuthScreen() {
                 onPress={() => setAuthMode('signIn')}
                 style={{ backgroundColor: theme.background, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
               >
-                <Text style={{ fontWeight: '700', color: theme.textSecondary, fontSize: 13 }}>{t('profile.auth_back_to_sign_in')}</Text>
+                <Text style={{ fontWeight: '500', color: theme.textSecondary, fontSize: 13 }}>{t('profile.auth_back_to_sign_in')}</Text>
               </TouchableOpacity>
             )}
 
             {/* Name field (sign up only) */}
             {authMode === 'signUp' && (
               <View style={{ gap: 6 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
                   {t('profile.name_label')}
                 </Text>
                 <TextInput
@@ -317,13 +352,13 @@ export default function AuthScreen() {
             {/* Divider */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-              <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '600' }}>{t('profile.email_label')}</Text>
+              <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '400' }}>{t('profile.email_label')}</Text>
               <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
             </View>
 
             {/* Email */}
             <View style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
                 {t('profile.email_label')}
               </Text>
               <TextInput
@@ -345,7 +380,7 @@ export default function AuthScreen() {
             {authMode !== 'forgot' && (
               <View style={{ gap: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
                     {t('profile.auth_password_placeholder')}
                   </Text>
                   <TouchableOpacity onPress={() => setShowPassword((v) => !v)} style={{ paddingVertical: 2 }}>
@@ -372,7 +407,7 @@ export default function AuthScreen() {
             {authMode === 'signUp' && (
               <View style={{ gap: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
                     {t('profile.auth_confirm_password')}
                   </Text>
                   <TouchableOpacity onPress={() => setShowConfirm((v) => !v)} style={{ paddingVertical: 2 }}>
@@ -412,6 +447,18 @@ export default function AuthScreen() {
               </Text>
             )}
 
+            {authMode === 'signIn' && (
+              <TouchableOpacity
+                onPress={handleResendVerification}
+                disabled={authLoading || !authEmailOk || verificationResent}
+                style={{ paddingVertical: 4, alignItems: 'center', opacity: authLoading || !authEmailOk || verificationResent ? 0.5 : 1 }}
+              >
+                <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '500' }}>
+                  {verificationResent ? t('profile.auth_verify_email_resent') : t('profile.auth_resend_verification')}
+                </Text>
+              </TouchableOpacity>
+            )}
+
             {/* Primary action button */}
             <TouchableOpacity
               onPress={authMode === 'forgot' ? handleForgotPassword : authMode === 'signUp' ? handleSignUp : handleSignIn}
@@ -424,7 +471,7 @@ export default function AuthScreen() {
                 opacity: buttonDisabled ? 0.5 : 1,
               }}
             >
-              <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>{buttonLabel()}</Text>
+              <Text style={{ color: theme.card, fontWeight: '500', fontSize: 14 }}>{buttonLabel()}</Text>
             </TouchableOpacity>
 
             {/* Forgot password link */}
@@ -434,7 +481,7 @@ export default function AuthScreen() {
                 disabled={authLoading}
                 style={{ paddingVertical: 4, alignItems: 'center' }}
               >
-                <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '600' }}>{t('profile.auth_forgot_password')}</Text>
+                <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{t('profile.auth_forgot_password')}</Text>
               </TouchableOpacity>
             )}
           </View>

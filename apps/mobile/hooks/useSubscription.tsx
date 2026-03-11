@@ -46,9 +46,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const appUserId = useMemo(
     () =>
       getRevenueCatAppUserId({
-        tokenIdentifier: currentUser?.tokenIdentifier,
+        revenueCatAppUserId: currentUser?.revenueCatAppUserId,
       }),
-    [currentUser?.tokenIdentifier]
+    [currentUser?.revenueCatAppUserId]
   );
 
   useEffect(() => {
@@ -79,11 +79,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
     purchases.configure({
       apiKey: validatedApiKey,
-      appUserID: appUserId ?? undefined,
     });
 
     configuredRef.current = true;
-    lastUserIdRef.current = appUserId ?? null;
+    lastUserIdRef.current = null;
     setIsConfigured(true);
   }, [appUserId, isReady]);
 
@@ -95,6 +94,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
     if (!nextUserId || nextUserId === prevUserId) return;
 
+    if (__DEV__) {
+      console.log('[RevenueCat] logIn candidate', {
+        nextUserId,
+        rawRevenueCatAppUserId: currentUser?.revenueCatAppUserId,
+      });
+    }
+
     purchases
       .logIn(nextUserId)
       .then(() => {
@@ -103,7 +109,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         // No-op: keep local state, app continues in anonymous mode.
       });
-  }, [appUserId]);
+  }, [appUserId, currentUser?.revenueCatAppUserId]);
 
   const refresh = useCallback(async () => {
     if (!configuredRef.current) return;

@@ -4,11 +4,13 @@ import { Id } from '../../../packages/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
+import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
 export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { deviceId } = useDeviceId();
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
+    const hasSession = useHasAuthSession();
 
     const remoteReminders = useQuery(api.reminders.getReminders, deviceId ? {
         userPlantId,
@@ -18,18 +20,19 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
 
     const remoteTodayReminders = useQuery(api.reminders.getTodayReminders, deviceId ? { deviceId } : 'skip');
 
-    const remindersCacheKey = deviceId
-        ? `rf_reminders_v1_${deviceId}${userPlantId ? `_${userPlantId}` : ''}`
-        : null;
-    const todayCacheKey = deviceId ? `rf_reminders_today_v1_${deviceId}` : null;
+    const remindersCacheKey = useSessionScopedCacheKey(
+        'rf_reminders_v2',
+        userPlantId ? `_${userPlantId}` : ''
+    );
+    const todayCacheKey = useSessionScopedCacheKey('rf_reminders_today_v2');
 
     const { cached: cachedReminders, cacheLoaded: remindersCacheLoaded } =
         useQueryCache(remindersCacheKey, remoteReminders);
     const { cached: cachedToday } =
         useQueryCache(todayCacheKey, remoteTodayReminders);
 
-    const reminders = remoteReminders ?? cachedReminders;
-    const todayReminders = remoteTodayReminders ?? cachedToday;
+    const reminders = !hasSession ? [] : remoteReminders ?? cachedReminders;
+    const todayReminders = !hasSession ? [] : remoteTodayReminders ?? cachedToday;
 
     const createReminderMutation = useMutation(api.reminders.createReminder);
     const toggleReminderMutation = useMutation(api.reminders.toggleReminder);

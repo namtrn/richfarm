@@ -372,7 +372,12 @@
     "environment_mixed_livestock": "Mixed homestead + livestock area",
     "environment_classroom": "Classroom / school corner",
     "environment_shared_plot": "Shared plot / club garden",
-    "environment_lab_bench": "Lab bench / test setup"
+    "environment_lab_bench": "Lab bench / test setup",
+    "final_title": "完成了",
+    "final_subtitle": "我们已根据你的引导设置了应用。",
+    "final_role_line": "你将以{{role}}的身份使用应用。",
+    "final_switch_hint": "想更换角色，请到设置中切换角色。",
+    "final_cta": "开始使用"
   },
   "home": {
     "focus_title": "Your focus",

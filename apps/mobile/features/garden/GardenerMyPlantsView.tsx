@@ -57,19 +57,19 @@ export function GardenerMyPlantsView() {
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, paddingBottom: 100, gap: 16 }}>
       <View style={{ gap: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+          <Text style={{ fontSize: 26, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>
             {t('tabs.my_plants')}
           </Text>
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/library?mode=select&from=gardener')}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 }}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
           >
             <Plus size={14} stroke="#fff" />
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('garden.my_plants_add')}</Text>
+            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '500' }}>{t('garden.my_plants_add')}</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.card, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}>
           <Search size={16} color={theme.textMuted} />
           <TextInput
             value={search}
@@ -86,14 +86,14 @@ export function GardenerMyPlantsView() {
           <ActivityIndicator color={theme.primary} />
         </View>
       ) : !hasPlants ? (
-        <View style={{ paddingVertical: 50, alignItems: 'center', gap: 10, backgroundColor: theme.card, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}>
-          <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('garden.my_plants_empty_title')}</Text>
+        <View style={{ paddingVertical: 50, alignItems: 'center', gap: 10, backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border }}>
+          <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>{t('garden.my_plants_empty_title')}</Text>
           <Text style={{ fontSize: 13, color: theme.textMuted, textAlign: 'center', paddingHorizontal: 24 }}>{t('garden.my_plants_empty_desc')}</Text>
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/library?mode=select&from=gardener')}
-            style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 18, paddingVertical: 10, marginTop: 6 }}
+            style={{ backgroundColor: theme.primary, borderRadius: 10, paddingHorizontal: 18, paddingVertical: 10, marginTop: 6 }}
           >
-            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>{t('garden.my_plants_add')}</Text>
+            <Text style={{ color: '#fff', fontWeight: '500', fontSize: 13 }}>{t('garden.my_plants_add')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -109,7 +109,7 @@ export function GardenerMyPlantsView() {
                   : t('growing.archive_title');
             return (
               <View key={key} style={{ gap: 10 }}>
-                <Text style={{ fontSize: 12, fontWeight: '800', color: theme.textSecondary, letterSpacing: 1, textTransform: 'uppercase' }}>
+                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>
                   {title}
                 </Text>
                 <View style={{ gap: 10 }}>
@@ -119,7 +119,7 @@ export function GardenerMyPlantsView() {
                       onPress={() => router.push({ pathname: '/(tabs)/plant/[userPlantId]', params: { userPlantId: String(plant._id), from: 'garden' } })}
                       style={{
                         backgroundColor: theme.card,
-                        borderRadius: 16,
+                        borderRadius: 10,
                         padding: 12,
                         flexDirection: 'row',
                         alignItems: 'center',
@@ -130,7 +130,7 @@ export function GardenerMyPlantsView() {
                     >
                       <PlantImageSmall uri={plant.photoUrl} />
                       <View style={{ flex: 1, gap: 2 }}>
-                        <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }} numberOfLines={1}>
+                        <Text style={{ fontSize: 15, fontWeight: '500', color: theme.text }} numberOfLines={1}>
                           {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
                         </Text>
                         <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={1}>

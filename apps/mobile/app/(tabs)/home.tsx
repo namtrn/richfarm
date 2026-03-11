@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
-import { Bell, Droplets, Scissors, Sprout, ChevronRight, ScanSearch } from 'lucide-react-native';
+import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from 'lucide-react-native';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -9,14 +9,13 @@ import { GardenOverviewSummary } from '../../components/garden/GardenOverviewSum
 import { useReminders } from '../../hooks/useReminders';
 import { useBeds } from '../../hooks/useBeds';
 import { usePlants } from '../../hooks/usePlants';
-import { usePlantScanner } from '../../hooks/usePlantScanner';
-import { WeatherCard } from '../../components/ui/WeatherCard';
+import { useUserSettings } from '../../hooks/useUserSettings';
+import { useTheme } from '../../lib/theme';
+import { useAuth } from '../../lib/auth';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
-import { useAuth } from '../../lib/auth';
 import { getOnboardingFocusItems } from '../../lib/personalization';
-import { useTheme } from '../../lib/theme';
-import { useUserSettings } from '../../hooks/useUserSettings';
+import { WeatherCard } from '../../components/ui/WeatherCard';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -44,7 +43,6 @@ export default function HomeScreen() {
   const { beds } = useBeds();
   const { plants } = usePlants();
   const { model: weatherModel } = useWeatherCard();
-  const { openScanner, scannerModals } = usePlantScanner();
   const { settings } = useUserSettings();
   const {
     showWeatherCard,
@@ -143,46 +141,40 @@ export default function HomeScreen() {
       {/* Welcome header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 4 }}>
         {/* Avatar with yellow ring */}
-        <View style={{ width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: theme.premium, padding: 2 }}>
+        <View style={{ width: 64, height: 64, borderRadius: 32, position: 'relative' }}>
           {user?.image ? (
             <Image
               source={{ uri: user.image }}
-              style={{ width: '100%', height: '100%', borderRadius: 28 }}
+              style={{ width: '100%', height: '100%', borderRadius: 32 }}
             />
           ) : (
-            <View style={{ flex: 1, borderRadius: 28, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 20, fontWeight: '800', color: theme.primary }}>{initials}</Text>
+            <View style={{ flex: 1, borderRadius: 32, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 20, fontWeight: '500', color: theme.primary }}>{initials}</Text>
             </View>
           )}
+          {/* Settings icon overlay */}
+          <TouchableOpacity
+            onPress={() => router.push('/(tabs)/profile')}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              backgroundColor: theme.background,
+              borderRadius: 10,
+              padding: 4,
+            }}
+          >
+            <Settings size={17} color={theme.primary} />
+          </TouchableOpacity>
         </View>
         {/* Text block */}
         <View style={{ gap: 2, flex: 1 }}>
-          <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.5, textTransform: 'uppercase' }}>
+          <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textSecondary, letterSpacing: 0.5, textTransform: 'uppercase' }}>
             {t('home.welcome_back')}
           </Text>
-          <Text testID="e2e-home-title" style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+          <Text testID="e2e-home-title" style={{ fontSize: 26, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>
             {displayName}
           </Text>
-        </View>
-        <View style={{ alignItems: 'center', gap: 3 }}>
-          <TouchableOpacity
-            onPress={openScanner}
-            accessibilityLabel={t('planning.option_camera_title')}
-            testID="e2e-home-ai-scanner"
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 14,
-              backgroundColor: theme.card,
-              borderWidth: 1,
-              borderColor: theme.border,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <ScanSearch size={20} color={theme.primary} />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 10, fontWeight: '700', color: theme.textSecondary }}>{t('planning.ai_scan_short')}</Text>
         </View>
       </View>
 
@@ -197,7 +189,7 @@ export default function HomeScreen() {
       {focusItems.length > 0 ? (
         <View style={{ paddingHorizontal: 2, gap: 10 }}>
           <View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+            <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
               {t('home.focus_title')}
             </Text>
             <Text style={{ fontSize: 12, color: theme.textSecondary }}>
@@ -210,14 +202,14 @@ export default function HomeScreen() {
                 key={`${item.kind}:${item.id}`}
                 style={{
                   backgroundColor: item.kind === 'goal' ? theme.successBg : theme.accent,
-                  borderRadius: 999,
+                  borderRadius: 10,
                   paddingHorizontal: 12,
                   paddingVertical: 7,
                   borderWidth: 1,
                   borderColor: item.kind === 'goal' ? theme.primary : theme.border,
                 }}
               >
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>
+                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.text }}>
                   {t(item.labelKey)}
                 </Text>
               </View>
@@ -241,7 +233,7 @@ export default function HomeScreen() {
       <View style={{ paddingHorizontal: 2 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+            <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
               {t('home.section_today')}
             </Text>
             <Text style={{ fontSize: 12, color: theme.textSecondary }}>
@@ -249,7 +241,7 @@ export default function HomeScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/(tabs)/reminder')}>
-            <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700' }}>
+            <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '500' }}>
               {t('home.view_all')}
             </Text>
           </TouchableOpacity>
@@ -288,7 +280,7 @@ export default function HomeScreen() {
                     <Icon size={18} stroke={theme.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }} numberOfLines={1}>
+                    <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }} numberOfLines={1}>
                       {getDisplayTitle(reminder)}
                     </Text>
                     <Text style={{ fontSize: 12, color: theme.textSecondary }}>
@@ -310,7 +302,7 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ paddingHorizontal: 2 }}>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text, marginBottom: 6 }}>
+        <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text, marginBottom: 6 }}>
           {t('home.quick_stats')}
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -318,18 +310,17 @@ export default function HomeScreen() {
             <Text style={{ fontSize: 12, color: theme.success, marginBottom: 4 }}>
               {t('home.stat_today')}
             </Text>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.primary }}>{sortedToday.length}</Text>
+            <Text style={{ fontSize: 20, fontWeight: '500', color: theme.primary }}>{sortedToday.length}</Text>
           </View>
-          <View style={{ flex: 1, backgroundColor: theme.warningBg, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: theme.warning }}>
+          <View style={{ flex: 1, backgroundColor: theme.warningBg, borderRadius: 10, padding: 12, borderWidth: 1, borderColor: theme.warning }}>
             <Text style={{ fontSize: 12, color: theme.warning, marginBottom: 4 }}>
               {t('home.stat_overdue')}
             </Text>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: theme.warning }}>{overdueCount}</Text>
+            <Text style={{ fontSize: 20, fontWeight: '500', color: theme.warning }}>{overdueCount}</Text>
           </View>
         </View>
       </View>
 
-      {scannerModals}
     </ScrollView>
   );
 }

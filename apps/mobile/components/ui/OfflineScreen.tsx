@@ -13,7 +13,7 @@ export function OfflineScreen() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, gap: 16, backgroundColor: theme.background }}>
-      <Text style={{ fontSize: 30, fontWeight: '700', color: theme.text }}>{t('offline.title')}</Text>
+      <Text style={{ fontSize: 30, fontWeight: '500', color: theme.text }}>{t('offline.title')}</Text>
       <Text style={{ fontSize: 16, color: theme.textSecondary, textAlign: 'center' }}>
         {t('offline.description')}
       </Text>
@@ -21,7 +21,7 @@ export function OfflineScreen() {
         style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 }}
         onPress={handleOpenDocs}
       >
-        <Text style={{ color: '#fff', fontWeight: '600' }}>{t('offline.open_docs')}</Text>
+        <Text style={{ color: '#fff', fontWeight: '500' }}>{t('offline.open_docs')}</Text>
       </TouchableOpacity>
     </View>
   );

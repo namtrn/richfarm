@@ -3,7 +3,9 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { authComponent } from "./auth";
+import { getRevenueCatAppUserIdForAuthSubject } from "./lib/revenuecat";
 import type { Id } from "./_generated/dataModel";
+import { sanitizeAnonymousProfile } from "../shared/src/authProfile";
 
 // Lấy user hiện tại dựa trên tokenIdentifier
 export const getCurrentUser = query({
@@ -25,7 +27,11 @@ export const getOrCreateUser = mutation({
         }
 
         const authUser = await authComponent.safeGetAuthUser(ctx);
-        const isAnonymous = authUser?.isAnonymous === true;
+        const baseProfile = sanitizeAnonymousProfile({
+            isAnonymous: authUser?.isAnonymous === true,
+            name: authUser?.name ?? identity.name,
+            email: authUser?.email ?? identity.email,
+        });
 
         const existing = await ctx.db
             .query("users")
@@ -35,12 +41,20 @@ export const getOrCreateUser = mutation({
             .unique();
 
         if (existing) {
+            const profile = sanitizeAnonymousProfile({
+                isAnonymous: baseProfile.isAnonymous,
+                name: baseProfile.name ?? existing.name,
+                email: baseProfile.email ?? existing.email,
+            });
             // Cập nhật thông tin nếu thay đổi
             await ctx.db.patch(existing._id, {
-                name: authUser?.name ?? identity.name ?? existing.name,
-                email: authUser?.email ?? identity.email ?? existing.email,
+                revenueCatAppUserId:
+                    existing.revenueCatAppUserId ??
+                    getRevenueCatAppUserIdForAuthSubject(identity.subject),
+                name: profile.name,
+                email: profile.email,
                 deviceId: args.deviceId ?? existing.deviceId,
-                isAnonymous,
+                isAnonymous: profile.isAnonymous,
                 lastSyncAt: Date.now(),
             });
             return existing._id;
@@ -49,10 +63,11 @@ export const getOrCreateUser = mutation({
         // Tạo user mới
         return await ctx.db.insert("users", {
             tokenIdentifier: identity.tokenIdentifier,
-            name: authUser?.name ?? identity.name,
-            email: authUser?.email ?? identity.email,
+            revenueCatAppUserId: getRevenueCatAppUserIdForAuthSubject(identity.subject),
+            ...(baseProfile.name !== undefined ? { name: baseProfile.name } : {}),
+            ...(baseProfile.email !== undefined ? { email: baseProfile.email } : {}),
             ...(args.deviceId ? { deviceId: args.deviceId } : {}),
-            isAnonymous,
+            isAnonymous: baseProfile.isAnonymous,
             isActive: true,
             lastSyncAt: Date.now(),
         });

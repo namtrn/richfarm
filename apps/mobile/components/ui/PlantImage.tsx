@@ -65,9 +65,9 @@ export function PlantImage({
 }
 
 export function PlantImageSmall({ uri }: { uri?: string | null }) {
-    return <PlantImage uri={uri} size={44} borderRadius={22} />;
+    return <PlantImage uri={uri} size={44} borderRadius={12} />;
 }
 
 export function PlantImageLarge({ uri }: { uri?: string | null }) {
-    return <PlantImage uri={uri} size={200} borderRadius={16} />;
+    return <PlantImage uri={uri} size={200} borderRadius={12} />;
 }

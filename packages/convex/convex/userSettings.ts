@@ -1,6 +1,10 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import { getUserByIdentityOrDevice, requireUser } from './lib/user';
+import {
+    getOrCreateUserFromDevice,
+    getOrCreateUserFromIdentity,
+    getUserByIdentityOrDevice,
+} from './lib/user';
 import { deriveAppModeFromOnboarding, requireAppMode } from './lib/appMode';
 
 export const getUserSettings = query({
@@ -41,7 +45,10 @@ export const upsertUserSettings = mutation({
         ),
     },
     handler: async (ctx, args) => {
-        const user = await requireUser(ctx, args.deviceId);
+        const user =
+            (await getOrCreateUserFromIdentity(ctx, args.deviceId)) ??
+            (await getOrCreateUserFromDevice(ctx, args.deviceId));
+        if (!user) return null;
         const existing = await ctx.db
             .query('userSettings')
             .withIndex('by_user', (q) => q.eq('userId', user._id))

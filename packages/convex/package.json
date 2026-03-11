@@ -5,6 +5,7 @@
   "main": "_generated/api.js",
   "types": "_generated/api.d.ts",
   "dependencies": {
-    "convex": "^1.32.0"
+    "convex": "^1.32.0",
+    "resend": "^6.9.3"
   }
 }

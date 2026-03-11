@@ -4,11 +4,13 @@ import { Id } from '../../../packages/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
+import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
 export function useBeds(gardenId?: Id<'gardens'>) {
   const { deviceId } = useDeviceId();
   const { isKnown, isOffline } = useNetworkStatus();
   const shouldBypassRemote = isKnown && isOffline;
+  const hasSession = useHasAuthSession();
 
   // Two unconditional hooks — React rules require hooks to always be called.
   // The correct one runs; the other is skipped via 'skip'.
@@ -22,12 +24,13 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   );
   const remoteBeds = bedsFromGarden ?? allBeds;
 
-  const cacheKey = deviceId
-    ? `rf_beds_v1_${deviceId}${gardenId ? `_${gardenId}` : ''}`
-    : null;
+  const cacheKey = useSessionScopedCacheKey(
+    'rf_beds_v2',
+    gardenId ? `_${gardenId}` : ''
+  );
   const { cached, cacheLoaded } = useQueryCache(cacheKey, remoteBeds);
 
-  const beds = remoteBeds ?? cached;
+  const beds = !hasSession ? [] : remoteBeds ?? cached;
 
   const createBedMutation = useMutation(api.beds.createBed);
   const updateBedMutation = useMutation(api.beds.updateBed);

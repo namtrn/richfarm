@@ -27,6 +27,16 @@ Deploy functions:
 npx convex deploy
 ```
 
+Auth email env vars for `Better Auth + Resend`:
+
+```bash
+npx convex env set RESEND_API_KEY re_xxx
+npx convex env set AUTH_EMAIL_FROM "Richfarm <auth@your-domain.com>"
+npx convex env set AUTH_EMAIL_APP_NAME Richfarm
+```
+
+`AUTH_EMAIL_APP_NAME` is optional. The sender domain must already be verified in Resend.
+
 Admin and sync mutations now require `CONVEX_ADMIN_FUNCTION_KEY` from a trusted server-side caller. Do not pass that key to mobile or dashboard clients.
 
 ## Taxonomy Notes
