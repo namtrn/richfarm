@@ -97,6 +97,16 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
+      async sendResetPassword({ user, url }) {
+        await sendAuthEmail({
+          to: user.email,
+          subject: `Reset your ${authEmailAppName} password`,
+          heading: "Reset your password",
+          body: `We received a request to reset your ${authEmailAppName} password. Use the link below to set a new password.`,
+          ctaLabel: "Reset password",
+          url,
+        });
+      },
     },
     emailVerification: {
       sendOnSignUp: true,

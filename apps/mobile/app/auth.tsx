@@ -4,6 +4,7 @@ import { ChevronLeft, Eye, EyeOff, UserRound } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { APP_SCHEME, getAuthClient } from '../lib/auth-client';
+import { useAuth } from '../lib/auth';
 import { useTheme } from '../lib/theme';
 
 /**
@@ -39,6 +40,7 @@ export default function AuthScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ returnTo?: string }>();
   const returnTo = typeof params.returnTo === 'string' ? params.returnTo : undefined;
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -89,6 +91,12 @@ export default function AuthScreen() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (isAuthLoading || !isAuthenticated) return;
+    const target = returnTo && returnTo !== '/auth' ? returnTo : '/';
+    router.replace(target as any);
+  }, [isAuthLoading, isAuthenticated, returnTo, router]);
 
   const navigateBack = () => {
     if (navigateTimeoutRef.current) {
@@ -298,9 +306,16 @@ export default function AuthScreen() {
               <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
                 <UserRound size={18} color={theme.textSecondary} />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
-                {authMode === 'forgot' ? t('profile.auth_send_reset_link') : t('profile.auth_sign_in_or_create')}
-              </Text>
+              <View style={{ gap: 2 }}>
+                <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
+                  {authMode === 'forgot' ? t('profile.auth_send_reset_link') : t('profile.auth_sign_in_or_create')}
+                </Text>
+                {authMode !== 'forgot' && (
+                  <Text style={{ fontSize: 12, color: theme.textSecondary }}>
+                    {t('profile.auth_sign_in_to_sync')}
+                  </Text>
+                )}
+              </View>
             </View>
 
             {/* Mode toggle */}

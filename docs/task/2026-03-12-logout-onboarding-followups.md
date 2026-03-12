@@ -96,3 +96,27 @@ Flow hiện tại đã đúng hướng UX phổ biến hơn.
 Phần còn lại chủ yếu là:
 - thêm cách explicit để reset onboarding
 - test kỹ các đường chuyển trạng thái auth/onboarding
+
+## Review & Planning (Today) by Codex
+
+### Review nhanh
+
+- Ưu tiên cao nhất: thêm `Reset onboarding`/`Reset app`, vì đây là chỗ UX còn thiếu sau khi đổi hành vi logout.
+- Tiếp theo: chạy manual test matrix auth/onboarding để chốt không còn regression về startup flow và routing.
+- Cần làm trong ngày nếu đủ môi trường: test email verification end-to-end (`RESEND_API_KEY`, deep link).
+- Các mục có thể làm sau nếu thiếu thời gian: one-off cleanup anonymous rows, theo dõi cron batch tuning, hoàn thiện reset password screen.
+
+### Kế hoạch thực hiện hôm nay
+
+1. Implement action `Reset onboarding` (hoặc `Reset local app data`) trong Profile/Dev Settings + clear `onboarding_profile_v1` + route về `/onboarding/farm-setup`.
+2. Chạy full manual test matrix cho các luồng logout/signin/delete account và ghi lại pass/fail.
+3. Test email verification E2E trên môi trường có đủ env vars và xác nhận deep link `my-garden://verify-email`.
+4. Rà wording ở `/auth` theo hướng “Sign in to sync your data” để tránh gây hiểu nhầm khi vẫn có anonymous session nền.
+5. Nếu còn thời gian: thêm guard khi user đã authenticated mà vào `/auth` thì redirect về `returnTo` hoặc `/`.
+6. Chuẩn bị checklist cho one-off cleanup anonymous rows + đối soát lại số lượng `user/session` sau cleanup.
+
+### Deliverables cuối ngày
+
+- Một PR cho `Reset onboarding` + update auth copy (và route guard nếu kịp).
+- Một bản test note ngắn cho manual matrix + email verification.
+- Một checklist vận hành cho one-off cleanup và theo dõi cron.

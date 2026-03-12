@@ -14,6 +14,7 @@ import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { getAuthClient } from '../../lib/auth-client';
 import { clearCachedCurrentUser } from '../../lib/authCache';
+import { clearOnboardingData } from '../../lib/onboardingLocalData';
 import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
 import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
@@ -24,6 +25,21 @@ import { type AppMode } from '../../lib/appMode';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { TimezoneModal } from '../../components/ui/TimezoneModal';
+
+function getGmtOffset(timezone: string): string {
+  if (!timezone) return '';
+  if (timezone.startsWith('GMT')) return timezone;
+  if (timezone === 'UTC') return 'GMT+0';
+  
+  try {
+    const now = new Date();
+    const tzString = now.toLocaleString('en-US', { timeZone: timezone, timeZoneName: 'shortOffset' });
+    const offset = tzString.split(' ').pop();
+    return offset?.startsWith('GMT') ? offset : '';
+  } catch (e) {
+    return '';
+  }
+}
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -288,6 +304,25 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      t('profile.reset_onboarding_title'),
+      t('profile.reset_onboarding_desc'),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.confirm'),
+          style: 'destructive',
+          onPress: async () => {
+            setAuthMessage(null);
+            await clearOnboardingData();
+            router.replace('/onboarding/farm-setup');
+          },
+        },
+      ]
+    );
+  };
+
   const handlePaywall = async () => {
     setPaywallMessage(null);
     const result = await presentPaywall();
@@ -377,6 +412,12 @@ export default function ProfileScreen() {
               >
                 <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_in_or_create')}</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleResetOnboarding}
+                style={{ backgroundColor: '#ffedd5', borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#9a3412', fontWeight: '700', fontSize: 14 }}>{t('profile.reset_onboarding_action')}</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <>
@@ -410,6 +451,12 @@ export default function ProfileScreen() {
                   style={{ marginTop: 10, backgroundColor: '#fee2e2', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
                 >
                   <Text style={{ color: '#991b1b', fontWeight: '700', fontSize: 14 }}>{t('profile.auth_delete_account')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleResetOnboarding}
+                  style={{ marginTop: 10, backgroundColor: '#ffedd5', borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
+                >
+                  <Text style={{ color: '#9a3412', fontWeight: '700', fontSize: 14 }}>{t('profile.reset_onboarding_action')}</Text>
                 </TouchableOpacity>
               </View>
             </>
@@ -456,10 +503,10 @@ export default function ProfileScreen() {
                 </View>
                 <TouchableOpacity
                   onPress={() => setLanguageMenuOpen((v) => !v)}
-                  style={{ backgroundColor: 'white', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border }}
+                  style={{ backgroundColor: theme.accent, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border }}
                 >
                   <Text style={{ fontSize: 16 }}>{selectedLang.flag}</Text>
-                  <Text style={{ fontSize: 14, color: theme.text }}>{selectedLang.label}</Text>
+                  <Text style={{ fontSize: 13, color: theme.text }}>{selectedLang.label}</Text>
                   <Check size={14} color={theme.success} />
                 </TouchableOpacity>
               </View>
@@ -477,7 +524,7 @@ export default function ProfileScreen() {
                         style={{ paddingHorizontal: 14, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1, borderColor: theme.accent }}
                       >
                         <Text style={{ fontSize: 18 }}>{lang.flag}</Text>
-                        <Text style={{ flex: 1, fontSize: 14, fontWeight: active ? '700' : '400', color: active ? theme.success : theme.text }}>
+                        <Text style={{ flex: 1, fontSize: 13, fontWeight: active ? '700' : '400', color: active ? theme.success : theme.text }}>
                           {lang.label}
                         </Text>
                         {active && <Check size={16} color={theme.success} />}
@@ -496,7 +543,7 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 onPress={() => setTimezoneModalOpen(true)}
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: theme.accent,
                   borderRadius: 20,
                   paddingHorizontal: 12,
                   paddingVertical: 6,
@@ -506,8 +553,8 @@ export default function ProfileScreen() {
                   alignItems: 'flex-end',
                 }}
               >
-                <Text style={{ fontSize: 14, color: timezone ? theme.text : theme.textMuted }}>
-                  {timezone ? timezone.replace(/_/g, ' ') : t('profile.timezone_placeholder')}
+                <Text style={{ fontSize: 13, color: timezone ? theme.text : theme.textMuted }}>
+                  {timezone ? `${timezone.replace(/_/g, ' ')} (${getGmtOffset(timezone)})` : t('profile.timezone_placeholder')}
                 </Text>
               </TouchableOpacity>
             </View>

@@ -23,6 +23,20 @@ const TIMEZONES = [
   'Pacific/Auckland', 'Pacific/Fiji', 'Pacific/Guadalcanal', 'Pacific/Honolulu', 'Pacific/Noumea', 'Pacific/Port_Moresby', 'UTC'
 ];
 
+function getGmtOffset(timezone: string): string {
+  if (timezone.startsWith('GMT')) return timezone;
+  if (timezone === 'UTC') return 'GMT+0';
+  
+  try {
+    const now = new Date();
+    const tzString = now.toLocaleString('en-US', { timeZone: timezone, timeZoneName: 'shortOffset' });
+    const offset = tzString.split(' ').pop();
+    return offset?.startsWith('GMT') ? offset : 'GMT';
+  } catch (e) {
+    return 'GMT';
+  }
+}
+
 type Props = {
   visible: boolean;
   onClose: () => void;
@@ -92,11 +106,14 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
                     { borderBottomColor: theme.accent }
                   ]}
                 >
-                  <Text style={[
-                    styles.itemText,
-                    { color: active ? theme.primary : theme.text, fontWeight: active ? '700' : '400' }
-                  ]}>
-                    {item.replace(/_/g, ' ')}
+                  <Text 
+                    style={[
+                      styles.itemText,
+                      { color: active ? theme.primary : theme.text, fontWeight: active ? '700' : '400' }
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {`${item.replace(/_/g, ' ')} (${getGmtOffset(item)})`}
                   </Text>
                   {active && <Check size={18} color={theme.primary} />}
                 </TouchableOpacity>
@@ -175,6 +192,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   itemText: {
-    fontSize: 16,
+    flex: 1,
+    fontSize: 13,
   },
 });
