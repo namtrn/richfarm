@@ -120,3 +120,28 @@ Phần còn lại chủ yếu là:
 - Một PR cho `Reset onboarding` + update auth copy (và route guard nếu kịp).
 - Một bản test note ngắn cho manual matrix + email verification.
 - Một checklist vận hành cho one-off cleanup và theo dõi cron.
+
+## Update thực tế (cuối ngày)
+
+### Đã hoàn thành trong branch
+
+- Thêm action `Reset onboarding` trong Profile (signed-in và guest), có confirm + route về onboarding.
+- Auth screen:
+  - thêm copy `Sign in to sync your data`
+  - thêm guard redirect khi đã authenticated
+  - cleanup UI forgot/reset flow theo feedback (bỏ card wrapper ở message cần gọn)
+- Email verification + reset password:
+  - bật `sendResetPassword` ở Better Auth server
+  - fix resend verification theo email input user (tránh bị ảnh hưởng bởi anonymous/temp session)
+  - thêm resend link tại Home warning với cooldown 24h
+- Security hardening:
+  - bỏ fallback secret mặc định, bắt buộc `BETTER_AUTH_SECRET`
+  - bỏ log lộ verify/reset link token ra console
+- Auth token lifetime:
+  - verify email token: 24h (`emailVerification.expiresIn`)
+  - reset password token: 1h (`emailAndPassword.resetPasswordTokenExpiresIn`)
+
+### Còn lại nên làm tiếp
+
+- Chạy full manual test matrix và ghi pass/fail chi tiết vào report.
+- Deploy/restart Convex để đảm bảo auth config mới có hiệu lực trên môi trường test/prod.

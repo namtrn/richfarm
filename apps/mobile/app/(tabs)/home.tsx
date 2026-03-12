@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from 'lucide-react-native';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { api } from '../../../../packages/convex/convex/_generated/api';
 import { GardenOverviewSummary } from '../../components/garden/GardenOverviewSummary';
 import { useReminders } from '../../hooks/useReminders';
@@ -12,6 +13,7 @@ import { usePlants } from '../../hooks/usePlants';
 import { useUserSettings } from '../../hooks/useUserSettings';
 import { useTheme } from '../../lib/theme';
 import { useAuth } from '../../lib/auth';
+import { APP_SCHEME, getAuthClient } from '../../lib/auth-client';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { useAppMode } from '../../hooks/useAppMode';
@@ -39,7 +41,11 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { user, deviceId } = useAuth();
+  const params = useLocalSearchParams<{ verifyEmail?: string; email?: string }>();
+  const { user, deviceId, session, isAuthenticated } = useAuth();
+  const [pendingVerifyEmail, setPendingVerifyEmail] = useState<string>('');
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendCooldownActive, setResendCooldownActive] = useState(false);
   const { todayReminders, isLoading } = useReminders();
   const { beds } = useBeds();
   const { plants } = usePlants();
@@ -55,6 +61,54 @@ export default function HomeScreen() {
   const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
 
   const displayName = user?.name || t('home.welcome_default');
+  const hasVerifyEmailParam = params.verifyEmail === '1';
+  const hasSessionVerifiedFlag = typeof (session?.user as any)?.emailVerified === 'boolean';
+  const needsVerifyEmailBySession = hasSessionVerifiedFlag && isAuthenticated && (session?.user as any)?.emailVerified === false;
+  const shouldShowVerifyEmailWarning = isAuthenticated && (hasVerifyEmailParam || needsVerifyEmailBySession);
+  const verifyEmailDisplay =
+    pendingVerifyEmail ||
+    (typeof params.email === 'string' && params.email.length > 0 ? params.email : '') ||
+    (user?.email ?? '');
+
+  useEffect(() => {
+    let mounted = true;
+    const loadPendingVerifyEmail = async () => {
+      const email = await AsyncStorage.getItem('rf_pending_verify_email');
+      if (!mounted) return;
+      setPendingVerifyEmail(email ?? '');
+    };
+    void loadPendingVerifyEmail();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasSessionVerifiedFlag) return;
+    if ((session?.user as any)?.emailVerified !== true) return;
+    void AsyncStorage.removeItem('rf_pending_verify_email');
+    setPendingVerifyEmail('');
+  }, [hasSessionVerifiedFlag, session?.user]);
+
+  useEffect(() => {
+    let mounted = true;
+    const checkResendCooldown = async () => {
+      if (!verifyEmailDisplay) {
+        if (mounted) setResendCooldownActive(false);
+        return;
+      }
+      const key = `rf_verify_resend_last_at_${verifyEmailDisplay.toLowerCase()}`;
+      const raw = await AsyncStorage.getItem(key);
+      const lastAt = raw ? Number(raw) : 0;
+      const cooldownMs = 24 * 60 * 60 * 1000;
+      const active = Number.isFinite(lastAt) && lastAt > 0 && Date.now() - lastAt < cooldownMs;
+      if (mounted) setResendCooldownActive(active);
+    };
+    void checkResendCooldown();
+    return () => {
+      mounted = false;
+    };
+  }, [verifyEmailDisplay]);
   const initials = displayName
     .split(' ')
     .slice(0, 2)
@@ -138,6 +192,36 @@ export default function HomeScreen() {
     } catch {}
   };
 
+  const handleResendVerifyEmailFromHome = async () => {
+    if (!verifyEmailDisplay || resendBusy || resendCooldownActive) return;
+    setResendBusy(true);
+    try {
+      const authClient = await getAuthClient();
+      type SendVerificationFn = (opts: { email: string; callbackURL: string }) => Promise<{ error?: { message?: string } }>;
+      const sendVerificationEmail = (authClient as unknown as { sendVerificationEmail?: SendVerificationFn }).sendVerificationEmail;
+      if (!sendVerificationEmail) {
+        Alert.alert(t('profile.auth_verify_email_resend_failed'));
+        return;
+      }
+      const result = await sendVerificationEmail({
+        email: verifyEmailDisplay,
+        callbackURL: `${APP_SCHEME}://verify-email`,
+      });
+      if (result?.error) {
+        Alert.alert(result.error.message ?? t('profile.auth_verify_email_resend_failed'));
+        return;
+      }
+      const key = `rf_verify_resend_last_at_${verifyEmailDisplay.toLowerCase()}`;
+      await AsyncStorage.setItem(key, String(Date.now()));
+      setResendCooldownActive(true);
+      Alert.alert(t('profile.auth_verify_email_resent'));
+    } catch {
+      Alert.alert(t('profile.auth_err_network'));
+    } finally {
+      setResendBusy(false);
+    }
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
       {/* Welcome header */}
@@ -179,6 +263,25 @@ export default function HomeScreen() {
           </Text>
         </View>
       </View>
+
+      {shouldShowVerifyEmailWarning ? (
+        <View style={{ paddingHorizontal: 2 }}>
+          <Text style={{ fontSize: 12, color: theme.warning }}>
+            {verifyEmailDisplay
+              ? t('home.verify_email_warning_with_email', { email: verifyEmailDisplay })
+              : t('home.verify_email_warning')}
+            {!resendCooldownActive && (
+              <Text
+                onPress={resendBusy ? undefined : handleResendVerifyEmailFromHome}
+                style={{ color: theme.primary, fontWeight: '500', opacity: resendBusy ? 0.5 : 1 }}
+              >
+                {' '}
+                {resendBusy ? t('profile.auth_sending_reset') : t('profile.auth_resend_verification')}
+              </Text>
+            )}
+          </Text>
+        </View>
+      ) : null}
 
       {isWeatherCardReady && showWeatherCard ? (
         <WeatherCard

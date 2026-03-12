@@ -12,10 +12,20 @@ const trustedOriginsFromEnv = (process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
   .split(",")
   .map((origin: string) => origin.trim())
   .filter(Boolean);
+const mobileTrustedOrigins = [
+  "my-garden://",
+  "my-garden://verify-email",
+  "my-garden://reset-password",
+];
 
 const resendApiKey = process.env.RESEND_API_KEY?.trim();
 const authEmailFrom = process.env.AUTH_EMAIL_FROM?.trim();
 const authEmailAppName = process.env.AUTH_EMAIL_APP_NAME?.trim() || "Richfarm";
+const betterAuthSecret = process.env.BETTER_AUTH_SECRET?.trim();
+
+if (!betterAuthSecret) {
+  throw new Error("BETTER_AUTH_SECRET is required and must not be empty.");
+}
 
 function escapeHtml(value: string): string {
   return value
@@ -36,7 +46,7 @@ async function sendAuthEmail(args: {
 }) {
   if (!resendApiKey || !authEmailFrom) {
     console.warn("[auth] Email sending is not configured. Set RESEND_API_KEY and AUTH_EMAIL_FROM.");
-    console.info(`[auth] ${args.subject} link for ${args.to}: ${args.url}`);
+    console.info(`[auth] ${args.subject} requested for ${args.to}.`);
     return;
   }
 
@@ -91,12 +101,15 @@ async function sendAuthEmail(args: {
 export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
   betterAuth({
     database: authComponent.adapter(ctx),
-    secret: process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-me",
+    secret: betterAuthSecret,
     baseURL: process.env.CONVEX_SITE_URL,
-    trustedOrigins: [...trustedOriginsFromEnv, "my-garden://"],
+    trustedOrigins: [...trustedOriginsFromEnv, ...mobileTrustedOrigins],
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: true,
+      // Keep users signed in right after sign-up, but mark account as unverified
+      // so the app can show verify warnings and gate sensitive flows if needed.
+      requireEmailVerification: false,
+      resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
       async sendResetPassword({ user, url }) {
         await sendAuthEmail({
           to: user.email,
@@ -109,6 +122,7 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
       },
     },
     emailVerification: {
+      expiresIn: 24 * 60 * 60, // 24 hours
       sendOnSignUp: true,
       sendOnSignIn: true,
       autoSignInAfterVerification: false,

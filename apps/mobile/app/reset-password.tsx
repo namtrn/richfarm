@@ -128,9 +128,9 @@ export default function ResetPasswordScreen() {
         </View>
 
         {message ? (
-          <View style={{ backgroundColor: messageIsError ? (theme.warningBg ?? '#fff7ed') : (theme.successBg ?? theme.accent), borderWidth: 1, borderColor: messageIsError ? theme.warning : theme.success, borderRadius: 12, padding: 12 }}>
-            <Text style={{ color: messageIsError ? theme.warning : theme.success, fontSize: 13 }}>{message}</Text>
-          </View>
+          <Text style={{ color: messageIsError ? theme.warning : theme.success, fontSize: 13 }}>
+            {message}
+          </Text>
         ) : null}
 
         <TouchableOpacity
