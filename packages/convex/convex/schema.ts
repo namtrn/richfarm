@@ -262,6 +262,7 @@ export default defineSchema({
     photoUrl: v.optional(v.string()), // Ảnh đại diện
 
     // Location
+    gardenId: v.optional(v.id("gardens")),
     bedId: v.optional(v.id("beds")),
     positionInBed: v.optional(v.object({
       x: v.number(),
@@ -298,6 +299,7 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_status", ["userId", "status"])
+    .index("by_garden", ["gardenId"])
     .index("by_bed", ["bedId"])
     .index("by_user_harvest_date", ["userId", "expectedHarvestDate"])
     .index("by_client_id", ["clientId"]),

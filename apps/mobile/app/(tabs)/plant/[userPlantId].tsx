@@ -41,6 +41,7 @@ import { SyncStatusBanner } from '../../../components/ui/SyncStatusBanner';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { useAppMode } from '../../../hooks/useAppMode';
+import { useDeviceId } from '../../../lib/deviceId';
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -85,10 +86,12 @@ export default function PlantDetailScreen() {
   const fromBedId = firstParam(params.bedId);
   const fromGardenId = firstParam(params.gardenId);
   const unitSystem = useUnitSystem();
+  const { deviceId } = useDeviceId();
   const { width: screenWidth } = useWindowDimensions();
 
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
   const { beds } = useBeds();
+  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { queuePhoto, queueActivity, queueHarvest } = usePlantSync();
   const { favorites, toggleFavorite } = useFavorites();
@@ -168,6 +171,7 @@ export default function PlantDetailScreen() {
   const [notes, setNotes] = useState('');
   const [nickname, setNickname] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
+  const [gardenId, setGardenId] = useState<Id<'gardens'> | undefined>(undefined);
   const [bedId, setBedId] = useState<Id<'beds'> | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
@@ -235,8 +239,16 @@ export default function PlantDetailScreen() {
     setNotes(plant.notes ?? '');
     setNickname(plant.nickname ?? '');
     setExpectedDate(formatDateInput(plant.expectedHarvestDate));
+    if ((plant as any).gardenId) {
+      setGardenId((plant as any).gardenId ?? undefined);
+    } else if (plant.bedId) {
+      const linkedBed = beds.find((b: any) => b._id === plant.bedId);
+      setGardenId(linkedBed?.gardenId ?? undefined);
+    } else {
+      setGardenId(undefined);
+    }
     setBedId(plant.bedId ?? undefined);
-  }, [plant]);
+  }, [plant, beds]);
 
   useEffect(() => {
     if (!photoModalOpen) {
@@ -281,6 +293,18 @@ export default function PlantDetailScreen() {
   }
 
   const currentBed = beds.find((b: any) => b._id === bedId);
+  const gardenById = useMemo(
+    () => new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden])),
+    [gardens]
+  );
+  const currentGarden = useMemo(() => {
+    const selectedGardenId = gardenId ? String(gardenId) : undefined;
+    if (selectedGardenId) return gardenById.get(selectedGardenId);
+    const plantGardenId = (plant as any)?.gardenId ? String((plant as any).gardenId) : undefined;
+    if (plantGardenId) return gardenById.get(plantGardenId);
+    const bedGardenId = currentBed?.gardenId ? String(currentBed.gardenId) : undefined;
+    return bedGardenId ? gardenById.get(bedGardenId) : undefined;
+  }, [gardenId, plant, currentBed, gardenById]);
 
   // --- Persist helpers (race condition fixed) ---
   const persistLocalData = async (
@@ -317,13 +341,82 @@ export default function PlantDetailScreen() {
   const handleSave = async () => {
     if (!canEdit) return;
     setSaving(true);
+    const updates: any = {
+      nickname: nickname.trim() || undefined,
+      notes: notes.trim() || undefined,
+      expectedHarvestDate: expectedDate ? parseDateInput(expectedDate) : undefined,
+    };
+    const plantGardenId = (plant as any)?.gardenId;
+    const hasGardenChanged = appMode === 'gardener' && gardenId !== plantGardenId;
+    if (appMode === 'gardener') {
+      if (hasGardenChanged) {
+        updates.gardenId = gardenId;
+      }
+    } else {
+      updates.bedId = bedId;
+    }
     try {
-      await updatePlant(plant._id, {
-        nickname: nickname.trim() || undefined,
-        notes: notes.trim() || undefined,
-        bedId,
-        expectedHarvestDate: expectedDate ? parseDateInput(expectedDate) : undefined,
+      await updatePlant(plant._id, updates);
+    } catch (error: any) {
+      const message = String(error?.message ?? '');
+      const isLegacyGardenIdError =
+        appMode === 'gardener' &&
+        hasGardenChanged &&
+        message.includes('extra field `gardenId`');
+      console.error('[PlantDetail] handleSave failed', {
+        error,
+        appMode,
+        hasGardenChanged,
       });
+
+      if (isLegacyGardenIdError) {
+        const { gardenId: _skip, ...legacyUpdates } = updates;
+        try {
+          await updatePlant(plant._id, legacyUpdates);
+        } catch (legacyError) {
+          console.error('[PlantDetail] legacy fallback save failed', {
+            legacyError,
+          });
+        }
+        Alert.alert(
+          t('common.error'),
+          t('plant.assign_garden_failed', {
+            defaultValue: 'Unable to update garden. Please try again.',
+          })
+        );
+      } else {
+        Alert.alert(
+          t('common.error'),
+          t('plant.save_failed_generic', {
+            defaultValue: 'Unable to save changes. Please try again.',
+          })
+        );
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAssignGarden = async (nextGardenId?: Id<'gardens'>) => {
+    if (!canEdit || saving) return;
+    const previousGardenId = gardenId;
+    setGardenId(nextGardenId);
+    setSaving(true);
+    try {
+      await updatePlant(plant._id, { gardenId: nextGardenId });
+    } catch (error: any) {
+      setGardenId(previousGardenId);
+      const message = String(error?.message ?? '');
+      console.error('[PlantDetail] handleAssignGarden failed', {
+        error,
+        message,
+      });
+      Alert.alert(
+        t('common.error'),
+        t('plant.assign_garden_failed', {
+          defaultValue: 'Unable to update garden. Please try again.',
+        })
+      );
     } finally {
       setSaving(false);
     }
@@ -331,7 +424,7 @@ export default function PlantDetailScreen() {
 
   const handleStatus = async (status: string) => {
     if (!canEdit) return;
-    if (status === 'growing') {
+    if (status === 'growing' && appMode !== 'gardener') {
       if (beds.length === 0) {
         Alert.alert(
           t('plant.start_growing_requires_bed_title'),
@@ -353,7 +446,7 @@ export default function PlantDetailScreen() {
     }
     setSaving(true);
     try {
-      if (status === 'growing') {
+      if (status === 'growing' && appMode !== 'gardener') {
         await updatePlant(plant._id, { bedId });
       }
       await updateStatus(plant._id, status);
@@ -779,32 +872,81 @@ export default function PlantDetailScreen() {
           formatDate={formatDisplayDate}
         />
 
-        <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 12, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
-          <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.bed_label')}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-            <TouchableOpacity
-              onPress={() => setBedId(undefined)}
-              style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: !bedId ? theme.primary : theme.accent, borderWidth: 1, borderColor: !bedId ? theme.primary : theme.border }}
-            >
-              <Text style={{ fontSize: 13, fontWeight: '700', color: !bedId ? '#fff' : theme.textSecondary }}>{t('plant.no_bed')}</Text>
-            </TouchableOpacity>
-            {beds.map((b: any) => {
-              const active = b._id === bedId;
-              return (
+        {appMode === 'gardener' ? (
+          <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 12, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('tabs.garden')}</Text>
+            {gardens.length === 0 ? (
+              <View style={{ gap: 8 }}>
+                <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+                  {t('plant.no_garden_yet', { defaultValue: 'No garden yet. Create one to assign this plant.' })}
+                </Text>
                 <TouchableOpacity
-                  key={b._id}
-                  onPress={() => setBedId(b._id)}
-                  style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                  onPress={() => router.push('/(tabs)/garden?tab=garden&create=1')}
+                  style={{ alignSelf: 'flex-start', backgroundColor: theme.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
                 >
-                  <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{b.name}</Text>
+                  <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>{t('garden.create_button')}</Text>
                 </TouchableOpacity>
-              );
-            })}
+              </View>
+            ) : (
+              <View style={{ gap: 8 }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                  {!gardenId && (
+                    <TouchableOpacity
+                      onPress={() => void handleAssignGarden(undefined)}
+                      style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: theme.primary, borderWidth: 1, borderColor: theme.primary }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: '#fff' }}>
+                        {t('plant.no_garden', { defaultValue: 'No garden' })}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  {gardens.map((g: any) => {
+                    const active = g._id === gardenId;
+                    return (
+                      <TouchableOpacity
+                        key={String(g._id)}
+                        onPress={() => void handleAssignGarden(g._id)}
+                        style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                      >
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{g.name}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>
+                  {t('plant.current_garden', { defaultValue: 'Current garden: {{name}}', name: currentGarden?.name ?? t('plant.no_garden', { defaultValue: 'No garden' }) })}
+                </Text>
+              </View>
+            )}
           </View>
-          {currentBed && (
-            <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('plant.current_bed', { name: currentBed.name })}</Text>
-          )}
-        </View>
+        ) : (
+          <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 12, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.bed_label')}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => setBedId(undefined)}
+                style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: !bedId ? theme.primary : theme.accent, borderWidth: 1, borderColor: !bedId ? theme.primary : theme.border }}
+              >
+                <Text style={{ fontSize: 13, fontWeight: '700', color: !bedId ? '#fff' : theme.textSecondary }}>{t('plant.no_bed')}</Text>
+              </TouchableOpacity>
+              {beds.map((b: any) => {
+                const active = b._id === bedId;
+                return (
+                  <TouchableOpacity
+                    key={b._id}
+                    onPress={() => setBedId(b._id)}
+                    style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
+                  >
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{b.name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {currentBed && (
+              <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('plant.current_bed', { name: currentBed.name })}</Text>
+            )}
+          </View>
+        )}
 
         <View style={{ gap: 12 }}>
           {isPlanning && (
@@ -850,7 +992,11 @@ export default function PlantDetailScreen() {
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
                 <Leaf size={16} color={theme.primary} />
               </View>
-              <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>{t('plant.bed_summary', { name: currentBed?.name ?? t('plant.no_bed') })}</Text>
+              <Text style={{ fontSize: 14, color: theme.text, fontWeight: '600' }}>
+                {appMode === 'gardener'
+                  ? `${t('tabs.garden')}: ${currentGarden?.name ?? t('plant.no_garden', { defaultValue: 'No garden' })}`
+                  : t('plant.bed_summary', { name: currentBed?.name ?? t('plant.no_bed') })}
+              </Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>

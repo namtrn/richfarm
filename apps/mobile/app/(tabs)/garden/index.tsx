@@ -46,6 +46,7 @@ import { useAppMode } from '../../../hooks/useAppMode';
 import { GardenerMyPlantsView } from '../../../features/garden/GardenerMyPlantsView';
 
 type GardenTab = 'garden' | 'planning' | 'growing';
+type GardenerTab = 'garden' | 'plants';
 const NAME_MAX = 40;
 
 // ─── Animated Sliding Tab Bar ─────────────────────────────────────────────────
@@ -130,39 +131,64 @@ function SlidingTabBar({
 }
 
 // ─── Garden Card ──────────────────────────────────────────────────────────────
-function GardenCard({ garden, onPress, unitSystem, testID }: { garden: any; onPress: () => void; unitSystem: UnitSystem; testID?: string }) {
+function GardenCard({
+    garden,
+    onPress,
+    unitSystem,
+    previewImages,
+    plantCount,
+    testID,
+}: {
+    garden: any;
+    onPress: () => void;
+    unitSystem: UnitSystem;
+    previewImages: string[];
+    plantCount: number;
+    testID?: string;
+}) {
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const tileBackgrounds = [theme.accent, '#D8E1C7', '#8FA27A'];
+    const safeImages = previewImages.filter((uri) => typeof uri === 'string' && uri.length > 0);
+    const renderTile = (index: number, roundedStyle: any) => {
+        const uri = safeImages[index];
+        if (uri) {
+            return <Image source={{ uri }} style={[{ width: '100%', height: '100%' }, roundedStyle]} />;
+        }
+        return <View style={[{ width: '100%', height: '100%', backgroundColor: tileBackgrounds[index % tileBackgrounds.length] }, roundedStyle]} />;
+    };
+
     return (
         <TouchableOpacity
             onPress={onPress}
             activeOpacity={0.8}
             testID={testID}
-            style={{
-                backgroundColor: theme.card,
-                borderRadius: 20,
-                padding: 16,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 14,
-                shadowColor: isDark ? '#000000' : '#1a1a18',
-                shadowOpacity: 0.06,
-                shadowRadius: 10,
-                shadowOffset: { width: 0, height: 2 },
-                borderWidth: 1,
-                borderColor: theme.border,
-            }}
+            style={{ gap: 12 }}
         >
-            <View style={{ width: 56, height: 56, backgroundColor: theme.accent, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 28 }}>🌿</Text>
+            <View style={{ borderRadius: 28, overflow: 'hidden', backgroundColor: theme.accent }}>
+                <View style={{ flexDirection: 'row', gap: 2, height: 180 }}>
+                    <View style={{ flex: 1.15 }}>
+                        {renderTile(0, { borderTopLeftRadius: 28, borderBottomLeftRadius: 28 })}
+                    </View>
+                    <View style={{ width: 126, gap: 2 }}>
+                        <View style={{ flex: 1 }}>
+                            {renderTile(1, {})}
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            {renderTile(2, {})}
+                        </View>
+                    </View>
+                    <View style={{ width: 56, backgroundColor: '#6A571E', borderTopRightRadius: 28, borderBottomRightRadius: 28 }} />
+                </View>
             </View>
-            <View style={{ flex: 1 }}>
+
+            <View style={{ gap: 4, marginTop: 12 }}>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{garden.name}</Text>
-                <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 2 }}>
-                    {garden.areaM2 ? formatArea(garden.areaM2, unitSystem) : '—'}
+                <Text style={{ fontSize: 13, color: theme.textSecondary }}>
+                    {plantCount} {plantCount === 1 ? 'plant' : 'plants'}
+                    {garden.areaM2 ? ` • ${formatArea(garden.areaM2, unitSystem)}` : ''}
                 </Text>
             </View>
-            <ChevronRight size={16} stroke={theme.textMuted} />
         </TouchableOpacity>
     );
 }
@@ -400,10 +426,14 @@ function GardenTabContent({
     onCreateGarden,
     canCreateGarden,
     unitSystem,
+    showUnassigned = true,
+    unassignedBy = 'bed',
 }: {
     onCreateGarden: () => void;
     canCreateGarden: boolean;
     unitSystem: UnitSystem;
+    showUnassigned?: boolean;
+    unassignedBy?: 'bed' | 'garden';
 }) {
     const { t } = useTranslation();
     const theme = useTheme();
@@ -416,9 +446,30 @@ function GardenTabContent({
     const { beds } = useBeds();
     const { todayReminders } = useReminders();
     const unassignedPlants = useMemo(
-        () => plants.filter((p: any) => !p.bedId),
-        [plants]
+        () =>
+            plants.filter((p: any) =>
+                unassignedBy === 'garden' ? !p.gardenId : !p.bedId
+            ),
+        [plants, unassignedBy]
     );
+    const bedById = useMemo(
+        () => new Map((beds ?? []).map((bed: any) => [String(bed._id), bed])),
+        [beds]
+    );
+    const plantsByGardenId = useMemo(() => {
+        const groups = new Map<string, any[]>();
+        for (const plant of plants as any[]) {
+            const directGardenId = plant?.gardenId ? String(plant.gardenId) : null;
+            const bed = plant?.bedId ? bedById.get(String(plant.bedId)) : undefined;
+            const bedGardenId = bed?.gardenId ? String(bed.gardenId) : null;
+            const gardenId = directGardenId ?? bedGardenId;
+            if (!gardenId) continue;
+            const existing = groups.get(gardenId) ?? [];
+            existing.push(plant);
+            groups.set(gardenId, existing);
+        }
+        return groups;
+    }, [plants, bedById]);
     const planningPlants = useMemo(
         () => plants.filter((p: any) => p.status === 'planning' || p.status === 'planting'),
         [plants]
@@ -457,29 +508,44 @@ function GardenTabContent({
     return (
         <View style={{ gap: 12 }}>
             {(gardens as any[]).map((g) => (
+                (() => {
+                    const gardenPlants = plantsByGardenId.get(String(g._id)) ?? [];
+                    const previewImages = gardenPlants
+                        .map((plant: any) => plant?.photoUrl)
+                        .filter((uri: any) => typeof uri === 'string' && uri.length > 0)
+                        .slice(0, 3) as string[];
+                    return (
                 <GardenCard
                     key={g._id}
                     garden={g}
                     unitSystem={unitSystem}
+                    previewImages={previewImages}
+                    plantCount={gardenPlants.length}
                     onPress={() => router.push(`/(tabs)/garden/${g._id}`)}
                     testID="e2e-garden-card"
                 />
+                    );
+                })()
             ))}
-            {unassignedPlants.length > 0 && (
-                <View style={{ backgroundColor: theme.card, borderRadius: 20, borderWidth: 1, borderColor: theme.border, padding: 16, gap: 12 }}>
+            {showUnassigned && unassignedPlants.length > 0 && (
+                <View style={{ gap: 12, paddingTop: 8 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Sprout size={16} stroke={theme.warning} />
                         <Text style={{ fontSize: 13, fontWeight: '800', color: theme.warning, textTransform: 'uppercase', letterSpacing: 0.8 }}>
                             {t('garden.unassigned_plants')} ({unassignedPlants.length})
                         </Text>
                     </View>
-                    <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('garden.unassigned_plants_desc')}</Text>
+                    <Text style={{ fontSize: 12, color: theme.textMuted }}>
+                        {unassignedBy === 'garden'
+                            ? t('garden.unassigned_plants_desc_without_garden')
+                            : t('garden.unassigned_plants_desc_without_bed')}
+                    </Text>
                     <View style={{ gap: 8 }}>
                         {unassignedPlants.map((plant: any) => (
                             <TouchableOpacity
                                 key={plant._id}
                                 onPress={() => router.push({ pathname: '/(tabs)/plant/[userPlantId]', params: { userPlantId: String(plant._id), from: 'garden' } })}
-                                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.background, borderRadius: 12, padding: 10 }}
+                                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 12, paddingVertical: 8 }}
                             >
                                 <View style={{ width: 36, height: 36, backgroundColor: theme.accent, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
                                     <Leaf size={18} stroke={theme.primary} />
@@ -1290,7 +1356,7 @@ function FarmerGardenScreen() {
                                 </Text>
                             </View>
                         )}
-                        <GardenTabContent onCreateGarden={handleOpenCreateGarden} canCreateGarden={canCreateGarden} unitSystem={unitSystem} />
+                        <GardenTabContent onCreateGarden={handleOpenCreateGarden} canCreateGarden={canCreateGarden} unitSystem={unitSystem} unassignedBy="bed" />
                     </>
                 )}
                 {activeTab === 'planning' && <PlanningTabContent openAddSheetSignal={openAddSheetSignal} />}
@@ -1302,12 +1368,108 @@ function FarmerGardenScreen() {
     );
 }
 
+function GardenerGardenScreen() {
+    const { t } = useTranslation();
+    const theme = useTheme();
+    const params = useLocalSearchParams<{ tab?: string | string[]; create?: string | string[] }>();
+    const { deviceId } = useDeviceId();
+    const { user, isLoading: isAuthLoading } = useAuth();
+    const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+    const gardens = gardensQuery ?? [];
+    const isPremium = isPremiumActive(user);
+    const canCreateGarden = !isAuthLoading && (isPremium || gardens.length < 1);
+    const [activeTab, setActiveTab] = useState<GardenerTab>('garden');
+    const [showCreate, setShowCreate] = useState(false);
+    const [gardenLimitError, setGardenLimitError] = useState('');
+    const unitSystem = useUnitSystem();
+
+    const TABS = [
+        { key: 'garden', label: t('garden.tab_garden') },
+        { key: 'plants', label: t('tabs.my_plants') },
+    ];
+
+    const handleOpenCreateGarden = () => {
+        if (!canCreateGarden) {
+            setGardenLimitError(t('garden.error_limit_free'));
+            return;
+        }
+        setGardenLimitError('');
+        setShowCreate(true);
+    };
+
+    useEffect(() => {
+        const tabParam = Array.isArray(params.tab) ? params.tab[0] : params.tab;
+        if (tabParam === 'garden') {
+            setActiveTab('garden');
+            return;
+        }
+        if (tabParam === 'plants') {
+            setActiveTab('plants');
+        }
+    }, [params.tab]);
+
+    useEffect(() => {
+        const createParam = Array.isArray(params.create) ? params.create[0] : params.create;
+        if (createParam !== '1') return;
+        setActiveTab('garden');
+        if (canCreateGarden) {
+            setShowCreate(true);
+        } else {
+            setGardenLimitError(t('garden.error_limit_free'));
+        }
+    }, [params.create, canCreateGarden, t]);
+
+    return (
+        <View style={{ flex: 1, backgroundColor: theme.background }}>
+            <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, gap: 12, backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 26, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
+                        {activeTab === 'garden' ? t('garden.title') : t('tabs.my_plants')}
+                    </Text>
+                    {activeTab === 'garden' && (
+                        <TouchableOpacity
+                            onPress={handleOpenCreateGarden}
+                            testID="e2e-garden-open-create-gardener"
+                            style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: theme.primary, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}
+                        >
+                            <Plus size={13} stroke="white" />
+                            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{t('garden.create_button')}</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+                <SlidingTabBar
+                    tabs={TABS}
+                    activeTab={activeTab}
+                    onTabChange={(key) => setActiveTab(key as GardenerTab)}
+                />
+            </View>
+
+            {activeTab === 'garden' ? (
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+                    {!!gardenLimitError && (
+                        <View style={{ marginBottom: 12, backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                            <Text style={{ color: theme.danger, fontSize: 13 }}>
+                                {gardenLimitError}
+                            </Text>
+                        </View>
+                    )}
+                    <GardenTabContent onCreateGarden={handleOpenCreateGarden} canCreateGarden={canCreateGarden} unitSystem={unitSystem} unassignedBy="garden" />
+                </ScrollView>
+            ) : (
+                <GardenerMyPlantsView hideHeader />
+            )}
+
+            <CreateGardenModal visible={showCreate} onClose={() => setShowCreate(false)} unitSystem={unitSystem} />
+        </View>
+    );
+}
+
 export default function GardenScreen() {
     const { appMode } = useAppMode();
     const isGardener = appMode === 'gardener';
 
     if (isGardener) {
-        return <GardenerMyPlantsView />;
+        return <GardenerGardenScreen />;
     }
 
     return <FarmerGardenScreen />;

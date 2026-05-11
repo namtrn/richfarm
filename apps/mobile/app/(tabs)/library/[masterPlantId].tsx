@@ -6,9 +6,13 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    Modal,
+    Pressable,
+    TextInput,
     LayoutAnimation,
     Platform,
     UIManager,
+    StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -27,13 +31,15 @@ import {
     Dna,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from 'convex/react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../packages/convex/convex/_generated/api';
 import { buildPlantSeedKey, plantI18nSeed, plantsMasterSeed } from '../../../../../packages/convex/convex/data/plantsMasterSeed';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
+import { useDeviceId } from '../../../lib/deviceId';
 import {
     formatLengthCm,
     formatSeedsPerArea,
@@ -53,6 +59,8 @@ import { useThemeContext } from '../../../lib/ThemeContext';
 import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
+import { usePlantSync } from '../../../hooks/usePlantSync';
+import { createLocalId, loadPlantLocalData, savePlantLocalData } from '../../../lib/plantLocalData';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -158,6 +166,60 @@ function normalizeScientificName(value: string) {
         .replaceAll('×', 'x')
         .replace(/\s+/g, ' ')
         .trim();
+}
+
+function formatDateInput(value?: number) {
+    if (!value) return '';
+    const d = new Date(value);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function parseDateInput(value: string) {
+    const parts = value.split('-').map((v) => Number(v));
+    if (parts.length !== 3) return undefined;
+    const [y, m, d] = parts;
+    if (!y || !m || !d) return undefined;
+    const date = new Date(y, m - 1, d, 12, 0, 0, 0);
+    if (Number.isNaN(date.getTime())) return undefined;
+    return date.getTime();
+}
+
+function formatDateTimeInput(value?: number) {
+    if (!value) return '';
+    const d = new Date(value);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${day} ${hh}:${mm}`;
+}
+
+function parseDateTimeInput(value: string) {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    const [datePart, timePart] = trimmed.split(/\s+/);
+    const dateMs = parseDateInput(datePart);
+    if (!dateMs) return undefined;
+    if (!timePart) return dateMs;
+    const [hRaw, mRaw] = timePart.split(':');
+    const h = Number(hRaw);
+    const m = Number(mRaw);
+    if (!Number.isFinite(h) || !Number.isFinite(m) || h < 0 || h > 23 || m < 0 || m > 59) {
+        return undefined;
+    }
+    const d = new Date(dateMs);
+    d.setHours(h, m, 0, 0);
+    return d.getTime();
+}
+
+function daysAgoTimestamp(daysAgo: number) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    return d.getTime();
 }
 
 function buildSeedMasterPlant(seedKeyOrScientificName: string, locale: string) {
@@ -338,8 +400,11 @@ export default function LibraryPlantDetailScreen() {
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const { appMode } = useAppMode();
+    const isGardener = appMode === 'gardener';
     const router = useRouter();
-    const { masterPlantId, mode, from, fromPlantId, bedId, x, y, scannedPhotoUri } = useLocalSearchParams<{
+    const { bottom: safeBottom } = useSafeAreaInsets();
+    const { deviceId } = useDeviceId();
+    const { masterPlantId, mode, from, fromPlantId, bedId, x, y, scannedPhotoUri, backFrom, backBedId, backGardenId } = useLocalSearchParams<{
         masterPlantId: string;
         mode?: string;
         from?: string;
@@ -348,6 +413,9 @@ export default function LibraryPlantDetailScreen() {
         x?: string;
         y?: string;
         scannedPhotoUri?: string;
+        backFrom?: string;
+        backBedId?: string;
+        backGardenId?: string;
     }>();
 
     const resolvedId = Array.isArray(masterPlantId) ? masterPlantId[0] : masterPlantId;
@@ -357,6 +425,9 @@ export default function LibraryPlantDetailScreen() {
     const xParam = Array.isArray(x) ? x[0] : x;
     const yParam = Array.isArray(y) ? y[0] : y;
     const scannedPhotoUriParam = Array.isArray(scannedPhotoUri) ? scannedPhotoUri[0] : scannedPhotoUri;
+    const backFromParam = Array.isArray(backFrom) ? backFrom[0] : backFrom;
+    const backBedIdParam = Array.isArray(backBedId) ? backBedId[0] : backBedId;
+    const backGardenIdParam = Array.isArray(backGardenId) ? backGardenId[0] : backGardenId;
     const locale = i18n.language?.split('-')[0] ?? 'en';
     const isSeedFallbackId = !!resolvedId && resolvedId.startsWith('seed:');
     const seedPlantKey = useMemo(() => {
@@ -373,8 +444,11 @@ export default function LibraryPlantDetailScreen() {
 
     const { favorites, toggleFavorite } = useFavorites();
     const { addPlant, updatePlant } = usePlants();
+    const { queueActivity } = usePlantSync();
     const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
+    const createGarden = useMutation(api.gardens.createGarden);
+    const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
 
     const masterPlant = useQuery(
         api.plantImages.getPlantById,
@@ -405,6 +479,58 @@ export default function LibraryPlantDetailScreen() {
     const [variantsSectionY, setVariantsSectionY] = useState(0);
     const [targetModalOpen, setTargetModalOpen] = useState(false);
     const [addSaving, setAddSaving] = useState(false);
+    const [gardenerDetailsOpen, setGardenerDetailsOpen] = useState(false);
+    const [gardenerNickname, setGardenerNickname] = useState('');
+    const [selectedGardenId, setSelectedGardenId] = useState<string | undefined>(undefined);
+    const [createGardenMode, setCreateGardenMode] = useState(false);
+    const [newGardenName, setNewGardenName] = useState('');
+    const [plantedPreset, setPlantedPreset] = useState<'today' | 'yesterday' | 'seven_days' | 'thirty_days' | 'custom'>('today');
+    const [plantedCustomValue, setPlantedCustomValue] = useState('');
+    const [waterPreset, setWaterPreset] = useState<'today' | 'yesterday' | 'three_days' | 'seven_days' | 'custom'>('today');
+    const [waterCustomValue, setWaterCustomValue] = useState('');
+    const [gardenerExpectedDate, setGardenerExpectedDate] = useState('');
+    const [activeDropdown, setActiveDropdown] = useState<'planted' | 'water' | 'growth' | null>(null);
+    const [customDateEditor, setCustomDateEditor] = useState<'planted' | 'water' | null>(null);
+    const [gardenerGrowthStage, setGardenerGrowthStage] = useState('vegetative');
+
+    const growthStageOptions = useMemo(
+        () => [
+            { key: 'sowing', label: t('library.growth_stage_sowing', { defaultValue: 'Sowing' }) },
+            { key: 'seedling', label: t('library.growth_stage_seedling', { defaultValue: 'Seedling' }) },
+            { key: 'vegetative', label: t('library.growth_stage_vegetative', { defaultValue: 'Vegetative' }) },
+            { key: 'flowering', label: t('library.growth_stage_flowering', { defaultValue: 'Flowering' }) },
+            { key: 'fruiting', label: t('library.growth_stage_fruiting', { defaultValue: 'Fruiting' }) },
+        ],
+        [t]
+    );
+    const selectedGrowthStageLabel =
+        growthStageOptions.find((option) => option.key === gardenerGrowthStage)?.label ??
+        growthStageOptions[0]?.label ??
+        '';
+    const plantedOptions = useMemo(
+        () => [
+            { key: 'today' as const, label: t('library.date_today', { defaultValue: 'Today' }) },
+            { key: 'yesterday' as const, label: t('library.date_yesterday', { defaultValue: 'Yesterday' }) },
+            { key: 'seven_days' as const, label: t('library.date_7_days_ago', { defaultValue: '7 days ago' }) },
+            { key: 'thirty_days' as const, label: t('library.date_30_days_ago', { defaultValue: '30 days ago' }) },
+            { key: 'custom' as const, label: t('library.date_custom', { defaultValue: 'Custom date' }) },
+        ],
+        [t]
+    );
+    const waterOptions = useMemo(
+        () => [
+            { key: 'today' as const, label: t('library.date_today', { defaultValue: 'Today' }) },
+            { key: 'yesterday' as const, label: t('library.date_yesterday', { defaultValue: 'Yesterday' }) },
+            { key: 'three_days' as const, label: t('library.date_3_days_ago', { defaultValue: '3 days ago' }) },
+            { key: 'seven_days' as const, label: t('library.date_7_days_ago', { defaultValue: '7 days ago' }) },
+            { key: 'custom' as const, label: t('library.date_custom', { defaultValue: 'Custom date' }) },
+        ],
+        [t]
+    );
+    const selectedPlantedLabel =
+        plantedOptions.find((option) => option.key === plantedPreset)?.label ?? plantedOptions[0]?.label ?? '';
+    const selectedWaterLabel =
+        waterOptions.find((option) => option.key === waterPreset)?.label ?? waterOptions[0]?.label ?? '';
 
     useEffect(() => {
         if (!resolvedId) return;
@@ -449,9 +575,11 @@ export default function LibraryPlantDetailScreen() {
         { key: 'toxicity', icon: <AlertTriangle size={20} stroke={GRAY} />, color: GRAY, bg: '#f1f5f9', i18nTitle: t('library.care_toxicity', { defaultValue: 'Plant Toxicity' }) },
     ];
 
-    const showAdd = (modeParam === 'select' || modeParam === 'attach') && canMutateMaster;
+    const showAdd = canMutateMaster;
+    const isAttachMode = modeParam === 'attach';
+    const isSelectMode = modeParam === 'select';
     const addLabel =
-        fromParam === 'bed'
+        !isGardener && fromParam === 'bed'
             ? t('bed.add_plant', { defaultValue: 'Add to garden' })
             : fromParam === 'scanner'
                 ? t('library.add_to_my_garden', { defaultValue: 'Add to My Garden' })
@@ -469,21 +597,164 @@ export default function LibraryPlantDetailScreen() {
             x: xParam,
             y: yParam,
             scannedPhotoUri: scannedPhotoUriParam,
+            backFrom: backFromParam,
+            backBedId: backBedIdParam,
+            backGardenId: backGardenIdParam,
             selectedBedId,
         });
     };
 
     const handleAdd = async () => {
         if (!currentPlant || !resolvedId || !canMutateMaster) return;
-        if (modeParam === 'attach' && fromPlantId) {
+        if (isAttachMode && fromPlantId) {
             await completeAdd('planning');
             return;
         }
+        if (!isGardener && fromParam === 'bed' && bedIdParam) {
+            await completeAdd('growing', bedIdParam);
+            return;
+        }
+        setTargetModalOpen(true);
+    };
+
+    const handleAddPlanning = async () => {
+        if (!showAdd) return;
+        await completeAdd('planning');
+    };
+
+    const handleAddGrowing = async () => {
+        if (!showAdd) return;
         if (fromParam === 'bed' && bedIdParam) {
             await completeAdd('growing', bedIdParam);
             return;
         }
         setTargetModalOpen(true);
+    };
+
+    const handleAddMyPlants = async () => {
+        if (!showAdd) return;
+        setCreateGardenMode(false);
+        setNewGardenName('');
+        setSelectedGardenId(gardens.length > 0 ? String(gardens[0]._id) : undefined);
+        setPlantedPreset('today');
+        setPlantedCustomValue('');
+        setWaterPreset('today');
+        setWaterCustomValue('');
+        setGardenerExpectedDate('');
+        setGardenerGrowthStage('vegetative');
+        setActiveDropdown(null);
+        setCustomDateEditor(null);
+        setGardenerDetailsOpen(true);
+    };
+
+    const handleCreateGardenerPlant = async () => {
+        if (!resolvedId || !canMutateMaster || addSaving) return;
+        setAddSaving(true);
+        try {
+            let resolvedGardenId = selectedGardenId;
+            if (createGardenMode) {
+                const name = newGardenName.trim();
+                if (!name) {
+                    setAddSaving(false);
+                    return;
+                }
+                const createdGardenId = await createGarden({
+                    name,
+                    locationType: 'outdoor',
+                    deviceId,
+                });
+                resolvedGardenId = String(createdGardenId);
+            }
+            const createdPlantId = await addPlant({
+                plantMasterId: resolvedId as any,
+                nickname: gardenerNickname.trim() || undefined,
+                gardenId: resolvedGardenId ? (resolvedGardenId as any) : undefined,
+                plantedAt:
+                    plantedPreset === 'custom'
+                        ? parseDateTimeInput(plantedCustomValue)
+                        : plantedPreset === 'today'
+                            ? daysAgoTimestamp(0)
+                            : plantedPreset === 'yesterday'
+                                ? daysAgoTimestamp(1)
+                                : plantedPreset === 'seven_days'
+                                    ? daysAgoTimestamp(7)
+                                    : daysAgoTimestamp(30),
+            });
+            const expectedHarvestDate = parseDateInput(gardenerExpectedDate);
+            if (expectedHarvestDate) {
+                await updatePlant(createdPlantId, { expectedHarvestDate });
+            }
+            const lastWaterAt =
+                waterPreset === 'custom'
+                    ? parseDateTimeInput(waterCustomValue)
+                    : waterPreset === 'today'
+                        ? daysAgoTimestamp(0)
+                        : waterPreset === 'yesterday'
+                            ? daysAgoTimestamp(1)
+                            : waterPreset === 'three_days'
+                                ? daysAgoTimestamp(3)
+                                : daysAgoTimestamp(7);
+            if (lastWaterAt) {
+                const existing = await loadPlantLocalData(String(createdPlantId));
+                const wateringEntry = {
+                    id: createLocalId(),
+                    type: 'watering' as const,
+                    date: lastWaterAt,
+                    note: undefined,
+                };
+                await savePlantLocalData(String(createdPlantId), {
+                    ...existing,
+                    activities: [wateringEntry, ...existing.activities],
+                });
+                await queueActivity(String(createdPlantId), wateringEntry);
+            }
+            if (gardenerGrowthStage) {
+                const existing = await loadPlantLocalData(String(createdPlantId));
+                const growthStageEntry = {
+                    id: createLocalId(),
+                    type: 'custom' as const,
+                    date:
+                        plantedPreset === 'custom'
+                            ? parseDateTimeInput(plantedCustomValue) ?? Date.now()
+                            : plantedPreset === 'today'
+                                ? daysAgoTimestamp(0)
+                                : plantedPreset === 'yesterday'
+                                    ? daysAgoTimestamp(1)
+                                    : plantedPreset === 'seven_days'
+                                        ? daysAgoTimestamp(7)
+                                        : daysAgoTimestamp(30),
+                    note: `${t('library.growth_stage', { defaultValue: 'Growth stage' })}: ${selectedGrowthStageLabel}`,
+                };
+                await savePlantLocalData(String(createdPlantId), {
+                    ...existing,
+                    activities: [growthStageEntry, ...existing.activities],
+                });
+                await queueActivity(String(createdPlantId), growthStageEntry);
+            }
+            setGardenerDetailsOpen(false);
+            setGardenerNickname('');
+            setSelectedGardenId(undefined);
+            setCreateGardenMode(false);
+            setNewGardenName('');
+            setGardenerExpectedDate('');
+            setPlantedPreset('today');
+            setPlantedCustomValue('');
+            setWaterPreset('today');
+            setWaterCustomValue('');
+            setGardenerGrowthStage('vegetative');
+            setActiveDropdown(null);
+            setCustomDateEditor(null);
+            router.replace({
+                pathname: '/(tabs)/plant/[userPlantId]',
+                params: {
+                    userPlantId: String(createdPlantId),
+                    from: 'garden',
+                    ...(resolvedGardenId ? { gardenId: resolvedGardenId } : {}),
+                },
+            });
+        } finally {
+            setAddSaving(false);
+        }
     };
 
     const lightMeta: Record<string, { label: string; color: string; bg: string }> = {
@@ -510,6 +781,9 @@ export default function LibraryPlantDetailScreen() {
                     ...(xParam !== undefined ? { x: String(xParam) } : {}),
                     ...(yParam !== undefined ? { y: String(yParam) } : {}),
                     ...(scannedPhotoUriParam ? { scannedPhotoUri: String(scannedPhotoUriParam) } : {}),
+                    ...(backFromParam ? { backFrom: String(backFromParam) } : {}),
+                    ...(backBedIdParam ? { backBedId: String(backBedIdParam) } : {}),
+                    ...(backGardenIdParam ? { backGardenId: String(backGardenIdParam) } : {}),
                 },
             });
         },
@@ -523,6 +797,9 @@ export default function LibraryPlantDetailScreen() {
             xParam,
             yParam,
             scannedPhotoUriParam,
+            backFromParam,
+            backBedIdParam,
+            backGardenIdParam,
         ]
     );
 
@@ -620,7 +897,7 @@ export default function LibraryPlantDetailScreen() {
             ) : (
                 <ScrollView
                     ref={scrollRef}
-                    contentContainerStyle={{ paddingBottom: 100 }}
+                    contentContainerStyle={{ paddingBottom: showAdd ? safeBottom + 66 + 16 + 90 : 100 }}
                     showsVerticalScrollIndicator={false}
                 >
                     {/* Hero image */}
@@ -740,18 +1017,6 @@ export default function LibraryPlantDetailScreen() {
                             </View>
                         )}
 
-                        {/* Add to planning button */}
-                        {showAdd && (
-                            <TouchableOpacity
-                                onPress={handleAdd}
-                                style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 15, alignItems: 'center', marginBottom: 16 }}
-                            >
-                                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15, letterSpacing: 0.2 }}>
-                                    {addLabel ?? t('library.add_to_planning', { defaultValue: 'Add to Planning' })}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-
                         {/* Care section header */}
                         <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
                             {t('library.section_care', { defaultValue: 'Care Guide' })}
@@ -802,10 +1067,94 @@ export default function LibraryPlantDetailScreen() {
                     </View>
                 </ScrollView>
             )}
+            {showAdd && (
+                <View
+                    style={{
+                        position: 'absolute',
+                        left: 16,
+                        right: 16,
+                        bottom: safeBottom + 66 + 16,
+                        flexDirection: 'row',
+                        gap: 10,
+                    }}
+                >
+                    {isAttachMode ? (
+                        <TouchableOpacity
+                            onPress={handleAdd}
+                            style={{
+                                flex: 1,
+                                backgroundColor: theme.primary,
+                                borderRadius: 16,
+                                paddingVertical: 14,
+                                alignItems: 'center',
+                                borderWidth: 1,
+                                borderColor: theme.primary,
+                            }}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>
+                                {addLabel ?? t('plant.link_library', { defaultValue: 'Link from Library' })}
+                            </Text>
+                        </TouchableOpacity>
+                    ) : isGardener ? (
+                        <TouchableOpacity
+                            onPress={handleAddMyPlants}
+                            style={{
+                                flex: 1,
+                                backgroundColor: theme.primary,
+                                borderRadius: 16,
+                                paddingVertical: 14,
+                                alignItems: 'center',
+                                borderWidth: 1,
+                                borderColor: theme.primary,
+                            }}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>
+                                {t('library.add_to_my_plants', { defaultValue: 'Add to My Plants' })}
+                            </Text>
+                        </TouchableOpacity>
+                    ) : isSelectMode ? (
+                        <>
+                            <TouchableOpacity
+                                onPress={handleAddPlanning}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: theme.background,
+                                    borderRadius: 16,
+                                    paddingVertical: 14,
+                                    alignItems: 'center',
+                                    borderWidth: 1,
+                                    borderColor: theme.primary,
+                                }}
+                            >
+                                <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 14 }}>
+                                    {t('library.add_to_planning', { defaultValue: 'Add to Planning' })}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleAddGrowing}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: theme.primary,
+                                    borderRadius: 16,
+                                    paddingVertical: 14,
+                                    alignItems: 'center',
+                                    borderWidth: 1,
+                                    borderColor: theme.primary,
+                                }}
+                            >
+                                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>
+                                    {t('library.add_to_growing', { defaultValue: 'Add to Growing' })}
+                                </Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : null}
+                </View>
+            )}
             <AddPlantTargetModal
                 visible={targetModalOpen}
                 beds={beds.map((bed: any) => ({ _id: String(bed._id), name: bed.name }))}
-                isGardener={appMode === 'gardener'}
+                initialMode="growing"
+                isGardener={isGardener}
                 loading={addSaving}
                 onClose={() => {
                     if (addSaving) return;
@@ -821,6 +1170,252 @@ export default function LibraryPlantDetailScreen() {
                     }
                 }}
             />
+            <Modal
+                visible={gardenerDetailsOpen}
+                transparent
+                animationType="slide"
+                onRequestClose={() => {
+                    if (addSaving) return;
+                    setGardenerDetailsOpen(false);
+                }}
+            >
+                <Pressable
+                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
+                    onPress={() => {
+                        if (addSaving) return;
+                        setGardenerDetailsOpen(false);
+                    }}
+                />
+                <View style={{ position: 'relative', backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderBottomWidth: 0, borderColor: theme.border, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 24, gap: 12 }}>
+                    <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center' }} />
+                    <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>
+                        {t('library.add_to_my_plants', { defaultValue: 'Add to My Plants' })}
+                    </Text>
+                    <TextInput
+                        value={gardenerNickname}
+                        onChangeText={setGardenerNickname}
+                        placeholder={t('planning.nickname_placeholder', { defaultValue: 'Plant name' })}
+                        placeholderTextColor={theme.textMuted}
+                        style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
+                    />
+                    <View style={{ gap: 6 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                            Garden
+                        </Text>
+                        {!createGardenMode ? (
+                            <>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                                    {gardens.map((garden: any) => {
+                                        const active = selectedGardenId === String(garden._id);
+                                        return (
+                                            <TouchableOpacity
+                                                key={String(garden._id)}
+                                                onPress={() => setSelectedGardenId(String(garden._id))}
+                                                style={{
+                                                    borderRadius: 10,
+                                                    borderWidth: 1,
+                                                    borderColor: active ? theme.primary : theme.border,
+                                                    backgroundColor: active ? theme.primary : theme.background,
+                                                    paddingHorizontal: 12,
+                                                    paddingVertical: 8,
+                                                }}
+                                            >
+                                                <Text style={{ color: active ? '#fff' : theme.text, fontWeight: '600', fontSize: 13 }}>
+                                                    {garden.name}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </ScrollView>
+                                <TouchableOpacity
+                                    onPress={() => setCreateGardenMode(true)}
+                                    style={{ borderRadius: 10, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background, paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' }}
+                                >
+                                    <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>
+                                        + Create a new garden
+                                    </Text>
+                                </TouchableOpacity>
+                            </>
+                        ) : (
+                            <View style={{ gap: 8 }}>
+                                <TextInput
+                                    value={newGardenName}
+                                    onChangeText={setNewGardenName}
+                                    placeholder={t('garden.name_placeholder', { defaultValue: 'Garden name' })}
+                                    placeholderTextColor={theme.textMuted}
+                                    style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
+                                />
+                                <TouchableOpacity
+                                    onPress={() => setCreateGardenMode(false)}
+                                    style={{ borderRadius: 10, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background, paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' }}
+                                >
+                                    <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 13 }}>
+                                        Select existing garden
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <View style={{ flex: 1, gap: 6 }}>
+                            <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                                {t('plant.planted_at_label', { defaultValue: 'Planted time' })}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => setActiveDropdown('planted')}
+                                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                            >
+                                <Text style={{ color: theme.text, fontSize: 14, fontWeight: '600' }}>
+                                    {plantedPreset === 'custom' && plantedCustomValue ? plantedCustomValue : selectedPlantedLabel}
+                                </Text>
+                                <ChevronDown size={16} stroke={theme.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ flex: 1, gap: 6 }}>
+                            <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                                Last time water
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => setActiveDropdown('water')}
+                                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                            >
+                                <Text style={{ color: theme.text, fontSize: 14, fontWeight: '600' }}>
+                                    {waterPreset === 'custom' && waterCustomValue ? waterCustomValue : selectedWaterLabel}
+                                </Text>
+                                <ChevronDown size={16} stroke={theme.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    <View style={{ gap: 6 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                            {t('library.growth_stage', { defaultValue: 'Growth stage' })}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => setActiveDropdown('growth')}
+                            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                            <Text style={{ color: theme.text, fontSize: 14, fontWeight: '600' }}>{selectedGrowthStageLabel}</Text>
+                            <ChevronDown size={16} stroke={theme.textMuted} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ gap: 6 }}>
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                            {t('plant.expected_harvest_label')}
+                        </Text>
+                        <TextInput
+                            value={gardenerExpectedDate}
+                            onChangeText={setGardenerExpectedDate}
+                            placeholder="YYYY-MM-DD"
+                            placeholderTextColor={theme.textMuted}
+                            style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
+                        />
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 2 }}>
+                        <TouchableOpacity
+                            onPress={() => setGardenerDetailsOpen(false)}
+                            disabled={addSaving}
+                            style={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: theme.border, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.background }}
+                        >
+                            <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 14 }}>{t('common.cancel')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => void handleCreateGardenerPlant()}
+                            disabled={addSaving}
+                            style={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.primary, opacity: addSaving ? 0.7 : 1 }}
+                        >
+                            {addSaving ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('common.save')}</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                    {activeDropdown !== null && (
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                            <Pressable style={{ ...{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }, backgroundColor: 'rgba(0,0,0,0.32)' }} onPress={() => setActiveDropdown(null)} />
+                            <View style={{ width: '100%', maxWidth: 420, backgroundColor: theme.card, borderRadius: 18, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 10, gap: 4, borderWidth: 1, borderColor: theme.border }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 6 }}>
+                                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+                                        {activeDropdown === 'planted'
+                                            ? t('plant.planted_at_label', { defaultValue: 'Planted time' })
+                                            : activeDropdown === 'water'
+                                                ? 'Last time water'
+                                                : t('library.growth_stage', { defaultValue: 'Growth stage' })}
+                                    </Text>
+                                    <TouchableOpacity onPress={() => setActiveDropdown(null)} style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                        <Text style={{ color: theme.textSecondary, fontSize: 20 }}>×</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                {(activeDropdown === 'planted' ? plantedOptions : activeDropdown === 'water' ? waterOptions : growthStageOptions).map((option: any) => {
+                                    const key = String(option.key);
+                                    const active =
+                                        activeDropdown === 'planted'
+                                            ? plantedPreset === key
+                                            : activeDropdown === 'water'
+                                                ? waterPreset === key
+                                                : gardenerGrowthStage === key;
+                                    return (
+                                        <TouchableOpacity
+                                            key={key}
+                                            onPress={() => {
+                                                if (activeDropdown === 'planted') {
+                                                    setPlantedPreset(key as any);
+                                                    if (key === 'custom') setCustomDateEditor('planted');
+                                                } else if (activeDropdown === 'water') {
+                                                    setWaterPreset(key as any);
+                                                    if (key === 'custom') setCustomDateEditor('water');
+                                                } else {
+                                                    setGardenerGrowthStage(key);
+                                                }
+                                                setActiveDropdown(null);
+                                            }}
+                                            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, paddingHorizontal: 2 }}
+                                        >
+                                            <Text style={{ color: theme.text, fontSize: 15, fontWeight: active ? '700' : '500' }}>{option.label}</Text>
+                                            <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: active ? theme.primary : theme.textSecondary, alignItems: 'center', justifyContent: 'center' }}>
+                                                {active && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.primary }} />}
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+                        </View>
+                    )}
+                    {customDateEditor !== null && (
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                            <Pressable style={{ ...{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }, backgroundColor: 'rgba(0,0,0,0.32)' }} onPress={() => setCustomDateEditor(null)} />
+                            <View style={{ width: '100%', maxWidth: 420, backgroundColor: theme.card, borderRadius: 18, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 12, gap: 10, borderWidth: 1, borderColor: theme.border }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
+                                        {customDateEditor === 'planted' ? t('plant.planted_at_label', { defaultValue: 'Planted time' }) : 'Last time water'}
+                                    </Text>
+                                    <TouchableOpacity onPress={() => setCustomDateEditor(null)} style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                        <Text style={{ color: theme.textSecondary, fontSize: 20 }}>×</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <TextInput
+                                    value={customDateEditor === 'planted' ? plantedCustomValue : waterCustomValue}
+                                    onChangeText={(value) => {
+                                        if (customDateEditor === 'planted') setPlantedCustomValue(value);
+                                        else setWaterCustomValue(value);
+                                    }}
+                                    placeholder="YYYY-MM-DD HH:mm"
+                                    placeholderTextColor={theme.textMuted}
+                                    style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
+                                />
+                                <View style={{ flexDirection: 'row', gap: 10, marginTop: 2 }}>
+                                    <TouchableOpacity onPress={() => setCustomDateEditor(null)} style={{ flex: 1, borderWidth: 1, borderColor: theme.border, borderRadius: 12, alignItems: 'center', paddingVertical: 11 }}>
+                                        <Text style={{ color: theme.textSecondary, fontWeight: '600' }}>{t('common.cancel')}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setCustomDateEditor(null)} style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 12, alignItems: 'center', paddingVertical: 11 }}>
+                                        <Text style={{ color: '#fff', fontWeight: '700' }}>{t('common.save')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    )}
+                </View>
+            </Modal>
         </View>
     );
 }

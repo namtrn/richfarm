@@ -2,10 +2,14 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Plus, Search } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
+import { useBeds } from '../../hooks/useBeds';
+import { useDeviceId } from '../../lib/deviceId';
 import { useTheme } from '../../lib/theme';
 import { PlantImageSmall } from '../../components/ui/PlantImage';
+import { api } from '../../../../packages/convex/convex/_generated/api';
 
 type PlantGroupKey = 'planning' | 'growing' | 'archived';
 
@@ -23,12 +27,24 @@ function getPlantGroup(status?: string): PlantGroupKey {
   return 'planning';
 }
 
-export function GardenerMyPlantsView() {
+export function GardenerMyPlantsView({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const { deviceId } = useDeviceId();
   const { plants, isLoading } = usePlants();
+  const { beds } = useBeds();
+  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
   const [search, setSearch] = useState('');
+
+  const bedById = useMemo(
+    () => new Map((beds ?? []).map((bed: any) => [String(bed._id), bed])),
+    [beds]
+  );
+  const gardenById = useMemo(
+    () => new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden])),
+    [gardens]
+  );
 
   const filteredPlants = useMemo(() => {
     const query = normalizeText(search);
@@ -56,18 +72,20 @@ export function GardenerMyPlantsView() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, paddingBottom: 100, gap: 16 }}>
       <View style={{ gap: 12 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ fontSize: 26, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>
-            {t('tabs.my_plants')}
-          </Text>
-          <TouchableOpacity
-            onPress={() => router.push('/(tabs)/library?mode=select&from=gardener')}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
-          >
-            <Plus size={14} stroke="#fff" />
-            <Text style={{ color: '#fff', fontSize: 12, fontWeight: '500' }}>{t('garden.my_plants_add')}</Text>
-          </TouchableOpacity>
-        </View>
+        {!hideHeader && (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={{ fontSize: 26, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>
+              {t('tabs.my_plants')}
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/(tabs)/library?mode=select&from=gardener')}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 }}
+            >
+              <Plus size={14} stroke="#fff" />
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '500' }}>{t('garden.my_plants_add')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.card, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}>
           <Search size={16} color={theme.textMuted} />
@@ -114,30 +132,50 @@ export function GardenerMyPlantsView() {
                 </Text>
                 <View style={{ gap: 10 }}>
                   {items.map((plant) => (
-                    <TouchableOpacity
-                      key={plant._id}
-                      onPress={() => router.push({ pathname: '/(tabs)/plant/[userPlantId]', params: { userPlantId: String(plant._id), from: 'garden' } })}
-                      style={{
-                        backgroundColor: theme.card,
-                        borderRadius: 10,
-                        padding: 12,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 12,
-                        borderWidth: 1,
-                        borderColor: theme.border,
-                      }}
-                    >
-                      <PlantImageSmall uri={plant.photoUrl} />
-                      <View style={{ flex: 1, gap: 2 }}>
-                        <Text style={{ fontSize: 15, fontWeight: '500', color: theme.text }} numberOfLines={1}>
-                          {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
-                        </Text>
-                        <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={1}>
-                          {plant.scientificName ?? ''}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
+                    (() => {
+                      const directGarden = plant?.gardenId ? gardenById.get(String(plant.gardenId)) : undefined;
+                      const bed = plant?.bedId ? bedById.get(String(plant.bedId)) : undefined;
+                      const garden = directGarden ?? (bed?.gardenId ? gardenById.get(String(bed.gardenId)) : undefined);
+                      const gardenName = garden?.name ?? t('growing.unknown_garden', { defaultValue: 'Unknown garden' });
+                      return (
+                        <TouchableOpacity
+                          key={plant._id}
+                          onPress={() =>
+                            router.push({
+                              pathname: '/(tabs)/plant/[userPlantId]',
+                              params: {
+                                userPlantId: String(plant._id),
+                                from: 'garden',
+                                ...(garden?._id ? { gardenId: String(garden._id) } : {}),
+                              },
+                            })
+                          }
+                          style={{
+                            backgroundColor: theme.card,
+                            borderRadius: 10,
+                            padding: 12,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 12,
+                            borderWidth: 1,
+                            borderColor: theme.border,
+                          }}
+                        >
+                          <PlantImageSmall uri={plant.photoUrl} />
+                          <View style={{ flex: 1, gap: 2 }}>
+                            <Text style={{ fontSize: 15, fontWeight: '500', color: theme.text }} numberOfLines={1}>
+                              {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
+                            </Text>
+                            <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={1}>
+                              {plant.scientificName ?? ''}
+                            </Text>
+                            <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={1}>
+                              {t('tabs.garden')}: {gardenName}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })()
                   ))}
                 </View>
               </View>

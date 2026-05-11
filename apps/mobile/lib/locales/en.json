@@ -72,6 +72,8 @@
     "focus_clear": "No urgent garden follow-up right now.",
     "unassigned_plants": "Unassigned Plants",
     "unassigned_plants_desc": "These plants were added without a bed. Tap to assign them to a bed.",
+    "unassigned_plants_desc_without_bed": "These plants were added without a bed. Tap to assign them to a bed.",
+    "unassigned_plants_desc_without_garden": "These plants were added without a garden. Tap to assign them to a garden.",
     "subtitle_count": "{{count}} garden",
     "subtitle_count_plural": "{{count}} gardens",
     "subtitle_empty": "Manage your gardens",
@@ -327,6 +329,8 @@
     "no_results": "No plants found",
     "filter_all": "All",
     "add_to_planning": "Add to Planning",
+    "add_to_growing": "Add to Growing",
+    "add_to_my_plants": "Add to My Plants",
     "add_to_my_garden": "Add to My Garden",
     "species_count": "{{count}} species in database",
     "no_plants": "No plants in library",
@@ -723,6 +727,9 @@
     "bed_label": "Bed",
     "no_bed": "No bed",
     "current_bed": "Current bed: {{name}}",
+    "no_garden": "No garden",
+    "current_garden": "Current garden: {{name}}",
+    "no_garden_yet": "No garden yet. Create one to assign this plant.",
     "start_growing": "Start growing",
     "start_growing_requires_bed_title": "Bed required",
     "start_growing_requires_bed_desc": "Create a garden/bed first before starting growing.",
@@ -778,6 +785,8 @@
     "harvest_date_label": "Date",
     "harvest_save": "Save harvest",
     "local_load_error": "Unable to load local data.",
-    "local_save_error": "Unable to save local data."
+    "local_save_error": "Unable to save local data.",
+    "save_failed_generic": "Unable to save changes. Please try again.",
+    "assign_garden_failed": "Unable to update garden. Please try again."
   }
 }

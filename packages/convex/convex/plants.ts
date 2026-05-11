@@ -3,7 +3,7 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { localizePlantRows } from "./lib/localizePlant";
-import { getOwnedBedOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
+import { getOwnedBedOrThrow, getOwnedGardenOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
 import { getPlantCareProfileByPlantId } from "./lib/plantCare";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -192,6 +192,7 @@ export const addPlant = mutation({
     args: {
         plantMasterId: v.optional(v.id("plantsMaster")),
         nickname: v.optional(v.string()),
+        gardenId: v.optional(v.id("gardens")),
         bedId: v.optional(v.id("beds")),
         positionInBed: v.optional(v.object({
             x: v.number(),
@@ -205,11 +206,15 @@ export const addPlant = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        let ownedBed: any = null;
         if (args.notes !== undefined) {
             throw new Error("Notes are only allowed for plants in growing status");
         }
+        if (args.gardenId) {
+            await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
+        }
         if (args.bedId) {
-            await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+            ownedBed = await getOwnedBedOrThrow(ctx, user._id, args.bedId);
         }
         if (args.positionInBed && !args.bedId) {
             throw new Error("Bed is required when setting a plant position");
@@ -219,11 +224,13 @@ export const addPlant = mutation({
         const initialStatus = hasBed ? "growing" : "planning";
         const plantedAt = hasBed ? (args.plantedAt ?? Date.now()) : args.plantedAt;
         const nickname = normalizeNickname(args.nickname);
+        const derivedGardenId = args.gardenId ?? ownedBed?.gardenId;
 
         const plantId = await ctx.db.insert("userPlants", {
             userId: user._id,
             plantMasterId: args.plantMasterId,
             nickname,
+            gardenId: derivedGardenId,
             bedId: args.bedId,
             positionInBed: args.positionInBed,
             plantedAt,
@@ -295,6 +302,7 @@ export const updatePlant = mutation({
         plantMasterId: v.optional(v.id("plantsMaster")),
         nickname: v.optional(v.string()),
         notes: v.optional(v.string()),
+        gardenId: v.optional(v.id("gardens")),
         bedId: v.optional(v.id("beds")),
         positionInBed: v.optional(v.object({
             x: v.number(),
@@ -308,20 +316,32 @@ export const updatePlant = mutation({
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
         const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
+        let ownedBed: any = null;
         if (args.notes !== undefined && plant.status !== "growing") {
             throw new Error("Notes are only allowed for plants in growing status");
         }
+        if (args.gardenId !== undefined && args.gardenId) {
+            await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
+        }
         if (args.bedId !== undefined && args.bedId) {
-            await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+            ownedBed = await getOwnedBedOrThrow(ctx, user._id, args.bedId);
         }
         if (args.positionInBed !== undefined && !args.bedId && !plant.bedId) {
             throw new Error("Bed is required when setting a plant position");
         }
 
+        const nextGardenId =
+            args.gardenId !== undefined
+                ? args.gardenId
+                : args.bedId !== undefined
+                    ? ownedBed?.gardenId
+                    : undefined;
+
         await ctx.db.patch(args.plantId, {
             ...(args.plantMasterId !== undefined && { plantMasterId: args.plantMasterId }),
             ...(args.nickname !== undefined && { nickname: normalizeNickname(args.nickname) }),
             ...(args.notes !== undefined && { notes: args.notes }),
+            ...(nextGardenId !== undefined && { gardenId: nextGardenId }),
             ...(args.bedId !== undefined && { bedId: args.bedId }),
             ...(args.positionInBed !== undefined && { positionInBed: args.positionInBed }),
             ...(args.expectedHarvestDate !== undefined && { expectedHarvestDate: args.expectedHarvestDate }),

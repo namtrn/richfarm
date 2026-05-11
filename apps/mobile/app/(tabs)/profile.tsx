@@ -361,6 +361,9 @@ export default function ProfileScreen() {
               <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>
                 {isAnonymous ? t('profile.not_signed_in') : (user?.name || t('profile.user_section'))}
               </Text>
+              {!isAnonymous && (
+                <Text style={{ fontSize: 13, color: theme.textSecondary }}>{email}</Text>
+              )}
               {isAnonymous && (
                 <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.auth_create_to_sync')}</Text>
               )}
@@ -379,40 +382,23 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            <>
-              <View style={{ gap: 10 }}>
-                <View style={{ gap: 2 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                    {t('profile.name_label')}
-                  </Text>
-                  <Text style={{ fontSize: 15, color: theme.text }}>{name || '—'}</Text>
-                </View>
-                <View style={{ gap: 2 }}>
-                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>
-                    {t('profile.email_label')}
-                  </Text>
-                  <Text style={{ fontSize: 14, color: theme.textMuted }}>{email}</Text>
-                </View>
-              </View>
-
-              <View>
-                {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 12 }}>{authMessage}</Text>}
-                <TouchableOpacity
-                  onPress={handleSignOut}
-                  disabled={authLoading}
-                  style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
-                >
-                  <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_out')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleDeleteAccount}
-                  disabled={authLoading}
-                  style={{ marginTop: 10, backgroundColor: '#fee2e2', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
-                >
-                  <Text style={{ color: '#991b1b', fontWeight: '700', fontSize: 14 }}>{t('profile.auth_delete_account')}</Text>
-                </TouchableOpacity>
-              </View>
-            </>
+            <View>
+              {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 12 }}>{authMessage}</Text>}
+              <TouchableOpacity
+                onPress={handleSignOut}
+                disabled={authLoading}
+                style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
+              >
+                <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_out')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDeleteAccount}
+                disabled={authLoading}
+                style={{ marginTop: 10, backgroundColor: '#fee2e2', borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
+              >
+                <Text style={{ color: '#991b1b', fontWeight: '700', fontSize: 14 }}>{t('profile.auth_delete_account')}</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
 

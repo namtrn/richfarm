@@ -15,6 +15,7 @@ type PositionInBed = {
 type AddPlantArgs = {
   plantMasterId?: any;
   nickname?: string;
+  gardenId?: any;
   bedId?: any;
   positionInBed?: PositionInBed;
   plantedAt?: number;
@@ -25,6 +26,7 @@ type UpdatePlantArgs = {
   plantMasterId?: any;
   nickname?: string;
   notes?: string;
+  gardenId?: any;
   bedId?: any;
   positionInBed?: PositionInBed;
   expectedHarvestDate?: number;
@@ -54,6 +56,7 @@ type CompleteLibraryAddArgs = FlowContext & {
 type CreateUserPlantArgs = {
   plantMasterId?: string;
   nickname?: string;
+  gardenId?: string;
   bedId?: string;
   positionInBed?: PositionInBed;
 };
@@ -93,6 +96,10 @@ function buildLibraryParams(context: FlowContext, detail: boolean) {
   };
 }
 
+function resolveFlowRole(appMode: string | undefined, from?: string): 'gardener' | 'farmer' {
+  return appMode === 'gardener' || from === 'gardener' ? 'gardener' : 'farmer';
+}
+
 export function normalizeCustomPlantNickname(value: string, unknownLabel?: string) {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
@@ -111,7 +118,8 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
 
   const navigateAfterAdd = useCallback(
     (args: Omit<CompleteLibraryAddArgs, 'plantMasterId'>) => {
-      if (appMode === 'gardener' || args.from === 'gardener') {
+      const flowRole = resolveFlowRole(appMode, args.from);
+      if (flowRole === 'gardener') {
         router.replace('/(tabs)/garden');
         return;
       }
@@ -132,10 +140,6 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
         return;
       }
       if (args.from === 'plant') {
-        if (router.canGoBack()) {
-          router.back();
-          return;
-        }
         if (args.attachPlantId) {
           router.replace({
             pathname: '/(tabs)/plant/[userPlantId]',
@@ -146,6 +150,10 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
               gardenId: args.backGardenId,
             },
           });
+          return;
+        }
+        if (router.canGoBack()) {
+          router.back();
           return;
         }
       }
@@ -160,14 +168,16 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
 
   const createUserPlant = useCallback(
     async (args: CreateUserPlantArgs) => {
+      const flowRole = resolveFlowRole(appMode, undefined);
       return await addPlant({
         plantMasterId: args.plantMasterId as any,
         nickname: args.nickname,
-        bedId: args.bedId as any,
-        positionInBed: args.positionInBed,
+        gardenId: args.gardenId as any,
+        bedId: flowRole === 'gardener' ? undefined : (args.bedId as any),
+        positionInBed: flowRole === 'gardener' ? undefined : args.positionInBed,
       });
     },
-    [addPlant]
+    [addPlant, appMode]
   );
 
   const openLibrarySelect = useCallback(
@@ -224,7 +234,14 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
   const completeLibraryAdd = useCallback(
     async (args: CompleteLibraryAddArgs) => {
       let addedPlantId: any = null;
-      const positionInBed = buildPositionInBed(args);
+      const flowRole = resolveFlowRole(appMode, args.from);
+      const isGardenerFlow = flowRole === 'gardener';
+      const normalizedSelectionMode: 'planning' | 'growing' = isGardenerFlow
+        ? 'planning'
+        : args.selectionMode;
+      const normalizedBedId = isGardenerFlow ? undefined : args.bedId;
+      const normalizedSelectedBedId = isGardenerFlow ? undefined : args.selectedBedId;
+      const positionInBed = isGardenerFlow ? undefined : buildPositionInBed(args);
 
       if (args.mode === 'attach' && args.attachPlantId) {
         if (!updatePlant) {
@@ -233,16 +250,16 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
         await updatePlant(args.attachPlantId as any, {
           plantMasterId: args.plantMasterId as any,
         });
-      } else if (args.from === 'bed' && args.bedId) {
+      } else if (!isGardenerFlow && args.from === 'bed' && normalizedBedId) {
         addedPlantId = await addPlant({
           plantMasterId: args.plantMasterId as any,
-          bedId: args.bedId as any,
+          bedId: normalizedBedId as any,
           positionInBed,
         });
-      } else if (args.selectionMode === 'growing' && args.selectedBedId) {
+      } else if (normalizedSelectionMode === 'growing' && normalizedSelectedBedId) {
         addedPlantId = await addPlant({
           plantMasterId: args.plantMasterId as any,
-          bedId: args.selectedBedId as any,
+          bedId: normalizedSelectedBedId as any,
         });
       } else {
         addedPlantId = await addPlant({
@@ -254,10 +271,14 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
         await uploadScannerPhoto(addedPlantId, args.scannedPhotoUri);
       }
 
-      navigateAfterAdd(args);
+      navigateAfterAdd({
+        ...args,
+        selectionMode: normalizedSelectionMode,
+        bedId: normalizedBedId,
+      });
       return addedPlantId;
     },
-    [addPlant, navigateAfterAdd, updatePlant, uploadScannerPhoto]
+    [addPlant, appMode, navigateAfterAdd, updatePlant, uploadScannerPhoto]
   );
 
   return {

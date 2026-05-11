@@ -15,7 +15,7 @@ import { useAuth } from '../../lib/auth';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { useAppMode } from '../../hooks/useAppMode';
-import { getOnboardingFocusItems } from '../../lib/personalization';
+
 import { WeatherCard } from '../../components/ui/WeatherCard';
 
 const REMINDER_ICONS: Record<string, any> = {
@@ -64,7 +64,7 @@ export default function HomeScreen() {
   const sortedToday = useMemo(() => {
     return [...todayReminders].sort((a, b) => a.nextRunAt - b.nextRunAt);
   }, [todayReminders]);
-  const focusItems = useMemo(() => getOnboardingFocusItems(settings?.onboarding), [settings?.onboarding]);
+
   const plantMap = useMemo(() => new Map((plants ?? []).map((p: any) => [String(p._id), p])), [plants]);
 
   const getPlantName = (reminder: any) => {
@@ -188,37 +188,7 @@ export default function HomeScreen() {
         />
       ) : null}
 
-      {focusItems.length > 0 ? (
-        <View style={{ paddingHorizontal: 2, gap: 10 }}>
-          <View>
-            <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
-              {t('home.focus_title')}
-            </Text>
-            <Text style={{ fontSize: 12, color: theme.textSecondary }}>
-              {t('home.focus_desc')}
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {focusItems.map((item) => (
-              <View
-                key={`${item.kind}:${item.id}`}
-                style={{
-                  backgroundColor: item.kind === 'goal' ? theme.successBg : theme.accent,
-                  borderRadius: 10,
-                  paddingHorizontal: 12,
-                  paddingVertical: 7,
-                  borderWidth: 1,
-                  borderColor: item.kind === 'goal' ? theme.primary : theme.border,
-                }}
-              >
-                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.text }}>
-                  {t(item.labelKey)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      ) : null}
+
 
       <View style={{ paddingHorizontal: 2 }}>
         <GardenOverviewSummary

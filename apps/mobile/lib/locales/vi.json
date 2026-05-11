@@ -71,6 +71,8 @@
     "focus_clear": "Hiện chưa có đầu việc gấp trong vườn.",
     "unassigned_plants": "Cây chưa phân bổ",
     "unassigned_plants_desc": "Các cây thêm trong Gardener mode chưa thuộc luống nào. Nhấn để gán vào luống.",
+    "unassigned_plants_desc_without_bed": "Các cây này chưa được gán vào luống. Nhấn để gán vào một luống.",
+    "unassigned_plants_desc_without_garden": "Các cây này chưa được gán vào vườn. Nhấn để gán vào một vườn.",
     "subtitle_count": "{{count}} khu vườn",
     "subtitle_count_plural": "{{count}} khu vườn",
     "subtitle_empty": "Quản lý vườn của bạn",
@@ -326,6 +328,8 @@
     "no_results": "Không tìm thấy cây",
     "filter_all": "Tất cả",
     "add_to_planning": "Thêm vào Kế hoạch",
+    "add_to_growing": "Thêm vào Đang trồng",
+    "add_to_my_plants": "Thêm vào Cây của tôi",
     "add_to_my_garden": "Thêm vào Vườn của tôi",
     "species_count": "{{count}} loài trong thư viện",
     "no_plants": "Chưa có cây trong thư viện",
@@ -711,6 +715,9 @@
     "bed_label": "Luống",
     "no_bed": "Không có luống",
     "current_bed": "Luống hiện tại: {{name}}",
+    "no_garden": "Chưa có vườn",
+    "current_garden": "Vườn hiện tại: {{name}}",
+    "no_garden_yet": "Chưa có vườn nào. Hãy tạo vườn để gán cây này.",
     "start_growing": "Bắt đầu trồng",
     "start_growing_requires_bed_title": "Cần có luống",
     "start_growing_requires_bed_desc": "Hãy tạo vườn/luống trước khi bắt đầu trồng.",
@@ -766,7 +773,9 @@
     "harvest_date_label": "Ngày",
     "harvest_save": "Lưu thu hoạch",
     "local_load_error": "Không thể tải dữ liệu cục bộ.",
-    "local_save_error": "Không thể lưu dữ liệu cục bộ."
+    "local_save_error": "Không thể lưu dữ liệu cục bộ.",
+    "save_failed_generic": "Không thể lưu thay đổi. Vui lòng thử lại.",
+    "assign_garden_failed": "Không thể cập nhật vườn. Vui lòng thử lại."
   },
   "purposes": {
     "air_purifying": "Lọc không khí",

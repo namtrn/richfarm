@@ -13,6 +13,7 @@ import {
     LayoutChangeEvent,
     PanResponder,
     StyleSheet,
+    useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from 'lucide-react-native';
@@ -30,12 +31,13 @@ import { usePlantScanner } from '../../../hooks/usePlantScanner';
 import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { matchesSearch } from '../../../lib/search';
 import { formatPlantFamilyDisplayName } from '../../../../../packages/shared/src/plantFamily';
+import { isDisplayBasePlant } from '../../../../../packages/shared/src/plantBase';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePestsDiseases, PestDiseaseType } from '../../../hooks/usePestsDiseases';
 import { loadCachedCareContent, parseCareContent, saveCareContent, type PlantCareContent } from '../../../lib/plantCareCache';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
-import { compareGroupsForOnboarding, getOnboardingFocusItems, scorePlantForOnboarding } from '../../../lib/personalization';
+import { compareGroupsForOnboarding, getGroupPersonalizationScore, getOnboardingFocusItems, scorePlantForOnboarding } from '../../../lib/personalization';
 import { buildSortedPlantUiClusters } from '../../../../../packages/shared/src/plantUiClusters';
 import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
 import { useAppMode } from '../../../hooks/useAppMode';
@@ -53,7 +55,7 @@ const GROUP_ICONS: Record<string, string> = {
     herbs: '🌿',
     vegetables: '🥦',
     fruits: '🍎',
-    nightshades: '🍅',
+    nightshades: '🍆',
     alliums: '🧅',
     leafy_greens: '🥬',
     roots: '🥕',
@@ -107,6 +109,15 @@ function getSpeciesGroupTitle(basePlant: any) {
     }
 
     return String(basePlant.displayName ?? basePlant.scientificName ?? 'Plant');
+}
+
+function isSelfBasePlant(plant: any) {
+    const plantId = plant?._id;
+    const basePlantId = plant?.basePlantId;
+    if (basePlantId !== undefined && basePlantId !== null && String(basePlantId).trim().length > 0) {
+        return String(basePlantId) === String(plantId);
+    }
+    return isDisplayBasePlant(plant);
 }
 
 const LIGHT_META: Record<string, { key: string; color: string }> = {
@@ -790,9 +801,13 @@ function BrowseModeMenu({
     layoutMode,
     groups,
     selectedGroup,
+    hasPrioritizedOnboarding,
+    showAllPlants,
+    prioritizedGroupKeys,
     onClose,
     onSelect,
     onSelectGroup,
+    onToggleShowAllPlants,
     onToggleLayout,
 }: {
     visible: boolean;
@@ -800,15 +815,85 @@ function BrowseModeMenu({
     layoutMode: LayoutMode;
     groups: any[];
     selectedGroup?: string;
+    hasPrioritizedOnboarding: boolean;
+    showAllPlants: boolean;
+    prioritizedGroupKeys: string[];
     onClose: () => void;
     onSelect: (next: PlantBrowseMode) => void;
     onSelectGroup: (next?: string) => void;
+    onToggleShowAllPlants: (next: boolean) => void;
     onToggleLayout: (next: LayoutMode) => void;
 }) {
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const router = useRouter();
+    const { width: screenWidth } = useWindowDimensions();
+    const prioritizedGroupKeySet = useMemo(() => new Set(prioritizedGroupKeys), [prioritizedGroupKeys]);
+    const availableChipRowWidth = useMemo(() => Math.max(180, Math.floor(screenWidth * 0.74) - 44), [screenWidth]);
+
+    const categoryChipRows = useMemo(() => {
+        if (value !== 'common') return [] as Array<Array<any>>;
+
+        const localeKey = i18n.language?.split('-')[0] ?? 'en';
+        const baseItems = groups.map((group) => {
+            const translated = t(`plantGroups.${group.key}`);
+            const label =
+                translated !== `plantGroups.${group.key}`
+                    ? translated
+                    : (group.displayName?.[localeKey] ?? group.displayName?.en ?? group.key);
+            return {
+                key: String(group.key),
+                label,
+                icon: GROUP_ICONS[group.key] ?? '🌱',
+            };
+        });
+
+        const allItems = [{ key: '__all__', label: t('library.filter_all'), icon: '' }, ...baseItems];
+
+        // Estimate chip width to build visually tighter rows.
+        const widthOf = (item: { label: string; icon: string }) => {
+            const charWidth = 7;
+            const iconWidth = item.icon ? 18 : 0;
+            const innerGap = item.icon ? 6 : 0;
+            const horizontalPadding = 28;
+            return Math.min(availableChipRowWidth, horizontalPadding + iconWidth + innerGap + item.label.length * charWidth);
+        };
+
+        const remaining = allItems.map((item) => ({ ...item, width: widthOf(item) }));
+        const rows: Array<Array<(typeof remaining)[number]>> = [];
+
+        while (remaining.length > 0) {
+            let left = availableChipRowWidth;
+            const row: Array<(typeof remaining)[number]> = [];
+
+            // Best-fit: pick the widest chip that still fits, repeat.
+            while (true) {
+                let bestIndex = -1;
+                let bestWidth = -1;
+                for (let i = 0; i < remaining.length; i += 1) {
+                    const candidate = remaining[i];
+                    const needed = row.length === 0 ? candidate.width : candidate.width + 8;
+                    if (needed <= left && candidate.width > bestWidth) {
+                        bestIndex = i;
+                        bestWidth = candidate.width;
+                    }
+                }
+                if (bestIndex === -1) break;
+                const [picked] = remaining.splice(bestIndex, 1);
+                row.push(picked);
+                left -= row.length === 1 ? picked.width : picked.width + 8;
+            }
+
+            if (row.length === 0) {
+                rows.push([remaining.shift()!]);
+            } else {
+                rows.push(row);
+            }
+        }
+
+        return rows;
+    }, [availableChipRowWidth, groups, i18n.language, t, value]);
     const translateX = useRef(new Animated.Value(400)).current;
 
     useEffect(() => {
@@ -920,75 +1005,61 @@ function BrowseModeMenu({
                             </View>
 
                             {/* Browse By section */}
-                            <View style={{ paddingHorizontal: 22, paddingTop: 20 }}>
+                            <View style={{ paddingHorizontal: 22, paddingTop: 0, marginTop: -6 }}>
                                 <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14 }}>
                                     Browse By
                                 </Text>
 
-                                <View style={{ gap: 8 }}>
-                                    {[
-                                        {
-                                            key: 'common' as PlantBrowseMode,
-                                            label: 'Common Names',
-                                            desc: 'Standard library with search & groups.',
-                                            icon: Tags
-                                        },
-                                        {
-                                            key: 'families' as PlantBrowseMode,
-                                            label: 'Botanical Families',
-                                            desc: 'Organized by scientific taxonomy.',
-                                            icon: Dna
-                                        },
-                                    ].map((item) => {
-                                        const Icon = item.icon;
-                                        const active = value === item.key;
-                                        return (
-                                            <TouchableOpacity
-                                                key={item.key}
-                                                onPress={() => {
-                                                    onSelect(item.key);
-                                                    onClose();
-                                                }}
-                                                activeOpacity={0.65}
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                    paddingVertical: 13,
-                                                    paddingHorizontal: 14,
-                                                    borderRadius: 12,
-                                                    backgroundColor: active
-                                                        ? (isDark ? 'rgba(34, 197, 94, 0.14)' : 'rgba(34, 197, 94, 0.08)')
-                                                        : (isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)'),
-                                                    borderWidth: 1.5,
-                                                    borderColor: active ? theme.primary : 'transparent',
-                                                    gap: 14,
-                                                }}
-                                            >
-                                                <View style={{
-                                                    width: 42,
-                                                    height: 42,
-                                                    borderRadius: 10,
-                                                    backgroundColor: active ? theme.primary : (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'),
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                }}>
-                                                    <Icon size={20} stroke={active ? '#fff' : theme.textSecondary} />
-                                                </View>
-                                                <View style={{ flex: 1 }}>
-                                                    <Text style={{ fontSize: 14, fontWeight: active ? '500' : '500', color: active ? theme.primary : theme.text, marginBottom: 2 }}>
-                                                        {item.label}
-                                                    </Text>
-                                                    <Text style={{ fontSize: 11.5, color: theme.textMuted, lineHeight: 16 }}>
-                                                        {item.desc}
-                                                    </Text>
-                                                </View>
-                                                {active && (
-                                                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.primary }} />
-                                                )}
-                                            </TouchableOpacity>
-                                        );
-                                    })}
-                                </View>
+                                {[
+                                    {
+                                        key: 'common' as PlantBrowseMode,
+                                        label: 'Common Names',
+                                        desc: 'Browse plants by everyday names.',
+                                    },
+                                    {
+                                        key: 'families' as PlantBrowseMode,
+                                        label: 'Botanical Families',
+                                        desc: 'Organized by scientific taxonomy.',
+                                    },
+                                ].map((item, idx) => {
+                                    const active = value === item.key;
+                                    return (
+                                        <TouchableOpacity
+                                            key={item.key}
+                                            onPress={() => {
+                                                onSelect(item.key);
+                                                onClose();
+                                            }}
+                                            activeOpacity={0.65}
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                paddingVertical: 10,
+                                                paddingHorizontal: 10,
+                                                borderRadius: 10,
+                                                marginBottom: idx === 0 ? 8 : 0,
+                                                backgroundColor: active
+                                                    ? (isDark ? 'rgba(34, 197, 94, 0.14)' : 'rgba(34, 197, 94, 0.08)')
+                                                    : 'transparent',
+                                                borderWidth: active ? 1 : 0,
+                                                borderColor: active ? theme.primary : 'transparent',
+                                                gap: 10,
+                                            }}
+                                        >
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={{ fontSize: 14, fontWeight: active ? '600' : '500', color: active ? theme.primary : theme.text, marginBottom: 2 }}>
+                                                    {item.label}
+                                                </Text>
+                                                <Text style={{ fontSize: 11.5, color: theme.textMuted, lineHeight: 16 }}>
+                                                    {item.desc}
+                                                </Text>
+                                            </View>
+                                            {active && (
+                                                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: theme.primary }} />
+                                            )}
+                                        </TouchableOpacity>
+                                    );
+                                })}
                             </View>
 
                             <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 22, marginHorizontal: 22 }} />
@@ -998,56 +1069,71 @@ function BrowseModeMenu({
                                     <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14 }}>
                                         Category Filter
                                     </Text>
+                                    {hasPrioritizedOnboarding ? (
+                                        <View style={{ marginBottom: 10 }}>
+                                            <TouchableOpacity
+                                                onPress={() => onToggleShowAllPlants(!showAllPlants)}
+                                                style={{
+                                                    alignSelf: 'flex-start',
+                                                    paddingHorizontal: 12,
+                                                    paddingVertical: 8,
+                                                    borderRadius: 10,
+                                                    borderWidth: 1.5,
+                                                    borderColor: showAllPlants ? theme.border : theme.primary,
+                                                    backgroundColor: showAllPlants
+                                                        ? (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)')
+                                                        : theme.primary,
+                                                }}
+                                            >
+                                                <Text style={{ fontSize: 13, fontWeight: '400', color: showAllPlants ? theme.text : '#fff' }}>
+                                                    {showAllPlants
+                                                        ? t('library.show_all', { defaultValue: 'Show all' })
+                                                        : t('library.show_prioritized', { defaultValue: 'Prioritized' })}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    ) : null}
 
-                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                                        <TouchableOpacity
-                                            onPress={() => onSelectGroup(undefined)}
-                                            style={{
-                                                paddingHorizontal: 14,
-                                                paddingVertical: 9,
-                                                borderRadius: 10,
-                                                backgroundColor: selectedGroup === undefined ? theme.primary : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
-                                                borderWidth: 1.5,
-                                                borderColor: selectedGroup === undefined ? theme.primary : theme.border,
-                                            }}
-                                        >
-                                            <Text style={{ fontSize: 13, fontWeight: '500', color: selectedGroup === undefined ? '#fff' : theme.text }}>
-                                                {t('library.filter_all')}
-                                            </Text>
-                                        </TouchableOpacity>
-
-                                        {groups.map((group) => {
-                                            const active = selectedGroup === group.key;
-                                            const localeKey = i18n.language?.split('-')[0] ?? 'en';
-                                            const translated = t(`plantGroups.${group.key}`);
-                                            const label =
-                                                translated !== `plantGroups.${group.key}`
-                                                    ? translated
-                                                    : (group.displayName?.[localeKey] ?? group.displayName?.en ?? group.key);
-
-                                            return (
-                                                <TouchableOpacity
-                                                    key={group.key}
-                                                    onPress={() => onSelectGroup(active ? undefined : group.key)}
-                                                    style={{
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        gap: 6,
-                                                        paddingHorizontal: 14,
-                                                        paddingVertical: 9,
-                                                        borderRadius: 10,
-                                                        backgroundColor: active ? theme.primary : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
-                                                        borderWidth: 1.5,
-                                                        borderColor: active ? theme.primary : theme.border,
-                                                    }}
-                                                >
-                                                    <Text style={{ fontSize: 13 }}>{GROUP_ICONS[group.key] ?? '🌱'}</Text>
-                                                    <Text style={{ fontSize: 13, fontWeight: '500', color: active ? '#fff' : theme.text }}>
-                                                        {label}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })}
+                                    <View style={{ gap: 8 }}>
+                                        {categoryChipRows.map((row, rowIndex) => (
+                                            <View key={`row-${rowIndex}`} style={{ flexDirection: 'row', gap: 8 }}>
+                                                {row.map((chip) => {
+                                                    const isAll = chip.key === '__all__';
+                                                    const active = isAll ? selectedGroup === undefined && showAllPlants : selectedGroup === chip.key;
+                                                    const personalizedHighlighted =
+                                                        !isAll &&
+                                                        !showAllPlants &&
+                                                        selectedGroup === undefined &&
+                                                        prioritizedGroupKeySet.has(chip.key);
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={chip.key}
+                                                            onPress={() => onSelectGroup(isAll ? undefined : (active ? undefined : chip.key))}
+                                                            style={{
+                                                                flexDirection: 'row',
+                                                                alignItems: 'center',
+                                                                gap: chip.icon ? 6 : 0,
+                                                                paddingHorizontal: 14,
+                                                                paddingVertical: 9,
+                                                                borderRadius: 10,
+                                                                backgroundColor: active
+                                                                    ? theme.primary
+                                                                    : personalizedHighlighted
+                                                                        ? (isDark ? 'rgba(34, 197, 94, 0.14)' : 'rgba(34, 197, 94, 0.08)')
+                                                                        : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
+                                                                borderWidth: 1.5,
+                                                                borderColor: active || personalizedHighlighted ? theme.primary : theme.border,
+                                                            }}
+                                                        >
+                                                            {!!chip.icon && <Text style={{ fontSize: 13 }}>{chip.icon}</Text>}
+                                                            <Text style={{ fontSize: 13, fontWeight: '400', color: active ? '#fff' : personalizedHighlighted ? theme.primary : theme.text }}>
+                                                                {chip.label}
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    );
+                                                })}
+                                            </View>
+                                        ))}
                                     </View>
 
                                     <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 22 }} />
@@ -1195,6 +1281,7 @@ export default function LibraryScreen() {
     const { isDark } = useThemeContext();
     const { bottom: safeBottom } = useSafeAreaInsets();
     const { appMode } = useAppMode();
+    const isGardener = appMode === 'gardener';
     const { settings } = useUserSettings();
     const router = useRouter();
     const { openScanner, scannerModals } = usePlantScanner();
@@ -1245,6 +1332,7 @@ export default function LibraryScreen() {
     const [layoutMode, setLayoutMode] = useState<LayoutMode>('list');
     const [browseMenuOpen, setBrowseMenuOpen] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<string | undefined>(undefined);
+    const [showAllPlants, setShowAllPlants] = useState(false);
     const [selectedPest, setSelectedPest] = useState<any>(null);
     const [selectedPlant, setSelectedPlant] = useState<any>(null);
     const [selectedPlantCare, setSelectedPlantCare] = useState<PlantCareContent | null>(null);
@@ -1275,9 +1363,25 @@ export default function LibraryScreen() {
         [favorites]
     );
     const focusItems = useMemo(() => getOnboardingFocusItems(settings?.onboarding, 3), [settings?.onboarding]);
+    const hasPrioritizedOnboarding = focusItems.length > 0;
     const sortedGroups = useMemo(
         () => [...groups].sort((a, b) => compareGroupsForOnboarding(a, b, settings?.onboarding)),
         [groups, settings?.onboarding]
+    );
+    const prioritizedGroupKeys = useMemo(
+        () =>
+            hasPrioritizedOnboarding
+                ? sortedGroups
+                    .filter((group: any) => getGroupPersonalizationScore(group.key, settings?.onboarding) > 0)
+                    .sort(
+                        (a: any, b: any) =>
+                            getGroupPersonalizationScore(b.key, settings?.onboarding) -
+                            getGroupPersonalizationScore(a.key, settings?.onboarding)
+                    )
+                    .slice(0, 3)
+                    .map((group: any) => String(group.key))
+                : [],
+        [hasPrioritizedOnboarding, sortedGroups, settings?.onboarding]
     );
     const selectedGroupLabel = useMemo(() => {
         if (!selectedGroup) return '';
@@ -1317,6 +1421,14 @@ export default function LibraryScreen() {
         const normalized = normalizeBrowseMode(nextBrowse);
         setPlantBrowseMode((current) => (current === normalized ? current : normalized));
     }, [params.browse]);
+
+    useEffect(() => {
+        if (!hasPrioritizedOnboarding) {
+            setShowAllPlants(true);
+        } else {
+            setShowAllPlants(false);
+        }
+    }, [hasPrioritizedOnboarding]);
 
     useEffect(() => {
         const aiMatchIdParam = Array.isArray(params.aiMatchId) ? params.aiMatchId[0] : params.aiMatchId;
@@ -1398,17 +1510,30 @@ export default function LibraryScreen() {
             await completeAdd(selectedPlant, 'planning');
             return;
         }
-        if (fromParam === 'bed' && bedIdParam) {
+        if (!isGardener && fromParam === 'bed' && bedIdParam) {
             await completeAdd(selectedPlant, 'growing', bedIdParam);
             return;
         }
         setTargetModalOpen(true);
-    }, [attachMode, bedIdParam, completeAdd, fromParam, params.userPlantId, selectedPlant, selectedPlantIsSeed]);
+    }, [attachMode, bedIdParam, completeAdd, fromParam, isGardener, params.userPlantId, selectedPlant, selectedPlantIsSeed]);
 
     const normalizedSearch = deferredSearch.trim();
 
     const filteredPlants = useMemo(() => {
         let result = plants;
+        if (plantBrowseMode === 'common') {
+            result = result.filter((plant) => isSelfBasePlant(plant));
+        }
+        const shouldApplyPrioritizedFilter =
+            hasPrioritizedOnboarding && !showAllPlants && !selectedGroup && !normalizedSearch;
+
+        if (shouldApplyPrioritizedFilter) {
+            const prioritized = result.filter((plant) => prioritizedGroupKeys.includes(String(plant.group ?? '')));
+            if (prioritized.length > 0) {
+                result = prioritized;
+            }
+        }
+
         if (selectedGroup) {
             result = result.filter((p) => p.group === selectedGroup);
         }
@@ -1417,12 +1542,12 @@ export default function LibraryScreen() {
         );
         return [...result].sort((a, b) => {
             const scoreDiff = scorePlantForOnboarding(b, settings?.onboarding) - scorePlantForOnboarding(a, settings?.onboarding);
-            if (scoreDiff !== 0 && !normalizedSearch) return scoreDiff;
+            if (shouldApplyPrioritizedFilter && scoreDiff !== 0 && !normalizedSearch) return scoreDiff;
             const aName = String(a.displayName ?? a.scientificName ?? '').toLowerCase();
             const bName = String(b.displayName ?? b.scientificName ?? '').toLowerCase();
             return aName.localeCompare(bName);
         });
-    }, [plants, selectedGroup, normalizedSearch, settings?.onboarding]);
+    }, [plants, plantBrowseMode, hasPrioritizedOnboarding, showAllPlants, selectedGroup, normalizedSearch, prioritizedGroupKeys, settings?.onboarding]);
 
     const groupedPlantRows = useMemo(() => {
         const rows: Array<
@@ -1495,10 +1620,24 @@ export default function LibraryScreen() {
             if (bedIdParam) query.set('bedId', bedIdParam);
             if (xParam !== undefined) query.set('x', xParam);
             if (yParam !== undefined) query.set('y', yParam);
+            if (backFromParam) query.set('backFrom', backFromParam);
+            if (backBedIdParam) query.set('backBedId', backBedIdParam);
+            if (backGardenIdParam) query.set('backGardenId', backGardenIdParam);
             const qs = query.toString();
             router.push(`/(tabs)/library/${plant._id}${qs ? `?${qs}` : ''}`);
         },
-        [modeParam, fromParam, params.userPlantId, bedIdParam, xParam, yParam, router]
+        [
+            modeParam,
+            fromParam,
+            params.userPlantId,
+            bedIdParam,
+            xParam,
+            yParam,
+            backFromParam,
+            backBedIdParam,
+            backGardenIdParam,
+            router,
+        ]
     );
 
     const handleTogglePlantFavorite = useCallback(
@@ -1635,7 +1774,13 @@ export default function LibraryScreen() {
                             <Text style={{ fontSize: 13, fontWeight: '500', color: theme.text }}>
                                 {selectedGroupLabel}
                             </Text>
-                            <TouchableOpacity onPress={() => setSelectedGroup(undefined)} hitSlop={8}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setSelectedGroup(undefined);
+                                    setShowAllPlants(true);
+                                }}
+                                hitSlop={8}
+                            >
                                 <X size={14} stroke={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
@@ -1712,9 +1857,16 @@ export default function LibraryScreen() {
                         <>
                             {focusItems.length > 0 && !normalizedSearch ? (
                                 <View style={{ paddingHorizontal: 16, paddingTop: 6, gap: 8 }}>
-                                    <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary }}>
-                                        {t('library.personalized_hint')}
-                                    </Text>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                                        <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, flex: 1 }}>
+                                            {t('library.personalized_label', { defaultValue: 'Plants matching your needs' })}
+                                        </Text>
+                                        <TouchableOpacity onPress={() => setBrowseMenuOpen(true)} hitSlop={8}>
+                                            <Text style={{ fontSize: 12, fontWeight: '500', color: theme.primary }}>
+                                                {t('library.adjust_filters', { defaultValue: 'Adjust' })}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
                                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                                         {focusItems.map((item) => (
                                             <View
@@ -1814,7 +1966,7 @@ export default function LibraryScreen() {
                     care={selectedPlantCare}
                     onClose={() => setSelectedPlant(null)}
                     showAdd={(selectMode || attachMode) && !selectedPlantIsSeed}
-                    addLabel={fromParam === 'bed' ? t('bed.add_plant') : undefined}
+                    addLabel={!isGardener && fromParam === 'bed' ? t('bed.add_plant') : undefined}
                     onAdd={() => {
                         void handleAddSelectedPlant();
                     }}
@@ -1829,7 +1981,7 @@ export default function LibraryScreen() {
             <AddPlantTargetModal
                 visible={targetModalOpen}
                 beds={beds.map((bed: any) => ({ _id: String(bed._id), name: bed.name }))}
-                isGardener={appMode === 'gardener'}
+                isGardener={isGardener}
                 loading={addSaving}
                 onClose={() => {
                     if (addSaving) return;
@@ -1858,12 +2010,19 @@ export default function LibraryScreen() {
                 layoutMode={layoutMode}
                 groups={sortedGroups}
                 selectedGroup={selectedGroup}
+                hasPrioritizedOnboarding={hasPrioritizedOnboarding}
+                showAllPlants={showAllPlants}
+                prioritizedGroupKeys={prioritizedGroupKeys}
                 onClose={() => setBrowseMenuOpen(false)}
                 onSelect={(next) => {
                     setPlantBrowseMode(next);
                     setSearch('');
                 }}
-                onSelectGroup={setSelectedGroup}
+                onSelectGroup={(next) => {
+                    setSelectedGroup(next);
+                    setShowAllPlants(true);
+                }}
+                onToggleShowAllPlants={setShowAllPlants}
                 onToggleLayout={setLayoutMode}
             />
             {/* ── Floating scan button (always visible) ── */}
