@@ -25,6 +25,7 @@ export function SyncStatusBanner({
   const { status, queuedCount, hasPending, isOffline } = useSyncStatus(plantId);
 
   if (status === 'loading') return null;
+  if (status === 'pending') return null;
   if (!showWhenIdle && !hasPending) return null;
   if (status === 'idle' && !showWhenIdle) return null;
 

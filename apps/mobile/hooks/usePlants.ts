@@ -58,6 +58,8 @@ export function usePlants(status?: string) {
         bedId?: Id<'beds'>;
         positionInBed?: { x: number; y: number; width: number; height: number };
         plantedAt?: number;
+        expectedHarvestDate?: number;
+        status?: string;
         notes?: string;
     }) => {
         return await addPlantMutation({ ...args, deviceId });

@@ -78,7 +78,7 @@ function normalizeBrowseMode(value?: string): PlantBrowseMode {
 }
 
 function buildLibraryRoutePassthrough(params: Record<string, string | string[] | undefined>) {
-    const keys = ['mode', 'from', 'userPlantId', 'bedId', 'x', 'y', 'backFrom', 'backBedId', 'backGardenId'];
+    const keys = ['mode', 'from', 'userPlantId', 'bedId', 'x', 'y', 'backFrom', 'backBedId', 'backGardenId', 'scannedPhotoUri', 'scanHistoryId'];
     const next: Record<string, string> = {};
     for (const key of keys) {
         const value = params[key];
@@ -1300,6 +1300,8 @@ export default function LibraryScreen() {
         backFrom?: string;
         backBedId?: string;
         backGardenId?: string;
+        scannedPhotoUri?: string;
+        scanHistoryId?: string;
     }>();
     const fromParam = Array.isArray(params.from) ? params.from[0] : params.from;
     const modeParam = Array.isArray(params.mode) ? params.mode[0] : params.mode;
@@ -1310,6 +1312,8 @@ export default function LibraryScreen() {
     const backFromParam = Array.isArray(params.backFrom) ? params.backFrom[0] : params.backFrom;
     const backBedIdParam = Array.isArray(params.backBedId) ? params.backBedId[0] : params.backBedId;
     const backGardenIdParam = Array.isArray(params.backGardenId) ? params.backGardenId[0] : params.backGardenId;
+    const scannedPhotoUriParam = Array.isArray(params.scannedPhotoUri) ? params.scannedPhotoUri[0] : params.scannedPhotoUri;
+    const scanHistoryIdParam = Array.isArray(params.scanHistoryId) ? params.scanHistoryId[0] : params.scanHistoryId;
     const xParam = Array.isArray(params.x) ? params.x[0] : params.x;
     const yParam = Array.isArray(params.y) ? params.y[0] : params.y;
     const xValue = xParam !== undefined ? Number(xParam) : undefined;
@@ -1496,13 +1500,15 @@ export default function LibraryScreen() {
             bedId: bedIdParam,
             x: xParam,
             y: yParam,
+            scannedPhotoUri: scannedPhotoUriParam,
             backFrom: backFromParam,
             backBedId: backBedIdParam,
             backGardenId: backGardenIdParam,
+            scanHistoryId: scanHistoryIdParam,
             selectedBedId,
         });
         setSelectedPlant(null);
-    }, [backBedIdParam, backFromParam, backGardenIdParam, bedIdParam, completeLibraryAdd, fromParam, isSeedPlant, modeParam, params.userPlantId, xParam, yParam]);
+    }, [backBedIdParam, backFromParam, backGardenIdParam, bedIdParam, completeLibraryAdd, fromParam, isSeedPlant, modeParam, params.userPlantId, scannedPhotoUriParam, scanHistoryIdParam, xParam, yParam]);
 
     const handleAddSelectedPlant = useCallback(async () => {
         if (!selectedPlant || selectedPlantIsSeed) return;
@@ -1623,6 +1629,8 @@ export default function LibraryScreen() {
             if (backFromParam) query.set('backFrom', backFromParam);
             if (backBedIdParam) query.set('backBedId', backBedIdParam);
             if (backGardenIdParam) query.set('backGardenId', backGardenIdParam);
+            if (scannedPhotoUriParam) query.set('scannedPhotoUri', scannedPhotoUriParam);
+            if (scanHistoryIdParam) query.set('scanHistoryId', scanHistoryIdParam);
             const qs = query.toString();
             router.push(`/(tabs)/library/${plant._id}${qs ? `?${qs}` : ''}`);
         },
@@ -1636,6 +1644,8 @@ export default function LibraryScreen() {
             backFromParam,
             backBedIdParam,
             backGardenIdParam,
+            scannedPhotoUriParam,
+            scanHistoryIdParam,
             router,
         ]
     );

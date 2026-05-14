@@ -4,6 +4,7 @@ import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from 'lucide
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api } from '../../../../packages/convex/convex/_generated/api';
 import { GardenOverviewSummary } from '../../components/garden/GardenOverviewSummary';
 import { useReminders } from '../../hooks/useReminders';
@@ -39,6 +40,7 @@ export default function HomeScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
+  const { bottom: safeBottom } = useSafeAreaInsets();
   const { user, deviceId } = useAuth();
   const { todayReminders, isLoading } = useReminders();
   const { beds } = useBeds();
@@ -92,13 +94,17 @@ export default function HomeScreen() {
 
   const upcoming = sortedToday.slice(0, 6);
   const overdueCount = sortedToday.filter((r) => r.nextRunAt < Date.now()).length;
+  const bottomNavClearance = safeBottom + 96;
   const growingPlants = useMemo(
     () => plants.filter((plant: any) => plant.status !== 'planning' && plant.status !== 'planting' && plant.status !== 'harvested' && plant.status !== 'archived'),
     [plants]
   );
   const unassignedPlants = useMemo(
-    () => plants.filter((plant: any) => !plant.bedId && plant.status !== 'archived' && plant.status !== 'harvested'),
-    [plants]
+    () => plants.filter((plant: any) => {
+      if (plant.status === 'archived' || plant.status === 'harvested') return false;
+      return appMode === 'gardener' ? !plant.gardenId : !plant.bedId;
+    }),
+    [appMode, plants]
   );
   const planningPlants = useMemo(
     () => plants.filter((plant: any) => plant.status === 'planning' || plant.status === 'planting'),
@@ -139,7 +145,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={{ padding: 16, gap: 16 }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
+      contentContainerStyle={{ padding: 16, paddingBottom: bottomNavClearance, gap: 16 }}
+      scrollIndicatorInsets={{ bottom: bottomNavClearance }}
+    >
       {/* Welcome header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 4 }}>
         {/* Avatar with yellow ring */}

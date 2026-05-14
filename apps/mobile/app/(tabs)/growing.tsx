@@ -24,7 +24,7 @@ export default function GrowingScreen() {
   const { deviceId } = useDeviceId();
   const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const canEdit = !isAuthLoading && isAuthenticated;
+  const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
 
   useEffect(() => {
     if (appMode === 'gardener') {
@@ -95,7 +95,7 @@ export default function GrowingScreen() {
         </View>
 
         {/* Auth warning */}
-        {!isAuthLoading && !isAuthenticated && (
+        {!canEdit && (
           <View style={{ backgroundColor: theme.warningBg, borderLeftWidth: 4, borderLeftColor: theme.warning, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 }}>
             <Text style={{ color: theme.warning, fontSize: 14, fontWeight: '600' }}>
               {t('growing.auth_warning')}

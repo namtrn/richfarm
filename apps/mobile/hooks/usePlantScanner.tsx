@@ -178,6 +178,7 @@ export function usePlantScanner(): UsePlantScannerResult {
       mode: 'select',
       from: 'scanner',
       scannedPhotoUri: photoUri ?? undefined,
+      scanHistoryId: currentScanIdRef.current ?? undefined,
     });
   }, [openLibraryMatch, photoUri]);
 
@@ -336,12 +337,16 @@ export function usePlantScanner(): UsePlantScannerResult {
     if (!canEdit) return;
     setPhotoSaving(true);
     try {
-      await createUserPlant({
+      const createdPlantId = await createUserPlant({
         nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
+        scannedPhotoUri: photoUri ?? undefined,
       });
       // Update the existing history entry to 'saved'
       if (currentScanIdRef.current) {
-        void updateScanEntry(currentScanIdRef.current, { status: 'saved' }).then(notifyScanSaved);
+        void updateScanEntry(currentScanIdRef.current, {
+          status: 'saved',
+          userPlantId: String(createdPlantId),
+        }).then(notifyScanSaved);
         currentScanIdRef.current = null;
       }
       setPhotoOpen(false);
@@ -352,7 +357,7 @@ export function usePlantScanner(): UsePlantScannerResult {
     } finally {
       setPhotoSaving(false);
     }
-  }, [canEdit, createUserPlant, detectedName, notifyScanSaved, t]);
+  }, [canEdit, createUserPlant, detectedName, notifyScanSaved, photoUri, t]);
 
   const openScanner = useCallback(() => {
     if (isAuthLoading) return;
@@ -522,6 +527,8 @@ export function usePlantScanner(): UsePlantScannerResult {
                   openLibrarySelect({
                     mode: 'select',
                     from: 'scanner',
+                    scannedPhotoUri: photoUri ?? undefined,
+                    scanHistoryId: currentScanIdRef.current ?? undefined,
                     searchQuery: detectedName.trim(),
                     tab: 'plants',
                   });

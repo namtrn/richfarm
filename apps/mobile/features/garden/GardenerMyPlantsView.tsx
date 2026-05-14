@@ -27,6 +27,10 @@ function getPlantGroup(status?: string): PlantGroupKey {
   return 'planning';
 }
 
+function getPlantLabel(plant: any, fallback: string) {
+  return plant?.nickname?.trim?.() || plant?.displayName || plant?.scientificName || fallback;
+}
+
 export function GardenerMyPlantsView({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -50,7 +54,7 @@ export function GardenerMyPlantsView({ hideHeader = false }: { hideHeader?: bool
     const query = normalizeText(search);
     if (!query) return plants;
     return plants.filter((plant) => {
-      const name = normalizeText(plant.displayName ?? plant.scientificName);
+      const name = normalizeText(getPlantLabel(plant, ''));
       return name.includes(query);
     });
   }, [plants, search]);
@@ -164,7 +168,7 @@ export function GardenerMyPlantsView({ hideHeader = false }: { hideHeader?: bool
                           <PlantImageSmall uri={plant.photoUrl} />
                           <View style={{ flex: 1, gap: 2 }}>
                             <Text style={{ fontSize: 15, fontWeight: '500', color: theme.text }} numberOfLines={1}>
-                              {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
+                              {getPlantLabel(plant, t('growing.unnamed'))}
                             </Text>
                             <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={1}>
                               {plant.scientificName ?? ''}

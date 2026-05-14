@@ -93,8 +93,8 @@ async function syncAutoGrowingWateringReminder(
         userId: user._id,
         userPlantId: plant._id,
         type: "watering",
-        title: `Watering: ${plantName}`,
-        description: "Auto reminder while plant is in growing stage.",
+        title: `Check watering need: ${plantName}`,
+        description: "Check soil moisture and plant condition before watering.",
         rrule: `FREQ=DAILY;INTERVAL=${intervalDays}`,
         nextRunAt: buildNextRunAt(intervalDays),
         enabled: true,
@@ -201,13 +201,19 @@ export const addPlant = mutation({
             height: v.number(),
         })),
         plantedAt: v.optional(v.number()),
+        expectedHarvestDate: v.optional(v.number()),
+        status: v.optional(v.string()),
         notes: v.optional(v.string()),
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
         let ownedBed: any = null;
-        if (args.notes !== undefined) {
+        const hasBed = !!args.bedId || !!args.positionInBed;
+        const requestedStatus = args.status ? normalizeStatus(args.status) : undefined;
+        const initialStatus = hasBed ? "growing" : (requestedStatus ?? "planning");
+
+        if (args.notes !== undefined && initialStatus !== "growing") {
             throw new Error("Notes are only allowed for plants in growing status");
         }
         if (args.gardenId) {
@@ -220,11 +226,18 @@ export const addPlant = mutation({
             throw new Error("Bed is required when setting a plant position");
         }
 
-        const hasBed = !!args.bedId || !!args.positionInBed;
-        const initialStatus = hasBed ? "growing" : "planning";
-        const plantedAt = hasBed ? (args.plantedAt ?? Date.now()) : args.plantedAt;
+        const plantedAt = initialStatus === "growing" ? (args.plantedAt ?? Date.now()) : args.plantedAt;
         const nickname = normalizeNickname(args.nickname);
         const derivedGardenId = args.gardenId ?? ownedBed?.gardenId;
+        let expectedHarvestDate = args.expectedHarvestDate;
+
+        if (!expectedHarvestDate && args.plantMasterId && plantedAt) {
+            const careProfile = await getPlantCareProfileByPlantId(ctx, args.plantMasterId);
+            const daysToHarvest = careProfile?.typicalDaysToHarvest;
+            if (typeof daysToHarvest === "number" && Number.isFinite(daysToHarvest) && daysToHarvest > 0) {
+                expectedHarvestDate = plantedAt + daysToHarvest * DAY_MS;
+            }
+        }
 
         const plantId = await ctx.db.insert("userPlants", {
             userId: user._id,
@@ -234,6 +247,7 @@ export const addPlant = mutation({
             bedId: args.bedId,
             positionInBed: args.positionInBed,
             plantedAt,
+            expectedHarvestDate,
             notes: args.notes,
             status: initialStatus,
             version: 1,
@@ -244,7 +258,7 @@ export const addPlant = mutation({
             await syncAutoGrowingWateringReminder(
                 ctx,
                 user,
-                { _id: plantId, plantMasterId: args.plantMasterId },
+                { _id: plantId, plantMasterId: args.plantMasterId, nickname },
                 "growing"
             );
         }

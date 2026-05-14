@@ -785,6 +785,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         try {
             await createUserPlant({
                 nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
+                scannedPhotoUri: photoUri ?? undefined,
             });
             setPhotoOpen(false);
             setPhotoUri(null);
@@ -830,7 +831,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     return (
         <>
             {/* Auth warning */}
-            {!isAuthLoading && !isAuthenticated && (
+            {!canEdit && (
                 <View style={{ backgroundColor: theme.warningBg, borderWidth: 1, borderColor: theme.warning, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8 }}>
                     <Text style={{ color: theme.warning, fontSize: 13 }}>{t('planning.auth_warning')}</Text>
                 </View>
@@ -1050,6 +1051,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                                     openLibrarySelect({
                                         mode: 'select',
                                         from: 'scanner',
+                                        scannedPhotoUri: photoUri ?? undefined,
                                         searchQuery: detectedName.trim(),
                                         tab: 'plants',
                                     });
@@ -1120,7 +1122,7 @@ function GrowingTabContent() {
 
     return (
         <>
-            {!isAuthLoading && !isAuthenticated && (
+            {!canEdit && (
                 <View style={{ backgroundColor: theme.warningBg, borderWidth: 1, borderColor: theme.warning, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8 }}>
                     <Text style={{ color: theme.warning, fontSize: 13 }}>{t('growing.auth_warning')}</Text>
                 </View>

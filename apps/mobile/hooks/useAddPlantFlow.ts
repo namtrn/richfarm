@@ -4,6 +4,7 @@ import { useMutation } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { useAppMode } from './useAppMode';
 import { useDeviceId } from '../lib/deviceId';
+import { updateScanEntry } from '../lib/scanHistory';
 
 type PositionInBed = {
   x: number;
@@ -19,6 +20,8 @@ type AddPlantArgs = {
   bedId?: any;
   positionInBed?: PositionInBed;
   plantedAt?: number;
+  expectedHarvestDate?: number;
+  status?: string;
   notes?: string;
 };
 
@@ -43,6 +46,7 @@ type FlowContext = {
   backBedId?: string;
   backGardenId?: string;
   scannedPhotoUri?: string;
+  scanHistoryId?: string;
   searchQuery?: string;
   tab?: string;
 };
@@ -59,6 +63,10 @@ type CreateUserPlantArgs = {
   gardenId?: string;
   bedId?: string;
   positionInBed?: PositionInBed;
+  plantedAt?: number;
+  expectedHarvestDate?: number;
+  status?: 'planning' | 'growing';
+  scannedPhotoUri?: string;
 };
 
 type UseAddPlantFlowOptions = {
@@ -91,6 +99,7 @@ function buildLibraryParams(context: FlowContext, detail: boolean) {
     ...(context.backBedId ? { backBedId: context.backBedId } : {}),
     ...(context.backGardenId ? { backGardenId: context.backGardenId } : {}),
     ...(context.scannedPhotoUri ? { scannedPhotoUri: context.scannedPhotoUri } : {}),
+    ...(context.scanHistoryId ? { scanHistoryId: context.scanHistoryId } : {}),
     ...(context.searchQuery ? { q: context.searchQuery } : {}),
     ...(context.tab ? { tab: context.tab } : {}),
   };
@@ -120,7 +129,7 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
     (args: Omit<CompleteLibraryAddArgs, 'plantMasterId'>) => {
       const flowRole = resolveFlowRole(appMode, args.from);
       if (flowRole === 'gardener') {
-        router.replace('/(tabs)/garden');
+        router.replace('/(tabs)/garden?tab=plants');
         return;
       }
       if (args.from === 'planning' || (args.selectionMode === 'planning' && args.mode !== 'attach')) {
@@ -164,20 +173,6 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
       router.replace('/(tabs)/garden');
     },
     [appMode, router]
-  );
-
-  const createUserPlant = useCallback(
-    async (args: CreateUserPlantArgs) => {
-      const flowRole = resolveFlowRole(appMode, undefined);
-      return await addPlant({
-        plantMasterId: args.plantMasterId as any,
-        nickname: args.nickname,
-        gardenId: args.gardenId as any,
-        bedId: flowRole === 'gardener' ? undefined : (args.bedId as any),
-        positionInBed: flowRole === 'gardener' ? undefined : args.positionInBed,
-      });
-    },
-    [addPlant, appMode]
   );
 
   const openLibrarySelect = useCallback(
@@ -231,6 +226,25 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
     [deviceId, generateUploadUrl, savePhoto]
   );
 
+  const createUserPlant = useCallback(
+    async (args: CreateUserPlantArgs) => {
+      const flowRole = resolveFlowRole(appMode, undefined);
+      const addedPlantId = await addPlant({
+        plantMasterId: args.plantMasterId as any,
+        nickname: args.nickname,
+        gardenId: args.gardenId as any,
+        bedId: flowRole === 'gardener' ? undefined : (args.bedId as any),
+        positionInBed: flowRole === 'gardener' ? undefined : args.positionInBed,
+        plantedAt: args.plantedAt,
+        expectedHarvestDate: args.expectedHarvestDate,
+        status: args.status,
+      });
+      await uploadScannerPhoto(addedPlantId, args.scannedPhotoUri);
+      return addedPlantId;
+    },
+    [addPlant, appMode, uploadScannerPhoto]
+  );
+
   const completeLibraryAdd = useCallback(
     async (args: CompleteLibraryAddArgs) => {
       let addedPlantId: any = null;
@@ -269,6 +283,15 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
 
       if (args.from === 'scanner' && addedPlantId) {
         await uploadScannerPhoto(addedPlantId, args.scannedPhotoUri);
+      }
+
+      const linkedPlantId = addedPlantId ?? args.attachPlantId;
+      if (args.from === 'scanner' && args.scanHistoryId && linkedPlantId) {
+        await updateScanEntry(args.scanHistoryId, {
+          status: 'saved',
+          userPlantId: String(linkedPlantId),
+          plantMasterId: String(args.plantMasterId),
+        });
       }
 
       navigateAfterAdd({

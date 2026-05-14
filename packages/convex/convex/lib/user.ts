@@ -99,14 +99,12 @@ export async function upsertUserFromIdentity(ctx: any, deviceId?: string) {
  * Auth-first: không fallback về deviceId.
  */
 export async function requireUser(ctx: any, deviceId?: string) {
-  const user =
-    (await getOrCreateUserFromIdentity(ctx, deviceId)) ??
-    (await getOrCreateUserFromDevice(ctx, deviceId));
+  const user = await getOrCreateUserFromIdentity(ctx, deviceId);
 
   if (!user) {
     throw new ConvexError({
       code: 'UNAUTHORIZED',
-      message: 'Failed to resolve user — please sign in again or check device connection',
+      message: 'Session required — please sign in again or check device connection',
     });
   }
   return user;
@@ -178,27 +176,19 @@ export async function getOrCreateUserFromDevice(ctx: any, deviceId?: string) {
   return await ctx.db.get(userId);
 }
 
-// ─── getUserByIdentityOrDevice (legacy) ─────────────────────────────────────
+// ─── getUserByIdentityOrDevice (legacy wrapper) ──────────────────────────────
 
 /**
- * @deprecated Dùng getUserByIdentity thay thế.
+ * @deprecated Dùng getUserByIdentity thay thế. Auth-first: không fallback theo
+ * client-provided deviceId nữa, nhưng giữ signature để tránh phải sửa hàng loạt call sites.
  */
-export async function getUserByIdentityOrDevice(ctx: any, deviceId?: string) {
+export async function getUserByIdentityOrDevice(ctx: any, _deviceId?: string) {
   const identity = await ctx.auth.getUserIdentity();
   if (identity) {
     return await ctx.db
       .query('users')
       .withIndex('by_token', (q: any) =>
         q.eq('tokenIdentifier', identity.tokenIdentifier)
-      )
-      .unique();
-  }
-
-  if (deviceId) {
-    return await ctx.db
-      .query('users')
-      .withIndex('by_token', (q: any) =>
-        q.eq('tokenIdentifier', deviceToken(deviceId))
       )
       .unique();
   }

@@ -404,7 +404,7 @@ export default function LibraryPlantDetailScreen() {
     const router = useRouter();
     const { bottom: safeBottom } = useSafeAreaInsets();
     const { deviceId } = useDeviceId();
-    const { masterPlantId, mode, from, fromPlantId, bedId, x, y, scannedPhotoUri, backFrom, backBedId, backGardenId } = useLocalSearchParams<{
+    const { masterPlantId, mode, from, fromPlantId, bedId, x, y, scannedPhotoUri, scanHistoryId, backFrom, backBedId, backGardenId } = useLocalSearchParams<{
         masterPlantId: string;
         mode?: string;
         from?: string;
@@ -413,6 +413,7 @@ export default function LibraryPlantDetailScreen() {
         x?: string;
         y?: string;
         scannedPhotoUri?: string;
+        scanHistoryId?: string;
         backFrom?: string;
         backBedId?: string;
         backGardenId?: string;
@@ -425,6 +426,7 @@ export default function LibraryPlantDetailScreen() {
     const xParam = Array.isArray(x) ? x[0] : x;
     const yParam = Array.isArray(y) ? y[0] : y;
     const scannedPhotoUriParam = Array.isArray(scannedPhotoUri) ? scannedPhotoUri[0] : scannedPhotoUri;
+    const scanHistoryIdParam = Array.isArray(scanHistoryId) ? scanHistoryId[0] : scanHistoryId;
     const backFromParam = Array.isArray(backFrom) ? backFrom[0] : backFrom;
     const backBedIdParam = Array.isArray(backBedId) ? backBedId[0] : backBedId;
     const backGardenIdParam = Array.isArray(backGardenId) ? backGardenId[0] : backGardenId;
@@ -597,6 +599,7 @@ export default function LibraryPlantDetailScreen() {
             x: xParam,
             y: yParam,
             scannedPhotoUri: scannedPhotoUriParam,
+            scanHistoryId: scanHistoryIdParam,
             backFrom: backFromParam,
             backBedId: backBedIdParam,
             backGardenId: backGardenIdParam,
@@ -669,6 +672,7 @@ export default function LibraryPlantDetailScreen() {
                 plantMasterId: resolvedId as any,
                 nickname: gardenerNickname.trim() || undefined,
                 gardenId: resolvedGardenId ? (resolvedGardenId as any) : undefined,
+                status: 'growing',
                 plantedAt:
                     plantedPreset === 'custom'
                         ? parseDateTimeInput(plantedCustomValue)
@@ -781,6 +785,7 @@ export default function LibraryPlantDetailScreen() {
                     ...(xParam !== undefined ? { x: String(xParam) } : {}),
                     ...(yParam !== undefined ? { y: String(yParam) } : {}),
                     ...(scannedPhotoUriParam ? { scannedPhotoUri: String(scannedPhotoUriParam) } : {}),
+                    ...(scanHistoryIdParam ? { scanHistoryId: String(scanHistoryIdParam) } : {}),
                     ...(backFromParam ? { backFrom: String(backFromParam) } : {}),
                     ...(backBedIdParam ? { backBedId: String(backBedIdParam) } : {}),
                     ...(backGardenIdParam ? { backGardenId: String(backGardenIdParam) } : {}),
@@ -797,6 +802,7 @@ export default function LibraryPlantDetailScreen() {
             xParam,
             yParam,
             scannedPhotoUriParam,
+            scanHistoryIdParam,
             backFromParam,
             backBedIdParam,
             backGardenIdParam,
@@ -1194,7 +1200,7 @@ export default function LibraryPlantDetailScreen() {
                     <TextInput
                         value={gardenerNickname}
                         onChangeText={setGardenerNickname}
-                        placeholder={t('planning.nickname_placeholder', { defaultValue: 'Plant name' })}
+                        placeholder={t('plant.nickname_placeholder', { defaultValue: 'Plant name' })}
                         placeholderTextColor={theme.textMuted}
                         style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
                     />

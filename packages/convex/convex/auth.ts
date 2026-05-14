@@ -16,6 +16,13 @@ const trustedOriginsFromEnv = (process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
 const resendApiKey = process.env.RESEND_API_KEY?.trim();
 const authEmailFrom = process.env.AUTH_EMAIL_FROM?.trim();
 const authEmailAppName = process.env.AUTH_EMAIL_APP_NAME?.trim() || "Richfarm";
+const betterAuthSecret =
+  process.env.BETTER_AUTH_SECRET?.trim() ||
+  (process.env.NODE_ENV !== "production" ? "dev-secret-change-me" : undefined);
+
+if (!betterAuthSecret) {
+  throw new Error("BETTER_AUTH_SECRET is required in production");
+}
 
 function escapeHtml(value: string): string {
   return value
@@ -91,12 +98,22 @@ async function sendAuthEmail(args: {
 export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
   betterAuth({
     database: authComponent.adapter(ctx),
-    secret: process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-me",
+    secret: betterAuthSecret,
     baseURL: process.env.CONVEX_SITE_URL,
     trustedOrigins: [...trustedOriginsFromEnv, "my-garden://"],
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
+      async sendResetPassword({ user, url }) {
+        await sendAuthEmail({
+          to: user.email,
+          subject: `Reset your ${authEmailAppName} password`,
+          heading: "Reset your password",
+          body: `Use this secure link to set a new password for your ${authEmailAppName} account.`,
+          ctaLabel: "Reset password",
+          url,
+        });
+      },
     },
     emailVerification: {
       sendOnSignUp: true,

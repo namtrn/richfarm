@@ -407,7 +407,7 @@ export default function PlanningScreen() {
           </View>
 
           {/* Auth warning */}
-          {!isAuthLoading && !isAuthenticated && (
+          {!canEdit && (
             <View style={{ backgroundColor: theme.warningBg, borderLeftWidth: 4, borderLeftColor: theme.warning, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 }}>
               <Text style={{ color: theme.warning, fontSize: 14, fontWeight: '600' }}>
                 {t('planning.auth_warning')}

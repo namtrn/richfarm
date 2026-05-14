@@ -96,7 +96,7 @@ export default function PlantDetailScreen() {
   const { queuePhoto, queueActivity, queueHarvest } = usePlantSync();
   const { favorites, toggleFavorite } = useFavorites();
   const { execute: executeSyncNow } = useSyncExecutor();
-  const canEdit = !isAuthLoading && isAuthenticated;
+  const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const navigateBackOrGrowing = () => {
     if (fromParam === 'bed') {
       if (fromBedId) {
@@ -281,17 +281,6 @@ export default function PlantDetailScreen() {
   }, [resolvedPlantId, t]);
 
 
-  if (!plant) {
-    return (
-      <View style={{ flex: 1, backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: theme.textSecondary }}>{t('plant.not_found')}</Text>
-        <TouchableOpacity onPress={navigateBackOrGrowing} style={{ marginTop: 12 }}>
-          <Text style={{ color: theme.primary, fontWeight: '600' }}>{t('plant.go_back')}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   const currentBed = beds.find((b: any) => b._id === bedId);
   const gardenById = useMemo(
     () => new Map((gardens ?? []).map((garden: any) => [String(garden._id), garden])),
@@ -305,6 +294,17 @@ export default function PlantDetailScreen() {
     const bedGardenId = currentBed?.gardenId ? String(currentBed.gardenId) : undefined;
     return bedGardenId ? gardenById.get(bedGardenId) : undefined;
   }, [gardenId, plant, currentBed, gardenById]);
+
+  if (!plant) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: theme.textSecondary }}>{t('plant.not_found')}</Text>
+        <TouchableOpacity onPress={navigateBackOrGrowing} style={{ marginTop: 12 }}>
+          <Text style={{ color: theme.primary, fontWeight: '600' }}>{t('plant.go_back')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   // --- Persist helpers (race condition fixed) ---
   const persistLocalData = async (
@@ -591,6 +591,16 @@ export default function PlantDetailScreen() {
   const plantMasterId = plant?.plantMasterId;
   const canFavorite = !!plantMasterId;
   const isFavorite = plantMasterId ? favoriteIds.has(String(plantMasterId)) : false;
+  const plantTitle =
+    nickname.trim() ||
+    plant.nickname?.trim?.() ||
+    plant.displayName ||
+    plant.scientificName ||
+    t('plant.unnamed');
+  const plantSubtitle =
+    plantTitle === plant.displayName
+      ? (latinName ?? statusLabel)
+      : (plant.displayName ?? latinName ?? statusLabel);
   const shrinkRange = [0, 90];
   const headerPaddingHorizontal = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [16, 12], extrapolate: 'clamp' });
   const headerPaddingBottom = scrollY.interpolate({ inputRange: shrinkRange, outputRange: [12, 8], extrapolate: 'clamp' });
@@ -635,9 +645,9 @@ export default function PlantDetailScreen() {
           </Animated.View>
         </TouchableOpacity>
         <View style={{ flex: 1, gap: 1 }}>
-          <Animated.Text style={{ fontSize: nameSize, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{plant.displayName ?? plant.scientificName ?? t('plant.unnamed')}</Animated.Text>
-          <Animated.Text style={{ fontSize: latinSize, color: theme.textSecondary, fontWeight: '500', fontStyle: latinName ? 'italic' : 'normal' }}>
-            {latinName ?? statusLabel}
+          <Animated.Text style={{ fontSize: nameSize, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }} numberOfLines={1}>{plantTitle}</Animated.Text>
+          <Animated.Text style={{ fontSize: latinSize, color: theme.textSecondary, fontWeight: '500', fontStyle: plantSubtitle === latinName ? 'italic' : 'normal' }} numberOfLines={1}>
+            {plantSubtitle}
           </Animated.Text>
         </View>
         <Animated.View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -829,11 +839,11 @@ export default function PlantDetailScreen() {
 
         <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, gap: 16, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
           <View style={{ gap: 8 }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.nickname_label')}</Text>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.nickname_label')}</Text>
             <TextInput
               value={nickname}
               onChangeText={setNickname}
-              placeholder={t('planning.nickname_placeholder')}
+              placeholder={t('plant.nickname_placeholder')}
               placeholderTextColor={theme.textMuted}
               style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
             />

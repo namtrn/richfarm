@@ -1,7 +1,6 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 import {
-    getOrCreateUserFromDevice,
     getOrCreateUserFromIdentity,
     getUserByIdentityOrDevice,
 } from './lib/user';
@@ -45,9 +44,7 @@ export const upsertUserSettings = mutation({
         ),
     },
     handler: async (ctx, args) => {
-        const user =
-            (await getOrCreateUserFromIdentity(ctx, args.deviceId)) ??
-            (await getOrCreateUserFromDevice(ctx, args.deviceId));
+        const user = await getOrCreateUserFromIdentity(ctx, args.deviceId);
         if (!user) return null;
         const existing = await ctx.db
             .query('userSettings')
