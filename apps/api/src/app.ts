@@ -34,6 +34,10 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
     "http://localhost:3000",
     ...configuredOrigins,
   ]);
+  const isAllowedDevOrigin = (origin: string) => (
+    /^http:\/\/localhost:\d+$/.test(origin) ||
+    /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+  );
 
   app.use(
     helmet({
@@ -43,7 +47,7 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.has(origin)) {
+        if (!origin || allowedOrigins.has(origin) || isAllowedDevOrigin(origin)) {
           callback(null, true);
           return;
         }

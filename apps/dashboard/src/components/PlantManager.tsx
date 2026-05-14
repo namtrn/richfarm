@@ -241,6 +241,14 @@ export function PlantManager({
         }
     }
 
+    async function handleSyncConvexToSqlite() {
+        const msg = await backend.syncConvexToSqlite();
+        if (msg) {
+            onToast("success", msg);
+            void p.load();
+        }
+    }
+
 
     return (
         <div className="page-content">
@@ -256,6 +264,9 @@ export function PlantManager({
                     </button>
                     <button className="btn secondary" onClick={() => void handleSyncConvexToJson()} disabled={backend.syncJsonLoading}>
                         {backend.syncJsonLoading ? "⟳ Syncing..." : "⇅ Convex → JSON"}
+                    </button>
+                    <button className="btn secondary" onClick={() => void handleSyncConvexToSqlite()} disabled={backend.syncSqliteLoading}>
+                        {backend.syncSqliteLoading ? "⟳ Syncing..." : "⇄ Convex → DB"}
                     </button>
                     <button className="btn secondary" onClick={() => void backend.exportData("csv")} disabled={backend.exportLoading}>
                         ⬇ CSV

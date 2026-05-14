@@ -11,6 +11,13 @@ export default defineConfig({
   root: resolve(__dirname),
   base: "/",
   plugins: [react()],
+  resolve: {
+    alias: {
+      react: resolve(__dirname, "node_modules/react"),
+      "react/jsx-runtime": resolve(__dirname, "node_modules/react/jsx-runtime.js"),
+      "react/jsx-dev-runtime": resolve(__dirname, "node_modules/react/jsx-dev-runtime.js"),
+    },
+  },
   define: {
     __CONVEX_URL__: JSON.stringify(
       process.env.VITE_CONVEX_URL ?? process.env.EXPO_PUBLIC_CONVEX_URL ?? "",

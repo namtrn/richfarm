@@ -4,16 +4,21 @@ import { downloadBlob } from "../constants";
 
 type AuthedFetch = (path: string, options?: RequestInit) => Promise<Response>;
 
-export function useBackendPlants(authedFetch: AuthedFetch) {
+export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
     const [stats, setStats] = useState<BackendPlantStats | null>(null);
     const [statsLoading, setStatsLoading] = useState(false);
     const [bulkLoading, setBulkLoading] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
     const [importLoading, setImportLoading] = useState(false);
     const [syncJsonLoading, setSyncJsonLoading] = useState(false);
+    const [syncSqliteLoading, setSyncSqliteLoading] = useState(false);
     const [error, setError] = useState("");
 
     const loadStats = useCallback(async () => {
+        if (!enabled) {
+            setStats(null);
+            return;
+        }
         setStatsLoading(true);
         try {
             const res = await authedFetch("/api/master-plants/stats");
@@ -25,7 +30,7 @@ export function useBackendPlants(authedFetch: AuthedFetch) {
         } finally {
             setStatsLoading(false);
         }
-    }, [authedFetch]);
+    }, [authedFetch, enabled]);
 
     const bulkAction = useCallback(
         async (action: "activate" | "deactivate" | "delete", ids: number[]): Promise<number> => {
@@ -126,12 +131,32 @@ export function useBackendPlants(authedFetch: AuthedFetch) {
         }
     }, [authedFetch]);
 
+    const syncConvexToSqlite = useCallback(async (): Promise<string | null> => {
+        setSyncSqliteLoading(true);
+        setError("");
+        try {
+            const res = await authedFetch("/api/master-plants/sync-convex-to-sqlite", {
+                method: "POST",
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? "Sync failed");
+            await loadStats();
+            return `Convex synced to backend DB (${data.upserted ?? 0} plants)`;
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Sync error");
+            return null;
+        } finally {
+            setSyncSqliteLoading(false);
+        }
+    }, [authedFetch, loadStats]);
+
     return {
         stats, statsLoading, loadStats,
         bulkLoading, bulkAction,
         exportLoading, exportData,
         importLoading, importPlants,
         syncJsonLoading, syncConvexToJson,
+        syncSqliteLoading, syncConvexToSqlite,
         error, setError,
     };
 }

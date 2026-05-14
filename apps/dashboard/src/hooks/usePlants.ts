@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import type { Plant, PlantFormState, Mode, PlantListPage } from "../types";
 import {
     convexAdminMutation,
@@ -12,8 +12,126 @@ import {
     type AuthedFetch,
 } from "../constants";
 
-export function usePlants(authedFetch: AuthedFetch) {
+type BackendPlantRow = {
+    id: string | number;
+    plant_code?: string;
+    common_name?: string;
+    scientific_name?: string | null;
+    category?: string;
+    group?: string;
+    family?: string | null;
+    purposes?: string[];
+    typical_days_to_harvest?: number | null;
+    germination_days?: number | null;
+    spacing_cm?: number | null;
+    water_liters_per_m2?: number | null;
+    yield_kg_per_m2?: number | null;
+    image_url?: string | null;
+    is_active?: boolean;
+    notes?: string | null;
+    metadata_json?: Record<string, unknown>;
+    i18n?: Partial<Record<"vi" | "en", { common_name?: string; description?: string }>>;
+};
+
+type BackendPlantListResponse = {
+    data: BackendPlantRow[];
+    pagination: {
+        page: number;
+        page_size: number;
+        total: number;
+    };
+    groupOptions?: string[];
+};
+
+function parseTaxonomy(scientificName: string) {
+    const [genus = "", species = ""] = scientificName.trim().split(/\s+/);
+    return { genus, species };
+}
+
+function mapBackendPlant(row: BackendPlantRow): Plant {
+    const scientificName = row.scientific_name || row.plant_code || row.common_name || "";
+    const taxonomy = parseTaxonomy(scientificName);
+    const i18nRows = (["vi", "en"] as const).map((locale) => {
+        const localeRow = row.i18n?.[locale];
+        return {
+            locale,
+            commonName: localeRow?.common_name || (locale === "vi" ? row.common_name : scientificName) || "",
+            description: localeRow?.description,
+        };
+    });
+
+    return {
+        _id: String(row.id),
+        genus: taxonomy.genus,
+        species: taxonomy.species,
+        scientificName,
+        group: row.group || row.category || "other",
+        family: row.family ?? undefined,
+        description: row.notes ?? undefined,
+        imageUrl: row.image_url ?? null,
+        purposes: row.purposes ?? [],
+        typicalDaysToHarvest: row.typical_days_to_harvest ?? undefined,
+        germinationDays: row.germination_days ?? undefined,
+        spacingCm: row.spacing_cm ?? undefined,
+        waterLitersPerM2: row.water_liters_per_m2 ?? undefined,
+        yieldKgPerM2: row.yield_kg_per_m2 ?? undefined,
+        source: "backend",
+        cultivar: typeof row.metadata_json?.cultivar === "string" ? row.metadata_json.cultivar : undefined,
+        i18nRows,
+    };
+}
+
+async function loadBackendPlantPage(
+    authedFetch: AuthedFetch,
+    page: number,
+    pageSize: number,
+    search: string,
+): Promise<PlantListPage> {
+    const params = new URLSearchParams({
+        page: String(page),
+        page_size: String(Math.min(pageSize, 100)),
+        source: "sqlite",
+    });
+    if (search.trim()) {
+        params.set("search", search.trim());
+    }
+
+    const response = await authedFetch(`/api/master-plants?${params.toString()}`);
+    const body = (await response.json().catch(() => ({}))) as Partial<BackendPlantListResponse> & { error?: string };
+    if (!response.ok || !body.data || !body.pagination) {
+        throw new Error(body.error ?? "Cannot load backend plants");
+    }
+
+    const items = body.data.map(mapBackendPlant);
+    return {
+        items,
+        page: body.pagination.page,
+        pageSize: body.pagination.page_size,
+        totalItems: body.pagination.total,
+        totalPages: Math.max(1, Math.ceil(body.pagination.total / body.pagination.page_size)),
+        groupOptions: body.groupOptions ?? Array.from(new Set(items.map((plant) => plant.group).filter(Boolean))).sort(),
+        stats: {
+            total: body.pagination.total,
+            missingI18n: items.filter((plant) => !getLocaleRow(plant.i18nRows, "vi")?.commonName || !getLocaleRow(plant.i18nRows, "en")?.commonName).length,
+            missingImages: items.filter((plant) => !plant.imageUrl).length,
+        },
+    };
+}
+
+function slugifyPlantCode(value: string) {
+    return value
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/×/g, "x")
+        .replace(/[^A-Za-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .replace(/_+/g, "_")
+        .toUpperCase();
+}
+
+export function usePlants(authedFetch: AuthedFetch, enabled = true) {
     const pageSize = 30;
+    const adminProxyUnavailable = useRef(false);
     const [viewMode, setViewMode] = useState<"common" | "family">("common");
     const [plants, setPlants] = useState<Plant[]>([]);
     const [loading, setLoading] = useState(false);
@@ -33,18 +151,42 @@ export function usePlants(authedFetch: AuthedFetch) {
     const [stats, setStats] = useState({ total: 0, missingI18n: 0, missingImages: 0 });
 
     const load = useCallback(async () => {
+        if (!enabled) {
+            setPlants([]);
+            setTotalItems(0);
+            setTotalPages(1);
+            setGroupOptions([]);
+            setStats({ total: 0, missingI18n: 0, missingImages: 0 });
+            setSelectedId(null);
+            return;
+        }
         setLoading(true);
         setError("");
         try {
-            const data = await convexAdminQuery<PlantListPage>(authedFetch, "plantAdmin:listPlants", {
-                page,
-                pageSize,
-                viewMode,
-                search: search.trim() || undefined,
-                groupFilter,
-                filterMissingI18n,
-                filterNoImage,
-            });
+            let data: PlantListPage;
+            try {
+                if (adminProxyUnavailable.current) {
+                    data = await loadBackendPlantPage(authedFetch, page, pageSize, search);
+                    setError("");
+                } else {
+                data = await convexAdminQuery<PlantListPage>(authedFetch, "plantAdmin:listPlants", {
+                    page,
+                    pageSize,
+                    viewMode,
+                    search: search.trim() || undefined,
+                    groupFilter,
+                    filterMissingI18n,
+                    filterNoImage,
+                });
+                }
+            } catch (err) {
+                const message = err instanceof Error ? err.message : "";
+                if (!message.includes("Convex admin proxy is not configured")) {
+                    throw err;
+                }
+                adminProxyUnavailable.current = true;
+                data = await loadBackendPlantPage(authedFetch, page, pageSize, search);
+            }
             setPlants(data.items);
             setTotalItems(data.totalItems);
             setTotalPages(data.totalPages);
@@ -63,7 +205,7 @@ export function usePlants(authedFetch: AuthedFetch) {
         } finally {
             setLoading(false);
         }
-    }, [authedFetch, filterMissingI18n, filterNoImage, groupFilter, mode, page, search, selectedId, viewMode]);
+    }, [authedFetch, enabled, filterMissingI18n, filterNoImage, groupFilter, mode, page, search, selectedId, viewMode]);
 
     const selected = useMemo(
         () => plants.find((p) => p._id === selectedId) ?? null,
@@ -173,7 +315,7 @@ export function usePlants(authedFetch: AuthedFetch) {
             return null;
         }
 
-        const payload = {
+        const parsedPayload = {
             scientificName,
             cultivar,
             family: form.family.trim() || undefined,
@@ -203,15 +345,73 @@ export function usePlants(authedFetch: AuthedFetch) {
             waterLitersPerM2: parseOptionalNumber(form.waterLitersPerM2),
             yieldKgPerM2: parseOptionalNumber(form.yieldKgPerM2),
         };
+        const backendPayload = {
+            plant_code: [
+                slugifyPlantCode(scientificName),
+                cultivar ? slugifyPlantCode(cultivar) : "",
+            ].filter(Boolean).join("_").slice(0, 120),
+            common_name: form.viCommonName.trim(),
+            scientific_name: scientificName,
+            category: form.group.trim() || "other",
+            group: form.group.trim() || "other",
+            family: form.family.trim() || null,
+            purposes: parsePurposes(form.purposes),
+            growth_stage: "seedling",
+            typical_days_to_harvest: parseOptionalNumber(form.typicalDaysToHarvest) ?? null,
+            germination_days: parseOptionalNumber(form.germinationDays) ?? null,
+            spacing_cm: parseOptionalNumber(form.spacingCm) ?? null,
+            water_liters_per_m2: parseOptionalNumber(form.waterLitersPerM2) ?? null,
+            yield_kg_per_m2: parseOptionalNumber(form.yieldKgPerM2) ?? null,
+            image_url: form.imageUrl.trim() || null,
+            is_active: form.isActive,
+            notes: form.viDescription.trim() || form.enDescription.trim() || null,
+            metadata_json: {
+                ...(cultivar ? { cultivar } : {}),
+                lightRequirements: form.lightRequirements.trim() || undefined,
+                maxPlantsPerM2: parseOptionalNumber(form.maxPlantsPerM2),
+                seedRatePerM2: parseOptionalNumber(form.seedRatePerM2),
+            },
+            i18n: {
+                vi: {
+                    common_name: form.viCommonName.trim(),
+                    description: form.viDescription.trim() || undefined,
+                },
+                en: {
+                    common_name: form.enCommonName.trim(),
+                    description: form.enDescription.trim() || undefined,
+                },
+            },
+        };
 
         setSaving(true);
         setError("");
         try {
+            if (adminProxyUnavailable.current) {
+                if (mode === "edit" && selected && !/^\d+$/.test(selected._id)) {
+                    throw new Error("Sync Convex to backend DB before editing this plant.");
+                }
+                const endpoint = mode === "edit" && selected
+                    ? `/api/master-plants/${selected._id}`
+                    : "/api/master-plants";
+                const response = await authedFetch(endpoint, {
+                    method: mode === "edit" && selected ? "PATCH" : "POST",
+                    body: JSON.stringify(backendPayload),
+                });
+                const body = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(body.error ?? "Cannot save plant");
+                }
+                await load();
+                setSelectedId(body.data?.id ? String(body.data.id) : null);
+                setMode("view");
+                return mode === "create" ? "Plant created successfully" : "Plant updated successfully";
+            }
+
             if (mode === "create") {
                 const result = await convexAdminMutation<{ plantId: string }>(
                     authedFetch,
                     "plantAdmin:createPlant",
-                    payload,
+                    parsedPayload,
                 );
                 await load();
                 setSelectedId(result.plantId);
@@ -220,7 +420,7 @@ export function usePlants(authedFetch: AuthedFetch) {
             } else if (mode === "edit" && selected) {
                 await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlant", {
                     plantId: selected._id,
-                    ...payload,
+                    ...parsedPayload,
                 });
                 await load();
                 setMode("view");
@@ -244,7 +444,20 @@ export function usePlants(authedFetch: AuthedFetch) {
         setSaving(true);
         setError("");
         try {
-            await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlant", { plantId: selected._id });
+            if (adminProxyUnavailable.current) {
+                if (!/^\d+$/.test(selected._id)) {
+                    throw new Error("Sync Convex to backend DB before deleting this plant.");
+                }
+                const response = await authedFetch(`/api/master-plants/${selected._id}`, {
+                    method: "DELETE",
+                });
+                if (!response.ok) {
+                    const body = await response.json().catch(() => ({}));
+                    throw new Error(body.error ?? "Cannot delete plant");
+                }
+            } else {
+                await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlant", { plantId: selected._id });
+            }
             setSelectedId(null);
             await load();
             return "Plant deleted";

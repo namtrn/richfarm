@@ -8,7 +8,7 @@ import type { SqliteDatabase } from "./db";
 const growthStageSchema = z.enum(["seedling", "vegetative", "flowering", "harvest"]);
 
 const masterPlantObjectSchema = z.object({
-  plant_code: z.string().trim().min(3).max(40).regex(/^[A-Za-z0-9_-]+$/),
+  plant_code: z.string().trim().min(3).max(120).regex(/^[A-Za-z0-9_-]+$/),
   common_name: z.string().trim().min(1).max(120).optional(),
   scientific_name: z.string().trim().max(160).nullish(),
   category: z.string().trim().min(1).max(80).default("general"),
@@ -105,6 +105,7 @@ const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   page_size: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().trim().max(120).optional(),
+  source: z.enum(["auto", "convex", "sqlite"]).default("auto"),
   is_active: z
     .enum(["true", "false", "1", "0"])
     .optional()
@@ -241,6 +242,24 @@ function toSqliteBoolean(value: boolean): 0 | 1 {
   return value ? 1 : 0;
 }
 
+function slugifyPlantCode(value: string) {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/×/g, "x")
+    .replace(/[^A-Za-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/_+/g, "_")
+    .toUpperCase();
+}
+
+function buildConvexPlantCode(plant: ConvexPlantLibraryItem) {
+  const base = slugifyPlantCode(plant.scientificName) || slugifyPlantCode(plant.displayName);
+  const cultivar = plant.cultivar ? slugifyPlantCode(plant.cultivar) : "";
+  const idSuffix = slugifyPlantCode(plant._id).slice(-10);
+  return [base, cultivar, idSuffix].filter(Boolean).join("_").slice(0, 120);
+}
+
 function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
   const i18n = {
     vi: { common_name: plant.displayName },
@@ -264,12 +283,12 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
 
   return {
     id: plant._id,
-    plant_code: plant.scientificName,
+    plant_code: buildConvexPlantCode(plant),
     common_name: plant.displayName,
     scientific_name: plant.scientificName,
     category: "general",
     group: plant.group ?? "other",
-    family: null,
+    family: plant.family ?? null,
     purposes: plant.purposes ?? [],
     growth_stage: "seedling",
     typical_days_to_harvest: plant.typicalDaysToHarvest ?? null,
@@ -286,11 +305,190 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     notes: plant.description ?? null,
     metadata_json: {
       source: plant.source ?? "convex",
+      convexId: plant._id,
+      cultivar: plant.cultivar ?? undefined,
+      cultivarNormalized: plant.cultivarNormalized ?? undefined,
     },
     created_at: null,
     updated_at: null,
     i18n,
   };
+}
+
+function getRemotePlantStats(plants: ReturnType<typeof normalizeConvexPlant>[]) {
+  const missingVi = plants.filter((plant) => !plant.i18n.vi.common_name.trim()).length;
+  const missingEn = plants.filter((plant) => !plant.i18n.en.common_name.trim()).length;
+  const missingImage = plants.filter((plant) => !plant.image_url).length;
+
+  return {
+    total: plants.length,
+    active: plants.filter((plant) => plant.is_active).length,
+    inactive: plants.filter((plant) => !plant.is_active).length,
+    missingVi,
+    missingEn,
+    missingImage,
+    source: "convex" as const,
+  };
+}
+
+function getSqlitePlantStats(db: SqliteDatabase) {
+  const total = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants`).get() as { n: number }).n;
+  const active = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE is_active = 1`).get() as { n: number }).n;
+  const inactive = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE is_active = 0`).get() as { n: number }).n;
+  const missingVi = (db.prepare(`
+    SELECT COUNT(*) AS n FROM master_plants mp
+    WHERE NOT EXISTS (
+      SELECT 1 FROM master_plant_i18n i
+      WHERE i.master_plant_id = mp.id AND i.locale = 'vi' AND i.common_name != ''
+    )`).get() as { n: number }).n;
+  const missingEn = (db.prepare(`
+    SELECT COUNT(*) AS n FROM master_plants mp
+    WHERE NOT EXISTS (
+      SELECT 1 FROM master_plant_i18n i
+      WHERE i.master_plant_id = mp.id AND i.locale = 'en' AND i.common_name != ''
+    )`).get() as { n: number }).n;
+  const missingImage = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE image_url IS NULL OR image_url = ''`).get() as { n: number }).n;
+
+  return { total, active, inactive, missingVi, missingEn, missingImage, source: "sqlite" as const };
+}
+
+function upsertMasterPlantRow(
+  db: SqliteDatabase,
+  payload: z.infer<typeof createMasterPlantSchema>,
+) {
+  const i18nPayload = payload.i18n!;
+  const resolvedCommonName = payload.common_name ?? i18nPayload.vi.common_name;
+  const existing = db
+    .prepare(`SELECT id FROM master_plants WHERE plant_code = ?`)
+    .get(payload.plant_code) as { id: number } | undefined;
+
+  if (existing) {
+    db.prepare(
+      `UPDATE master_plants SET
+        common_name = ?,
+        scientific_name = ?,
+        category = ?,
+        "group" = ?,
+        family = ?,
+        purposes_json = ?,
+        growth_stage = ?,
+        typical_days_to_harvest = ?,
+        germination_days = ?,
+        soil_ph_min = ?,
+        soil_ph_max = ?,
+        moisture_target = ?,
+        light_hours = ?,
+        spacing_cm = ?,
+        water_liters_per_m2 = ?,
+        yield_kg_per_m2 = ?,
+        image_url = ?,
+        is_active = ?,
+        notes = ?,
+        metadata_json = ?,
+        updated_at = datetime('now')
+      WHERE id = ?`,
+    ).run(
+      resolvedCommonName,
+      payload.scientific_name ?? null,
+      payload.category,
+      payload.group,
+      payload.family ?? null,
+      JSON.stringify(payload.purposes),
+      payload.growth_stage,
+      payload.typical_days_to_harvest ?? null,
+      payload.germination_days ?? null,
+      payload.soil_ph_min ?? null,
+      payload.soil_ph_max ?? null,
+      payload.moisture_target ?? null,
+      payload.light_hours ?? null,
+      payload.spacing_cm ?? null,
+      payload.water_liters_per_m2 ?? null,
+      payload.yield_kg_per_m2 ?? null,
+      payload.image_url ?? null,
+      toSqliteBoolean(payload.is_active),
+      payload.notes ?? null,
+      JSON.stringify(payload.metadata_json),
+      existing.id,
+    );
+    upsertI18n(db, existing.id, i18nPayload);
+    return existing.id;
+  }
+
+  const result = db
+    .prepare(
+      `INSERT INTO master_plants (
+        plant_code,
+        common_name,
+        scientific_name,
+        category,
+        "group",
+        family,
+        purposes_json,
+        growth_stage,
+        typical_days_to_harvest,
+        germination_days,
+        soil_ph_min,
+        soil_ph_max,
+        moisture_target,
+        light_hours,
+        spacing_cm,
+        water_liters_per_m2,
+        yield_kg_per_m2,
+        image_url,
+        is_active,
+        notes,
+        metadata_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .run(
+      payload.plant_code,
+      resolvedCommonName,
+      payload.scientific_name ?? null,
+      payload.category,
+      payload.group,
+      payload.family ?? null,
+      JSON.stringify(payload.purposes),
+      payload.growth_stage,
+      payload.typical_days_to_harvest ?? null,
+      payload.germination_days ?? null,
+      payload.soil_ph_min ?? null,
+      payload.soil_ph_max ?? null,
+      payload.moisture_target ?? null,
+      payload.light_hours ?? null,
+      payload.spacing_cm ?? null,
+      payload.water_liters_per_m2 ?? null,
+      payload.yield_kg_per_m2 ?? null,
+      payload.image_url ?? null,
+      toSqliteBoolean(payload.is_active),
+      payload.notes ?? null,
+      JSON.stringify(payload.metadata_json),
+    );
+  const id = Number(result.lastInsertRowid);
+  upsertI18n(db, id, i18nPayload);
+  return id;
+}
+
+function convexPlantToCreatePayload(plant: ReturnType<typeof normalizeConvexPlant>) {
+  return createMasterPlantSchema.parse({
+    plant_code: plant.plant_code,
+    common_name: plant.common_name,
+    scientific_name: plant.scientific_name,
+    category: plant.category,
+    group: plant.group,
+    family: plant.family,
+    purposes: plant.purposes,
+    growth_stage: plant.growth_stage,
+    typical_days_to_harvest: plant.typical_days_to_harvest,
+    germination_days: plant.germination_days,
+    spacing_cm: plant.spacing_cm,
+    water_liters_per_m2: plant.water_liters_per_m2,
+    yield_kg_per_m2: plant.yield_kg_per_m2,
+    image_url: plant.image_url,
+    is_active: plant.is_active,
+    notes: plant.notes,
+    metadata_json: plant.metadata_json,
+    i18n: plant.i18n,
+  });
 }
 
 const bulkSchema = z.object({
@@ -300,6 +498,7 @@ const bulkSchema = z.object({
 
 const exportQuerySchema = z.object({
   format: z.enum(["json", "csv"]).default("json"),
+  source: z.enum(["auto", "convex", "sqlite"]).default("auto"),
   is_active: z
     .enum(["true", "false", "1", "0"])
     .optional()
@@ -345,26 +544,47 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
   const router = Router();
 
   // ── GET /stats ───────────────────────────────────────
-  router.get("/stats", (_req: Request, res: Response, next: NextFunction) => {
+  router.get("/stats", async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const total = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants`).get() as { n: number }).n;
-      const active = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE is_active = 1`).get() as { n: number }).n;
-      const inactive = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE is_active = 0`).get() as { n: number }).n;
-      const missingVi = (db.prepare(`
-        SELECT COUNT(*) AS n FROM master_plants mp
-        WHERE NOT EXISTS (
-          SELECT 1 FROM master_plant_i18n i
-          WHERE i.master_plant_id = mp.id AND i.locale = 'vi' AND i.common_name != ''
-        )`).get() as { n: number }).n;
-      const missingEn = (db.prepare(`
-        SELECT COUNT(*) AS n FROM master_plants mp
-        WHERE NOT EXISTS (
-          SELECT 1 FROM master_plant_i18n i
-          WHERE i.master_plant_id = mp.id AND i.locale = 'en' AND i.common_name != ''
-        )`).get() as { n: number }).n;
-      const missingImage = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE image_url IS NULL OR image_url = ''`).get() as { n: number }).n;
+      const query = z.object({
+        source: z.enum(["auto", "convex", "sqlite"]).default("auto"),
+      }).parse(req.query);
+      if (query.source !== "sqlite" && syncService?.canReadFromConvex()) {
+        const remotePlants = await syncService.fetchMasterPlants("vi");
+        res.json(getRemotePlantStats((remotePlants ?? []).map(normalizeConvexPlant)));
+        return;
+      }
 
-      res.json({ total, active, inactive, missingVi, missingEn, missingImage });
+      res.json(getSqlitePlantStats(db));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/sync-convex-to-sqlite", async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!syncService?.canReadFromConvex()) {
+        res.status(503).json({ error: "Convex read sync is not configured" });
+        return;
+      }
+
+      const remotePlants = await syncService.fetchMasterPlants("vi");
+      const normalized = (remotePlants ?? []).map(normalizeConvexPlant);
+      const syncRows = db.transaction(() => {
+        let upserted = 0;
+        for (const plant of normalized) {
+          upsertMasterPlantRow(db, convexPlantToCreatePayload(plant));
+          upserted++;
+        }
+        return upserted;
+      });
+      const upserted = syncRows();
+
+      res.json({
+        ok: true,
+        upserted,
+        stats: getSqlitePlantStats(db),
+      });
     } catch (error) {
       next(error);
     }
@@ -413,7 +633,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       const query = exportQuerySchema.parse(req.query);
 
       // ── Convex path ──
-      if (syncService?.canReadFromConvex()) {
+      if (query.source !== "sqlite" && syncService?.canReadFromConvex()) {
         const remotePlants = await syncService.fetchMasterPlants("vi");
         let normalized = (remotePlants ?? []).map(normalizeConvexPlant);
 
@@ -487,7 +707,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
     try {
       const query = listQuerySchema.parse(req.query);
 
-      if (syncService?.canReadFromConvex()) {
+      if (query.source !== "sqlite" && syncService?.canReadFromConvex()) {
         const remotePlants = await syncService.fetchMasterPlants("vi");
         const normalized = (remotePlants ?? []).map(normalizeConvexPlant);
         const filtered = normalized.filter((plant) => {
@@ -513,6 +733,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
             page_size: query.page_size,
             total: filtered.length,
           },
+          groupOptions: Array.from(new Set(normalized.map((plant) => plant.group).filter(Boolean))).sort(),
         });
         return;
       }
@@ -538,6 +759,9 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       const totalRow = db
         .prepare(`SELECT COUNT(*) AS total FROM master_plants ${whereClause}`)
         .get(...conditionParams) as { total: number };
+      const groupRows = db
+        .prepare(`SELECT DISTINCT "group" AS groupName FROM master_plants WHERE "group" IS NOT NULL AND "group" != '' ORDER BY "group" ASC`)
+        .all() as Array<{ groupName: string }>;
 
       const rows = db
         .prepare(
@@ -557,6 +781,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           page_size: query.page_size,
           total: totalRow.total,
         },
+        groupOptions: groupRows.map((row) => row.groupName),
       });
     } catch (error) {
       next(error);

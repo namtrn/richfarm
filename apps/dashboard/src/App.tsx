@@ -21,16 +21,17 @@ export default function App() {
   const { toasts, addToast, dismiss } = useToast();
 
   const auth = useAuth();
-  const plants = usePlants(auth.authedFetch);
+  const plants = usePlants(auth.authedFetch, auth.isLoggedIn);
   const groups = useGroups(auth.authedFetch);
   const photos = usePhotos(auth.authedFetch);
   const i18n = useI18n(auth.authedFetch);
-  const backend = useBackendPlants(auth.authedFetch);
+  const backend = useBackendPlants(auth.authedFetch, auth.isLoggedIn);
 
-  // Load plants + stats on mount
+  // Load backend stats once auth is available.
   useEffect(() => {
+    if (!auth.isLoggedIn) return;
     void backend.loadStats();
-  }, []);
+  }, [auth.isLoggedIn, backend.loadStats]);
 
   // Lazy-load other data on tab switch
   useEffect(() => {

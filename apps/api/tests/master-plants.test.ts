@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createApp } from "../src/app";
 import { createDatabase, type SqliteDatabase } from "../src/db";
+import type { ConvexSyncService } from "../src/convex-sync";
 
 describe("master plants API", () => {
   let db: SqliteDatabase;
@@ -154,6 +155,93 @@ describe("master plants API", () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const response = await request(app).get("/api/master-plants");
     expect(response.status).toBe(200);
+  });
+
+  it("uses Convex read model for list and stats when configured", async () => {
+    const syncService = {
+      canReadFromConvex: () => true,
+      fetchMasterPlants: async () => [
+        {
+          _id: "jx123abc",
+          scientificName: "Solanum lycopersicum",
+          displayName: "Tomato",
+          cultivar: "Roma VF",
+          cultivarNormalized: "roma vf",
+          group: "nightshades",
+          family: "Solanaceae",
+          imageUrl: null,
+          source: "seed",
+          purposes: ["food"],
+          i18nRows: [
+            { locale: "vi", commonName: "Cà chua Roma" },
+            { locale: "en", commonName: "Roma tomato" },
+          ],
+        },
+      ],
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+
+    const listResponse = await request(app).get("/api/master-plants");
+    expect(listResponse.status).toBe(200);
+    expect(listResponse.body.pagination.total).toBe(1);
+    expect(listResponse.body.data[0].plant_code).toMatch(/^SOLANUM_LYCOPERSICUM_ROMA_VF_/);
+    expect(listResponse.body.data[0].plant_code).not.toContain(" ");
+    expect(listResponse.body.data[0].family).toBe("Solanaceae");
+
+    const statsResponse = await request(app).get("/api/master-plants/stats");
+    expect(statsResponse.status).toBe(200);
+    expect(statsResponse.body).toMatchObject({
+      total: 1,
+      active: 1,
+      inactive: 0,
+      missingVi: 0,
+      missingEn: 0,
+      missingImage: 1,
+      source: "convex",
+    });
+  });
+
+  it("syncs Convex plants into editable SQLite rows", async () => {
+    const syncService = {
+      canReadFromConvex: () => true,
+      fetchMasterPlants: async () => [
+        {
+          _id: "jx123abc",
+          scientificName: "Solanum lycopersicum",
+          displayName: "Tomato",
+          cultivar: "Roma VF",
+          cultivarNormalized: "roma vf",
+          group: "nightshades",
+          family: "Solanaceae",
+          imageUrl: "https://example.com/tomato.jpg",
+          source: "seed",
+          purposes: ["food"],
+          i18nRows: [
+            { locale: "vi", commonName: "Cà chua Roma" },
+            { locale: "en", commonName: "Roma tomato" },
+          ],
+        },
+      ],
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email: "admin@example.com",
+      password: "password123",
+    });
+    const authHeader = `Bearer ${loginResponse.body.token}`;
+
+    const syncResponse = await request(app)
+      .post("/api/master-plants/sync-convex-to-sqlite")
+      .set("Authorization", authHeader);
+    expect(syncResponse.status).toBe(200);
+    expect(syncResponse.body.upserted).toBe(1);
+
+    const sqliteList = await request(app).get("/api/master-plants?source=sqlite");
+    expect(sqliteList.status).toBe(200);
+    expect(sqliteList.body.pagination.total).toBe(1);
+    expect(sqliteList.body.data[0].id).toBe(1);
+    expect(sqliteList.body.data[0].plant_code).toMatch(/^SOLANUM_LYCOPERSICUM_ROMA_VF_/);
+    expect(sqliteList.body.data[0].metadata_json.cultivar).toBe("Roma VF");
   });
 
   it("blocks unauthenticated write access", async () => {

@@ -11,6 +11,9 @@ export interface ConvexPlantLibraryItem {
     description?: string;
   }>;
   group?: string;
+  family?: string;
+  cultivar?: string | null;
+  cultivarNormalized?: string;
   imageUrl?: string | null;
   typicalDaysToHarvest?: number;
   germinationDays?: number;
