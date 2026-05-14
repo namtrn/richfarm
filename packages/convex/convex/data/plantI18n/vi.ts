@@ -45,6 +45,170 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Abelmoschus esculentus"
   },
   {
+    "scientificName": "Acca sellowiana",
+    "locale": "vi",
+    "commonName": "Oi dua",
+    "description": "Oi dua la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Anatoki",
+    "locale": "vi",
+    "commonName": "Oi dua Anatoki",
+    "description": "Giong Anatoki cua Oi dua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Apollo",
+    "locale": "vi",
+    "commonName": "Oi dua Apollo",
+    "description": "Giong Apollo cua Oi dua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Kaiteri",
+    "locale": "vi",
+    "commonName": "Oi dua Kaiteri",
+    "description": "Giong Kaiteri cua Oi dua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Mammoth",
+    "locale": "vi",
+    "commonName": "Oi dua Mammoth",
+    "description": "Giong Mammoth cua Oi dua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Unique",
+    "locale": "vi",
+    "commonName": "Oi dua Unique",
+    "description": "Giong Unique cua Oi dua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "locale": "vi",
+    "commonName": "Co thi",
+    "description": "Co thi la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Cerise Queen",
+    "locale": "vi",
+    "commonName": "Co thi Cerise Queen",
+    "description": "Giong Cerise Queen cua Co thi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Colorado",
+    "locale": "vi",
+    "commonName": "Co thi Colorado",
+    "description": "Giong Colorado cua Co thi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Moonshine",
+    "locale": "vi",
+    "commonName": "Co thi Moonshine",
+    "description": "Giong Moonshine cua Co thi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Paprika",
+    "locale": "vi",
+    "commonName": "Co thi Paprika",
+    "description": "Giong Paprika cua Co thi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Summer Pastels",
+    "locale": "vi",
+    "commonName": "Co thi Summer Pastels",
+    "description": "Giong Summer Pastels cua Co thi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "locale": "vi",
+    "commonName": "Kiwi nho",
+    "description": "Kiwi nho la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Ananasnaya",
+    "locale": "vi",
+    "commonName": "Kiwi nho Ananasnaya",
+    "description": "Giong Ananasnaya cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Geneva",
+    "locale": "vi",
+    "commonName": "Kiwi nho Geneva",
+    "description": "Giong Geneva cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Issai",
+    "locale": "vi",
+    "commonName": "Kiwi nho Issai",
+    "description": "Giong Issai cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Ken's Red",
+    "locale": "vi",
+    "commonName": "Kiwi nho Ken's Red",
+    "description": "Giong Ken's Red cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Weiki",
+    "locale": "vi",
+    "commonName": "Kiwi nho Weiki",
+    "description": "Giong Weiki cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "locale": "vi",
+    "commonName": "Kiwi",
+    "description": "Kiwi la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Abbott",
+    "locale": "vi",
+    "commonName": "Kiwi Abbott",
+    "description": "Giong Abbott cua Kiwi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Blake",
+    "locale": "vi",
+    "commonName": "Kiwi Blake",
+    "description": "Giong Blake cua Kiwi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Bruno",
+    "locale": "vi",
+    "commonName": "Kiwi Bruno",
+    "description": "Giong Bruno cua Kiwi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Hayward",
+    "locale": "vi",
+    "commonName": "Kiwi Hayward",
+    "description": "Giong Hayward cua Kiwi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Monty",
+    "locale": "vi",
+    "commonName": "Kiwi Monty",
+    "description": "Giong Monty cua Kiwi giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Ngân hậu",
     "description": "Ngân hậu là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
@@ -189,6 +353,12 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Allium cepa"
   },
   {
+    "commonName": "Hành tím",
+    "description": "Hành tím cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
+    "locale": "vi",
+    "scientificName": "Allium cepa var. aggregatum"
+  },
+  {
     "commonName": "Hành tím Camelot",
     "cultivar": "Camelot",
     "description": "Hành tím Camelot cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
@@ -213,13 +383,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Hành tím Red Sun",
     "cultivar": "Red Sun",
     "description": "Hành tím Red Sun cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
-    "locale": "vi",
-    "scientificName": "Allium cepa var. aggregatum"
-  },
-  {
-    "commonName": "Hành tím",
-    "cultivar": "var. aggregatum",
-    "description": "Hành tím cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
     "locale": "vi",
     "scientificName": "Allium cepa var. aggregatum"
   },
@@ -468,6 +631,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Hẹ tỏi Tender có lá dẹt, hương thơm giống tỏi. Cây ưa đất ẩm và chịu nắng nhẹ. Lá hẹ tỏi được dùng xào, ăn sống hoặc trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Allium tuberosum"
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "locale": "vi",
+    "commonName": "Toi rung",
+    "description": "Toi rung la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Alba",
+    "locale": "vi",
+    "commonName": "Toi rung Alba",
+    "description": "Giong Alba cua Toi rung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Broadleaf",
+    "locale": "vi",
+    "commonName": "Toi rung Broadleaf",
+    "description": "Giong Broadleaf cua Toi rung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Early Spring",
+    "locale": "vi",
+    "commonName": "Toi rung Early Spring",
+    "description": "Giong Early Spring cua Toi rung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Forest Green",
+    "locale": "vi",
+    "commonName": "Toi rung Forest Green",
+    "description": "Giong Forest Green cua Toi rung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Wildwood",
+    "locale": "vi",
+    "commonName": "Toi rung Wildwood",
+    "description": "Giong Wildwood cua Toi rung giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Hành rừng",
@@ -873,6 +1077,12 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Apium graveolens"
   },
   {
+    "commonName": "Can tay cu",
+    "description": "Can tay cu là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "locale": "vi",
+    "scientificName": "Apium graveolens var. rapaceum"
+  },
+  {
     "commonName": "Can tay cu Balena",
     "cultivar": "Balena",
     "description": "Can tay cu Balena là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
@@ -904,13 +1114,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Can tay cu Prinz",
     "cultivar": "Prinz",
     "description": "Can tay cu Prinz là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
-    "locale": "vi",
-    "scientificName": "Apium graveolens var. rapaceum"
-  },
-  {
-    "commonName": "Can tay cu",
-    "cultivar": "var. rapaceum",
-    "description": "Can tay cu là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens var. rapaceum"
   },
@@ -981,6 +1184,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Nguu bang Watanabe Early là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Arctium lappa"
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "locale": "vi",
+    "commonName": "Cai ngua",
+    "description": "Cai ngua la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Big Top",
+    "locale": "vi",
+    "commonName": "Cai ngua Big Top",
+    "description": "Giong Big Top cua Cai ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Bohemian",
+    "locale": "vi",
+    "commonName": "Cai ngua Bohemian",
+    "description": "Giong Bohemian cua Cai ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Maliner Kren",
+    "locale": "vi",
+    "commonName": "Cai ngua Maliner Kren",
+    "description": "Giong Maliner Kren cua Cai ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Sass",
+    "locale": "vi",
+    "commonName": "Cai ngua Sass",
+    "description": "Giong Sass cua Cai ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Variegata",
+    "locale": "vi",
+    "commonName": "Cai ngua Variegata",
+    "description": "Giong Variegata cua Cai ngua giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Ngo om tay",
@@ -1079,6 +1323,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Asparagus officinalis"
   },
   {
+    "scientificName": "Banksia integrifolia",
+    "locale": "vi",
+    "commonName": "Banksia bien",
+    "description": "Banksia bien la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Austraflora",
+    "locale": "vi",
+    "commonName": "Banksia bien Austraflora",
+    "description": "Giong Austraflora cua Banksia bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Coastal",
+    "locale": "vi",
+    "commonName": "Banksia bien Coastal",
+    "description": "Giong Coastal cua Banksia bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Prostrate",
+    "locale": "vi",
+    "commonName": "Banksia bien Prostrate",
+    "description": "Giong Prostrate cua Banksia bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Roller Coaster",
+    "locale": "vi",
+    "commonName": "Banksia bien Roller Coaster",
+    "description": "Giong Roller Coaster cua Banksia bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Sentinel",
+    "locale": "vi",
+    "commonName": "Banksia bien Sentinel",
+    "description": "Giong Sentinel cua Banksia bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Mong toi",
     "description": "Mong toi là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
@@ -1148,6 +1433,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Basella alba"
   },
   {
+    "scientificName": "Beaucarnea recurvata",
+    "locale": "vi",
+    "commonName": "Cay duoi ngua",
+    "description": "Cay duoi ngua la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Compacta",
+    "locale": "vi",
+    "commonName": "Cay duoi ngua Compacta",
+    "description": "Giong Compacta cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Dwarf",
+    "locale": "vi",
+    "commonName": "Cay duoi ngua Dwarf",
+    "description": "Giong Dwarf cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Gold Star",
+    "locale": "vi",
+    "commonName": "Cay duoi ngua Gold Star",
+    "description": "Giong Gold Star cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Recurvata",
+    "locale": "vi",
+    "commonName": "Cay duoi ngua Recurvata",
+    "description": "Giong Recurvata cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Variegata",
+    "locale": "vi",
+    "commonName": "Cay duoi ngua Variegata",
+    "description": "Giong Variegata cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Thu hải đường",
     "description": "Thu hải đường là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
@@ -1187,6 +1513,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Thu hải đường Victory Rose là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
     "scientificName": "Begonia semperflorens"
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "locale": "vi",
+    "commonName": "Cuc Anh",
+    "description": "Cuc Anh la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Galaxy",
+    "locale": "vi",
+    "commonName": "Cuc Anh Galaxy",
+    "description": "Giong Galaxy cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Habanera",
+    "locale": "vi",
+    "commonName": "Cuc Anh Habanera",
+    "description": "Giong Habanera cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Pomponette",
+    "locale": "vi",
+    "commonName": "Cuc Anh Pomponette",
+    "description": "Giong Pomponette cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Robella",
+    "locale": "vi",
+    "commonName": "Cuc Anh Robella",
+    "description": "Giong Robella cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Tasso",
+    "locale": "vi",
+    "commonName": "Cuc Anh Tasso",
+    "description": "Giong Tasso cua Cuc Anh giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Bi dao",
@@ -1255,6 +1622,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Củ dền Golden Beet nổi bật với củ màu đỏ tím, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất.",
     "locale": "vi",
     "scientificName": "Beta vulgaris"
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "locale": "vi",
+    "commonName": "Cai cau vong",
+    "description": "Cai cau vong la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Bright Lights",
+    "locale": "vi",
+    "commonName": "Cai cau vong Bright Lights",
+    "description": "Giong Bright Lights cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Fordhook Giant",
+    "locale": "vi",
+    "commonName": "Cai cau vong Fordhook Giant",
+    "description": "Giong Fordhook Giant cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Lucullus",
+    "locale": "vi",
+    "commonName": "Cai cau vong Lucullus",
+    "description": "Giong Lucullus cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Perpetual Spinach",
+    "locale": "vi",
+    "commonName": "Cai cau vong Perpetual Spinach",
+    "description": "Giong Perpetual Spinach cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Rhubarb",
+    "locale": "vi",
+    "commonName": "Cai cau vong Rhubarb",
+    "description": "Giong Rhubarb cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "locale": "vi",
+    "commonName": "Hoa luu ly an duoc",
+    "description": "Hoa luu ly an duoc la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Alba",
+    "locale": "vi",
+    "commonName": "Hoa luu ly an duoc Alba",
+    "description": "Giong Alba cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Blue Star",
+    "locale": "vi",
+    "commonName": "Hoa luu ly an duoc Blue Star",
+    "description": "Giong Blue Star cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Common Blue",
+    "locale": "vi",
+    "commonName": "Hoa luu ly an duoc Common Blue",
+    "description": "Giong Common Blue cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Compact",
+    "locale": "vi",
+    "commonName": "Hoa luu ly an duoc Compact",
+    "description": "Giong Compact cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Variegata",
+    "locale": "vi",
+    "commonName": "Hoa luu ly an duoc Variegata",
+    "description": "Giong Variegata cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Hoa giấy",
@@ -1339,6 +1788,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica juncea"
   },
   {
+    "scientificName": "Brassica napus",
+    "locale": "vi",
+    "commonName": "Cai dau dau",
+    "description": "Loai Brassica napus goc dung de neo rutabaga va cac bien the lien quan."
+  },
+  {
+    "commonName": "Củ cải vàng",
+    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "locale": "vi",
+    "scientificName": "Brassica napus var. napobrassica"
+  },
+  {
     "commonName": "Củ cải vàng American Purple Top",
     "cultivar": "American Purple Top",
     "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
@@ -1374,11 +1835,16 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica napus var. napobrassica"
   },
   {
-    "commonName": "Củ cải vàng",
-    "cultivar": "var. napobrassica",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "scientificName": "Brassica oleracea",
     "locale": "vi",
-    "scientificName": "Brassica napus var. napobrassica"
+    "commonName": "Cai bap dai",
+    "description": "Loai Brassica oleracea goc dung de neo bap cai, kale, bong cai va cac bien the lien quan."
+  },
+  {
+    "commonName": "Súp lơ",
+    "description": "Súp lơ cho hoa trắng, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào.",
+    "locale": "vi",
+    "scientificName": "Brassica oleracea var. botrytis"
   },
   {
     "commonName": "Súp lơ tím",
@@ -1402,18 +1868,17 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. botrytis"
   },
   {
-    "commonName": "Súp lơ",
-    "cultivar": "var. botrytis",
-    "description": "Súp lơ cho hoa trắng, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào.",
-    "locale": "vi",
-    "scientificName": "Brassica oleracea var. botrytis"
-  },
-  {
     "commonName": "Bông cải Romanesco Veronica",
     "cultivar": "Veronica",
     "description": "Bông cải Romanesco có hoa màu xanh nhạt, sắp xếp theo dạng xoắn ốc độc đáo. Cây ưa khí hậu mát, đất sâu và giàu dinh dưỡng, cần tưới đều. Loại bông cải này vừa ngon mắt vừa giàu vitamin, thích hợp hấp hoặc xào nhẹ.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. botrytis"
+  },
+  {
+    "commonName": "Bắp cải",
+    "description": "Bắp cải hình thành bắp tròn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C.",
+    "locale": "vi",
+    "scientificName": "Brassica oleracea var. capitata"
   },
   {
     "commonName": "Bắp cải Golden Acre",
@@ -1444,11 +1909,92 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. capitata"
   },
   {
-    "commonName": "Bắp cải",
-    "cultivar": "var. capitata",
-    "description": "Bắp cải hình thành bắp tròn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C.",
+    "scientificName": "Brassica oleracea var. gemmifera",
     "locale": "vi",
-    "scientificName": "Brassica oleracea var. capitata"
+    "commonName": "Bap cai ti hon",
+    "description": "Bap cai ti hon la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Churchill",
+    "locale": "vi",
+    "commonName": "Bap cai ti hon Churchill",
+    "description": "Giong Churchill cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Diablo",
+    "locale": "vi",
+    "commonName": "Bap cai ti hon Diablo",
+    "description": "Giong Diablo cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Jade Cross",
+    "locale": "vi",
+    "commonName": "Bap cai ti hon Jade Cross",
+    "description": "Giong Jade Cross cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Long Island Improved",
+    "locale": "vi",
+    "commonName": "Bap cai ti hon Long Island Improved",
+    "description": "Giong Long Island Improved cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Red Bull",
+    "locale": "vi",
+    "commonName": "Bap cai ti hon Red Bull",
+    "description": "Giong Red Bull cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "locale": "vi",
+    "commonName": "Su hao",
+    "description": "Su hao la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Gigante",
+    "locale": "vi",
+    "commonName": "Su hao Gigante",
+    "description": "Giong Gigante cua Su hao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Kolibri",
+    "locale": "vi",
+    "commonName": "Su hao Kolibri",
+    "description": "Giong Kolibri cua Su hao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Kossak",
+    "locale": "vi",
+    "commonName": "Su hao Kossak",
+    "description": "Giong Kossak cua Su hao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Purple Vienna",
+    "locale": "vi",
+    "commonName": "Su hao Purple Vienna",
+    "description": "Giong Purple Vienna cua Su hao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "White Vienna",
+    "locale": "vi",
+    "commonName": "Su hao White Vienna",
+    "description": "Giong White Vienna cua Su hao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "commonName": "Bông cải xanh",
+    "description": "Bông cải xanh tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
+    "locale": "vi",
+    "scientificName": "Brassica oleracea var. italica"
   },
   {
     "commonName": "Bông cải xanh Calabrese",
@@ -1472,18 +2018,17 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. italica"
   },
   {
-    "commonName": "Bông cải xanh",
-    "cultivar": "var. italica",
-    "description": "Bông cải xanh tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
-    "locale": "vi",
-    "scientificName": "Brassica oleracea var. italica"
-  },
-  {
     "commonName": "Bông cải xanh Waltham 29",
     "cultivar": "Waltham 29",
     "description": "Bông cải xanh Waltham 29 tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. italica"
+  },
+  {
+    "commonName": "Cải kale",
+    "description": "Cải kale là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
+    "locale": "vi",
+    "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Black Magic",
@@ -1542,18 +2087,23 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
-    "commonName": "Cải kale",
-    "cultivar": "var. sabellica",
-    "description": "Cải kale là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
-    "locale": "vi",
-    "scientificName": "Brassica oleracea var. sabellica"
-  },
-  {
     "commonName": "Cải kale Winterbor",
     "cultivar": "Winterbor",
     "description": "Cải kale Winterbor là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
+  },
+  {
+    "scientificName": "Brassica rapa",
+    "locale": "vi",
+    "commonName": "Cai dau",
+    "description": "Loai Brassica rapa goc dung de neo cac nhom cai va cu cai lien quan."
+  },
+  {
+    "commonName": "Cải thìa",
+    "description": "Cải thìa có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
+    "locale": "vi",
+    "scientificName": "Brassica rapa subsp. chinensis"
   },
   {
     "commonName": "Cải thìa Joi Choi",
@@ -1570,18 +2120,17 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. chinensis"
   },
   {
-    "commonName": "Cải thìa",
-    "cultivar": "subsp. chinensis",
-    "description": "Cải thìa có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
-    "locale": "vi",
-    "scientificName": "Brassica rapa subsp. chinensis"
-  },
-  {
     "commonName": "Cải thìa White Stem",
     "cultivar": "White Stem",
     "description": "Cải thìa White Stem có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. chinensis"
+  },
+  {
+    "commonName": "Cải thìa",
+    "description": "Cải thìa có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
+    "locale": "vi",
+    "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
     "commonName": "Cải thìa Green Spoon",
@@ -1605,13 +2154,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
-    "commonName": "Cải thìa",
-    "cultivar": "subsp. narinosa",
-    "description": "Cải thìa có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
-    "locale": "vi",
-    "scientificName": "Brassica rapa subsp. narinosa"
-  },
-  {
     "commonName": "Cải thìa Summer Fest",
     "cultivar": "Summer Fest",
     "description": "Cải thìa Summer Fest có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
@@ -1624,6 +2166,12 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Cải thìa Tah Tsai có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. narinosa"
+  },
+  {
+    "commonName": "Cải thảo",
+    "description": "Cải thảo tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin.",
+    "locale": "vi",
+    "scientificName": "Brassica rapa subsp. pekinensis"
   },
   {
     "commonName": "Cải thảo Bilko",
@@ -1647,11 +2195,10 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. pekinensis"
   },
   {
-    "commonName": "Cải thảo",
-    "cultivar": "subsp. pekinensis",
-    "description": "Cải thảo tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin.",
+    "commonName": "Củ cải tròn",
+    "description": "Củ cải có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
-    "scientificName": "Brassica rapa subsp. pekinensis"
+    "scientificName": "Brassica rapa subsp. rapa"
   },
   {
     "commonName": "Củ cải tròn Golden Ball",
@@ -1682,18 +2229,17 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. rapa"
   },
   {
-    "commonName": "Củ cải tròn",
-    "cultivar": "subsp. rapa",
-    "description": "Củ cải có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
-    "locale": "vi",
-    "scientificName": "Brassica rapa subsp. rapa"
-  },
-  {
     "commonName": "Củ cải tròn Tokyo Cross",
     "cultivar": "Tokyo Cross",
     "description": "Củ cải Tokyo Cross có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. rapa"
+  },
+  {
+    "commonName": "Cải Nhật",
+    "description": "Cải Nhật (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
+    "locale": "vi",
+    "scientificName": "Brassica rapa var. perviridis"
   },
   {
     "commonName": "Cải Nhật Green Boy",
@@ -1727,13 +2273,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Cải Nhật Tokyo Bekana",
     "cultivar": "Tokyo Bekana",
     "description": "Cải Nhật Tokyo Bekana (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
-    "locale": "vi",
-    "scientificName": "Brassica rapa var. perviridis"
-  },
-  {
-    "commonName": "Cải Nhật",
-    "cultivar": "var. perviridis",
-    "description": "Cải Nhật (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Brassica rapa var. perviridis"
   },
@@ -1818,6 +2357,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Môn lá White Queen là cây cảnh có lá lớn nhiều màu sắc như xanh, đỏ, hồng. Cây ưa bóng râm và độ ẩm cao, dễ trồng trong chậu. Dùng để trang trí nội thất hoặc sân vườn bán bóng.",
     "locale": "vi",
     "scientificName": "Caladium bicolor"
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "locale": "vi",
+    "commonName": "Cuc xu xi",
+    "description": "Cuc xu xi la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Orange King",
+    "locale": "vi",
+    "commonName": "Cuc xu xi Orange King",
+    "description": "Giong Orange King cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Pacific Beauty",
+    "locale": "vi",
+    "commonName": "Cuc xu xi Pacific Beauty",
+    "description": "Giong Pacific Beauty cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Resina",
+    "locale": "vi",
+    "commonName": "Cuc xu xi Resina",
+    "description": "Giong Resina cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Snow Princess",
+    "locale": "vi",
+    "commonName": "Cuc xu xi Snow Princess",
+    "description": "Giong Snow Princess cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Zeolights",
+    "locale": "vi",
+    "commonName": "Cuc xu xi Zeolights",
+    "description": "Giong Zeolights cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "locale": "vi",
+    "commonName": "Thach thao heather",
+    "description": "Thach thao heather la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Alicia",
+    "locale": "vi",
+    "commonName": "Thach thao heather Alicia",
+    "description": "Giong Alicia cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Dark Beauty",
+    "locale": "vi",
+    "commonName": "Thach thao heather Dark Beauty",
+    "description": "Giong Dark Beauty cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Firefly",
+    "locale": "vi",
+    "commonName": "Thach thao heather Firefly",
+    "description": "Giong Firefly cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Silver Knight",
+    "locale": "vi",
+    "commonName": "Thach thao heather Silver Knight",
+    "description": "Giong Silver Knight cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Spring Torch",
+    "locale": "vi",
+    "commonName": "Thach thao heather Spring Torch",
+    "description": "Giong Spring Torch cua Thach thao heather giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Trà my",
@@ -1936,6 +2557,12 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Capsicum annuum"
   },
   {
+    "commonName": "Ot chim",
+    "description": "Ot chim là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "locale": "vi",
+    "scientificName": "Capsicum annuum var. glabriusculum"
+  },
+  {
     "commonName": "Ot chim Fire Drop",
     "cultivar": "Fire Drop",
     "description": "Ot chim Fire Drop là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
@@ -1960,13 +2587,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Ot chim Texas Bird",
     "cultivar": "Texas Bird",
     "description": "Ot chim Texas Bird là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
-    "locale": "vi",
-    "scientificName": "Capsicum annuum var. glabriusculum"
-  },
-  {
-    "commonName": "Ot chim",
-    "cultivar": "var. glabriusculum",
-    "description": "Ot chim là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
@@ -2160,6 +2780,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Đu đủ Tainung là cây ăn quả nhiệt đới cho trái vàng cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon.",
     "locale": "vi",
     "scientificName": "Carica papaya"
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "locale": "vi",
+    "commonName": "Hat de",
+    "description": "Hat de la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Bouche de Betizac",
+    "locale": "vi",
+    "commonName": "Hat de Bouche de Betizac",
+    "description": "Giong Bouche de Betizac cua Hat de giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Colossal",
+    "locale": "vi",
+    "commonName": "Hat de Colossal",
+    "description": "Giong Colossal cua Hat de giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Marigoule",
+    "locale": "vi",
+    "commonName": "Hat de Marigoule",
+    "description": "Giong Marigoule cua Hat de giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Marron de Lyon",
+    "locale": "vi",
+    "commonName": "Hat de Marron de Lyon",
+    "description": "Giong Marron de Lyon cua Hat de giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Precoce Migoule",
+    "locale": "vi",
+    "commonName": "Hat de Precoce Migoule",
+    "description": "Giong Precoce Migoule cua Hat de giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "locale": "vi",
+    "commonName": "Cau tieu tram",
+    "description": "Cau tieu tram la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Bella",
+    "locale": "vi",
+    "commonName": "Cau tieu tram Bella",
+    "description": "Giong Bella cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Compacta",
+    "locale": "vi",
+    "commonName": "Cau tieu tram Compacta",
+    "description": "Giong Compacta cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Elegans",
+    "locale": "vi",
+    "commonName": "Cau tieu tram Elegans",
+    "description": "Giong Elegans cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Neanthe Bella",
+    "locale": "vi",
+    "commonName": "Cau tieu tram Neanthe Bella",
+    "description": "Giong Neanthe Bella cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Pacaya",
+    "locale": "vi",
+    "commonName": "Cau tieu tram Pacaya",
+    "description": "Giong Pacaya cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Cay day nhen",
@@ -2415,6 +3117,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrullus lanatus"
   },
   {
+    "scientificName": "Citrus aurantiifolia",
+    "locale": "vi",
+    "commonName": "Chanh xanh",
+    "description": "Chanh xanh la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Bearss",
+    "locale": "vi",
+    "commonName": "Chanh xanh Bearss",
+    "description": "Giong Bearss cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Kagzi",
+    "locale": "vi",
+    "commonName": "Chanh xanh Kagzi",
+    "description": "Giong Kagzi cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Mexican",
+    "locale": "vi",
+    "commonName": "Chanh xanh Mexican",
+    "description": "Giong Mexican cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Thornless",
+    "locale": "vi",
+    "commonName": "Chanh xanh Thornless",
+    "description": "Giong Thornless cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "West Indian",
+    "locale": "vi",
+    "commonName": "Chanh xanh West Indian",
+    "description": "Giong West Indian cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "locale": "vi",
+    "commonName": "Chanh ngon tay",
+    "description": "Chanh ngon tay la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Emerald",
+    "locale": "vi",
+    "commonName": "Chanh ngon tay Emerald",
+    "description": "Giong Emerald cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Judy's Everbearing",
+    "locale": "vi",
+    "commonName": "Chanh ngon tay Judy's Everbearing",
+    "description": "Giong Judy's Everbearing cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Pink Ice",
+    "locale": "vi",
+    "commonName": "Chanh ngon tay Pink Ice",
+    "description": "Giong Pink Ice cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Rainforest Pearl",
+    "locale": "vi",
+    "commonName": "Chanh ngon tay Rainforest Pearl",
+    "description": "Giong Rainforest Pearl cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Red Champagne",
+    "locale": "vi",
+    "commonName": "Chanh ngon tay Red Champagne",
+    "description": "Giong Red Champagne cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Chanh",
     "description": "Chanh có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
@@ -2442,6 +3226,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrus limon"
   },
   {
+    "scientificName": "Citrus paradisi",
+    "locale": "vi",
+    "commonName": "Buoi chum",
+    "description": "Buoi chum la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Marsh",
+    "locale": "vi",
+    "commonName": "Buoi chum Marsh",
+    "description": "Giong Marsh cua Buoi chum giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Oro Blanco",
+    "locale": "vi",
+    "commonName": "Buoi chum Oro Blanco",
+    "description": "Giong Oro Blanco cua Buoi chum giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Rio Red",
+    "locale": "vi",
+    "commonName": "Buoi chum Rio Red",
+    "description": "Giong Rio Red cua Buoi chum giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Ruby Red",
+    "locale": "vi",
+    "commonName": "Buoi chum Ruby Red",
+    "description": "Giong Ruby Red cua Buoi chum giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Star Ruby",
+    "locale": "vi",
+    "commonName": "Buoi chum Star Ruby",
+    "description": "Giong Star Ruby cua Buoi chum giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "locale": "vi",
+    "commonName": "Quyt",
+    "description": "Quyt la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Clementine",
+    "locale": "vi",
+    "commonName": "Quyt Clementine",
+    "description": "Giong Clementine cua Quyt giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Honey Murcott",
+    "locale": "vi",
+    "commonName": "Quyt Honey Murcott",
+    "description": "Giong Honey Murcott cua Quyt giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Kishu",
+    "locale": "vi",
+    "commonName": "Quyt Kishu",
+    "description": "Giong Kishu cua Quyt giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Satsuma",
+    "locale": "vi",
+    "commonName": "Quyt Satsuma",
+    "description": "Giong Satsuma cua Quyt giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Tango",
+    "locale": "vi",
+    "commonName": "Quyt Tango",
+    "description": "Giong Tango cua Quyt giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Cam",
     "description": "Cam là cây ăn quả cho trái màu vàng, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước.",
     "locale": "vi",
@@ -2467,6 +3333,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Cam Valencia là cây ăn quả cho trái màu vàng, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Citrus sinensis"
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "locale": "vi",
+    "commonName": "Cay co tong",
+    "description": "Cay co tong la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Excellent",
+    "locale": "vi",
+    "commonName": "Cay co tong Excellent",
+    "description": "Giong Excellent cua Cay co tong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Gold Dust",
+    "locale": "vi",
+    "commonName": "Cay co tong Gold Dust",
+    "description": "Giong Gold Dust cua Cay co tong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Mammy",
+    "locale": "vi",
+    "commonName": "Cay co tong Mammy",
+    "description": "Giong Mammy cua Cay co tong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Petra",
+    "locale": "vi",
+    "commonName": "Cay co tong Petra",
+    "description": "Giong Petra cua Cay co tong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Zanzibar",
+    "locale": "vi",
+    "commonName": "Cay co tong Zanzibar",
+    "description": "Giong Zanzibar cua Cay co tong giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Khoai môn",
@@ -2535,6 +3442,129 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Ngò rí là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Coriandrum sativum"
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "locale": "vi",
+    "commonName": "Phu phi",
+    "description": "Phu phi la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Barcelona",
+    "locale": "vi",
+    "commonName": "Phu phi Barcelona",
+    "description": "Giong Barcelona cua Phu phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Ennis",
+    "locale": "vi",
+    "commonName": "Phu phi Ennis",
+    "description": "Giong Ennis cua Phu phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Jefferson",
+    "locale": "vi",
+    "commonName": "Phu phi Jefferson",
+    "description": "Giong Jefferson cua Phu phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Tonda di Giffoni",
+    "locale": "vi",
+    "commonName": "Phu phi Tonda di Giffoni",
+    "description": "Giong Tonda di Giffoni cua Phu phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Yamhill",
+    "locale": "vi",
+    "commonName": "Phu phi Yamhill",
+    "description": "Giong Yamhill cua Phu phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "locale": "vi",
+    "commonName": "Sao nhay",
+    "description": "Sao nhay la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Double Click",
+    "locale": "vi",
+    "commonName": "Sao nhay Double Click",
+    "description": "Giong Double Click cua Sao nhay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Purity",
+    "locale": "vi",
+    "commonName": "Sao nhay Purity",
+    "description": "Giong Purity cua Sao nhay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Rubenza",
+    "locale": "vi",
+    "commonName": "Sao nhay Rubenza",
+    "description": "Giong Rubenza cua Sao nhay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Sensation",
+    "locale": "vi",
+    "commonName": "Sao nhay Sensation",
+    "description": "Giong Sensation cua Sao nhay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Sonata",
+    "locale": "vi",
+    "commonName": "Sao nhay Sonata",
+    "description": "Giong Sonata cua Sao nhay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "locale": "vi",
+    "commonName": "Cai bien",
+    "description": "Cai bien la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Angers",
+    "locale": "vi",
+    "commonName": "Cai bien Angers",
+    "description": "Giong Angers cua Cai bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Common",
+    "locale": "vi",
+    "commonName": "Cai bien Common",
+    "description": "Giong Common cua Cai bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Ivory",
+    "locale": "vi",
+    "commonName": "Cai bien Ivory",
+    "description": "Giong Ivory cua Cai bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Lily White",
+    "locale": "vi",
+    "commonName": "Cai bien Lily White",
+    "description": "Giong Lily White cua Cai bien giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Sea Spray",
+    "locale": "vi",
+    "commonName": "Cai bien Sea Spray",
+    "description": "Giong Sea Spray cua Cai bien giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Dưa lưới",
@@ -2651,6 +3681,129 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Dưa leo Persian là dây leo ngắn cho quả thon dài với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua.",
     "locale": "vi",
     "scientificName": "Cucumis sativus"
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "locale": "vi",
+    "commonName": "Bi cushaw",
+    "description": "Bi cushaw la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Green Striped Cushaw",
+    "locale": "vi",
+    "commonName": "Bi cushaw Green Striped Cushaw",
+    "description": "Giong Green Striped Cushaw cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Japanese Pie",
+    "locale": "vi",
+    "commonName": "Bi cushaw Japanese Pie",
+    "description": "Giong Japanese Pie cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Silver Seed",
+    "locale": "vi",
+    "commonName": "Bi cushaw Silver Seed",
+    "description": "Giong Silver Seed cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Tennessee Sweet Potato",
+    "locale": "vi",
+    "commonName": "Bi cushaw Tennessee Sweet Potato",
+    "description": "Giong Tennessee Sweet Potato cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "White Cushaw",
+    "locale": "vi",
+    "commonName": "Bi cushaw White Cushaw",
+    "description": "Giong White Cushaw cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "locale": "vi",
+    "commonName": "Bi la sung",
+    "description": "Bi la sung la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Asian White",
+    "locale": "vi",
+    "commonName": "Bi la sung Asian White",
+    "description": "Giong Asian White cua Bi la sung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Black Seed",
+    "locale": "vi",
+    "commonName": "Bi la sung Black Seed",
+    "description": "Giong Black Seed cua Bi la sung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Chilacayote",
+    "locale": "vi",
+    "commonName": "Bi la sung Chilacayote",
+    "description": "Giong Chilacayote cua Bi la sung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Green Stripe",
+    "locale": "vi",
+    "commonName": "Bi la sung Green Stripe",
+    "description": "Giong Green Stripe cua Bi la sung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Mountain",
+    "locale": "vi",
+    "commonName": "Bi la sung Mountain",
+    "description": "Giong Mountain cua Bi la sung giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "locale": "vi",
+    "commonName": "Bi mua dong",
+    "description": "Bi mua dong la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Buttercup",
+    "locale": "vi",
+    "commonName": "Bi mua dong Buttercup",
+    "description": "Giong Buttercup cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Hubbard",
+    "locale": "vi",
+    "commonName": "Bi mua dong Hubbard",
+    "description": "Giong Hubbard cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Kabocha",
+    "locale": "vi",
+    "commonName": "Bi mua dong Kabocha",
+    "description": "Giong Kabocha cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Queensland Blue",
+    "locale": "vi",
+    "commonName": "Bi mua dong Queensland Blue",
+    "description": "Giong Queensland Blue cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Red Kuri",
+    "locale": "vi",
+    "commonName": "Bi mua dong Red Kuri",
+    "description": "Giong Red Kuri cua Bi mua dong giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Bi do",
@@ -2824,6 +3977,53 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cymbopogon citratus"
   },
   {
+    "scientificName": "Cynara cardunculus",
+    "locale": "vi",
+    "commonName": "Atiso than",
+    "description": "Atiso than la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Bianco Avorio",
+    "locale": "vi",
+    "commonName": "Atiso than Bianco Avorio",
+    "description": "Giong Bianco Avorio cua Atiso than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Gigante",
+    "locale": "vi",
+    "commonName": "Atiso than Gigante",
+    "description": "Giong Gigante cua Atiso than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Gobbo di Nizza",
+    "locale": "vi",
+    "commonName": "Atiso than Gobbo di Nizza",
+    "description": "Giong Gobbo di Nizza cua Atiso than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Large Smooth",
+    "locale": "vi",
+    "commonName": "Atiso than Large Smooth",
+    "description": "Giong Large Smooth cua Atiso than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Porto Spineless",
+    "locale": "vi",
+    "commonName": "Atiso than Porto Spineless",
+    "description": "Giong Porto Spineless cua Atiso than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "commonName": "Atiso",
+    "description": "Atiso là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "locale": "vi",
+    "scientificName": "Cynara cardunculus var. scolymus"
+  },
+  {
     "commonName": "Atiso Colorado Star",
     "cultivar": "Colorado Star",
     "description": "Atiso Colorado Star là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
@@ -2866,18 +4066,52 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
-    "commonName": "Atiso",
-    "cultivar": "var. scolymus",
-    "description": "Atiso là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
-    "locale": "vi",
-    "scientificName": "Cynara cardunculus var. scolymus"
-  },
-  {
     "commonName": "Atiso Violetto",
     "cultivar": "Violetto",
     "description": "Atiso Violetto là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "locale": "vi",
+    "commonName": "Thược duoc",
+    "description": "Thược duoc la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Arabian Night",
+    "locale": "vi",
+    "commonName": "Thược duoc Arabian Night",
+    "description": "Giong Arabian Night cua Thược duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Bishop of Llandaff",
+    "locale": "vi",
+    "commonName": "Thược duoc Bishop of Llandaff",
+    "description": "Giong Bishop of Llandaff cua Thược duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Cafe au Lait",
+    "locale": "vi",
+    "commonName": "Thược duoc Cafe au Lait",
+    "description": "Giong Cafe au Lait cua Thược duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Kelvin Floodlight",
+    "locale": "vi",
+    "commonName": "Thược duoc Kelvin Floodlight",
+    "description": "Giong Kelvin Floodlight cua Thược duoc giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Thomas Edison",
+    "locale": "vi",
+    "commonName": "Thược duoc Thomas Edison",
+    "description": "Giong Thomas Edison cua Thược duoc giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Ca rot",
@@ -2919,6 +4153,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Ca rot Purple Haze là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Daucus carota"
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "locale": "vi",
+    "commonName": "Phi yen thao",
+    "description": "Phi yen thao la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Black Knight",
+    "locale": "vi",
+    "commonName": "Phi yen thao Black Knight",
+    "description": "Giong Black Knight cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Blue Bird",
+    "locale": "vi",
+    "commonName": "Phi yen thao Blue Bird",
+    "description": "Giong Blue Bird cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Galahad",
+    "locale": "vi",
+    "commonName": "Phi yen thao Galahad",
+    "description": "Giong Galahad cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Magic Fountains",
+    "locale": "vi",
+    "commonName": "Phi yen thao Magic Fountains",
+    "description": "Giong Magic Fountains cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Pacific Giant",
+    "locale": "vi",
+    "commonName": "Phi yen thao Pacific Giant",
+    "description": "Giong Pacific Giant cua Phi yen thao giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Cẩm chướng",
@@ -3162,6 +4437,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Dracaena fragrans"
   },
   {
+    "scientificName": "Dypsis lutescens",
+    "locale": "vi",
+    "commonName": "Cau vang",
+    "description": "Cau vang la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Butterfly",
+    "locale": "vi",
+    "commonName": "Cau vang Butterfly",
+    "description": "Giong Butterfly cua Cau vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Compacta",
+    "locale": "vi",
+    "commonName": "Cau vang Compacta",
+    "description": "Giong Compacta cua Cau vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Golden Cane",
+    "locale": "vi",
+    "commonName": "Cau vang Golden Cane",
+    "description": "Giong Golden Cane cua Cau vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Golden Feather",
+    "locale": "vi",
+    "commonName": "Cau vang Golden Feather",
+    "description": "Giong Golden Feather cua Cau vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Madagascar",
+    "locale": "vi",
+    "commonName": "Cau vang Madagascar",
+    "description": "Giong Madagascar cua Cau vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "locale": "vi",
+    "commonName": "Cuc mui tim",
+    "description": "Cuc mui tim la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "Cheyenne Spirit",
+    "locale": "vi",
+    "commonName": "Cuc mui tim Cheyenne Spirit",
+    "description": "Giong Cheyenne Spirit cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "Green Jewel",
+    "locale": "vi",
+    "commonName": "Cuc mui tim Green Jewel",
+    "description": "Giong Green Jewel cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "Magnus",
+    "locale": "vi",
+    "commonName": "Cuc mui tim Magnus",
+    "description": "Giong Magnus cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "PowWow Wild Berry",
+    "locale": "vi",
+    "commonName": "Cuc mui tim PowWow Wild Berry",
+    "description": "Giong PowWow Wild Berry cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "White Swan",
+    "locale": "vi",
+    "commonName": "Cuc mui tim White Swan",
+    "description": "Giong White Swan cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Trầu bà",
     "description": "Trầu bà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
@@ -3194,6 +4551,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Trầu bà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Epipremnum aureum"
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "locale": "vi",
+    "commonName": "Ti ba",
+    "description": "Ti ba la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Advance",
+    "locale": "vi",
+    "commonName": "Ti ba Advance",
+    "description": "Giong Advance cua Ti ba giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Big Jim",
+    "locale": "vi",
+    "commonName": "Ti ba Big Jim",
+    "description": "Giong Big Jim cua Ti ba giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Champagne",
+    "locale": "vi",
+    "commonName": "Ti ba Champagne",
+    "description": "Giong Champagne cua Ti ba giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Gold Nugget",
+    "locale": "vi",
+    "commonName": "Ti ba Gold Nugget",
+    "description": "Giong Gold Nugget cua Ti ba giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Tanaka",
+    "locale": "vi",
+    "commonName": "Ti ba Tanaka",
+    "description": "Giong Tanaka cua Ti ba giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Xà lách rocket",
@@ -3255,6 +4653,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Ngò gai là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eryngium foetidum"
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "locale": "vi",
+    "commonName": "Bach dan cider",
+    "description": "Bach dan cider la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Azura",
+    "locale": "vi",
+    "commonName": "Bach dan cider Azura",
+    "description": "Giong Azura cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Baby Blue",
+    "locale": "vi",
+    "commonName": "Bach dan cider Baby Blue",
+    "description": "Giong Baby Blue cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Compacta",
+    "locale": "vi",
+    "commonName": "Bach dan cider Compacta",
+    "description": "Giong Compacta cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "France Bleu",
+    "locale": "vi",
+    "commonName": "Bach dan cider France Bleu",
+    "description": "Giong France Bleu cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Silver Drop",
+    "locale": "vi",
+    "commonName": "Bach dan cider Silver Drop",
+    "description": "Giong Silver Drop cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "locale": "vi",
+    "commonName": "Thong thien nhat",
+    "description": "Thong thien nhat la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Annelise",
+    "locale": "vi",
+    "commonName": "Thong thien nhat Annelise",
+    "description": "Giong Annelise cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Camouflage",
+    "locale": "vi",
+    "commonName": "Thong thien nhat Camouflage",
+    "description": "Giong Camouflage cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Green Fingers",
+    "locale": "vi",
+    "commonName": "Thong thien nhat Green Fingers",
+    "description": "Giong Green Fingers cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Spider's Web",
+    "locale": "vi",
+    "commonName": "Thong thien nhat Spider's Web",
+    "description": "Giong Spider's Web cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Variegata",
+    "locale": "vi",
+    "commonName": "Thong thien nhat Variegata",
+    "description": "Giong Variegata cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Sung",
@@ -3330,6 +4810,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Đa búp là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Ficus elastica"
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "locale": "vi",
+    "commonName": "Bang Singapore",
+    "description": "Bang Singapore la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Bambino",
+    "locale": "vi",
+    "commonName": "Bang Singapore Bambino",
+    "description": "Giong Bambino cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Columnar",
+    "locale": "vi",
+    "commonName": "Bang Singapore Columnar",
+    "description": "Giong Columnar cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Compacta",
+    "locale": "vi",
+    "commonName": "Bang Singapore Compacta",
+    "description": "Giong Compacta cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Little Fiddle",
+    "locale": "vi",
+    "commonName": "Bang Singapore Little Fiddle",
+    "description": "Giong Little Fiddle cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Variegata",
+    "locale": "vi",
+    "commonName": "Bang Singapore Variegata",
+    "description": "Giong Variegata cua Bang Singapore giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Tieu hoi",
@@ -3537,6 +5058,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Helianthus annuus"
   },
   {
+    "scientificName": "Helianthus tuberosus",
+    "locale": "vi",
+    "commonName": "Atiso dat",
+    "description": "Atiso dat la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Dwarf Sunray",
+    "locale": "vi",
+    "commonName": "Atiso dat Dwarf Sunray",
+    "description": "Giong Dwarf Sunray cua Atiso dat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Fuseau",
+    "locale": "vi",
+    "commonName": "Atiso dat Fuseau",
+    "description": "Giong Fuseau cua Atiso dat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Red Fuseau",
+    "locale": "vi",
+    "commonName": "Atiso dat Red Fuseau",
+    "description": "Giong Red Fuseau cua Atiso dat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Stampede",
+    "locale": "vi",
+    "commonName": "Atiso dat Stampede",
+    "description": "Giong Stampede cua Atiso dat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "White Fuseau",
+    "locale": "vi",
+    "commonName": "Atiso dat White Fuseau",
+    "description": "Giong White Fuseau cua Atiso dat giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Dâm bụt",
     "description": "Dâm bụt là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà.",
     "locale": "vi",
@@ -3562,6 +5124,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Dâm bụt Yellow Double là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Hibiscus rosa-sinensis"
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "locale": "vi",
+    "commonName": "Cau kentia",
+    "description": "Cau kentia la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Forsteriana",
+    "locale": "vi",
+    "commonName": "Cau kentia Forsteriana",
+    "description": "Giong Forsteriana cua Cau kentia giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Graceful",
+    "locale": "vi",
+    "commonName": "Cau kentia Graceful",
+    "description": "Giong Graceful cua Cau kentia giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Norfolk",
+    "locale": "vi",
+    "commonName": "Cau kentia Norfolk",
+    "description": "Giong Norfolk cua Cau kentia giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Paradise",
+    "locale": "vi",
+    "commonName": "Cau kentia Paradise",
+    "description": "Giong Paradise cua Cau kentia giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Sentry",
+    "locale": "vi",
+    "commonName": "Cau kentia Sentry",
+    "description": "Giong Sentry cua Cau kentia giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Cẩm cù",
@@ -3804,6 +5407,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ipomoea batatas"
   },
   {
+    "scientificName": "Iris germanica",
+    "locale": "vi",
+    "commonName": "Dien vi rau",
+    "description": "Dien vi rau la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Beverly Sills",
+    "locale": "vi",
+    "commonName": "Dien vi rau Beverly Sills",
+    "description": "Giong Beverly Sills cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Hello Darkness",
+    "locale": "vi",
+    "commonName": "Dien vi rau Hello Darkness",
+    "description": "Giong Hello Darkness cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Immortality",
+    "locale": "vi",
+    "commonName": "Dien vi rau Immortality",
+    "description": "Giong Immortality cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Superstition",
+    "locale": "vi",
+    "commonName": "Dien vi rau Superstition",
+    "description": "Giong Superstition cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Victoria Falls",
+    "locale": "vi",
+    "commonName": "Dien vi rau Victoria Falls",
+    "description": "Giong Victoria Falls cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Hoa nhài",
     "description": "Hoa nhài là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
@@ -3843,6 +5487,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Hoa nhài Sambac Single là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Jasminum sambac"
+  },
+  {
+    "scientificName": "Juglans regia",
+    "locale": "vi",
+    "commonName": "Oc cho",
+    "description": "Oc cho la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Chandler",
+    "locale": "vi",
+    "commonName": "Oc cho Chandler",
+    "description": "Giong Chandler cua Oc cho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Fernor",
+    "locale": "vi",
+    "commonName": "Oc cho Fernor",
+    "description": "Giong Fernor cua Oc cho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Franquette",
+    "locale": "vi",
+    "commonName": "Oc cho Franquette",
+    "description": "Giong Franquette cua Oc cho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Howard",
+    "locale": "vi",
+    "commonName": "Oc cho Howard",
+    "description": "Giong Howard cua Oc cho giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Lara",
+    "locale": "vi",
+    "commonName": "Oc cho Lara",
+    "description": "Giong Lara cua Oc cho giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Đậu vồng",
@@ -3968,6 +5653,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Lagenaria siceraria"
   },
   {
+    "scientificName": "Lathyrus oleraceus",
+    "locale": "vi",
+    "commonName": "Dau Ha Lan lay hat",
+    "description": "Dau Ha Lan lay hat la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Alderman",
+    "locale": "vi",
+    "commonName": "Dau Ha Lan lay hat Alderman",
+    "description": "Giong Alderman cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Green Arrow",
+    "locale": "vi",
+    "commonName": "Dau Ha Lan lay hat Green Arrow",
+    "description": "Giong Green Arrow cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Lincoln",
+    "locale": "vi",
+    "commonName": "Dau Ha Lan lay hat Lincoln",
+    "description": "Giong Lincoln cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Maestro",
+    "locale": "vi",
+    "commonName": "Dau Ha Lan lay hat Maestro",
+    "description": "Giong Maestro cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Wando",
+    "locale": "vi",
+    "commonName": "Dau Ha Lan lay hat Wando",
+    "description": "Giong Wando cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Nguyet que",
     "description": "Nguyet que là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
@@ -4089,6 +5815,170 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Đậu lăng Richlea là cây thảo nhỏ cho hạt nhỏ giàu protein. Cây thích khí hậu ôn hòa và đất thoát nước. Hạt đậu lăng được dùng nấu súp, salad hoặc nghiền làm món chay.",
     "locale": "vi",
     "scientificName": "Lens culinaris"
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "locale": "vi",
+    "commonName": "Cai xoong can",
+    "description": "Cai xoong can la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Broadleaf",
+    "locale": "vi",
+    "commonName": "Cai xoong can Broadleaf",
+    "description": "Giong Broadleaf cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Curled",
+    "locale": "vi",
+    "commonName": "Cai xoong can Curled",
+    "description": "Giong Curled cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Extra Curled",
+    "locale": "vi",
+    "commonName": "Cai xoong can Extra Curled",
+    "description": "Giong Extra Curled cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Persian",
+    "locale": "vi",
+    "commonName": "Cai xoong can Persian",
+    "description": "Giong Persian cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Sprint",
+    "locale": "vi",
+    "commonName": "Cai xoong can Sprint",
+    "description": "Giong Sprint cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "locale": "vi",
+    "commonName": "Manuka",
+    "description": "Manuka la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Kiwi",
+    "locale": "vi",
+    "commonName": "Manuka Kiwi",
+    "description": "Giong Kiwi cua Manuka giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Nanum Rubrum",
+    "locale": "vi",
+    "commonName": "Manuka Nanum Rubrum",
+    "description": "Giong Nanum Rubrum cua Manuka giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Red Damask",
+    "locale": "vi",
+    "commonName": "Manuka Red Damask",
+    "description": "Giong Red Damask cua Manuka giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Snow White",
+    "locale": "vi",
+    "commonName": "Manuka Snow White",
+    "description": "Giong Snow White cua Manuka giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Wiri Joan",
+    "locale": "vi",
+    "commonName": "Manuka Wiri Joan",
+    "description": "Giong Wiri Joan cua Manuka giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "locale": "vi",
+    "commonName": "Ngo nui",
+    "description": "Ngo nui la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Common",
+    "locale": "vi",
+    "commonName": "Ngo nui Common",
+    "description": "Giong Common cua Ngo nui giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Dark Stem",
+    "locale": "vi",
+    "commonName": "Ngo nui Dark Stem",
+    "description": "Giong Dark Stem cua Ngo nui giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Giant Leaf",
+    "locale": "vi",
+    "commonName": "Ngo nui Giant Leaf",
+    "description": "Giong Giant Leaf cua Ngo nui giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Maggi",
+    "locale": "vi",
+    "commonName": "Ngo nui Maggi",
+    "description": "Giong Maggi cua Ngo nui giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Verino",
+    "locale": "vi",
+    "commonName": "Ngo nui Verino",
+    "description": "Giong Verino cua Ngo nui giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "locale": "vi",
+    "commonName": "Hoa ly trang",
+    "description": "Hoa ly trang la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Album",
+    "locale": "vi",
+    "commonName": "Hoa ly trang Album",
+    "description": "Giong Album cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Apollo",
+    "locale": "vi",
+    "commonName": "Hoa ly trang Apollo",
+    "description": "Giong Apollo cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Candidum",
+    "locale": "vi",
+    "commonName": "Hoa ly trang Candidum",
+    "description": "Giong Candidum cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Cascade",
+    "locale": "vi",
+    "commonName": "Hoa ly trang Cascade",
+    "description": "Giong Cascade cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Snow Queen",
+    "locale": "vi",
+    "commonName": "Hoa ly trang Snow Queen",
+    "description": "Giong Snow Queen cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Vải",
@@ -4242,6 +6132,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Luffa aegyptiaca"
   },
   {
+    "scientificName": "Lupinus albus",
+    "locale": "vi",
+    "commonName": "Dau lupin trang",
+    "description": "Dau lupin trang la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Amiga",
+    "locale": "vi",
+    "commonName": "Dau lupin trang Amiga",
+    "description": "Giong Amiga cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Boros",
+    "locale": "vi",
+    "commonName": "Dau lupin trang Boros",
+    "description": "Giong Boros cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Dieta",
+    "locale": "vi",
+    "commonName": "Dau lupin trang Dieta",
+    "description": "Giong Dieta cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Lublanc",
+    "locale": "vi",
+    "commonName": "Dau lupin trang Lublanc",
+    "description": "Giong Lublanc cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Multolupa",
+    "locale": "vi",
+    "commonName": "Dau lupin trang Multolupa",
+    "description": "Giong Multolupa cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "locale": "vi",
+    "commonName": "Mac ca",
+    "description": "Mac ca la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "A4",
+    "locale": "vi",
+    "commonName": "Mac ca A4",
+    "description": "Giong A4 cua Mac ca giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "Beaumont",
+    "locale": "vi",
+    "commonName": "Mac ca Beaumont",
+    "description": "Giong Beaumont cua Mac ca giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "H2",
+    "locale": "vi",
+    "commonName": "Mac ca H2",
+    "description": "Giong H2 cua Mac ca giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "Kau",
+    "locale": "vi",
+    "commonName": "Mac ca Kau",
+    "description": "Giong Kau cua Mac ca giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "Mauka",
+    "locale": "vi",
+    "commonName": "Mac ca Mauka",
+    "description": "Giong Mauka cua Mac ca giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Táo",
     "description": "Táo là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
@@ -4391,6 +6363,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Khoai mì TME 419 là cây thân củ cho rễ dài chứa nhiều tinh bột. Cây ưa khí hậu nhiệt đới khô và đất thoát nước. Củ khoai mì được luộc, nướng hoặc làm bột mì.",
     "locale": "vi",
     "scientificName": "Manihot esculenta"
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "locale": "vi",
+    "commonName": "Cay cau nguyen",
+    "description": "Cay cau nguyen la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Fascinator",
+    "locale": "vi",
+    "commonName": "Cay cau nguyen Fascinator",
+    "description": "Giong Fascinator cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Kerchoveana",
+    "locale": "vi",
+    "commonName": "Cay cau nguyen Kerchoveana",
+    "description": "Giong Kerchoveana cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Lemon Lime",
+    "locale": "vi",
+    "commonName": "Cay cau nguyen Lemon Lime",
+    "description": "Giong Lemon Lime cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Red Vein",
+    "locale": "vi",
+    "commonName": "Cay cau nguyen Red Vein",
+    "description": "Giong Red Vein cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Silver Band",
+    "locale": "vi",
+    "commonName": "Cay cau nguyen Silver Band",
+    "description": "Giong Silver Band cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Cuc La Ma",
@@ -4687,6 +6700,129 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Musa acuminata"
   },
   {
+    "scientificName": "Myrrhis odorata",
+    "locale": "vi",
+    "commonName": "Ngo ngot chau Au",
+    "description": "Ngo ngot chau Au la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Aromatic",
+    "locale": "vi",
+    "commonName": "Ngo ngot chau Au Aromatic",
+    "description": "Giong Aromatic cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "British Sweet",
+    "locale": "vi",
+    "commonName": "Ngo ngot chau Au British Sweet",
+    "description": "Giong British Sweet cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Common",
+    "locale": "vi",
+    "commonName": "Ngo ngot chau Au Common",
+    "description": "Giong Common cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Green Lace",
+    "locale": "vi",
+    "commonName": "Ngo ngot chau Au Green Lace",
+    "description": "Giong Green Lace cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Mountain Sweet",
+    "locale": "vi",
+    "commonName": "Ngo ngot chau Au Mountain Sweet",
+    "description": "Giong Mountain Sweet cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "locale": "vi",
+    "commonName": "Thuy tien vang",
+    "description": "Thuy tien vang la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Carlton",
+    "locale": "vi",
+    "commonName": "Thuy tien vang Carlton",
+    "description": "Giong Carlton cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Dutch Master",
+    "locale": "vi",
+    "commonName": "Thuy tien vang Dutch Master",
+    "description": "Giong Dutch Master cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Ice Follies",
+    "locale": "vi",
+    "commonName": "Thuy tien vang Ice Follies",
+    "description": "Giong Ice Follies cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "King Alfred",
+    "locale": "vi",
+    "commonName": "Thuy tien vang King Alfred",
+    "description": "Giong King Alfred cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Tete-a-Tete",
+    "locale": "vi",
+    "commonName": "Thuy tien vang Tete-a-Tete",
+    "description": "Giong Tete-a-Tete cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "locale": "vi",
+    "commonName": "Xa lach xoong",
+    "description": "Xa lach xoong la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Aqua",
+    "locale": "vi",
+    "commonName": "Xa lach xoong Aqua",
+    "description": "Giong Aqua cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Broadleaf",
+    "locale": "vi",
+    "commonName": "Xa lach xoong Broadleaf",
+    "description": "Giong Broadleaf cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Cressida",
+    "locale": "vi",
+    "commonName": "Xa lach xoong Cressida",
+    "description": "Giong Cressida cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Dark Green",
+    "locale": "vi",
+    "commonName": "Xa lach xoong Dark Green",
+    "description": "Giong Dark Green cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "English",
+    "locale": "vi",
+    "commonName": "Xa lach xoong English",
+    "description": "Giong English cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Ngo sen",
     "description": "Ngo sen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
@@ -4892,6 +7028,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ocimum tenuiflorum"
   },
   {
+    "scientificName": "Olea europaea",
+    "locale": "vi",
+    "commonName": "Oliu",
+    "description": "Oliu la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Arbequina",
+    "locale": "vi",
+    "commonName": "Oliu Arbequina",
+    "description": "Giong Arbequina cua Oliu giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Frantoio",
+    "locale": "vi",
+    "commonName": "Oliu Frantoio",
+    "description": "Giong Frantoio cua Oliu giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Kalamata",
+    "locale": "vi",
+    "commonName": "Oliu Kalamata",
+    "description": "Giong Kalamata cua Oliu giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Manzanilla",
+    "locale": "vi",
+    "commonName": "Oliu Manzanilla",
+    "description": "Giong Manzanilla cua Oliu giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Picual",
+    "locale": "vi",
+    "commonName": "Oliu Picual",
+    "description": "Giong Picual cua Oliu giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Kinh giới tây",
     "description": "Kinh giới tây là thảo mộc thơm nhẹ nhàng với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải.",
     "locale": "vi",
@@ -4958,6 +7135,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Củ sắn là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pachyrhizus erosus"
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "locale": "vi",
+    "commonName": "Mau don thao",
+    "description": "Mau don thao la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Coral Charm",
+    "locale": "vi",
+    "commonName": "Mau don thao Coral Charm",
+    "description": "Giong Coral Charm cua Mau don thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Duchesse de Nemours",
+    "locale": "vi",
+    "commonName": "Mau don thao Duchesse de Nemours",
+    "description": "Giong Duchesse de Nemours cua Mau don thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Festiva Maxima",
+    "locale": "vi",
+    "commonName": "Mau don thao Festiva Maxima",
+    "description": "Giong Festiva Maxima cua Mau don thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Karl Rosenfield",
+    "locale": "vi",
+    "commonName": "Mau don thao Karl Rosenfield",
+    "description": "Giong Karl Rosenfield cua Mau don thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Sarah Bernhardt",
+    "locale": "vi",
+    "commonName": "Mau don thao Sarah Bernhardt",
+    "description": "Giong Sarah Bernhardt cua Mau don thao giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Chanh day",
@@ -5693,6 +7911,252 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Pisum sativum"
   },
   {
+    "scientificName": "Portulaca oleracea",
+    "locale": "vi",
+    "commonName": "Rau sam",
+    "description": "Rau sam la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Golden",
+    "locale": "vi",
+    "commonName": "Rau sam Golden",
+    "description": "Giong Golden cua Rau sam giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Green",
+    "locale": "vi",
+    "commonName": "Rau sam Green",
+    "description": "Giong Green cua Rau sam giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Gruner Red",
+    "locale": "vi",
+    "commonName": "Rau sam Gruner Red",
+    "description": "Giong Gruner Red cua Rau sam giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Red Gruner",
+    "locale": "vi",
+    "commonName": "Rau sam Red Gruner",
+    "description": "Giong Red Gruner cua Rau sam giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Tall Green",
+    "locale": "vi",
+    "commonName": "Rau sam Tall Green",
+    "description": "Giong Tall Green cua Rau sam giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "locale": "vi",
+    "commonName": "Anh thao",
+    "description": "Anh thao la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Belarina",
+    "locale": "vi",
+    "commonName": "Anh thao Belarina",
+    "description": "Giong Belarina cua Anh thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Crescendo",
+    "locale": "vi",
+    "commonName": "Anh thao Crescendo",
+    "description": "Giong Crescendo cua Anh thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Danova",
+    "locale": "vi",
+    "commonName": "Anh thao Danova",
+    "description": "Giong Danova cua Anh thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Husky",
+    "locale": "vi",
+    "commonName": "Anh thao Husky",
+    "description": "Giong Husky cua Anh thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Wanda",
+    "locale": "vi",
+    "commonName": "Anh thao Wanda",
+    "description": "Giong Wanda cua Anh thao giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "locale": "vi",
+    "commonName": "Mo tay",
+    "description": "Mo tay la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Blenheim",
+    "locale": "vi",
+    "commonName": "Mo tay Blenheim",
+    "description": "Giong Blenheim cua Mo tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Goldcot",
+    "locale": "vi",
+    "commonName": "Mo tay Goldcot",
+    "description": "Giong Goldcot cua Mo tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Moorpark",
+    "locale": "vi",
+    "commonName": "Mo tay Moorpark",
+    "description": "Giong Moorpark cua Mo tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Tilton",
+    "locale": "vi",
+    "commonName": "Mo tay Tilton",
+    "description": "Giong Tilton cua Mo tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Tomcot",
+    "locale": "vi",
+    "commonName": "Mo tay Tomcot",
+    "description": "Giong Tomcot cua Mo tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "locale": "vi",
+    "commonName": "Anh dao ngot",
+    "description": "Anh dao ngot la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Bing",
+    "locale": "vi",
+    "commonName": "Anh dao ngot Bing",
+    "description": "Giong Bing cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Lapins",
+    "locale": "vi",
+    "commonName": "Anh dao ngot Lapins",
+    "description": "Giong Lapins cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Rainier",
+    "locale": "vi",
+    "commonName": "Anh dao ngot Rainier",
+    "description": "Giong Rainier cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Stella",
+    "locale": "vi",
+    "commonName": "Anh dao ngot Stella",
+    "description": "Giong Stella cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Sweetheart",
+    "locale": "vi",
+    "commonName": "Anh dao ngot Sweetheart",
+    "description": "Giong Sweetheart cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "locale": "vi",
+    "commonName": "Anh dao chua",
+    "description": "Anh dao chua la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "English Morello",
+    "locale": "vi",
+    "commonName": "Anh dao chua English Morello",
+    "description": "Giong English Morello cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "Meteor",
+    "locale": "vi",
+    "commonName": "Anh dao chua Meteor",
+    "description": "Giong Meteor cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "Montmorency",
+    "locale": "vi",
+    "commonName": "Anh dao chua Montmorency",
+    "description": "Giong Montmorency cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "Morello",
+    "locale": "vi",
+    "commonName": "Anh dao chua Morello",
+    "description": "Giong Morello cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "North Star",
+    "locale": "vi",
+    "commonName": "Anh dao chua North Star",
+    "description": "Giong North Star cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "locale": "vi",
+    "commonName": "Man tay",
+    "description": "Man tay la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Damson",
+    "locale": "vi",
+    "commonName": "Man tay Damson",
+    "description": "Giong Damson cua Man tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Italian Prune",
+    "locale": "vi",
+    "commonName": "Man tay Italian Prune",
+    "description": "Giong Italian Prune cua Man tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "President",
+    "locale": "vi",
+    "commonName": "Man tay President",
+    "description": "Giong President cua Man tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Stanley",
+    "locale": "vi",
+    "commonName": "Man tay Stanley",
+    "description": "Giong Stanley cua Man tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Victoria",
+    "locale": "vi",
+    "commonName": "Man tay Victoria",
+    "description": "Giong Victoria cua Man tay giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Đào",
     "description": "Đào là cây ăn quả ôn đới cho trái có lông mịn, thịt vàng ngọt và thơm. Cây ưa khí hậu mát, đất thoát nước và cần cắt tỉa thường xuyên. Quả đào được ăn tươi hoặc làm mứt, bánh.",
     "locale": "vi",
@@ -5947,6 +8411,170 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Raphanus sativus"
   },
   {
+    "scientificName": "Rheum rhabarbarum",
+    "locale": "vi",
+    "commonName": "Dai hoang an than",
+    "description": "Dai hoang an than la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Canada Red",
+    "locale": "vi",
+    "commonName": "Dai hoang an than Canada Red",
+    "description": "Giong Canada Red cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Crimson Cherry",
+    "locale": "vi",
+    "commonName": "Dai hoang an than Crimson Cherry",
+    "description": "Giong Crimson Cherry cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Glaskins Perpetual",
+    "locale": "vi",
+    "commonName": "Dai hoang an than Glaskins Perpetual",
+    "description": "Giong Glaskins Perpetual cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Timperley Early",
+    "locale": "vi",
+    "commonName": "Dai hoang an than Timperley Early",
+    "description": "Giong Timperley Early cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Victoria",
+    "locale": "vi",
+    "commonName": "Dai hoang an than Victoria",
+    "description": "Giong Victoria cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "locale": "vi",
+    "commonName": "Ly chua den",
+    "description": "Ly chua den la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Ben Lomond",
+    "locale": "vi",
+    "commonName": "Ly chua den Ben Lomond",
+    "description": "Giong Ben Lomond cua Ly chua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Ben Sarek",
+    "locale": "vi",
+    "commonName": "Ly chua den Ben Sarek",
+    "description": "Giong Ben Sarek cua Ly chua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Blackdown",
+    "locale": "vi",
+    "commonName": "Ly chua den Blackdown",
+    "description": "Giong Blackdown cua Ly chua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Consort",
+    "locale": "vi",
+    "commonName": "Ly chua den Consort",
+    "description": "Giong Consort cua Ly chua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Titania",
+    "locale": "vi",
+    "commonName": "Ly chua den Titania",
+    "description": "Giong Titania cua Ly chua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "locale": "vi",
+    "commonName": "Ly chua do",
+    "description": "Ly chua do la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Detvan",
+    "locale": "vi",
+    "commonName": "Ly chua do Detvan",
+    "description": "Giong Detvan cua Ly chua do giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Jonkheer van Tets",
+    "locale": "vi",
+    "commonName": "Ly chua do Jonkheer van Tets",
+    "description": "Giong Jonkheer van Tets cua Ly chua do giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Red Lake",
+    "locale": "vi",
+    "commonName": "Ly chua do Red Lake",
+    "description": "Giong Red Lake cua Ly chua do giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Rovada",
+    "locale": "vi",
+    "commonName": "Ly chua do Rovada",
+    "description": "Giong Rovada cua Ly chua do giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Wilder",
+    "locale": "vi",
+    "commonName": "Ly chua do Wilder",
+    "description": "Giong Wilder cua Ly chua do giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "locale": "vi",
+    "commonName": "Ly gai",
+    "description": "Ly gai la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Captivator",
+    "locale": "vi",
+    "commonName": "Ly gai Captivator",
+    "description": "Giong Captivator cua Ly gai giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Hinnonmaki Red",
+    "locale": "vi",
+    "commonName": "Ly gai Hinnonmaki Red",
+    "description": "Giong Hinnonmaki Red cua Ly gai giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Invicta",
+    "locale": "vi",
+    "commonName": "Ly gai Invicta",
+    "description": "Giong Invicta cua Ly gai giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Pixwell",
+    "locale": "vi",
+    "commonName": "Ly gai Pixwell",
+    "description": "Giong Pixwell cua Ly gai giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Whinham",
+    "locale": "vi",
+    "commonName": "Ly gai Whinham",
+    "description": "Giong Whinham cua Ly gai giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Hoa hồng",
     "description": "Hoa hồng là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu.",
     "locale": "vi",
@@ -6090,6 +8718,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Rumex acetosa"
   },
   {
+    "scientificName": "Saintpaulia ionantha",
+    "locale": "vi",
+    "commonName": "Tu linh lan chau Phi",
+    "description": "Tu linh lan chau Phi la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Blue Dragon",
+    "locale": "vi",
+    "commonName": "Tu linh lan chau Phi Blue Dragon",
+    "description": "Giong Blue Dragon cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Little Maya",
+    "locale": "vi",
+    "commonName": "Tu linh lan chau Phi Little Maya",
+    "description": "Giong Little Maya cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Ma's Melody",
+    "locale": "vi",
+    "commonName": "Tu linh lan chau Phi Ma's Melody",
+    "description": "Giong Ma's Melody cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Optimara",
+    "locale": "vi",
+    "commonName": "Tu linh lan chau Phi Optimara",
+    "description": "Giong Optimara cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Rob's Boolaroo",
+    "locale": "vi",
+    "commonName": "Tu linh lan chau Phi Rob's Boolaroo",
+    "description": "Giong Rob's Boolaroo cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Xô thơm",
     "description": "Xô thơm là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính.",
     "locale": "vi",
@@ -6131,6 +8800,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Salvia officinalis"
   },
   {
+    "scientificName": "Sambucus nigra",
+    "locale": "vi",
+    "commonName": "Co qua den",
+    "description": "Co qua den la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Black Lace",
+    "locale": "vi",
+    "commonName": "Co qua den Black Lace",
+    "description": "Giong Black Lace cua Co qua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Haschberg",
+    "locale": "vi",
+    "commonName": "Co qua den Haschberg",
+    "description": "Giong Haschberg cua Co qua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Marge",
+    "locale": "vi",
+    "commonName": "Co qua den Marge",
+    "description": "Giong Marge cua Co qua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Nova",
+    "locale": "vi",
+    "commonName": "Co qua den Nova",
+    "description": "Giong Nova cua Co qua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "York",
+    "locale": "vi",
+    "commonName": "Co qua den York",
+    "description": "Giong York cua Co qua den giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Luoi ho",
     "description": "Luoi ho là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
@@ -6163,6 +8873,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Luoi ho Moonshine là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sansevieria trifasciata"
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "locale": "vi",
+    "commonName": "Huong dau mua he",
+    "description": "Huong dau mua he la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Aromata",
+    "locale": "vi",
+    "commonName": "Huong dau mua he Aromata",
+    "description": "Giong Aromata cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Compacta",
+    "locale": "vi",
+    "commonName": "Huong dau mua he Compacta",
+    "description": "Giong Compacta cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Dwarf Green",
+    "locale": "vi",
+    "commonName": "Huong dau mua he Dwarf Green",
+    "description": "Giong Dwarf Green cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Fine Leaf",
+    "locale": "vi",
+    "commonName": "Huong dau mua he Fine Leaf",
+    "description": "Giong Fine Leaf cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Saturn",
+    "locale": "vi",
+    "commonName": "Huong dau mua he Saturn",
+    "description": "Giong Saturn cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Ngu gia bi",
@@ -6204,6 +8955,88 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Ngu gia bi Trinette là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Schefflera arboricola"
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "locale": "vi",
+    "commonName": "Xuong rong Giang sinh",
+    "description": "Xuong rong Giang sinh la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Christmas Flame",
+    "locale": "vi",
+    "commonName": "Xuong rong Giang sinh Christmas Flame",
+    "description": "Giong Christmas Flame cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Gold Charm",
+    "locale": "vi",
+    "commonName": "Xuong rong Giang sinh Gold Charm",
+    "description": "Giong Gold Charm cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Thanksgiving",
+    "locale": "vi",
+    "commonName": "Xuong rong Giang sinh Thanksgiving",
+    "description": "Giong Thanksgiving cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Thor Carmen",
+    "locale": "vi",
+    "commonName": "Xuong rong Giang sinh Thor Carmen",
+    "description": "Giong Thor Carmen cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "White Christmas",
+    "locale": "vi",
+    "commonName": "Xuong rong Giang sinh White Christmas",
+    "description": "Giong White Christmas cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "locale": "vi",
+    "commonName": "Re scorzonera",
+    "description": "Re scorzonera la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Black Peter",
+    "locale": "vi",
+    "commonName": "Re scorzonera Black Peter",
+    "description": "Giong Black Peter cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Duplex",
+    "locale": "vi",
+    "commonName": "Re scorzonera Duplex",
+    "description": "Giong Duplex cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Hoffmanns",
+    "locale": "vi",
+    "commonName": "Re scorzonera Hoffmanns",
+    "description": "Giong Hoffmanns cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Long Black",
+    "locale": "vi",
+    "commonName": "Re scorzonera Long Black",
+    "description": "Giong Long Black cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Russian Giant",
+    "locale": "vi",
+    "commonName": "Re scorzonera Russian Giant",
+    "description": "Giong Russian Giant cua Re scorzonera giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Su su",
@@ -6768,6 +9601,129 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tagetes erecta"
   },
   {
+    "scientificName": "Tanacetum balsamita",
+    "locale": "vi",
+    "commonName": "La thom costmary",
+    "description": "La thom costmary la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Aureum",
+    "locale": "vi",
+    "commonName": "La thom costmary Aureum",
+    "description": "Giong Aureum cua La thom costmary giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Bible Leaf",
+    "locale": "vi",
+    "commonName": "La thom costmary Bible Leaf",
+    "description": "Giong Bible Leaf cua La thom costmary giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Common",
+    "locale": "vi",
+    "commonName": "La thom costmary Common",
+    "description": "Giong Common cua La thom costmary giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Mint Geranium",
+    "locale": "vi",
+    "commonName": "La thom costmary Mint Geranium",
+    "description": "Giong Mint Geranium cua La thom costmary giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Sweet Leaf",
+    "locale": "vi",
+    "commonName": "La thom costmary Sweet Leaf",
+    "description": "Giong Sweet Leaf cua La thom costmary giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "locale": "vi",
+    "commonName": "La bo cong anh",
+    "description": "La bo cong anh la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Ameliore",
+    "locale": "vi",
+    "commonName": "La bo cong anh Ameliore",
+    "description": "Giong Ameliore cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Catalogna",
+    "locale": "vi",
+    "commonName": "La bo cong anh Catalogna",
+    "description": "Giong Catalogna cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Clio",
+    "locale": "vi",
+    "commonName": "La bo cong anh Clio",
+    "description": "Giong Clio cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Thick Leaf",
+    "locale": "vi",
+    "commonName": "La bo cong anh Thick Leaf",
+    "description": "Giong Thick Leaf cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Vert de Montmagny",
+    "locale": "vi",
+    "commonName": "La bo cong anh Vert de Montmagny",
+    "description": "Giong Vert de Montmagny cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "locale": "vi",
+    "commonName": "Rau bina New Zealand",
+    "description": "Rau bina New Zealand la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Coastal",
+    "locale": "vi",
+    "commonName": "Rau bina New Zealand Coastal",
+    "description": "Giong Coastal cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Green Wave",
+    "locale": "vi",
+    "commonName": "Rau bina New Zealand Green Wave",
+    "description": "Giong Green Wave cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Maori",
+    "locale": "vi",
+    "commonName": "Rau bina New Zealand Maori",
+    "description": "Giong Maori cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Summer Green",
+    "locale": "vi",
+    "commonName": "Rau bina New Zealand Summer Green",
+    "description": "Giong Summer Green cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Warrigal",
+    "locale": "vi",
+    "commonName": "Rau bina New Zealand Warrigal",
+    "description": "Giong Warrigal cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+  },
+  {
     "commonName": "Xạ hương",
     "description": "Xạ hương là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà.",
     "locale": "vi",
@@ -6834,6 +9790,129 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Thái dương Violet Hill là cây cảnh với lá dày nhiều màu sắc bắt mắt. Cây ưa nắng và độ ẩm cao. Thích hợp trang trí sân vườn hoặc trong nhà.",
     "locale": "vi",
     "scientificName": "Tradescantia zebrina"
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "locale": "vi",
+    "commonName": "Re hau",
+    "description": "Re hau la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Fiore Blu",
+    "locale": "vi",
+    "commonName": "Re hau Fiore Blu",
+    "description": "Giong Fiore Blu cua Re hau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Giant White",
+    "locale": "vi",
+    "commonName": "Re hau Giant White",
+    "description": "Giong Giant White cua Re hau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Mammoth Sandwich Island",
+    "locale": "vi",
+    "commonName": "Re hau Mammoth Sandwich Island",
+    "description": "Giong Mammoth Sandwich Island cua Re hau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Sandwich",
+    "locale": "vi",
+    "commonName": "Re hau Sandwich",
+    "description": "Giong Sandwich cua Re hau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "White French",
+    "locale": "vi",
+    "commonName": "Re hau White French",
+    "description": "Giong White French cua Re hau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "locale": "vi",
+    "commonName": "Sen can",
+    "description": "Sen can la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Alaska",
+    "locale": "vi",
+    "commonName": "Sen can Alaska",
+    "description": "Giong Alaska cua Sen can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Empress of India",
+    "locale": "vi",
+    "commonName": "Sen can Empress of India",
+    "description": "Giong Empress of India cua Sen can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Jewel Mix",
+    "locale": "vi",
+    "commonName": "Sen can Jewel Mix",
+    "description": "Giong Jewel Mix cua Sen can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Trailing Single",
+    "locale": "vi",
+    "commonName": "Sen can Trailing Single",
+    "description": "Giong Trailing Single cua Sen can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Whirlybird",
+    "locale": "vi",
+    "commonName": "Sen can Whirlybird",
+    "description": "Giong Whirlybird cua Sen can giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "locale": "vi",
+    "commonName": "Uat kim huong",
+    "description": "Uat kim huong la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Angelique",
+    "locale": "vi",
+    "commonName": "Uat kim huong Angelique",
+    "description": "Giong Angelique cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Apeldoorn",
+    "locale": "vi",
+    "commonName": "Uat kim huong Apeldoorn",
+    "description": "Giong Apeldoorn cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Ballerina",
+    "locale": "vi",
+    "commonName": "Uat kim huong Ballerina",
+    "description": "Giong Ballerina cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Negrita",
+    "locale": "vi",
+    "commonName": "Uat kim huong Negrita",
+    "description": "Giong Negrita cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Queen of Night",
+    "locale": "vi",
+    "commonName": "Uat kim huong Queen of Night",
+    "description": "Giong Queen of Night cua Uat kim huong giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Viet quat",
@@ -7026,6 +10105,47 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Đậu tằm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vicia faba"
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "locale": "vi",
+    "commonName": "Dau do adzuki",
+    "description": "Dau do adzuki la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Dainagon",
+    "locale": "vi",
+    "commonName": "Dau do adzuki Dainagon",
+    "description": "Giong Dainagon cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Erimo",
+    "locale": "vi",
+    "commonName": "Dau do adzuki Erimo",
+    "description": "Giong Erimo cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Hokkaido",
+    "locale": "vi",
+    "commonName": "Dau do adzuki Hokkaido",
+    "description": "Giong Hokkaido cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Red Chimes",
+    "locale": "vi",
+    "commonName": "Dau do adzuki Red Chimes",
+    "description": "Giong Red Chimes cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Takara",
+    "locale": "vi",
+    "commonName": "Dau do adzuki Takara",
+    "description": "Giong Takara cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
   },
   {
     "commonName": "Đậu đen",
@@ -7438,5 +10558,46 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "description": "Gung Rio de Janeiro là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "locale": "vi",
+    "commonName": "Cuc ngau",
+    "description": "Cuc ngau la cay pho bien trong vuon nha va nong trai nho o cac vung on doi."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Benary's Giant",
+    "locale": "vi",
+    "commonName": "Cuc ngau Benary's Giant",
+    "description": "Giong Benary's Giant cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Profusion",
+    "locale": "vi",
+    "commonName": "Cuc ngau Profusion",
+    "description": "Giong Profusion cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Queen Lime",
+    "locale": "vi",
+    "commonName": "Cuc ngau Queen Lime",
+    "description": "Giong Queen Lime cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "State Fair",
+    "locale": "vi",
+    "commonName": "Cuc ngau State Fair",
+    "description": "Giong State Fair cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Zahara",
+    "locale": "vi",
+    "commonName": "Cuc ngau Zahara",
+    "description": "Giong Zahara cua Cuc ngau giup mo rong lua chon trong thu vien cay."
   }
 ];

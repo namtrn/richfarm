@@ -205,6 +205,7 @@ export const getPlantsWithImages = query({
             return {
                 _id: p._id,
                 scientificName: p.scientificName,
+                family: (p as any).family ?? undefined,
                 ...decoratePlantWithTaxonomyCommonNames(p, taxonomyCommonNames),
                 basePlantId: (p as any).basePlantId ?? undefined,
                 commonNameGroupKey: (p as any).commonNameGroupKey ?? undefined,

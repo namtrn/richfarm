@@ -3,6 +3,7 @@
 // Hoặc từng function riêng lẻ qua Convex dashboard
 
 import { internalMutation } from "./_generated/server";
+import { v } from "convex/values";
 import type { Doc, TableNames, Id } from "./_generated/dataModel";
 import {
     plantGroupsSeed,
@@ -46,11 +47,15 @@ function formatYmd(timestamp: number) {
     return `${y}-${m}-${day}`;
 }
 
-async function seedPlantsAndI18n(ctx: any) {
-    const plants = plantsMasterSeed;
+async function seedPlantsAndI18n(
+    ctx: any,
+    options: { start?: number; limit?: number; includeTaxonomyI18n?: boolean } = {}
+) {
+    const start = Math.max(0, options.start ?? 0);
+    const limit = Math.max(1, options.limit ?? plantsMasterSeed.length);
+    const plants = plantsMasterSeed.slice(start, start + limit);
     const idByPlantKey = new Map<string, Id<"plantsMaster">>();
-    const loadPlants = async () =>
-        (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
+    const existingPlants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
 
     let plantsInserted = 0;
     for (const plant of plants) {
@@ -75,7 +80,7 @@ async function seedPlantsAndI18n(ctx: any) {
             baseScientificTaxonomy.cultivarNormalized === DEFAULT_CULTIVAR_NORMALIZED &&
             !isInfraspecificCultivar(taxonomyIdentity.cultivarNormalized)
         ) {
-            const baseRow = (await loadPlants()).find((row: any) =>
+            const baseRow = existingPlants.find((row: any) =>
                 matchesTaxonomyIdentity(row, {
                     genusNormalized: taxonomyIdentity.genusNormalized,
                     speciesNormalized: taxonomyIdentity.speciesNormalized,
@@ -89,7 +94,7 @@ async function seedPlantsAndI18n(ctx: any) {
             }
         }
 
-        const existing = (await loadPlants()).find((row: any) =>
+        const existing = existingPlants.find((row: any) =>
             matchesTaxonomyIdentity(row, taxonomyIdentity)
         );
 
@@ -113,6 +118,11 @@ async function seedPlantsAndI18n(ctx: any) {
                 ...taxonomyFieldsForStorage(taxonomy),
             };
             const insertedId = await ctx.db.insert("plantsMaster", basePlant);
+            existingPlants.push(withComputedPlantTaxonomy({
+                _id: insertedId,
+                _creationTime: Date.now(),
+                ...basePlant,
+            } as any));
             await upsertPlantCareProfile(ctx, insertedId, {
                 typicalDaysToHarvest,
                 germinationDays,
@@ -196,6 +206,24 @@ async function seedPlantsAndI18n(ctx: any) {
         }
     }
 
+    if (!options.includeTaxonomyI18n) {
+        return {
+            plants: { inserted: plantsInserted, total: plants.length, start, limit },
+            plantI18n: {
+                inserted: i18nInserted,
+                updated: i18nUpdated,
+                skipped: i18nSkipped,
+                total: plantI18nSeed.length,
+            },
+            plantTaxonomyI18n: {
+                inserted: 0,
+                updated: 0,
+                skipped: 0,
+                total: plantTaxonomyI18nSeed.length,
+            },
+        };
+    }
+
     const existingTaxonomyRows = await ctx.db.query("plantTaxonomyI18n").collect();
     const taxonomyByKeyLocale = new Map<string, any>();
     for (const row of existingTaxonomyRows) {
@@ -250,7 +278,7 @@ async function seedPlantsAndI18n(ctx: any) {
     }
 
     return {
-        plants: { inserted: plantsInserted, total: plants.length },
+        plants: { inserted: plantsInserted, total: plants.length, start, limit },
         plantI18n: {
             inserted: i18nInserted,
             updated: i18nUpdated,
@@ -297,7 +325,22 @@ export const seedPlantGroups = internalMutation({
 export const seedPlantsMaster = internalMutation({
     args: {},
     handler: async (ctx) => {
-        return await seedPlantsAndI18n(ctx);
+        return await seedPlantsAndI18n(ctx, { includeTaxonomyI18n: true });
+    },
+});
+
+export const seedPlantsMasterChunk = internalMutation({
+    args: {
+        start: v.number(),
+        limit: v.number(),
+        includeTaxonomyI18n: v.optional(v.boolean()),
+    },
+    handler: async (ctx, args) => {
+        return await seedPlantsAndI18n(ctx, {
+            start: args.start,
+            limit: args.limit,
+            includeTaxonomyI18n: args.includeTaxonomyI18n ?? false,
+        });
     },
 });
 
@@ -350,7 +393,7 @@ export const seedAll = internalMutation({
         }
 
         // --- Seed Plants + Plant I18n ---
-        const plantsStats = await seedPlantsAndI18n(ctx);
+        const plantsStats = await seedPlantsAndI18n(ctx, { includeTaxonomyI18n: true });
 
         // --- Seed Pests and Diseases ---
         const pestsDiseasesDefs: Array<InsertDoc<"pestsDiseases">> = pestsDiseasesSeed;

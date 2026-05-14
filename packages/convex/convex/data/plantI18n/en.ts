@@ -45,6 +45,170 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Abelmoschus esculentus"
   },
   {
+    "scientificName": "Acca sellowiana",
+    "locale": "en",
+    "commonName": "Feijoa",
+    "description": "Feijoa is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Anatoki",
+    "locale": "en",
+    "commonName": "Anatoki Feijoa",
+    "description": "Anatoki cultivar of Feijoa for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Apollo",
+    "locale": "en",
+    "commonName": "Apollo Feijoa",
+    "description": "Apollo cultivar of Feijoa for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Kaiteri",
+    "locale": "en",
+    "commonName": "Kaiteri Feijoa",
+    "description": "Kaiteri cultivar of Feijoa for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Mammoth",
+    "locale": "en",
+    "commonName": "Mammoth Feijoa",
+    "description": "Mammoth cultivar of Feijoa for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Acca sellowiana",
+    "cultivar": "Unique",
+    "locale": "en",
+    "commonName": "Unique Feijoa",
+    "description": "Unique cultivar of Feijoa for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "locale": "en",
+    "commonName": "Yarrow",
+    "description": "Yarrow is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Cerise Queen",
+    "locale": "en",
+    "commonName": "Cerise Queen Yarrow",
+    "description": "Cerise Queen cultivar of Yarrow for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Colorado",
+    "locale": "en",
+    "commonName": "Colorado Yarrow",
+    "description": "Colorado cultivar of Yarrow for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Moonshine",
+    "locale": "en",
+    "commonName": "Moonshine Yarrow",
+    "description": "Moonshine cultivar of Yarrow for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Paprika",
+    "locale": "en",
+    "commonName": "Paprika Yarrow",
+    "description": "Paprika cultivar of Yarrow for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Achillea millefolium",
+    "cultivar": "Summer Pastels",
+    "locale": "en",
+    "commonName": "Summer Pastels Yarrow",
+    "description": "Summer Pastels cultivar of Yarrow for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "locale": "en",
+    "commonName": "Hardy Kiwi",
+    "description": "Hardy Kiwi is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Ananasnaya",
+    "locale": "en",
+    "commonName": "Ananasnaya Hardy Kiwi",
+    "description": "Ananasnaya cultivar of Hardy Kiwi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Geneva",
+    "locale": "en",
+    "commonName": "Geneva Hardy Kiwi",
+    "description": "Geneva cultivar of Hardy Kiwi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Issai",
+    "locale": "en",
+    "commonName": "Issai Hardy Kiwi",
+    "description": "Issai cultivar of Hardy Kiwi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Ken's Red",
+    "locale": "en",
+    "commonName": "Ken's Red Hardy Kiwi",
+    "description": "Ken's Red cultivar of Hardy Kiwi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia arguta",
+    "cultivar": "Weiki",
+    "locale": "en",
+    "commonName": "Weiki Hardy Kiwi",
+    "description": "Weiki cultivar of Hardy Kiwi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "locale": "en",
+    "commonName": "Kiwifruit",
+    "description": "Kiwifruit is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Abbott",
+    "locale": "en",
+    "commonName": "Abbott Kiwifruit",
+    "description": "Abbott cultivar of Kiwifruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Blake",
+    "locale": "en",
+    "commonName": "Blake Kiwifruit",
+    "description": "Blake cultivar of Kiwifruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Bruno",
+    "locale": "en",
+    "commonName": "Bruno Kiwifruit",
+    "description": "Bruno cultivar of Kiwifruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Hayward",
+    "locale": "en",
+    "commonName": "Hayward Kiwifruit",
+    "description": "Hayward cultivar of Kiwifruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Actinidia deliciosa",
+    "cultivar": "Monty",
+    "locale": "en",
+    "commonName": "Monty Kiwifruit",
+    "description": "Monty cultivar of Kiwifruit for broader garden planning coverage."
+  },
+  {
     "commonName": "Chinese Evergreen",
     "description": "Chinese Evergreen for diversified seed coverage in the library.",
     "locale": "en",
@@ -189,6 +353,12 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Allium cepa"
   },
   {
+    "commonName": "Shallot",
+    "description": "Shallot for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Allium cepa var. aggregatum"
+  },
+  {
     "commonName": "Camelot Shallot",
     "cultivar": "Camelot",
     "description": "Camelot cultivar of Shallot for a broader plant mix.",
@@ -213,13 +383,6 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Red Sun Shallot",
     "cultivar": "Red Sun",
     "description": "Red Sun cultivar of Shallot for a broader plant mix.",
-    "locale": "en",
-    "scientificName": "Allium cepa var. aggregatum"
-  },
-  {
-    "commonName": "Shallot",
-    "cultivar": "var. aggregatum",
-    "description": "Shallot for diversified seed coverage in the library.",
     "locale": "en",
     "scientificName": "Allium cepa var. aggregatum"
   },
@@ -468,6 +631,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Tender cultivar of Garlic Chive for a broader plant mix.",
     "locale": "en",
     "scientificName": "Allium tuberosum"
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "locale": "en",
+    "commonName": "Wild Garlic",
+    "description": "Wild Garlic is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Alba",
+    "locale": "en",
+    "commonName": "Alba Wild Garlic",
+    "description": "Alba cultivar of Wild Garlic for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Broadleaf",
+    "locale": "en",
+    "commonName": "Broadleaf Wild Garlic",
+    "description": "Broadleaf cultivar of Wild Garlic for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Early Spring",
+    "locale": "en",
+    "commonName": "Early Spring Wild Garlic",
+    "description": "Early Spring cultivar of Wild Garlic for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Forest Green",
+    "locale": "en",
+    "commonName": "Forest Green Wild Garlic",
+    "description": "Forest Green cultivar of Wild Garlic for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Allium ursinum",
+    "cultivar": "Wildwood",
+    "locale": "en",
+    "commonName": "Wildwood Wild Garlic",
+    "description": "Wildwood cultivar of Wild Garlic for broader garden planning coverage."
   },
   {
     "commonName": "Victory Onion",
@@ -873,6 +1077,12 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Apium graveolens"
   },
   {
+    "commonName": "Celeriac",
+    "description": "Celeriac for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Apium graveolens var. rapaceum"
+  },
+  {
     "commonName": "Balena Celeriac",
     "cultivar": "Balena",
     "description": "Balena cultivar of Celeriac for a broader plant mix.",
@@ -904,13 +1114,6 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Prinz Celeriac",
     "cultivar": "Prinz",
     "description": "Prinz cultivar of Celeriac for a broader plant mix.",
-    "locale": "en",
-    "scientificName": "Apium graveolens var. rapaceum"
-  },
-  {
-    "commonName": "Celeriac",
-    "cultivar": "var. rapaceum",
-    "description": "Celeriac for diversified seed coverage in the library.",
     "locale": "en",
     "scientificName": "Apium graveolens var. rapaceum"
   },
@@ -981,6 +1184,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Watanabe Early cultivar of Burdock for a broader plant mix.",
     "locale": "en",
     "scientificName": "Arctium lappa"
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "locale": "en",
+    "commonName": "Horseradish",
+    "description": "Horseradish is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Big Top",
+    "locale": "en",
+    "commonName": "Big Top Horseradish",
+    "description": "Big Top cultivar of Horseradish for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Bohemian",
+    "locale": "en",
+    "commonName": "Bohemian Horseradish",
+    "description": "Bohemian cultivar of Horseradish for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Maliner Kren",
+    "locale": "en",
+    "commonName": "Maliner Kren Horseradish",
+    "description": "Maliner Kren cultivar of Horseradish for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Sass",
+    "locale": "en",
+    "commonName": "Sass Horseradish",
+    "description": "Sass cultivar of Horseradish for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Armoracia rusticana",
+    "cultivar": "Variegata",
+    "locale": "en",
+    "commonName": "Variegata Horseradish",
+    "description": "Variegata cultivar of Horseradish for broader garden planning coverage."
   },
   {
     "commonName": "Tarragon",
@@ -1079,6 +1323,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Asparagus officinalis"
   },
   {
+    "scientificName": "Banksia integrifolia",
+    "locale": "en",
+    "commonName": "Coast Banksia",
+    "description": "Coast Banksia is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Austraflora",
+    "locale": "en",
+    "commonName": "Austraflora Coast Banksia",
+    "description": "Austraflora cultivar of Coast Banksia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Coastal",
+    "locale": "en",
+    "commonName": "Coastal Coast Banksia",
+    "description": "Coastal cultivar of Coast Banksia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Prostrate",
+    "locale": "en",
+    "commonName": "Prostrate Coast Banksia",
+    "description": "Prostrate cultivar of Coast Banksia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Roller Coaster",
+    "locale": "en",
+    "commonName": "Roller Coaster Coast Banksia",
+    "description": "Roller Coaster cultivar of Coast Banksia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Banksia integrifolia",
+    "cultivar": "Sentinel",
+    "locale": "en",
+    "commonName": "Sentinel Coast Banksia",
+    "description": "Sentinel cultivar of Coast Banksia for broader garden planning coverage."
+  },
+  {
     "commonName": "Malabar Spinach",
     "description": "Malabar Spinach for diversified seed coverage in the library.",
     "locale": "en",
@@ -1148,6 +1433,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Basella alba"
   },
   {
+    "scientificName": "Beaucarnea recurvata",
+    "locale": "en",
+    "commonName": "Ponytail Palm",
+    "description": "Ponytail Palm is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Compacta",
+    "locale": "en",
+    "commonName": "Compacta Ponytail Palm",
+    "description": "Compacta cultivar of Ponytail Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Dwarf",
+    "locale": "en",
+    "commonName": "Dwarf Ponytail Palm",
+    "description": "Dwarf cultivar of Ponytail Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Gold Star",
+    "locale": "en",
+    "commonName": "Gold Star Ponytail Palm",
+    "description": "Gold Star cultivar of Ponytail Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Recurvata",
+    "locale": "en",
+    "commonName": "Recurvata Ponytail Palm",
+    "description": "Recurvata cultivar of Ponytail Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beaucarnea recurvata",
+    "cultivar": "Variegata",
+    "locale": "en",
+    "commonName": "Variegata Ponytail Palm",
+    "description": "Variegata cultivar of Ponytail Palm for broader garden planning coverage."
+  },
+  {
     "commonName": "Wax Begonia",
     "description": "Wax Begonia for diversified seed coverage in the library.",
     "locale": "en",
@@ -1187,6 +1513,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Victory Rose cultivar of Wax Begonia for a broader plant mix.",
     "locale": "en",
     "scientificName": "Begonia semperflorens"
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "locale": "en",
+    "commonName": "English Daisy",
+    "description": "English Daisy is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Galaxy",
+    "locale": "en",
+    "commonName": "Galaxy English Daisy",
+    "description": "Galaxy cultivar of English Daisy for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Habanera",
+    "locale": "en",
+    "commonName": "Habanera English Daisy",
+    "description": "Habanera cultivar of English Daisy for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Pomponette",
+    "locale": "en",
+    "commonName": "Pomponette English Daisy",
+    "description": "Pomponette cultivar of English Daisy for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Robella",
+    "locale": "en",
+    "commonName": "Robella English Daisy",
+    "description": "Robella cultivar of English Daisy for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Bellis perennis",
+    "cultivar": "Tasso",
+    "locale": "en",
+    "commonName": "Tasso English Daisy",
+    "description": "Tasso cultivar of English Daisy for broader garden planning coverage."
   },
   {
     "commonName": "Wax Gourd",
@@ -1255,6 +1622,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Beetroot with stable growth profile.",
     "locale": "en",
     "scientificName": "Beta vulgaris"
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "locale": "en",
+    "commonName": "Swiss Chard",
+    "description": "Swiss Chard is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Bright Lights",
+    "locale": "en",
+    "commonName": "Bright Lights Swiss Chard",
+    "description": "Bright Lights cultivar of Swiss Chard for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Fordhook Giant",
+    "locale": "en",
+    "commonName": "Fordhook Giant Swiss Chard",
+    "description": "Fordhook Giant cultivar of Swiss Chard for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Lucullus",
+    "locale": "en",
+    "commonName": "Lucullus Swiss Chard",
+    "description": "Lucullus cultivar of Swiss Chard for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Perpetual Spinach",
+    "locale": "en",
+    "commonName": "Perpetual Spinach Swiss Chard",
+    "description": "Perpetual Spinach cultivar of Swiss Chard for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Beta vulgaris subsp. vulgaris",
+    "cultivar": "Rhubarb",
+    "locale": "en",
+    "commonName": "Rhubarb Swiss Chard",
+    "description": "Rhubarb cultivar of Swiss Chard for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "locale": "en",
+    "commonName": "Borage",
+    "description": "Borage is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Alba",
+    "locale": "en",
+    "commonName": "Alba Borage",
+    "description": "Alba cultivar of Borage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Blue Star",
+    "locale": "en",
+    "commonName": "Blue Star Borage",
+    "description": "Blue Star cultivar of Borage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Common Blue",
+    "locale": "en",
+    "commonName": "Common Blue Borage",
+    "description": "Common Blue cultivar of Borage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Compact",
+    "locale": "en",
+    "commonName": "Compact Borage",
+    "description": "Compact cultivar of Borage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Borago officinalis",
+    "cultivar": "Variegata",
+    "locale": "en",
+    "commonName": "Variegata Borage",
+    "description": "Variegata cultivar of Borage for broader garden planning coverage."
   },
   {
     "commonName": "Bougainvillea",
@@ -1339,6 +1788,18 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica juncea"
   },
   {
+    "scientificName": "Brassica napus",
+    "locale": "en",
+    "commonName": "Rapeseed",
+    "description": "Rapeseed base species used to anchor rutabaga and related Brassica napus variants."
+  },
+  {
+    "commonName": "Rutabaga",
+    "description": "Rutabaga for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Brassica napus var. napobrassica"
+  },
+  {
     "commonName": "American Purple Top Rutabaga",
     "cultivar": "American Purple Top",
     "description": "American Purple Top cultivar of Rutabaga for a broader plant mix.",
@@ -1374,11 +1835,16 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica napus var. napobrassica"
   },
   {
-    "commonName": "Rutabaga",
-    "cultivar": "var. napobrassica",
-    "description": "Rutabaga for diversified seed coverage in the library.",
+    "scientificName": "Brassica oleracea",
     "locale": "en",
-    "scientificName": "Brassica napus var. napobrassica"
+    "commonName": "Wild Cabbage",
+    "description": "Wild cabbage base species used to anchor cabbage, kale, broccoli, cauliflower, and related variants."
+  },
+  {
+    "commonName": "Cauliflower",
+    "description": "Tender curds; prefers cool weather.",
+    "locale": "en",
+    "scientificName": "Brassica oleracea var. botrytis"
   },
   {
     "commonName": "Graffiti Cauliflower",
@@ -1402,18 +1868,17 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. botrytis"
   },
   {
-    "commonName": "Cauliflower",
-    "cultivar": "var. botrytis",
-    "description": "Tender curds; prefers cool weather.",
-    "locale": "en",
-    "scientificName": "Brassica oleracea var. botrytis"
-  },
-  {
     "commonName": "Veronica Cauliflower",
     "cultivar": "Veronica",
     "description": "Popular cultivar of Cauliflower with stable growth profile.",
     "locale": "en",
     "scientificName": "Brassica oleracea var. botrytis"
+  },
+  {
+    "commonName": "Cabbage",
+    "description": "Compact heads; cool-season crop.",
+    "locale": "en",
+    "scientificName": "Brassica oleracea var. capitata"
   },
   {
     "commonName": "Golden Acre Cabbage",
@@ -1444,11 +1909,92 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. capitata"
   },
   {
-    "commonName": "Cabbage",
-    "cultivar": "var. capitata",
-    "description": "Compact heads; cool-season crop.",
+    "scientificName": "Brassica oleracea var. gemmifera",
     "locale": "en",
-    "scientificName": "Brassica oleracea var. capitata"
+    "commonName": "Brussels Sprouts",
+    "description": "Brussels Sprouts is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Churchill",
+    "locale": "en",
+    "commonName": "Churchill Brussels Sprouts",
+    "description": "Churchill cultivar of Brussels Sprouts for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Diablo",
+    "locale": "en",
+    "commonName": "Diablo Brussels Sprouts",
+    "description": "Diablo cultivar of Brussels Sprouts for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Jade Cross",
+    "locale": "en",
+    "commonName": "Jade Cross Brussels Sprouts",
+    "description": "Jade Cross cultivar of Brussels Sprouts for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Long Island Improved",
+    "locale": "en",
+    "commonName": "Long Island Improved Brussels Sprouts",
+    "description": "Long Island Improved cultivar of Brussels Sprouts for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "cultivar": "Red Bull",
+    "locale": "en",
+    "commonName": "Red Bull Brussels Sprouts",
+    "description": "Red Bull cultivar of Brussels Sprouts for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "locale": "en",
+    "commonName": "Kohlrabi",
+    "description": "Kohlrabi is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Gigante",
+    "locale": "en",
+    "commonName": "Gigante Kohlrabi",
+    "description": "Gigante cultivar of Kohlrabi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Kolibri",
+    "locale": "en",
+    "commonName": "Kolibri Kohlrabi",
+    "description": "Kolibri cultivar of Kohlrabi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Kossak",
+    "locale": "en",
+    "commonName": "Kossak Kohlrabi",
+    "description": "Kossak cultivar of Kohlrabi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "Purple Vienna",
+    "locale": "en",
+    "commonName": "Purple Vienna Kohlrabi",
+    "description": "Purple Vienna cultivar of Kohlrabi for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Brassica oleracea var. gongylodes",
+    "cultivar": "White Vienna",
+    "locale": "en",
+    "commonName": "White Vienna Kohlrabi",
+    "description": "White Vienna cultivar of Kohlrabi for broader garden planning coverage."
+  },
+  {
+    "commonName": "Broccoli",
+    "description": "Nutrient-rich brassica with edible florets.",
+    "locale": "en",
+    "scientificName": "Brassica oleracea var. italica"
   },
   {
     "commonName": "Calabrese Broccoli",
@@ -1472,18 +2018,17 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. italica"
   },
   {
-    "commonName": "Broccoli",
-    "cultivar": "var. italica",
-    "description": "Nutrient-rich brassica with edible florets.",
-    "locale": "en",
-    "scientificName": "Brassica oleracea var. italica"
-  },
-  {
     "commonName": "Waltham 29 Broccoli",
     "cultivar": "Waltham 29",
     "description": "Popular cultivar of Broccoli with stable growth profile.",
     "locale": "en",
     "scientificName": "Brassica oleracea var. italica"
+  },
+  {
+    "commonName": "Kale",
+    "description": "Kale for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Black Magic Kale",
@@ -1542,18 +2087,23 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
-    "commonName": "Kale",
-    "cultivar": "var. sabellica",
-    "description": "Kale for diversified seed coverage in the library.",
-    "locale": "en",
-    "scientificName": "Brassica oleracea var. sabellica"
-  },
-  {
     "commonName": "Winterbor Kale",
     "cultivar": "Winterbor",
     "description": "Winterbor cultivar of Kale for a broader plant mix.",
     "locale": "en",
     "scientificName": "Brassica oleracea var. sabellica"
+  },
+  {
+    "scientificName": "Brassica rapa",
+    "locale": "en",
+    "commonName": "Field Mustard",
+    "description": "Field mustard base species used to anchor Brassica rapa crop variants."
+  },
+  {
+    "commonName": "Bok Choy",
+    "description": "Quick-growing leafy brassica with tender stalks.",
+    "locale": "en",
+    "scientificName": "Brassica rapa subsp. chinensis"
   },
   {
     "commonName": "Joi Choi Bok Choy",
@@ -1570,18 +2120,17 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. chinensis"
   },
   {
-    "commonName": "Bok Choy",
-    "cultivar": "subsp. chinensis",
-    "description": "Quick-growing leafy brassica with tender stalks.",
-    "locale": "en",
-    "scientificName": "Brassica rapa subsp. chinensis"
-  },
-  {
     "commonName": "White Stem Bok Choy",
     "cultivar": "White Stem",
     "description": "Popular cultivar of Bok Choy with stable growth profile.",
     "locale": "en",
     "scientificName": "Brassica rapa subsp. chinensis"
+  },
+  {
+    "commonName": "Tatsoi",
+    "description": "Tatsoi for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
     "commonName": "Green Spoon Tatsoi",
@@ -1605,13 +2154,6 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
-    "commonName": "Tatsoi",
-    "cultivar": "subsp. narinosa",
-    "description": "Tatsoi for diversified seed coverage in the library.",
-    "locale": "en",
-    "scientificName": "Brassica rapa subsp. narinosa"
-  },
-  {
     "commonName": "Summer Fest Tatsoi",
     "cultivar": "Summer Fest",
     "description": "Summer Fest cultivar of Tatsoi for a broader plant mix.",
@@ -1624,6 +2166,12 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Tah Tsai cultivar of Tatsoi for a broader plant mix.",
     "locale": "en",
     "scientificName": "Brassica rapa subsp. narinosa"
+  },
+  {
+    "commonName": "Napa Cabbage",
+    "description": "Crisp, mild leaves; great for stir-fries and kimchi.",
+    "locale": "en",
+    "scientificName": "Brassica rapa subsp. pekinensis"
   },
   {
     "commonName": "Bilko Napa Cabbage",
@@ -1647,11 +2195,10 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. pekinensis"
   },
   {
-    "commonName": "Napa Cabbage",
-    "cultivar": "subsp. pekinensis",
-    "description": "Crisp, mild leaves; great for stir-fries and kimchi.",
+    "commonName": "Turnip",
+    "description": "Turnip for diversified seed coverage in the library.",
     "locale": "en",
-    "scientificName": "Brassica rapa subsp. pekinensis"
+    "scientificName": "Brassica rapa subsp. rapa"
   },
   {
     "commonName": "Golden Ball Turnip",
@@ -1682,18 +2229,17 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica rapa subsp. rapa"
   },
   {
-    "commonName": "Turnip",
-    "cultivar": "subsp. rapa",
-    "description": "Turnip for diversified seed coverage in the library.",
-    "locale": "en",
-    "scientificName": "Brassica rapa subsp. rapa"
-  },
-  {
     "commonName": "Tokyo Cross Turnip",
     "cultivar": "Tokyo Cross",
     "description": "Tokyo Cross cultivar of Turnip for a broader plant mix.",
     "locale": "en",
     "scientificName": "Brassica rapa subsp. rapa"
+  },
+  {
+    "commonName": "Komatsuna",
+    "description": "Komatsuna for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Brassica rapa var. perviridis"
   },
   {
     "commonName": "Green Boy Komatsuna",
@@ -1727,13 +2273,6 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Tokyo Bekana Komatsuna",
     "cultivar": "Tokyo Bekana",
     "description": "Tokyo Bekana cultivar of Komatsuna for a broader plant mix.",
-    "locale": "en",
-    "scientificName": "Brassica rapa var. perviridis"
-  },
-  {
-    "commonName": "Komatsuna",
-    "cultivar": "var. perviridis",
-    "description": "Komatsuna for diversified seed coverage in the library.",
     "locale": "en",
     "scientificName": "Brassica rapa var. perviridis"
   },
@@ -1818,6 +2357,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "White Queen cultivar of Caladium for a broader plant mix.",
     "locale": "en",
     "scientificName": "Caladium bicolor"
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "locale": "en",
+    "commonName": "Calendula",
+    "description": "Calendula is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Orange King",
+    "locale": "en",
+    "commonName": "Orange King Calendula",
+    "description": "Orange King cultivar of Calendula for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Pacific Beauty",
+    "locale": "en",
+    "commonName": "Pacific Beauty Calendula",
+    "description": "Pacific Beauty cultivar of Calendula for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Resina",
+    "locale": "en",
+    "commonName": "Resina Calendula",
+    "description": "Resina cultivar of Calendula for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Snow Princess",
+    "locale": "en",
+    "commonName": "Snow Princess Calendula",
+    "description": "Snow Princess cultivar of Calendula for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calendula officinalis",
+    "cultivar": "Zeolights",
+    "locale": "en",
+    "commonName": "Zeolights Calendula",
+    "description": "Zeolights cultivar of Calendula for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "locale": "en",
+    "commonName": "Heather",
+    "description": "Heather is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Alicia",
+    "locale": "en",
+    "commonName": "Alicia Heather",
+    "description": "Alicia cultivar of Heather for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Dark Beauty",
+    "locale": "en",
+    "commonName": "Dark Beauty Heather",
+    "description": "Dark Beauty cultivar of Heather for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Firefly",
+    "locale": "en",
+    "commonName": "Firefly Heather",
+    "description": "Firefly cultivar of Heather for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Silver Knight",
+    "locale": "en",
+    "commonName": "Silver Knight Heather",
+    "description": "Silver Knight cultivar of Heather for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Calluna vulgaris",
+    "cultivar": "Spring Torch",
+    "locale": "en",
+    "commonName": "Spring Torch Heather",
+    "description": "Spring Torch cultivar of Heather for broader garden planning coverage."
   },
   {
     "commonName": "Camellia",
@@ -1936,6 +2557,12 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Capsicum annuum"
   },
   {
+    "commonName": "Chiltepin Pepper",
+    "description": "Chiltepin Pepper for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Capsicum annuum var. glabriusculum"
+  },
+  {
     "commonName": "Fire Drop Chiltepin Pepper",
     "cultivar": "Fire Drop",
     "description": "Fire Drop cultivar of Chiltepin Pepper for a broader plant mix.",
@@ -1960,13 +2587,6 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Texas Bird Chiltepin Pepper",
     "cultivar": "Texas Bird",
     "description": "Texas Bird cultivar of Chiltepin Pepper for a broader plant mix.",
-    "locale": "en",
-    "scientificName": "Capsicum annuum var. glabriusculum"
-  },
-  {
-    "commonName": "Chiltepin Pepper",
-    "cultivar": "var. glabriusculum",
-    "description": "Chiltepin Pepper for diversified seed coverage in the library.",
     "locale": "en",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
@@ -2160,6 +2780,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Papaya with stable growth profile.",
     "locale": "en",
     "scientificName": "Carica papaya"
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "locale": "en",
+    "commonName": "Sweet Chestnut",
+    "description": "Sweet Chestnut is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Bouche de Betizac",
+    "locale": "en",
+    "commonName": "Bouche de Betizac Sweet Chestnut",
+    "description": "Bouche de Betizac cultivar of Sweet Chestnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Colossal",
+    "locale": "en",
+    "commonName": "Colossal Sweet Chestnut",
+    "description": "Colossal cultivar of Sweet Chestnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Marigoule",
+    "locale": "en",
+    "commonName": "Marigoule Sweet Chestnut",
+    "description": "Marigoule cultivar of Sweet Chestnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Marron de Lyon",
+    "locale": "en",
+    "commonName": "Marron de Lyon Sweet Chestnut",
+    "description": "Marron de Lyon cultivar of Sweet Chestnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Castanea sativa",
+    "cultivar": "Precoce Migoule",
+    "locale": "en",
+    "commonName": "Precoce Migoule Sweet Chestnut",
+    "description": "Precoce Migoule cultivar of Sweet Chestnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "locale": "en",
+    "commonName": "Parlor Palm",
+    "description": "Parlor Palm is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Bella",
+    "locale": "en",
+    "commonName": "Bella Parlor Palm",
+    "description": "Bella cultivar of Parlor Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Compacta",
+    "locale": "en",
+    "commonName": "Compacta Parlor Palm",
+    "description": "Compacta cultivar of Parlor Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Elegans",
+    "locale": "en",
+    "commonName": "Elegans Parlor Palm",
+    "description": "Elegans cultivar of Parlor Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Neanthe Bella",
+    "locale": "en",
+    "commonName": "Neanthe Bella Parlor Palm",
+    "description": "Neanthe Bella cultivar of Parlor Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Chamaedorea elegans",
+    "cultivar": "Pacaya",
+    "locale": "en",
+    "commonName": "Pacaya Parlor Palm",
+    "description": "Pacaya cultivar of Parlor Palm for broader garden planning coverage."
   },
   {
     "commonName": "Spider Plant",
@@ -2415,6 +3117,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrullus lanatus"
   },
   {
+    "scientificName": "Citrus aurantiifolia",
+    "locale": "en",
+    "commonName": "Key Lime",
+    "description": "Key Lime is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Bearss",
+    "locale": "en",
+    "commonName": "Bearss Key Lime",
+    "description": "Bearss cultivar of Key Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Kagzi",
+    "locale": "en",
+    "commonName": "Kagzi Key Lime",
+    "description": "Kagzi cultivar of Key Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Mexican",
+    "locale": "en",
+    "commonName": "Mexican Key Lime",
+    "description": "Mexican cultivar of Key Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "Thornless",
+    "locale": "en",
+    "commonName": "Thornless Key Lime",
+    "description": "Thornless cultivar of Key Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus aurantiifolia",
+    "cultivar": "West Indian",
+    "locale": "en",
+    "commonName": "West Indian Key Lime",
+    "description": "West Indian cultivar of Key Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "locale": "en",
+    "commonName": "Finger Lime",
+    "description": "Finger Lime is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Emerald",
+    "locale": "en",
+    "commonName": "Emerald Finger Lime",
+    "description": "Emerald cultivar of Finger Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Judy's Everbearing",
+    "locale": "en",
+    "commonName": "Judy's Everbearing Finger Lime",
+    "description": "Judy's Everbearing cultivar of Finger Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Pink Ice",
+    "locale": "en",
+    "commonName": "Pink Ice Finger Lime",
+    "description": "Pink Ice cultivar of Finger Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Rainforest Pearl",
+    "locale": "en",
+    "commonName": "Rainforest Pearl Finger Lime",
+    "description": "Rainforest Pearl cultivar of Finger Lime for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus australasica",
+    "cultivar": "Red Champagne",
+    "locale": "en",
+    "commonName": "Red Champagne Finger Lime",
+    "description": "Red Champagne cultivar of Finger Lime for broader garden planning coverage."
+  },
+  {
     "commonName": "Lemon",
     "description": "Citrus tree with tart fruit; likes sun and well-drained soil.",
     "locale": "en",
@@ -2442,6 +3226,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrus limon"
   },
   {
+    "scientificName": "Citrus paradisi",
+    "locale": "en",
+    "commonName": "Grapefruit",
+    "description": "Grapefruit is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Marsh",
+    "locale": "en",
+    "commonName": "Marsh Grapefruit",
+    "description": "Marsh cultivar of Grapefruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Oro Blanco",
+    "locale": "en",
+    "commonName": "Oro Blanco Grapefruit",
+    "description": "Oro Blanco cultivar of Grapefruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Rio Red",
+    "locale": "en",
+    "commonName": "Rio Red Grapefruit",
+    "description": "Rio Red cultivar of Grapefruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Ruby Red",
+    "locale": "en",
+    "commonName": "Ruby Red Grapefruit",
+    "description": "Ruby Red cultivar of Grapefruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus paradisi",
+    "cultivar": "Star Ruby",
+    "locale": "en",
+    "commonName": "Star Ruby Grapefruit",
+    "description": "Star Ruby cultivar of Grapefruit for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "locale": "en",
+    "commonName": "Mandarin",
+    "description": "Mandarin is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Clementine",
+    "locale": "en",
+    "commonName": "Clementine Mandarin",
+    "description": "Clementine cultivar of Mandarin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Honey Murcott",
+    "locale": "en",
+    "commonName": "Honey Murcott Mandarin",
+    "description": "Honey Murcott cultivar of Mandarin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Kishu",
+    "locale": "en",
+    "commonName": "Kishu Mandarin",
+    "description": "Kishu cultivar of Mandarin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Satsuma",
+    "locale": "en",
+    "commonName": "Satsuma Mandarin",
+    "description": "Satsuma cultivar of Mandarin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Citrus reticulata",
+    "cultivar": "Tango",
+    "locale": "en",
+    "commonName": "Tango Mandarin",
+    "description": "Tango cultivar of Mandarin for broader garden planning coverage."
+  },
+  {
     "commonName": "Orange",
     "description": "Citrus tree with sweet fruit; warm, sunny conditions.",
     "locale": "en",
@@ -2467,6 +3333,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Orange with stable growth profile.",
     "locale": "en",
     "scientificName": "Citrus sinensis"
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "locale": "en",
+    "commonName": "Croton",
+    "description": "Croton is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Excellent",
+    "locale": "en",
+    "commonName": "Excellent Croton",
+    "description": "Excellent cultivar of Croton for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Gold Dust",
+    "locale": "en",
+    "commonName": "Gold Dust Croton",
+    "description": "Gold Dust cultivar of Croton for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Mammy",
+    "locale": "en",
+    "commonName": "Mammy Croton",
+    "description": "Mammy cultivar of Croton for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Petra",
+    "locale": "en",
+    "commonName": "Petra Croton",
+    "description": "Petra cultivar of Croton for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Codiaeum variegatum",
+    "cultivar": "Zanzibar",
+    "locale": "en",
+    "commonName": "Zanzibar Croton",
+    "description": "Zanzibar cultivar of Croton for broader garden planning coverage."
   },
   {
     "commonName": "Taro",
@@ -2535,6 +3442,129 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Coriander with stable growth profile.",
     "locale": "en",
     "scientificName": "Coriandrum sativum"
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "locale": "en",
+    "commonName": "Hazelnut",
+    "description": "Hazelnut is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Barcelona",
+    "locale": "en",
+    "commonName": "Barcelona Hazelnut",
+    "description": "Barcelona cultivar of Hazelnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Ennis",
+    "locale": "en",
+    "commonName": "Ennis Hazelnut",
+    "description": "Ennis cultivar of Hazelnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Jefferson",
+    "locale": "en",
+    "commonName": "Jefferson Hazelnut",
+    "description": "Jefferson cultivar of Hazelnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Tonda di Giffoni",
+    "locale": "en",
+    "commonName": "Tonda di Giffoni Hazelnut",
+    "description": "Tonda di Giffoni cultivar of Hazelnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Corylus avellana",
+    "cultivar": "Yamhill",
+    "locale": "en",
+    "commonName": "Yamhill Hazelnut",
+    "description": "Yamhill cultivar of Hazelnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "locale": "en",
+    "commonName": "Cosmos",
+    "description": "Cosmos is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Double Click",
+    "locale": "en",
+    "commonName": "Double Click Cosmos",
+    "description": "Double Click cultivar of Cosmos for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Purity",
+    "locale": "en",
+    "commonName": "Purity Cosmos",
+    "description": "Purity cultivar of Cosmos for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Rubenza",
+    "locale": "en",
+    "commonName": "Rubenza Cosmos",
+    "description": "Rubenza cultivar of Cosmos for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Sensation",
+    "locale": "en",
+    "commonName": "Sensation Cosmos",
+    "description": "Sensation cultivar of Cosmos for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cosmos bipinnatus",
+    "cultivar": "Sonata",
+    "locale": "en",
+    "commonName": "Sonata Cosmos",
+    "description": "Sonata cultivar of Cosmos for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "locale": "en",
+    "commonName": "Sea Kale",
+    "description": "Sea Kale is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Angers",
+    "locale": "en",
+    "commonName": "Angers Sea Kale",
+    "description": "Angers cultivar of Sea Kale for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Common",
+    "locale": "en",
+    "commonName": "Common Sea Kale",
+    "description": "Common cultivar of Sea Kale for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Ivory",
+    "locale": "en",
+    "commonName": "Ivory Sea Kale",
+    "description": "Ivory cultivar of Sea Kale for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Lily White",
+    "locale": "en",
+    "commonName": "Lily White Sea Kale",
+    "description": "Lily White cultivar of Sea Kale for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Crambe maritima",
+    "cultivar": "Sea Spray",
+    "locale": "en",
+    "commonName": "Sea Spray Sea Kale",
+    "description": "Sea Spray cultivar of Sea Kale for broader garden planning coverage."
   },
   {
     "commonName": "Melon",
@@ -2651,6 +3681,129 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Cucumber with stable growth profile.",
     "locale": "en",
     "scientificName": "Cucumis sativus"
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "locale": "en",
+    "commonName": "Cushaw Squash",
+    "description": "Cushaw Squash is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Green Striped Cushaw",
+    "locale": "en",
+    "commonName": "Green Striped Cushaw Cushaw Squash",
+    "description": "Green Striped Cushaw cultivar of Cushaw Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Japanese Pie",
+    "locale": "en",
+    "commonName": "Japanese Pie Cushaw Squash",
+    "description": "Japanese Pie cultivar of Cushaw Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Silver Seed",
+    "locale": "en",
+    "commonName": "Silver Seed Cushaw Squash",
+    "description": "Silver Seed cultivar of Cushaw Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "Tennessee Sweet Potato",
+    "locale": "en",
+    "commonName": "Tennessee Sweet Potato Cushaw Squash",
+    "description": "Tennessee Sweet Potato cultivar of Cushaw Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita argyrosperma",
+    "cultivar": "White Cushaw",
+    "locale": "en",
+    "commonName": "White Cushaw Cushaw Squash",
+    "description": "White Cushaw cultivar of Cushaw Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "locale": "en",
+    "commonName": "Figleaf Gourd",
+    "description": "Figleaf Gourd is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Asian White",
+    "locale": "en",
+    "commonName": "Asian White Figleaf Gourd",
+    "description": "Asian White cultivar of Figleaf Gourd for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Black Seed",
+    "locale": "en",
+    "commonName": "Black Seed Figleaf Gourd",
+    "description": "Black Seed cultivar of Figleaf Gourd for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Chilacayote",
+    "locale": "en",
+    "commonName": "Chilacayote Figleaf Gourd",
+    "description": "Chilacayote cultivar of Figleaf Gourd for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Green Stripe",
+    "locale": "en",
+    "commonName": "Green Stripe Figleaf Gourd",
+    "description": "Green Stripe cultivar of Figleaf Gourd for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita ficifolia",
+    "cultivar": "Mountain",
+    "locale": "en",
+    "commonName": "Mountain Figleaf Gourd",
+    "description": "Mountain cultivar of Figleaf Gourd for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "locale": "en",
+    "commonName": "Winter Squash",
+    "description": "Winter Squash is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Buttercup",
+    "locale": "en",
+    "commonName": "Buttercup Winter Squash",
+    "description": "Buttercup cultivar of Winter Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Hubbard",
+    "locale": "en",
+    "commonName": "Hubbard Winter Squash",
+    "description": "Hubbard cultivar of Winter Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Kabocha",
+    "locale": "en",
+    "commonName": "Kabocha Winter Squash",
+    "description": "Kabocha cultivar of Winter Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Queensland Blue",
+    "locale": "en",
+    "commonName": "Queensland Blue Winter Squash",
+    "description": "Queensland Blue cultivar of Winter Squash for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cucurbita maxima",
+    "cultivar": "Red Kuri",
+    "locale": "en",
+    "commonName": "Red Kuri Winter Squash",
+    "description": "Red Kuri cultivar of Winter Squash for broader garden planning coverage."
   },
   {
     "commonName": "Squash",
@@ -2824,6 +3977,53 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cymbopogon citratus"
   },
   {
+    "scientificName": "Cynara cardunculus",
+    "locale": "en",
+    "commonName": "Cardoon",
+    "description": "Cardoon is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Bianco Avorio",
+    "locale": "en",
+    "commonName": "Bianco Avorio Cardoon",
+    "description": "Bianco Avorio cultivar of Cardoon for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Gigante",
+    "locale": "en",
+    "commonName": "Gigante Cardoon",
+    "description": "Gigante cultivar of Cardoon for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Gobbo di Nizza",
+    "locale": "en",
+    "commonName": "Gobbo di Nizza Cardoon",
+    "description": "Gobbo di Nizza cultivar of Cardoon for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Large Smooth",
+    "locale": "en",
+    "commonName": "Large Smooth Cardoon",
+    "description": "Large Smooth cultivar of Cardoon for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Cynara cardunculus",
+    "cultivar": "Porto Spineless",
+    "locale": "en",
+    "commonName": "Porto Spineless Cardoon",
+    "description": "Porto Spineless cultivar of Cardoon for broader garden planning coverage."
+  },
+  {
+    "commonName": "Artichoke",
+    "description": "Artichoke for diversified seed coverage in the library.",
+    "locale": "en",
+    "scientificName": "Cynara cardunculus var. scolymus"
+  },
+  {
     "commonName": "Colorado Star Artichoke",
     "cultivar": "Colorado Star",
     "description": "Colorado Star cultivar of Artichoke for a broader plant mix.",
@@ -2866,18 +4066,52 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
-    "commonName": "Artichoke",
-    "cultivar": "var. scolymus",
-    "description": "Artichoke for diversified seed coverage in the library.",
-    "locale": "en",
-    "scientificName": "Cynara cardunculus var. scolymus"
-  },
-  {
     "commonName": "Violetto Artichoke",
     "cultivar": "Violetto",
     "description": "Violetto cultivar of Artichoke for a broader plant mix.",
     "locale": "en",
     "scientificName": "Cynara cardunculus var. scolymus"
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "locale": "en",
+    "commonName": "Dahlia",
+    "description": "Dahlia is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Arabian Night",
+    "locale": "en",
+    "commonName": "Arabian Night Dahlia",
+    "description": "Arabian Night cultivar of Dahlia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Bishop of Llandaff",
+    "locale": "en",
+    "commonName": "Bishop of Llandaff Dahlia",
+    "description": "Bishop of Llandaff cultivar of Dahlia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Cafe au Lait",
+    "locale": "en",
+    "commonName": "Cafe au Lait Dahlia",
+    "description": "Cafe au Lait cultivar of Dahlia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Kelvin Floodlight",
+    "locale": "en",
+    "commonName": "Kelvin Floodlight Dahlia",
+    "description": "Kelvin Floodlight cultivar of Dahlia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dahlia pinnata",
+    "cultivar": "Thomas Edison",
+    "locale": "en",
+    "commonName": "Thomas Edison Dahlia",
+    "description": "Thomas Edison cultivar of Dahlia for broader garden planning coverage."
   },
   {
     "commonName": "Carrot",
@@ -2919,6 +4153,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Carrot with stable growth profile.",
     "locale": "en",
     "scientificName": "Daucus carota"
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "locale": "en",
+    "commonName": "Delphinium",
+    "description": "Delphinium is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Black Knight",
+    "locale": "en",
+    "commonName": "Black Knight Delphinium",
+    "description": "Black Knight cultivar of Delphinium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Blue Bird",
+    "locale": "en",
+    "commonName": "Blue Bird Delphinium",
+    "description": "Blue Bird cultivar of Delphinium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Galahad",
+    "locale": "en",
+    "commonName": "Galahad Delphinium",
+    "description": "Galahad cultivar of Delphinium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Magic Fountains",
+    "locale": "en",
+    "commonName": "Magic Fountains Delphinium",
+    "description": "Magic Fountains cultivar of Delphinium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Delphinium elatum",
+    "cultivar": "Pacific Giant",
+    "locale": "en",
+    "commonName": "Pacific Giant Delphinium",
+    "description": "Pacific Giant cultivar of Delphinium for broader garden planning coverage."
   },
   {
     "commonName": "Carnation",
@@ -3162,6 +4437,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Dracaena fragrans"
   },
   {
+    "scientificName": "Dypsis lutescens",
+    "locale": "en",
+    "commonName": "Areca Palm",
+    "description": "Areca Palm is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Butterfly",
+    "locale": "en",
+    "commonName": "Butterfly Areca Palm",
+    "description": "Butterfly cultivar of Areca Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Compacta",
+    "locale": "en",
+    "commonName": "Compacta Areca Palm",
+    "description": "Compacta cultivar of Areca Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Golden Cane",
+    "locale": "en",
+    "commonName": "Golden Cane Areca Palm",
+    "description": "Golden Cane cultivar of Areca Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Golden Feather",
+    "locale": "en",
+    "commonName": "Golden Feather Areca Palm",
+    "description": "Golden Feather cultivar of Areca Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Dypsis lutescens",
+    "cultivar": "Madagascar",
+    "locale": "en",
+    "commonName": "Madagascar Areca Palm",
+    "description": "Madagascar cultivar of Areca Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "locale": "en",
+    "commonName": "Purple Coneflower",
+    "description": "Purple Coneflower is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "Cheyenne Spirit",
+    "locale": "en",
+    "commonName": "Cheyenne Spirit Purple Coneflower",
+    "description": "Cheyenne Spirit cultivar of Purple Coneflower for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "Green Jewel",
+    "locale": "en",
+    "commonName": "Green Jewel Purple Coneflower",
+    "description": "Green Jewel cultivar of Purple Coneflower for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "Magnus",
+    "locale": "en",
+    "commonName": "Magnus Purple Coneflower",
+    "description": "Magnus cultivar of Purple Coneflower for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "PowWow Wild Berry",
+    "locale": "en",
+    "commonName": "PowWow Wild Berry Purple Coneflower",
+    "description": "PowWow Wild Berry cultivar of Purple Coneflower for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Echinacea purpurea",
+    "cultivar": "White Swan",
+    "locale": "en",
+    "commonName": "White Swan Purple Coneflower",
+    "description": "White Swan cultivar of Purple Coneflower for broader garden planning coverage."
+  },
+  {
     "commonName": "Pothos",
     "description": "Hardy houseplant; tolerates low light.",
     "locale": "en",
@@ -3194,6 +4551,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Pothos with stable growth profile.",
     "locale": "en",
     "scientificName": "Epipremnum aureum"
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "locale": "en",
+    "commonName": "Loquat",
+    "description": "Loquat is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Advance",
+    "locale": "en",
+    "commonName": "Advance Loquat",
+    "description": "Advance cultivar of Loquat for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Big Jim",
+    "locale": "en",
+    "commonName": "Big Jim Loquat",
+    "description": "Big Jim cultivar of Loquat for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Champagne",
+    "locale": "en",
+    "commonName": "Champagne Loquat",
+    "description": "Champagne cultivar of Loquat for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Gold Nugget",
+    "locale": "en",
+    "commonName": "Gold Nugget Loquat",
+    "description": "Gold Nugget cultivar of Loquat for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eriobotrya japonica",
+    "cultivar": "Tanaka",
+    "locale": "en",
+    "commonName": "Tanaka Loquat",
+    "description": "Tanaka cultivar of Loquat for broader garden planning coverage."
   },
   {
     "commonName": "Arugula",
@@ -3255,6 +4653,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Culantro with stable growth profile.",
     "locale": "en",
     "scientificName": "Eryngium foetidum"
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "locale": "en",
+    "commonName": "Cider Gum",
+    "description": "Cider Gum is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Azura",
+    "locale": "en",
+    "commonName": "Azura Cider Gum",
+    "description": "Azura cultivar of Cider Gum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Baby Blue",
+    "locale": "en",
+    "commonName": "Baby Blue Cider Gum",
+    "description": "Baby Blue cultivar of Cider Gum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Compacta",
+    "locale": "en",
+    "commonName": "Compacta Cider Gum",
+    "description": "Compacta cultivar of Cider Gum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "France Bleu",
+    "locale": "en",
+    "commonName": "France Bleu Cider Gum",
+    "description": "France Bleu cultivar of Cider Gum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Eucalyptus gunnii",
+    "cultivar": "Silver Drop",
+    "locale": "en",
+    "commonName": "Silver Drop Cider Gum",
+    "description": "Silver Drop cultivar of Cider Gum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "locale": "en",
+    "commonName": "Japanese Aralia",
+    "description": "Japanese Aralia is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Annelise",
+    "locale": "en",
+    "commonName": "Annelise Japanese Aralia",
+    "description": "Annelise cultivar of Japanese Aralia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Camouflage",
+    "locale": "en",
+    "commonName": "Camouflage Japanese Aralia",
+    "description": "Camouflage cultivar of Japanese Aralia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Green Fingers",
+    "locale": "en",
+    "commonName": "Green Fingers Japanese Aralia",
+    "description": "Green Fingers cultivar of Japanese Aralia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Spider's Web",
+    "locale": "en",
+    "commonName": "Spider's Web Japanese Aralia",
+    "description": "Spider's Web cultivar of Japanese Aralia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Fatsia japonica",
+    "cultivar": "Variegata",
+    "locale": "en",
+    "commonName": "Variegata Japanese Aralia",
+    "description": "Variegata cultivar of Japanese Aralia for broader garden planning coverage."
   },
   {
     "commonName": "Fig",
@@ -3330,6 +4810,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Rubber Plant with stable growth profile.",
     "locale": "en",
     "scientificName": "Ficus elastica"
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "locale": "en",
+    "commonName": "Fiddle Leaf Fig",
+    "description": "Fiddle Leaf Fig is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Bambino",
+    "locale": "en",
+    "commonName": "Bambino Fiddle Leaf Fig",
+    "description": "Bambino cultivar of Fiddle Leaf Fig for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Columnar",
+    "locale": "en",
+    "commonName": "Columnar Fiddle Leaf Fig",
+    "description": "Columnar cultivar of Fiddle Leaf Fig for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Compacta",
+    "locale": "en",
+    "commonName": "Compacta Fiddle Leaf Fig",
+    "description": "Compacta cultivar of Fiddle Leaf Fig for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Little Fiddle",
+    "locale": "en",
+    "commonName": "Little Fiddle Fiddle Leaf Fig",
+    "description": "Little Fiddle cultivar of Fiddle Leaf Fig for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ficus lyrata",
+    "cultivar": "Variegata",
+    "locale": "en",
+    "commonName": "Variegata Fiddle Leaf Fig",
+    "description": "Variegata cultivar of Fiddle Leaf Fig for broader garden planning coverage."
   },
   {
     "commonName": "Fennel",
@@ -3537,6 +5058,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Helianthus annuus"
   },
   {
+    "scientificName": "Helianthus tuberosus",
+    "locale": "en",
+    "commonName": "Jerusalem Artichoke",
+    "description": "Jerusalem Artichoke is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Dwarf Sunray",
+    "locale": "en",
+    "commonName": "Dwarf Sunray Jerusalem Artichoke",
+    "description": "Dwarf Sunray cultivar of Jerusalem Artichoke for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Fuseau",
+    "locale": "en",
+    "commonName": "Fuseau Jerusalem Artichoke",
+    "description": "Fuseau cultivar of Jerusalem Artichoke for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Red Fuseau",
+    "locale": "en",
+    "commonName": "Red Fuseau Jerusalem Artichoke",
+    "description": "Red Fuseau cultivar of Jerusalem Artichoke for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "Stampede",
+    "locale": "en",
+    "commonName": "Stampede Jerusalem Artichoke",
+    "description": "Stampede cultivar of Jerusalem Artichoke for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Helianthus tuberosus",
+    "cultivar": "White Fuseau",
+    "locale": "en",
+    "commonName": "White Fuseau Jerusalem Artichoke",
+    "description": "White Fuseau cultivar of Jerusalem Artichoke for broader garden planning coverage."
+  },
+  {
     "commonName": "Hibiscus",
     "description": "Showy flowers; blooms with sun and warmth.",
     "locale": "en",
@@ -3562,6 +5124,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Hibiscus with stable growth profile.",
     "locale": "en",
     "scientificName": "Hibiscus rosa-sinensis"
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "locale": "en",
+    "commonName": "Kentia Palm",
+    "description": "Kentia Palm is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Forsteriana",
+    "locale": "en",
+    "commonName": "Forsteriana Kentia Palm",
+    "description": "Forsteriana cultivar of Kentia Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Graceful",
+    "locale": "en",
+    "commonName": "Graceful Kentia Palm",
+    "description": "Graceful cultivar of Kentia Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Norfolk",
+    "locale": "en",
+    "commonName": "Norfolk Kentia Palm",
+    "description": "Norfolk cultivar of Kentia Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Paradise",
+    "locale": "en",
+    "commonName": "Paradise Kentia Palm",
+    "description": "Paradise cultivar of Kentia Palm for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Howea forsteriana",
+    "cultivar": "Sentry",
+    "locale": "en",
+    "commonName": "Sentry Kentia Palm",
+    "description": "Sentry cultivar of Kentia Palm for broader garden planning coverage."
   },
   {
     "commonName": "Wax Plant",
@@ -3804,6 +5407,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ipomoea batatas"
   },
   {
+    "scientificName": "Iris germanica",
+    "locale": "en",
+    "commonName": "Bearded Iris",
+    "description": "Bearded Iris is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Beverly Sills",
+    "locale": "en",
+    "commonName": "Beverly Sills Bearded Iris",
+    "description": "Beverly Sills cultivar of Bearded Iris for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Hello Darkness",
+    "locale": "en",
+    "commonName": "Hello Darkness Bearded Iris",
+    "description": "Hello Darkness cultivar of Bearded Iris for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Immortality",
+    "locale": "en",
+    "commonName": "Immortality Bearded Iris",
+    "description": "Immortality cultivar of Bearded Iris for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Superstition",
+    "locale": "en",
+    "commonName": "Superstition Bearded Iris",
+    "description": "Superstition cultivar of Bearded Iris for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Iris germanica",
+    "cultivar": "Victoria Falls",
+    "locale": "en",
+    "commonName": "Victoria Falls Bearded Iris",
+    "description": "Victoria Falls cultivar of Bearded Iris for broader garden planning coverage."
+  },
+  {
     "commonName": "Jasmine",
     "description": "Jasmine for diversified seed coverage in the library.",
     "locale": "en",
@@ -3843,6 +5487,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Sambac Single cultivar of Jasmine for a broader plant mix.",
     "locale": "en",
     "scientificName": "Jasminum sambac"
+  },
+  {
+    "scientificName": "Juglans regia",
+    "locale": "en",
+    "commonName": "English Walnut",
+    "description": "English Walnut is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Chandler",
+    "locale": "en",
+    "commonName": "Chandler English Walnut",
+    "description": "Chandler cultivar of English Walnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Fernor",
+    "locale": "en",
+    "commonName": "Fernor English Walnut",
+    "description": "Fernor cultivar of English Walnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Franquette",
+    "locale": "en",
+    "commonName": "Franquette English Walnut",
+    "description": "Franquette cultivar of English Walnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Howard",
+    "locale": "en",
+    "commonName": "Howard English Walnut",
+    "description": "Howard cultivar of English Walnut for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Juglans regia",
+    "cultivar": "Lara",
+    "locale": "en",
+    "commonName": "Lara English Walnut",
+    "description": "Lara cultivar of English Walnut for broader garden planning coverage."
   },
   {
     "commonName": "Hyacinth Bean",
@@ -3968,6 +5653,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Lagenaria siceraria"
   },
   {
+    "scientificName": "Lathyrus oleraceus",
+    "locale": "en",
+    "commonName": "Shelling Pea",
+    "description": "Shelling Pea is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Alderman",
+    "locale": "en",
+    "commonName": "Alderman Shelling Pea",
+    "description": "Alderman cultivar of Shelling Pea for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Green Arrow",
+    "locale": "en",
+    "commonName": "Green Arrow Shelling Pea",
+    "description": "Green Arrow cultivar of Shelling Pea for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Lincoln",
+    "locale": "en",
+    "commonName": "Lincoln Shelling Pea",
+    "description": "Lincoln cultivar of Shelling Pea for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Maestro",
+    "locale": "en",
+    "commonName": "Maestro Shelling Pea",
+    "description": "Maestro cultivar of Shelling Pea for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lathyrus oleraceus",
+    "cultivar": "Wando",
+    "locale": "en",
+    "commonName": "Wando Shelling Pea",
+    "description": "Wando cultivar of Shelling Pea for broader garden planning coverage."
+  },
+  {
     "commonName": "Bay Laurel",
     "description": "Bay Laurel for diversified seed coverage in the library.",
     "locale": "en",
@@ -4089,6 +5815,170 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Richlea cultivar of Lentil for a broader plant mix.",
     "locale": "en",
     "scientificName": "Lens culinaris"
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "locale": "en",
+    "commonName": "Garden Cress",
+    "description": "Garden Cress is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Broadleaf",
+    "locale": "en",
+    "commonName": "Broadleaf Garden Cress",
+    "description": "Broadleaf cultivar of Garden Cress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Curled",
+    "locale": "en",
+    "commonName": "Curled Garden Cress",
+    "description": "Curled cultivar of Garden Cress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Extra Curled",
+    "locale": "en",
+    "commonName": "Extra Curled Garden Cress",
+    "description": "Extra Curled cultivar of Garden Cress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Persian",
+    "locale": "en",
+    "commonName": "Persian Garden Cress",
+    "description": "Persian cultivar of Garden Cress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lepidium sativum",
+    "cultivar": "Sprint",
+    "locale": "en",
+    "commonName": "Sprint Garden Cress",
+    "description": "Sprint cultivar of Garden Cress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "locale": "en",
+    "commonName": "Manuka",
+    "description": "Manuka is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Kiwi",
+    "locale": "en",
+    "commonName": "Kiwi Manuka",
+    "description": "Kiwi cultivar of Manuka for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Nanum Rubrum",
+    "locale": "en",
+    "commonName": "Nanum Rubrum Manuka",
+    "description": "Nanum Rubrum cultivar of Manuka for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Red Damask",
+    "locale": "en",
+    "commonName": "Red Damask Manuka",
+    "description": "Red Damask cultivar of Manuka for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Snow White",
+    "locale": "en",
+    "commonName": "Snow White Manuka",
+    "description": "Snow White cultivar of Manuka for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Leptospermum scoparium",
+    "cultivar": "Wiri Joan",
+    "locale": "en",
+    "commonName": "Wiri Joan Manuka",
+    "description": "Wiri Joan cultivar of Manuka for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "locale": "en",
+    "commonName": "Lovage",
+    "description": "Lovage is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Common",
+    "locale": "en",
+    "commonName": "Common Lovage",
+    "description": "Common cultivar of Lovage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Dark Stem",
+    "locale": "en",
+    "commonName": "Dark Stem Lovage",
+    "description": "Dark Stem cultivar of Lovage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Giant Leaf",
+    "locale": "en",
+    "commonName": "Giant Leaf Lovage",
+    "description": "Giant Leaf cultivar of Lovage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Maggi",
+    "locale": "en",
+    "commonName": "Maggi Lovage",
+    "description": "Maggi cultivar of Lovage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Levisticum officinale",
+    "cultivar": "Verino",
+    "locale": "en",
+    "commonName": "Verino Lovage",
+    "description": "Verino cultivar of Lovage for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "locale": "en",
+    "commonName": "Madonna Lily",
+    "description": "Madonna Lily is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Album",
+    "locale": "en",
+    "commonName": "Album Madonna Lily",
+    "description": "Album cultivar of Madonna Lily for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Apollo",
+    "locale": "en",
+    "commonName": "Apollo Madonna Lily",
+    "description": "Apollo cultivar of Madonna Lily for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Candidum",
+    "locale": "en",
+    "commonName": "Candidum Madonna Lily",
+    "description": "Candidum cultivar of Madonna Lily for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Cascade",
+    "locale": "en",
+    "commonName": "Cascade Madonna Lily",
+    "description": "Cascade cultivar of Madonna Lily for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lilium candidum",
+    "cultivar": "Snow Queen",
+    "locale": "en",
+    "commonName": "Snow Queen Madonna Lily",
+    "description": "Snow Queen cultivar of Madonna Lily for broader garden planning coverage."
   },
   {
     "commonName": "Lychee",
@@ -4242,6 +6132,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Luffa aegyptiaca"
   },
   {
+    "scientificName": "Lupinus albus",
+    "locale": "en",
+    "commonName": "White Lupin",
+    "description": "White Lupin is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Amiga",
+    "locale": "en",
+    "commonName": "Amiga White Lupin",
+    "description": "Amiga cultivar of White Lupin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Boros",
+    "locale": "en",
+    "commonName": "Boros White Lupin",
+    "description": "Boros cultivar of White Lupin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Dieta",
+    "locale": "en",
+    "commonName": "Dieta White Lupin",
+    "description": "Dieta cultivar of White Lupin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Lublanc",
+    "locale": "en",
+    "commonName": "Lublanc White Lupin",
+    "description": "Lublanc cultivar of White Lupin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Lupinus albus",
+    "cultivar": "Multolupa",
+    "locale": "en",
+    "commonName": "Multolupa White Lupin",
+    "description": "Multolupa cultivar of White Lupin for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "locale": "en",
+    "commonName": "Macadamia",
+    "description": "Macadamia is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "A4",
+    "locale": "en",
+    "commonName": "A4 Macadamia",
+    "description": "A4 cultivar of Macadamia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "Beaumont",
+    "locale": "en",
+    "commonName": "Beaumont Macadamia",
+    "description": "Beaumont cultivar of Macadamia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "H2",
+    "locale": "en",
+    "commonName": "H2 Macadamia",
+    "description": "H2 cultivar of Macadamia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "Kau",
+    "locale": "en",
+    "commonName": "Kau Macadamia",
+    "description": "Kau cultivar of Macadamia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Macadamia integrifolia",
+    "cultivar": "Mauka",
+    "locale": "en",
+    "commonName": "Mauka Macadamia",
+    "description": "Mauka cultivar of Macadamia for broader garden planning coverage."
+  },
+  {
     "commonName": "Apple",
     "description": "Apple for diversified seed coverage in the library.",
     "locale": "en",
@@ -4391,6 +6363,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "TME 419 cultivar of Cassava for a broader plant mix.",
     "locale": "en",
     "scientificName": "Manihot esculenta"
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "locale": "en",
+    "commonName": "Prayer Plant",
+    "description": "Prayer Plant is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Fascinator",
+    "locale": "en",
+    "commonName": "Fascinator Prayer Plant",
+    "description": "Fascinator cultivar of Prayer Plant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Kerchoveana",
+    "locale": "en",
+    "commonName": "Kerchoveana Prayer Plant",
+    "description": "Kerchoveana cultivar of Prayer Plant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Lemon Lime",
+    "locale": "en",
+    "commonName": "Lemon Lime Prayer Plant",
+    "description": "Lemon Lime cultivar of Prayer Plant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Red Vein",
+    "locale": "en",
+    "commonName": "Red Vein Prayer Plant",
+    "description": "Red Vein cultivar of Prayer Plant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Maranta leuconeura",
+    "cultivar": "Silver Band",
+    "locale": "en",
+    "commonName": "Silver Band Prayer Plant",
+    "description": "Silver Band cultivar of Prayer Plant for broader garden planning coverage."
   },
   {
     "commonName": "Chamomile",
@@ -4687,6 +6700,129 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Musa acuminata"
   },
   {
+    "scientificName": "Myrrhis odorata",
+    "locale": "en",
+    "commonName": "Sweet Cicely",
+    "description": "Sweet Cicely is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Aromatic",
+    "locale": "en",
+    "commonName": "Aromatic Sweet Cicely",
+    "description": "Aromatic cultivar of Sweet Cicely for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "British Sweet",
+    "locale": "en",
+    "commonName": "British Sweet Sweet Cicely",
+    "description": "British Sweet cultivar of Sweet Cicely for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Common",
+    "locale": "en",
+    "commonName": "Common Sweet Cicely",
+    "description": "Common cultivar of Sweet Cicely for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Green Lace",
+    "locale": "en",
+    "commonName": "Green Lace Sweet Cicely",
+    "description": "Green Lace cultivar of Sweet Cicely for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Myrrhis odorata",
+    "cultivar": "Mountain Sweet",
+    "locale": "en",
+    "commonName": "Mountain Sweet Sweet Cicely",
+    "description": "Mountain Sweet cultivar of Sweet Cicely for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "locale": "en",
+    "commonName": "Daffodil",
+    "description": "Daffodil is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Carlton",
+    "locale": "en",
+    "commonName": "Carlton Daffodil",
+    "description": "Carlton cultivar of Daffodil for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Dutch Master",
+    "locale": "en",
+    "commonName": "Dutch Master Daffodil",
+    "description": "Dutch Master cultivar of Daffodil for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Ice Follies",
+    "locale": "en",
+    "commonName": "Ice Follies Daffodil",
+    "description": "Ice Follies cultivar of Daffodil for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "King Alfred",
+    "locale": "en",
+    "commonName": "King Alfred Daffodil",
+    "description": "King Alfred cultivar of Daffodil for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Narcissus pseudonarcissus",
+    "cultivar": "Tete-a-Tete",
+    "locale": "en",
+    "commonName": "Tete-a-Tete Daffodil",
+    "description": "Tete-a-Tete cultivar of Daffodil for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "locale": "en",
+    "commonName": "Watercress",
+    "description": "Watercress is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Aqua",
+    "locale": "en",
+    "commonName": "Aqua Watercress",
+    "description": "Aqua cultivar of Watercress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Broadleaf",
+    "locale": "en",
+    "commonName": "Broadleaf Watercress",
+    "description": "Broadleaf cultivar of Watercress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Cressida",
+    "locale": "en",
+    "commonName": "Cressida Watercress",
+    "description": "Cressida cultivar of Watercress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "Dark Green",
+    "locale": "en",
+    "commonName": "Dark Green Watercress",
+    "description": "Dark Green cultivar of Watercress for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Nasturtium officinale",
+    "cultivar": "English",
+    "locale": "en",
+    "commonName": "English Watercress",
+    "description": "English cultivar of Watercress for broader garden planning coverage."
+  },
+  {
     "commonName": "Lotus Root",
     "description": "Lotus Root for diversified seed coverage in the library.",
     "locale": "en",
@@ -4892,6 +7028,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ocimum tenuiflorum"
   },
   {
+    "scientificName": "Olea europaea",
+    "locale": "en",
+    "commonName": "Olive",
+    "description": "Olive is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Arbequina",
+    "locale": "en",
+    "commonName": "Arbequina Olive",
+    "description": "Arbequina cultivar of Olive for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Frantoio",
+    "locale": "en",
+    "commonName": "Frantoio Olive",
+    "description": "Frantoio cultivar of Olive for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Kalamata",
+    "locale": "en",
+    "commonName": "Kalamata Olive",
+    "description": "Kalamata cultivar of Olive for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Manzanilla",
+    "locale": "en",
+    "commonName": "Manzanilla Olive",
+    "description": "Manzanilla cultivar of Olive for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Olea europaea",
+    "cultivar": "Picual",
+    "locale": "en",
+    "commonName": "Picual Olive",
+    "description": "Picual cultivar of Olive for broader garden planning coverage."
+  },
+  {
     "commonName": "Oregano",
     "description": "Aromatic herb popular in Mediterranean cooking.",
     "locale": "en",
@@ -4958,6 +7135,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Yucatan White cultivar of Jicama for a broader plant mix.",
     "locale": "en",
     "scientificName": "Pachyrhizus erosus"
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "locale": "en",
+    "commonName": "Peony",
+    "description": "Peony is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Coral Charm",
+    "locale": "en",
+    "commonName": "Coral Charm Peony",
+    "description": "Coral Charm cultivar of Peony for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Duchesse de Nemours",
+    "locale": "en",
+    "commonName": "Duchesse de Nemours Peony",
+    "description": "Duchesse de Nemours cultivar of Peony for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Festiva Maxima",
+    "locale": "en",
+    "commonName": "Festiva Maxima Peony",
+    "description": "Festiva Maxima cultivar of Peony for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Karl Rosenfield",
+    "locale": "en",
+    "commonName": "Karl Rosenfield Peony",
+    "description": "Karl Rosenfield cultivar of Peony for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Paeonia lactiflora",
+    "cultivar": "Sarah Bernhardt",
+    "locale": "en",
+    "commonName": "Sarah Bernhardt Peony",
+    "description": "Sarah Bernhardt cultivar of Peony for broader garden planning coverage."
   },
   {
     "commonName": "Passion Fruit",
@@ -5693,6 +7911,252 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Pisum sativum"
   },
   {
+    "scientificName": "Portulaca oleracea",
+    "locale": "en",
+    "commonName": "Purslane",
+    "description": "Purslane is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Golden",
+    "locale": "en",
+    "commonName": "Golden Purslane",
+    "description": "Golden cultivar of Purslane for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Green",
+    "locale": "en",
+    "commonName": "Green Purslane",
+    "description": "Green cultivar of Purslane for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Gruner Red",
+    "locale": "en",
+    "commonName": "Gruner Red Purslane",
+    "description": "Gruner Red cultivar of Purslane for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Red Gruner",
+    "locale": "en",
+    "commonName": "Red Gruner Purslane",
+    "description": "Red Gruner cultivar of Purslane for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Portulaca oleracea",
+    "cultivar": "Tall Green",
+    "locale": "en",
+    "commonName": "Tall Green Purslane",
+    "description": "Tall Green cultivar of Purslane for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "locale": "en",
+    "commonName": "Primrose",
+    "description": "Primrose is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Belarina",
+    "locale": "en",
+    "commonName": "Belarina Primrose",
+    "description": "Belarina cultivar of Primrose for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Crescendo",
+    "locale": "en",
+    "commonName": "Crescendo Primrose",
+    "description": "Crescendo cultivar of Primrose for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Danova",
+    "locale": "en",
+    "commonName": "Danova Primrose",
+    "description": "Danova cultivar of Primrose for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Husky",
+    "locale": "en",
+    "commonName": "Husky Primrose",
+    "description": "Husky cultivar of Primrose for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Primula vulgaris",
+    "cultivar": "Wanda",
+    "locale": "en",
+    "commonName": "Wanda Primrose",
+    "description": "Wanda cultivar of Primrose for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "locale": "en",
+    "commonName": "Apricot",
+    "description": "Apricot is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Blenheim",
+    "locale": "en",
+    "commonName": "Blenheim Apricot",
+    "description": "Blenheim cultivar of Apricot for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Goldcot",
+    "locale": "en",
+    "commonName": "Goldcot Apricot",
+    "description": "Goldcot cultivar of Apricot for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Moorpark",
+    "locale": "en",
+    "commonName": "Moorpark Apricot",
+    "description": "Moorpark cultivar of Apricot for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Tilton",
+    "locale": "en",
+    "commonName": "Tilton Apricot",
+    "description": "Tilton cultivar of Apricot for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus armeniaca",
+    "cultivar": "Tomcot",
+    "locale": "en",
+    "commonName": "Tomcot Apricot",
+    "description": "Tomcot cultivar of Apricot for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "locale": "en",
+    "commonName": "Sweet Cherry",
+    "description": "Sweet Cherry is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Bing",
+    "locale": "en",
+    "commonName": "Bing Sweet Cherry",
+    "description": "Bing cultivar of Sweet Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Lapins",
+    "locale": "en",
+    "commonName": "Lapins Sweet Cherry",
+    "description": "Lapins cultivar of Sweet Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Rainier",
+    "locale": "en",
+    "commonName": "Rainier Sweet Cherry",
+    "description": "Rainier cultivar of Sweet Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Stella",
+    "locale": "en",
+    "commonName": "Stella Sweet Cherry",
+    "description": "Stella cultivar of Sweet Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus avium",
+    "cultivar": "Sweetheart",
+    "locale": "en",
+    "commonName": "Sweetheart Sweet Cherry",
+    "description": "Sweetheart cultivar of Sweet Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "locale": "en",
+    "commonName": "Sour Cherry",
+    "description": "Sour Cherry is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "English Morello",
+    "locale": "en",
+    "commonName": "English Morello Sour Cherry",
+    "description": "English Morello cultivar of Sour Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "Meteor",
+    "locale": "en",
+    "commonName": "Meteor Sour Cherry",
+    "description": "Meteor cultivar of Sour Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "Montmorency",
+    "locale": "en",
+    "commonName": "Montmorency Sour Cherry",
+    "description": "Montmorency cultivar of Sour Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "Morello",
+    "locale": "en",
+    "commonName": "Morello Sour Cherry",
+    "description": "Morello cultivar of Sour Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus cerasus",
+    "cultivar": "North Star",
+    "locale": "en",
+    "commonName": "North Star Sour Cherry",
+    "description": "North Star cultivar of Sour Cherry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "locale": "en",
+    "commonName": "Plum",
+    "description": "Plum is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Damson",
+    "locale": "en",
+    "commonName": "Damson Plum",
+    "description": "Damson cultivar of Plum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Italian Prune",
+    "locale": "en",
+    "commonName": "Italian Prune Plum",
+    "description": "Italian Prune cultivar of Plum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "President",
+    "locale": "en",
+    "commonName": "President Plum",
+    "description": "President cultivar of Plum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Stanley",
+    "locale": "en",
+    "commonName": "Stanley Plum",
+    "description": "Stanley cultivar of Plum for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Prunus domestica",
+    "cultivar": "Victoria",
+    "locale": "en",
+    "commonName": "Victoria Plum",
+    "description": "Victoria cultivar of Plum for broader garden planning coverage."
+  },
+  {
     "commonName": "Peach",
     "description": "Peach for diversified seed coverage in the library.",
     "locale": "en",
@@ -5947,6 +8411,170 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Raphanus sativus"
   },
   {
+    "scientificName": "Rheum rhabarbarum",
+    "locale": "en",
+    "commonName": "Rhubarb",
+    "description": "Rhubarb is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Canada Red",
+    "locale": "en",
+    "commonName": "Canada Red Rhubarb",
+    "description": "Canada Red cultivar of Rhubarb for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Crimson Cherry",
+    "locale": "en",
+    "commonName": "Crimson Cherry Rhubarb",
+    "description": "Crimson Cherry cultivar of Rhubarb for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Glaskins Perpetual",
+    "locale": "en",
+    "commonName": "Glaskins Perpetual Rhubarb",
+    "description": "Glaskins Perpetual cultivar of Rhubarb for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Timperley Early",
+    "locale": "en",
+    "commonName": "Timperley Early Rhubarb",
+    "description": "Timperley Early cultivar of Rhubarb for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Rheum rhabarbarum",
+    "cultivar": "Victoria",
+    "locale": "en",
+    "commonName": "Victoria Rhubarb",
+    "description": "Victoria cultivar of Rhubarb for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "locale": "en",
+    "commonName": "Blackcurrant",
+    "description": "Blackcurrant is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Ben Lomond",
+    "locale": "en",
+    "commonName": "Ben Lomond Blackcurrant",
+    "description": "Ben Lomond cultivar of Blackcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Ben Sarek",
+    "locale": "en",
+    "commonName": "Ben Sarek Blackcurrant",
+    "description": "Ben Sarek cultivar of Blackcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Blackdown",
+    "locale": "en",
+    "commonName": "Blackdown Blackcurrant",
+    "description": "Blackdown cultivar of Blackcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Consort",
+    "locale": "en",
+    "commonName": "Consort Blackcurrant",
+    "description": "Consort cultivar of Blackcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes nigrum",
+    "cultivar": "Titania",
+    "locale": "en",
+    "commonName": "Titania Blackcurrant",
+    "description": "Titania cultivar of Blackcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "locale": "en",
+    "commonName": "Redcurrant",
+    "description": "Redcurrant is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Detvan",
+    "locale": "en",
+    "commonName": "Detvan Redcurrant",
+    "description": "Detvan cultivar of Redcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Jonkheer van Tets",
+    "locale": "en",
+    "commonName": "Jonkheer van Tets Redcurrant",
+    "description": "Jonkheer van Tets cultivar of Redcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Red Lake",
+    "locale": "en",
+    "commonName": "Red Lake Redcurrant",
+    "description": "Red Lake cultivar of Redcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Rovada",
+    "locale": "en",
+    "commonName": "Rovada Redcurrant",
+    "description": "Rovada cultivar of Redcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes rubrum",
+    "cultivar": "Wilder",
+    "locale": "en",
+    "commonName": "Wilder Redcurrant",
+    "description": "Wilder cultivar of Redcurrant for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "locale": "en",
+    "commonName": "Gooseberry",
+    "description": "Gooseberry is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Captivator",
+    "locale": "en",
+    "commonName": "Captivator Gooseberry",
+    "description": "Captivator cultivar of Gooseberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Hinnonmaki Red",
+    "locale": "en",
+    "commonName": "Hinnonmaki Red Gooseberry",
+    "description": "Hinnonmaki Red cultivar of Gooseberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Invicta",
+    "locale": "en",
+    "commonName": "Invicta Gooseberry",
+    "description": "Invicta cultivar of Gooseberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Pixwell",
+    "locale": "en",
+    "commonName": "Pixwell Gooseberry",
+    "description": "Pixwell cultivar of Gooseberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Ribes uva-crispa",
+    "cultivar": "Whinham",
+    "locale": "en",
+    "commonName": "Whinham Gooseberry",
+    "description": "Whinham cultivar of Gooseberry for broader garden planning coverage."
+  },
+  {
     "commonName": "Rose",
     "description": "Classic flowering shrub with many varieties.",
     "locale": "en",
@@ -6090,6 +8718,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Rumex acetosa"
   },
   {
+    "scientificName": "Saintpaulia ionantha",
+    "locale": "en",
+    "commonName": "African Violet",
+    "description": "African Violet is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Blue Dragon",
+    "locale": "en",
+    "commonName": "Blue Dragon African Violet",
+    "description": "Blue Dragon cultivar of African Violet for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Little Maya",
+    "locale": "en",
+    "commonName": "Little Maya African Violet",
+    "description": "Little Maya cultivar of African Violet for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Ma's Melody",
+    "locale": "en",
+    "commonName": "Ma's Melody African Violet",
+    "description": "Ma's Melody cultivar of African Violet for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Optimara",
+    "locale": "en",
+    "commonName": "Optimara African Violet",
+    "description": "Optimara cultivar of African Violet for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Saintpaulia ionantha",
+    "cultivar": "Rob's Boolaroo",
+    "locale": "en",
+    "commonName": "Rob's Boolaroo African Violet",
+    "description": "Rob's Boolaroo cultivar of African Violet for broader garden planning coverage."
+  },
+  {
     "commonName": "Sage",
     "description": "Sage for diversified seed coverage in the library.",
     "locale": "en",
@@ -6131,6 +8800,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Salvia officinalis"
   },
   {
+    "scientificName": "Sambucus nigra",
+    "locale": "en",
+    "commonName": "Elderberry",
+    "description": "Elderberry is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Black Lace",
+    "locale": "en",
+    "commonName": "Black Lace Elderberry",
+    "description": "Black Lace cultivar of Elderberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Haschberg",
+    "locale": "en",
+    "commonName": "Haschberg Elderberry",
+    "description": "Haschberg cultivar of Elderberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Marge",
+    "locale": "en",
+    "commonName": "Marge Elderberry",
+    "description": "Marge cultivar of Elderberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "Nova",
+    "locale": "en",
+    "commonName": "Nova Elderberry",
+    "description": "Nova cultivar of Elderberry for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Sambucus nigra",
+    "cultivar": "York",
+    "locale": "en",
+    "commonName": "York Elderberry",
+    "description": "York cultivar of Elderberry for broader garden planning coverage."
+  },
+  {
     "commonName": "Snake Plant",
     "description": "Tough, drought-tolerant houseplant; low light tolerant.",
     "locale": "en",
@@ -6163,6 +8873,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Popular cultivar of Snake Plant with stable growth profile.",
     "locale": "en",
     "scientificName": "Sansevieria trifasciata"
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "locale": "en",
+    "commonName": "Summer Savory",
+    "description": "Summer Savory is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Aromata",
+    "locale": "en",
+    "commonName": "Aromata Summer Savory",
+    "description": "Aromata cultivar of Summer Savory for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Compacta",
+    "locale": "en",
+    "commonName": "Compacta Summer Savory",
+    "description": "Compacta cultivar of Summer Savory for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Dwarf Green",
+    "locale": "en",
+    "commonName": "Dwarf Green Summer Savory",
+    "description": "Dwarf Green cultivar of Summer Savory for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Fine Leaf",
+    "locale": "en",
+    "commonName": "Fine Leaf Summer Savory",
+    "description": "Fine Leaf cultivar of Summer Savory for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Satureja hortensis",
+    "cultivar": "Saturn",
+    "locale": "en",
+    "commonName": "Saturn Summer Savory",
+    "description": "Saturn cultivar of Summer Savory for broader garden planning coverage."
   },
   {
     "commonName": "Dwarf Umbrella Tree",
@@ -6204,6 +8955,88 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Trinette cultivar of Dwarf Umbrella Tree for a broader plant mix.",
     "locale": "en",
     "scientificName": "Schefflera arboricola"
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "locale": "en",
+    "commonName": "Christmas Cactus",
+    "description": "Christmas Cactus is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Christmas Flame",
+    "locale": "en",
+    "commonName": "Christmas Flame Christmas Cactus",
+    "description": "Christmas Flame cultivar of Christmas Cactus for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Gold Charm",
+    "locale": "en",
+    "commonName": "Gold Charm Christmas Cactus",
+    "description": "Gold Charm cultivar of Christmas Cactus for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Thanksgiving",
+    "locale": "en",
+    "commonName": "Thanksgiving Christmas Cactus",
+    "description": "Thanksgiving cultivar of Christmas Cactus for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "Thor Carmen",
+    "locale": "en",
+    "commonName": "Thor Carmen Christmas Cactus",
+    "description": "Thor Carmen cultivar of Christmas Cactus for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Schlumbergera truncata",
+    "cultivar": "White Christmas",
+    "locale": "en",
+    "commonName": "White Christmas Christmas Cactus",
+    "description": "White Christmas cultivar of Christmas Cactus for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "locale": "en",
+    "commonName": "Black Salsify",
+    "description": "Black Salsify is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Black Peter",
+    "locale": "en",
+    "commonName": "Black Peter Black Salsify",
+    "description": "Black Peter cultivar of Black Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Duplex",
+    "locale": "en",
+    "commonName": "Duplex Black Salsify",
+    "description": "Duplex cultivar of Black Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Hoffmanns",
+    "locale": "en",
+    "commonName": "Hoffmanns Black Salsify",
+    "description": "Hoffmanns cultivar of Black Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Long Black",
+    "locale": "en",
+    "commonName": "Long Black Black Salsify",
+    "description": "Long Black cultivar of Black Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Scorzonera hispanica",
+    "cultivar": "Russian Giant",
+    "locale": "en",
+    "commonName": "Russian Giant Black Salsify",
+    "description": "Russian Giant cultivar of Black Salsify for broader garden planning coverage."
   },
   {
     "commonName": "Chayote",
@@ -6768,6 +9601,129 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tagetes erecta"
   },
   {
+    "scientificName": "Tanacetum balsamita",
+    "locale": "en",
+    "commonName": "Costmary",
+    "description": "Costmary is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Aureum",
+    "locale": "en",
+    "commonName": "Aureum Costmary",
+    "description": "Aureum cultivar of Costmary for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Bible Leaf",
+    "locale": "en",
+    "commonName": "Bible Leaf Costmary",
+    "description": "Bible Leaf cultivar of Costmary for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Common",
+    "locale": "en",
+    "commonName": "Common Costmary",
+    "description": "Common cultivar of Costmary for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Mint Geranium",
+    "locale": "en",
+    "commonName": "Mint Geranium Costmary",
+    "description": "Mint Geranium cultivar of Costmary for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tanacetum balsamita",
+    "cultivar": "Sweet Leaf",
+    "locale": "en",
+    "commonName": "Sweet Leaf Costmary",
+    "description": "Sweet Leaf cultivar of Costmary for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "locale": "en",
+    "commonName": "Dandelion Greens",
+    "description": "Dandelion Greens is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Ameliore",
+    "locale": "en",
+    "commonName": "Ameliore Dandelion Greens",
+    "description": "Ameliore cultivar of Dandelion Greens for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Catalogna",
+    "locale": "en",
+    "commonName": "Catalogna Dandelion Greens",
+    "description": "Catalogna cultivar of Dandelion Greens for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Clio",
+    "locale": "en",
+    "commonName": "Clio Dandelion Greens",
+    "description": "Clio cultivar of Dandelion Greens for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Thick Leaf",
+    "locale": "en",
+    "commonName": "Thick Leaf Dandelion Greens",
+    "description": "Thick Leaf cultivar of Dandelion Greens for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Taraxacum officinale",
+    "cultivar": "Vert de Montmagny",
+    "locale": "en",
+    "commonName": "Vert de Montmagny Dandelion Greens",
+    "description": "Vert de Montmagny cultivar of Dandelion Greens for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "locale": "en",
+    "commonName": "New Zealand Spinach",
+    "description": "New Zealand Spinach is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Coastal",
+    "locale": "en",
+    "commonName": "Coastal New Zealand Spinach",
+    "description": "Coastal cultivar of New Zealand Spinach for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Green Wave",
+    "locale": "en",
+    "commonName": "Green Wave New Zealand Spinach",
+    "description": "Green Wave cultivar of New Zealand Spinach for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Maori",
+    "locale": "en",
+    "commonName": "Maori New Zealand Spinach",
+    "description": "Maori cultivar of New Zealand Spinach for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Summer Green",
+    "locale": "en",
+    "commonName": "Summer Green New Zealand Spinach",
+    "description": "Summer Green cultivar of New Zealand Spinach for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tetragonia tetragonioides",
+    "cultivar": "Warrigal",
+    "locale": "en",
+    "commonName": "Warrigal New Zealand Spinach",
+    "description": "Warrigal cultivar of New Zealand Spinach for broader garden planning coverage."
+  },
+  {
     "commonName": "Thyme",
     "description": "Low-growing herb with subtle flavor; drought-tolerant once established.",
     "locale": "en",
@@ -6834,6 +9790,129 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Violet Hill cultivar of Wandering Dude for a broader plant mix.",
     "locale": "en",
     "scientificName": "Tradescantia zebrina"
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "locale": "en",
+    "commonName": "Salsify",
+    "description": "Salsify is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Fiore Blu",
+    "locale": "en",
+    "commonName": "Fiore Blu Salsify",
+    "description": "Fiore Blu cultivar of Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Giant White",
+    "locale": "en",
+    "commonName": "Giant White Salsify",
+    "description": "Giant White cultivar of Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Mammoth Sandwich Island",
+    "locale": "en",
+    "commonName": "Mammoth Sandwich Island Salsify",
+    "description": "Mammoth Sandwich Island cultivar of Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "Sandwich",
+    "locale": "en",
+    "commonName": "Sandwich Salsify",
+    "description": "Sandwich cultivar of Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tragopogon porrifolius",
+    "cultivar": "White French",
+    "locale": "en",
+    "commonName": "White French Salsify",
+    "description": "White French cultivar of Salsify for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "locale": "en",
+    "commonName": "Nasturtium",
+    "description": "Nasturtium is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Alaska",
+    "locale": "en",
+    "commonName": "Alaska Nasturtium",
+    "description": "Alaska cultivar of Nasturtium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Empress of India",
+    "locale": "en",
+    "commonName": "Empress of India Nasturtium",
+    "description": "Empress of India cultivar of Nasturtium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Jewel Mix",
+    "locale": "en",
+    "commonName": "Jewel Mix Nasturtium",
+    "description": "Jewel Mix cultivar of Nasturtium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Trailing Single",
+    "locale": "en",
+    "commonName": "Trailing Single Nasturtium",
+    "description": "Trailing Single cultivar of Nasturtium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tropaeolum majus",
+    "cultivar": "Whirlybird",
+    "locale": "en",
+    "commonName": "Whirlybird Nasturtium",
+    "description": "Whirlybird cultivar of Nasturtium for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "locale": "en",
+    "commonName": "Tulip",
+    "description": "Tulip is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Angelique",
+    "locale": "en",
+    "commonName": "Angelique Tulip",
+    "description": "Angelique cultivar of Tulip for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Apeldoorn",
+    "locale": "en",
+    "commonName": "Apeldoorn Tulip",
+    "description": "Apeldoorn cultivar of Tulip for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Ballerina",
+    "locale": "en",
+    "commonName": "Ballerina Tulip",
+    "description": "Ballerina cultivar of Tulip for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Negrita",
+    "locale": "en",
+    "commonName": "Negrita Tulip",
+    "description": "Negrita cultivar of Tulip for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Tulipa gesneriana",
+    "cultivar": "Queen of Night",
+    "locale": "en",
+    "commonName": "Queen of Night Tulip",
+    "description": "Queen of Night cultivar of Tulip for broader garden planning coverage."
   },
   {
     "commonName": "Blueberry",
@@ -7026,6 +10105,47 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Windsor cultivar of Fava Bean for a broader plant mix.",
     "locale": "en",
     "scientificName": "Vicia faba"
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "locale": "en",
+    "commonName": "Adzuki Bean",
+    "description": "Adzuki Bean is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Dainagon",
+    "locale": "en",
+    "commonName": "Dainagon Adzuki Bean",
+    "description": "Dainagon cultivar of Adzuki Bean for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Erimo",
+    "locale": "en",
+    "commonName": "Erimo Adzuki Bean",
+    "description": "Erimo cultivar of Adzuki Bean for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Hokkaido",
+    "locale": "en",
+    "commonName": "Hokkaido Adzuki Bean",
+    "description": "Hokkaido cultivar of Adzuki Bean for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Red Chimes",
+    "locale": "en",
+    "commonName": "Red Chimes Adzuki Bean",
+    "description": "Red Chimes cultivar of Adzuki Bean for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Vigna angularis",
+    "cultivar": "Takara",
+    "locale": "en",
+    "commonName": "Takara Adzuki Bean",
+    "description": "Takara cultivar of Adzuki Bean for broader garden planning coverage."
   },
   {
     "commonName": "Black Gram",
@@ -7438,5 +10558,46 @@ export const plantI18nEnSeedData: PlantI18nLocaleRow[] = [
     "description": "Rio de Janeiro cultivar of Ginger for a broader plant mix.",
     "locale": "en",
     "scientificName": "Zingiber officinale"
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "locale": "en",
+    "commonName": "Zinnia",
+    "description": "Zinnia is a popular plant for home gardens and small farms in temperate regions."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Benary's Giant",
+    "locale": "en",
+    "commonName": "Benary's Giant Zinnia",
+    "description": "Benary's Giant cultivar of Zinnia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Profusion",
+    "locale": "en",
+    "commonName": "Profusion Zinnia",
+    "description": "Profusion cultivar of Zinnia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Queen Lime",
+    "locale": "en",
+    "commonName": "Queen Lime Zinnia",
+    "description": "Queen Lime cultivar of Zinnia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "State Fair",
+    "locale": "en",
+    "commonName": "State Fair Zinnia",
+    "description": "State Fair cultivar of Zinnia for broader garden planning coverage."
+  },
+  {
+    "scientificName": "Zinnia elegans",
+    "cultivar": "Zahara",
+    "locale": "en",
+    "commonName": "Zahara Zinnia",
+    "description": "Zahara cultivar of Zinnia for broader garden planning coverage."
   }
 ];
