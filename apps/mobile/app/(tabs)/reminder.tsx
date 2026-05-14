@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { Bell, Check, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from 'lucide-react-native';
 import { usePathname, useRouter } from 'expo-router';
+import { useQuery } from 'convex/react';
 import { useReminders } from '../../hooks/useReminders';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
@@ -24,6 +25,8 @@ import { useUnitSystem } from '../../hooks/useUnitSystem';
 import { formatVolume, formatVolumeValue, getVolumeUnitLabel, parseVolumeInput } from '../../lib/units';
 import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
+import { useDeviceId } from '../../lib/deviceId';
+import { api } from '../../../../packages/convex/convex/_generated/api';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -31,6 +34,7 @@ const REMINDER_ICONS: Record<string, any> = {
   fertilizing: Sprout,
   harvest: Sprout,
   soil_refresh: Sprout,
+  garden_check: Bell,
   custom: Bell,
   default: Bell,
 };
@@ -41,6 +45,7 @@ const REMINDER_TYPES = [
   { key: 'pruning', labelKey: 'reminder.type_pruning' },
   { key: 'harvest', labelKey: 'reminder.type_harvest' },
   { key: 'soil_refresh', labelKey: 'reminder.type_soil_refresh' },
+  { key: 'garden_check', labelKey: 'reminder.type_garden_check' },
   { key: 'custom', labelKey: 'reminder.type_custom' },
 ];
 
@@ -91,6 +96,15 @@ function isValidTimeString(value: string) {
 
 type ReminderFilter = 'all' | 'overdue' | 'today' | 'upcoming' | 'completed';
 
+type ReminderBatch = {
+  key: string;
+  title: string;
+  subtitle: string;
+  reminders: any[];
+  overdueCount: number;
+  nextRunAt: number;
+};
+
 function getDayBounds(reference = Date.now()) {
   const start = new Date(reference);
   start.setHours(0, 0, 0, 0);
@@ -110,12 +124,14 @@ function ReminderCard({
   reminder,
   onComplete,
   onSnooze,
+  onSkip,
   canEdit,
   isOverdue,
 }: {
   reminder: any;
   onComplete: () => void;
   onSnooze: () => void;
+  onSkip: () => void;
   canEdit: boolean;
   isOverdue: boolean;
 }) {
@@ -208,6 +224,23 @@ function ReminderCard({
         </TouchableOpacity>
         <TouchableOpacity
           disabled={!canEdit}
+          onPress={onSkip}
+          style={{
+            width: 38,
+            height: 38,
+            backgroundColor: theme.warningBg,
+            borderRadius: 999,
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: !canEdit ? 0.5 : 1,
+            borderWidth: 1,
+            borderColor: theme.warning,
+          }}
+        >
+          <X size={18} color={theme.warning} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!canEdit}
           onPress={onComplete}
           style={{
             width: 38,
@@ -220,6 +253,111 @@ function ReminderCard({
           }}
         >
           <Check size={20} color="white" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+function ReminderBatchCard({
+  batch,
+  canEdit,
+  onComplete,
+  onSnooze,
+  onSkip,
+}: {
+  batch: ReminderBatch;
+  canEdit: boolean;
+  onComplete: () => void;
+  onSnooze: () => void;
+  onSkip: () => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const theme = useTheme();
+  const primaryReminder = batch.reminders[0];
+  const Icon = REMINDER_ICONS[primaryReminder?.type] ?? REMINDER_ICONS.default;
+  const dueTime = new Date(batch.nextRunAt).toLocaleTimeString(i18n.language, {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const previewNames = batch.reminders
+    .map((reminder) => reminder.displayTarget)
+    .filter(Boolean)
+    .slice(0, 3);
+  const remainingCount = Math.max(batch.reminders.length - previewNames.length, 0);
+
+  return (
+    <View
+      style={{
+        backgroundColor: theme.card,
+        borderRadius: 18,
+        padding: 14,
+        gap: 12,
+        borderWidth: 1,
+        borderColor: batch.overdueCount > 0 ? theme.warning : theme.border,
+        shadowColor: '#1a1a18',
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={{ width: 44, height: 44, backgroundColor: theme.successBg, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }}>
+          <Icon size={20} color={theme.success} />
+        </View>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }} numberOfLines={1}>
+            {batch.title}
+          </Text>
+          <Text style={{ fontSize: 12, color: theme.textSecondary }} numberOfLines={2}>
+            {batch.subtitle} • {dueTime}
+          </Text>
+          {batch.overdueCount > 0 && (
+            <Text style={{ fontSize: 11, color: theme.warning, fontWeight: '700' }}>
+              {t('reminder.batch_overdue_count', { count: batch.overdueCount })}
+            </Text>
+          )}
+        </View>
+      </View>
+
+      {previewNames.length > 0 && (
+        <Text style={{ fontSize: 12, color: theme.textMuted, lineHeight: 18 }}>
+          {remainingCount > 0
+            ? `${previewNames.join(', ')} +${remainingCount}`
+            : previewNames.join(', ')}
+        </Text>
+      )}
+
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TouchableOpacity
+          disabled={!canEdit}
+          onPress={onSnooze}
+          style={{ flex: 1, minHeight: 40, borderRadius: 12, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, opacity: !canEdit ? 0.5 : 1 }}
+        >
+          <Clock3 size={15} color={theme.textSecondary} />
+          <Text style={{ fontSize: 12, fontWeight: '800', color: theme.textSecondary }}>
+            {t('reminder.action_snooze')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!canEdit}
+          onPress={onSkip}
+          style={{ flex: 1, minHeight: 40, borderRadius: 12, backgroundColor: theme.warningBg, borderWidth: 1, borderColor: theme.warning, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, opacity: !canEdit ? 0.5 : 1 }}
+        >
+          <X size={15} color={theme.warning} />
+          <Text style={{ fontSize: 12, fontWeight: '800', color: theme.warning }}>
+            {t('reminder.action_skip')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!canEdit}
+          onPress={onComplete}
+          style={{ flex: 1, minHeight: 40, borderRadius: 12, backgroundColor: theme.success, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, opacity: !canEdit ? 0.5 : 1 }}
+        >
+          <Check size={16} color="#fff" />
+          <Text style={{ fontSize: 12, fontWeight: '800', color: '#fff' }}>
+            {t('reminder.action_done')}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -623,18 +761,22 @@ export default function ReminderScreen() {
   const isGardener = appMode === 'gardener';
   const router = useRouter();
   const pathname = usePathname();
-  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder, snoozeReminder } = useReminders();
+  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder, snoozeReminder, skipReminder } = useReminders();
   const { plants } = usePlants();
   const { beds } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const canEdit = !isAuthLoading && isAuthenticated;
+  const { deviceId } = useDeviceId();
+  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
+  const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
   const [filter, setFilter] = useState<ReminderFilter>('all');
+  const [feedback, setFeedback] = useState<string | null>(null);
 
-  const plantMap = useMemo(() => new Map(plants.map((p) => [p._id, p])), [plants]);
-  const bedMap = useMemo(() => new Map(beds.map((b) => [b._id, b])), [beds]);
+  const plantMap = useMemo(() => new Map(plants.map((p) => [String(p._id), p])), [plants]);
+  const bedMap = useMemo(() => new Map(beds.map((b) => [String(b._id), b])), [beds]);
+  const gardenMap = useMemo(() => new Map(gardens.map((garden: any) => [String(garden._id), garden])), [gardens]);
   const plantsByBed = useMemo(() => {
     const map = new Map<string, any[]>();
     for (const plant of plants) {
@@ -669,11 +811,11 @@ export default function ReminderScreen() {
   };
 
   const completedReminders = useMemo(() => {
-    return sortedReminders.filter((r: any) => isPlantedReminder(r) || !!r.lastRunAt);
+    return sortedReminders.filter((r: any) => isPlantedReminder(r) || (!!r.lastRunAt && !r.enabled));
   }, [sortedReminders]);
 
   const activeReminders = useMemo(() => {
-    return sortedReminders.filter((r: any) => !isPlantedReminder(r) && !r.lastRunAt);
+    return sortedReminders.filter((r: any) => !isPlantedReminder(r) && r.enabled);
   }, [sortedReminders]);
 
   const getStage = (reminder: any): 'planning' | 'growing' | null => {
@@ -740,6 +882,89 @@ export default function ReminderScreen() {
     return t('reminder.target_none');
   };
 
+  const getReminderTypeLabel = (type?: string) => {
+    const typeItem = REMINDER_TYPES.find((item) => item.key === type);
+    return typeItem ? t(typeItem.labelKey) : t('reminder.type_custom');
+  };
+
+  const getBatchTarget = (reminder: any) => {
+    const plant = reminder.userPlantId ? plantMap.get(reminder.userPlantId) : null;
+    const plantGardenId = plant?.gardenId ? String(plant.gardenId) : undefined;
+    if (plantGardenId) {
+      return {
+        key: `garden:${plantGardenId}`,
+        label: gardenMap.get(plantGardenId)?.name ?? t('tabs.garden'),
+      };
+    }
+
+    const directBedId = reminder.bedId ? String(reminder.bedId) : undefined;
+    const plantBedId = plant?.bedId ? String(plant.bedId) : undefined;
+    const bedId = directBedId ?? plantBedId;
+    if (bedId) {
+      const bed = bedMap.get(bedId);
+      const bedGardenId = bed?.gardenId ? String(bed.gardenId) : undefined;
+      if (bedGardenId && gardenMap.has(bedGardenId)) {
+        return {
+          key: `garden:${bedGardenId}:bed:${bedId}`,
+          label: `${gardenMap.get(bedGardenId)?.name} • ${bed?.name ?? t('reminder.target_bed')}`,
+        };
+      }
+      return {
+        key: `bed:${bedId}`,
+        label: bed?.name ?? t('reminder.target_bed'),
+      };
+    }
+
+    if (plant) {
+      return {
+        key: `plant:${String(plant._id)}`,
+        label: plant.nickname ?? plant.displayName ?? plant.scientificName ?? t('reminder.target_plant'),
+      };
+    }
+
+    return { key: 'general', label: t('reminder.target_none') };
+  };
+
+  const buildReminderBatches = (sourceReminders: any[]) => {
+    const map = new Map<string, ReminderBatch>();
+    for (const reminder of sourceReminders) {
+      if (isPlantedReminder(reminder)) continue;
+      const day = formatDateInput(reminder.nextRunAt);
+      const target = getBatchTarget(reminder);
+      const typeLabel = getReminderTypeLabel(reminder.type);
+      const key = `${day}:${target.key}:${reminder.type ?? 'custom'}`;
+      const existing = map.get(key);
+      const displayTarget = getTargetLabel(reminder);
+      const nextReminder = { ...reminder, displayTarget };
+      if (existing) {
+        existing.reminders.push(nextReminder);
+        existing.overdueCount += reminder.nextRunAt < now ? 1 : 0;
+        existing.nextRunAt = Math.min(existing.nextRunAt, reminder.nextRunAt);
+        continue;
+      }
+      map.set(key, {
+        key,
+        title: `${typeLabel} • ${target.label}`,
+        subtitle: t('reminder.batch_subtitle_one', { date: day }),
+        reminders: [nextReminder],
+        overdueCount: reminder.nextRunAt < now ? 1 : 0,
+        nextRunAt: reminder.nextRunAt,
+      });
+    }
+
+    return [...map.values()]
+      .map((batch) => ({
+        ...batch,
+        subtitle: batch.reminders.length === 1
+          ? t('reminder.batch_subtitle_one', { date: formatDateInput(batch.nextRunAt) })
+          : t('reminder.batch_subtitle_many', {
+              count: batch.reminders.length,
+              date: formatDateInput(batch.nextRunAt),
+            }),
+      }))
+      .sort((a, b) => a.nextRunAt - b.nextRunAt);
+  };
+
   const handleSave = async (payload: any) => {
     if (payload.reminderId) {
       await updateReminder(payload.reminderId, {
@@ -753,6 +978,7 @@ export default function ReminderScreen() {
         enabled: payload.enabled,
         waterLiters: payload.waterLiters,
       });
+      setFeedback(t('reminder.feedback_saved'));
       return;
     }
     await createReminder({
@@ -765,6 +991,7 @@ export default function ReminderScreen() {
       rrule: payload.rrule,
       waterLiters: payload.waterLiters,
     });
+    setFeedback(t('reminder.feedback_saved'));
   };
 
   const handleAuthRequired = () => {
@@ -778,6 +1005,21 @@ export default function ReminderScreen() {
       ]
     );
     return false;
+  };
+
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 2600);
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  const runReminderAction = async (action: () => Promise<unknown>, successMessage: string) => {
+    try {
+      await action();
+      setFeedback(successMessage);
+    } catch (error) {
+      Alert.alert(t('common.error', { defaultValue: 'Error' }), error instanceof Error ? error.message : String(error));
+    }
   };
 
   const now = Date.now();
@@ -808,6 +1050,14 @@ export default function ReminderScreen() {
         return activeReminders;
     }
   }, [activeReminders, completedReminders, filter, overdueReminders, todayActiveReminders, upcomingReminders]);
+  const todayReminderBatches = useMemo(
+    () => buildReminderBatches(todayReminders),
+    [todayReminders, plants, beds, gardens, t, now]
+  );
+  const hasGardenCheckReminder = useMemo(
+    () => activeReminders.some((reminder: any) => reminder.type === 'garden_check'),
+    [activeReminders]
+  );
   const hasAnyReminder = activeReminders.length > 0 || completedReminders.length > 0;
 
   const handleSnooze = (reminder: any) => {
@@ -819,13 +1069,112 @@ export default function ReminderScreen() {
         { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('reminder.snooze_4h', { defaultValue: '4 hours' }),
-          onPress: () => void snoozeReminder(reminder._id, Date.now() + 4 * 60 * 60 * 1000),
+          onPress: () => void runReminderAction(
+            () => snoozeReminder(reminder._id, Date.now() + 4 * 60 * 60 * 1000),
+            t('reminder.feedback_snoozed')
+          ),
         },
         {
           text: t('reminder.snooze_tomorrow', { defaultValue: 'Tomorrow 8:00' }),
-          onPress: () => void snoozeReminder(reminder._id, buildTomorrowMorning()),
+          onPress: () => void runReminderAction(
+            () => snoozeReminder(reminder._id, buildTomorrowMorning()),
+            t('reminder.feedback_snoozed')
+          ),
         },
       ]
+    );
+  };
+
+  const handleSkip = (reminder: any) => {
+    if (!handleAuthRequired()) return;
+    Alert.alert(
+      t('reminder.skip_title', { defaultValue: 'Skip reminder' }),
+      getDisplayTitle(reminder),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('reminder.skip_confirm', { defaultValue: 'Skip' }),
+          style: 'destructive',
+          onPress: () => void runReminderAction(
+            () => skipReminder(reminder._id),
+            t('reminder.feedback_skipped')
+          ),
+        },
+      ]
+    );
+  };
+
+  const handleComplete = (reminder: any) => {
+    if (!handleAuthRequired()) return;
+    void runReminderAction(
+      () => completeReminder(reminder._id),
+      t('reminder.feedback_completed')
+    );
+  };
+
+  const handleCompleteBatch = (batch: ReminderBatch) => {
+    if (!handleAuthRequired()) return;
+    void runReminderAction(
+      () => Promise.all(batch.reminders.map((reminder) => completeReminder(reminder._id))),
+      t('reminder.feedback_batch_completed', { count: batch.reminders.length })
+    );
+  };
+
+  const handleSnoozeBatch = (batch: ReminderBatch) => {
+    if (!handleAuthRequired()) return;
+    Alert.alert(
+      t('reminder.snooze_title', { defaultValue: 'Snooze reminder' }),
+      batch.title,
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('reminder.snooze_4h', { defaultValue: '4 hours' }),
+          onPress: () => void runReminderAction(
+            () => Promise.all(batch.reminders.map((reminder) => snoozeReminder(reminder._id, Date.now() + 4 * 60 * 60 * 1000))),
+            t('reminder.feedback_batch_snoozed', { count: batch.reminders.length })
+          ),
+        },
+        {
+          text: t('reminder.snooze_tomorrow', { defaultValue: 'Tomorrow 8:00' }),
+          onPress: () => void runReminderAction(
+            () => Promise.all(batch.reminders.map((reminder) => snoozeReminder(reminder._id, buildTomorrowMorning()))),
+            t('reminder.feedback_batch_snoozed', { count: batch.reminders.length })
+          ),
+        },
+      ]
+    );
+  };
+
+  const handleSkipBatch = (batch: ReminderBatch) => {
+    if (!handleAuthRequired()) return;
+    Alert.alert(
+      t('reminder.skip_title', { defaultValue: 'Skip reminder' }),
+      batch.title,
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('reminder.skip_confirm', { defaultValue: 'Skip' }),
+          style: 'destructive',
+          onPress: () => void runReminderAction(
+            () => Promise.all(batch.reminders.map((reminder) => skipReminder(reminder._id))),
+            t('reminder.feedback_batch_skipped', { count: batch.reminders.length })
+          ),
+        },
+      ]
+    );
+  };
+
+  const handleCreateGardenCheck = (intervalDays: number) => {
+    if (!handleAuthRequired()) return;
+    void runReminderAction(
+      () => createReminder({
+        type: 'garden_check',
+        title: t('reminder.garden_check_title'),
+        description: t('reminder.garden_check_desc'),
+        nextRunAt: buildTomorrowMorning(),
+        rrule: `FREQ=DAILY;INTERVAL=${intervalDays}`,
+      }),
+      t('reminder.feedback_garden_check_created')
     );
   };
 
@@ -903,9 +1252,18 @@ export default function ReminderScreen() {
             <Clock3 size={16} color={theme.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={() => handleSkip(r)}
+            style={{ width: 34, height: 34, backgroundColor: theme.warningBg, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
+          >
+            <X size={16} color={theme.warning} />
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => {
               if (!handleAuthRequired()) return;
-              void toggleReminder(r._id);
+              void runReminderAction(
+                () => toggleReminder(r._id),
+                r.enabled ? t('reminder.feedback_disabled') : t('reminder.feedback_enabled')
+              );
             }}
             style={{ width: 34, height: 34, backgroundColor: theme.accent, borderRadius: 10, justifyContent: 'center', alignItems: 'center', opacity: !canEdit ? 0.5 : 1 }}
           >
@@ -1026,13 +1384,60 @@ export default function ReminderScreen() {
         </TouchableOpacity>
       </View>
 
-      {!isAuthLoading && !isAuthenticated && (
+      {!canEdit && (
         <View style={{ backgroundColor: theme.warningBg, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.warning }}>
           <Text style={{ fontSize: 13, color: theme.warning, fontWeight: '500' }}>
             {t('reminder.auth_warning')}
           </Text>
         </View>
       )}
+
+      {!!feedback && (
+        <View style={{ backgroundColor: theme.successBg, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: theme.success, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Check size={18} color={theme.success} />
+          <Text style={{ flex: 1, fontSize: 13, color: theme.success, fontWeight: '700' }}>
+            {feedback}
+          </Text>
+        </View>
+      )}
+
+      <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: theme.successBg, alignItems: 'center', justifyContent: 'center' }}>
+            <Bell size={18} color={theme.success} />
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }}>
+              {t('reminder.ritual_title')}
+            </Text>
+            <Text style={{ fontSize: 12, color: theme.textSecondary, lineHeight: 18 }}>
+              {hasGardenCheckReminder ? t('reminder.ritual_active') : t('reminder.ritual_desc')}
+            </Text>
+          </View>
+        </View>
+        {!hasGardenCheckReminder && (
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              disabled={!canEdit}
+              onPress={() => handleCreateGardenCheck(1)}
+              style={{ flex: 1, minHeight: 40, backgroundColor: theme.primary, borderRadius: 12, alignItems: 'center', justifyContent: 'center', opacity: !canEdit ? 0.5 : 1 }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>
+                {t('reminder.ritual_daily')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              disabled={!canEdit}
+              onPress={() => handleCreateGardenCheck(7)}
+              style={{ flex: 1, minHeight: 40, backgroundColor: theme.accent, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, opacity: !canEdit ? 0.5 : 1 }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '800', color: theme.textSecondary }}>
+                {t('reminder.ritual_weekly')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 8 }}>
         {([
@@ -1126,7 +1531,7 @@ export default function ReminderScreen() {
             {t('reminder.no_reminders_desc')}
           </Text>
         </View>
-      ) : todayReminders.length === 0 ? (
+      ) : todayReminderBatches.length === 0 ? (
         <View style={{ gap: 10 }}>
           <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
             {t('reminder.today_label', { count: 0 })}
@@ -1142,17 +1547,14 @@ export default function ReminderScreen() {
           <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
             {t('reminder.today_label', { count: todayReminders.length })}
           </Text>
-          {todayReminders.map((reminder: any) => (
-            <ReminderCard
-              key={reminder._id}
-              reminder={reminder}
-              onComplete={() => {
-                if (!handleAuthRequired()) return;
-                void completeReminder(reminder._id);
-              }}
-              onSnooze={() => handleSnooze(reminder)}
+          {todayReminderBatches.map((batch) => (
+            <ReminderBatchCard
+              key={batch.key}
+              batch={batch}
+              onComplete={() => handleCompleteBatch(batch)}
+              onSnooze={() => handleSnoozeBatch(batch)}
+              onSkip={() => handleSkipBatch(batch)}
               canEdit={canEdit}
-              isOverdue={reminder.nextRunAt < now}
             />
           ))}
         </View>
@@ -1162,7 +1564,7 @@ export default function ReminderScreen() {
         <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textSecondary, letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 2 }}>
           {t('reminder.all_label')}
         </Text>
-        {upcomingReminders.length === 0 ? (
+        {activeReminders.length === 0 ? (
           <Text style={{ fontSize: 13, color: theme.textMuted, fontStyle: 'italic', paddingLeft: 4 }}>
             {t('reminder.none_all')}
           </Text>
@@ -1220,7 +1622,10 @@ export default function ReminderScreen() {
                 const target = confirmDelete;
                 setConfirmDelete(null);
                 if (!target) return;
-                await deleteReminder(target._id);
+                await runReminderAction(
+                  () => deleteReminder(target._id),
+                  t('reminder.feedback_deleted')
+                );
               }}
               style={{ flex: 1, backgroundColor: theme.danger, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
             >

@@ -4,6 +4,24 @@ import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { getOwnedBedOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function getDailyIntervalDays(rrule?: string) {
+    if (!rrule) return null;
+    const freqMatch = rrule.match(/FREQ=DAILY/i);
+    if (!freqMatch) return 1;
+    const intervalMatch = rrule.match(/INTERVAL=(\d+)/i);
+    const interval = intervalMatch ? Number(intervalMatch[1]) : 1;
+    if (!Number.isFinite(interval) || interval < 1) return 1;
+    return Math.round(interval);
+}
+
+function buildNextRunAtFromRule(rrule: string | undefined, from = Date.now()) {
+    const intervalDays = getDailyIntervalDays(rrule);
+    if (!intervalDays) return undefined;
+    return from + intervalDays * DAY_MS;
+}
+
 // Lấy tất cả reminders của user
 export const getReminders = query({
     args: {
@@ -217,6 +235,31 @@ export const snoozeReminder = mutation({
     },
 });
 
+export const skipReminder = mutation({
+    args: {
+        reminderId: v.id("reminders"),
+        deviceId: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const user = await requireUser(ctx, args.deviceId);
+        const reminder = await ctx.db.get(args.reminderId);
+
+        if (!reminder || reminder.userId !== user._id) {
+            throw new Error("Reminder not found or unauthorized");
+        }
+
+        const now = Date.now();
+        const nextRunAt = buildNextRunAtFromRule(reminder.rrule, now);
+
+        await ctx.db.patch(args.reminderId, {
+            lastRunAt: now,
+            snoozedUntil: undefined,
+            skippedCount: (reminder.skippedCount ?? 0) + 1,
+            ...(nextRunAt ? { nextRunAt } : { enabled: false }),
+        });
+    },
+});
+
 // Đánh dấu reminder đã hoàn thành + tính nextRunAt tiếp theo
 export const completeReminder = mutation({
     args: {
@@ -232,18 +275,12 @@ export const completeReminder = mutation({
         }
 
         const now = Date.now();
-        // Nếu có rrule thì tính nextRunAt tiếp theo (đơn giản: +1 ngày nếu daily)
-        // TODO: dùng rrule library để parse đúng
-        const nextRunAt = reminder.rrule
-            ? now + 24 * 60 * 60 * 1000
-            : reminder.nextRunAt;
+        const nextRunAt = buildNextRunAtFromRule(reminder.rrule, now);
 
         await ctx.db.patch(args.reminderId, {
             lastRunAt: now,
-            nextRunAt,
             snoozedUntil: undefined,
-            // One-time reminders should not continue showing up after completion.
-            ...(reminder.rrule ? {} : { enabled: false }),
+            ...(nextRunAt ? { nextRunAt } : { enabled: false }),
             completedCount: (reminder.completedCount ?? 0) + 1,
         });
     },
