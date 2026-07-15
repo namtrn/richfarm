@@ -9,13 +9,14 @@ import {
 export function mapSyncActionToPhoto(
   action: SyncAction
 ): BackendPhotoInput | null {
-  if (action.type !== 'photo') return null;
+  if (action.type !== 'photo' || !action.plantId) return null;
   const payload = action.payload as {
     localId: string;
     uri: string;
     note?: string;
     date: number;
     source?: 'camera' | 'gallery';
+    storageId?: string;
   };
 
   return {
@@ -26,13 +27,14 @@ export function mapSyncActionToPhoto(
     note: payload.note,
     localUri: payload.uri,
     source: payload.source,
+    storageId: payload.storageId,
   };
 }
 
 export function mapSyncActionToActivity(
   action: SyncAction
 ): BackendActivityInput | null {
-  if (action.type !== 'activity') return null;
+  if (action.type !== 'activity' || !action.plantId) return null;
   const payload = action.payload as {
     localId: string;
     type: BackendActivityInput['type'];
@@ -53,7 +55,7 @@ export function mapSyncActionToActivity(
 export function mapSyncActionToHarvest(
   action: SyncAction
 ): BackendHarvestInput | null {
-  if (action.type !== 'harvest') return null;
+  if (action.type !== 'harvest' || !action.plantId) return null;
   const payload = action.payload as {
     localId: string;
     quantity?: string;

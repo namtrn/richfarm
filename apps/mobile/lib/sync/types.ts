@@ -1,6 +1,18 @@
 import { PlantActivityType } from '../plantLocalData';
 
-export type SyncActionType = 'photo' | 'activity' | 'harvest';
+export type EntityType = 'garden' | 'bed' | 'plant' | 'activity' | 'harvest' | 'photo';
+export type SyncActionType = 'photo' | 'activity' | 'harvest' | 'entity';
+
+export type EntityOperationPayload = {
+  operationId: string;
+  syncGeneration?: string;
+  entityType: EntityType;
+  entityUuid: string;
+  operationType: 'create' | 'update' | 'delete';
+  baseRevision?: number;
+  parentRefs?: { gardenUuid?: string | null; bedUuid?: string | null; plantUuid?: string | null };
+  payload?: unknown;
+};
 
 export type SyncPhotoPayload = {
   localId: string;
@@ -8,6 +20,7 @@ export type SyncPhotoPayload = {
   note?: string;
   date: number;
   source?: 'camera' | 'gallery';
+  storageId?: string;
 };
 
 export type SyncActivityPayload = {
@@ -28,17 +41,19 @@ export type SyncHarvestPayload = {
 export type SyncActionPayload =
   | SyncPhotoPayload
   | SyncActivityPayload
-  | SyncHarvestPayload;
+  | SyncHarvestPayload
+  | EntityOperationPayload;
 
 export type SyncAction = {
   id: string;
-  plantId: string;
+  plantId?: string;
   deviceId?: string;
   type: SyncActionType;
   payload: SyncActionPayload;
   createdAt: number;
   attempts: number;
   lastError?: string;
+  nextAttemptAt?: number;
 };
 
 export type BackendPhotoInput = {
@@ -49,6 +64,7 @@ export type BackendPhotoInput = {
   note?: string;
   localUri: string;
   source?: 'camera' | 'gallery';
+  storageId?: string;
 };
 
 export type BackendActivityInput = {

@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
+import { useQuery } from 'convex/react';
+import { api } from '../../../packages/convex/convex/_generated/api';
+import { useDeviceId } from '../lib/deviceId';
 
 const MIN_ATTEMPT_INTERVAL_MS = 15000;
 
@@ -10,6 +13,9 @@ export function useSyncTriggers(enabled: boolean = true) {
   const inflightRef = useRef(false);
   const enabledRef = useRef(enabled);
   const { execute } = useSyncExecutor();
+  const { deviceId } = useDeviceId();
+  const signal = useQuery(api.syncV2.syncSignal, enabled && deviceId ? { deviceId } : 'skip');
+  const lastSignalRef = useRef<string | null>(null);
 
   useEffect(() => {
     enabledRef.current = enabled;
@@ -34,6 +40,19 @@ export function useSyncTriggers(enabled: boolean = true) {
       attemptSync();
     }
   }, [attemptSync]);
+
+  useEffect(() => {
+    if (!enabled || !signal) return;
+    const key = `${signal.generation}:${signal.sequence}`;
+    if (lastSignalRef.current === null) {
+      lastSignalRef.current = key;
+      return;
+    }
+    if (lastSignalRef.current !== key) {
+      lastSignalRef.current = key;
+      void execute();
+    }
+  }, [enabled, execute, signal]);
 
   useEffect(() => {
     if (!enabledRef.current) return;

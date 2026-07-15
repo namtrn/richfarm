@@ -1,11 +1,26 @@
 import { useCallback, useRef } from 'react';
-import { useMutation } from 'convex/react';
+import { useConvex, useMutation } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
 import type { Id } from '../../../../packages/convex/convex/_generated/dataModel';
-import { loadSyncQueue, markSyncAttempt, removeSyncActions } from './queue';
+import {
+    loadOutbox,
+    loadSyncQueue,
+    markSyncAttempt,
+    quarantineSyncAction,
+    removeSyncActions,
+    setSyncGeneration,
+    updateSyncActionPayload,
+} from './queue';
 import { buildSyncBatch, mapSyncActionToPhoto } from './mappers';
 import { useDeviceId } from '../deviceId';
-import { SyncActionType } from './types';
+import { EntityOperationPayload, SyncActionType } from './types';
+import { authClient } from '../auth-client';
+import { reconcileAuthoritativeSnapshot } from './reconciliation';
+import {
+    loadPreferenceQueue,
+    rebasePreferencePatch,
+    removePreferencePatch,
+} from './preferencesQueue';
 
 export type SyncExecutorResult = {
     ok: boolean;
@@ -20,10 +35,20 @@ type SyncExecuteOptions = {
 };
 
 export function useSyncExecutor() {
+    const convex = useConvex();
     const batchSync = useMutation(api.sync.batchSync);
     const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
     const savePhoto = useMutation(api.storage.savePhoto);
+    const ensureSession = useMutation(api.syncV2.ensureSession);
+    const applyOperation = useMutation(api.syncV2.applyOperation);
+    const applyPreferencesPatch = useMutation(api.userSettings.applyPreferencesPatch);
     const { deviceId } = useDeviceId();
+    const { data: session } = authClient.useSession();
+    const scope = deviceId
+        ? `${deviceId}:${session?.user?.id ?? 'guest'}`
+        : undefined;
+    const scopeRef = useRef(scope);
+    scopeRef.current = scope;
     const inflightRef = useRef(false);
     const lastQueuedCountRef = useRef(0);
 
@@ -43,7 +68,9 @@ export function useSyncExecutor() {
 
     const execute = useCallback(async (options?: SyncExecuteOptions): Promise<SyncExecutorResult> => {
         if (inflightRef.current) {
-            const queue = await loadSyncQueue();
+            const queue = (await loadSyncQueue(scope)).filter(
+                (item) => !item.nextAttemptAt || item.nextAttemptAt <= Date.now()
+            );
             const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
             return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: filteredQueue.length };
@@ -51,34 +78,156 @@ export function useSyncExecutor() {
 
         inflightRef.current = true;
         try {
-            const queue = await loadSyncQueue();
+            const outbox = await loadOutbox(scope);
+            let generation = outbox.syncGeneration;
+            const serverSession = await ensureSession({ deviceId });
+            if (generation && serverSession && generation !== serverSession.generation) {
+                for (const operation of outbox.operations) {
+                    await quarantineSyncAction(operation.id, 'wrong_generation', scope);
+                }
+                await setSyncGeneration(serverSession.generation, scope);
+                return {
+                    ok: false,
+                    syncedCount: 0,
+                    errorCount: outbox.operations.length,
+                    queuedCount: 0,
+                };
+            }
+            if (!generation) generation = serverSession?.generation;
+            if (generation && generation !== outbox.syncGeneration) await setSyncGeneration(generation, scope);
+            if (scope && generation) {
+                const reconciliation = await reconcileAuthoritativeSnapshot({
+                    client: convex,
+                    deviceId,
+                    scope,
+                    generation,
+                    isCurrent: () => scopeRef.current === scope,
+                });
+                if (reconciliation.status === 'scope_changed') {
+                    return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: outbox.operations.length };
+                }
+            }
+            const queue = outbox.operations.filter(
+                (item) => !item.nextAttemptAt || item.nextAttemptAt <= Date.now()
+            );
             const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
-            if (filteredQueue.length === 0) {
-                return { ok: true, syncedCount: 0, errorCount: 0, queuedCount: 0 };
-            }
-
             const batch = buildSyncBatch(filteredQueue);
             const syncedIds = new Set<string>();
             let errorCount = 0;
+
+            if (scope && serverSession) {
+                const preferenceGeneration = `preferences:${serverSession.userId}`;
+                const preferenceQueue = await loadPreferenceQueue(scope);
+                for (const preference of preferenceQueue) {
+                    try {
+                        let result = await applyPreferencesPatch({
+                            deviceId,
+                            operationId: preference.operationId,
+                            baseRevision: preference.baseRevision,
+                            generation: preference.generation ?? preferenceGeneration,
+                            patch: preference.patch,
+                        });
+                        if (result.status === 'revision_conflict') {
+                            await rebasePreferencePatch(scope, preference.operationId, result.revision, preferenceGeneration);
+                            result = await applyPreferencesPatch({
+                                deviceId,
+                                operationId: preference.operationId,
+                                baseRevision: result.revision,
+                                generation: preferenceGeneration,
+                                patch: preference.patch,
+                            });
+                        }
+                        if (result.status === 'applied' || result.status === 'already_applied') {
+                            await removePreferencePatch(scope, preference.operationId);
+                        } else {
+                            errorCount++;
+                        }
+                    } catch {
+                        errorCount++;
+                    }
+                }
+            }
+
+            const entityRank = { garden: 0, bed: 1, plant: 2, activity: 3, harvest: 3, photo: 3 } as const;
+            const entityItems = filteredQueue
+                .filter((item) => item.type === 'entity')
+                .sort((a, b) => {
+                    const left = a.payload as EntityOperationPayload;
+                    const right = b.payload as EntityOperationPayload;
+                    const leftRank = left.operationType === 'delete' ? 100 - entityRank[left.entityType] : entityRank[left.entityType];
+                    const rightRank = right.operationType === 'delete' ? 100 - entityRank[right.entityType] : entityRank[right.entityType];
+                    return leftRank - rightRank || a.createdAt - b.createdAt;
+                });
+            const failedEntities = new Set<string>();
+            for (const item of entityItems) {
+                const operation = item.payload as EntityOperationPayload;
+                const dependencies = Object.values(operation.parentRefs ?? {}).filter(
+                    (value): value is string => typeof value === 'string'
+                );
+                if (dependencies.some((value) => failedEntities.has(value))) continue;
+                if (!generation) {
+                    await markSyncAttempt(item.id, 'sync_session_unavailable', scope);
+                    failedEntities.add(operation.entityUuid);
+                    errorCount++;
+                    continue;
+                }
+                try {
+                    const result = await applyOperation({
+                        deviceId,
+                        operationId: operation.operationId,
+                        syncGeneration: generation,
+                        entityType: operation.entityType,
+                        entityUuid: operation.entityUuid,
+                        type: operation.operationType,
+                        baseRevision: operation.baseRevision,
+                        parentRefs: operation.parentRefs,
+                        payload: operation.payload,
+                    });
+                    if (result.status === 'applied' || result.status === 'already_applied' || result.status === 'discarded_deleted' || result.status === 'discarded_stale') {
+                        syncedIds.add(item.id);
+                    } else if (result.status === 'wrong_generation') {
+                        await quarantineSyncAction(item.id, result.status, scope);
+                        failedEntities.add(operation.entityUuid);
+                        errorCount++;
+                    } else if (result.status === 'revision_conflict' || result.status === 'invalid_parent' || result.status === 'missing_target' || result.status === 'operation_conflict') {
+                        await quarantineSyncAction(item.id, result.status, scope);
+                        failedEntities.add(operation.entityUuid);
+                        errorCount++;
+                    } else {
+                        await markSyncAttempt(item.id, result.status, scope);
+                        failedEntities.add(operation.entityUuid);
+                        errorCount++;
+                    }
+                } catch (error) {
+                    await markSyncAttempt(item.id, error instanceof Error ? error.message : 'sync_failed', scope);
+                    failedEntities.add(operation.entityUuid);
+                    errorCount++;
+                }
+            }
 
             const photoItems = filteredQueue.filter((item) => item.type === 'photo');
             for (const item of photoItems) {
                 const photo = mapSyncActionToPhoto(item);
                 if (!photo) continue;
                 try {
-                    const uploadUrl = await generateUploadUrl({ deviceId });
-                    const response = await fetch(photo.localUri);
-                    const blob = await response.blob();
-                    const uploadResponse = await fetch(uploadUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': blob.type || 'application/octet-stream' },
-                        body: blob,
-                    });
-                    if (!uploadResponse.ok) {
-                        throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+                    let storageId = photo.storageId;
+                    if (!storageId) {
+                        const uploadUrl = await generateUploadUrl({ deviceId });
+                        const response = await fetch(photo.localUri);
+                        const blob = await response.blob();
+                        const uploadResponse = await fetch(uploadUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': blob.type || 'application/octet-stream' },
+                            body: blob,
+                        });
+                        if (!uploadResponse.ok) {
+                            throw new Error(`Upload failed: ${uploadResponse.statusText}`);
+                        }
+                        const uploaded = await uploadResponse.json();
+                        storageId = uploaded.storageId;
+                        await updateSyncActionPayload(item.id, { ...item.payload, storageId }, scope);
                     }
-                    const { storageId } = await uploadResponse.json();
                     await savePhoto({
                         deviceId,
                         plantId: photo.plantId as Id<'userPlants'>,
@@ -92,7 +241,7 @@ export function useSyncExecutor() {
                     errorCount += 1;
                     const message =
                         error instanceof Error ? error.message : 'photo_upload_failed';
-                    await markSyncAttempt(item.id, message);
+                    await markSyncAttempt(item.id, message, scope);
                 }
             }
 
@@ -150,7 +299,7 @@ export function useSyncExecutor() {
                             continue;
                         }
                         const message = errorByLocalId.get(key) ?? 'sync_pending';
-                        await markSyncAttempt(item.id, message);
+                        await markSyncAttempt(item.id, message, scope);
                     }
                 } catch (error) {
                     errorCount += syncableCount;
@@ -160,13 +309,13 @@ export function useSyncExecutor() {
                         (item) => item.type === 'activity' || item.type === 'harvest'
                     );
                     await Promise.all(
-                        pendingItems.map((item) => markSyncAttempt(item.id, message))
+                        pendingItems.map((item) => markSyncAttempt(item.id, message, scope))
                     );
                 }
             }
 
             if (syncedIds.size > 0) {
-                await removeSyncActions(Array.from(syncedIds));
+                await removeSyncActions(Array.from(syncedIds), scope);
             }
 
             return {
@@ -176,7 +325,7 @@ export function useSyncExecutor() {
                 queuedCount: filteredQueue.length - syncedIds.size,
             };
         } catch {
-            const queue = await loadSyncQueue();
+            const queue = await loadSyncQueue(scope);
             const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
             return {
@@ -188,7 +337,7 @@ export function useSyncExecutor() {
         } finally {
             inflightRef.current = false;
         }
-    }, [batchSync, deviceId, filterQueue, generateUploadUrl, savePhoto]);
+    }, [applyOperation, applyPreferencesPatch, batchSync, convex, deviceId, ensureSession, filterQueue, generateUploadUrl, savePhoto, scope]);
 
     return { execute };
 }
