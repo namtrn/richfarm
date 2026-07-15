@@ -111,7 +111,7 @@ export function PlantHarvestSection({
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                     <View>
                         <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>{t('plant.harvest_title')}</Text>
-                        <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.local_only')}</Text>
+                        <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.synced_across_devices', { defaultValue: 'Synced across devices' })}</Text>
                     </View>
                     <TouchableOpacity
                         onPress={onOpenModal}

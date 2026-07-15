@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import type { ViewStyle } from 'react-native';
 import { CloudOff, CloudUpload, RefreshCw } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,6 @@ import { useSyncStatus } from '../../hooks/useSyncStatus';
 
 type SyncStatusBannerProps = {
   plantId?: string;
-  onRetry?: () => void;
   showWhenIdle?: boolean;
   compact?: boolean;
   style?: ViewStyle;
@@ -15,14 +14,13 @@ type SyncStatusBannerProps = {
 
 export function SyncStatusBanner({
   plantId,
-  onRetry,
   showWhenIdle = false,
   compact = false,
   style,
 }: SyncStatusBannerProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { status, queuedCount, hasPending, isOffline } = useSyncStatus(plantId);
+  const { status, queuedCount, hasPending } = useSyncStatus(plantId);
 
   if (status === 'loading') return null;
   if (status === 'pending') return null;
@@ -84,23 +82,6 @@ export function SyncStatusBanner({
         >
           {config.title}
         </Text>
-        {!!onRetry && !isOffline && (
-          <TouchableOpacity
-            onPress={onRetry}
-            style={{
-              paddingHorizontal: 10,
-              paddingVertical: 6,
-              borderRadius: 10,
-              backgroundColor: theme.card,
-              borderWidth: 1,
-              borderColor: config.borderColor,
-            }}
-          >
-            <Text style={{ fontSize: 11, fontWeight: '500', color: config.textColor }}>
-              {t('sync.retry_action')}
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
       {!compact && (
         <Text style={{ fontSize: 12, color: theme.textSecondary }}>

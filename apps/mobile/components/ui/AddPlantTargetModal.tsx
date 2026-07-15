@@ -47,7 +47,7 @@ export function AddPlantTargetModal({
     setSelectedBedId(undefined);
   }, [visible, initialMode]);
 
-  const canConfirm = isGardener || mode === 'planning' || !!selectedBedId;
+  const canConfirm = true;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -73,12 +73,11 @@ export function AddPlantTargetModal({
           </Text>
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
             {isGardener
-              ? t('library.add_target_subtitle_gardener', { defaultValue: 'Add it directly to My Plants.' })
+              ? t('library.add_target_subtitle_gardener', { defaultValue: 'Choose whether you are planning or already growing it.' })
               : t('library.add_target_subtitle', { defaultValue: 'Choose whether to save it for planning or place it directly in a growing bed.' })}
           </Text>
         </View>
 
-        {!isGardener && (
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {([
               { key: 'planning', label: t('garden.tab_planning', { defaultValue: 'Planning' }) },
@@ -106,7 +105,6 @@ export function AddPlantTargetModal({
               );
             })}
           </View>
-        )}
 
         {!isGardener && mode === 'growing' && (
           <View style={{ gap: 10 }}>
@@ -116,11 +114,19 @@ export function AddPlantTargetModal({
             {beds.length === 0 ? (
               <View style={{ backgroundColor: theme.warningBg, borderRadius: 14, borderWidth: 1, borderColor: theme.warning, padding: 14 }}>
                 <Text style={{ fontSize: 13, color: theme.warning }}>
-                  {t('library.add_target_no_beds', { defaultValue: 'No beds available yet. Choose Planning first, or create a bed before starting Growing.' })}
+                  {t('library.add_target_no_beds', { defaultValue: 'No beds available yet. This plant will be added as Unassigned.' })}
                 </Text>
               </View>
             ) : (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                <TouchableOpacity
+                  onPress={() => setSelectedBedId(undefined)}
+                  style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, backgroundColor: !selectedBedId ? theme.primary : theme.background, borderWidth: 1, borderColor: !selectedBedId ? theme.primary : theme.border }}
+                >
+                  <Text style={{ fontSize: 13, fontWeight: '500', color: !selectedBedId ? '#fff' : theme.textSecondary }}>
+                    {t('plant.no_bed', { defaultValue: 'Unassigned' })}
+                  </Text>
+                </TouchableOpacity>
                 {beds.map((bed) => {
                   const active = bed._id === selectedBedId;
                   return (
@@ -158,7 +164,7 @@ export function AddPlantTargetModal({
           </TouchableOpacity>
           <TouchableOpacity
             disabled={!canConfirm || loading}
-            onPress={() => void onConfirm({ mode: isGardener ? 'planning' : mode, bedId: !isGardener && mode === 'growing' ? selectedBedId : undefined })}
+            onPress={() => void onConfirm({ mode, bedId: !isGardener && mode === 'growing' ? selectedBedId : undefined })}
             style={{
               flex: 1,
               backgroundColor: theme.primary,

@@ -20,6 +20,7 @@ import { convex } from '../lib/convex';
 import { BetterAuthConvexProvider } from '../lib/convexAuth';
 import { palette, useTheme } from '../lib/theme';
 import { ThemeProvider, useThemeContext } from '../lib/ThemeContext';
+import { quarantineLegacyQueue } from '../lib/sync/queue';
 
 function AuthGuard() {
   const { isReady, currentUser } = useAppReady();
@@ -94,6 +95,10 @@ function OfflineBanner() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    void quarantineLegacyQueue();
+  }, []);
+
   if (!convex) {
     return (
       <I18nextProvider i18n={i18n}>

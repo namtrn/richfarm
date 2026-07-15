@@ -7,6 +7,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/user";
+import { getTombstone, writeTombstone } from "./lib/syncProtocol";
 
 // ==========================================
 // Generate Upload URL (dùng từ client để upload trực tiếp)
@@ -38,6 +39,9 @@ export const savePhoto = mutation({
         const plant = await ctx.db.get(args.plantId);
         if (!plant || plant.userId !== user._id) {
             throw new Error("Plant not found or unauthorized");
+        }
+        if (args.localId && await getTombstone(ctx, user._id, "photo", args.localId)) {
+            throw new Error("discarded_deleted");
         }
 
         if (args.localId) {
@@ -78,13 +82,46 @@ export const savePhoto = mutation({
             isPrimary,
             source: args.source ?? "camera",
             analysisStatus: "pending",
+            entityUuid: args.localId,
+            revision: 1,
         });
+        if (!args.localId) await ctx.db.patch(photoId, { entityUuid: `legacy:${photoId}` });
 
         if (isPrimary && !plant.photoUrl) {
             await ctx.db.patch(plant._id, { photoUrl: url });
         }
 
         return { photoId, photoUrl: url, isPrimary };
+    },
+});
+
+export const deletePhoto = mutation({
+    args: {
+        photoId: v.id("plantPhotos"),
+        deviceId: v.optional(v.string()),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        const user = await requireUser(ctx, args.deviceId);
+        const photo = await ctx.db.get(args.photoId);
+        if (!photo || photo.userId !== user._id) throw new Error("unauthorized");
+        await writeTombstone(ctx, {
+            userId: user._id,
+            entityType: "photo",
+            entityUuid: photo.entityUuid ?? photo.localId ?? `legacy:${photo._id}`,
+            deleteOperationId: `legacy-delete:${photo._id}`,
+            previousRevision: photo.revision,
+        });
+        await ctx.db.delete(photo._id);
+        if (photo.storageId) await ctx.storage.delete(photo.storageId);
+        const plant = await ctx.db.get(photo.userPlantId);
+        if (plant?.photoUrl === photo.photoUrl) {
+            const replacement = await ctx.db.query("plantPhotos")
+                .withIndex("by_user_plant", (q) => q.eq("userPlantId", photo.userPlantId))
+                .first();
+            await ctx.db.patch(plant._id, { photoUrl: replacement?.photoUrl });
+        }
+        return null;
     },
 });
 

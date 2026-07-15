@@ -14,17 +14,16 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from 'lucide-react-native';
-import { usePlants } from '../../../hooks/usePlants';
+import { usePlants, type PlantStatus } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { useAuth } from '../../../lib/auth';
 import { Id } from '../../../../../packages/convex/convex/_generated/dataModel';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../packages/convex/convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
 import { useFavorites } from '../../../hooks/useFavorites';
-import { useSyncExecutor } from '../../../lib/sync/useSyncExecutor';
 import {
   createLocalId,
   loadPlantLocalData,
@@ -92,10 +91,23 @@ export default function PlantDetailScreen() {
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
   const { beds } = useBeds();
   const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
+  const deleteBackendActivity = useMutation(api.logs.deleteLog);
+  const deleteBackendHarvest = useMutation(api.harvestRecords.deleteHarvest);
+  const backendActivities = useQuery(
+    api.logs.getLogsForPlant,
+    resolvedPlantId
+      ? { userPlantId: resolvedPlantId as Id<'userPlants'>, deviceId, limit: 100 }
+      : 'skip'
+  );
+  const backendHarvests = useQuery(
+    api.harvestRecords.getHarvests,
+    resolvedPlantId
+      ? { userPlantId: resolvedPlantId as Id<'userPlants'>, deviceId }
+      : 'skip'
+  );
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const { queuePhoto, queueActivity, queueHarvest } = usePlantSync();
+  const { queuePhoto, queueActivity, queueHarvest, removePendingActivity, removePendingHarvest } = usePlantSync();
   const { favorites, toggleFavorite } = useFavorites();
-  const { execute: executeSyncNow } = useSyncExecutor();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const navigateBackOrGrowing = () => {
     if (fromParam === 'bed') {
@@ -181,9 +193,48 @@ export default function PlantDetailScreen() {
     activities: [],
     harvests: [],
   });
+  const mergedHarvests = useMemo(() => {
+    if (!backendHarvests) return localData.harvests;
+    const syncedLocalIds = new Set(backendHarvests.map((entry: any) => entry.localId).filter(Boolean));
+    const pending = localData.harvests.filter((entry) => !syncedLocalIds.has(entry.id));
+    const server = backendHarvests.map((entry: any) => ({
+      id: String(entry._id),
+      serverId: String(entry._id),
+      localId: entry.localId,
+      quantity: entry.quantity === undefined ? undefined : String(entry.quantity),
+      unit: entry.unit,
+      note: entry.notes,
+      date: entry.harvestDate,
+    }));
+    return [...pending, ...server].sort((a, b) => b.date - a.date);
+  }, [backendHarvests, localData.harvests]);
+  const timelineData = useMemo<PlantLocalData>(() => {
+    if (!backendActivities) return { ...localData, harvests: mergedHarvests };
+    const syncedLocalIds = new Set(
+      backendActivities.map((entry: any) => entry.localId).filter(Boolean)
+    );
+    const serverEntries = backendActivities
+      .filter((entry: any) => !entry.harvestRecordId)
+      .map((entry: any) => ({
+        id: String(entry._id),
+        type: entry.type,
+        note: entry.note,
+        date: entry.occurredAt ?? entry.recordedAt,
+        recordedAt: entry.recordedAt,
+        source: entry.source === 'auto' ? 'system' : entry.source,
+        value: entry.value,
+      }));
+    const pendingLocal = localData.activities.filter(
+      (entry) => !syncedLocalIds.has(entry.id)
+    );
+    return {
+      ...localData,
+      harvests: mergedHarvests,
+      activities: [...pendingLocal, ...serverEntries].sort((a, b) => b.date - a.date),
+    };
+  }, [backendActivities, localData, mergedHarvests]);
   const [localLoading, setLocalLoading] = useState(true);
   const [localSaving, setLocalSaving] = useState(false);
-  const [retryingSync, setRetryingSync] = useState(false);
 
   // Separate error states per section
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -350,10 +401,10 @@ export default function PlantDetailScreen() {
     const hasGardenChanged = appMode === 'gardener' && gardenId !== plantGardenId;
     if (appMode === 'gardener') {
       if (hasGardenChanged) {
-        updates.gardenId = gardenId;
+        updates.gardenId = gardenId ?? null;
       }
     } else {
-      updates.bedId = bedId;
+      updates.bedId = bedId ?? null;
     }
     try {
       await updatePlant(plant._id, updates);
@@ -403,7 +454,7 @@ export default function PlantDetailScreen() {
     setGardenId(nextGardenId);
     setSaving(true);
     try {
-      await updatePlant(plant._id, { gardenId: nextGardenId });
+      await updatePlant(plant._id, { gardenId: nextGardenId ?? null });
     } catch (error: any) {
       setGardenId(previousGardenId);
       const message = String(error?.message ?? '');
@@ -422,34 +473,16 @@ export default function PlantDetailScreen() {
     }
   };
 
-  const handleStatus = async (status: string) => {
+  const handleStatus = async (status: PlantStatus) => {
     if (!canEdit) return;
-    if (status === 'growing' && appMode !== 'gardener') {
-      if (beds.length === 0) {
-        Alert.alert(
-          t('plant.start_growing_requires_bed_title'),
-          t('plant.start_growing_requires_bed_desc'),
-          [
-            { text: t('common.cancel'), style: 'cancel' },
-            { text: t('plant.setup_bed_action'), onPress: () => router.push('/(tabs)/garden?tab=garden&create=1') },
-          ]
-        );
-        return;
-      }
-      if (!bedId) {
-        Alert.alert(
-          t('plant.start_growing_select_bed_title'),
-          t('plant.start_growing_select_bed_desc')
-        );
-        return;
-      }
-    }
     setSaving(true);
     try {
-      if (status === 'growing' && appMode !== 'gardener') {
-        await updatePlant(plant._id, { bedId });
-      }
-      await updateStatus(plant._id, status);
+      await updateStatus(
+        plant._id,
+        status,
+        undefined,
+        status === 'growing' && appMode !== 'gardener' ? { bedId: bedId ?? null } : undefined
+      );
     } finally {
       setSaving(false);
     }
@@ -475,16 +508,6 @@ export default function PlantDetailScreen() {
       month: 'short',
       day: '2-digit',
     });
-  };
-
-  const handleRetrySync = async () => {
-    if (!resolvedPlantId || retryingSync) return;
-    setRetryingSync(true);
-    try {
-      await executeSyncNow({ plantId: resolvedPlantId });
-    } finally {
-      setRetryingSync(false);
-    }
   };
 
   // Photo handlers
@@ -550,6 +573,22 @@ export default function PlantDetailScreen() {
   };
 
   const handleRemoveActivity = async (entryId: string) => {
+    const backendEntry = backendActivities?.find((entry: any) => String(entry._id) === entryId);
+    if (backendEntry) {
+      await deleteBackendActivity({ id: backendEntry._id, deviceId });
+      if (resolvedPlantId && backendEntry.localId) {
+        await removePendingActivity(resolvedPlantId, backendEntry.localId);
+        await persistLocalData(
+          (prev) => ({
+            ...prev,
+            activities: prev.activities.filter((entry) => entry.id !== backendEntry.localId),
+          }),
+          setActivityError,
+        );
+      }
+      return;
+    }
+    if (resolvedPlantId) await removePendingActivity(resolvedPlantId, entryId);
     await persistLocalData(
       (prev) => ({ ...prev, activities: prev.activities.filter((e) => e.id !== entryId) }),
       setActivityError,
@@ -582,6 +621,22 @@ export default function PlantDetailScreen() {
   };
 
   const handleRemoveHarvest = async (entryId: string) => {
+    const backendEntry = backendHarvests?.find((entry: any) => String(entry._id) === entryId);
+    if (backendEntry) {
+      await deleteBackendHarvest({ id: backendEntry._id, deviceId });
+      if (resolvedPlantId && backendEntry.localId) {
+        await removePendingHarvest(resolvedPlantId, backendEntry.localId);
+        await persistLocalData(
+          (prev) => ({
+            ...prev,
+            harvests: prev.harvests.filter((entry) => entry.id !== backendEntry.localId),
+          }),
+          setHarvestError,
+        );
+      }
+      return;
+    }
+    if (resolvedPlantId) await removePendingHarvest(resolvedPlantId, entryId);
     await persistLocalData(
       (prev) => ({ ...prev, harvests: prev.harvests.filter((e) => e.id !== entryId) }),
       setHarvestError,
@@ -736,7 +791,6 @@ export default function PlantDetailScreen() {
 
       <SyncStatusBanner
         plantId={resolvedPlantId}
-        onRetry={retryingSync ? undefined : handleRetrySync}
         style={{ marginHorizontal: 16, marginBottom: 8 }}
       />
 
@@ -877,7 +931,7 @@ export default function PlantDetailScreen() {
         </View>
 
         <PlantHealthTimelineSection
-          localData={localData}
+          localData={timelineData}
           localLoading={localLoading}
           formatDate={formatDisplayDate}
         />
@@ -971,7 +1025,7 @@ export default function PlantDetailScreen() {
           {isGrowing && (
             <TouchableOpacity
               disabled={!canEdit || saving}
-              onPress={() => handleStatus('archived')}
+              onPress={() => handleStatus('harvested')}
               style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', shadowColor: theme.primary, shadowOpacity: 0.1, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } }}
             >
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15, letterSpacing: 0.2 }}>{t('plant.mark_harvested')}</Text>
@@ -1032,7 +1086,7 @@ export default function PlantDetailScreen() {
         />
 
         <PlantActivitySection
-          localData={localData}
+          localData={timelineData}
           localLoading={localLoading}
           error={activityError}
           canEdit={canEdit}
@@ -1052,7 +1106,7 @@ export default function PlantDetailScreen() {
         />
 
         <PlantHarvestSection
-          localData={localData}
+          localData={{ ...localData, harvests: mergedHarvests }}
           localLoading={localLoading}
           error={harvestError}
           canEdit={canEdit}

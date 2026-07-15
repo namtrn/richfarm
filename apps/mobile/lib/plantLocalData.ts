@@ -1,6 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type PlantActivityType = 'watering' | 'fertilizing' | 'pruning' | 'custom';
+export type PlantActivityType =
+  | 'watering'
+  | 'fertilizing'
+  | 'pruning'
+  | 'pest_spotted'
+  | 'treatment'
+  | 'photo'
+  | 'note'
+  | 'transplanted'
+  | 'harvest'
+  | 'custom';
+
+export type PlantTimelineType =
+  | PlantActivityType
+  | 'plant_added'
+  | 'status_changed'
+  | 'location_changed'
+  | 'watering_check'
+  | 'fertilizing_check';
 
 export type PlantPhotoEntry = {
   id: string;
@@ -12,13 +30,18 @@ export type PlantPhotoEntry = {
 
 export type PlantActivityEntry = {
   id: string;
-  type: PlantActivityType;
+  type: PlantTimelineType;
   note?: string;
   date: number;
+  recordedAt?: number;
+  source?: 'system' | 'manual' | 'reminder' | 'scanner' | 'import';
+  value?: Record<string, unknown>;
 };
 
 export type PlantHarvestEntry = {
   id: string;
+  serverId?: string;
+  localId?: string;
   quantity?: string;
   unit?: string;
   note?: string;

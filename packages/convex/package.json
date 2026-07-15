@@ -4,8 +4,15 @@
   "private": true,
   "main": "convex/_generated/api.js",
   "types": "convex/_generated/api.d.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "convex": "^1.32.0",
     "resend": "^6.9.3"
+  },
+  "devDependencies": {
+    "convex-test": "^0.0.54",
+    "vitest": "^3.2.4"
   }
 }

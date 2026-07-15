@@ -3,11 +3,16 @@ import { AppState } from 'react-native';
 import { loadSyncQueue, subscribeSyncQueue } from '../lib/sync/queue';
 import type { SyncAction } from '../lib/sync/types';
 import { useNetworkStatus } from './useNetworkStatus';
+import { useDeviceId } from '../lib/deviceId';
+import { authClient } from '../lib/auth-client';
 
 type SyncStatus = 'loading' | 'idle' | 'offline' | 'pending' | 'retry';
 
 export function useSyncStatus(plantId?: string) {
   const { isOffline, isOnline } = useNetworkStatus();
+  const { deviceId } = useDeviceId();
+  const { data: session } = authClient.useSession();
+  const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
   const [queue, setQueue] = useState<SyncAction[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -15,7 +20,7 @@ export function useSyncStatus(plantId?: string) {
     let active = true;
 
     const refresh = async () => {
-      const nextQueue = await loadSyncQueue();
+      const nextQueue = await loadSyncQueue(scope);
       if (!active) return;
       setQueue(nextQueue);
       setLoaded(true);
@@ -23,7 +28,7 @@ export function useSyncStatus(plantId?: string) {
 
     void refresh();
 
-    const unsubscribe = subscribeSyncQueue((nextQueue) => {
+    const unsubscribe = subscribeSyncQueue(scope, (nextQueue) => {
       if (!active) return;
       setQueue(nextQueue);
       setLoaded(true);
@@ -40,7 +45,7 @@ export function useSyncStatus(plantId?: string) {
       unsubscribe();
       subscription.remove();
     };
-  }, []);
+  }, [scope]);
 
   const relevantQueue = useMemo(
     () => (plantId ? queue.filter((item) => item.plantId === plantId) : queue),

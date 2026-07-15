@@ -1,10 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useMutation } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { useAppMode } from './useAppMode';
 import { useDeviceId } from '../lib/deviceId';
 import { updateScanEntry } from '../lib/scanHistory';
+import type { PlantStatus } from './usePlants';
+import { createLocalId } from '../lib/plantLocalData';
 
 type PositionInBed = {
   x: number;
@@ -16,21 +18,22 @@ type PositionInBed = {
 type AddPlantArgs = {
   plantMasterId?: any;
   nickname?: string;
-  gardenId?: any;
-  bedId?: any;
+  gardenId?: any | null;
+  bedId?: any | null;
   positionInBed?: PositionInBed;
   plantedAt?: number;
   expectedHarvestDate?: number;
-  status?: string;
+  status?: PlantStatus;
   notes?: string;
+  clientRequestId?: string;
 };
 
 type UpdatePlantArgs = {
   plantMasterId?: any;
   nickname?: string;
   notes?: string;
-  gardenId?: any;
-  bedId?: any;
+  gardenId?: any | null;
+  bedId?: any | null;
   positionInBed?: PositionInBed;
   expectedHarvestDate?: number;
 };
@@ -124,6 +127,7 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
   const { deviceId } = useDeviceId();
   const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
   const savePhoto = useMutation(api.storage.savePhoto);
+  const pendingAddRequestIds = useRef(new Map<string, string>());
 
   const navigateAfterAdd = useCallback(
     (args: Omit<CompleteLibraryAddArgs, 'plantMasterId'>) => {
@@ -229,6 +233,22 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
   const createUserPlant = useCallback(
     async (args: CreateUserPlantArgs) => {
       const flowRole = resolveFlowRole(appMode, undefined);
+      const requestSignature = JSON.stringify({
+        flow: 'create',
+        plantMasterId: args.plantMasterId,
+        nickname: args.nickname,
+        gardenId: args.gardenId,
+        bedId: flowRole === 'gardener' ? undefined : args.bedId,
+        positionInBed: flowRole === 'gardener' ? undefined : args.positionInBed,
+        plantedAt: args.plantedAt,
+        expectedHarvestDate: args.expectedHarvestDate,
+        status: args.status,
+      });
+      let clientRequestId = pendingAddRequestIds.current.get(requestSignature);
+      if (!clientRequestId) {
+        clientRequestId = `create:${createLocalId()}`;
+        pendingAddRequestIds.current.set(requestSignature, clientRequestId);
+      }
       const addedPlantId = await addPlant({
         plantMasterId: args.plantMasterId as any,
         nickname: args.nickname,
@@ -238,8 +258,10 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
         plantedAt: args.plantedAt,
         expectedHarvestDate: args.expectedHarvestDate,
         status: args.status,
+        clientRequestId,
       });
       await uploadScannerPhoto(addedPlantId, args.scannedPhotoUri);
+      pendingAddRequestIds.current.delete(requestSignature);
       return addedPlantId;
     },
     [addPlant, appMode, uploadScannerPhoto]
@@ -250,12 +272,23 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
       let addedPlantId: any = null;
       const flowRole = resolveFlowRole(appMode, args.from);
       const isGardenerFlow = flowRole === 'gardener';
-      const normalizedSelectionMode: 'planning' | 'growing' = isGardenerFlow
-        ? 'planning'
-        : args.selectionMode;
+      const normalizedSelectionMode: 'planning' | 'growing' = args.selectionMode;
       const normalizedBedId = isGardenerFlow ? undefined : args.bedId;
       const normalizedSelectedBedId = isGardenerFlow ? undefined : args.selectedBedId;
       const positionInBed = isGardenerFlow ? undefined : buildPositionInBed(args);
+      const requestSignature = JSON.stringify({
+        plantMasterId: args.plantMasterId,
+        selectionMode: normalizedSelectionMode,
+        bedId: normalizedSelectedBedId ?? normalizedBedId,
+        positionInBed,
+        from: args.from,
+        scanHistoryId: args.scanHistoryId,
+      });
+      let clientRequestId = args.scanHistoryId ? `scan:${args.scanHistoryId}` : pendingAddRequestIds.current.get(requestSignature);
+      if (!clientRequestId) {
+        clientRequestId = `library:${createLocalId()}`;
+        pendingAddRequestIds.current.set(requestSignature, clientRequestId);
+      }
 
       if (args.mode === 'attach' && args.attachPlantId) {
         if (!updatePlant) {
@@ -269,15 +302,19 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
           plantMasterId: args.plantMasterId as any,
           bedId: normalizedBedId as any,
           positionInBed,
+          clientRequestId,
         });
       } else if (normalizedSelectionMode === 'growing' && normalizedSelectedBedId) {
         addedPlantId = await addPlant({
           plantMasterId: args.plantMasterId as any,
           bedId: normalizedSelectedBedId as any,
+          clientRequestId,
         });
       } else {
         addedPlantId = await addPlant({
           plantMasterId: args.plantMasterId as any,
+          status: normalizedSelectionMode,
+          clientRequestId,
         });
       }
 
@@ -299,6 +336,7 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
         selectionMode: normalizedSelectionMode,
         bedId: normalizedBedId,
       });
+      pendingAddRequestIds.current.delete(requestSignature);
       return addedPlantId;
     },
     [addPlant, appMode, navigateAfterAdd, updatePlant, uploadScannerPhoto]

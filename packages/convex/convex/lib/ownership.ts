@@ -21,3 +21,35 @@ export async function getOwnedPlantOrThrow(ctx: any, userId: any, plantId: any) 
   }
   return plant;
 }
+
+export async function resolveOwnedPlantLocation(
+  ctx: any,
+  userId: any,
+  args: {
+    gardenId?: any | null;
+    bedId?: any | null;
+    currentGardenId?: any;
+    currentBedId?: any;
+  }
+) {
+  const hasGardenInput = args.gardenId !== undefined;
+  const hasBedInput = args.bedId !== undefined;
+  const nextBedId = hasBedInput ? (args.bedId ?? undefined) : args.currentBedId;
+  const nextGardenId = hasGardenInput ? (args.gardenId ?? undefined) : args.currentGardenId;
+
+  const garden = nextGardenId
+    ? await getOwnedGardenOrThrow(ctx, userId, nextGardenId)
+    : null;
+  const bed = nextBedId
+    ? await getOwnedBedOrThrow(ctx, userId, nextBedId)
+    : null;
+
+  if (bed) {
+    if (hasGardenInput && bed.gardenId !== nextGardenId) {
+      throw new Error("Selected bed does not belong to the selected garden");
+    }
+    return { gardenId: bed.gardenId, bedId: bed._id, garden, bed };
+  }
+
+  return { gardenId: nextGardenId, bedId: undefined, garden, bed: null };
+}

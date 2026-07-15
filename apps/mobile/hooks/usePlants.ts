@@ -9,7 +9,17 @@ import { useTranslation } from 'react-i18next';
 import { usePlantLibrary } from './usePlantLibrary';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
-export function usePlants(status?: string) {
+export type PlantStatus =
+    | 'planning'
+    | 'planting'
+    | 'growing'
+    | 'dormant'
+    | 'harvested'
+    | 'archived'
+    | 'failed'
+    | 'paused';
+
+export function usePlants(status?: PlantStatus) {
     const { deviceId } = useDeviceId();
     const { i18n } = useTranslation();
     const { isKnown, isOffline } = useNetworkStatus();
@@ -54,23 +64,25 @@ export function usePlants(status?: string) {
     const addPlant = async (args: {
         plantMasterId?: Id<'plantsMaster'>;
         nickname?: string;
-        gardenId?: Id<'gardens'>;
-        bedId?: Id<'beds'>;
+        gardenId?: Id<'gardens'> | null;
+        bedId?: Id<'beds'> | null;
         positionInBed?: { x: number; y: number; width: number; height: number };
         plantedAt?: number;
         expectedHarvestDate?: number;
-        status?: string;
+        status?: PlantStatus;
         notes?: string;
+        clientRequestId?: string;
     }) => {
         return await addPlantMutation({ ...args, deviceId });
     };
 
     const updateStatus = async (
         plantId: Id<'userPlants'>,
-        status: string,
-        notes?: string
+        status: PlantStatus,
+        notes?: string,
+        location?: { gardenId?: Id<'gardens'> | null; bedId?: Id<'beds'> | null }
     ) => {
-        return await updateStatusMutation({ plantId, status, notes, deviceId });
+        return await updateStatusMutation({ plantId, status, notes, ...location, deviceId });
     };
 
     const updatePlant = async (
@@ -79,8 +91,8 @@ export function usePlants(status?: string) {
             plantMasterId?: Id<'plantsMaster'>;
             nickname?: string;
             notes?: string;
-            gardenId?: Id<'gardens'>;
-            bedId?: Id<'beds'>;
+            gardenId?: Id<'gardens'> | null;
+            bedId?: Id<'beds'> | null;
             positionInBed?: { x: number; y: number; width: number; height: number };
             expectedHarvestDate?: number;
         }

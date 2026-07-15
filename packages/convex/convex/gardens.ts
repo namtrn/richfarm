@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { isPremiumActive } from "./lib/subscription";
 import { getOwnedGardenOrThrow } from "./lib/ownership";
+import { writeTombstone } from "./lib/syncProtocol";
 
 const NAME_MAX = 40;
 const FREE_GARDEN_LIMIT = 1;
@@ -55,13 +56,16 @@ export const createGarden = mutation({
             }
         }
 
-        return await ctx.db.insert("gardens", {
+        const gardenId = await ctx.db.insert("gardens", {
             userId: user._id,
             name: args.name,
             areaM2: args.areaM2,
             locationType: args.locationType,
             description: args.description,
+            revision: 1,
         });
+        await ctx.db.patch(gardenId, { entityUuid: `legacy:${gardenId}` });
+        return gardenId;
     },
 });
 
@@ -84,7 +88,7 @@ export const updateGarden = mutation({
         }
 
         const { gardenId, deviceId, ...updates } = args;
-        await ctx.db.patch(gardenId, updates);
+        await ctx.db.patch(gardenId, { ...updates, revision: (garden.revision ?? 1) + 1 });
     },
 });
 
@@ -96,9 +100,31 @@ export const deleteGarden = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
-
-        await ctx.db.patch(args.gardenId, { isDeleted: true });
+        const garden = await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
+        const operationId = `legacy-delete:${garden._id}`;
+        await writeTombstone(ctx, {
+            userId: user._id, entityType: "garden",
+            entityUuid: garden.entityUuid ?? `legacy:${garden._id}`,
+            deleteOperationId: operationId, previousRevision: garden.revision,
+        });
+        const beds = await ctx.db.query("beds").withIndex("by_garden", (q) => q.eq("gardenId", garden._id)).collect();
+        for (const bed of beds) {
+            await writeTombstone(ctx, {
+                userId: user._id, entityType: "bed",
+                entityUuid: bed.entityUuid ?? `legacy:${bed._id}`,
+                deleteOperationId: operationId, previousRevision: bed.revision,
+            });
+            await ctx.db.delete(bed._id);
+        }
+        const plants = await ctx.db.query("userPlants").withIndex("by_garden", (q) => q.eq("gardenId", garden._id)).collect();
+        for (const plant of plants) {
+            await ctx.db.patch(plant._id, {
+                gardenId: undefined, bedId: undefined,
+                revision: (plant.revision ?? 1) + 1,
+                version: (plant.version ?? 1) + 1,
+            });
+        }
+        await ctx.db.patch(args.gardenId, { isDeleted: true, revision: (garden.revision ?? 1) + 1 });
     },
 });
 

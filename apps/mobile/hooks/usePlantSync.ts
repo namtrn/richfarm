@@ -2,22 +2,33 @@ import { useCallback } from 'react';
 import { useDeviceId } from '../lib/deviceId';
 import {
   PlantActivityEntry,
+  PlantActivityType,
   PlantHarvestEntry,
   PlantPhotoEntry,
   createLocalId,
 } from '../lib/plantLocalData';
-import { enqueueSyncAction } from '../lib/sync/queue';
+import { enqueueSyncAction, removePendingPlantEntry } from '../lib/sync/queue';
 import { SyncAction } from '../lib/sync/types';
+import NetInfo from '@react-native-community/netinfo';
+import { authClient } from '../lib/auth-client';
+import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
 
 export function usePlantSync() {
   const { deviceId } = useDeviceId();
+  const { data: session } = authClient.useSession();
+  const { execute } = useSyncExecutor();
+  const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
 
   const enqueueAction = useCallback(
     async (action: SyncAction) => {
-      await enqueueSyncAction(action);
+      await enqueueSyncAction(action, scope);
+      const network = await NetInfo.fetch();
+      if (network.isConnected && network.isInternetReachable !== false) {
+        void execute({ plantId: action.plantId });
+      }
       return action;
     },
-    []
+    [execute, scope]
   );
 
   const queuePhoto = useCallback(
@@ -43,7 +54,7 @@ export function usePlantSync() {
   );
 
   const queueActivity = useCallback(
-    async (plantId: string, activity: PlantActivityEntry) => {
+    async (plantId: string, activity: PlantActivityEntry & { type: PlantActivityType }) => {
       const action: SyncAction = {
         id: createLocalId(),
         plantId,
@@ -89,5 +100,9 @@ export function usePlantSync() {
     queuePhoto,
     queueActivity,
     queueHarvest,
+    removePendingActivity: (plantId: string, localId: string) =>
+      removePendingPlantEntry('activity', plantId, localId, scope),
+    removePendingHarvest: (plantId: string, localId: string) =>
+      removePendingPlantEntry('harvest', plantId, localId, scope),
   };
 }

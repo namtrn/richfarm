@@ -33,12 +33,12 @@ export function PlantHealthTimelineSection({ localData, localLoading, formatDate
       subtitle: photo.note,
       imageUri: photo.uri,
     }));
-    const activityLabels = {
+    const activityLabels: Record<string, string> = {
       watering: t('plant.activity_type_watering'),
       fertilizing: t('plant.activity_type_fertilizing'),
       pruning: t('plant.activity_type_pruning'),
       custom: t('plant.activity_type_custom'),
-    } as const;
+    };
     const activityEntries = localData.activities.map((activity) => ({
       id: `activity:${activity.id}`,
       type: 'activity' as const,

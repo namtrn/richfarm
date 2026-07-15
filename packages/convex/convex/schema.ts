@@ -66,6 +66,8 @@ export default defineSchema({
   // ==========================================
   gardens: defineTable({
     userId: v.id("users"),
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
     name: v.string(),
 
     // Size
@@ -78,7 +80,8 @@ export default defineSchema({
     // Soft delete
     isDeleted: v.optional(v.boolean()),
   })
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"]),
 
   // ==========================================
   // Master Data: Plant Database
@@ -218,6 +221,8 @@ export default defineSchema({
   // ==========================================
   beds: defineTable({
     userId: v.id("users"),
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
     gardenId: v.optional(v.id("gardens")), // belongs to garden
     name: v.string(),
 
@@ -247,6 +252,7 @@ export default defineSchema({
     }))),
   })
     .index("by_user", ["userId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
     .index("by_user_location", ["userId", "locationType"])
     .index("by_garden", ["gardenId"]),
 
@@ -255,6 +261,8 @@ export default defineSchema({
   // ==========================================
   userPlants: defineTable({
     userId: v.id("users"),
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
     plantMasterId: v.optional(v.id("plantsMaster")), // null nếu custom plant
 
     // Customization
@@ -278,9 +286,12 @@ export default defineSchema({
     expectedHarvestDate: v.optional(v.number()),
     actualHarvestDate: v.optional(v.number()),
     archivedAt: v.optional(v.number()),
+    lastWateredAt: v.optional(v.number()),
+    lastFertilizedAt: v.optional(v.number()),
+    lastHarvestedAt: v.optional(v.number()),
 
     // Status
-    status: v.string(), // "planning", "growing", "archived", "failed", "dormant"
+    status: v.string(), // "planning", "growing", "dormant", "harvested", "archived", "failed"
     notes: v.optional(v.string()),
 
     // Custom care rules (override defaults)
@@ -291,6 +302,7 @@ export default defineSchema({
 
     // Sync metadata (cho offline)
     clientId: v.optional(v.string()), // Device-generated ID
+    clientRequestId: v.optional(v.string()), // Idempotency key for Add Plant retries
     version: v.number(), // For conflict resolution
     mergedInto: v.optional(v.id("userPlants")),
 
@@ -298,11 +310,13 @@ export default defineSchema({
     isDeleted: v.optional(v.boolean()),
   })
     .index("by_user", ["userId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
     .index("by_user_status", ["userId", "status"])
     .index("by_garden", ["gardenId"])
     .index("by_bed", ["bedId"])
     .index("by_user_harvest_date", ["userId", "expectedHarvestDate"])
-    .index("by_client_id", ["clientId"]),
+    .index("by_client_id", ["clientId"])
+    .index("by_user_request", ["userId", "clientRequestId"]),
 
   // ==========================================
   // User Favorites (plantsMaster)
@@ -322,6 +336,8 @@ export default defineSchema({
   plantPhotos: defineTable({
     userPlantId: v.id("userPlants"),
     userId: v.id("users"), // Denormalized for auth
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
     localId: v.optional(v.string()),
 
     // Storage
@@ -346,6 +362,7 @@ export default defineSchema({
     analysisStatus: v.string(), // "pending", "success", "failed"
   })
     .index("by_user_plant", ["userPlantId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
     .index("by_user_plant_local", ["userPlantId", "localId"])
     .index("by_user_plant_date", ["userPlantId", "takenAt"])
     .index("by_analysis_status", ["analysisStatus"]),
@@ -394,20 +411,31 @@ export default defineSchema({
   logs: defineTable({
     userId: v.id("users"),
     userPlantId: v.id("userPlants"),
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
 
     type: v.string(), // "watering", "fertilizing", "pruning", "pest_spotted", "treatment", "harvest", "note", "photo", "status_change"
     value: v.optional(v.any()), // Flexible data: { amountMl: 500, fertilizerType: "organic" }
 
-    recordedAt: v.number(),
+    occurredAt: v.optional(v.number()), // when the real-world activity happened
+    recordedAt: v.number(), // when Richfarm persisted the activity
     source: v.string(), // "manual", "sensor", "auto", "reminder"
+    localId: v.optional(v.string()), // idempotency key for offline entries
+    title: v.optional(v.string()),
 
     // Optional references
     reminderId: v.optional(v.id("reminders")),
+    harvestRecordId: v.optional(v.id("harvestRecords")),
     photoUrl: v.optional(v.string()),
     note: v.optional(v.string()),
   })
     .index("by_user_plant", ["userPlantId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
     .index("by_user_plant_date", ["userPlantId", "recordedAt"])
+    .index("by_user_plant_occurred", ["userPlantId", "occurredAt"])
+    .index("by_user_plant_type_occurred", ["userPlantId", "type", "occurredAt"])
+    .index("by_user_plant_local", ["userPlantId", "localId"])
+    .index("by_harvest_record", ["harvestRecordId"])
     .index("by_type", ["type"])
     .index("by_recorded_at", ["recordedAt"]),
 
@@ -417,6 +445,8 @@ export default defineSchema({
   harvestRecords: defineTable({
     userId: v.id("users"),
     userPlantId: v.id("userPlants"),
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
 
     localId: v.optional(v.string()),
     harvestDate: v.number(),
@@ -429,6 +459,7 @@ export default defineSchema({
     preservationRecipeId: v.optional(v.id("preservationRecipes")),
   })
     .index("by_user_plant", ["userPlantId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
     .index("by_user_plant_local", ["userPlantId", "localId"])
     .index("by_user_plant_date", ["userPlantId", "harvestDate"])
     .index("by_harvest_date", ["harvestDate"]),
@@ -527,6 +558,9 @@ export default defineSchema({
   // ==========================================
   userSettings: defineTable({
     userId: v.id("users"),
+    revision: v.optional(v.number()),
+    generation: v.optional(v.string()),
+    updatedAt: v.optional(v.number()),
 
     // App preferences
     appMode: v.optional(v.string()), // "farmer" | "gardener"
@@ -561,6 +595,45 @@ export default defineSchema({
     ),
   })
     .index("by_user", ["userId"]),
+
+  syncOperationReceipts: defineTable({
+    userId: v.id("users"),
+    operationId: v.string(),
+    entityType: v.string(),
+    entityUuid: v.string(),
+    operationType: v.string(),
+    fingerprint: v.string(),
+    status: v.string(),
+    revision: v.optional(v.number()),
+    appliedAt: v.number(),
+  }).index("by_user_operation", ["userId", "operationId"]),
+
+  entityTombstones: defineTable({
+    userId: v.id("users"),
+    entityType: v.string(),
+    entityUuid: v.string(),
+    deleteOperationId: v.string(),
+    deletedAt: v.number(),
+    deletedRevision: v.number(),
+  })
+    .index("by_user_entity", ["userId", "entityType", "entityUuid"])
+    .index("by_user_deleted_at", ["userId", "deletedAt"]),
+
+  userPreferenceOperationReceipts: defineTable({
+    userId: v.id("users"),
+    operationId: v.string(),
+    fingerprint: v.string(),
+    revision: v.number(),
+    appliedAt: v.number(),
+  }).index("by_user_operation", ["userId", "operationId"]),
+
+  syncAccountState: defineTable({
+    userId: v.id("users"),
+    generation: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    sequence: v.optional(v.number()),
+  }).index("by_user", ["userId"]),
 });
 
 // Schema export for testing

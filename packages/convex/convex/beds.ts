@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { isPremiumActive } from "./lib/subscription";
 import { getOwnedBedOrThrow, getOwnedGardenOrThrow } from "./lib/ownership";
+import { writeTombstone } from "./lib/syncProtocol";
 
 const NAME_MAX = 40;
 const FREE_BED_LIMIT = 3;
@@ -64,7 +65,7 @@ export const createBed = mutation({
             }
         }
 
-        return await ctx.db.insert("beds", {
+        const bedId = await ctx.db.insert("beds", {
             userId: user._id,
             gardenId: args.gardenId,
             name: args.name,
@@ -75,7 +76,10 @@ export const createBed = mutation({
             areaM2: args.areaM2,
             sunlightHours: args.sunlightHours,
             soilType: args.soilType,
+            revision: 1,
         });
+        await ctx.db.patch(bedId, { entityUuid: `legacy:${bedId}` });
+        return bedId;
     },
 });
 
@@ -99,7 +103,7 @@ export const updateBed = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+        const bed = await getOwnedBedOrThrow(ctx, user._id, args.bedId);
 
         if (args.name !== undefined) {
             assertNameLength(args.name);
@@ -118,6 +122,7 @@ export const updateBed = mutation({
             ...(args.areaM2 !== undefined && { areaM2: args.areaM2 }),
             ...(args.sunlightHours !== undefined && { sunlightHours: args.sunlightHours }),
             ...(args.soilType !== undefined && { soilType: args.soilType }),
+            revision: (bed.revision ?? 1) + 1,
         });
     },
 });
@@ -130,8 +135,21 @@ export const deleteBed = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
-        await getOwnedBedOrThrow(ctx, user._id, args.bedId);
-
+        const bed = await getOwnedBedOrThrow(ctx, user._id, args.bedId);
+        await writeTombstone(ctx, {
+            userId: user._id, entityType: "bed",
+            entityUuid: bed.entityUuid ?? `legacy:${bed._id}`,
+            deleteOperationId: `legacy-delete:${bed._id}`,
+            previousRevision: bed.revision,
+        });
+        const plants = await ctx.db.query("userPlants").withIndex("by_bed", (q) => q.eq("bedId", bed._id)).collect();
+        for (const plant of plants) {
+            await ctx.db.patch(plant._id, {
+                bedId: undefined,
+                revision: (plant.revision ?? 1) + 1,
+                version: (plant.version ?? 1) + 1,
+            });
+        }
         await ctx.db.delete(args.bedId);
     },
 });

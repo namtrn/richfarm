@@ -95,7 +95,18 @@ export function PlantActivitySection({
             watering: t('plant.activity_type_watering'),
             fertilizing: t('plant.activity_type_fertilizing'),
             pruning: t('plant.activity_type_pruning'),
+            pest_spotted: t('plant.activity_type_pest_spotted', { defaultValue: 'Pest spotted' }),
+            treatment: t('plant.activity_type_treatment', { defaultValue: 'Treatment applied' }),
+            photo: t('plant.activity_type_photo', { defaultValue: 'Photo' }),
+            note: t('plant.activity_type_note', { defaultValue: 'Note' }),
+            transplanted: t('plant.activity_type_transplanted', { defaultValue: 'Transplanted' }),
+            harvest: t('plant.activity_type_harvest', { defaultValue: 'Harvested' }),
             custom: t('plant.activity_type_custom'),
+            plant_added: t('plant.activity_type_plant_added', { defaultValue: 'Plant added' }),
+            status_changed: t('plant.activity_type_status_changed', { defaultValue: 'Status changed' }),
+            location_changed: t('plant.activity_type_location_changed', { defaultValue: 'Location changed' }),
+            watering_check: t('plant.activity_type_watering_check', { defaultValue: 'Watering checked' }),
+            fertilizing_check: t('plant.activity_type_fertilizing_check', { defaultValue: 'Fertilizer checked' }),
         }),
         [t]
     );
@@ -104,6 +115,12 @@ export function PlantActivitySection({
         { key: 'watering', label: activityLabels.watering },
         { key: 'fertilizing', label: activityLabels.fertilizing },
         { key: 'pruning', label: activityLabels.pruning },
+        { key: 'pest_spotted', label: activityLabels.pest_spotted },
+        { key: 'treatment', label: activityLabels.treatment },
+        { key: 'photo', label: activityLabels.photo },
+        { key: 'note', label: activityLabels.note },
+        { key: 'transplanted', label: activityLabels.transplanted },
+        { key: 'harvest', label: activityLabels.harvest },
         { key: 'custom', label: activityLabels.custom },
     ];
 
@@ -124,7 +141,7 @@ export function PlantActivitySection({
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                     <View>
                         <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('plant.activity_title')}</Text>
-                        <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.local_only')}</Text>
+                        <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.synced_across_devices', { defaultValue: 'Synced across devices' })}</Text>
                     </View>
                     <TouchableOpacity
                         onPress={onOpenModal}
@@ -153,9 +170,16 @@ export function PlantActivitySection({
                                 {!!entry.note && (
                                     <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 6, lineHeight: 18 }}>{entry.note}</Text>
                                 )}
-                                <TouchableOpacity onPress={() => confirmRemove(entry.id)} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
-                                    <Text style={{ fontSize: 12, color: theme.danger, fontWeight: '500' }}>{t('common.delete')}</Text>
-                                </TouchableOpacity>
+                                {!!entry.source && (
+                                    <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 6 }}>
+                                        {t('plant.activity_source', { source: entry.source, defaultValue: `Source: ${entry.source}` })}
+                                    </Text>
+                                )}
+                                {(!entry.source || entry.source === 'manual') && (
+                                    <TouchableOpacity onPress={() => confirmRemove(entry.id)} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
+                                        <Text style={{ fontSize: 12, color: theme.danger, fontWeight: '500' }}>{t('common.delete')}</Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         ))}
                     </View>
