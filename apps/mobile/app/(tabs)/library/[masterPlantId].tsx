@@ -32,12 +32,13 @@ import {
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useMutation, useQuery } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../../../../packages/convex/convex/_generated/api';
 import { buildPlantSeedKey, plantI18nSeed, plantsMasterSeed } from '../../../../../packages/convex/convex/data/plantsMasterSeed';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePlants } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
+import { useGardens } from '../../../hooks/useGardens';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { useDeviceId } from '../../../lib/deviceId';
 import {
@@ -449,8 +450,7 @@ export default function LibraryPlantDetailScreen() {
     const { queueActivity } = usePlantSync();
     const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
-    const createGarden = useMutation(api.gardens.createGarden);
-    const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
+    const { gardens, createGarden } = useGardens();
 
     const masterPlant = useQuery(
         api.plantImages.getPlantById,
@@ -664,7 +664,6 @@ export default function LibraryPlantDetailScreen() {
                 const createdGardenId = await createGarden({
                     name,
                     locationType: 'outdoor',
-                    deviceId,
                 });
                 resolvedGardenId = String(createdGardenId);
             }

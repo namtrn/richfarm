@@ -6,6 +6,7 @@ import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
 import { useBeds } from '../../hooks/useBeds';
+import { useGardens } from '../../hooks/useGardens';
 import { useDeviceId } from '../../lib/deviceId';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
@@ -22,7 +23,7 @@ export default function GrowingScreen() {
   const { plants, isLoading, updateStatus } = usePlants();
   const { beds } = useBeds();
   const { deviceId } = useDeviceId();
-  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+  const { gardens } = useGardens();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
 

@@ -1,10 +1,12 @@
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
+import { useEntitySync } from './useEntitySync';
+import { useSyncProjection } from './useSyncProjection';
 
 export function useBeds(gardenId?: Id<'gardens'>) {
   const { deviceId } = useDeviceId();
@@ -23,6 +25,9 @@ export function useBeds(gardenId?: Id<'gardens'>) {
     !gardenId && deviceId ? { deviceId } : 'skip'
   );
   const remoteBeds = bedsFromGarden ?? allBeds;
+  const { projection, entities } = useSyncProjection();
+  const projectedBeds = entities('bed') as any[] | undefined;
+  const projectedGardens = entities('garden') as any[] | undefined;
 
   const cacheKey = useSessionScopedCacheKey(
     'rf_beds_v2',
@@ -30,11 +35,18 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   );
   const { cached, cacheLoaded } = useQueryCache(cacheKey, remoteBeds);
 
-  const beds = !hasSession ? [] : remoteBeds ?? cached;
+  const projectionBeds = projectedBeds?.filter(
+    (bed) => !gardenId || String(bed.gardenId) === String(gardenId)
+  ) as typeof remoteBeds;
+  const fallbackBeds = (remoteBeds ?? cached ?? []) as any[];
+  const optimisticBeds = (projection && !projection.complete
+    ? [...fallbackBeds.filter((row) => !projectionBeds?.some((pending: any) => pending.entityUuid === row.entityUuid)), ...(projectionBeds ?? [])]
+    : projection ? projectionBeds : fallbackBeds) as typeof remoteBeds;
+  const beds: typeof remoteBeds = !hasSession ? [] : projection?.complete ? projectionBeds : optimisticBeds;
 
-  const createBedMutation = useMutation(api.beds.createBed);
-  const updateBedMutation = useMutation(api.beds.updateBed);
-  const deleteBedMutation = useMutation(api.beds.deleteBed);
+  const { queueOperation } = useEntitySync();
+  const uuidFor = (rows: any[] | undefined, id: unknown) =>
+    rows?.find((row) => String(row._id) === String(id) || row.entityUuid === id)?.entityUuid;
 
   const createBed = async (args: {
     name: string;
@@ -47,7 +59,12 @@ export function useBeds(gardenId?: Id<'gardens'>) {
     soilType?: string;
     gardenId?: Id<'gardens'>;
   }) => {
-    return await createBedMutation({ ...args, deviceId });
+    const { gardenId: parentGardenId, ...payload } = args;
+    const result = await queueOperation({
+      entityType: 'bed', operationType: 'create', payload,
+      parentRefs: parentGardenId ? { gardenUuid: uuidFor(projectedGardens, parentGardenId) } : undefined,
+    });
+    return result.entityUuid as Id<'beds'>;
   };
 
   const updateBed = async (
@@ -64,11 +81,23 @@ export function useBeds(gardenId?: Id<'gardens'>) {
       soilType?: string;
     }
   ) => {
-    return await updateBedMutation({ bedId, ...updates, deviceId });
+    const current = projectedBeds?.find((bed) => String(bed._id) === String(bedId));
+    const { gardenId: parentGardenId, ...payload } = updates;
+    await queueOperation({
+      entityType: 'bed', entityUuid: current?.entityUuid ?? String(bedId), operationType: 'update',
+      baseRevision: current?.revision ?? 1, payload,
+      parentRefs: parentGardenId !== undefined
+        ? { gardenUuid: uuidFor(projectedGardens, parentGardenId) ?? null }
+        : undefined,
+    });
   };
 
   const deleteBed = async (bedId: Id<'beds'>) => {
-    return await deleteBedMutation({ bedId, deviceId });
+    const current = projectedBeds?.find((bed) => String(bed._id) === String(bedId));
+    await queueOperation({
+      entityType: 'bed', entityUuid: current?.entityUuid ?? String(bedId), operationType: 'delete',
+      baseRevision: current?.revision ?? 1,
+    });
   };
 
   return {

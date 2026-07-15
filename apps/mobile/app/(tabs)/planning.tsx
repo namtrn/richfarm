@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useQuery, useAction } from 'convex/react';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
+import { useGardens } from '../../hooks/useGardens';
 import { useAuth } from '../../lib/auth';
 import { usePathname, useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
@@ -29,7 +30,7 @@ export default function PlanningScreen() {
   const { beds, isLoading: isBedsLoading } = useBeds();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
-  const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+  const { gardens: gardensQuery } = useGardens();
   const router = useRouter();
   const pathname = usePathname();
   const params = useLocalSearchParams<{ scanner?: string | string[] }>();

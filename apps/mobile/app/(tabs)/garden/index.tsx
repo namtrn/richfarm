@@ -16,7 +16,7 @@ import {
     PanResponder,
 } from 'react-native';
 import { Plus, Sprout, Leaf, Camera, Image as ImageIcon, X, Trash2, ArrowRight, BookOpen, Fence, Calendar, ChevronRight } from 'lucide-react-native';
-import { useQuery, useMutation, useAction } from 'convex/react';
+import { useQuery, useAction } from 'convex/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +35,7 @@ import { usePlants } from '../../../hooks/usePlants';
 import { useReminders } from '../../../hooks/useReminders';
 import { useAuth } from '../../../lib/auth';
 import { useBeds } from '../../../hooks/useBeds';
+import { useGardens } from '../../../hooks/useGardens';
 import { isPremiumActive } from '../../../lib/access';
 import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../../lib/aiDetectorLimit';
 import * as ImagePicker from 'expo-image-picker';
@@ -198,7 +199,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
     const { t } = useTranslation();
     const theme = useTheme();
     const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
-    const createGarden = useMutation(api.gardens.createGarden);
+    const { createGarden } = useGardens();
 
     const [name, setName] = useState('');
     const [width, setWidth] = useState('');
@@ -219,7 +220,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
         setLoading(true);
         setError('');
         try {
-            await createGarden({ name: name.trim(), locationType, areaM2: widthValue * lengthValue, deviceId });
+            await createGarden({ name: name.trim(), locationType, areaM2: widthValue * lengthValue });
             setName(''); setWidth(''); setLength(''); setLocationType('outdoor');
             onClose();
         } catch (e: any) {
@@ -438,10 +439,7 @@ function GardenTabContent({
     const { t } = useTranslation();
     const theme = useTheme();
     const router = useRouter();
-    const { deviceId } = useDeviceId();
-    const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
-    const gardens = gardensQuery ?? [];
-    const isLoading = gardensQuery === undefined;
+    const { gardens, isLoading } = useGardens();
     const { plants } = usePlants();
     const { beds } = useBeds();
     const { todayReminders } = useReminders();
@@ -575,8 +573,8 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const { createUserPlant, openLibrarySelect, openLibraryMatch } = useAddPlantFlow({ addPlant });
     const { beds, isLoading: isBedsLoading } = useBeds();
     const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { gardens, isLoading: isGardensLoading } = useGardens();
     const { deviceId } = useDeviceId();
-    const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
 
     const [sheetOpen, setSheetOpen] = useState(false);
     const [nickname, setNickname] = useState('');
@@ -591,8 +589,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const [detectNoMatch, setDetectNoMatch] = useState(false);
 
     const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
-    const gardens = gardensQuery ?? [];
-    const isSetupLoading = gardensQuery === undefined || isBedsLoading;
+    const isSetupLoading = isGardensLoading || isBedsLoading;
     const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
     const canCreatePlant = canEdit;
     const isSetupRequired = false;
@@ -1089,8 +1086,8 @@ function GrowingTabContent() {
     const router = useRouter();
     const { plants, isLoading, updateStatus } = usePlants();
     const { beds } = useBeds();
+    const { gardens } = useGardens();
     const { deviceId } = useDeviceId();
-    const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
     const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
     const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
 
@@ -1235,8 +1232,7 @@ function FarmerGardenScreen() {
     const params = useLocalSearchParams<{ tab?: string | string[]; scanner?: string | string[]; create?: string | string[] }>();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
-    const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
-    const gardens = gardensQuery ?? [];
+    const { gardens } = useGardens();
     const isPremium = isPremiumActive(user);
     const canCreateGarden = !isAuthLoading && (isPremium || gardens.length < 1);
 
@@ -1376,8 +1372,7 @@ function GardenerGardenScreen() {
     const params = useLocalSearchParams<{ tab?: string | string[]; create?: string | string[] }>();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
-    const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
-    const gardens = gardensQuery ?? [];
+    const { gardens } = useGardens();
     const isPremium = isPremiumActive(user);
     const canCreateGarden = !isAuthLoading && (isPremium || gardens.length < 1);
     const [activeTab, setActiveTab] = useState<GardenerTab>('garden');

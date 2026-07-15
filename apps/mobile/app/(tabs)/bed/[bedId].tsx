@@ -7,6 +7,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../../../lib/deviceId';
 import { useBeds } from '../../../hooks/useBeds';
+import { useGardens } from '../../../hooks/useGardens';
 import { usePlants } from '../../../hooks/usePlants';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { useTheme } from '../../../lib/theme';
@@ -79,7 +80,7 @@ export default function BedDetailScreen() {
 
   const { beds, isLoading: bedsLoading, updateBed } = useBeds();
   const { plants, addPlant, deletePlant } = usePlants();
-  const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+  const { gardens: gardensQuery } = useGardens();
 
   const bed = useMemo(
     () => beds.find((item) => item._id === resolvedBedId),

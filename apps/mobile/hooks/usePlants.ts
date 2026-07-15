@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
@@ -8,6 +8,8 @@ import { useQueryCache } from '../lib/queryCache';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary } from './usePlantLibrary';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
+import { useEntitySync } from './useEntitySync';
+import { useSyncProjection } from './useSyncProjection';
 
 export type PlantStatus =
     | 'planning'
@@ -27,6 +29,10 @@ export function usePlants(status?: PlantStatus) {
     const hasSession = useHasAuthSession();
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const remotePlants = useQuery(api.plants.getUserPlants, deviceId ? { status, deviceId } : 'skip');
+    const { projection, entities } = useSyncProjection();
+    const projectedPlants = entities('plant') as any[] | undefined;
+    const projectedGardens = entities('garden') as any[] | undefined;
+    const projectedBeds = entities('bed') as any[] | undefined;
 
     const cacheKey = useSessionScopedCacheKey(
         'rf_plants_v2',
@@ -34,7 +40,12 @@ export function usePlants(status?: PlantStatus) {
     );
     const { cached, cacheLoaded } = useQueryCache(cacheKey, remotePlants);
 
-    const plants = !hasSession ? [] : remotePlants ?? cached;
+    const filteredProjection = projectedPlants?.filter((plant) => !status || plant.status === status);
+    const fallbackPlants = (remotePlants ?? cached ?? []) as any[];
+    const optimisticPlants = projection && !projection.complete
+        ? [...fallbackPlants.filter((row) => !filteredProjection?.some((pending) => pending.entityUuid === row.entityUuid)), ...(filteredProjection ?? [])]
+        : projection ? filteredProjection : fallbackPlants;
+    const plants = !hasSession ? [] : projection?.complete ? filteredProjection : optimisticPlants;
     const { plants: libraryPlants } = usePlantLibrary(locale);
     const libraryById = useMemo(
         () => new Map((libraryPlants ?? []).map((plant: any) => [String(plant._id), plant])),
@@ -56,10 +67,11 @@ export function usePlants(status?: PlantStatus) {
         [plants, libraryById]
     );
 
-    const addPlantMutation = useMutation(api.plants.addPlant);
-    const updateStatusMutation = useMutation(api.plants.updatePlantStatus);
-    const updatePlantMutation = useMutation(api.plants.updatePlant);
-    const deletePlantMutation = useMutation(api.plants.deletePlant);
+    const { queueOperation } = useEntitySync();
+    const uuidFor = (rows: any[] | undefined, id: unknown) =>
+        rows?.find((row) => String(row._id) === String(id) || row.entityUuid === id)?.entityUuid;
+    const currentPlant = (id: Id<'userPlants'>) =>
+        projectedPlants?.find((plant) => String(plant._id) === String(id) || plant.entityUuid === String(id));
 
     const addPlant = async (args: {
         plantMasterId?: Id<'plantsMaster'>;
@@ -73,7 +85,16 @@ export function usePlants(status?: PlantStatus) {
         notes?: string;
         clientRequestId?: string;
     }) => {
-        return await addPlantMutation({ ...args, deviceId });
+        const { gardenId, bedId, clientRequestId: _clientRequestId, ...payload } = args;
+        const result = await queueOperation({
+            entityType: 'plant', operationType: 'create',
+            payload: { ...payload, status: payload.status ?? 'planning' },
+            parentRefs: {
+                gardenUuid: gardenId ? uuidFor(projectedGardens, gardenId) : null,
+                bedUuid: bedId ? uuidFor(projectedBeds, bedId) : null,
+            },
+        });
+        return result.entityUuid as Id<'userPlants'>;
     };
 
     const updateStatus = async (
@@ -82,7 +103,15 @@ export function usePlants(status?: PlantStatus) {
         notes?: string,
         location?: { gardenId?: Id<'gardens'> | null; bedId?: Id<'beds'> | null }
     ) => {
-        return await updateStatusMutation({ plantId, status, notes, ...location, deviceId });
+        const current = currentPlant(plantId);
+        await queueOperation({
+            entityType: 'plant', entityUuid: current?.entityUuid ?? String(plantId), operationType: 'update',
+            baseRevision: current?.revision ?? 1, payload: { status, notes },
+            parentRefs: location ? {
+                gardenUuid: location.gardenId ? uuidFor(projectedGardens, location.gardenId) : null,
+                bedUuid: location.bedId ? uuidFor(projectedBeds, location.bedId) : null,
+            } : undefined,
+        });
     };
 
     const updatePlant = async (
@@ -97,11 +126,24 @@ export function usePlants(status?: PlantStatus) {
             expectedHarvestDate?: number;
         }
     ) => {
-        return await updatePlantMutation({ plantId, ...updates, deviceId });
+        const current = currentPlant(plantId);
+        const { gardenId, bedId, ...payload } = updates;
+        await queueOperation({
+            entityType: 'plant', entityUuid: current?.entityUuid ?? String(plantId), operationType: 'update',
+            baseRevision: current?.revision ?? 1, payload,
+            parentRefs: gardenId !== undefined || bedId !== undefined ? {
+                ...(gardenId !== undefined && { gardenUuid: gardenId ? uuidFor(projectedGardens, gardenId) : null }),
+                ...(bedId !== undefined && { bedUuid: bedId ? uuidFor(projectedBeds, bedId) : null }),
+            } : undefined,
+        });
     };
 
     const deletePlant = async (plantId: Id<'userPlants'>) => {
-        return await deletePlantMutation({ plantId, deviceId });
+        const current = currentPlant(plantId);
+        await queueOperation({
+            entityType: 'plant', entityUuid: current?.entityUuid ?? String(plantId), operationType: 'delete',
+            baseRevision: current?.revision ?? 1,
+        });
     };
 
     return {

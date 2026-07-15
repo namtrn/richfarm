@@ -19,6 +19,7 @@ import { useQuery } from 'convex/react';
 import { useReminders } from '../../hooks/useReminders';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
+import { useGardens } from '../../hooks/useGardens';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
 import { useUnitSystem } from '../../hooks/useUnitSystem';
@@ -770,7 +771,7 @@ export default function ReminderScreen() {
   const { beds } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
-  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
+  const { gardens } = useGardens();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);

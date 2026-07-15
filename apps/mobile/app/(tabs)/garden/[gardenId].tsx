@@ -15,11 +15,9 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Pencil, Trash2, X } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { useQuery, useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
-import { api } from '../../../../../packages/convex/convex/_generated/api';
-import { useDeviceId } from '../../../lib/deviceId';
 import { useBeds } from '../../../hooks/useBeds';
+import { useGardens } from '../../../hooks/useGardens';
 import { Id } from '../../../../../packages/convex/convex/_generated/dataModel';
 import { formatAreaValue, formatDistanceValue, getAreaUnitLabel, getDistanceUnitLabel, parseAreaInput, parseDistanceInput, UnitSystem } from '../../../lib/units';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
@@ -561,7 +559,6 @@ export default function GardenDetailScreen() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const { gardenId } = useLocalSearchParams<{ gardenId: string }>();
   const resolvedGardenId = Array.isArray(gardenId) ? gardenId[0] : gardenId;
-  const { deviceId } = useDeviceId();
   const unitSystem = useUnitSystem();
 
   useEffect(() => {
@@ -570,15 +567,13 @@ export default function GardenDetailScreen() {
     }
   }, [appMode, router]);
 
-  const gardensQuery = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+  const { gardens: gardensQuery, updateGarden, deleteGarden } = useGardens();
   const garden = useMemo(
     () => gardensQuery?.find((g: any) => g._id === resolvedGardenId),
     [gardensQuery, resolvedGardenId]
   );
 
   const { beds, createBed, updateBed, deleteBed } = useBeds(resolvedGardenId as Id<'gardens'>);
-  const updateGarden = useMutation(api.gardens.updateGarden);
-  const deleteGarden = useMutation(api.gardens.deleteGarden);
 
   const navigateToGardenList = () => {
     router.replace('/(tabs)/garden');
@@ -762,7 +757,7 @@ export default function GardenDetailScreen() {
         visible={showGardenEdit}
         garden={garden}
         onClose={() => setShowGardenEdit(false)}
-        onSave={(updates) => updateGarden({ gardenId: garden._id, deviceId, ...updates })}
+        onSave={(updates) => updateGarden(garden._id, updates)}
         unitSystem={unitSystem}
       />
 
@@ -816,7 +811,7 @@ export default function GardenDetailScreen() {
                   return;
                 }
                 if (action.type === 'garden') {
-                  await deleteGarden({ gardenId: garden._id, deviceId });
+                  await deleteGarden(garden._id);
                   router.replace('/(tabs)/garden');
                 }
               }}

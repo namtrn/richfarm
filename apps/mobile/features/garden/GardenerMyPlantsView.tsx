@@ -6,6 +6,7 @@ import { useQuery } from 'convex/react';
 import { useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
+import { useGardens } from '../../hooks/useGardens';
 import { useDeviceId } from '../../lib/deviceId';
 import { useTheme } from '../../lib/theme';
 import { PlantImageSmall } from '../../components/ui/PlantImage';
@@ -38,7 +39,7 @@ export function GardenerMyPlantsView({ hideHeader = false }: { hideHeader?: bool
   const { deviceId } = useDeviceId();
   const { plants, isLoading } = usePlants();
   const { beds } = useBeds();
-  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
+  const { gardens } = useGardens();
   const [search, setSearch] = useState('');
 
   const bedById = useMemo(

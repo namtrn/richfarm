@@ -10,6 +10,7 @@ import { GardenOverviewSummary } from '../../components/garden/GardenOverviewSum
 import { useReminders } from '../../hooks/useReminders';
 import { useBeds } from '../../hooks/useBeds';
 import { usePlants } from '../../hooks/usePlants';
+import { useGardens } from '../../hooks/useGardens';
 import { useUserSettings } from '../../hooks/useUserSettings';
 import { useTheme } from '../../lib/theme';
 import { useAuth } from '../../lib/auth';
@@ -54,7 +55,7 @@ export default function HomeScreen() {
     isHydrated: isWeatherCardReady,
     isSaving: isSavingWeatherPreference,
   } = useWeatherCardPreference();
-  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
+  const { gardens } = useGardens();
 
   const displayName = user?.name || t('home.welcome_default');
   const initials = displayName

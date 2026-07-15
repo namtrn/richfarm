@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ConvexReactClient } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
-import type { EntityType } from './types';
+import type { EntityOperationPayload, EntityType } from './types';
+import { loadOutbox } from './queue';
 
 type SnapshotDomain = EntityType | 'tombstone';
-type ProjectionEnvelope = {
+export type ProjectionEnvelope = {
   version: 1;
   scope: string;
   generation: string;
@@ -17,6 +18,19 @@ type ProjectionEnvelope = {
 const domains: SnapshotDomain[] = [
   'tombstone', 'garden', 'bed', 'plant', 'activity', 'harvest', 'photo',
 ];
+const projectionListeners = new Set<(scope: string) => void>();
+
+function notifyProjectionListeners(scope: string) {
+  for (const listener of projectionListeners) listener(scope);
+}
+
+export function subscribeAuthoritativeProjection(scope: string, listener: () => void) {
+  const wrapped = (changedScope: string) => {
+    if (changedScope === scope) listener();
+  };
+  projectionListeners.add(wrapped);
+  return () => projectionListeners.delete(wrapped);
+}
 
 function projectionKey(scope: string) {
   return `rf_sync_projection_v1_${encodeURIComponent(scope)}`;
@@ -43,6 +57,72 @@ export async function loadAuthoritativeProjection(scope: string) {
   } catch {
     return null;
   }
+}
+
+function logicalId(row: Record<string, unknown> | undefined, fallback: string) {
+  return String(row?._id ?? row?.entityUuid ?? fallback);
+}
+
+/** Returns the server snapshot with the current outbox applied as an optimistic overlay. */
+export async function loadRenderedProjection(scope: string): Promise<ProjectionEnvelope | null> {
+  const authoritative = await loadAuthoritativeProjection(scope);
+  const outbox = await loadOutbox(scope);
+  if (!authoritative && outbox.operations.length === 0) return null;
+  const rendered: ProjectionEnvelope = authoritative
+    ? JSON.parse(JSON.stringify(authoritative))
+    : emptyProjection(scope, outbox.syncGeneration ?? 'pending');
+  for (const action of outbox.operations) {
+    if (action.type !== 'entity') continue;
+    const op = action.payload as EntityOperationPayload;
+    const collection = rendered.entities[op.entityType];
+    if (rendered.tombstones[`${op.entityType}:${op.entityUuid}`]) continue;
+    const parentTypes: Array<[keyof NonNullable<EntityOperationPayload['parentRefs']>, EntityType]> = [
+      ['gardenUuid', 'garden'], ['bedUuid', 'bed'], ['plantUuid', 'plant'],
+    ];
+    const hasInvalidParent = parentTypes.some(([key, type]) => {
+      const uuid = op.parentRefs?.[key];
+      return typeof uuid === 'string'
+        && (Boolean(rendered.tombstones[`${type}:${uuid}`]) || !rendered.entities[type][uuid]);
+    });
+    if (hasInvalidParent) continue;
+    if (op.operationType === 'delete') {
+      delete collection[op.entityUuid];
+      continue;
+    }
+    const current = (collection[op.entityUuid] ?? {}) as Record<string, unknown>;
+    if (
+      op.operationType === 'update'
+      && (Object.keys(current).length === 0 || current.revision !== op.baseRevision)
+    ) continue;
+    const payload = op.payload && typeof op.payload === 'object' && !Array.isArray(op.payload)
+      ? op.payload as Record<string, unknown>
+      : {};
+    const row: Record<string, unknown> = {
+      ...current,
+      ...payload,
+      _id: logicalId(current, op.entityUuid),
+      entityUuid: op.entityUuid,
+      revision: current.revision ?? op.baseRevision ?? 0,
+      _pending: true,
+    };
+    if (op.parentRefs?.gardenUuid !== undefined) {
+      row.gardenId = op.parentRefs.gardenUuid === null
+        ? undefined
+        : logicalId(rendered.entities.garden[op.parentRefs.gardenUuid] as Record<string, unknown>, op.parentRefs.gardenUuid);
+    }
+    if (op.parentRefs?.bedUuid !== undefined) {
+      row.bedId = op.parentRefs.bedUuid === null
+        ? undefined
+        : logicalId(rendered.entities.bed[op.parentRefs.bedUuid] as Record<string, unknown>, op.parentRefs.bedUuid);
+    }
+    if (op.parentRefs?.plantUuid !== undefined) {
+      row.userPlantId = op.parentRefs.plantUuid === null
+        ? undefined
+        : logicalId(rendered.entities.plant[op.parentRefs.plantUuid] as Record<string, unknown>, op.parentRefs.plantUuid);
+    }
+    collection[op.entityUuid] = row;
+  }
+  return rendered;
 }
 
 export async function reconcileAuthoritativeSnapshot(input: {
@@ -81,5 +161,6 @@ export async function reconcileAuthoritativeSnapshot(input: {
   projection.hydratedAt = Date.now();
   if (!input.isCurrent()) return { status: 'scope_changed' as const };
   await AsyncStorage.setItem(projectionKey(input.scope), JSON.stringify(projection));
+  notifyProjectionListeners(input.scope);
   return { status: 'ok' as const, projection };
 }
