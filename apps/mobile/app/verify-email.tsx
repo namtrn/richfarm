@@ -30,6 +30,7 @@ export default function VerifyEmailScreen() {
 
       <TouchableOpacity
         onPress={() => router.replace('/auth')}
+        testID="e2e-auth-back-to-signin"
         style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 14, alignItems: 'center' }}
       >
         <Text style={{ color: theme.card, fontWeight: '600', fontSize: 14 }}>{t('profile.auth_back_to_sign_in')}</Text>

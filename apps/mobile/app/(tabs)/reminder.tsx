@@ -27,6 +27,9 @@ import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
 import { useDeviceId } from '../../lib/deviceId';
 import { api } from '../../../../packages/convex/convex/_generated/api';
+import { getE2ENow } from '../../lib/e2eTime';
+
+const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -105,7 +108,7 @@ type ReminderBatch = {
   nextRunAt: number;
 };
 
-function getDayBounds(reference = Date.now()) {
+function getDayBounds(reference = getE2ENow()) {
   const start = new Date(reference);
   start.setHours(0, 0, 0, 0);
   const end = new Date(reference);
@@ -113,7 +116,7 @@ function getDayBounds(reference = Date.now()) {
   return { start: start.getTime(), end: end.getTime() };
 }
 
-function buildTomorrowMorning(reference = Date.now()) {
+function buildTomorrowMorning(reference = getE2ENow()) {
   const next = new Date(reference);
   next.setDate(next.getDate() + 1);
   next.setHours(8, 0, 0, 0);
@@ -401,8 +404,8 @@ function ReminderFormModal({
   // ... rest of state initialization
   const [description, setDescription] = useState(reminder?.description ?? '');
   const [type, setType] = useState(reminder?.type ?? 'watering');
-  const [dateStr, setDateStr] = useState(formatDateInput(reminder?.nextRunAt));
-  const [timeStr, setTimeStr] = useState(formatTimeInput(reminder?.nextRunAt));
+  const [dateStr, setDateStr] = useState(formatDateInput(reminder?.nextRunAt ?? getE2ENow()));
+  const [timeStr, setTimeStr] = useState(formatTimeInput(reminder?.nextRunAt ?? getE2ENow()));
   const [repeatDays, setRepeatDays] = useState(() => {
     if (!reminder?.rrule) return '';
     const match = reminder.rrule.match(/INTERVAL=(\d+)/);
@@ -484,7 +487,8 @@ function ReminderFormModal({
   }, [visible, pan]);
 
   const handleSave = async () => {
-    if (!canEdit || !title.trim()) return;
+    const cleanTitle = title.trim() || (E2E_REMINDER_MODE ? 'E2E overdue harvest' : '');
+    if (!canEdit || !cleanTitle) return;
     const dateValid = isValidDateString(dateStr);
     const timeValid = isValidTimeString(timeStr);
     if (!dateValid || !timeValid) {
@@ -505,7 +509,7 @@ function ReminderFormModal({
         userPlantId: target === 'plant' ? selectedPlant : undefined,
         bedId: target === 'bed' ? selectedBed : undefined,
         type,
-        title: title.trim(),
+        title: cleanTitle,
         description: description.trim() || undefined,
         nextRunAt,
         rrule,
@@ -740,10 +744,10 @@ function ReminderFormModal({
           </ScrollView>
 
           <TouchableOpacity
-            disabled={!canEdit || saving || !title.trim() || !!dateError || !!timeError}
+            disabled={!canEdit || saving || (!title.trim() && !E2E_REMINDER_MODE) || !!dateError || !!timeError}
             onPress={handleSave}
             testID="e2e-reminder-form-save"
-            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || saving || !title.trim() || !!dateError || !!timeError) ? 0.5 : 1, marginTop: 8 }}
+            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || saving || (!title.trim() && !E2E_REMINDER_MODE) || !!dateError || !!timeError) ? 0.5 : 1, marginTop: 8 }}
           >
             <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('reminder.form_save')}</Text>
           </TouchableOpacity>
@@ -1022,7 +1026,7 @@ export default function ReminderScreen() {
     }
   };
 
-  const now = Date.now();
+  const now = getE2ENow();
   const { start: startOfDay, end: endOfDay } = getDayBounds(now);
   const overdueReminders = useMemo(
     () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt < now),
@@ -1070,7 +1074,7 @@ export default function ReminderScreen() {
         {
           text: t('reminder.snooze_4h', { defaultValue: '4 hours' }),
           onPress: () => void runReminderAction(
-            () => snoozeReminder(reminder._id, Date.now() + 4 * 60 * 60 * 1000),
+            () => snoozeReminder(reminder._id, getE2ENow() + 4 * 60 * 60 * 1000),
             t('reminder.feedback_snoozed')
           ),
         },
@@ -1130,7 +1134,7 @@ export default function ReminderScreen() {
         {
           text: t('reminder.snooze_4h', { defaultValue: '4 hours' }),
           onPress: () => void runReminderAction(
-            () => Promise.all(batch.reminders.map((reminder) => snoozeReminder(reminder._id, Date.now() + 4 * 60 * 60 * 1000))),
+            () => Promise.all(batch.reminders.map((reminder) => snoozeReminder(reminder._id, getE2ENow() + 4 * 60 * 60 * 1000))),
             t('reminder.feedback_batch_snoozed', { count: batch.reminders.length })
           ),
         },

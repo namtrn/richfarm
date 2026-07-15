@@ -10,13 +10,6 @@ appId: com.mygarden.app
 - runFlow:
     when:
       visible:
-        id: e2e-onboarding-start-button
-    commands:
-      - tapOn:
-          id: e2e-onboarding-start-button
-- runFlow:
-    when:
-      visible:
         id: e2e-onboarding-skip-button
     commands:
       - tapOn:
@@ -25,15 +18,13 @@ appId: com.mygarden.app
     visible:
       id: e2e-tab-home
     timeout: 60000
-- tapOn: "Home"
-- assertVisible:
-    id: e2e-home-title
-- tapOn: "Library"
+- tapOn: "Scan"
 - extendedWaitUntil:
     visible:
-      id: e2e-library-search-input
+      id: e2e-scan-open-button
     timeout: 30000
 - tapOn:
-    id: e2e-library-tab-pests
-- assertVisible:
-    id: e2e-library-tab-pests-content
+    id: e2e-scan-open-button
+- tapOn:
+    text: Cancel
+    optional: true

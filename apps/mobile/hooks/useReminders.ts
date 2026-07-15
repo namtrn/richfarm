@@ -1,4 +1,5 @@
 import { useQuery, useMutation } from 'convex/react';
+import { useState } from 'react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
@@ -6,7 +7,19 @@ import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 
+const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
+const E2E_NOW = process.env.EXPO_PUBLIC_E2E_NOW;
+const E2E_INITIAL_REMINDERS = E2E_REMINDER_MODE ? [{
+    _id: 'e2e-reminder-overdue',
+    enabled: true,
+    createdAt: Date.now(),
+    type: 'harvest',
+    title: 'E2E overdue harvest',
+    nextRunAt: new Date(E2E_NOW ? '2026-05-14T08:00:00+07:00' : Date.now() - 30 * 60 * 1000).getTime(),
+}] : [];
+
 export function useReminders(userPlantId?: Id<'userPlants'>) {
+    const [e2eReminders, setE2EReminders] = useState<any[]>(E2E_INITIAL_REMINDERS);
     const { deviceId } = useDeviceId();
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
@@ -31,8 +44,16 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { cached: cachedToday } =
         useQueryCache(todayCacheKey, remoteTodayReminders);
 
-    const reminders = !hasSession ? [] : remoteReminders ?? cachedReminders;
-    const todayReminders = !hasSession ? [] : remoteTodayReminders ?? cachedToday;
+    const reminders = E2E_REMINDER_MODE ? e2eReminders : !hasSession ? [] : remoteReminders ?? cachedReminders;
+    const todayReminders = E2E_REMINDER_MODE
+        ? e2eReminders.filter((reminder) => {
+            const date = new Date(reminder.nextRunAt);
+            const now = new Date();
+            return date.getFullYear() === now.getFullYear()
+                && date.getMonth() === now.getMonth()
+                && date.getDate() === now.getDate();
+        })
+        : !hasSession ? [] : remoteTodayReminders ?? cachedToday;
 
     const createReminderMutation = useMutation(api.reminders.createReminder);
     const toggleReminderMutation = useMutation(api.reminders.toggleReminder);
@@ -53,14 +74,36 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         priority?: number;
         waterLiters?: number;
     }) => {
+        if (E2E_REMINDER_MODE) {
+            const reminder = {
+                _id: `e2e-reminder-${Date.now()}`,
+                enabled: true,
+                createdAt: Date.now(),
+                ...args,
+            };
+            setE2EReminders((current) => [reminder, ...current]);
+            return reminder._id;
+        }
         return await createReminderMutation({ ...args, deviceId });
     };
 
     const toggleReminder = async (reminderId: Id<'reminders'>) => {
+        if (E2E_REMINDER_MODE) {
+            setE2EReminders((current) => current.map((reminder) => (
+                reminder._id === reminderId ? { ...reminder, enabled: !reminder.enabled } : reminder
+            )));
+            return;
+        }
         return await toggleReminderMutation({ reminderId, deviceId });
     };
 
     const completeReminder = async (reminderId: Id<'reminders'>) => {
+        if (E2E_REMINDER_MODE) {
+            setE2EReminders((current) => current.map((reminder) => (
+                reminder._id === reminderId ? { ...reminder, enabled: false, lastRunAt: Date.now() } : reminder
+            )));
+            return;
+        }
         return await completeReminderMutation({ reminderId, deviceId });
     };
 
@@ -79,18 +122,40 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             waterLiters?: number;
         }
     ) => {
+        if (E2E_REMINDER_MODE) {
+            setE2EReminders((current) => current.map((reminder) => (
+                reminder._id === reminderId ? { ...reminder, ...updates } : reminder
+            )));
+            return;
+        }
         return await updateReminderMutation({ reminderId, ...updates, deviceId });
     };
 
     const deleteReminder = async (reminderId: Id<'reminders'>) => {
+        if (E2E_REMINDER_MODE) {
+            setE2EReminders((current) => current.filter((reminder) => reminder._id !== reminderId));
+            return;
+        }
         return await deleteReminderMutation({ reminderId, deviceId });
     };
 
     const snoozeReminder = async (reminderId: Id<'reminders'>, snoozedUntil: number) => {
+        if (E2E_REMINDER_MODE) {
+            setE2EReminders((current) => current.map((reminder) => (
+                reminder._id === reminderId ? { ...reminder, nextRunAt: snoozedUntil } : reminder
+            )));
+            return;
+        }
         return await snoozeReminderMutation({ reminderId, snoozedUntil, deviceId });
     };
 
     const skipReminder = async (reminderId: Id<'reminders'>) => {
+        if (E2E_REMINDER_MODE) {
+            setE2EReminders((current) => current.map((reminder) => (
+                reminder._id === reminderId ? { ...reminder, enabled: false, lastRunAt: Date.now() } : reminder
+            )));
+            return;
+        }
         return await skipReminderMutation({ reminderId, deviceId });
     };
 

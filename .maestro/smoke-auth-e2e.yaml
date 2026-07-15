@@ -1,0 +1,54 @@
+appId: com.mygarden.app
+---
+- openLink:
+    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- openLink:
+    link: my-garden://auth?e2e=1
+- extendedWaitUntil:
+    visible:
+      id: e2e-auth-mode-signup
+    timeout: 30000
+- tapOn:
+    id: e2e-auth-mode-signup
+- tapOn:
+    id: e2e-auth-name-input
+- inputText: E2E User
+- pressKey: Enter
+- tapOn:
+    id: e2e-auth-email-input
+- eraseText
+- inputText: e2e@richfarm.test
+- pressKey: Enter
+- tapOn:
+    id: e2e-auth-password-input
+- inputText: password123
+- pressKey: Enter
+- tapOn:
+    id: e2e-auth-confirm-input
+- inputText: password123
+- pressKey: Enter
+- tapOn:
+    id: e2e-auth-primary-button
+- extendedWaitUntil:
+    visible: "Account created. Check your email to verify before signing in."
+    timeout: 10000
+- openLink:
+    link: my-garden://verify-email
+- extendedWaitUntil:
+    visible: "Email verified"
+    timeout: 10000
+- tapOn:
+    id: e2e-auth-back-to-signin
+- openLink:
+    link: my-garden://auth?e2e=1
+- extendedWaitUntil:
+    visible:
+      id: e2e-auth-google-button
+    timeout: 10000
+- tapOn:
+    id: e2e-auth-google-button
+- assertVisible: "Google sign in started."

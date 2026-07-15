@@ -1,0 +1,48 @@
+appId: com.mygarden.app
+---
+- openLink:
+    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- tapOn:
+    text: Cancel
+    optional: true
+- tapOn: "Reminder"
+- extendedWaitUntil:
+    visible:
+      id: e2e-reminder-add-button
+    timeout: 30000
+- tapOn:
+    id: e2e-reminder-add-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-reminder-form-title-input
+    timeout: 10000
+- tapOn:
+    id: e2e-reminder-form-save
+    optional: true
+- tapOn:
+    id: e2e-reminder-form-title-input
+- eraseText
+- inputText: Water basil
+- hideKeyboard
+- scroll
+- tapOn:
+    id: e2e-reminder-form-save
+- extendedWaitUntil:
+    visible: Water basil
+    timeout: 30000

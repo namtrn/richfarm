@@ -195,6 +195,7 @@ export default function ScanScreen() {
         <TouchableOpacity
           style={[styles.fab, { backgroundColor: theme.primary, bottom: fabBottom }]}
           onPress={openScanner}
+          testID="e2e-scan-open-button"
           activeOpacity={0.85}
         >
           <ScanSearch size={22} color="#fff" />

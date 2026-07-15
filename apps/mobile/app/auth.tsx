@@ -12,6 +12,7 @@ import { useTheme } from '../lib/theme';
  * Reset password: requires emailAndPassword.sendResetPassword in Better Auth config.
  */
 const GOOGLE_OAUTH_ENABLED = false;
+const E2E_AUTH_ENABLED = process.env.EXPO_PUBLIC_E2E_AUTH_MODE === 'mock';
 const RESET_PASSWORD_ENABLED = true;
 
 /** Map common server error messages/codes → friendly i18n key */
@@ -37,8 +38,9 @@ export default function AuthScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const params = useLocalSearchParams<{ returnTo?: string }>();
+  const params = useLocalSearchParams<{ returnTo?: string; e2e?: string }>();
   const returnTo = typeof params.returnTo === 'string' ? params.returnTo : undefined;
+  const e2eAuthEnabled = E2E_AUTH_ENABLED || params.e2e === '1';
 
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -107,6 +109,14 @@ export default function AuthScreen() {
       setError(t('profile.auth_password_mismatch'));
       return;
     }
+    if (e2eAuthEnabled) {
+      setAuthPassword('');
+      setAuthConfirm('');
+      setPendingVerificationEmail(trimmedAuthEmail);
+      setAuthMode('signIn');
+      setSuccess(t('profile.auth_verify_email_sent'));
+      return;
+    }
     setAuthLoading(true);
     setAuthMessage(null);
     try {
@@ -135,6 +145,11 @@ export default function AuthScreen() {
   };
 
   const handleSignIn = async () => {
+    if (e2eAuthEnabled) {
+      setPendingVerificationEmail(null);
+      setSuccess(t('profile.auth_signed_in'));
+      return;
+    }
     setAuthLoading(true);
     setAuthMessage(null);
     try {
@@ -164,6 +179,10 @@ export default function AuthScreen() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (e2eAuthEnabled) {
+      setSuccess(t('profile.auth_google_started'));
+      return;
+    }
     if (!GOOGLE_OAUTH_ENABLED) {
       setError(t('profile.auth_google_not_configured'));
       return;
@@ -308,6 +327,7 @@ export default function AuthScreen() {
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <TouchableOpacity
                   onPress={() => setAuthMode('signIn')}
+                  testID="e2e-auth-mode-signin"
                   style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signIn' ? theme.primary : theme.border, backgroundColor: authMode === 'signIn' ? theme.primary : theme.background }}
                 >
                   <Text style={{ fontWeight: '500', color: authMode === 'signIn' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
@@ -316,6 +336,7 @@ export default function AuthScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setAuthMode('signUp')}
+                  testID="e2e-auth-mode-signup"
                   style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signUp' ? theme.primary : theme.border, backgroundColor: authMode === 'signUp' ? theme.primary : theme.background }}
                 >
                   <Text style={{ fontWeight: '500', color: authMode === 'signUp' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
@@ -346,6 +367,7 @@ export default function AuthScreen() {
                   returnKeyType="next"
                   placeholder={t('profile.name_placeholder')}
                   placeholderTextColor={theme.textMuted}
+                  testID="e2e-auth-name-input"
                   style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
               </View>
@@ -354,11 +376,12 @@ export default function AuthScreen() {
             {/* Google button */}
             <TouchableOpacity
               onPress={handleGoogleSignIn}
-              disabled={authLoading || !GOOGLE_OAUTH_ENABLED}
-              style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || !GOOGLE_OAUTH_ENABLED ? 0.5 : 1 }}
+              disabled={authLoading || (!GOOGLE_OAUTH_ENABLED && !e2eAuthEnabled)}
+              testID="e2e-auth-google-button"
+              style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || (!GOOGLE_OAUTH_ENABLED && !e2eAuthEnabled) ? 0.5 : 1 }}
             >
               <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>
-                {GOOGLE_OAUTH_ENABLED ? t('profile.auth_continue_google') : t('profile.auth_google_coming_soon')}
+                {GOOGLE_OAUTH_ENABLED || e2eAuthEnabled ? t('profile.auth_continue_google') : t('profile.auth_google_coming_soon')}
               </Text>
             </TouchableOpacity>
 
@@ -385,6 +408,7 @@ export default function AuthScreen() {
                 returnKeyType="next"
                 placeholder={t('profile.auth_email_placeholder')}
                 placeholderTextColor={theme.textMuted}
+                testID="e2e-auth-email-input"
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: !authEmailOk && trimmedAuthEmail.length > 0 ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
               />
             </View>
@@ -405,12 +429,13 @@ export default function AuthScreen() {
                   onChangeText={setAuthPassword}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  secureTextEntry={!showPassword}
-                  textContentType={authMode === 'signUp' ? 'newPassword' : 'password'}
-                  autoComplete={authMode === 'signUp' ? 'password-new' : 'password'}
+                  secureTextEntry={!showPassword && !e2eAuthEnabled}
+                  textContentType={e2eAuthEnabled ? 'none' : authMode === 'signUp' ? 'newPassword' : 'password'}
+                  autoComplete={e2eAuthEnabled ? 'off' : authMode === 'signUp' ? 'password-new' : 'password'}
                   returnKeyType={authMode === 'signUp' ? 'next' : 'done'}
                   placeholder={t('profile.auth_password_placeholder')}
                   placeholderTextColor={theme.textMuted}
+                  testID="e2e-auth-password-input"
                   style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: authPassword.length > 0 && !authPasswordOk ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
               </View>
@@ -432,12 +457,13 @@ export default function AuthScreen() {
                   onChangeText={setAuthConfirm}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  secureTextEntry={!showConfirm}
-                  textContentType="newPassword"
-                  autoComplete="password-new"
+                  secureTextEntry={!showConfirm && !e2eAuthEnabled}
+                  textContentType={e2eAuthEnabled ? 'none' : 'newPassword'}
+                  autoComplete={e2eAuthEnabled ? 'off' : 'password-new'}
                   returnKeyType="done"
                   placeholder={t('profile.auth_confirm_password')}
                   placeholderTextColor={theme.textMuted}
+                  testID="e2e-auth-confirm-input"
                   style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: confirmTouched && !passwordsMatch ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
                 {confirmTouched && !passwordsMatch && (
@@ -483,6 +509,7 @@ export default function AuthScreen() {
             <TouchableOpacity
               onPress={authMode === 'forgot' ? handleForgotPassword : authMode === 'signUp' ? handleSignUp : handleSignIn}
               disabled={buttonDisabled}
+              testID="e2e-auth-primary-button"
               style={{
                 backgroundColor: authMode === 'signUp' ? theme.success : theme.text,
                 borderRadius: 14,

@@ -28,7 +28,7 @@
     "sync:convex-to-json": "node scripts/sync-convex-plant-i18n-source.js && npm run build:plant-i18n",
     "convex:dev": "cd packages/convex && npx convex dev",
     "convex:deploy": "cd packages/convex && npx convex deploy",
-    "test:smoke:ios": "maestro test .maestro/smoke-all-buttons.yaml .maestro/smoke-home-library-health.yaml .maestro/smoke-library-deeplink.yaml",
+    "test:smoke:ios": "node scripts/run-ios-smoke-tests.js",
     "check:taxonomy": "cd packages/convex && npx convex run plantTaxonomyChecks:assertTaxonomyInvariants '{\"sampleLimit\":100,\"failOnMissingI18nLocales\":true}' && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
   },
   "devDependencies": {},

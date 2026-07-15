@@ -1,0 +1,22 @@
+appId: com.mygarden.app
+---
+- openLink:
+    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- tapOn:
+    text: Cancel
+    optional: true
+- openLink:
+    link: my-garden://reminder
+- extendedWaitUntil:
+    visible: E2E overdue harvest
+    timeout: 30000
+- assertVisible: Overdue

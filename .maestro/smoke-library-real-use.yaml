@@ -10,13 +10,6 @@ appId: com.mygarden.app
 - runFlow:
     when:
       visible:
-        id: e2e-onboarding-start-button
-    commands:
-      - tapOn:
-          id: e2e-onboarding-start-button
-- runFlow:
-    when:
-      visible:
         id: e2e-onboarding-skip-button
     commands:
       - tapOn:
@@ -25,43 +18,36 @@ appId: com.mygarden.app
     visible:
       id: e2e-tab-home
     timeout: 60000
-- tapOn: "Home"
-- tapOn: "My Plants"
-- tapOn:
-    id: e2e-garden-tab-planning
-    optional: true
-- openLink:
-    link: my-garden://reminder
-- openLink:
-    link: my-garden://library
+- tapOn: "Library"
 - extendedWaitUntil:
     visible:
       id: e2e-library-search-input
     timeout: 30000
 - tapOn:
-    id: e2e-library-shortcut-health
-    optional: true
-- tapOn:
-    id: e2e-health-tab-light
-    optional: true
-- openLink:
-    link: my-garden://library
-- tapOn:
     id: e2e-library-search-input
 - eraseText
-- inputText: to
+- inputText: tomato
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-plant-card
+    timeout: 30000
 - tapOn:
     id: e2e-library-plant-card
+- tapOn:
+    id: e2e-library-modal-favorite
+    optional: true
+- tapOn:
+    id: e2e-library-modal-add
     optional: true
 - tapOn:
     id: e2e-library-modal-close
     optional: true
 - tapOn:
-    id: e2e-tab-more
-    optional: true
+    id: e2e-library-tab-pests
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-tab-pests-content
+    timeout: 30000
 - tapOn:
-    id: e2e-profile-sync-now
-    optional: true
-- tapOn:
-    id: e2e-profile-save-settings
+    id: e2e-library-tab-guide
     optional: true

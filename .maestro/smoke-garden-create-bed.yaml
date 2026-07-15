@@ -1,0 +1,84 @@
+appId: com.mygarden.app
+---
+- openLink:
+    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- tapOn:
+    id: e2e-tab-garden
+- tapOn:
+    id: e2e-garden-create-close
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: e2e-garden-card
+    commands:
+      - tapOn: "Create Garden"
+      - extendedWaitUntil:
+          visible:
+            id: e2e-garden-create-name-input
+          timeout: 10000
+      - tapOn:
+          id: e2e-garden-create-name-input
+      - eraseText
+      - inputText: QA Garden
+      - pressKey: Enter
+      - tapOn:
+          id: e2e-garden-create-width-input
+      - eraseText
+      - inputText: 2
+      - pressKey: Enter
+      - tapOn:
+          id: e2e-garden-create-length-input
+      - eraseText
+      - inputText: 3
+      - pressKey: Enter
+      - tapOn:
+          id: e2e-garden-create-submit
+      - tapOn:
+          id: e2e-tab-garden
+      - extendedWaitUntil:
+          visible:
+            id: e2e-garden-card
+          timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    point: "18%,43%"
+- tapOn:
+    point: "18%,43%"
+- extendedWaitUntil:
+    visible:
+      id: e2e-garden-detail-add-bed
+    timeout: 30000
+- tapOn:
+    id: e2e-garden-detail-add-bed
+- extendedWaitUntil:
+    visible:
+      id: e2e-garden-bed-name-input
+    timeout: 10000
+- tapOn:
+    id: e2e-garden-bed-name-input
+- eraseText
+- inputText: QA Bed
+- pressKey: Enter
+- tapOn:
+    id: e2e-garden-bed-save
+- extendedWaitUntil:
+    visible: QA Bed
+    timeout: 30000
