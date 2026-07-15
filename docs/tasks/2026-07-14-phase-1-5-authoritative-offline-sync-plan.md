@@ -1034,3 +1034,87 @@ Latest implementation cross-check:
 
 - `docs/tasks/2026-07-15-phase-1-5-implementation-cross-check.md`
 - Verdict: PARTIAL; the Phase 2 release gate remains closed.
+
+## 2026-07-15 Implementation Continuation and Cross-Check
+
+This continuation closes the concrete source defects recorded by the independent
+audit, but it does not waive the operational release gates in Milestone 7.
+
+Implemented and verified in current source:
+
+- Legacy Activity and Harvest sync now treats a deleted or tombstoned Plant as a
+  terminal parent deletion; the mobile client removes these operations instead
+  of retrying forever.
+- Plant Garden/Bed updates validate final state. A Garden-only move clears an
+  incompatible Bed; an explicitly mismatched Garden+Bed pair is rejected.
+- Manual Activity types are allowlisted in v2 and compatibility mutations, so
+  clients cannot manufacture protected lifecycle events.
+- The paginated authoritative projection is now consumed by production Garden,
+  Bed, and Plant hooks. Valid durable outbox operations are rendered as pending
+  overlays, including before first online hydration.
+- Garden, Bed, and Plant production CRUD now enqueues stable logical-ID v2
+  operations. Direct legacy mutation calls for these entities were removed from
+  production mobile screens.
+- Activity, Harvest, and Photo queue flushes now commit through the v2 operation
+  processor. This allows children to reference a Plant created offline by its
+  logical ID.
+- Acknowledged entity operations remain in the outbox until a post-commit
+  authoritative snapshot is durably stored, covering mutation-response loss and
+  preventing optimistic rollback after acknowledgement.
+- Compatibility Garden, Bed, Plant, Activity, Harvest, Photo, and legacy batch
+  writes invalidate `syncSignal`, so other clients request authoritative
+  reconciliation.
+- v2 Plant parity now preserves Bed dimensions, Plant position and expected
+  harvest fields, and emits protected lifecycle/location activities.
+- Regression coverage now includes deleted-parent legacy children, final
+  Garden/Bed invariants, lifecycle Activity reservation, compatibility realtime
+  invalidation, account-scoped outboxes, pending overlays, and first-hydration
+  offline creation.
+
+Verification executed after the implementation:
+
+- Convex TypeScript: PASS — `npx tsc -p packages/convex/tsconfig.json --noEmit`
+- Mobile TypeScript: PASS — `npx tsc -p apps/mobile/tsconfig.json --noEmit`
+- Full Vitest suite: PASS — 6 files, 42 tests
+- The API/Supertest tests required an unsandboxed localhost run; all assertions
+  passed when run with that permission.
+
+Remaining release gates (not source claims):
+
+- Run the migration dry-run and paginated backfill against the target backend,
+  record zero unresolved duplicates/ownership mismatches, and rehearse rollback.
+- Define and enable the minimum-safe-client/legacy enforcement cutoff after the
+  supported old-client window is proven.
+- Add Photo orphan-upload cleanup and prove partially uploaded Photo recovery on
+  a real restarted client.
+- Execute the required two-real-client matrix: response loss, same/different
+  field conflicts, delete versus offline edit for all six entities, missed
+  realtime, local-storage loss, account switch, slow old-account response,
+  generation rotation, and account deletion.
+- Configure outcome metrics and rollout pause thresholds, deploy backend-first,
+  then obtain the required independent PASS audit.
+
+Current verdict: **SOURCE IMPLEMENTATION ADVANCED; RELEASE GATE STILL CLOSED**.
+Phase 2 must not depend on this layer until the operational and independent-audit
+gates above are completed.
+
+### Final source-hardening status — 2026-07-15
+
+All repository-side blockers identified in the prior cross-check were completed:
+full migration auditing, internal-only backfill, runtime legacy cutoff,
+payload-free metrics and pause thresholds, orphan Photo cleanup, authoritative
+Photo hydration/deletion, complete v2 production mutation routing, free-tier
+parity, quarantine visibility, and account-deletion cleanup.
+
+Verification baseline:
+
+- both Convex and mobile TypeScript checks pass;
+- API and dashboard production builds pass;
+- iOS Expo production export passes;
+- all 52 tests in the full repository suite pass.
+
+Current verdict: **SOURCE RELEASE CANDIDATE PASS; OPERATIONAL GATE PENDING**.
+The remaining required evidence is explicitly procedural: target-backend
+migration/rollback rehearsal, the two-real-client failure matrix, rollout metric
+observation, legacy cutoff validation, and an independent PASS audit. Execute
+`docs/tasks/2026-07-15-phase-1-5-staging-release-runbook.md` before opening Phase 2.
