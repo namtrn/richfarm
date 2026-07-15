@@ -5,14 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
 import { useAuth } from '../../lib/auth';
-import { loadSyncQueue } from '../../lib/sync/queue';
+import { clearSyncNamespace, loadSyncQueue } from '../../lib/sync/queue';
 import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useUserSettings } from '../../hooks/useUserSettings';
 import { useSubscription } from '../../hooks/useSubscription';
 import { usePaywall } from '../../hooks/usePaywall';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
-import { getAuthClient } from '../../lib/auth-client';
+import { authClient, getAuthClient } from '../../lib/auth-client';
 import { clearCachedCurrentUser } from '../../lib/authCache';
 import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
@@ -41,6 +41,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const { themePreference, setThemePreference: setGlobalTheme } = useThemeContext();
   const { user, deviceId, updateProfile, isLoading } = useAuth();
+  const { data: authSession } = authClient.useSession();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
   const { appMode, switchMode, isLoading: isAppModeLoading } = useAppMode();
@@ -272,6 +273,9 @@ export default function ProfileScreen() {
             try {
               const authClient = await getAuthClient();
               await deleteAccountMutation({});
+              if (deviceId) {
+                await clearSyncNamespace(`${deviceId}:${authSession?.user?.id ?? 'guest'}`);
+              }
               await authClient.signOut();
               await clearCachedCurrentUser(deviceId, { includeOnboarding: true });
               router.replace({ pathname: '/auth', params: { returnTo: '/' } });

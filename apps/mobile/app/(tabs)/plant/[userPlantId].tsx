@@ -16,10 +16,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from 'lucide-react-native';
 import { usePlants, type PlantStatus } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
+import { useGardens } from '../../../hooks/useGardens';
 import { useAuth } from '../../../lib/auth';
 import { Id } from '../../../../../packages/convex/convex/_generated/dataModel';
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQuery } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../../../../packages/convex/convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
@@ -41,6 +42,8 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useDeviceId } from '../../../lib/deviceId';
+import { useEntitySync } from '../../../hooks/useEntitySync';
+import { useSyncProjection } from '../../../hooks/useSyncProjection';
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -90,23 +93,37 @@ export default function PlantDetailScreen() {
 
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
   const { beds } = useBeds();
-  const gardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip') ?? [];
-  const deleteBackendActivity = useMutation(api.logs.deleteLog);
-  const deleteBackendHarvest = useMutation(api.harvestRecords.deleteHarvest);
-  const backendActivities = useQuery(
+  const { gardens } = useGardens();
+  const { queueOperation } = useEntitySync();
+  const plant = useMemo(
+    () => plants.find((p: any) => String(p._id) === String(resolvedPlantId) || p.entityUuid === resolvedPlantId),
+    [plants, resolvedPlantId]
+  );
+  const { projection, entities } = useSyncProjection();
+  const projectedActivities = entities('activity') as any[] | undefined;
+  const projectedHarvests = entities('harvest') as any[] | undefined;
+  const projectedPhotos = entities('photo') as any[] | undefined;
+  const authoritativePlantId = plant?._pending ? undefined : plant?._id;
+  const remoteActivities = useQuery(
     api.logs.getLogsForPlant,
-    resolvedPlantId
-      ? { userPlantId: resolvedPlantId as Id<'userPlants'>, deviceId, limit: 100 }
+    authoritativePlantId
+      ? { userPlantId: authoritativePlantId as Id<'userPlants'>, deviceId, limit: 100 }
       : 'skip'
   );
-  const backendHarvests = useQuery(
+  const remoteHarvests = useQuery(
     api.harvestRecords.getHarvests,
-    resolvedPlantId
-      ? { userPlantId: resolvedPlantId as Id<'userPlants'>, deviceId }
+    authoritativePlantId
+      ? { userPlantId: authoritativePlantId as Id<'userPlants'>, deviceId }
       : 'skip'
   );
+  const belongsToPlant = (entry: any) =>
+    String(entry.userPlantId) === String(plant?._id)
+    || entry.plantUuid === plant?.entityUuid;
+  const backendActivities = projection?.complete ? projectedActivities?.filter(belongsToPlant) : remoteActivities;
+  const backendHarvests = projection?.complete ? projectedHarvests?.filter(belongsToPlant) : remoteHarvests;
+  const backendPhotos = projection?.complete ? projectedPhotos?.filter(belongsToPlant) : undefined;
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const { queuePhoto, queueActivity, queueHarvest, removePendingActivity, removePendingHarvest } = usePlantSync();
+  const { queuePhoto, queueActivity, queueHarvest, removePendingActivity, removePendingHarvest, removePendingPhoto } = usePlantSync();
   const { favorites, toggleFavorite } = useFavorites();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const navigateBackOrGrowing = () => {
@@ -155,11 +172,6 @@ export default function PlantDetailScreen() {
     router.replace('/(tabs)/garden?tab=growing');
   };
 
-  const plant = useMemo(
-    () => plants.find((p: any) => p._id === resolvedPlantId),
-    [plants, resolvedPlantId]
-  );
-
   const favoriteIds = useMemo(
     () => new Set(favorites.map((fav: any) => String(fav.plantMasterId))),
     [favorites]
@@ -193,6 +205,21 @@ export default function PlantDetailScreen() {
     activities: [],
     harvests: [],
   });
+  const mergedPhotos = useMemo(() => {
+    if (!backendPhotos) return localData.photos;
+    const syncedLocalIds = new Set(
+      backendPhotos.flatMap((entry: any) => [entry.localId, entry.entityUuid]).filter(Boolean)
+    );
+    const pending = localData.photos.filter((entry) => !syncedLocalIds.has(entry.id));
+    const server = backendPhotos.map((entry: any) => ({
+      id: String(entry._id),
+      localId: entry.localId ?? entry.entityUuid,
+      uri: entry.photoUrl,
+      date: entry.takenAt ?? entry.uploadedAt,
+      source: entry.source === 'gallery' ? 'gallery' as const : 'camera' as const,
+    }));
+    return [...pending, ...server].sort((a, b) => b.date - a.date);
+  }, [backendPhotos, localData.photos]);
   const mergedHarvests = useMemo(() => {
     if (!backendHarvests) return localData.harvests;
     const syncedLocalIds = new Set(backendHarvests.map((entry: any) => entry.localId).filter(Boolean));
@@ -209,7 +236,7 @@ export default function PlantDetailScreen() {
     return [...pending, ...server].sort((a, b) => b.date - a.date);
   }, [backendHarvests, localData.harvests]);
   const timelineData = useMemo<PlantLocalData>(() => {
-    if (!backendActivities) return { ...localData, harvests: mergedHarvests };
+    if (!backendActivities) return { ...localData, photos: mergedPhotos, harvests: mergedHarvests };
     const syncedLocalIds = new Set(
       backendActivities.map((entry: any) => entry.localId).filter(Boolean)
     );
@@ -229,10 +256,11 @@ export default function PlantDetailScreen() {
     );
     return {
       ...localData,
+      photos: mergedPhotos,
       harvests: mergedHarvests,
       activities: [...pendingLocal, ...serverEntries].sort((a, b) => b.date - a.date),
     };
-  }, [backendActivities, localData, mergedHarvests]);
+  }, [backendActivities, localData, mergedHarvests, mergedPhotos]);
   const [localLoading, setLocalLoading] = useState(true);
   const [localSaving, setLocalSaving] = useState(false);
 
@@ -547,6 +575,17 @@ export default function PlantDetailScreen() {
   };
 
   const handleRemovePhoto = async (photoId: string) => {
+    const backendEntry = backendPhotos?.find((entry: any) => String(entry._id) === photoId);
+    if (backendEntry) {
+      await queueOperation({
+        entityType: 'photo',
+        entityUuid: backendEntry.entityUuid ?? backendEntry.localId ?? `legacy:${backendEntry._id}`,
+        operationType: 'delete',
+        baseRevision: backendEntry.revision ?? 1,
+      });
+    } else if (resolvedPlantId) {
+      await removePendingPhoto(resolvedPlantId, photoId);
+    }
     await persistLocalData(
       (prev) => ({ ...prev, photos: prev.photos.filter((p) => p.id !== photoId) }),
       setPhotoError,
@@ -575,7 +614,12 @@ export default function PlantDetailScreen() {
   const handleRemoveActivity = async (entryId: string) => {
     const backendEntry = backendActivities?.find((entry: any) => String(entry._id) === entryId);
     if (backendEntry) {
-      await deleteBackendActivity({ id: backendEntry._id, deviceId });
+      await queueOperation({
+        entityType: 'activity',
+        entityUuid: backendEntry.entityUuid ?? backendEntry.localId ?? `legacy:${backendEntry._id}`,
+        operationType: 'delete',
+        baseRevision: backendEntry.revision ?? 1,
+      });
       if (resolvedPlantId && backendEntry.localId) {
         await removePendingActivity(resolvedPlantId, backendEntry.localId);
         await persistLocalData(
@@ -623,7 +667,12 @@ export default function PlantDetailScreen() {
   const handleRemoveHarvest = async (entryId: string) => {
     const backendEntry = backendHarvests?.find((entry: any) => String(entry._id) === entryId);
     if (backendEntry) {
-      await deleteBackendHarvest({ id: backendEntry._id, deviceId });
+      await queueOperation({
+        entityType: 'harvest',
+        entityUuid: backendEntry.entityUuid ?? backendEntry.localId ?? `legacy:${backendEntry._id}`,
+        operationType: 'delete',
+        baseRevision: backendEntry.revision ?? 1,
+      });
       if (resolvedPlantId && backendEntry.localId) {
         await removePendingHarvest(resolvedPlantId, backendEntry.localId);
         await persistLocalData(

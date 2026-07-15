@@ -1,7 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useConvex, useMutation } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
-import type { Id } from '../../../../packages/convex/convex/_generated/dataModel';
 import {
     loadOutbox,
     loadSyncQueue,
@@ -11,11 +10,13 @@ import {
     setSyncGeneration,
     updateSyncActionPayload,
 } from './queue';
-import { buildSyncBatch, mapSyncActionToPhoto } from './mappers';
+import { mapSyncActionToPhoto } from './mappers';
 import { useDeviceId } from '../deviceId';
 import { EntityOperationPayload, SyncActionType } from './types';
 import { authClient } from '../auth-client';
-import { reconcileAuthoritativeSnapshot } from './reconciliation';
+import { APP_VERSION } from '../appVersion';
+import { loadRenderedProjection, reconcileAuthoritativeSnapshot } from './reconciliation';
+import { loadPlantLocalData, savePlantLocalData } from '../plantLocalData';
 import {
     loadPreferenceQueue,
     rebasePreferencePatch,
@@ -36,12 +37,12 @@ type SyncExecuteOptions = {
 
 export function useSyncExecutor() {
     const convex = useConvex();
-    const batchSync = useMutation(api.sync.batchSync);
     const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
-    const savePhoto = useMutation(api.storage.savePhoto);
+    const registerSyncUpload = useMutation(api.storage.registerSyncUpload);
     const ensureSession = useMutation(api.syncV2.ensureSession);
     const applyOperation = useMutation(api.syncV2.applyOperation);
     const applyPreferencesPatch = useMutation(api.userSettings.applyPreferencesPatch);
+    const recordClientOutcome = useMutation(api.syncRuntime.recordClientOutcome);
     const { deviceId } = useDeviceId();
     const { data: session } = authClient.useSession();
     const scope = deviceId
@@ -80,10 +81,15 @@ export function useSyncExecutor() {
         try {
             const outbox = await loadOutbox(scope);
             let generation = outbox.syncGeneration;
-            const serverSession = await ensureSession({ deviceId });
+            const serverSession = await ensureSession({ deviceId, appVersion: APP_VERSION });
             if (generation && serverSession && generation !== serverSession.generation) {
                 for (const operation of outbox.operations) {
                     await quarantineSyncAction(operation.id, 'wrong_generation', scope);
+                    await recordClientOutcome({
+                        deviceId, appVersion: APP_VERSION,
+                        entityType: operation.type === 'entity' ? (operation.payload as EntityOperationPayload).entityType : operation.type,
+                        status: 'quarantined',
+                    });
                 }
                 await setSyncGeneration(serverSession.generation, scope);
                 return {
@@ -112,8 +118,8 @@ export function useSyncExecutor() {
             );
             const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
-            const batch = buildSyncBatch(filteredQueue);
             const syncedIds = new Set<string>();
+            const syncedEntityIds = new Set<string>();
             let errorCount = 0;
 
             if (scope && serverSession) {
@@ -177,6 +183,7 @@ export function useSyncExecutor() {
                         deviceId,
                         operationId: operation.operationId,
                         syncGeneration: generation,
+                        appVersion: APP_VERSION,
                         entityType: operation.entityType,
                         entityUuid: operation.entityUuid,
                         type: operation.operationType,
@@ -186,12 +193,15 @@ export function useSyncExecutor() {
                     });
                     if (result.status === 'applied' || result.status === 'already_applied' || result.status === 'discarded_deleted' || result.status === 'discarded_stale') {
                         syncedIds.add(item.id);
+                        syncedEntityIds.add(item.id);
                     } else if (result.status === 'wrong_generation') {
                         await quarantineSyncAction(item.id, result.status, scope);
+                        await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: operation.entityType, status: 'quarantined' });
                         failedEntities.add(operation.entityUuid);
                         errorCount++;
                     } else if (result.status === 'revision_conflict' || result.status === 'invalid_parent' || result.status === 'missing_target' || result.status === 'operation_conflict') {
                         await quarantineSyncAction(item.id, result.status, scope);
+                        await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: operation.entityType, status: 'quarantined' });
                         failedEntities.add(operation.entityUuid);
                         errorCount++;
                     } else {
@@ -228,15 +238,45 @@ export function useSyncExecutor() {
                         storageId = uploaded.storageId;
                         await updateSyncActionPayload(item.id, { ...item.payload, storageId }, scope);
                     }
-                    await savePhoto({
+                    await registerSyncUpload({
                         deviceId,
-                        plantId: photo.plantId as Id<'userPlants'>,
-                        storageId: storageId as Id<'_storage'>,
-                        capturedAt: photo.capturedAt,
-                        localId: photo.localId,
-                        source: photo.source,
+                        operationId: item.id,
+                        entityUuid: photo.localId,
+                        storageId: storageId as any,
                     });
-                    syncedIds.add(item.id);
+                    const projection = scope ? await loadRenderedProjection(scope) : null;
+                    const plantEntry = projection
+                        ? Object.entries(projection.entities.plant).find(([, row]) =>
+                            String((row as any)._id) === String(photo.plantId)
+                            || (row as any).entityUuid === String(photo.plantId)
+                        )
+                        : undefined;
+                    if (!generation || !plantEntry) throw new Error('photo_parent_not_hydrated');
+                    const result = await applyOperation({
+                        deviceId,
+                        operationId: item.id,
+                        syncGeneration: generation,
+                        appVersion: APP_VERSION,
+                        entityType: 'photo',
+                        entityUuid: photo.localId,
+                        type: 'create',
+                        parentRefs: { plantUuid: plantEntry[0] },
+                        payload: {
+                            storageId,
+                            takenAt: photo.capturedAt,
+                            source: photo.source,
+                        },
+                    });
+                    if (result.status === 'applied' || result.status === 'already_applied' || result.status === 'discarded_deleted') {
+                        syncedIds.add(item.id);
+                        syncedEntityIds.add(item.id);
+                    } else if (result.status === 'invalid_parent' || result.status === 'operation_conflict' || result.status === 'wrong_generation') {
+                        await quarantineSyncAction(item.id, result.status, scope);
+                        await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: 'photo', status: 'quarantined' });
+                        errorCount++;
+                    } else {
+                        throw new Error(result.status);
+                    }
                 } catch (error) {
                     errorCount += 1;
                     const message =
@@ -245,75 +285,93 @@ export function useSyncExecutor() {
                 }
             }
 
-            const syncableCount = batch.activities.length + batch.harvests.length;
-            if (syncableCount > 0) {
+            const childItems = filteredQueue.filter(
+                (item) => item.type === 'activity' || item.type === 'harvest'
+            );
+            for (const item of childItems) {
+                const payload = item.payload as any;
                 try {
-                    const result = await batchSync({
+                    const projection = scope ? await loadRenderedProjection(scope) : null;
+                    const plantEntry = projection && item.plantId
+                        ? Object.entries(projection.entities.plant).find(([, row]) =>
+                            String((row as any)._id) === String(item.plantId)
+                            || (row as any).entityUuid === String(item.plantId)
+                        )
+                        : undefined;
+                    if (!generation || !plantEntry || !payload.localId) {
+                        throw new Error('child_parent_not_hydrated');
+                    }
+                    const result = await applyOperation({
                         deviceId,
-                        activities: batch.activities.map((a) => ({
-                            localId: a.localId,
-                            plantId: a.plantId,
-                            type: a.type,
-                            note: a.note,
-                            occurredAt: a.occurredAt,
-                        })),
-                        harvests: batch.harvests.map((h) => ({
-                            localId: h.localId,
-                            plantId: h.plantId,
-                            quantity: h.quantity,
-                            unit: h.unit,
-                            note: h.note,
-                            harvestedAt: h.harvestedAt,
-                        })),
+                        operationId: item.id,
+                        syncGeneration: generation,
+                        appVersion: APP_VERSION,
+                        entityType: item.type as 'activity' | 'harvest',
+                        entityUuid: payload.localId,
+                        type: 'create',
+                        parentRefs: { plantUuid: plantEntry[0] },
+                        payload: item.type === 'activity'
+                            ? { type: payload.type, note: payload.note, occurredAt: payload.date }
+                            : {
+                                quantity: payload.quantity ? Number(payload.quantity) || undefined : undefined,
+                                unit: payload.unit,
+                                notes: payload.note,
+                                harvestDate: payload.date,
+                            },
                     });
-
-                    const syncedActivityLocalIds = new Set<string>(
-                        result.syncedActivityLocalIds ?? []
-                    );
-                    const syncedHarvestLocalIds = new Set<string>(
-                        result.syncedHarvestLocalIds ?? []
-                    );
-                    const errorByLocalId = new Map<string, string>();
-                    for (const error of result.errors) {
-                        const [kind, localId, ...rest] = error.split(':');
-                        if (!localId) continue;
-                        const message =
-                            rest.length > 0 ? rest.join(':') : 'sync_failed';
-                        if (kind === 'activity' || kind === 'harvest') {
-                            errorByLocalId.set(`${kind}:${localId}`, message);
-                        }
+                    if (result.status === 'applied' || result.status === 'already_applied') {
+                        syncedIds.add(item.id);
+                        syncedEntityIds.add(item.id);
+                        continue;
                     }
-                    errorCount += result.errors.length;
-
-                    for (const item of filteredQueue) {
-                        if (item.type !== 'activity' && item.type !== 'harvest') continue;
-                        const payload = item.payload as { localId?: string };
-                        if (!payload?.localId) continue;
-                        const key = `${item.type}:${payload.localId}`;
-                        const synced =
-                            item.type === 'activity'
-                                ? syncedActivityLocalIds.has(payload.localId)
-                                : syncedHarvestLocalIds.has(payload.localId);
-                        if (synced) {
-                            syncedIds.add(item.id);
-                            continue;
+                    if (result.status === 'discarded_deleted' || result.status === 'invalid_parent') {
+                        await quarantineSyncAction(item.id, result.status, scope);
+                        await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: item.type, status: 'quarantined' });
+                        if (item.plantId) {
+                            const local = await loadPlantLocalData(item.plantId);
+                            await savePlantLocalData(item.plantId, {
+                                ...local,
+                                activities: item.type === 'activity'
+                                    ? local.activities.filter((entry) => entry.id !== payload.localId)
+                                    : local.activities,
+                                harvests: item.type === 'harvest'
+                                    ? local.harvests.filter((entry) => entry.id !== payload.localId && entry.localId !== payload.localId)
+                                    : local.harvests,
+                            });
                         }
-                        const message = errorByLocalId.get(key) ?? 'sync_pending';
-                        await markSyncAttempt(item.id, message, scope);
+                        errorCount++;
+                        continue;
                     }
+                    if (result.status === 'operation_conflict' || result.status === 'wrong_generation' || result.status === 'revision_conflict' || result.status === 'missing_target') {
+                        await quarantineSyncAction(item.id, result.status, scope);
+                        await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: item.type, status: 'quarantined' });
+                        errorCount++;
+                        continue;
+                    }
+                    throw new Error(result.status);
                 } catch (error) {
-                    errorCount += syncableCount;
-                    const message =
-                        error instanceof Error ? error.message : 'sync_failed';
-                    const pendingItems = filteredQueue.filter(
-                        (item) => item.type === 'activity' || item.type === 'harvest'
-                    );
-                    await Promise.all(
-                        pendingItems.map((item) => markSyncAttempt(item.id, message, scope))
-                    );
+                    errorCount++;
+                    await markSyncAttempt(item.id, error instanceof Error ? error.message : 'sync_failed', scope);
                 }
             }
 
+            if (syncedEntityIds.size > 0 && scope && generation) {
+                try {
+                    const refreshed = await reconcileAuthoritativeSnapshot({
+                        client: convex,
+                        deviceId,
+                        scope,
+                        generation,
+                        isCurrent: () => scopeRef.current === scope,
+                    });
+                    if (refreshed.status !== 'ok') throw new Error(refreshed.status);
+                } catch {
+                    // Keep acknowledged entity operations in the outbox until their
+                    // authoritative rows are durably reflected in the local projection.
+                    for (const id of syncedEntityIds) syncedIds.delete(id);
+                    errorCount += syncedEntityIds.size;
+                }
+            }
             if (syncedIds.size > 0) {
                 await removeSyncActions(Array.from(syncedIds), scope);
             }
@@ -337,7 +395,7 @@ export function useSyncExecutor() {
         } finally {
             inflightRef.current = false;
         }
-    }, [applyOperation, applyPreferencesPatch, batchSync, convex, deviceId, ensureSession, filterQueue, generateUploadUrl, savePhoto, scope]);
+    }, [applyOperation, applyPreferencesPatch, convex, deviceId, ensureSession, filterQueue, generateUploadUrl, recordClientOutcome, registerSyncUpload, scope]);
 
     return { execute };
 }

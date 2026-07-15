@@ -318,4 +318,29 @@ describe("Phase 1 user plant lifecycle", () => {
     expect(state.log).toBeNull();
     expect(state.tombstone?.deletedRevision).toBe(2);
   });
+
+  it("discards legacy Activity and Harvest children after their Plant is deleted", async () => {
+    await seedUser(t);
+    const user = t.withIdentity(identity);
+    const plantId = await user.mutation(api.plants.addPlant, { status: "growing" });
+    await user.mutation(api.plants.deletePlant, { plantId });
+    const result = await user.mutation(api.sync.batchSync, {
+      activities: [{ localId: "late-activity", plantId, type: "watering", occurredAt: 10 }],
+      harvests: [{ localId: "late-harvest", plantId, harvestedAt: 10 }],
+    });
+    expect(result.outcomes).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: "activity", localId: "late-activity", status: "discarded_parent_deleted" }),
+      expect.objectContaining({ kind: "harvest", localId: "late-harvest", status: "discarded_parent_deleted" }),
+    ]));
+    const state = await t.run(async (ctx) => ({
+      activity: await ctx.db.query("logs").withIndex("by_user_plant_local", (q) =>
+        q.eq("userPlantId", plantId).eq("localId", "late-activity")
+      ).unique(),
+      harvest: await ctx.db.query("harvestRecords").withIndex("by_user_plant_local", (q) =>
+        q.eq("userPlantId", plantId).eq("localId", "late-harvest")
+      ).unique(),
+    }));
+    expect(state.activity).toBeNull();
+    expect(state.harvest).toBeNull();
+  });
 });

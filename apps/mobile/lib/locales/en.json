@@ -687,7 +687,9 @@
     "retry_title": "{{count}} change needs retry",
     "retry_title_plural": "{{count}} changes need retry",
     "retry_desc": "Some uploads did not finish. Retry when you are online.",
-    "retry_action": "Retry now"
+    "retry_action": "Retry now",
+    "attention_title": "{{count}} change needs review",
+    "attention_desc": "The change is preserved safely but could not be applied because server data changed."
   },
   "weather_card": {
     "hide": "Hide card",

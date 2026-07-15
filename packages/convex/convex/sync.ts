@@ -5,11 +5,18 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { requireUser } from "./lib/user";
 import { appendPlantActivity, recomputeActivitySnapshot } from "./lib/plantActivities";
-import { canonicalize, checkReceipt, getTombstone, recordReceipt } from "./lib/syncProtocol";
+import { canonicalize, checkReceipt, getTombstone, markSyncDatasetChanged, recordReceipt } from "./lib/syncProtocol";
+import { assertLegacyWriteAllowed } from "./syncRuntime";
+
+const MANUAL_ACTIVITY_TYPES = new Set([
+    "watering", "fertilizing", "pruning", "pest_spotted", "treatment",
+    "photo", "note", "transplanted", "harvest", "custom",
+]);
 
 export const batchSync = mutation({
     args: {
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
         activities: v.array(
             v.object({
                 localId: v.string(),
@@ -32,6 +39,7 @@ export const batchSync = mutation({
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
 
         const results = {
             activitiesSynced: 0,
@@ -39,6 +47,14 @@ export const batchSync = mutation({
             errors: [] as string[],
             syncedActivityLocalIds: [] as string[],
             syncedHarvestLocalIds: [] as string[],
+            outcomes: [] as Array<{
+                kind: "activity" | "harvest";
+                localId: string;
+                status: "applied" | "already_applied" | "discarded_deleted" |
+                    "discarded_parent_deleted" | "operation_conflict" | "unauthorized" |
+                    "invalid_activity_type" | "retryable_error";
+                reason?: string;
+            }>,
         };
 
         // Sync activities → logs table
@@ -49,15 +65,18 @@ export const batchSync = mutation({
                 const receipt = await checkReceipt(ctx, user._id, operationId, fingerprint);
                 if (receipt.status === "operation_conflict") {
                     results.errors.push(`activity:${activity.localId}:operation_conflict`);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "operation_conflict" });
                     continue;
                 }
                 if (receipt.status === "matched") {
                     results.activitiesSynced++;
                     results.syncedActivityLocalIds.push(activity.localId);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "already_applied" });
                     continue;
                 }
                 if (await getTombstone(ctx, user._id, "activity", activity.localId)) {
                     results.errors.push(`activity:${activity.localId}:discarded_deleted`);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "discarded_deleted" });
                     continue;
                 }
                 // Check plant ownership
@@ -65,6 +84,20 @@ export const batchSync = mutation({
                 const plant = await ctx.db.get(plantId);
                 if (!plant || plant.userId !== user._id) {
                     results.errors.push(`activity:${activity.localId}:unauthorized`);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "unauthorized" });
+                    continue;
+                }
+                const plantTombstone = plant.entityUuid
+                    ? await getTombstone(ctx, user._id, "plant", plant.entityUuid)
+                    : null;
+                if (plant.isDeleted || plantTombstone) {
+                    results.errors.push(`activity:${activity.localId}:discarded_parent_deleted`);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "discarded_parent_deleted" });
+                    continue;
+                }
+                if (!MANUAL_ACTIVITY_TYPES.has(activity.type)) {
+                    results.errors.push(`activity:${activity.localId}:invalid_activity_type`);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "invalid_activity_type" });
                     continue;
                 }
 
@@ -84,6 +117,7 @@ export const batchSync = mutation({
                     });
                     results.activitiesSynced++;
                     results.syncedActivityLocalIds.push(activity.localId);
+                    results.outcomes.push({ kind: "activity", localId: activity.localId, status: "already_applied" });
                     continue;
                 }
 
@@ -107,6 +141,7 @@ export const batchSync = mutation({
                 }
                 results.activitiesSynced++;
                 results.syncedActivityLocalIds.push(activity.localId);
+                results.outcomes.push({ kind: "activity", localId: activity.localId, status: "applied" });
                 await recordReceipt(ctx, {
                     userId: user._id, operationId, entityType: "activity",
                     entityUuid: activity.localId, operationType: "create",
@@ -114,6 +149,7 @@ export const batchSync = mutation({
                 });
             } catch (e: any) {
                 results.errors.push(`activity:${activity.localId}:${e.message}`);
+                results.outcomes.push({ kind: "activity", localId: activity.localId, status: "retryable_error", reason: e.message });
             }
         }
 
@@ -125,21 +161,33 @@ export const batchSync = mutation({
                 const receipt = await checkReceipt(ctx, user._id, operationId, fingerprint);
                 if (receipt.status === "operation_conflict") {
                     results.errors.push(`harvest:${harvest.localId}:operation_conflict`);
+                    results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "operation_conflict" });
                     continue;
                 }
                 if (receipt.status === "matched") {
                     results.harvestsSynced++;
                     results.syncedHarvestLocalIds.push(harvest.localId);
+                    results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "already_applied" });
                     continue;
                 }
                 if (await getTombstone(ctx, user._id, "harvest", harvest.localId)) {
                     results.errors.push(`harvest:${harvest.localId}:discarded_deleted`);
+                    results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "discarded_deleted" });
                     continue;
                 }
                 const plantId = harvest.plantId as Id<"userPlants">;
                 const plant = await ctx.db.get(plantId);
                 if (!plant || plant.userId !== user._id) {
                     results.errors.push(`harvest:${harvest.localId}:unauthorized`);
+                    results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "unauthorized" });
+                    continue;
+                }
+                const plantTombstone = plant.entityUuid
+                    ? await getTombstone(ctx, user._id, "plant", plant.entityUuid)
+                    : null;
+                if (plant.isDeleted || plantTombstone) {
+                    results.errors.push(`harvest:${harvest.localId}:discarded_parent_deleted`);
+                    results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "discarded_parent_deleted" });
                     continue;
                 }
 
@@ -157,6 +205,7 @@ export const batchSync = mutation({
                     });
                     results.harvestsSynced++;
                     results.syncedHarvestLocalIds.push(harvest.localId);
+                    results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "already_applied" });
                     continue;
                 }
 
@@ -189,6 +238,7 @@ export const batchSync = mutation({
                 });
                 results.harvestsSynced++;
                 results.syncedHarvestLocalIds.push(harvest.localId);
+                results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "applied" });
                 await recordReceipt(ctx, {
                     userId: user._id, operationId, entityType: "harvest",
                     entityUuid: harvest.localId, operationType: "create",
@@ -196,9 +246,13 @@ export const batchSync = mutation({
                 });
             } catch (e: any) {
                 results.errors.push(`harvest:${harvest.localId}:${e.message}`);
+                results.outcomes.push({ kind: "harvest", localId: harvest.localId, status: "retryable_error", reason: e.message });
             }
         }
 
+        if (results.outcomes.some((outcome) => outcome.status === "applied")) {
+            await markSyncDatasetChanged(ctx, user._id);
+        }
         return results;
     },
 });

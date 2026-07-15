@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./lib/user";
 import { appendPlantActivity, recomputeActivitySnapshot } from "./lib/plantActivities";
-import { getTombstone, writeTombstone } from "./lib/syncProtocol";
+import { getTombstone, markSyncDatasetChanged, writeTombstone } from "./lib/syncProtocol";
+import { assertLegacyWriteAllowed } from "./syncRuntime";
 
 export const addHarvest = mutation({
     args: {
@@ -16,10 +17,12 @@ export const addHarvest = mutation({
         photoUrl: v.optional(v.string()),
         preservationRecipeId: v.optional(v.id("preservationRecipes")),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     returns: v.id("harvestRecords"),
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const plant = await ctx.db.get(args.userPlantId);
         if (!plant || plant.userId !== user._id || plant.isDeleted) throw new Error("unauthorized");
 
@@ -69,6 +72,7 @@ export const addHarvest = mutation({
             ...snapshot,
             version: (plant.version ?? 1) + 1,
         });
+        await markSyncDatasetChanged(ctx, user._id);
         return harvestId;
     },
 });
@@ -98,10 +102,12 @@ export const deleteHarvest = mutation({
     args: {
         id: v.id("harvestRecords"),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const harvest = await ctx.db.get(args.id);
         if (!harvest || harvest.userId !== user._id) throw new Error("unauthorized");
 
@@ -139,6 +145,7 @@ export const deleteHarvest = mutation({
                 version: (plant.version ?? 1) + 1,
             });
         }
+        await markSyncDatasetChanged(ctx, user._id);
         return null;
     },
 });

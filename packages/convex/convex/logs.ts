@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireUser } from "./lib/user";
 import { appendPlantActivity, recomputeActivitySnapshot } from "./lib/plantActivities";
-import { getTombstone, writeTombstone } from "./lib/syncProtocol";
+import { getTombstone, markSyncDatasetChanged, writeTombstone } from "./lib/syncProtocol";
+import { assertLegacyWriteAllowed } from "./syncRuntime";
 
 const activityType = v.union(
     v.literal("watering"),
@@ -28,10 +29,12 @@ export const addActivity = mutation({
         value: v.optional(v.any()),
         reminderId: v.optional(v.id("reminders")),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     returns: v.id("logs"),
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const plant = await ctx.db.get(args.userPlantId);
         if (!plant || plant.userId !== user._id || plant.isDeleted) throw new Error("unauthorized");
 
@@ -72,6 +75,7 @@ export const addActivity = mutation({
                 version: (plant.version ?? 1) + 1,
             });
         }
+        await markSyncDatasetChanged(ctx, user._id);
         return id;
     },
 });
@@ -79,20 +83,22 @@ export const addActivity = mutation({
 export const addLog = mutation({
     args: {
         userPlantId: v.id("userPlants"),
-        type: v.string(), // "watering", "fertilizing", "pruning", "pest_spotted", "treatment", "harvest", "note", "photo", "status_change"
+        type: activityType,
         note: v.optional(v.string()),
         recordedAt: v.optional(v.number()),
         source: v.optional(v.string()), // "manual", "sensor", "auto", "reminder"
         value: v.optional(v.any()),
         photoUrl: v.optional(v.string()),
         reminderId: v.optional(v.id("reminders")),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
 
         // Auth check
         const plant = await ctx.db.get(args.userPlantId);
-        if (!plant || plant.userId !== user._id) {
+        if (!plant || plant.userId !== user._id || plant.isDeleted) {
             throw new Error("unauthorized");
         }
 
@@ -110,6 +116,7 @@ export const addLog = mutation({
         const snapshot = await recomputeActivitySnapshot(ctx, args.userPlantId, args.type);
         if (Object.keys(snapshot).length > 0) await ctx.db.patch(args.userPlantId, snapshot);
 
+        await markSyncDatasetChanged(ctx, user._id);
         return logId;
     },
 });
@@ -141,9 +148,11 @@ export const deleteLog = mutation({
     args: {
         id: v.id("logs"),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const log = await ctx.db.get(args.id);
 
         if (!log || log.userId !== user._id) {
@@ -177,5 +186,6 @@ export const deleteLog = mutation({
             const snapshot = await recomputeActivitySnapshot(ctx, log.userPlantId, log.type);
             await ctx.db.patch(log.userPlantId, snapshot);
         }
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });

@@ -634,6 +634,43 @@ export default defineSchema({
     updatedAt: v.number(),
     sequence: v.optional(v.number()),
   }).index("by_user", ["userId"]),
+
+  syncRuntimeConfig: defineTable({
+    key: v.string(),
+    minimumSafeClientVersion: v.string(),
+    legacyEnforcementAt: v.optional(v.number()),
+    rolloutPaused: v.boolean(),
+    pauseReason: v.optional(v.string()),
+    thresholds: v.object({
+      conflictRate: v.number(),
+      wrongGenerationRate: v.number(),
+      retryableRate: v.number(),
+      quarantineRate: v.number(),
+      minimumSampleSize: v.number(),
+    }),
+    updatedAt: v.number(),
+  }).index("by_key", ["key"]),
+
+  syncOutcomeMetrics: defineTable({
+    bucket: v.string(),
+    appVersion: v.string(),
+    entityType: v.string(),
+    status: v.string(),
+    count: v.number(),
+    updatedAt: v.number(),
+  }).index("by_bucket_dimensions", ["bucket", "appVersion", "entityType", "status"]),
+
+  syncUploadReservations: defineTable({
+    userId: v.id("users"),
+    operationId: v.string(),
+    entityUuid: v.string(),
+    storageId: v.id("_storage"),
+    createdAt: v.number(),
+    committedAt: v.optional(v.number()),
+  })
+    .index("by_user_operation", ["userId", "operationId"])
+    .index("by_created_at", ["createdAt"])
+    .index("by_storage", ["storageId"]),
 });
 
 // Schema export for testing

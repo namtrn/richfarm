@@ -127,5 +127,28 @@ export async function deleteAppUserData(ctx: any, user: Doc<"users">) {
     await ctx.db.delete(recipe._id);
   }
 
+  const syncReceipts = await ctx.db.query("syncOperationReceipts")
+    .withIndex("by_user_operation", (q: any) => q.eq("userId", user._id)).collect();
+  for (const row of syncReceipts) await ctx.db.delete(row._id);
+
+  const preferenceReceipts = await ctx.db.query("userPreferenceOperationReceipts")
+    .withIndex("by_user_operation", (q: any) => q.eq("userId", user._id)).collect();
+  for (const row of preferenceReceipts) await ctx.db.delete(row._id);
+
+  const tombstones = await ctx.db.query("entityTombstones")
+    .withIndex("by_user_entity", (q: any) => q.eq("userId", user._id)).collect();
+  for (const row of tombstones) await ctx.db.delete(row._id);
+
+  const accountStates = await ctx.db.query("syncAccountState")
+    .withIndex("by_user", (q: any) => q.eq("userId", user._id)).collect();
+  for (const row of accountStates) await ctx.db.delete(row._id);
+
+  const uploadReservations = await ctx.db.query("syncUploadReservations")
+    .withIndex("by_user_operation", (q: any) => q.eq("userId", user._id)).collect();
+  for (const row of uploadReservations) {
+    if (!row.committedAt) await ctx.storage.delete(row.storageId);
+    await ctx.db.delete(row._id);
+  }
+
   await ctx.db.delete(user._id);
 }

@@ -145,7 +145,7 @@ export async function removeSyncActions(ids: string[], scope?: string): Promise<
 }
 
 export async function removePendingPlantEntry(
-  type: 'activity' | 'harvest',
+  type: 'activity' | 'harvest' | 'photo',
   plantId: string,
   localId: string,
   scope?: string
@@ -190,4 +190,14 @@ export async function quarantineLegacyQueue(): Promise<number> {
   }
   await AsyncStorage.removeItem(LEGACY_STORAGE_KEY);
   return legacy.length;
+}
+
+export async function clearSyncNamespace(scope: string): Promise<void> {
+  const encoded = encodeURIComponent(safeScope(scope));
+  await Promise.all([
+    AsyncStorage.removeItem(`${STORAGE_PREFIX}${encoded}`),
+    AsyncStorage.removeItem(`rf_sync_projection_v1_${encoded}`),
+    AsyncStorage.removeItem(`rf_preferences_outbox_v1_${encoded}`),
+  ]);
+  notifyQueueListeners(safeScope(scope), []);
 }

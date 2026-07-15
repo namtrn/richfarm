@@ -63,6 +63,7 @@ import type * as storage from "../storage.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as sync from "../sync.js";
 import type * as syncMigration from "../syncMigration.js";
+import type * as syncRuntime from "../syncRuntime.js";
 import type * as syncV2 from "../syncV2.js";
 import type * as userSettings from "../userSettings.js";
 import type * as users from "../users.js";
@@ -130,6 +131,7 @@ declare const fullApi: ApiFromModules<{
   subscriptions: typeof subscriptions;
   sync: typeof sync;
   syncMigration: typeof syncMigration;
+  syncRuntime: typeof syncRuntime;
   syncV2: typeof syncV2;
   userSettings: typeof userSettings;
   users: typeof users;

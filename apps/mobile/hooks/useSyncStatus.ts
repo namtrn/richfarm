@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
-import { loadSyncQueue, subscribeSyncQueue } from '../lib/sync/queue';
+import { loadOutbox, subscribeSyncQueue } from '../lib/sync/queue';
 import type { SyncAction } from '../lib/sync/types';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useDeviceId } from '../lib/deviceId';
 import { authClient } from '../lib/auth-client';
 
-type SyncStatus = 'loading' | 'idle' | 'offline' | 'pending' | 'retry';
+type SyncStatus = 'loading' | 'idle' | 'offline' | 'pending' | 'retry' | 'attention';
 
 export function useSyncStatus(plantId?: string) {
   const { isOffline, isOnline } = useNetworkStatus();
@@ -14,24 +14,25 @@ export function useSyncStatus(plantId?: string) {
   const { data: session } = authClient.useSession();
   const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
   const [queue, setQueue] = useState<SyncAction[]>([]);
+  const [quarantine, setQuarantine] = useState<SyncAction[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
 
     const refresh = async () => {
-      const nextQueue = await loadSyncQueue(scope);
+      const outbox = await loadOutbox(scope);
       if (!active) return;
-      setQueue(nextQueue);
+      setQueue(outbox.operations);
+      setQuarantine(outbox.quarantine);
       setLoaded(true);
     };
 
     void refresh();
 
-    const unsubscribe = subscribeSyncQueue(scope, (nextQueue) => {
+    const unsubscribe = subscribeSyncQueue(scope, () => {
       if (!active) return;
-      setQueue(nextQueue);
-      setLoaded(true);
+      void refresh();
     });
 
     const subscription = AppState.addEventListener('change', (state) => {
@@ -51,6 +52,10 @@ export function useSyncStatus(plantId?: string) {
     () => (plantId ? queue.filter((item) => item.plantId === plantId) : queue),
     [plantId, queue]
   );
+  const relevantQuarantine = useMemo(
+    () => (plantId ? quarantine.filter((item) => item.plantId === plantId) : quarantine),
+    [plantId, quarantine]
+  );
 
   const photoCount = relevantQueue.filter((item) => item.type === 'photo').length;
   const activityCount = relevantQueue.filter((item) => item.type === 'activity').length;
@@ -60,10 +65,13 @@ export function useSyncStatus(plantId?: string) {
     (item) => !!item.lastError && item.lastError !== 'sync_pending'
   ).length;
   const queuedCount = relevantQueue.length;
+  const quarantineCount = relevantQuarantine.length;
 
   const status: SyncStatus = !loaded
     ? 'loading'
-    : queuedCount === 0
+    : quarantineCount > 0
+      ? 'attention'
+      : queuedCount === 0
       ? 'idle'
       : isOffline
         ? 'offline'
@@ -74,6 +82,7 @@ export function useSyncStatus(plantId?: string) {
   return {
     loaded,
     queue: relevantQueue,
+    quarantine: relevantQuarantine,
     status,
     queuedCount,
     failedCount,
@@ -82,6 +91,8 @@ export function useSyncStatus(plantId?: string) {
     activityCount,
     harvestCount,
     hasPending: queuedCount > 0,
+    quarantineCount,
+    hasQuarantine: quarantineCount > 0,
     isOffline,
     isOnline,
   };

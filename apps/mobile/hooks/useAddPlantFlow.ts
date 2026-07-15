@@ -1,9 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useRouter } from 'expo-router';
-import { useMutation } from 'convex/react';
-import { api } from '../../../packages/convex/convex/_generated/api';
 import { useAppMode } from './useAppMode';
-import { useDeviceId } from '../lib/deviceId';
+import { usePlantSync } from './usePlantSync';
 import { updateScanEntry } from '../lib/scanHistory';
 import type { PlantStatus } from './usePlants';
 import { createLocalId } from '../lib/plantLocalData';
@@ -124,9 +122,7 @@ export function normalizeCustomPlantNickname(value: string, unknownLabel?: strin
 export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOptions) {
   const router = useRouter();
   const { appMode } = useAppMode();
-  const { deviceId } = useDeviceId();
-  const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
-  const savePhoto = useMutation(api.storage.savePhoto);
+  const { queuePhoto } = usePlantSync();
   const pendingAddRequestIds = useRef(new Map<string, string>());
 
   const navigateAfterAdd = useCallback(
@@ -206,28 +202,17 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
     async (plantId: any, scannedPhotoUri?: string) => {
       if (!scannedPhotoUri || !plantId) return;
       try {
-        const uploadUrl = await generateUploadUrl({ deviceId });
-        const response = await fetch(scannedPhotoUri);
-        const blob = await response.blob();
-        const uploadResponse = await fetch(uploadUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': blob.type || 'application/octet-stream' },
-          body: blob,
-        });
-        if (!uploadResponse.ok) return;
-        const { storageId } = await uploadResponse.json();
-        await savePhoto({
-          deviceId,
-          plantId,
-          storageId,
-          capturedAt: Date.now(),
-          source: 'scanner',
+        await queuePhoto(String(plantId), {
+          id: createLocalId(),
+          uri: scannedPhotoUri,
+          date: Date.now(),
+          source: 'camera',
         });
       } catch (error) {
         console.error('Failed to upload scanner photo:', error);
       }
     },
-    [deviceId, generateUploadUrl, savePhoto]
+    [queuePhoto]
   );
 
   const createUserPlant = useCallback(

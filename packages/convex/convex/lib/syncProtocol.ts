@@ -86,3 +86,40 @@ export async function recordReceipt(
 ) {
   await ctx.db.insert('syncOperationReceipts', { ...input, appliedAt: Date.now() });
 }
+
+/** Invalidates syncSignal for writes that still enter through compatibility mutations. */
+export async function markSyncDatasetChanged(ctx: MutationCtx, userId: Id<'users'>) {
+  const state = await ctx.db.query('syncAccountState')
+    .withIndex('by_user', (q) => q.eq('userId', userId)).unique();
+  const now = Date.now();
+  if (state) {
+    await ctx.db.patch(state._id, { updatedAt: now, sequence: (state.sequence ?? 0) + 1 });
+    return;
+  }
+  await ctx.db.insert('syncAccountState', {
+    userId,
+    generation: `sync:${userId}:${now}`,
+    createdAt: now,
+    updatedAt: now,
+    sequence: 1,
+  });
+}
+
+export async function recordSyncOutcome(
+  ctx: MutationCtx,
+  input: { appVersion?: string; entityType: string; status: string }
+) {
+  const bucket = new Date().toISOString().slice(0, 13);
+  const appVersion = input.appVersion?.trim() || 'unknown';
+  const existing = await ctx.db.query('syncOutcomeMetrics')
+    .withIndex('by_bucket_dimensions', (q) =>
+      q.eq('bucket', bucket).eq('appVersion', appVersion).eq('entityType', input.entityType).eq('status', input.status)
+    ).unique();
+  if (existing) {
+    await ctx.db.patch(existing._id, { count: existing.count + 1, updatedAt: Date.now() });
+  } else {
+    await ctx.db.insert('syncOutcomeMetrics', {
+      bucket, appVersion, entityType: input.entityType, status: input.status, count: 1, updatedAt: Date.now(),
+    });
+  }
+}

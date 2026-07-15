@@ -6,7 +6,8 @@ import { localizePlantRows } from "./lib/localizePlant";
 import { getOwnedPlantOrThrow, resolveOwnedPlantLocation } from "./lib/ownership";
 import { getPlantCareProfileByPlantId } from "./lib/plantCare";
 import { appendPlantActivity } from "./lib/plantActivities";
-import { writeTombstone } from "./lib/syncProtocol";
+import { markSyncDatasetChanged, writeTombstone } from "./lib/syncProtocol";
+import { assertLegacyWriteAllowed } from "./syncRuntime";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const AUTO_GROWING_WATERING_MARKER = "auto_growing_watering";
@@ -213,9 +214,11 @@ export const addPlant = mutation({
         notes: v.optional(v.string()),
         clientRequestId: v.optional(v.string()),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         if (args.clientRequestId) {
             const existing = await ctx.db
                 .query("userPlants")
@@ -301,6 +304,7 @@ export const addPlant = mutation({
             });
         }
 
+        await markSyncDatasetChanged(ctx, user._id);
         return plantId;
     },
 });
@@ -314,9 +318,11 @@ export const updatePlantStatus = mutation({
         gardenId: v.optional(v.union(v.id("gardens"), v.null())),
         bedId: v.optional(v.union(v.id("beds"), v.null())),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
         const normalizedStatus = normalizeStatus(args.status);
 
@@ -402,6 +408,7 @@ export const updatePlantStatus = mutation({
         }
 
         await syncAutoGrowingWateringReminder(ctx, user, plant, normalizedStatus);
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });
 
@@ -422,9 +429,11 @@ export const updatePlant = mutation({
         })),
         expectedHarvestDate: v.optional(v.number()),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
         if (args.notes !== undefined && plant.status !== "growing") {
             throw new Error("Notes are only allowed for plants in growing status");
@@ -477,6 +486,7 @@ export const updatePlant = mutation({
                 },
             });
         }
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });
 
@@ -485,9 +495,11 @@ export const deletePlant = mutation({
     args: {
         plantId: v.id("userPlants"),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const plant = await getOwnedPlantOrThrow(ctx, user._id, args.plantId);
 
         await writeTombstone(ctx, {
@@ -514,5 +526,6 @@ export const deletePlant = mutation({
                 await ctx.db.patch(reminder._id, { enabled: false });
             }
         }
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });

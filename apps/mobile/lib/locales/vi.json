@@ -675,7 +675,9 @@
     "retry_title": "{{count}} thay đổi cần thử đồng bộ lại",
     "retry_title_plural": "{{count}} thay đổi cần thử đồng bộ lại",
     "retry_desc": "Một số upload chưa xong. Hãy thử lại khi có mạng.",
-    "retry_action": "Đồng bộ lại"
+    "retry_action": "Đồng bộ lại",
+    "attention_title": "{{count}} thay đổi cần được kiểm tra",
+    "attention_desc": "Thay đổi được giữ an toàn nhưng không thể tự áp dụng vì dữ liệu trên máy chủ đã thay đổi."
   },
   "weather_card": {
     "hide": "Ẩn thẻ",

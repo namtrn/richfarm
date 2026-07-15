@@ -4,7 +4,8 @@ import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { isPremiumActive } from "./lib/subscription";
 import { getOwnedGardenOrThrow } from "./lib/ownership";
-import { writeTombstone } from "./lib/syncProtocol";
+import { markSyncDatasetChanged, writeTombstone } from "./lib/syncProtocol";
+import { assertLegacyWriteAllowed } from "./syncRuntime";
 
 const NAME_MAX = 40;
 const FREE_GARDEN_LIMIT = 1;
@@ -40,9 +41,11 @@ export const createGarden = mutation({
         locationType: v.string(),
         description: v.optional(v.string()),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         assertNameLength(args.name);
 
         if (!isPremiumActive(user)) {
@@ -65,6 +68,7 @@ export const createGarden = mutation({
             revision: 1,
         });
         await ctx.db.patch(gardenId, { entityUuid: `legacy:${gardenId}` });
+        await markSyncDatasetChanged(ctx, user._id);
         return gardenId;
     },
 });
@@ -78,17 +82,20 @@ export const updateGarden = mutation({
         locationType: v.optional(v.string()),
         description: v.optional(v.string()),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const garden = await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
 
         if (args.name !== undefined) {
             assertNameLength(args.name);
         }
 
-        const { gardenId, deviceId, ...updates } = args;
+        const { gardenId, deviceId, clientVersion, ...updates } = args;
         await ctx.db.patch(gardenId, { ...updates, revision: (garden.revision ?? 1) + 1 });
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });
 
@@ -97,9 +104,11 @@ export const deleteGarden = mutation({
     args: {
         gardenId: v.id("gardens"),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const garden = await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
         const operationId = `legacy-delete:${garden._id}`;
         await writeTombstone(ctx, {
@@ -125,6 +134,7 @@ export const deleteGarden = mutation({
             });
         }
         await ctx.db.patch(args.gardenId, { isDeleted: true, revision: (garden.revision ?? 1) + 1 });
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });
 

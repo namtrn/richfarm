@@ -3,8 +3,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { convexTest } from 'convex-test';
 import schema from './schema';
-import { api } from './_generated/api';
+import { api, internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
+import { deleteAppUserData } from './lib/deleteUserData';
 
 const modules = import.meta.glob('./**/*.ts');
 const identity = { subject: 'sync-v2-user', tokenIdentifier: 'test:sync-v2-user' };
@@ -16,7 +17,11 @@ describe('Phase 1.5 sync v2', () => {
   beforeEach(async () => {
     t = setup();
     await t.run(async (ctx) => {
-      await ctx.db.insert('users', { tokenIdentifier: identity.tokenIdentifier, isActive: true });
+      await ctx.db.insert('users', {
+        tokenIdentifier: identity.tokenIdentifier,
+        isActive: true,
+        subscription: { tier: 'premium', source: 'revenuecat' },
+      });
     });
   });
 
@@ -107,19 +112,39 @@ describe('Phase 1.5 sync v2', () => {
         userId: owner._id, name: 'Legacy', locationType: 'outdoor',
       });
     });
-    const before = await t.query(api.syncMigration.dryRun, { sampleLimit: 50 });
+    const before = await t.query(internal.syncMigration.dryRun, { sampleLimit: 50 });
     expect(before.report.garden.missingUuid).toBe(1);
-    const first = await t.mutation(api.syncMigration.backfillPage, {
+    const first = await t.mutation(internal.syncMigration.backfillPage, {
       domain: 'garden', paginationOpts: { numItems: 50, cursor: null },
     });
     expect(first.changed).toBe(1);
-    const second = await t.mutation(api.syncMigration.backfillPage, {
+    const second = await t.mutation(internal.syncMigration.backfillPage, {
       domain: 'garden', paginationOpts: { numItems: 50, cursor: null },
     });
     expect(second.changed).toBe(0);
     const row = await t.run(async (ctx) => await ctx.db.get(legacyId));
     expect(row?.entityUuid).toBe(`legacy:${legacyId}`);
     expect(row?.revision).toBe(1);
+  });
+
+  it('reports ownership and parent inconsistencies page by page before migration', async () => {
+    await t.run(async (ctx) => {
+      const owner = (await ctx.db.query('users').first())!;
+      const otherUserId = await ctx.db.insert('users', { tokenIdentifier: 'other:migration', isActive: true });
+      const foreignGardenId = await ctx.db.insert('gardens', {
+        userId: otherUserId, entityUuid: 'foreign-garden', revision: 1, name: 'Foreign', locationType: 'outdoor',
+      });
+      await ctx.db.insert('beds', {
+        userId: owner._id, entityUuid: 'bad-bed', revision: 1,
+        gardenId: foreignGardenId, name: 'Broken ownership', locationType: 'outdoor',
+      });
+    });
+    const audit = await t.query(internal.syncMigration.auditPage, {
+      domain: 'bed', paginationOpts: { numItems: 50, cursor: null },
+    });
+    expect(audit.issueRows).toContainEqual(expect.objectContaining({
+      issues: expect.arrayContaining(['garden_ownership_mismatch']),
+    }));
   });
 
   it('applies preference patches with revision, generation, and receipts', async () => {
@@ -165,5 +190,197 @@ describe('Phase 1.5 sync v2', () => {
     expect((await user.mutation(api.syncV2.applyOperation, {
       ...create, operationId: 'photo-stale-create',
     })).status).toBe('discarded_deleted');
+  });
+
+  it('tracks uploaded blobs and cleans only uncommitted orphan Photos', async () => {
+    const { user, generation } = await session();
+    const storageId = await t.run(async (ctx) => await ctx.storage.store(new Blob(['orphan'])));
+    await user.mutation(api.storage.registerSyncUpload, {
+      operationId: 'orphan-operation', entityUuid: 'orphan-photo', storageId,
+    });
+    await t.run(async (ctx) => {
+      const reservation = await ctx.db.query('syncUploadReservations').first();
+      if (reservation) await ctx.db.patch(reservation._id, { createdAt: 1 });
+    });
+    const cleanup = await t.mutation(internal.storage.cleanupOrphanSyncUploads, {
+      maxAgeMs: 0, limit: 10,
+    });
+    expect(cleanup).toMatchObject({ inspected: 1, deleted: 1, retained: 0 });
+    expect(await t.run(async (ctx) => await ctx.storage.getUrl(storageId))).toBeNull();
+
+    await user.mutation(api.syncV2.applyOperation, {
+      operationId: 'reserved-plant', syncGeneration: generation,
+      entityType: 'plant', entityUuid: 'reserved-plant', type: 'create', payload: { status: 'growing' },
+    });
+    const committedStorageId = await t.run(async (ctx) => await ctx.storage.store(new Blob(['committed'])));
+    await user.mutation(api.storage.registerSyncUpload, {
+      operationId: 'committed-photo-op', entityUuid: 'committed-photo', storageId: committedStorageId,
+    });
+    await user.mutation(api.syncV2.applyOperation, {
+      operationId: 'committed-photo-op', syncGeneration: generation,
+      entityType: 'photo', entityUuid: 'committed-photo', type: 'create',
+      parentRefs: { plantUuid: 'reserved-plant' }, payload: { storageId: String(committedStorageId) },
+    });
+    await t.run(async (ctx) => {
+      const reservation = await ctx.db.query('syncUploadReservations').first();
+      if (reservation) await ctx.db.patch(reservation._id, { createdAt: 1 });
+    });
+    const committedCleanup = await t.mutation(internal.storage.cleanupOrphanSyncUploads, {
+      maxAgeMs: 0, limit: 10,
+    });
+    expect(committedCleanup).toMatchObject({ inspected: 1, deleted: 0, retained: 1 });
+    expect(await t.run(async (ctx) => await ctx.storage.getUrl(committedStorageId))).toBeTruthy();
+  });
+
+  it('makes Activity and Harvest tombstones defeat stale create and update delivery', async () => {
+    const { user, generation } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({ operationId: 'child-plant', entityType: 'plant', entityUuid: 'child-plant', type: 'create', payload: { status: 'growing' } });
+    for (const entityType of ['activity', 'harvest'] as const) {
+      const entityUuid = `${entityType}-tombstone`;
+      const payload = entityType === 'activity' ? { type: 'note', note: 'original' } : { quantity: 1, unit: 'kg' };
+      expect((await apply({
+        operationId: `${entityType}-create`, entityType, entityUuid, type: 'create',
+        parentRefs: { plantUuid: 'child-plant' }, payload,
+      })).status).toBe('applied');
+      expect((await apply({
+        operationId: `${entityType}-delete`, entityType, entityUuid, type: 'delete', baseRevision: 1,
+      })).status).toBe('applied');
+      expect((await apply({
+        operationId: `${entityType}-stale-create`, entityType, entityUuid, type: 'create',
+        parentRefs: { plantUuid: 'child-plant' }, payload,
+      })).status).toBe('discarded_deleted');
+      expect((await apply({
+        operationId: `${entityType}-stale-update`, entityType, entityUuid, type: 'update', baseRevision: 1,
+        payload,
+      })).status).toBe('discarded_deleted');
+    }
+  });
+
+  it('keeps the final Plant Garden and Bed relationship valid', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({ operationId: 'ga', entityType: 'garden', entityUuid: 'ga', type: 'create', payload: { name: 'A', locationType: 'outdoor' } });
+    await apply({ operationId: 'gb', entityType: 'garden', entityUuid: 'gb', type: 'create', payload: { name: 'B', locationType: 'outdoor' } });
+    await apply({ operationId: 'ba', entityType: 'bed', entityUuid: 'ba', type: 'create', parentRefs: { gardenUuid: 'ga' }, payload: { name: 'Bed A', locationType: 'outdoor' } });
+    await apply({ operationId: 'pb', entityType: 'plant', entityUuid: 'plant', type: 'create', parentRefs: { gardenUuid: 'ga', bedUuid: 'ba' }, payload: { status: 'growing' } });
+
+    expect((await apply({
+      operationId: 'garden-only', entityType: 'plant', entityUuid: 'plant', type: 'update', baseRevision: 1,
+      parentRefs: { gardenUuid: 'gb' }, payload: {},
+    })).status).toBe('applied');
+    const ownerId = userId as Id<'users'>;
+    let plant = await t.run(async (ctx) => await ctx.db.query('userPlants')
+      .withIndex('by_user_entity_uuid', (q) => q.eq('userId', ownerId).eq('entityUuid', 'plant')).unique());
+    expect(plant?.gardenId).toBeDefined();
+    expect(plant?.bedId).toBeUndefined();
+
+    expect((await apply({
+      operationId: 'invalid-pair', entityType: 'plant', entityUuid: 'plant', type: 'update', baseRevision: 2,
+      parentRefs: { gardenUuid: 'gb', bedUuid: 'ba' }, payload: {},
+    }))).toMatchObject({ status: 'invalid_parent', reason: 'garden_bed_mismatch' });
+
+    expect((await apply({
+      operationId: 'unassign', entityType: 'plant', entityUuid: 'plant', type: 'update', baseRevision: 2,
+      parentRefs: { gardenUuid: null, bedUuid: null }, payload: {},
+    })).status).toBe('applied');
+    plant = await t.run(async (ctx) => await ctx.db.query('userPlants')
+      .withIndex('by_user_entity_uuid', (q) => q.eq('userId', ownerId).eq('entityUuid', 'plant')).unique());
+    expect(plant?.gardenId).toBeUndefined();
+    expect(plant?.bedId).toBeUndefined();
+  });
+
+  it('rejects moving a non-empty Bed and reserves lifecycle Activity types', async () => {
+    const { user, generation } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({ operationId: 'g1', entityType: 'garden', entityUuid: 'g1', type: 'create', payload: { name: 'A', locationType: 'outdoor' } });
+    await apply({ operationId: 'g2', entityType: 'garden', entityUuid: 'g2', type: 'create', payload: { name: 'B', locationType: 'outdoor' } });
+    await apply({ operationId: 'bed', entityType: 'bed', entityUuid: 'bed', type: 'create', parentRefs: { gardenUuid: 'g1' }, payload: { name: 'Bed', locationType: 'outdoor' } });
+    await apply({ operationId: 'plant', entityType: 'plant', entityUuid: 'plant', type: 'create', parentRefs: { gardenUuid: 'g1', bedUuid: 'bed' }, payload: { status: 'growing' } });
+    expect((await apply({
+      operationId: 'move-bed', entityType: 'bed', entityUuid: 'bed', type: 'update', baseRevision: 1,
+      parentRefs: { gardenUuid: 'g2' }, payload: {},
+    }))).toMatchObject({ status: 'invalid_parent', reason: 'bed_not_empty' });
+    expect((await apply({
+      operationId: 'fake-lifecycle', entityType: 'activity', entityUuid: 'fake', type: 'create',
+      parentRefs: { plantUuid: 'plant' }, payload: { type: 'status_changed' },
+    }))).toMatchObject({ status: 'invalid_parent', reason: 'invalid_activity_type' });
+  });
+
+  it('invalidates the realtime signal for compatibility writes', async () => {
+    const { user } = await session();
+    const before = await user.query(api.syncV2.syncSignal, {});
+    await user.mutation(api.gardens.createGarden, {
+      name: 'Legacy entry', locationType: 'outdoor',
+    });
+    const afterGarden = await user.query(api.syncV2.syncSignal, {});
+    expect(afterGarden?.sequence).toBe((before?.sequence ?? 0) + 1);
+  });
+
+  it('enforces the observable legacy cutoff without blocking a safe client', async () => {
+    const { user } = await session();
+    await t.mutation(internal.syncRuntime.configure, {
+      minimumSafeClientVersion: '2.0.0', legacyEnforcementAt: 1, rolloutPaused: false,
+    });
+    await expect(user.mutation(api.gardens.createGarden, {
+      name: 'Old', locationType: 'outdoor', clientVersion: '1.9.9',
+    })).rejects.toThrow('SYNC_CLIENT_UPGRADE_REQUIRED');
+    await expect(user.mutation(api.gardens.createGarden, {
+      name: 'Safe', locationType: 'outdoor', clientVersion: '2.0.0',
+    })).resolves.toBeDefined();
+  });
+
+  it('preserves server-side free Garden limits through the v2 path', async () => {
+    const { user, generation, userId } = await session();
+    await t.run(async (ctx) => await ctx.db.patch(userId as Id<'users'>, { subscription: undefined }));
+    expect((await user.mutation(api.syncV2.applyOperation, {
+      operationId: 'free-garden-1', syncGeneration: generation,
+      entityType: 'garden', entityUuid: 'free-garden-1', type: 'create',
+      payload: { name: 'One', locationType: 'outdoor' },
+    })).status).toBe('applied');
+    expect(await user.mutation(api.syncV2.applyOperation, {
+      operationId: 'free-garden-2', syncGeneration: generation,
+      entityType: 'garden', entityUuid: 'free-garden-2', type: 'create',
+      payload: { name: 'Two', locationType: 'outdoor' },
+    })).toMatchObject({ status: 'invalid_parent', reason: 'garden_limit_free' });
+  });
+
+  it('records payload-free outcome counters and evaluates rollout thresholds', async () => {
+    const { user, generation } = await session();
+    await user.mutation(api.syncV2.applyOperation, {
+      operationId: 'metric-op', syncGeneration: generation, appVersion: '2.0.0',
+      entityType: 'garden', entityUuid: 'metric-garden', type: 'create',
+      payload: { name: 'SECRET_USER_PAYLOAD', locationType: 'outdoor' },
+    });
+    const scheduled = await t.run(async (ctx) => await ctx.db.system.query('_scheduled_functions').collect());
+    expect(scheduled).toContainEqual(expect.objectContaining({ state: { kind: 'pending' } }));
+    await t.mutation(internal.syncRuntime.recordOutcome, {
+      appVersion: '2.0.0', entityType: 'garden', status: 'applied',
+    });
+    const rows = await t.run(async (ctx) => await ctx.db.query('syncOutcomeMetrics').collect());
+    expect(rows).toContainEqual(expect.objectContaining({ appVersion: '2.0.0', entityType: 'garden', status: 'applied', count: 1 }));
+    expect(JSON.stringify(rows)).not.toContain('SECRET_USER_PAYLOAD');
+    const health = await t.query(api.syncRuntime.rolloutHealth, {});
+    expect(health.total).toBeGreaterThanOrEqual(1);
+  });
+
+  it('removes sync namespaces and uncommitted uploads during account deletion', async () => {
+    const { user, userId } = await session();
+    const storageId = await t.run(async (ctx) => await ctx.storage.store(new Blob(['account-orphan'])));
+    await user.mutation(api.storage.registerSyncUpload, {
+      operationId: 'account-upload', entityUuid: 'account-photo', storageId,
+    });
+    await t.run(async (ctx) => {
+      const owner = (await ctx.db.get(userId as Id<'users'>))!;
+      await deleteAppUserData(ctx, owner);
+    });
+    const remaining = await t.run(async (ctx) => ({
+      user: await ctx.db.get(userId as Id<'users'>),
+      states: await ctx.db.query('syncAccountState').collect(),
+      reservations: await ctx.db.query('syncUploadReservations').collect(),
+      receipts: await ctx.db.query('syncOperationReceipts').collect(),
+    }));
+    expect(remaining).toEqual({ user: null, states: [], reservations: [], receipts: [] });
+    expect(await t.run(async (ctx) => await ctx.storage.getUrl(storageId))).toBeNull();
   });
 });

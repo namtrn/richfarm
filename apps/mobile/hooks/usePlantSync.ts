@@ -104,5 +104,7 @@ export function usePlantSync() {
       removePendingPlantEntry('activity', plantId, localId, scope),
     removePendingHarvest: (plantId: string, localId: string) =>
       removePendingPlantEntry('harvest', plantId, localId, scope),
+    removePendingPhoto: (plantId: string, localId: string) =>
+      removePendingPlantEntry('photo', plantId, localId, scope),
   };
 }

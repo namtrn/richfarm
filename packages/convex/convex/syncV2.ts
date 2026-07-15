@@ -1,4 +1,5 @@
 import { mutation, query } from './_generated/server';
+import { internal } from './_generated/api';
 import type { MutationCtx } from './_generated/server';
 import type { Id } from './_generated/dataModel';
 import { paginationOptsValidator } from 'convex/server';
@@ -12,7 +13,8 @@ import {
   writeTombstone,
   type SyncEntityType,
 } from './lib/syncProtocol';
-import { recomputeActivitySnapshot } from './lib/plantActivities';
+import { appendPlantActivity, recomputeActivitySnapshot } from './lib/plantActivities';
+import { isPremiumActive } from './lib/subscription';
 
 const entityTypeValidator = v.union(
   v.literal('garden'), v.literal('bed'), v.literal('plant'),
@@ -21,6 +23,10 @@ const entityTypeValidator = v.union(
 const operationTypeValidator = v.union(
   v.literal('create'), v.literal('update'), v.literal('delete')
 );
+const MANUAL_ACTIVITY_TYPES = new Set([
+  'watering', 'fertilizing', 'pruning', 'pest_spotted', 'treatment',
+  'photo', 'note', 'transplanted', 'harvest', 'custom',
+]);
 
 type OperationType = 'create' | 'update' | 'delete';
 type ParentRefs = { gardenUuid?: string | null; bedUuid?: string | null; plantUuid?: string | null };
@@ -52,6 +58,12 @@ function booleanValue(value: unknown) {
   return typeof value === 'boolean' ? value : undefined;
 }
 
+function objectValue(value: unknown) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined;
+}
+
 async function lookupEntity(
   ctx: MutationCtx,
   userId: Id<'users'>,
@@ -68,14 +80,21 @@ async function lookupEntity(
   }
 }
 
-async function resolveParents(ctx: MutationCtx, userId: Id<'users'>, refs?: ParentRefs) {
+async function resolveParents(
+  ctx: MutationCtx,
+  userId: Id<'users'>,
+  refs?: ParentRefs,
+  options?: { allowGardenBedMismatch?: boolean }
+) {
   const garden = refs?.gardenUuid ? await lookupEntity(ctx, userId, 'garden', refs.gardenUuid) : null;
   const bed = refs?.bedUuid ? await lookupEntity(ctx, userId, 'bed', refs.bedUuid) : null;
   const plant = refs?.plantUuid ? await lookupEntity(ctx, userId, 'plant', refs.plantUuid) : null;
   if (refs?.gardenUuid && (!garden || garden.isDeleted)) return { error: 'garden_missing_or_deleted' as const };
   if (refs?.bedUuid && !bed) return { error: 'bed_missing_or_deleted' as const };
   if (refs?.plantUuid && (!plant || plant.isDeleted)) return { error: 'plant_missing_or_deleted' as const };
-  if (bed && garden && bed.gardenId !== garden._id) return { error: 'garden_bed_mismatch' as const };
+  if (!options?.allowGardenBedMismatch && bed && garden && bed.gardenId !== garden._id) {
+    return { error: 'garden_bed_mismatch' as const };
+  }
   return { garden, bed, plant };
 }
 
@@ -89,6 +108,12 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const name = stringValue(payload.name);
       const locationType = stringValue(payload.locationType);
       if (!name || !locationType) return { status: 'invalid_parent' as const, reason: 'invalid_garden_payload' };
+      const owner = await ctx.db.get(userId);
+      if (!isPremiumActive(owner)) {
+        const existing = await ctx.db.query('gardens').withIndex('by_user', (q) => q.eq('userId', userId))
+          .filter((q) => q.neq(q.field('isDeleted'), true)).take(1);
+        if (existing.length >= 1) return { status: 'invalid_parent' as const, reason: 'garden_limit_free' };
+      }
       await ctx.db.insert('gardens', {
         userId, entityUuid: op.entityUuid, revision: 1, name, locationType,
         areaM2: numberValue(payload.areaM2), description: stringValue(payload.description), isDeleted: false,
@@ -99,10 +124,16 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const name = stringValue(payload.name);
       const locationType = stringValue(payload.locationType);
       if (!name || !locationType) return { status: 'invalid_parent' as const, reason: 'invalid_bed_payload' };
+      const owner = await ctx.db.get(userId);
+      if (!isPremiumActive(owner)) {
+        const existing = await ctx.db.query('beds').withIndex('by_user', (q) => q.eq('userId', userId)).take(3);
+        if (existing.length >= 3) return { status: 'invalid_parent' as const, reason: 'bed_limit_free' };
+      }
       await ctx.db.insert('beds', {
         userId, entityUuid: op.entityUuid, revision: 1, name, locationType,
         gardenId: parents.bed?.gardenId ?? parents.garden?._id,
         bedType: stringValue(payload.bedType), tiers: numberValue(payload.tiers),
+        dimensions: objectValue(payload.dimensions) as any,
         areaM2: numberValue(payload.areaM2), sunlightHours: numberValue(payload.sunlightHours),
         soilType: stringValue(payload.soilType), layoutJson: stringValue(payload.layoutJson),
       });
@@ -114,21 +145,34 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const plantMasterId = stringValue(payload.plantMasterId)
         ? ctx.db.normalizeId('plantsMaster', stringValue(payload.plantMasterId)!) ?? undefined
         : undefined;
-      await ctx.db.insert('userPlants', {
+      const plantId = await ctx.db.insert('userPlants', {
         userId, entityUuid: op.entityUuid, revision: 1, version: 1, status,
         plantMasterId, nickname: stringValue(payload.nickname), notes: stringValue(payload.notes),
         gardenId: parents.bed?.gardenId ?? parents.garden?._id,
         bedId: parents.bed?._id,
+        positionInBed: objectValue(payload.positionInBed) as any,
         plantedAt: numberValue(payload.plantedAt), seedStartDate: numberValue(payload.seedStartDate),
         transplantDate: numberValue(payload.transplantDate),
         expectedHarvestDate: numberValue(payload.expectedHarvestDate), isDeleted: false,
       });
+      await appendPlantActivity(ctx, {
+        userId, userPlantId: plantId, type: 'plant_added', occurredAt: now, source: 'system',
+        value: { initialStatus: status, plantMasterId },
+      });
+      if (status === 'growing') {
+        await appendPlantActivity(ctx, {
+          userId, userPlantId: plantId, type: 'status_changed', occurredAt: now, source: 'system',
+          value: { fromStatus: null, toStatus: 'growing' },
+        });
+      }
       break;
     }
     case 'activity': {
       if (!parents.plant) return { status: 'invalid_parent' as const, reason: 'plant_required' };
       const type = stringValue(payload.type);
-      if (!type) return { status: 'invalid_parent' as const, reason: 'invalid_activity_payload' };
+      if (!type || !MANUAL_ACTIVITY_TYPES.has(type)) {
+        return { status: 'invalid_parent' as const, reason: 'invalid_activity_type' };
+      }
       await ctx.db.insert('logs', {
         userId, userPlantId: parents.plant._id, entityUuid: op.entityUuid, revision: 1,
         localId: op.entityUuid, type, occurredAt: numberValue(payload.occurredAt) ?? now,
@@ -171,6 +215,12 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
         isPrimary: booleanValue(payload.isPrimary) ?? false,
         source: stringValue(payload.source) ?? 'gallery', analysisStatus: 'pending',
       });
+      const reservation = await ctx.db.query('syncUploadReservations')
+        .withIndex('by_user_operation', (q) => q.eq('userId', userId).eq('operationId', op.operationId))
+        .unique();
+      if (reservation && reservation.storageId === storageId && reservation.entityUuid === op.entityUuid) {
+        await ctx.db.patch(reservation._id, { committedAt: now });
+      }
       break;
     }
   }
@@ -181,7 +231,11 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
   const currentRevision = entity.revision ?? 1;
   if (op.baseRevision !== currentRevision) return { status: 'revision_conflict' as const, revision: currentRevision };
   const payload = payloadRecord(op.payload);
-  const parents = await resolveParents(ctx, userId, op.parentRefs);
+  const parents = await resolveParents(ctx, userId, op.parentRefs, {
+    // Plant updates validate the resulting state below. This lets a Garden-only
+    // move detach an incompatible existing Bed instead of rejecting too early.
+    allowGardenBedMismatch: op.entityType === 'plant',
+  });
   if ('error' in parents) return { status: 'invalid_parent' as const, reason: parents.error };
   const revision = currentRevision + 1;
   switch (op.entityType) {
@@ -190,12 +244,22 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
         ...(stringValue(payload.name) !== undefined && { name: stringValue(payload.name)! }),
         ...(stringValue(payload.locationType) !== undefined && { locationType: stringValue(payload.locationType)! }),
         ...(numberValue(payload.areaM2) !== undefined && { areaM2: numberValue(payload.areaM2) }),
+        ...(stringValue(payload.bedType) !== undefined && { bedType: stringValue(payload.bedType) }),
+        ...(numberValue(payload.tiers) !== undefined && { tiers: numberValue(payload.tiers) }),
+        ...(objectValue(payload.dimensions) !== undefined && { dimensions: objectValue(payload.dimensions) as any }),
+        ...(numberValue(payload.sunlightHours) !== undefined && { sunlightHours: numberValue(payload.sunlightHours) }),
+        ...(stringValue(payload.soilType) !== undefined && { soilType: stringValue(payload.soilType) }),
         ...(stringValue(payload.description) !== undefined && { description: stringValue(payload.description) }),
         revision,
       });
       break;
     case 'bed': {
       const gardenId = op.parentRefs?.gardenUuid === null ? undefined : (parents.garden?._id ?? entity.gardenId);
+      if (gardenId !== entity.gardenId) {
+        const assignedPlant = await ctx.db.query('userPlants')
+          .withIndex('by_bed', (q) => q.eq('bedId', entity._id)).first();
+        if (assignedPlant) return { status: 'invalid_parent' as const, reason: 'bed_not_empty' };
+      }
       await ctx.db.patch(entity._id, {
         ...(stringValue(payload.name) !== undefined && { name: stringValue(payload.name)! }),
         ...(stringValue(payload.locationType) !== undefined && { locationType: stringValue(payload.locationType)! }),
@@ -205,16 +269,59 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       break;
     }
     case 'plant': {
-      const nextBed = op.parentRefs?.bedUuid !== undefined ? parents.bed : undefined;
-      const nextGarden = nextBed?.gardenId ?? (op.parentRefs?.gardenUuid !== undefined ? parents.garden?._id : undefined);
+      const previousGardenId = entity.gardenId;
+      const previousBedId = entity.bedId;
+      const previousStatus = entity.status;
+      const currentBed = entity.bedId ? await ctx.db.get(entity.bedId) : null;
+      const finalBed = op.parentRefs?.bedUuid === undefined
+        ? currentBed
+        : op.parentRefs.bedUuid === null ? null : parents.bed;
+      const requestedGarden = op.parentRefs?.gardenUuid === undefined
+        ? entity.gardenId
+        : op.parentRefs.gardenUuid === null ? undefined : parents.garden?._id;
+      if (
+        finalBed
+        && op.parentRefs?.gardenUuid !== undefined
+        && op.parentRefs?.bedUuid !== undefined
+        && requestedGarden !== finalBed.gardenId
+      ) {
+        return { status: 'invalid_parent' as const, reason: 'garden_bed_mismatch' };
+      }
+      const finalBedIsCompatible = !finalBed || requestedGarden === undefined || finalBed.gardenId === requestedGarden;
+      const nextBed = finalBedIsCompatible ? finalBed : null;
+      const nextGarden = nextBed?.gardenId ?? requestedGarden;
       await ctx.db.patch(entity._id, {
         ...(stringValue(payload.status) !== undefined && { status: stringValue(payload.status)! }),
         ...(stringValue(payload.nickname) !== undefined && { nickname: stringValue(payload.nickname) }),
         ...(stringValue(payload.notes) !== undefined && { notes: stringValue(payload.notes) }),
-        ...(op.parentRefs?.bedUuid !== undefined && { bedId: nextBed?._id }),
-        ...(op.parentRefs?.gardenUuid !== undefined || nextBed ? { gardenId: nextGarden } : {}),
+        ...(stringValue(payload.plantMasterId) !== undefined && {
+          plantMasterId: ctx.db.normalizeId('plantsMaster', stringValue(payload.plantMasterId)!) ?? undefined,
+        }),
+        ...(objectValue(payload.positionInBed) !== undefined && { positionInBed: objectValue(payload.positionInBed) as any }),
+        ...(op.parentRefs?.bedUuid === null && { positionInBed: undefined }),
+        ...(numberValue(payload.expectedHarvestDate) !== undefined && { expectedHarvestDate: numberValue(payload.expectedHarvestDate) }),
+        ...(op.parentRefs?.bedUuid !== undefined || !finalBedIsCompatible ? { bedId: nextBed?._id } : {}),
+        ...(op.parentRefs?.gardenUuid !== undefined || op.parentRefs?.bedUuid !== undefined || !finalBedIsCompatible
+          ? { gardenId: nextGarden }
+          : {}),
         revision, version: (entity.version ?? 1) + 1,
       });
+      const nextStatus = stringValue(payload.status) ?? previousStatus;
+      if (nextStatus !== previousStatus) {
+        await appendPlantActivity(ctx, {
+          userId, userPlantId: entity._id, type: 'status_changed', source: 'system',
+          value: { fromStatus: previousStatus, toStatus: nextStatus },
+        });
+      }
+      if (nextGarden !== previousGardenId || nextBed?._id !== previousBedId) {
+        await appendPlantActivity(ctx, {
+          userId, userPlantId: entity._id, type: 'location_changed', source: 'system',
+          value: {
+            fromGardenId: previousGardenId, fromBedId: previousBedId,
+            gardenId: nextGarden, bedId: nextBed?._id,
+          },
+        });
+      }
       break;
     }
     case 'activity': {
@@ -305,7 +412,7 @@ async function deleteEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
 }
 
 export const ensureSession = mutation({
-  args: { deviceId: v.optional(v.string()) },
+  args: { deviceId: v.optional(v.string()), appVersion: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const user = await getOrCreateUserFromIdentity(ctx, args.deviceId);
     if (!user) return null;
@@ -321,6 +428,7 @@ export const ensureSession = mutation({
 export const applyOperation = mutation({
   args: {
     deviceId: v.optional(v.string()), operationId: v.string(), syncGeneration: v.string(),
+    appVersion: v.optional(v.string()),
     entityType: entityTypeValidator, entityUuid: v.string(), type: operationTypeValidator,
     baseRevision: v.optional(v.number()),
     parentRefs: v.optional(v.object({
@@ -331,23 +439,31 @@ export const applyOperation = mutation({
     payload: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
+    const finish = async <T extends { status: string }>(result: T) => {
+      await ctx.scheduler.runAfter(0, internal.syncRuntime.recordOutcome, {
+        appVersion: args.appVersion,
+        entityType: args.entityType,
+        status: result.status,
+      });
+      return result;
+    };
     const user = await getUserByIdentityOrDevice(ctx, args.deviceId);
-    if (!user) return { status: 'unauthorized' as const, operationId: args.operationId };
+    if (!user) return await finish({ status: 'unauthorized' as const, operationId: args.operationId });
     const state = await ctx.db.query('syncAccountState').withIndex('by_user', (q) => q.eq('userId', user._id)).unique();
-    if (!state || state.generation !== args.syncGeneration) return { status: 'wrong_generation' as const, operationId: args.operationId };
+    if (!state || state.generation !== args.syncGeneration) return await finish({ status: 'wrong_generation' as const, operationId: args.operationId });
     const fingerprint = canonicalize({ entityType: args.entityType, entityUuid: args.entityUuid, type: args.type, baseRevision: args.baseRevision, parentRefs: args.parentRefs, payload: args.payload });
     const prior = await checkReceipt(ctx, user._id, args.operationId, fingerprint);
-    if (prior.status === 'operation_conflict') return { status: 'operation_conflict' as const, operationId: args.operationId };
-    if (prior.status === 'matched') return {
+    if (prior.status === 'operation_conflict') return await finish({ status: 'operation_conflict' as const, operationId: args.operationId });
+    if (prior.status === 'matched') return await finish({
       status: (prior.receiptStatus === 'applied' ? 'already_applied' : prior.receiptStatus) as any,
       operationId: args.operationId,
       revision: prior.revision,
-    };
+    });
     const op: Operation = args;
     const tombstone = await getTombstone(ctx, user._id, op.entityType, op.entityUuid);
     if (tombstone) {
       await recordReceipt(ctx, { userId: user._id, operationId: op.operationId, entityType: op.entityType, entityUuid: op.entityUuid, operationType: op.type, fingerprint, status: 'discarded_deleted', revision: tombstone.deletedRevision });
-      return { status: 'discarded_deleted' as const, operationId: op.operationId, revision: tombstone.deletedRevision };
+      return await finish({ status: 'discarded_deleted' as const, operationId: op.operationId, revision: tombstone.deletedRevision });
     }
     const entity = await lookupEntity(ctx, user._id, op.entityType, op.entityUuid);
     let result;
@@ -364,7 +480,7 @@ export const applyOperation = mutation({
     if (result.status === 'applied') {
       await ctx.db.patch(state._id, { updatedAt: Date.now(), sequence: (state.sequence ?? 0) + 1 });
     }
-    return { ...result, operationId: op.operationId };
+    return await finish({ ...result, operationId: op.operationId });
   },
 });
 

@@ -4,7 +4,8 @@ import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { isPremiumActive } from "./lib/subscription";
 import { getOwnedBedOrThrow, getOwnedGardenOrThrow } from "./lib/ownership";
-import { writeTombstone } from "./lib/syncProtocol";
+import { markSyncDatasetChanged, writeTombstone } from "./lib/syncProtocol";
+import { assertLegacyWriteAllowed } from "./syncRuntime";
 
 const NAME_MAX = 40;
 const FREE_BED_LIMIT = 3;
@@ -47,9 +48,11 @@ export const createBed = mutation({
         sunlightHours: v.optional(v.number()),
         soilType: v.optional(v.string()),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         assertNameLength(args.name);
         if (args.gardenId) {
             await getOwnedGardenOrThrow(ctx, user._id, args.gardenId);
@@ -79,6 +82,7 @@ export const createBed = mutation({
             revision: 1,
         });
         await ctx.db.patch(bedId, { entityUuid: `legacy:${bedId}` });
+        await markSyncDatasetChanged(ctx, user._id);
         return bedId;
     },
 });
@@ -100,9 +104,11 @@ export const updateBed = mutation({
         sunlightHours: v.optional(v.number()),
         soilType: v.optional(v.string()),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const bed = await getOwnedBedOrThrow(ctx, user._id, args.bedId);
 
         if (args.name !== undefined) {
@@ -124,6 +130,7 @@ export const updateBed = mutation({
             ...(args.soilType !== undefined && { soilType: args.soilType }),
             revision: (bed.revision ?? 1) + 1,
         });
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });
 
@@ -132,9 +139,11 @@ export const deleteBed = mutation({
     args: {
         bedId: v.id("beds"),
         deviceId: v.optional(v.string()),
+        clientVersion: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
+        await assertLegacyWriteAllowed(ctx, args.clientVersion);
         const bed = await getOwnedBedOrThrow(ctx, user._id, args.bedId);
         await writeTombstone(ctx, {
             userId: user._id, entityType: "bed",
@@ -151,5 +160,6 @@ export const deleteBed = mutation({
             });
         }
         await ctx.db.delete(args.bedId);
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });

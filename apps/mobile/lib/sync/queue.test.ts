@@ -11,10 +11,12 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 
 import {
   enqueueSyncAction,
+  clearSyncNamespace,
   loadOutbox,
   loadSyncQueue,
   quarantineLegacyQueue,
   quarantineSyncAction,
+  removePendingPlantEntry,
   setSyncGeneration,
 } from './queue';
 import type { SyncAction } from './types';
@@ -58,5 +60,22 @@ describe('user-scoped outbox v2', () => {
     expect(await quarantineLegacyQueue()).toBe(1);
     expect(await loadSyncQueue('device:user')).toEqual([]);
     expect((await loadOutbox()).quarantine.map((item) => item.id)).toEqual(['legacy']);
+  });
+
+  it('cancels a pending Photo before upload when the user removes it locally', async () => {
+    await enqueueSyncAction({
+      id: 'photo-op', plantId: 'plant', type: 'photo', createdAt: 1, attempts: 0,
+      payload: { localId: 'photo-local', uri: 'file://photo.jpg', date: 1 },
+    }, 'device:user');
+    await removePendingPlantEntry('photo', 'plant', 'photo-local', 'device:user');
+    expect(await loadSyncQueue('device:user')).toEqual([]);
+  });
+
+  it('clears only the deleted account sync namespace', async () => {
+    await enqueueSyncAction(action('a'), 'device:user-a');
+    await enqueueSyncAction(action('b'), 'device:user-b');
+    await clearSyncNamespace('device:user-a');
+    expect(await loadSyncQueue('device:user-a')).toEqual([]);
+    expect((await loadSyncQueue('device:user-b')).map((item) => item.id)).toEqual(['b']);
   });
 });
