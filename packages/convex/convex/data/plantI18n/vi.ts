@@ -12,35 +12,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu bắp Burgundy",
     "cultivar": "Burgundy",
-    "description": "Đậu bắp Burgundy nổi tiếng với những quả màu xanh giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình.",
     "locale": "vi",
     "scientificName": "Abelmoschus esculentus"
   },
   {
     "commonName": "Đậu bắp Clemson Spineless",
     "cultivar": "Clemson Spineless",
-    "description": "Đậu bắp Clemson Spineless nổi tiếng với những quả màu xanh giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình.",
     "locale": "vi",
     "scientificName": "Abelmoschus esculentus"
   },
   {
     "commonName": "Đậu bắp Emerald",
     "cultivar": "Emerald",
-    "description": "Đậu bắp Emerald nổi tiếng với những quả màu xanh giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình.",
     "locale": "vi",
     "scientificName": "Abelmoschus esculentus"
   },
   {
     "commonName": "Đậu bắp Jambalaya",
     "cultivar": "Jambalaya",
-    "description": "Đậu bắp Jambalaya nổi tiếng với những quả màu xanh giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình.",
     "locale": "vi",
     "scientificName": "Abelmoschus esculentus"
   },
   {
     "commonName": "Đậu bắp Silver Queen",
     "cultivar": "Silver Queen",
-    "description": "Đậu bắp Silver Queen nổi tiếng với những quả màu xanh giòn ngọt. Cây ưa nắng và đất tơi xốp thoát nước tốt, cần tưới vừa phải để cho trái đều và ngon. Quả non có thể xào, luộc hay nấu canh, cung cấp nhiều chất xơ và vitamin. Việc tự tay chăm sóc và thu hoạch đậu bắp sẽ mang tới những bữa ăn tươi ngon cho gia đình.",
     "locale": "vi",
     "scientificName": "Abelmoschus esculentus"
   },
@@ -54,36 +49,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Acca sellowiana",
     "cultivar": "Anatoki",
     "locale": "vi",
-    "commonName": "Oi dua Anatoki",
-    "description": "Giong Anatoki cua Oi dua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oi dua Anatoki"
   },
   {
     "scientificName": "Acca sellowiana",
     "cultivar": "Apollo",
     "locale": "vi",
-    "commonName": "Oi dua Apollo",
-    "description": "Giong Apollo cua Oi dua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oi dua Apollo"
   },
   {
     "scientificName": "Acca sellowiana",
     "cultivar": "Kaiteri",
     "locale": "vi",
-    "commonName": "Oi dua Kaiteri",
-    "description": "Giong Kaiteri cua Oi dua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oi dua Kaiteri"
   },
   {
     "scientificName": "Acca sellowiana",
     "cultivar": "Mammoth",
     "locale": "vi",
-    "commonName": "Oi dua Mammoth",
-    "description": "Giong Mammoth cua Oi dua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oi dua Mammoth"
   },
   {
     "scientificName": "Acca sellowiana",
     "cultivar": "Unique",
     "locale": "vi",
-    "commonName": "Oi dua Unique",
-    "description": "Giong Unique cua Oi dua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oi dua Unique"
   },
   {
     "scientificName": "Achillea millefolium",
@@ -95,36 +85,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Achillea millefolium",
     "cultivar": "Cerise Queen",
     "locale": "vi",
-    "commonName": "Co thi Cerise Queen",
-    "description": "Giong Cerise Queen cua Co thi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co thi Cerise Queen"
   },
   {
     "scientificName": "Achillea millefolium",
     "cultivar": "Colorado",
     "locale": "vi",
-    "commonName": "Co thi Colorado",
-    "description": "Giong Colorado cua Co thi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co thi Colorado"
   },
   {
     "scientificName": "Achillea millefolium",
     "cultivar": "Moonshine",
     "locale": "vi",
-    "commonName": "Co thi Moonshine",
-    "description": "Giong Moonshine cua Co thi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co thi Moonshine"
   },
   {
     "scientificName": "Achillea millefolium",
     "cultivar": "Paprika",
     "locale": "vi",
-    "commonName": "Co thi Paprika",
-    "description": "Giong Paprika cua Co thi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co thi Paprika"
   },
   {
     "scientificName": "Achillea millefolium",
     "cultivar": "Summer Pastels",
     "locale": "vi",
-    "commonName": "Co thi Summer Pastels",
-    "description": "Giong Summer Pastels cua Co thi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co thi Summer Pastels"
   },
   {
     "scientificName": "Actinidia arguta",
@@ -136,36 +121,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Actinidia arguta",
     "cultivar": "Ananasnaya",
     "locale": "vi",
-    "commonName": "Kiwi nho Ananasnaya",
-    "description": "Giong Ananasnaya cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi nho Ananasnaya"
   },
   {
     "scientificName": "Actinidia arguta",
     "cultivar": "Geneva",
     "locale": "vi",
-    "commonName": "Kiwi nho Geneva",
-    "description": "Giong Geneva cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi nho Geneva"
   },
   {
     "scientificName": "Actinidia arguta",
     "cultivar": "Issai",
     "locale": "vi",
-    "commonName": "Kiwi nho Issai",
-    "description": "Giong Issai cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi nho Issai"
   },
   {
     "scientificName": "Actinidia arguta",
     "cultivar": "Ken's Red",
     "locale": "vi",
-    "commonName": "Kiwi nho Ken's Red",
-    "description": "Giong Ken's Red cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi nho Ken's Red"
   },
   {
     "scientificName": "Actinidia arguta",
     "cultivar": "Weiki",
     "locale": "vi",
-    "commonName": "Kiwi nho Weiki",
-    "description": "Giong Weiki cua Kiwi nho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi nho Weiki"
   },
   {
     "scientificName": "Actinidia deliciosa",
@@ -177,36 +157,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Actinidia deliciosa",
     "cultivar": "Abbott",
     "locale": "vi",
-    "commonName": "Kiwi Abbott",
-    "description": "Giong Abbott cua Kiwi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi Abbott"
   },
   {
     "scientificName": "Actinidia deliciosa",
     "cultivar": "Blake",
     "locale": "vi",
-    "commonName": "Kiwi Blake",
-    "description": "Giong Blake cua Kiwi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi Blake"
   },
   {
     "scientificName": "Actinidia deliciosa",
     "cultivar": "Bruno",
     "locale": "vi",
-    "commonName": "Kiwi Bruno",
-    "description": "Giong Bruno cua Kiwi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi Bruno"
   },
   {
     "scientificName": "Actinidia deliciosa",
     "cultivar": "Hayward",
     "locale": "vi",
-    "commonName": "Kiwi Hayward",
-    "description": "Giong Hayward cua Kiwi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi Hayward"
   },
   {
     "scientificName": "Actinidia deliciosa",
     "cultivar": "Monty",
     "locale": "vi",
-    "commonName": "Kiwi Monty",
-    "description": "Giong Monty cua Kiwi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Kiwi Monty"
   },
   {
     "commonName": "Ngân hậu",
@@ -217,63 +192,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngân hậu Anyamanee",
     "cultivar": "Anyamanee",
-    "description": "Ngân hậu Anyamanee là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Cutlass",
     "cultivar": "Cutlass",
-    "description": "Ngân hậu Cutlass là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Emerald Bay",
     "cultivar": "Emerald Bay",
-    "description": "Ngân hậu Emerald Bay là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Maria",
     "cultivar": "Maria",
-    "description": "Ngân hậu Maria là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Pink Dalmatian",
     "cultivar": "Pink Dalmatian",
-    "description": "Ngân hậu Pink Dalmatian là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Red Emerald",
     "cultivar": "Red Emerald",
-    "description": "Ngân hậu Red Emerald là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Red Valentine",
     "cultivar": "Red Valentine",
-    "description": "Ngân hậu Red Valentine là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Silver Bay",
     "cultivar": "Silver Bay",
-    "description": "Ngân hậu Silver Bay là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
   {
     "commonName": "Ngân hậu Silver Queen",
     "cultivar": "Silver Queen",
-    "description": "Ngân hậu Silver Queen là cây nội thất với lá xanh pha bạc hoặc họa tiết độc đáo. Cây chịu bóng, ưa đất ẩm thoát nước tốt và dễ chăm sóc. Ngân hậu thích hợp trang trí nhà cửa và giúp lọc không khí.",
     "locale": "vi",
     "scientificName": "Aglaonema commutatum"
   },
@@ -286,41 +252,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Tỏi voi Ail Blanc",
     "cultivar": "Ail Blanc",
-    "description": "Tỏi voi Ail Blanc là giống tỏi cho củ rất lớn, vị nhẹ hơn tỏi thường. Cây ưa nắng và đất tơi xốp, cần tưới vừa phải. Củ tỏi voi được dùng làm gia vị và mang lại giá trị dinh dưỡng.",
     "locale": "vi",
     "scientificName": "Allium ampeloprasum"
   },
   {
     "commonName": "Tỏi voi Giant",
     "cultivar": "Giant",
-    "description": "Tỏi voi Giant là giống tỏi cho củ rất lớn, vị nhẹ hơn tỏi thường. Cây ưa nắng và đất tơi xốp, cần tưới vừa phải. Củ tỏi voi được dùng làm gia vị và mang lại giá trị dinh dưỡng.",
     "locale": "vi",
     "scientificName": "Allium ampeloprasum"
   },
   {
     "commonName": "Tỏi voi Mild Giant",
     "cultivar": "Mild Giant",
-    "description": "Tỏi voi Mild Giant là giống tỏi cho củ rất lớn, vị nhẹ hơn tỏi thường. Cây ưa nắng và đất tơi xốp, cần tưới vừa phải. Củ tỏi voi được dùng làm gia vị và mang lại giá trị dinh dưỡng.",
     "locale": "vi",
     "scientificName": "Allium ampeloprasum"
   },
   {
     "commonName": "Tỏi voi Montana",
     "cultivar": "Montana",
-    "description": "Tỏi voi Montana là giống tỏi cho củ rất lớn, vị nhẹ hơn tỏi thường. Cây ưa nắng và đất tơi xốp, cần tưới vừa phải. Củ tỏi voi được dùng làm gia vị và mang lại giá trị dinh dưỡng.",
     "locale": "vi",
     "scientificName": "Allium ampeloprasum"
   },
   {
     "commonName": "Tỏi voi Tuscan",
     "cultivar": "Tuscan",
-    "description": "Tỏi voi Tuscan là giống tỏi cho củ rất lớn, vị nhẹ hơn tỏi thường. Cây ưa nắng và đất tơi xốp, cần tưới vừa phải. Củ tỏi voi được dùng làm gia vị và mang lại giá trị dinh dưỡng.",
     "locale": "vi",
     "scientificName": "Allium ampeloprasum"
   },
   {
     "commonName": "Hành tây",
-    "description": "Hành tây cho củ vàng với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn.",
+    "description": "Hành tây là cây họ hành ưa thời tiết mát, được trồng lấy củ nhiều lớp và lá non ăn được. Cây cần nhiều nắng, đất tơi xốp thoát nước và độ ẩm ổn định trong giai đoạn tạo củ; giảm tưới khi lá bắt đầu đổ. Có thể thu hoạch để hong khô khi phần lớn lá vàng và nằm xuống.",
     "locale": "vi",
     "scientificName": "Allium cepa"
   },
@@ -361,35 +322,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hành tím Camelot",
     "cultivar": "Camelot",
-    "description": "Hành tím Camelot cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
     "locale": "vi",
     "scientificName": "Allium cepa var. aggregatum"
   },
   {
     "commonName": "Hành tím French Gray",
     "cultivar": "French Gray",
-    "description": "Hành tím French Gray cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
     "locale": "vi",
     "scientificName": "Allium cepa var. aggregatum"
   },
   {
     "commonName": "Hành tím Matador",
     "cultivar": "Matador",
-    "description": "Hành tím Matador cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
     "locale": "vi",
     "scientificName": "Allium cepa var. aggregatum"
   },
   {
     "commonName": "Hành tím Red Sun",
     "cultivar": "Red Sun",
-    "description": "Hành tím Red Sun cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
     "locale": "vi",
     "scientificName": "Allium cepa var. aggregatum"
   },
   {
     "commonName": "Hành tím Zebrune",
     "cultivar": "Zebrune",
-    "description": "Hành tím Zebrune cho củ nhỏ màu tím, vị ngọt nhẹ. Cây ưa đất tơi xốp và khí hậu ấm, dễ trồng trong chậu. Củ hành tím dùng làm gia vị, ngâm chua hoặc ăn kèm.",
     "locale": "vi",
     "scientificName": "Allium cepa var. aggregatum"
   },
@@ -402,35 +358,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Củ kiệu Mini Pearl",
     "cultivar": "Mini Pearl",
-    "description": "Củ kiệu Mini Pearl có lá ống xanh tươi, phình to ở gốc thành những củ nhỏ màu trắng hoặc hồng nhạt. Loài cây thuộc họ hành này ưa đất tơi xốp và khí hậu mát, phát triển quanh năm với lá xanh rì. Củ kiệu có vị thơm dịu, thường được muối chua ngọt hoặc ăn kèm trong các món trộn, đem lại hương vị đặc trưng trong những bữa cơm ngày Tết.",
     "locale": "vi",
     "scientificName": "Allium chinense"
   },
   {
     "commonName": "Củ kiệu Pink Stem",
     "cultivar": "Pink Stem",
-    "description": "Củ kiệu Pink Stem có lá ống xanh tươi, phình to ở gốc thành những củ nhỏ màu trắng hoặc hồng nhạt. Loài cây thuộc họ hành này ưa đất tơi xốp và khí hậu mát, phát triển quanh năm với lá xanh rì. Củ kiệu có vị thơm dịu, thường được muối chua ngọt hoặc ăn kèm trong các món trộn, đem lại hương vị đặc trưng trong những bữa cơm ngày Tết.",
     "locale": "vi",
     "scientificName": "Allium chinense"
   },
   {
     "commonName": "Củ kiệu Summer Bulb",
     "cultivar": "Summer Bulb",
-    "description": "Củ kiệu Summer Bulb có lá ống xanh tươi, phình to ở gốc thành những củ nhỏ màu trắng hoặc hồng nhạt. Loài cây thuộc họ hành này ưa đất tơi xốp và khí hậu mát, phát triển quanh năm với lá xanh rì. Củ kiệu có vị thơm dịu, thường được muối chua ngọt hoặc ăn kèm trong các món trộn, đem lại hương vị đặc trưng trong những bữa cơm ngày Tết.",
     "locale": "vi",
     "scientificName": "Allium chinense"
   },
   {
     "commonName": "Củ kiệu Tender Pickle",
     "cultivar": "Tender Pickle",
-    "description": "Củ kiệu Tender Pickle có lá ống xanh tươi, phình to ở gốc thành những củ nhỏ màu trắng hoặc hồng nhạt. Loài cây thuộc họ hành này ưa đất tơi xốp và khí hậu mát, phát triển quanh năm với lá xanh rì. Củ kiệu có vị thơm dịu, thường được muối chua ngọt hoặc ăn kèm trong các món trộn, đem lại hương vị đặc trưng trong những bữa cơm ngày Tết.",
     "locale": "vi",
     "scientificName": "Allium chinense"
   },
   {
     "commonName": "Củ kiệu White Pearl",
     "cultivar": "White Pearl",
-    "description": "Củ kiệu White Pearl có lá ống xanh tươi, phình to ở gốc thành những củ nhỏ màu trắng hoặc hồng nhạt. Loài cây thuộc họ hành này ưa đất tơi xốp và khí hậu mát, phát triển quanh năm với lá xanh rì. Củ kiệu có vị thơm dịu, thường được muối chua ngọt hoặc ăn kèm trong các món trộn, đem lại hương vị đặc trưng trong những bữa cơm ngày Tết.",
     "locale": "vi",
     "scientificName": "Allium chinense"
   },
@@ -443,28 +394,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hành lá Evergreen",
     "cultivar": "Evergreen",
-    "description": "Hành lá Evergreen có thân trắng, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn.",
     "locale": "vi",
     "scientificName": "Allium fistulosum"
   },
   {
     "commonName": "Hành lá Ishikura",
     "cultivar": "Ishikura",
-    "description": "Hành lá Ishikura có thân trắng, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn.",
     "locale": "vi",
     "scientificName": "Allium fistulosum"
   },
   {
     "commonName": "Hành lá Parade",
     "cultivar": "Parade",
-    "description": "Hành lá Parade có thân trắng, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn.",
     "locale": "vi",
     "scientificName": "Allium fistulosum"
   },
   {
     "commonName": "Hành lá White Lisbon",
     "cultivar": "White Lisbon",
-    "description": "Hành lá White Lisbon có thân trắng, mùi vị dịu nhẹ. Giống này sinh trưởng nhanh, ưa ánh sáng và đất ẩm, có thể thu hoạch từng cọng khi còn non. Hành lá được dùng để ăn sống, trang trí món ăn hoặc nêm nếm các món xào, canh thêm phần hấp dẫn.",
     "locale": "vi",
     "scientificName": "Allium fistulosum"
   },
@@ -477,41 +424,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Tỏi tây American Flag",
     "cultivar": "American Flag",
-    "description": "Tỏi tây American Flag có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn.",
     "locale": "vi",
     "scientificName": "Allium porrum"
   },
   {
     "commonName": "Tỏi tây Bandit",
     "cultivar": "Bandit",
-    "description": "Tỏi tây Bandit có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn.",
     "locale": "vi",
     "scientificName": "Allium porrum"
   },
   {
     "commonName": "Tỏi tây Blue Solaise",
     "cultivar": "Blue Solaise",
-    "description": "Tỏi tây Blue Solaise có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn.",
     "locale": "vi",
     "scientificName": "Allium porrum"
   },
   {
     "commonName": "Tỏi tây King Richard",
     "cultivar": "King Richard",
-    "description": "Tỏi tây King Richard có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn.",
     "locale": "vi",
     "scientificName": "Allium porrum"
   },
   {
     "commonName": "Tỏi tây Lancelot",
     "cultivar": "Lancelot",
-    "description": "Tỏi tây Lancelot có thân trắng dài và lá xanh dẹt, mang hương vị hành nhưng dịu nhẹ hơn. Cây ưa khí hậu mát, đất ẩm giàu dinh dưỡng và cần tưới đều. Thân tỏi tây dùng trong các món súp, hầm hoặc xào, tạo nên vị ngọt tinh tế cho bữa ăn.",
     "locale": "vi",
     "scientificName": "Allium porrum"
   },
   {
     "commonName": "Tỏi",
-    "description": "Tỏi cho củ chắc với nhiều tép thơm nồng, giàu tinh dầu tốt cho sức khỏe. Giống tỏi này chịu hạn tốt, ưa đất tơi xốp và nhiều nắng. Tỏi là gia vị không thể thiếu để tăng hương vị cho món ăn và hỗ trợ sức đề kháng.",
+    "description": "Tỏi được trồng từ từng tép để tạo củ có mùi vị đậm dùng trong bếp. Nên trồng vào mùa mát trên đất màu mỡ, thoát nước tốt, giữ luống sạch cỏ và tránh úng. Thu hoạch khi các lá dưới đã nâu nhưng phía trên vẫn còn vài lá xanh, sau đó hong củ trước khi bảo quản.",
     "locale": "vi",
     "scientificName": "Allium sativum"
   },
@@ -552,42 +494,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hẹ Dolores",
     "cultivar": "Dolores",
-    "description": "Hẹ Dolores là cây gia vị với lá nhỏ màu xanh và mùi nhẹ. Cây sinh trưởng nhanh, ưa đất ẩm và ánh sáng vừa phải. Lá hẹ được dùng ăn sống, nêm canh hoặc xào mang lại hương vị tinh tế.",
     "locale": "vi",
     "scientificName": "Allium schoenoprasum"
   },
   {
     "commonName": "Hẹ Fine Leaf",
     "cultivar": "Fine Leaf",
-    "description": "Hẹ Fine Leaf là cây gia vị với lá nhỏ màu xanh và mùi nhẹ. Cây sinh trưởng nhanh, ưa đất ẩm và ánh sáng vừa phải. Lá hẹ được dùng ăn sống, nêm canh hoặc xào mang lại hương vị tinh tế.",
     "locale": "vi",
     "scientificName": "Allium schoenoprasum"
   },
   {
     "commonName": "Hẹ Nelly",
     "cultivar": "Nelly",
-    "description": "Hẹ Nelly là cây gia vị với lá nhỏ màu xanh và mùi nhẹ. Cây sinh trưởng nhanh, ưa đất ẩm và ánh sáng vừa phải. Lá hẹ được dùng ăn sống, nêm canh hoặc xào mang lại hương vị tinh tế.",
     "locale": "vi",
     "scientificName": "Allium schoenoprasum"
   },
   {
     "commonName": "Hẹ Polyvert",
     "cultivar": "Polyvert",
-    "description": "Hẹ Polyvert là cây gia vị với lá nhỏ màu xanh và mùi nhẹ. Cây sinh trưởng nhanh, ưa đất ẩm và ánh sáng vừa phải. Lá hẹ được dùng ăn sống, nêm canh hoặc xào mang lại hương vị tinh tế.",
     "locale": "vi",
     "scientificName": "Allium schoenoprasum"
   },
   {
     "commonName": "Hẹ Purly",
     "cultivar": "Purly",
-    "description": "Hẹ Purly là cây gia vị với lá nhỏ màu xanh và mùi nhẹ. Cây sinh trưởng nhanh, ưa đất ẩm và ánh sáng vừa phải. Lá hẹ được dùng ăn sống, nêm canh hoặc xào mang lại hương vị tinh tế.",
     "locale": "vi",
     "scientificName": "Allium schoenoprasum"
   },
   {
     "commonName": "Hẹ Staro",
     "cultivar": "Staro",
-    "description": "Hẹ Staro là cây gia vị với lá nhỏ màu xanh và mùi nhẹ. Cây sinh trưởng nhanh, ưa đất ẩm và ánh sáng vừa phải. Lá hẹ được dùng ăn sống, nêm canh hoặc xào mang lại hương vị tinh tế.",
     "locale": "vi",
     "scientificName": "Allium schoenoprasum"
   },
@@ -600,35 +536,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hẹ tỏi Broad Leaf",
     "cultivar": "Broad Leaf",
-    "description": "Hẹ tỏi Broad Leaf có lá dẹt, hương thơm giống tỏi. Cây ưa đất ẩm và chịu nắng nhẹ. Lá hẹ tỏi được dùng xào, ăn sống hoặc trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Allium tuberosum"
   },
   {
     "commonName": "Hẹ tỏi Geisha",
     "cultivar": "Geisha",
-    "description": "Hẹ tỏi Geisha có lá dẹt, hương thơm giống tỏi. Cây ưa đất ẩm và chịu nắng nhẹ. Lá hẹ tỏi được dùng xào, ăn sống hoặc trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Allium tuberosum"
   },
   {
     "commonName": "Hẹ tỏi Kobold",
     "cultivar": "Kobold",
-    "description": "Hẹ tỏi Kobold có lá dẹt, hương thơm giống tỏi. Cây ưa đất ẩm và chịu nắng nhẹ. Lá hẹ tỏi được dùng xào, ăn sống hoặc trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Allium tuberosum"
   },
   {
     "commonName": "Hẹ tỏi Oriental",
     "cultivar": "Oriental",
-    "description": "Hẹ tỏi Oriental có lá dẹt, hương thơm giống tỏi. Cây ưa đất ẩm và chịu nắng nhẹ. Lá hẹ tỏi được dùng xào, ăn sống hoặc trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Allium tuberosum"
   },
   {
     "commonName": "Hẹ tỏi Tender",
     "cultivar": "Tender",
-    "description": "Hẹ tỏi Tender có lá dẹt, hương thơm giống tỏi. Cây ưa đất ẩm và chịu nắng nhẹ. Lá hẹ tỏi được dùng xào, ăn sống hoặc trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Allium tuberosum"
   },
@@ -642,36 +573,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Allium ursinum",
     "cultivar": "Alba",
     "locale": "vi",
-    "commonName": "Toi rung Alba",
-    "description": "Giong Alba cua Toi rung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Toi rung Alba"
   },
   {
     "scientificName": "Allium ursinum",
     "cultivar": "Broadleaf",
     "locale": "vi",
-    "commonName": "Toi rung Broadleaf",
-    "description": "Giong Broadleaf cua Toi rung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Toi rung Broadleaf"
   },
   {
     "scientificName": "Allium ursinum",
     "cultivar": "Early Spring",
     "locale": "vi",
-    "commonName": "Toi rung Early Spring",
-    "description": "Giong Early Spring cua Toi rung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Toi rung Early Spring"
   },
   {
     "scientificName": "Allium ursinum",
     "cultivar": "Forest Green",
     "locale": "vi",
-    "commonName": "Toi rung Forest Green",
-    "description": "Giong Forest Green cua Toi rung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Toi rung Forest Green"
   },
   {
     "scientificName": "Allium ursinum",
     "cultivar": "Wildwood",
     "locale": "vi",
-    "commonName": "Toi rung Wildwood",
-    "description": "Giong Wildwood cua Toi rung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Toi rung Wildwood"
   },
   {
     "commonName": "Hành rừng",
@@ -682,35 +608,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hành rừng Alpine",
     "cultivar": "Alpine",
-    "description": "Hành tây Alpine cho củ xanh với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn.",
     "locale": "vi",
     "scientificName": "Allium victorialis"
   },
   {
     "commonName": "Hành rừng Forest Leaf",
     "cultivar": "Forest Leaf",
-    "description": "Hành tây Forest Leaf cho củ xanh với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn.",
     "locale": "vi",
     "scientificName": "Allium victorialis"
   },
   {
     "commonName": "Hành rừng Green Spear",
     "cultivar": "Green Spear",
-    "description": "Hành tây Green Spear cho củ xanh với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn.",
     "locale": "vi",
     "scientificName": "Allium victorialis"
   },
   {
     "commonName": "Hành rừng Mountain Star",
     "cultivar": "Mountain Star",
-    "description": "Hành tây Mountain Star cho củ xanh với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn.",
     "locale": "vi",
     "scientificName": "Allium victorialis"
   },
   {
     "commonName": "Hành rừng Siberian",
     "cultivar": "Siberian",
-    "description": "Hành tây Siberian cho củ xanh với hương thơm dễ chịu. Cây cần đất phì nhiêu, ánh sáng đầy đủ và tưới nước đều để củ to, vỏ bóng. Hành tây là nguyên liệu cơ bản trong nhiều món xào, nướng và salad, giúp món ăn thơm ngon hơn.",
     "locale": "vi",
     "scientificName": "Allium victorialis"
   },
@@ -723,35 +644,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Alocasia Aurea",
     "cultivar": "Aurea",
-    "description": "Alocasia Aurea là cây cảnh lá lớn với đường gân nổi bật. Cây ưa bóng râm, độ ẩm cao và không chịu được lạnh. Thích hợp trồng chậu để trang trí trong nhà hoặc văn phòng.",
     "locale": "vi",
     "scientificName": "Alocasia amazonica"
   },
   {
     "commonName": "Alocasia Bambino",
     "cultivar": "Bambino",
-    "description": "Alocasia Bambino là cây cảnh lá lớn với đường gân nổi bật. Cây ưa bóng râm, độ ẩm cao và không chịu được lạnh. Thích hợp trồng chậu để trang trí trong nhà hoặc văn phòng.",
     "locale": "vi",
     "scientificName": "Alocasia amazonica"
   },
   {
     "commonName": "Alocasia Dark Star",
     "cultivar": "Dark Star",
-    "description": "Alocasia Dark Star là cây cảnh lá lớn với đường gân nổi bật. Cây ưa bóng râm, độ ẩm cao và không chịu được lạnh. Thích hợp trồng chậu để trang trí trong nhà hoặc văn phòng.",
     "locale": "vi",
     "scientificName": "Alocasia amazonica"
   },
   {
     "commonName": "Alocasia Ivory Coast",
     "cultivar": "Ivory Coast",
-    "description": "Alocasia Ivory Coast là cây cảnh lá lớn với đường gân nổi bật. Cây ưa bóng râm, độ ẩm cao và không chịu được lạnh. Thích hợp trồng chậu để trang trí trong nhà hoặc văn phòng.",
     "locale": "vi",
     "scientificName": "Alocasia amazonica"
   },
   {
     "commonName": "Alocasia Polly",
     "cultivar": "Polly",
-    "description": "Alocasia Polly là cây cảnh lá lớn với đường gân nổi bật. Cây ưa bóng râm, độ ẩm cao và không chịu được lạnh. Thích hợp trồng chậu để trang trí trong nhà hoặc văn phòng.",
     "locale": "vi",
     "scientificName": "Alocasia amazonica"
   },
@@ -764,21 +680,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Nha đam Barbadensis",
     "cultivar": "Barbadensis",
-    "description": "Nha đam là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Aloe vera"
   },
   {
     "commonName": "Nha đam Blue Elf",
     "cultivar": "Blue Elf",
-    "description": "Nha đam là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Aloe vera"
   },
   {
     "commonName": "Nha đam Chinensis",
     "cultivar": "Chinensis",
-    "description": "Nha đam là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Aloe vera"
   },
@@ -791,35 +704,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Rau dền Aurora",
     "cultivar": "Aurora",
-    "description": "Rau dền Aurora có lá mềm màu xanh hoặc đỏ, giàu vitamin và khoáng chất. Cây ưa nắng, dễ trồng và phát triển nhanh. Lá rau dền dùng nấu canh, xào hoặc luộc rất tốt cho sức khỏe.",
     "locale": "vi",
     "scientificName": "Amaranthus tricolor"
   },
   {
     "commonName": "Rau dền Green Leaf",
     "cultivar": "Green Leaf",
-    "description": "Rau dền Green Leaf có lá mềm màu xanh hoặc đỏ, giàu vitamin và khoáng chất. Cây ưa nắng, dễ trồng và phát triển nhanh. Lá rau dền dùng nấu canh, xào hoặc luộc rất tốt cho sức khỏe.",
     "locale": "vi",
     "scientificName": "Amaranthus tricolor"
   },
   {
     "commonName": "Rau dền Josephs Coat",
     "cultivar": "Josephs Coat",
-    "description": "Rau dền Josephs Coat có lá mềm màu xanh hoặc đỏ, giàu vitamin và khoáng chất. Cây ưa nắng, dễ trồng và phát triển nhanh. Lá rau dền dùng nấu canh, xào hoặc luộc rất tốt cho sức khỏe.",
     "locale": "vi",
     "scientificName": "Amaranthus tricolor"
   },
   {
     "commonName": "Rau dền Molten Fire",
     "cultivar": "Molten Fire",
-    "description": "Rau dền Molten Fire có lá mềm màu xanh hoặc đỏ, giàu vitamin và khoáng chất. Cây ưa nắng, dễ trồng và phát triển nhanh. Lá rau dền dùng nấu canh, xào hoặc luộc rất tốt cho sức khỏe.",
     "locale": "vi",
     "scientificName": "Amaranthus tricolor"
   },
   {
     "commonName": "Rau dền Red Leaf",
     "cultivar": "Red Leaf",
-    "description": "Rau dền Red Leaf có lá mềm màu xanh hoặc đỏ, giàu vitamin và khoáng chất. Cây ưa nắng, dễ trồng và phát triển nhanh. Lá rau dền dùng nấu canh, xào hoặc luộc rất tốt cho sức khỏe.",
     "locale": "vi",
     "scientificName": "Amaranthus tricolor"
   },
@@ -832,35 +740,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dứa MD2",
     "cultivar": "MD2",
-    "description": "Dứa MD2 là cây ăn quả nhiệt đới với vỏ gai và thịt vàng ngọt. Cây ưa nắng, đất thoát nước tốt và thường trồng thành luống. Quả dứa dùng ăn tươi, làm nước ép hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Ananas comosus"
   },
   {
     "commonName": "Dứa Queen",
     "cultivar": "Queen",
-    "description": "Dứa Queen là cây ăn quả nhiệt đới với vỏ gai và thịt vàng ngọt. Cây ưa nắng, đất thoát nước tốt và thường trồng thành luống. Quả dứa dùng ăn tươi, làm nước ép hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Ananas comosus"
   },
   {
     "commonName": "Dứa Red Spanish",
     "cultivar": "Red Spanish",
-    "description": "Dứa Red Spanish là cây ăn quả nhiệt đới với vỏ gai và thịt vàng ngọt. Cây ưa nắng, đất thoát nước tốt và thường trồng thành luống. Quả dứa dùng ăn tươi, làm nước ép hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Ananas comosus"
   },
   {
     "commonName": "Dứa Smooth Cayenne",
     "cultivar": "Smooth Cayenne",
-    "description": "Dứa Smooth Cayenne là cây ăn quả nhiệt đới với vỏ gai và thịt vàng ngọt. Cây ưa nắng, đất thoát nước tốt và thường trồng thành luống. Quả dứa dùng ăn tươi, làm nước ép hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Ananas comosus"
   },
   {
     "commonName": "Dứa Sugarloaf",
     "cultivar": "Sugarloaf",
-    "description": "Dứa Sugarloaf là cây ăn quả nhiệt đới với vỏ gai và thịt vàng ngọt. Cây ưa nắng, đất thoát nước tốt và thường trồng thành luống. Quả dứa dùng ăn tươi, làm nước ép hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Ananas comosus"
   },
@@ -873,21 +776,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Thì là Bouquet",
     "cultivar": "Bouquet",
-    "description": "Thì là Bouquet là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn.",
     "locale": "vi",
     "scientificName": "Anethum graveolens"
   },
   {
     "commonName": "Thì là Fernleaf",
     "cultivar": "Fernleaf",
-    "description": "Thì là Fernleaf là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn.",
     "locale": "vi",
     "scientificName": "Anethum graveolens"
   },
   {
     "commonName": "Thì là Mammoth",
     "cultivar": "Mammoth",
-    "description": "Thì là Mammoth là loại rau thơm với lá mảnh như lông chim và hương thơm nhẹ đặc trưng. Cây lớn nhanh, ưa nắng và khí hậu mát mẻ, có thể trồng trong chậu nhỏ. Lá thì là dùng để ướp cá, nấu canh hoặc muối dưa, mang lại hương vị hấp dẫn cho món ăn.",
     "locale": "vi",
     "scientificName": "Anethum graveolens"
   },
@@ -900,35 +800,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngo tuyet Brussels Winter",
     "cultivar": "Brussels Winter",
-    "description": "Ngo tuyet Brussels Winter là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Anthriscus cerefolium"
   },
   {
     "commonName": "Ngo tuyet Curled",
     "cultivar": "Curled",
-    "description": "Ngo tuyet Curled là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Anthriscus cerefolium"
   },
   {
     "commonName": "Ngo tuyet Fine Curled",
     "cultivar": "Fine Curled",
-    "description": "Ngo tuyet Fine Curled là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Anthriscus cerefolium"
   },
   {
     "commonName": "Ngo tuyet Plain Leaf",
     "cultivar": "Plain Leaf",
-    "description": "Ngo tuyet Plain Leaf là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Anthriscus cerefolium"
   },
   {
     "commonName": "Ngo tuyet Vertissimo",
     "cultivar": "Vertissimo",
-    "description": "Ngo tuyet Vertissimo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Anthriscus cerefolium"
   },
@@ -941,56 +836,48 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hồng môn Baby Pink",
     "cultivar": "Baby Pink",
-    "description": "Hồng môn Baby Pink là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn Champion",
     "cultivar": "Champion",
-    "description": "Hồng môn Champion là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn Dakota",
     "cultivar": "Dakota",
-    "description": "Hồng môn Dakota là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn Fire Glow",
     "cultivar": "Fire Glow",
-    "description": "Hồng môn Fire Glow là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn Sierra",
     "cultivar": "Sierra",
-    "description": "Hồng môn Sierra là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn Tropical",
     "cultivar": "Tropical",
-    "description": "Hồng môn Tropical là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn Tropical Red",
     "cultivar": "Tropical Red",
-    "description": "Hồng môn Tropical Red là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
   {
     "commonName": "Hồng môn White Champion",
     "cultivar": "White Champion",
-    "description": "Hồng môn White Champion là cây cảnh với lá xanh bóng và hoa dạng lá bắc màu đỏ hoặc hồng. Cây ưa bóng râm, đất ẩm và độ ẩm cao. Hồng môn thường được trồng trong nhà để trang trí và làm đẹp không gian.",
     "locale": "vi",
     "scientificName": "Anthurium andraeanum"
   },
@@ -1003,35 +890,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mõm sói Liberty Classic",
     "cultivar": "Liberty Classic",
-    "description": "Hoa mõm sói Liberty Classic có bông dài với nhiều màu sắc rực rỡ. Cây ưa nắng, thích khí hậu mát và ra hoa vào mùa xuân hoặc thu. Hoa được trồng để trang trí vườn, chậu hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Antirrhinum majus"
   },
   {
     "commonName": "Mõm sói Madame Butterfly",
     "cultivar": "Madame Butterfly",
-    "description": "Hoa mõm sói Madame Butterfly có bông dài với nhiều màu sắc rực rỡ. Cây ưa nắng, thích khí hậu mát và ra hoa vào mùa xuân hoặc thu. Hoa được trồng để trang trí vườn, chậu hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Antirrhinum majus"
   },
   {
     "commonName": "Mõm sói Rocket Mix",
     "cultivar": "Rocket Mix",
-    "description": "Hoa mõm sói Rocket Mix có bông dài với nhiều màu sắc rực rỡ. Cây ưa nắng, thích khí hậu mát và ra hoa vào mùa xuân hoặc thu. Hoa được trồng để trang trí vườn, chậu hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Antirrhinum majus"
   },
   {
     "commonName": "Mõm sói Snapshot Yellow",
     "cultivar": "Snapshot Yellow",
-    "description": "Hoa mõm sói Snapshot Yellow có bông dài với nhiều màu sắc rực rỡ. Cây ưa nắng, thích khí hậu mát và ra hoa vào mùa xuân hoặc thu. Hoa được trồng để trang trí vườn, chậu hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Antirrhinum majus"
   },
   {
     "commonName": "Mõm sói Twinny Peach",
     "cultivar": "Twinny Peach",
-    "description": "Hoa mõm sói Twinny Peach có bông dài với nhiều màu sắc rực rỡ. Cây ưa nắng, thích khí hậu mát và ra hoa vào mùa xuân hoặc thu. Hoa được trồng để trang trí vườn, chậu hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Antirrhinum majus"
   },
@@ -1044,35 +926,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Can tay Conquistador",
     "cultivar": "Conquistador",
-    "description": "Can tay Conquistador là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens"
   },
   {
     "commonName": "Can tay Golden Self Blanching",
     "cultivar": "Golden Self Blanching",
-    "description": "Can tay Golden Self Blanching là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens"
   },
   {
     "commonName": "Can tay Redventure",
     "cultivar": "Redventure",
-    "description": "Can tay Redventure là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens"
   },
   {
     "commonName": "Can tay Tall Utah",
     "cultivar": "Tall Utah",
-    "description": "Can tay Tall Utah là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens"
   },
   {
     "commonName": "Can tay Tango",
     "cultivar": "Tango",
-    "description": "Can tay Tango là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens"
   },
@@ -1085,35 +962,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Can tay cu Balena",
     "cultivar": "Balena",
-    "description": "Can tay cu Balena là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens var. rapaceum"
   },
   {
     "commonName": "Can tay cu Brilliant",
     "cultivar": "Brilliant",
-    "description": "Can tay cu Brilliant là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens var. rapaceum"
   },
   {
     "commonName": "Can tay cu Giant Prague",
     "cultivar": "Giant Prague",
-    "description": "Can tay cu Giant Prague là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens var. rapaceum"
   },
   {
     "commonName": "Can tay cu Monarch",
     "cultivar": "Monarch",
-    "description": "Can tay cu Monarch là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens var. rapaceum"
   },
   {
     "commonName": "Can tay cu Prinz",
     "cultivar": "Prinz",
-    "description": "Can tay cu Prinz là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Apium graveolens var. rapaceum"
   },
@@ -1126,21 +998,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu phộng Spanish Redskin",
     "cultivar": "Spanish Redskin",
-    "description": "Đậu phộng Spanish Redskin là cây họ đậu cho quả vỏ mỏng chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng.",
     "locale": "vi",
     "scientificName": "Arachis hypogaea"
   },
   {
     "commonName": "Đậu phộng Valencia",
     "cultivar": "Valencia",
-    "description": "Đậu phộng Valencia là cây họ đậu cho quả vỏ mỏng chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng.",
     "locale": "vi",
     "scientificName": "Arachis hypogaea"
   },
   {
     "commonName": "Đậu phộng Virginia",
     "cultivar": "Virginia",
-    "description": "Đậu phộng Virginia là cây họ đậu cho quả vỏ mỏng chứa hạt béo, giàu protein. Cây thích khí hậu ấm áp và đất cát thoát nước, hoa tự thụ phấn và phát triển quả dưới đất. Hạt đậu phộng có thể rang, luộc hoặc ép dầu làm nguyên liệu nấu ăn bổ dưỡng.",
     "locale": "vi",
     "scientificName": "Arachis hypogaea"
   },
@@ -1153,35 +1022,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Nguu bang Cardiff",
     "cultivar": "Cardiff",
-    "description": "Nguu bang Cardiff là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Arctium lappa"
   },
   {
     "commonName": "Nguu bang Gobou",
     "cultivar": "Gobou",
-    "description": "Nguu bang Gobou là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Arctium lappa"
   },
   {
     "commonName": "Nguu bang Long Root",
     "cultivar": "Long Root",
-    "description": "Nguu bang Long Root là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Arctium lappa"
   },
   {
     "commonName": "Nguu bang Takinogawa Long",
     "cultivar": "Takinogawa Long",
-    "description": "Nguu bang Takinogawa Long là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Arctium lappa"
   },
   {
     "commonName": "Nguu bang Watanabe Early",
     "cultivar": "Watanabe Early",
-    "description": "Nguu bang Watanabe Early là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Arctium lappa"
   },
@@ -1195,36 +1059,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Armoracia rusticana",
     "cultivar": "Big Top",
     "locale": "vi",
-    "commonName": "Cai ngua Big Top",
-    "description": "Giong Big Top cua Cai ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai ngua Big Top"
   },
   {
     "scientificName": "Armoracia rusticana",
     "cultivar": "Bohemian",
     "locale": "vi",
-    "commonName": "Cai ngua Bohemian",
-    "description": "Giong Bohemian cua Cai ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai ngua Bohemian"
   },
   {
     "scientificName": "Armoracia rusticana",
     "cultivar": "Maliner Kren",
     "locale": "vi",
-    "commonName": "Cai ngua Maliner Kren",
-    "description": "Giong Maliner Kren cua Cai ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai ngua Maliner Kren"
   },
   {
     "scientificName": "Armoracia rusticana",
     "cultivar": "Sass",
     "locale": "vi",
-    "commonName": "Cai ngua Sass",
-    "description": "Giong Sass cua Cai ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai ngua Sass"
   },
   {
     "scientificName": "Armoracia rusticana",
     "cultivar": "Variegata",
     "locale": "vi",
-    "commonName": "Cai ngua Variegata",
-    "description": "Giong Variegata cua Cai ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai ngua Variegata"
   },
   {
     "commonName": "Ngo om tay",
@@ -1235,35 +1094,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngo om tay French",
     "cultivar": "French",
-    "description": "Ngo om tay French là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Artemisia dracunculus"
   },
   {
     "commonName": "Ngo om tay Green Wonder",
     "cultivar": "Green Wonder",
-    "description": "Ngo om tay Green Wonder là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Artemisia dracunculus"
   },
   {
     "commonName": "Ngo om tay Monarch",
     "cultivar": "Monarch",
-    "description": "Ngo om tay Monarch là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Artemisia dracunculus"
   },
   {
     "commonName": "Ngo om tay Russian",
     "cultivar": "Russian",
-    "description": "Ngo om tay Russian là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Artemisia dracunculus"
   },
   {
     "commonName": "Ngo om tay Sativa",
     "cultivar": "Sativa",
-    "description": "Ngo om tay Sativa là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Artemisia dracunculus"
   },
@@ -1276,49 +1130,42 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mang tay Apollo",
     "cultivar": "Apollo",
-    "description": "Mang tay Apollo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
   {
     "commonName": "Mang tay Jersey Giant",
     "cultivar": "Jersey Giant",
-    "description": "Mang tay Jersey Giant là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
   {
     "commonName": "Mang tay Jersey Knight",
     "cultivar": "Jersey Knight",
-    "description": "Mang tay Jersey Knight là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
   {
     "commonName": "Mang tay Mary Washington",
     "cultivar": "Mary Washington",
-    "description": "Mang tay Mary Washington là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
   {
     "commonName": "Mang tay Millennium",
     "cultivar": "Millennium",
-    "description": "Mang tay Millennium là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
   {
     "commonName": "Mang tay Purple Passion",
     "cultivar": "Purple Passion",
-    "description": "Mang tay Purple Passion là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
   {
     "commonName": "Mang tay UC157",
     "cultivar": "UC157",
-    "description": "Mang tay UC157 là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Asparagus officinalis"
   },
@@ -1332,36 +1179,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Banksia integrifolia",
     "cultivar": "Austraflora",
     "locale": "vi",
-    "commonName": "Banksia bien Austraflora",
-    "description": "Giong Austraflora cua Banksia bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Banksia bien Austraflora"
   },
   {
     "scientificName": "Banksia integrifolia",
     "cultivar": "Coastal",
     "locale": "vi",
-    "commonName": "Banksia bien Coastal",
-    "description": "Giong Coastal cua Banksia bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Banksia bien Coastal"
   },
   {
     "scientificName": "Banksia integrifolia",
     "cultivar": "Prostrate",
     "locale": "vi",
-    "commonName": "Banksia bien Prostrate",
-    "description": "Giong Prostrate cua Banksia bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Banksia bien Prostrate"
   },
   {
     "scientificName": "Banksia integrifolia",
     "cultivar": "Roller Coaster",
     "locale": "vi",
-    "commonName": "Banksia bien Roller Coaster",
-    "description": "Giong Roller Coaster cua Banksia bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Banksia bien Roller Coaster"
   },
   {
     "scientificName": "Banksia integrifolia",
     "cultivar": "Sentinel",
     "locale": "vi",
-    "commonName": "Banksia bien Sentinel",
-    "description": "Giong Sentinel cua Banksia bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Banksia bien Sentinel"
   },
   {
     "commonName": "Mong toi",
@@ -1372,63 +1214,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mong toi Ceylon",
     "cultivar": "Ceylon",
-    "description": "Mong toi Ceylon là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Green Stem",
     "cultivar": "Green Stem",
-    "description": "Mong toi Green Stem là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Green Tower",
     "cultivar": "Green Tower",
-    "description": "Mong toi Green Tower là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Malabar Giant",
     "cultivar": "Malabar Giant",
-    "description": "Mong toi Malabar Giant là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Red Stem",
     "cultivar": "Red Stem",
-    "description": "Mong toi Red Stem là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Rubra",
     "cultivar": "Rubra",
-    "description": "Mong toi Rubra là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Ruby Vine",
     "cultivar": "Ruby Vine",
-    "description": "Mong toi Ruby Vine là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Select",
     "cultivar": "Select",
-    "description": "Mong toi Select là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
     "commonName": "Mong toi Vining Giant",
     "cultivar": "Vining Giant",
-    "description": "Mong toi Vining Giant là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
@@ -1442,36 +1275,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Beaucarnea recurvata",
     "cultivar": "Compacta",
     "locale": "vi",
-    "commonName": "Cay duoi ngua Compacta",
-    "description": "Giong Compacta cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay duoi ngua Compacta"
   },
   {
     "scientificName": "Beaucarnea recurvata",
     "cultivar": "Dwarf",
     "locale": "vi",
-    "commonName": "Cay duoi ngua Dwarf",
-    "description": "Giong Dwarf cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay duoi ngua Dwarf"
   },
   {
     "scientificName": "Beaucarnea recurvata",
     "cultivar": "Gold Star",
     "locale": "vi",
-    "commonName": "Cay duoi ngua Gold Star",
-    "description": "Giong Gold Star cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay duoi ngua Gold Star"
   },
   {
     "scientificName": "Beaucarnea recurvata",
     "cultivar": "Recurvata",
     "locale": "vi",
-    "commonName": "Cay duoi ngua Recurvata",
-    "description": "Giong Recurvata cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay duoi ngua Recurvata"
   },
   {
     "scientificName": "Beaucarnea recurvata",
     "cultivar": "Variegata",
     "locale": "vi",
-    "commonName": "Cay duoi ngua Variegata",
-    "description": "Giong Variegata cua Cay duoi ngua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay duoi ngua Variegata"
   },
   {
     "commonName": "Thu hải đường",
@@ -1482,35 +1310,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Thu hải đường Ambassador Scarlet",
     "cultivar": "Ambassador Scarlet",
-    "description": "Thu hải đường Ambassador Scarlet là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
     "scientificName": "Begonia semperflorens"
   },
   {
     "commonName": "Thu hải đường Bada Bing",
     "cultivar": "Bada Bing",
-    "description": "Thu hải đường Bada Bing là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
     "scientificName": "Begonia semperflorens"
   },
   {
     "commonName": "Thu hải đường Cocktail Vodka",
     "cultivar": "Cocktail Vodka",
-    "description": "Thu hải đường Cocktail Vodka là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
     "scientificName": "Begonia semperflorens"
   },
   {
     "commonName": "Thu hải đường Sprint Plus",
     "cultivar": "Sprint Plus",
-    "description": "Thu hải đường Sprint Plus là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
     "scientificName": "Begonia semperflorens"
   },
   {
     "commonName": "Thu hải đường Victory Rose",
     "cultivar": "Victory Rose",
-    "description": "Thu hải đường Victory Rose là cây cảnh với hoa rực rỡ và lá hình cánh tạc. Cây ưa bóng râm, đất ẩm nhưng thoát nước tốt. Thường được trồng trong chậu hoặc giỏ treo để trang trí nội thất và sân vườn.",
     "locale": "vi",
     "scientificName": "Begonia semperflorens"
   },
@@ -1524,36 +1347,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Bellis perennis",
     "cultivar": "Galaxy",
     "locale": "vi",
-    "commonName": "Cuc Anh Galaxy",
-    "description": "Giong Galaxy cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc Anh Galaxy"
   },
   {
     "scientificName": "Bellis perennis",
     "cultivar": "Habanera",
     "locale": "vi",
-    "commonName": "Cuc Anh Habanera",
-    "description": "Giong Habanera cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc Anh Habanera"
   },
   {
     "scientificName": "Bellis perennis",
     "cultivar": "Pomponette",
     "locale": "vi",
-    "commonName": "Cuc Anh Pomponette",
-    "description": "Giong Pomponette cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc Anh Pomponette"
   },
   {
     "scientificName": "Bellis perennis",
     "cultivar": "Robella",
     "locale": "vi",
-    "commonName": "Cuc Anh Robella",
-    "description": "Giong Robella cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc Anh Robella"
   },
   {
     "scientificName": "Bellis perennis",
     "cultivar": "Tasso",
     "locale": "vi",
-    "commonName": "Cuc Anh Tasso",
-    "description": "Giong Tasso cua Cuc Anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc Anh Tasso"
   },
   {
     "commonName": "Bi dao",
@@ -1564,35 +1382,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bi dao Jade",
     "cultivar": "Jade",
-    "description": "Bi dao Jade là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Benincasa hispida"
   },
   {
     "commonName": "Bi dao Large Round",
     "cultivar": "Large Round",
-    "description": "Bi dao Large Round là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Benincasa hispida"
   },
   {
     "commonName": "Bi dao Long Green",
     "cultivar": "Long Green",
-    "description": "Bi dao Long Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Benincasa hispida"
   },
   {
     "commonName": "Bi dao Snow White",
     "cultivar": "Snow White",
-    "description": "Bi dao Snow White là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Benincasa hispida"
   },
   {
     "commonName": "Bi dao Winter Giant",
     "cultivar": "Winter Giant",
-    "description": "Bi dao Winter Giant là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Benincasa hispida"
   },
@@ -1605,21 +1418,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Củ dền Chioggia",
     "cultivar": "Chioggia",
-    "description": "Củ dền Chioggia nổi bật với củ màu đỏ tím, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất.",
     "locale": "vi",
     "scientificName": "Beta vulgaris"
   },
   {
     "commonName": "Củ dền Detroit Dark Red",
     "cultivar": "Detroit Dark Red",
-    "description": "Củ dền Detroit Dark Red nổi bật với củ màu đỏ tím, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất.",
     "locale": "vi",
     "scientificName": "Beta vulgaris"
   },
   {
     "commonName": "Củ dền Golden Beet",
     "cultivar": "Golden Beet",
-    "description": "Củ dền Golden Beet nổi bật với củ màu đỏ tím, vị ngọt đất và giàu dưỡng chất. Cây ưa khí hậu mát và đất tơi xốp, cần tưới đều để củ phát triển. Bạn có thể nấu súp, salad hoặc ép nước từ củ dền để bổ sung vitamin và khoáng chất.",
     "locale": "vi",
     "scientificName": "Beta vulgaris"
   },
@@ -1633,36 +1443,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Beta vulgaris subsp. vulgaris",
     "cultivar": "Bright Lights",
     "locale": "vi",
-    "commonName": "Cai cau vong Bright Lights",
-    "description": "Giong Bright Lights cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai cau vong Bright Lights"
   },
   {
     "scientificName": "Beta vulgaris subsp. vulgaris",
     "cultivar": "Fordhook Giant",
     "locale": "vi",
-    "commonName": "Cai cau vong Fordhook Giant",
-    "description": "Giong Fordhook Giant cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai cau vong Fordhook Giant"
   },
   {
     "scientificName": "Beta vulgaris subsp. vulgaris",
     "cultivar": "Lucullus",
     "locale": "vi",
-    "commonName": "Cai cau vong Lucullus",
-    "description": "Giong Lucullus cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai cau vong Lucullus"
   },
   {
     "scientificName": "Beta vulgaris subsp. vulgaris",
     "cultivar": "Perpetual Spinach",
     "locale": "vi",
-    "commonName": "Cai cau vong Perpetual Spinach",
-    "description": "Giong Perpetual Spinach cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai cau vong Perpetual Spinach"
   },
   {
     "scientificName": "Beta vulgaris subsp. vulgaris",
     "cultivar": "Rhubarb",
     "locale": "vi",
-    "commonName": "Cai cau vong Rhubarb",
-    "description": "Giong Rhubarb cua Cai cau vong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai cau vong Rhubarb"
   },
   {
     "scientificName": "Borago officinalis",
@@ -1674,36 +1479,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Borago officinalis",
     "cultivar": "Alba",
     "locale": "vi",
-    "commonName": "Hoa luu ly an duoc Alba",
-    "description": "Giong Alba cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa luu ly an duoc Alba"
   },
   {
     "scientificName": "Borago officinalis",
     "cultivar": "Blue Star",
     "locale": "vi",
-    "commonName": "Hoa luu ly an duoc Blue Star",
-    "description": "Giong Blue Star cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa luu ly an duoc Blue Star"
   },
   {
     "scientificName": "Borago officinalis",
     "cultivar": "Common Blue",
     "locale": "vi",
-    "commonName": "Hoa luu ly an duoc Common Blue",
-    "description": "Giong Common Blue cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa luu ly an duoc Common Blue"
   },
   {
     "scientificName": "Borago officinalis",
     "cultivar": "Compact",
     "locale": "vi",
-    "commonName": "Hoa luu ly an duoc Compact",
-    "description": "Giong Compact cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa luu ly an duoc Compact"
   },
   {
     "scientificName": "Borago officinalis",
     "cultivar": "Variegata",
     "locale": "vi",
-    "commonName": "Hoa luu ly an duoc Variegata",
-    "description": "Giong Variegata cua Hoa luu ly an duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa luu ly an duoc Variegata"
   },
   {
     "commonName": "Hoa giấy",
@@ -1714,35 +1514,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hoa giấy Barbara Karst",
     "cultivar": "Barbara Karst",
-    "description": "Hoa giấy Barbara Karst là cây leo với lá bắc nhiều màu như đỏ, hồng, trắng. Cây ưa nắng và đất nghèo dinh dưỡng, chịu hạn tốt. Thường được trồng để trang trí hàng rào, ban công.",
     "locale": "vi",
     "scientificName": "Bougainvillea glabra"
   },
   {
     "commonName": "Hoa giấy California Gold",
     "cultivar": "California Gold",
-    "description": "Hoa giấy California Gold là cây leo với lá bắc nhiều màu như đỏ, hồng, trắng. Cây ưa nắng và đất nghèo dinh dưỡng, chịu hạn tốt. Thường được trồng để trang trí hàng rào, ban công.",
     "locale": "vi",
     "scientificName": "Bougainvillea glabra"
   },
   {
     "commonName": "Hoa giấy Imperial Thai",
     "cultivar": "Imperial Thai",
-    "description": "Hoa giấy Imperial Thai là cây leo với lá bắc nhiều màu như đỏ, hồng, trắng. Cây ưa nắng và đất nghèo dinh dưỡng, chịu hạn tốt. Thường được trồng để trang trí hàng rào, ban công.",
     "locale": "vi",
     "scientificName": "Bougainvillea glabra"
   },
   {
     "commonName": "Hoa giấy Rosenka",
     "cultivar": "Rosenka",
-    "description": "Hoa giấy Rosenka là cây leo với lá bắc nhiều màu như đỏ, hồng, trắng. Cây ưa nắng và đất nghèo dinh dưỡng, chịu hạn tốt. Thường được trồng để trang trí hàng rào, ban công.",
     "locale": "vi",
     "scientificName": "Bougainvillea glabra"
   },
   {
     "commonName": "Hoa giấy Torch Glow",
     "cultivar": "Torch Glow",
-    "description": "Hoa giấy Torch Glow là cây leo với lá bắc nhiều màu như đỏ, hồng, trắng. Cây ưa nắng và đất nghèo dinh dưỡng, chịu hạn tốt. Thường được trồng để trang trí hàng rào, ban công.",
     "locale": "vi",
     "scientificName": "Bougainvillea glabra"
   },
@@ -1755,35 +1550,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cải bẹ xanh Green Wave",
     "cultivar": "Green Wave",
-    "description": "Cải bẹ xanh Green Wave sở hữu lá xanh đậm với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính.",
     "locale": "vi",
     "scientificName": "Brassica juncea"
   },
   {
     "commonName": "Cải bẹ xanh Mizuna",
     "cultivar": "Mizuna",
-    "description": "Cải bẹ xanh Mizuna sở hữu lá xanh đậm với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính.",
     "locale": "vi",
     "scientificName": "Brassica juncea"
   },
   {
     "commonName": "Cải bẹ xanh Red Giant",
     "cultivar": "Red Giant",
-    "description": "Cải bẹ xanh Red Giant sở hữu lá xanh đậm với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính.",
     "locale": "vi",
     "scientificName": "Brassica juncea"
   },
   {
     "commonName": "Cải bẹ xanh Southern Giant",
     "cultivar": "Southern Giant",
-    "description": "Cải bẹ xanh Southern Giant sở hữu lá xanh đậm với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính.",
     "locale": "vi",
     "scientificName": "Brassica juncea"
   },
   {
     "commonName": "Cải bẹ xanh Tendergreen",
     "cultivar": "Tendergreen",
-    "description": "Cải bẹ xanh Tendergreen sở hữu lá xanh đậm với hương vị cay nhẹ. Cây sinh trưởng tốt trong thời tiết mát, đất ẩm và có thể thu hoạch từng lá. Rau cải bẹ xanh được dùng để nấu canh, xào hoặc ăn sống kèm với món chính.",
     "locale": "vi",
     "scientificName": "Brassica juncea"
   },
@@ -1802,35 +1592,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Củ cải vàng American Purple Top",
     "cultivar": "American Purple Top",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Brassica napus var. napobrassica"
   },
   {
     "commonName": "Củ cải vàng Gowrie",
     "cultivar": "Gowrie",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Brassica napus var. napobrassica"
   },
   {
     "commonName": "Củ cải vàng Helenor",
     "cultivar": "Helenor",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Brassica napus var. napobrassica"
   },
   {
     "commonName": "Củ cải vàng Joan",
     "cultivar": "Joan",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Brassica napus var. napobrassica"
   },
   {
     "commonName": "Củ cải vàng Laurentian",
     "cultivar": "Laurentian",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Brassica napus var. napobrassica"
   },
@@ -1849,7 +1634,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Súp lơ tím",
     "cultivar": "Graffiti",
-    "description": "Súp lơ cho hoa màu tím, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. botrytis"
   },
@@ -1863,7 +1647,6 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Súp lơ",
     "cultivar": "Snowball",
-    "description": "Súp lơ cho hoa trắng tinh, mềm và vị dịu. Cây ưa khí hậu mát mẻ, đất hữu cơ và tưới đều để đầu hoa chắc. Súp lơ được dùng trong món hấp, xào hay salad, mang lại nguồn chất xơ và vitamin dồi dào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. botrytis"
   },
@@ -1883,28 +1666,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bắp cải Golden Acre",
     "cultivar": "Golden Acre",
-    "description": "Bắp cải Golden Acre hình thành bắp tròn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. capitata"
   },
   {
     "commonName": "Bắp cải Green Acre",
     "cultivar": "Green Acre",
-    "description": "Bắp cải Green Acre hình thành bắp tròn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. capitata"
   },
   {
     "commonName": "Bắp cải Red Express",
     "cultivar": "Red Express",
-    "description": "Bắp cải Red Express hình thành bắp tròn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. capitata"
   },
   {
     "commonName": "Bắp cải Savoy Ace",
     "cultivar": "Savoy Ace",
-    "description": "Bắp cải Savoy Ace hình thành bắp tròn, lá dày và vị ngọt mát. Cây thích hợp trồng vào mùa mát, cần đất giàu dinh dưỡng và giữ ẩm. Bắp cải dùng luộc, xào, nấu canh hoặc muối chua, rất giàu vitamin C.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. capitata"
   },
@@ -1918,36 +1697,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. gemmifera",
     "cultivar": "Churchill",
     "locale": "vi",
-    "commonName": "Bap cai ti hon Churchill",
-    "description": "Giong Churchill cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bap cai ti hon Churchill"
   },
   {
     "scientificName": "Brassica oleracea var. gemmifera",
     "cultivar": "Diablo",
     "locale": "vi",
-    "commonName": "Bap cai ti hon Diablo",
-    "description": "Giong Diablo cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bap cai ti hon Diablo"
   },
   {
     "scientificName": "Brassica oleracea var. gemmifera",
     "cultivar": "Jade Cross",
     "locale": "vi",
-    "commonName": "Bap cai ti hon Jade Cross",
-    "description": "Giong Jade Cross cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bap cai ti hon Jade Cross"
   },
   {
     "scientificName": "Brassica oleracea var. gemmifera",
     "cultivar": "Long Island Improved",
     "locale": "vi",
-    "commonName": "Bap cai ti hon Long Island Improved",
-    "description": "Giong Long Island Improved cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bap cai ti hon Long Island Improved"
   },
   {
     "scientificName": "Brassica oleracea var. gemmifera",
     "cultivar": "Red Bull",
     "locale": "vi",
-    "commonName": "Bap cai ti hon Red Bull",
-    "description": "Giong Red Bull cua Bap cai ti hon giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bap cai ti hon Red Bull"
   },
   {
     "scientificName": "Brassica oleracea var. gongylodes",
@@ -1959,36 +1733,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Brassica oleracea var. gongylodes",
     "cultivar": "Gigante",
     "locale": "vi",
-    "commonName": "Su hao Gigante",
-    "description": "Giong Gigante cua Su hao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Su hao Gigante"
   },
   {
     "scientificName": "Brassica oleracea var. gongylodes",
     "cultivar": "Kolibri",
     "locale": "vi",
-    "commonName": "Su hao Kolibri",
-    "description": "Giong Kolibri cua Su hao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Su hao Kolibri"
   },
   {
     "scientificName": "Brassica oleracea var. gongylodes",
     "cultivar": "Kossak",
     "locale": "vi",
-    "commonName": "Su hao Kossak",
-    "description": "Giong Kossak cua Su hao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Su hao Kossak"
   },
   {
     "scientificName": "Brassica oleracea var. gongylodes",
     "cultivar": "Purple Vienna",
     "locale": "vi",
-    "commonName": "Su hao Purple Vienna",
-    "description": "Giong Purple Vienna cua Su hao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Su hao Purple Vienna"
   },
   {
     "scientificName": "Brassica oleracea var. gongylodes",
     "cultivar": "White Vienna",
     "locale": "vi",
-    "commonName": "Su hao White Vienna",
-    "description": "Giong White Vienna cua Su hao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Su hao White Vienna"
   },
   {
     "commonName": "Bông cải xanh",
@@ -1999,28 +1768,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bông cải xanh Calabrese",
     "cultivar": "Calabrese",
-    "description": "Bông cải xanh Calabrese tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. italica"
   },
   {
     "commonName": "Bông cải xanh Green Magic",
     "cultivar": "Green Magic",
-    "description": "Bông cải xanh Green Magic tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. italica"
   },
   {
     "commonName": "Bông cải xanh Marathon",
     "cultivar": "Marathon",
-    "description": "Bông cải xanh Marathon tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. italica"
   },
   {
     "commonName": "Bông cải xanh Waltham 29",
     "cultivar": "Waltham 29",
-    "description": "Bông cải xanh Waltham 29 tạo ra đầu hoa màu xanh thẫm với vị ngọt giòn. Cây phát triển tốt trong khí hậu mát, cần đất tơi xốp và nhiều dinh dưỡng. Đây là loại rau giàu vitamin K và C, thích hợp để hấp, xào hoặc luộc.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. italica"
   },
@@ -2033,63 +1798,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cải kale Black Magic",
     "cultivar": "Black Magic",
-    "description": "Cải kale Black Magic là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Blue Curled",
     "cultivar": "Blue Curled",
-    "description": "Cải kale Blue Curled là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Curly Green",
     "cultivar": "Curly Green",
-    "description": "Cải kale Curly Green là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Dwarf Green",
     "cultivar": "Dwarf Green",
-    "description": "Cải kale Dwarf Green là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Lacinato",
     "cultivar": "Lacinato",
-    "description": "Cải kale Lacinato là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Red Russian",
     "cultivar": "Red Russian",
-    "description": "Cải kale Red Russian là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Redbor",
     "cultivar": "Redbor",
-    "description": "Cải kale Redbor là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Scarlet",
     "cultivar": "Scarlet",
-    "description": "Cải kale Scarlet là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
   {
     "commonName": "Cải kale Winterbor",
     "cultivar": "Winterbor",
-    "description": "Cải kale Winterbor là rau lá xanh dày, giàu vitamin và chất xơ. Cây ưa khí hậu mát và đất giàu hữu cơ. Lá được dùng trong salad, sinh tố hoặc xào.",
     "locale": "vi",
     "scientificName": "Brassica oleracea var. sabellica"
   },
@@ -2108,21 +1864,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cải thìa Joi Choi",
     "cultivar": "Joi Choi",
-    "description": "Cải thìa Joi Choi có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. chinensis"
   },
   {
     "commonName": "Cải thìa Shanghai Green",
     "cultivar": "Shanghai Green",
-    "description": "Cải thìa Shanghai Green có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. chinensis"
   },
   {
     "commonName": "Cải thìa White Stem",
     "cultivar": "White Stem",
-    "description": "Cải thìa White Stem có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. chinensis"
   },
@@ -2135,35 +1888,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cải thìa Green Spoon",
     "cultivar": "Green Spoon",
-    "description": "Cải thìa Green Spoon có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
     "commonName": "Cải thìa Mei Qing",
     "cultivar": "Mei Qing",
-    "description": "Cải thìa Mei Qing có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
     "commonName": "Cải thìa Rosette",
     "cultivar": "Rosette",
-    "description": "Cải thìa Rosette có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
     "commonName": "Cải thìa Summer Fest",
     "cultivar": "Summer Fest",
-    "description": "Cải thìa Summer Fest có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. narinosa"
   },
   {
     "commonName": "Cải thìa Tah Tsai",
     "cultivar": "Tah Tsai",
-    "description": "Cải thìa Tah Tsai có bẹ trắng giòn, lá xanh mềm và vị thanh mát. Cây phát triển nhanh, ưa ẩm và ánh sáng nhẹ, thường thu hoạch khi còn non. Loại cải này thích hợp xào, luộc hoặc nấu canh, mang tới bữa ăn giản dị mà ngon miệng.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. narinosa"
   },
@@ -2176,21 +1924,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cải thảo Bilko",
     "cultivar": "Bilko",
-    "description": "Cải thảo Bilko tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. pekinensis"
   },
   {
     "commonName": "Cải thảo Michihili",
     "cultivar": "Michihili",
-    "description": "Cải thảo Michihili tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. pekinensis"
   },
   {
     "commonName": "Cải thảo Rubicon",
     "cultivar": "Rubicon",
-    "description": "Cải thảo Rubicon tạo đầu lá thuôn dài với lá mỏng và vị ngọt dịu. Giống này ưa khí hậu mát và đất ẩm, cần chăm sóc đều tay để cây cuộn bắp đẹp. Cải thảo được dùng trong món xào, cuốn hoặc làm kimchi, cung cấp nhiều vitamin.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. pekinensis"
   },
@@ -2203,35 +1948,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Củ cải tròn Golden Ball",
     "cultivar": "Golden Ball",
-    "description": "Củ cải Golden Ball có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. rapa"
   },
   {
     "commonName": "Củ cải tròn Hakurei",
     "cultivar": "Hakurei",
-    "description": "Củ cải Hakurei có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. rapa"
   },
   {
     "commonName": "Củ cải tròn Purple Top",
     "cultivar": "Purple Top",
-    "description": "Củ cải Purple Top có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. rapa"
   },
   {
     "commonName": "Củ cải tròn Scarlet Queen",
     "cultivar": "Scarlet Queen",
-    "description": "Củ cải Scarlet Queen có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. rapa"
   },
   {
     "commonName": "Củ cải tròn Tokyo Cross",
     "cultivar": "Tokyo Cross",
-    "description": "Củ cải Tokyo Cross có củ màu trắng, ruột giòn và vị hơi ngọt. Giống này phát triển nhanh trong khí hậu mát, dễ trồng và thu hoạch sau vài tuần. Bạn có thể ăn tươi, hấp hoặc xào, và cả lá non cũng được dùng trong salad.",
     "locale": "vi",
     "scientificName": "Brassica rapa subsp. rapa"
   },
@@ -2244,35 +1984,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cải Nhật Green Boy",
     "cultivar": "Green Boy",
-    "description": "Cải Nhật Green Boy (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Brassica rapa var. perviridis"
   },
   {
     "commonName": "Cải Nhật Sharaku",
     "cultivar": "Sharaku",
-    "description": "Cải Nhật Sharaku (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Brassica rapa var. perviridis"
   },
   {
     "commonName": "Cải Nhật Summerfest",
     "cultivar": "Summerfest",
-    "description": "Cải Nhật Summerfest (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Brassica rapa var. perviridis"
   },
   {
     "commonName": "Cải Nhật Tendergreen",
     "cultivar": "Tendergreen",
-    "description": "Cải Nhật Tendergreen (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Brassica rapa var. perviridis"
   },
   {
     "commonName": "Cải Nhật Tokyo Bekana",
     "cultivar": "Tokyo Bekana",
-    "description": "Cải Nhật Tokyo Bekana (komatsuna) có lá mềm và vị ngọt nhẹ. Cây sinh trưởng nhanh trong điều kiện mát và ẩm. Được dùng xào, nấu canh hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Brassica rapa var. perviridis"
   },
@@ -2285,35 +2020,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu tri Asha",
     "cultivar": "Asha",
-    "description": "Đậu tri Asha là cây họ đậu cao cho hạt màu vàng nâu giàu đạm. Cây ưa khí hậu nhiệt đới, chịu hạn và sinh trưởng trên đất khô. Hạt được dùng nấu cà ri, canh hoặc làm món ăn truyền thống.",
     "locale": "vi",
     "scientificName": "Cajanus cajan"
   },
   {
     "commonName": "Đậu tri Bahar",
     "cultivar": "Bahar",
-    "description": "Đậu tri Bahar là cây họ đậu cao cho hạt màu vàng nâu giàu đạm. Cây ưa khí hậu nhiệt đới, chịu hạn và sinh trưởng trên đất khô. Hạt được dùng nấu cà ri, canh hoặc làm món ăn truyền thống.",
     "locale": "vi",
     "scientificName": "Cajanus cajan"
   },
   {
     "commonName": "Đậu tri Durga",
     "cultivar": "Durga",
-    "description": "Đậu tri Durga là cây họ đậu cao cho hạt màu vàng nâu giàu đạm. Cây ưa khí hậu nhiệt đới, chịu hạn và sinh trưởng trên đất khô. Hạt được dùng nấu cà ri, canh hoặc làm món ăn truyền thống.",
     "locale": "vi",
     "scientificName": "Cajanus cajan"
   },
   {
     "commonName": "Đậu tri ICPL 87",
     "cultivar": "ICPL 87",
-    "description": "Đậu tri ICPL 87 là cây họ đậu cao cho hạt màu vàng nâu giàu đạm. Cây ưa khí hậu nhiệt đới, chịu hạn và sinh trưởng trên đất khô. Hạt được dùng nấu cà ri, canh hoặc làm món ăn truyền thống.",
     "locale": "vi",
     "scientificName": "Cajanus cajan"
   },
   {
     "commonName": "Đậu tri Maruti",
     "cultivar": "Maruti",
-    "description": "Đậu tri Maruti là cây họ đậu cao cho hạt màu vàng nâu giàu đạm. Cây ưa khí hậu nhiệt đới, chịu hạn và sinh trưởng trên đất khô. Hạt được dùng nấu cà ri, canh hoặc làm món ăn truyền thống.",
     "locale": "vi",
     "scientificName": "Cajanus cajan"
   },
@@ -2326,35 +2056,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Môn lá Aaron",
     "cultivar": "Aaron",
-    "description": "Môn lá Aaron là cây cảnh có lá lớn nhiều màu sắc như xanh, đỏ, hồng. Cây ưa bóng râm và độ ẩm cao, dễ trồng trong chậu. Dùng để trang trí nội thất hoặc sân vườn bán bóng.",
     "locale": "vi",
     "scientificName": "Caladium bicolor"
   },
   {
     "commonName": "Môn lá Candidum",
     "cultivar": "Candidum",
-    "description": "Môn lá Candidum là cây cảnh có lá lớn nhiều màu sắc như xanh, đỏ, hồng. Cây ưa bóng râm và độ ẩm cao, dễ trồng trong chậu. Dùng để trang trí nội thất hoặc sân vườn bán bóng.",
     "locale": "vi",
     "scientificName": "Caladium bicolor"
   },
   {
     "commonName": "Môn lá Florida Sweetheart",
     "cultivar": "Florida Sweetheart",
-    "description": "Môn lá Florida Sweetheart là cây cảnh có lá lớn nhiều màu sắc như xanh, đỏ, hồng. Cây ưa bóng râm và độ ẩm cao, dễ trồng trong chậu. Dùng để trang trí nội thất hoặc sân vườn bán bóng.",
     "locale": "vi",
     "scientificName": "Caladium bicolor"
   },
   {
     "commonName": "Môn lá Red Flash",
     "cultivar": "Red Flash",
-    "description": "Môn lá Red Flash là cây cảnh có lá lớn nhiều màu sắc như xanh, đỏ, hồng. Cây ưa bóng râm và độ ẩm cao, dễ trồng trong chậu. Dùng để trang trí nội thất hoặc sân vườn bán bóng.",
     "locale": "vi",
     "scientificName": "Caladium bicolor"
   },
   {
     "commonName": "Môn lá White Queen",
     "cultivar": "White Queen",
-    "description": "Môn lá White Queen là cây cảnh có lá lớn nhiều màu sắc như xanh, đỏ, hồng. Cây ưa bóng râm và độ ẩm cao, dễ trồng trong chậu. Dùng để trang trí nội thất hoặc sân vườn bán bóng.",
     "locale": "vi",
     "scientificName": "Caladium bicolor"
   },
@@ -2368,36 +2093,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Calendula officinalis",
     "cultivar": "Orange King",
     "locale": "vi",
-    "commonName": "Cuc xu xi Orange King",
-    "description": "Giong Orange King cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc xu xi Orange King"
   },
   {
     "scientificName": "Calendula officinalis",
     "cultivar": "Pacific Beauty",
     "locale": "vi",
-    "commonName": "Cuc xu xi Pacific Beauty",
-    "description": "Giong Pacific Beauty cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc xu xi Pacific Beauty"
   },
   {
     "scientificName": "Calendula officinalis",
     "cultivar": "Resina",
     "locale": "vi",
-    "commonName": "Cuc xu xi Resina",
-    "description": "Giong Resina cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc xu xi Resina"
   },
   {
     "scientificName": "Calendula officinalis",
     "cultivar": "Snow Princess",
     "locale": "vi",
-    "commonName": "Cuc xu xi Snow Princess",
-    "description": "Giong Snow Princess cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc xu xi Snow Princess"
   },
   {
     "scientificName": "Calendula officinalis",
     "cultivar": "Zeolights",
     "locale": "vi",
-    "commonName": "Cuc xu xi Zeolights",
-    "description": "Giong Zeolights cua Cuc xu xi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc xu xi Zeolights"
   },
   {
     "scientificName": "Calluna vulgaris",
@@ -2409,36 +2129,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Calluna vulgaris",
     "cultivar": "Alicia",
     "locale": "vi",
-    "commonName": "Thach thao heather Alicia",
-    "description": "Giong Alicia cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thach thao heather Alicia"
   },
   {
     "scientificName": "Calluna vulgaris",
     "cultivar": "Dark Beauty",
     "locale": "vi",
-    "commonName": "Thach thao heather Dark Beauty",
-    "description": "Giong Dark Beauty cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thach thao heather Dark Beauty"
   },
   {
     "scientificName": "Calluna vulgaris",
     "cultivar": "Firefly",
     "locale": "vi",
-    "commonName": "Thach thao heather Firefly",
-    "description": "Giong Firefly cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thach thao heather Firefly"
   },
   {
     "scientificName": "Calluna vulgaris",
     "cultivar": "Silver Knight",
     "locale": "vi",
-    "commonName": "Thach thao heather Silver Knight",
-    "description": "Giong Silver Knight cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thach thao heather Silver Knight"
   },
   {
     "scientificName": "Calluna vulgaris",
     "cultivar": "Spring Torch",
     "locale": "vi",
-    "commonName": "Thach thao heather Spring Torch",
-    "description": "Giong Spring Torch cua Thach thao heather giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thach thao heather Spring Torch"
   },
   {
     "commonName": "Trà my",
@@ -2449,35 +2164,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Trà my Debutante",
     "cultivar": "Debutante",
-    "description": "Trà my Debutante là cây bụi xanh quanh năm với hoa lớn, cánh dày mềm mại. Cây ưa khí hậu mát, đất thoát nước và bóng bán phần. Hoa nở vào mùa đông xuân, dùng trang trí và làm trà.",
     "locale": "vi",
     "scientificName": "Camellia japonica"
   },
   {
     "commonName": "Trà my Kramer Supreme",
     "cultivar": "Kramer Supreme",
-    "description": "Trà my Kramer Supreme là cây bụi xanh quanh năm với hoa lớn, cánh dày mềm mại. Cây ưa khí hậu mát, đất thoát nước và bóng bán phần. Hoa nở vào mùa đông xuân, dùng trang trí và làm trà.",
     "locale": "vi",
     "scientificName": "Camellia japonica"
   },
   {
     "commonName": "Trà my Nuccios Pearl",
     "cultivar": "Nuccios Pearl",
-    "description": "Trà my Nuccios Pearl là cây bụi xanh quanh năm với hoa lớn, cánh dày mềm mại. Cây ưa khí hậu mát, đất thoát nước và bóng bán phần. Hoa nở vào mùa đông xuân, dùng trang trí và làm trà.",
     "locale": "vi",
     "scientificName": "Camellia japonica"
   },
   {
     "commonName": "Trà my Pink Perfection",
     "cultivar": "Pink Perfection",
-    "description": "Trà my Pink Perfection là cây bụi xanh quanh năm với hoa lớn, cánh dày mềm mại. Cây ưa khí hậu mát, đất thoát nước và bóng bán phần. Hoa nở vào mùa đông xuân, dùng trang trí và làm trà.",
     "locale": "vi",
     "scientificName": "Camellia japonica"
   },
   {
     "commonName": "Trà my Professor Sargent",
     "cultivar": "Professor Sargent",
-    "description": "Trà my Professor Sargent là cây bụi xanh quanh năm với hoa lớn, cánh dày mềm mại. Cây ưa khí hậu mát, đất thoát nước và bóng bán phần. Hoa nở vào mùa đông xuân, dùng trang trí và làm trà.",
     "locale": "vi",
     "scientificName": "Camellia japonica"
   },
@@ -2490,41 +2200,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dau ngua Field Select",
     "cultivar": "Field Select",
-    "description": "Dau ngua Field Select là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Canavalia ensiformis"
   },
   {
     "commonName": "Dau ngua Giant Pod",
     "cultivar": "Giant Pod",
-    "description": "Dau ngua Giant Pod là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Canavalia ensiformis"
   },
   {
     "commonName": "Dau ngua Robust",
     "cultivar": "Robust",
-    "description": "Dau ngua Robust là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Canavalia ensiformis"
   },
   {
     "commonName": "Dau ngua Tropical Green",
     "cultivar": "Tropical Green",
-    "description": "Dau ngua Tropical Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Canavalia ensiformis"
   },
   {
     "commonName": "Dau ngua White Wonder",
     "cultivar": "White Wonder",
-    "description": "Dau ngua White Wonder là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Canavalia ensiformis"
   },
   {
     "commonName": "Ot chuong",
-    "description": "Ot chuong là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Ớt chuông là cây vụ ấm cho quả giòn, vị dịu; có thể hái khi còn xanh hoặc để chín đổi màu. Cây phát triển tốt khi có nắng mạnh, đất ấm, độ ẩm đều và được che gió lạnh. Tránh để đất luân phiên quá khô rồi quá ướt vì dễ làm giảm chất lượng quả.",
     "locale": "vi",
     "scientificName": "Capsicum annuum"
   },
@@ -2565,35 +2270,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ot chim Fire Drop",
     "cultivar": "Fire Drop",
-    "description": "Ot chim Fire Drop là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
   {
     "commonName": "Ot chim Pequin",
     "cultivar": "Pequin",
-    "description": "Ot chim Pequin là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
   {
     "commonName": "Ot chim Sonoran",
     "cultivar": "Sonoran",
-    "description": "Ot chim Sonoran là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
   {
     "commonName": "Ot chim Texas Bird",
     "cultivar": "Texas Bird",
-    "description": "Ot chim Texas Bird là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
   {
     "commonName": "Ot chim Wild Tepin",
     "cultivar": "Wild Tepin",
-    "description": "Ot chim Wild Tepin là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum annuum var. glabriusculum"
   },
@@ -2606,35 +2306,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ot Aji Aji Amarillo",
     "cultivar": "Aji Amarillo",
-    "description": "Ot Aji Aji Amarillo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum baccatum"
   },
   {
     "commonName": "Ot Aji Aji Pineapple",
     "cultivar": "Aji Pineapple",
-    "description": "Ot Aji Aji Pineapple là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum baccatum"
   },
   {
     "commonName": "Ot Aji Bishop Crown",
     "cultivar": "Bishop Crown",
-    "description": "Ot Aji Bishop Crown là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum baccatum"
   },
   {
     "commonName": "Ot Aji Lemon Drop",
     "cultivar": "Lemon Drop",
-    "description": "Ot Aji Lemon Drop là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum baccatum"
   },
   {
     "commonName": "Ot Aji Sugar Rush",
     "cultivar": "Sugar Rush",
-    "description": "Ot Aji Sugar Rush là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum baccatum"
   },
@@ -2647,35 +2342,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ot habanero Caribbean Red",
     "cultivar": "Caribbean Red",
-    "description": "Ot habanero Caribbean Red là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum chinense"
   },
   {
     "commonName": "Ot habanero Chocolate",
     "cultivar": "Chocolate",
-    "description": "Ot habanero Chocolate là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum chinense"
   },
   {
     "commonName": "Ot habanero Orange Habanero",
     "cultivar": "Orange Habanero",
-    "description": "Ot habanero Orange Habanero là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum chinense"
   },
   {
     "commonName": "Ot habanero Paper Lantern",
     "cultivar": "Paper Lantern",
-    "description": "Ot habanero Paper Lantern là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum chinense"
   },
   {
     "commonName": "Ot habanero Red Savina",
     "cultivar": "Red Savina",
-    "description": "Ot habanero Red Savina là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum chinense"
   },
@@ -2688,28 +2378,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ot hiem Malagueta",
     "cultivar": "Malagueta",
-    "description": "Ot hiem Malagueta là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum frutescens"
   },
   {
     "commonName": "Ot hiem Piri Piri",
     "cultivar": "Piri Piri",
-    "description": "Ot hiem Piri Piri là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum frutescens"
   },
   {
     "commonName": "Ot hiem Tabasco",
     "cultivar": "Tabasco",
-    "description": "Ot hiem Tabasco là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum frutescens"
   },
   {
     "commonName": "Ot hiem Thai Bird",
     "cultivar": "Thai Bird",
-    "description": "Ot hiem Thai Bird là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum frutescens"
   },
@@ -2722,35 +2408,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ot Rocoto Canario",
     "cultivar": "Canario",
-    "description": "Ot Rocoto Canario là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum pubescens"
   },
   {
     "commonName": "Ot Rocoto Giant Red",
     "cultivar": "Giant Red",
-    "description": "Ot Rocoto Giant Red là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum pubescens"
   },
   {
     "commonName": "Ot Rocoto Manzano Red",
     "cultivar": "Manzano Red",
-    "description": "Ot Rocoto Manzano Red là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum pubescens"
   },
   {
     "commonName": "Ot Rocoto Mini Brown",
     "cultivar": "Mini Brown",
-    "description": "Ot Rocoto Mini Brown là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum pubescens"
   },
   {
     "commonName": "Ot Rocoto Peron",
     "cultivar": "Peron",
-    "description": "Ot Rocoto Peron là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Capsicum pubescens"
   },
@@ -2763,21 +2444,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đu đủ Red Lady",
     "cultivar": "Red Lady",
-    "description": "Đu đủ Red Lady là cây ăn quả nhiệt đới cho trái vàng cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon.",
     "locale": "vi",
     "scientificName": "Carica papaya"
   },
   {
     "commonName": "Đu đủ Sunrise Solo",
     "cultivar": "Sunrise Solo",
-    "description": "Đu đủ Sunrise Solo là cây ăn quả nhiệt đới cho trái vàng cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon.",
     "locale": "vi",
     "scientificName": "Carica papaya"
   },
   {
     "commonName": "Đu đủ Tainung",
     "cultivar": "Tainung",
-    "description": "Đu đủ Tainung là cây ăn quả nhiệt đới cho trái vàng cam, thịt mềm và ngọt. Cây ưa nắng, đất thoát nước tốt và phát triển nhanh, thường ra quả trong năm đầu tiên. Đu đủ cung cấp nhiều vitamin A và C, dùng ăn tươi, làm sinh tố hoặc salad đều ngon.",
     "locale": "vi",
     "scientificName": "Carica papaya"
   },
@@ -2791,36 +2469,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Castanea sativa",
     "cultivar": "Bouche de Betizac",
     "locale": "vi",
-    "commonName": "Hat de Bouche de Betizac",
-    "description": "Giong Bouche de Betizac cua Hat de giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hat de Bouche de Betizac"
   },
   {
     "scientificName": "Castanea sativa",
     "cultivar": "Colossal",
     "locale": "vi",
-    "commonName": "Hat de Colossal",
-    "description": "Giong Colossal cua Hat de giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hat de Colossal"
   },
   {
     "scientificName": "Castanea sativa",
     "cultivar": "Marigoule",
     "locale": "vi",
-    "commonName": "Hat de Marigoule",
-    "description": "Giong Marigoule cua Hat de giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hat de Marigoule"
   },
   {
     "scientificName": "Castanea sativa",
     "cultivar": "Marron de Lyon",
     "locale": "vi",
-    "commonName": "Hat de Marron de Lyon",
-    "description": "Giong Marron de Lyon cua Hat de giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hat de Marron de Lyon"
   },
   {
     "scientificName": "Castanea sativa",
     "cultivar": "Precoce Migoule",
     "locale": "vi",
-    "commonName": "Hat de Precoce Migoule",
-    "description": "Giong Precoce Migoule cua Hat de giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hat de Precoce Migoule"
   },
   {
     "scientificName": "Chamaedorea elegans",
@@ -2832,36 +2505,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Chamaedorea elegans",
     "cultivar": "Bella",
     "locale": "vi",
-    "commonName": "Cau tieu tram Bella",
-    "description": "Giong Bella cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau tieu tram Bella"
   },
   {
     "scientificName": "Chamaedorea elegans",
     "cultivar": "Compacta",
     "locale": "vi",
-    "commonName": "Cau tieu tram Compacta",
-    "description": "Giong Compacta cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau tieu tram Compacta"
   },
   {
     "scientificName": "Chamaedorea elegans",
     "cultivar": "Elegans",
     "locale": "vi",
-    "commonName": "Cau tieu tram Elegans",
-    "description": "Giong Elegans cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau tieu tram Elegans"
   },
   {
     "scientificName": "Chamaedorea elegans",
     "cultivar": "Neanthe Bella",
     "locale": "vi",
-    "commonName": "Cau tieu tram Neanthe Bella",
-    "description": "Giong Neanthe Bella cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau tieu tram Neanthe Bella"
   },
   {
     "scientificName": "Chamaedorea elegans",
     "cultivar": "Pacaya",
     "locale": "vi",
-    "commonName": "Cau tieu tram Pacaya",
-    "description": "Giong Pacaya cua Cau tieu tram giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau tieu tram Pacaya"
   },
   {
     "commonName": "Cay day nhen",
@@ -2872,21 +2540,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cay day nhen Bonnie",
     "cultivar": "Bonnie",
-    "description": "Cay day nhen Bonnie là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chlorophytum comosum"
   },
   {
     "commonName": "Cay day nhen Variegatum",
     "cultivar": "Variegatum",
-    "description": "Cay day nhen Variegatum là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chlorophytum comosum"
   },
   {
     "commonName": "Cay day nhen Vittatum",
     "cultivar": "Vittatum",
-    "description": "Cay day nhen Vittatum là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chlorophytum comosum"
   },
@@ -2899,35 +2564,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cuc mam xoi Anastasia",
     "cultivar": "Anastasia",
-    "description": "Cuc mam xoi Anastasia là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chrysanthemum morifolium"
   },
   {
     "commonName": "Cuc mam xoi Red Charm",
     "cultivar": "Red Charm",
-    "description": "Cuc mam xoi Red Charm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chrysanthemum morifolium"
   },
   {
     "commonName": "Cuc mam xoi Snowball",
     "cultivar": "Snowball",
-    "description": "Cuc mam xoi Snowball là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chrysanthemum morifolium"
   },
   {
     "commonName": "Cuc mam xoi Spider Bronze",
     "cultivar": "Spider Bronze",
-    "description": "Cuc mam xoi Spider Bronze là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chrysanthemum morifolium"
   },
   {
     "commonName": "Cuc mam xoi Yellow Cushion",
     "cultivar": "Yellow Cushion",
-    "description": "Cuc mam xoi Yellow Cushion là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Chrysanthemum morifolium"
   },
@@ -2940,35 +2600,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu gà CDC Orion",
     "cultivar": "CDC Orion",
-    "description": "Đậu gà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cicer arietinum"
   },
   {
     "commonName": "Đậu gà Desi",
     "cultivar": "Desi",
-    "description": "Đậu gà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cicer arietinum"
   },
   {
     "commonName": "Đậu gà Kabuli",
     "cultivar": "Kabuli",
-    "description": "Đậu gà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cicer arietinum"
   },
   {
     "commonName": "Đậu gà Myles",
     "cultivar": "Myles",
-    "description": "Đậu gà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cicer arietinum"
   },
   {
     "commonName": "Đậu gà Sarah",
     "cultivar": "Sarah",
-    "description": "Đậu gà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cicer arietinum"
   },
@@ -2981,35 +2636,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cu cai endive Batavian",
     "cultivar": "Batavian",
-    "description": "Cu cai endive Batavian là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cichorium endivia"
   },
   {
     "commonName": "Cu cai endive Broadleaf",
     "cultivar": "Broadleaf",
-    "description": "Cu cai endive Broadleaf là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cichorium endivia"
   },
   {
     "commonName": "Cu cai endive Frisee",
     "cultivar": "Frisee",
-    "description": "Cu cai endive Frisee là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cichorium endivia"
   },
   {
     "commonName": "Cu cai endive Green Curled",
     "cultivar": "Green Curled",
-    "description": "Cu cai endive Green Curled là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cichorium endivia"
   },
   {
     "commonName": "Cu cai endive Nuance",
     "cultivar": "Nuance",
-    "description": "Cu cai endive Nuance là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cichorium endivia"
   },
@@ -3022,69 +2672,60 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Xà lách tím Chioggia",
     "cultivar": "Chioggia",
-    "description": "Xà lách tím Chioggia (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Indigo",
     "cultivar": "Indigo",
-    "description": "Xà lách tím Indigo (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Palla Rossa",
     "cultivar": "Palla Rossa",
-    "description": "Xà lách tím Palla Rossa (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Rossa di Milano",
     "cultivar": "Rossa di Milano",
-    "description": "Xà lách tím Rossa di Milano (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Rossa di Verona",
     "cultivar": "Rossa di Verona",
-    "description": "Xà lách tím Rossa di Verona (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Treviso",
     "cultivar": "Treviso",
-    "description": "Xà lách tím Treviso (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Treviso Tardivo",
     "cultivar": "Treviso Tardivo",
-    "description": "Xà lách tím Treviso Tardivo (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Variegata di Castelfranco",
     "cultivar": "Variegata di Castelfranco",
-    "description": "Xà lách tím Variegata di Castelfranco (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Xà lách tím Verona",
     "cultivar": "Verona",
-    "description": "Xà lách tím Verona (radicchio) có lá tím đỏ và vị hơi đắng. Cây ưa khí hậu mát, thu hoạch khi bắp vừa cuộn. Thường được ăn sống trong salad hoặc nướng.",
     "locale": "vi",
     "scientificName": "Cichorium intybus"
   },
   {
     "commonName": "Dưa hấu",
-    "description": "Dưa hấu là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Dưa hấu là dây leo ưa nóng, được trồng lấy quả lớn và ngọt. Cây cần nhiều nắng, khoảng trống cho dây bò, đất giàu dinh dưỡng thoát nước và tưới đều trong giai đoạn sinh trưởng, đậu quả. Khi xác định quả chín nên kết hợp nhiều dấu hiệu như tua gần cuống khô và vỏ bớt bóng.",
     "locale": "vi",
     "scientificName": "Citrullus lanatus"
   },
@@ -3126,36 +2767,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrus aurantiifolia",
     "cultivar": "Bearss",
     "locale": "vi",
-    "commonName": "Chanh xanh Bearss",
-    "description": "Giong Bearss cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh xanh Bearss"
   },
   {
     "scientificName": "Citrus aurantiifolia",
     "cultivar": "Kagzi",
     "locale": "vi",
-    "commonName": "Chanh xanh Kagzi",
-    "description": "Giong Kagzi cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh xanh Kagzi"
   },
   {
     "scientificName": "Citrus aurantiifolia",
     "cultivar": "Mexican",
     "locale": "vi",
-    "commonName": "Chanh xanh Mexican",
-    "description": "Giong Mexican cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh xanh Mexican"
   },
   {
     "scientificName": "Citrus aurantiifolia",
     "cultivar": "Thornless",
     "locale": "vi",
-    "commonName": "Chanh xanh Thornless",
-    "description": "Giong Thornless cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh xanh Thornless"
   },
   {
     "scientificName": "Citrus aurantiifolia",
     "cultivar": "West Indian",
     "locale": "vi",
-    "commonName": "Chanh xanh West Indian",
-    "description": "Giong West Indian cua Chanh xanh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh xanh West Indian"
   },
   {
     "scientificName": "Citrus australasica",
@@ -3167,36 +2803,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrus australasica",
     "cultivar": "Emerald",
     "locale": "vi",
-    "commonName": "Chanh ngon tay Emerald",
-    "description": "Giong Emerald cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh ngon tay Emerald"
   },
   {
     "scientificName": "Citrus australasica",
     "cultivar": "Judy's Everbearing",
     "locale": "vi",
-    "commonName": "Chanh ngon tay Judy's Everbearing",
-    "description": "Giong Judy's Everbearing cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh ngon tay Judy's Everbearing"
   },
   {
     "scientificName": "Citrus australasica",
     "cultivar": "Pink Ice",
     "locale": "vi",
-    "commonName": "Chanh ngon tay Pink Ice",
-    "description": "Giong Pink Ice cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh ngon tay Pink Ice"
   },
   {
     "scientificName": "Citrus australasica",
     "cultivar": "Rainforest Pearl",
     "locale": "vi",
-    "commonName": "Chanh ngon tay Rainforest Pearl",
-    "description": "Giong Rainforest Pearl cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh ngon tay Rainforest Pearl"
   },
   {
     "scientificName": "Citrus australasica",
     "cultivar": "Red Champagne",
     "locale": "vi",
-    "commonName": "Chanh ngon tay Red Champagne",
-    "description": "Giong Red Champagne cua Chanh ngon tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Chanh ngon tay Red Champagne"
   },
   {
     "commonName": "Chanh",
@@ -3207,21 +2838,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Chanh Eureka",
     "cultivar": "Eureka",
-    "description": "Chanh Eureka có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Citrus limon"
   },
   {
     "commonName": "Chanh Lisbon",
     "cultivar": "Lisbon",
-    "description": "Chanh Lisbon có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Citrus limon"
   },
   {
     "commonName": "Chanh Meyer",
     "cultivar": "Meyer",
-    "description": "Chanh Meyer có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Citrus limon"
   },
@@ -3235,36 +2863,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrus paradisi",
     "cultivar": "Marsh",
     "locale": "vi",
-    "commonName": "Buoi chum Marsh",
-    "description": "Giong Marsh cua Buoi chum giup mo rong lua chon trong thu vien cay."
+    "commonName": "Buoi chum Marsh"
   },
   {
     "scientificName": "Citrus paradisi",
     "cultivar": "Oro Blanco",
     "locale": "vi",
-    "commonName": "Buoi chum Oro Blanco",
-    "description": "Giong Oro Blanco cua Buoi chum giup mo rong lua chon trong thu vien cay."
+    "commonName": "Buoi chum Oro Blanco"
   },
   {
     "scientificName": "Citrus paradisi",
     "cultivar": "Rio Red",
     "locale": "vi",
-    "commonName": "Buoi chum Rio Red",
-    "description": "Giong Rio Red cua Buoi chum giup mo rong lua chon trong thu vien cay."
+    "commonName": "Buoi chum Rio Red"
   },
   {
     "scientificName": "Citrus paradisi",
     "cultivar": "Ruby Red",
     "locale": "vi",
-    "commonName": "Buoi chum Ruby Red",
-    "description": "Giong Ruby Red cua Buoi chum giup mo rong lua chon trong thu vien cay."
+    "commonName": "Buoi chum Ruby Red"
   },
   {
     "scientificName": "Citrus paradisi",
     "cultivar": "Star Ruby",
     "locale": "vi",
-    "commonName": "Buoi chum Star Ruby",
-    "description": "Giong Star Ruby cua Buoi chum giup mo rong lua chon trong thu vien cay."
+    "commonName": "Buoi chum Star Ruby"
   },
   {
     "scientificName": "Citrus reticulata",
@@ -3276,36 +2899,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Citrus reticulata",
     "cultivar": "Clementine",
     "locale": "vi",
-    "commonName": "Quyt Clementine",
-    "description": "Giong Clementine cua Quyt giup mo rong lua chon trong thu vien cay."
+    "commonName": "Quyt Clementine"
   },
   {
     "scientificName": "Citrus reticulata",
     "cultivar": "Honey Murcott",
     "locale": "vi",
-    "commonName": "Quyt Honey Murcott",
-    "description": "Giong Honey Murcott cua Quyt giup mo rong lua chon trong thu vien cay."
+    "commonName": "Quyt Honey Murcott"
   },
   {
     "scientificName": "Citrus reticulata",
     "cultivar": "Kishu",
     "locale": "vi",
-    "commonName": "Quyt Kishu",
-    "description": "Giong Kishu cua Quyt giup mo rong lua chon trong thu vien cay."
+    "commonName": "Quyt Kishu"
   },
   {
     "scientificName": "Citrus reticulata",
     "cultivar": "Satsuma",
     "locale": "vi",
-    "commonName": "Quyt Satsuma",
-    "description": "Giong Satsuma cua Quyt giup mo rong lua chon trong thu vien cay."
+    "commonName": "Quyt Satsuma"
   },
   {
     "scientificName": "Citrus reticulata",
     "cultivar": "Tango",
     "locale": "vi",
-    "commonName": "Quyt Tango",
-    "description": "Giong Tango cua Quyt giup mo rong lua chon trong thu vien cay."
+    "commonName": "Quyt Tango"
   },
   {
     "commonName": "Cam",
@@ -3316,21 +2934,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cam Blood Orange",
     "cultivar": "Blood Orange",
-    "description": "Cam Blood Orange là cây ăn quả cho trái màu vàng, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Citrus sinensis"
   },
   {
     "commonName": "Cam Navel",
     "cultivar": "Navel",
-    "description": "Cam Navel là cây ăn quả cho trái màu vàng, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Citrus sinensis"
   },
   {
     "commonName": "Cam Valencia",
     "cultivar": "Valencia",
-    "description": "Cam Valencia là cây ăn quả cho trái màu vàng, vị ngọt và nhiều nước. Cây cần khí hậu ấm áp, đất thoát nước và ánh nắng đầy đủ. Cam giàu vitamin C, dùng ăn tươi hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Citrus sinensis"
   },
@@ -3344,36 +2959,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Codiaeum variegatum",
     "cultivar": "Excellent",
     "locale": "vi",
-    "commonName": "Cay co tong Excellent",
-    "description": "Giong Excellent cua Cay co tong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay co tong Excellent"
   },
   {
     "scientificName": "Codiaeum variegatum",
     "cultivar": "Gold Dust",
     "locale": "vi",
-    "commonName": "Cay co tong Gold Dust",
-    "description": "Giong Gold Dust cua Cay co tong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay co tong Gold Dust"
   },
   {
     "scientificName": "Codiaeum variegatum",
     "cultivar": "Mammy",
     "locale": "vi",
-    "commonName": "Cay co tong Mammy",
-    "description": "Giong Mammy cua Cay co tong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay co tong Mammy"
   },
   {
     "scientificName": "Codiaeum variegatum",
     "cultivar": "Petra",
     "locale": "vi",
-    "commonName": "Cay co tong Petra",
-    "description": "Giong Petra cua Cay co tong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay co tong Petra"
   },
   {
     "scientificName": "Codiaeum variegatum",
     "cultivar": "Zanzibar",
     "locale": "vi",
-    "commonName": "Cay co tong Zanzibar",
-    "description": "Giong Zanzibar cua Cay co tong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay co tong Zanzibar"
   },
   {
     "commonName": "Khoai môn",
@@ -3384,35 +2994,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Khoai môn Black Magic",
     "cultivar": "Black Magic",
-    "description": "Khoai môn Black Magic là cây thân rễ cho củ màu tím nhạt, bột mịn và vị ngọt nhẹ. Cây ưa đất ẩm và khí hậu ấm. Củ khoai môn dùng nấu chè, xào hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Colocasia esculenta"
   },
   {
     "commonName": "Khoai môn Bun Long",
     "cultivar": "Bun Long",
-    "description": "Khoai môn Bun Long là cây thân rễ cho củ màu tím nhạt, bột mịn và vị ngọt nhẹ. Cây ưa đất ẩm và khí hậu ấm. Củ khoai môn dùng nấu chè, xào hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Colocasia esculenta"
   },
   {
     "commonName": "Khoai môn Elepaio",
     "cultivar": "Elepaio",
-    "description": "Khoai môn Elepaio là cây thân rễ cho củ màu tím nhạt, bột mịn và vị ngọt nhẹ. Cây ưa đất ẩm và khí hậu ấm. Củ khoai môn dùng nấu chè, xào hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Colocasia esculenta"
   },
   {
     "commonName": "Khoai môn Mojito",
     "cultivar": "Mojito",
-    "description": "Khoai môn Mojito là cây thân rễ cho củ màu tím nhạt, bột mịn và vị ngọt nhẹ. Cây ưa đất ẩm và khí hậu ấm. Củ khoai môn dùng nấu chè, xào hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Colocasia esculenta"
   },
   {
     "commonName": "Khoai môn Thai Giant",
     "cultivar": "Thai Giant",
-    "description": "Khoai môn Thai Giant là cây thân rễ cho củ màu tím nhạt, bột mịn và vị ngọt nhẹ. Cây ưa đất ẩm và khí hậu ấm. Củ khoai môn dùng nấu chè, xào hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Colocasia esculenta"
   },
@@ -3425,21 +3030,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngò rí Calypso",
     "cultivar": "Calypso",
-    "description": "Ngò rí là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Coriandrum sativum"
   },
   {
     "commonName": "Ngò rí Leisure",
     "cultivar": "Leisure",
-    "description": "Ngò rí là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Coriandrum sativum"
   },
   {
     "commonName": "Ngò rí Santo",
     "cultivar": "Santo",
-    "description": "Ngò rí là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Coriandrum sativum"
   },
@@ -3453,36 +3055,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Corylus avellana",
     "cultivar": "Barcelona",
     "locale": "vi",
-    "commonName": "Phu phi Barcelona",
-    "description": "Giong Barcelona cua Phu phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phu phi Barcelona"
   },
   {
     "scientificName": "Corylus avellana",
     "cultivar": "Ennis",
     "locale": "vi",
-    "commonName": "Phu phi Ennis",
-    "description": "Giong Ennis cua Phu phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phu phi Ennis"
   },
   {
     "scientificName": "Corylus avellana",
     "cultivar": "Jefferson",
     "locale": "vi",
-    "commonName": "Phu phi Jefferson",
-    "description": "Giong Jefferson cua Phu phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phu phi Jefferson"
   },
   {
     "scientificName": "Corylus avellana",
     "cultivar": "Tonda di Giffoni",
     "locale": "vi",
-    "commonName": "Phu phi Tonda di Giffoni",
-    "description": "Giong Tonda di Giffoni cua Phu phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phu phi Tonda di Giffoni"
   },
   {
     "scientificName": "Corylus avellana",
     "cultivar": "Yamhill",
     "locale": "vi",
-    "commonName": "Phu phi Yamhill",
-    "description": "Giong Yamhill cua Phu phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phu phi Yamhill"
   },
   {
     "scientificName": "Cosmos bipinnatus",
@@ -3494,36 +3091,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cosmos bipinnatus",
     "cultivar": "Double Click",
     "locale": "vi",
-    "commonName": "Sao nhay Double Click",
-    "description": "Giong Double Click cua Sao nhay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sao nhay Double Click"
   },
   {
     "scientificName": "Cosmos bipinnatus",
     "cultivar": "Purity",
     "locale": "vi",
-    "commonName": "Sao nhay Purity",
-    "description": "Giong Purity cua Sao nhay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sao nhay Purity"
   },
   {
     "scientificName": "Cosmos bipinnatus",
     "cultivar": "Rubenza",
     "locale": "vi",
-    "commonName": "Sao nhay Rubenza",
-    "description": "Giong Rubenza cua Sao nhay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sao nhay Rubenza"
   },
   {
     "scientificName": "Cosmos bipinnatus",
     "cultivar": "Sensation",
     "locale": "vi",
-    "commonName": "Sao nhay Sensation",
-    "description": "Giong Sensation cua Sao nhay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sao nhay Sensation"
   },
   {
     "scientificName": "Cosmos bipinnatus",
     "cultivar": "Sonata",
     "locale": "vi",
-    "commonName": "Sao nhay Sonata",
-    "description": "Giong Sonata cua Sao nhay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sao nhay Sonata"
   },
   {
     "scientificName": "Crambe maritima",
@@ -3535,36 +3127,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Crambe maritima",
     "cultivar": "Angers",
     "locale": "vi",
-    "commonName": "Cai bien Angers",
-    "description": "Giong Angers cua Cai bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai bien Angers"
   },
   {
     "scientificName": "Crambe maritima",
     "cultivar": "Common",
     "locale": "vi",
-    "commonName": "Cai bien Common",
-    "description": "Giong Common cua Cai bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai bien Common"
   },
   {
     "scientificName": "Crambe maritima",
     "cultivar": "Ivory",
     "locale": "vi",
-    "commonName": "Cai bien Ivory",
-    "description": "Giong Ivory cua Cai bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai bien Ivory"
   },
   {
     "scientificName": "Crambe maritima",
     "cultivar": "Lily White",
     "locale": "vi",
-    "commonName": "Cai bien Lily White",
-    "description": "Giong Lily White cua Cai bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai bien Lily White"
   },
   {
     "scientificName": "Crambe maritima",
     "cultivar": "Sea Spray",
     "locale": "vi",
-    "commonName": "Cai bien Sea Spray",
-    "description": "Giong Sea Spray cua Cai bien giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai bien Sea Spray"
   },
   {
     "commonName": "Dưa lưới",
@@ -3575,28 +3162,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dưa lưới Cantaloupe",
     "cultivar": "Cantaloupe",
-    "description": "Dưa lưới Cantaloupe cho quả tròn hoặc bầu dục với ruột cam ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Cucumis melo"
   },
   {
     "commonName": "Dưa lưới Galia",
     "cultivar": "Galia",
-    "description": "Dưa lưới Galia cho quả tròn hoặc bầu dục với ruột cam ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Cucumis melo"
   },
   {
     "commonName": "Dưa lưới Hami",
     "cultivar": "Hami",
-    "description": "Dưa lưới Hami cho quả tròn hoặc bầu dục với ruột cam ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Cucumis melo"
   },
   {
     "commonName": "Dưa lưới Honeydew",
     "cultivar": "Honeydew",
-    "description": "Dưa lưới Honeydew cho quả tròn hoặc bầu dục với ruột cam ngọt thơm. Cây thích khí hậu ấm, đất thoát nước và nắng. Dưa lưới dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Cucumis melo"
   },
@@ -3609,41 +3192,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dưa sừng African Orange",
     "cultivar": "African Orange",
-    "description": "Dưa sừng African Orange còn gọi là kiwano, có vỏ cam gai và ruột xanh chua ngọt. Cây ưa nóng và đất thoát nước. Quả dùng ăn tươi hoặc làm nước giải khát.",
     "locale": "vi",
     "scientificName": "Cucumis metuliferus"
   },
   {
     "commonName": "Dưa sừng Horned King",
     "cultivar": "Horned King",
-    "description": "Dưa sừng Horned King còn gọi là kiwano, có vỏ cam gai và ruột xanh chua ngọt. Cây ưa nóng và đất thoát nước. Quả dùng ăn tươi hoặc làm nước giải khát.",
     "locale": "vi",
     "scientificName": "Cucumis metuliferus"
   },
   {
     "commonName": "Dưa sừng Jelly Melon",
     "cultivar": "Jelly Melon",
-    "description": "Dưa sừng Jelly Melon còn gọi là kiwano, có vỏ cam gai và ruột xanh chua ngọt. Cây ưa nóng và đất thoát nước. Quả dùng ăn tươi hoặc làm nước giải khát.",
     "locale": "vi",
     "scientificName": "Cucumis metuliferus"
   },
   {
     "commonName": "Dưa sừng Kiwano Gold",
     "cultivar": "Kiwano Gold",
-    "description": "Dưa sừng Kiwano Gold còn gọi là kiwano, có vỏ cam gai và ruột xanh chua ngọt. Cây ưa nóng và đất thoát nước. Quả dùng ăn tươi hoặc làm nước giải khát.",
     "locale": "vi",
     "scientificName": "Cucumis metuliferus"
   },
   {
     "commonName": "Dưa sừng Spiny Star",
     "cultivar": "Spiny Star",
-    "description": "Dưa sừng Spiny Star còn gọi là kiwano, có vỏ cam gai và ruột xanh chua ngọt. Cây ưa nóng và đất thoát nước. Quả dùng ăn tươi hoặc làm nước giải khát.",
     "locale": "vi",
     "scientificName": "Cucumis metuliferus"
   },
   {
     "commonName": "Dưa leo",
-    "description": "Dưa leo là dây leo ngắn cho quả thon dài với vỏ xanh và vị giòn mát. Cây ưa khí hậu ấm và đất thoát nước. Dưa leo dùng ăn sống, làm salad hoặc ngâm chua.",
+    "description": "Dưa leo là dây leo vụ ấm, sinh trưởng nhanh và được thu hoạch khi quả còn non, giòn. Cây cần nhiều nắng, đất màu mỡ, độ ẩm ổn định; làm giàn giúp tiết kiệm diện tích và tăng thông thoáng. Hái quả thường xuyên vì quả để quá già sẽ làm cây giảm đợt ra trái tiếp theo.",
     "locale": "vi",
     "scientificName": "Cucumis sativus"
   },
@@ -3692,36 +3270,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cucurbita argyrosperma",
     "cultivar": "Green Striped Cushaw",
     "locale": "vi",
-    "commonName": "Bi cushaw Green Striped Cushaw",
-    "description": "Giong Green Striped Cushaw cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi cushaw Green Striped Cushaw"
   },
   {
     "scientificName": "Cucurbita argyrosperma",
     "cultivar": "Japanese Pie",
     "locale": "vi",
-    "commonName": "Bi cushaw Japanese Pie",
-    "description": "Giong Japanese Pie cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi cushaw Japanese Pie"
   },
   {
     "scientificName": "Cucurbita argyrosperma",
     "cultivar": "Silver Seed",
     "locale": "vi",
-    "commonName": "Bi cushaw Silver Seed",
-    "description": "Giong Silver Seed cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi cushaw Silver Seed"
   },
   {
     "scientificName": "Cucurbita argyrosperma",
     "cultivar": "Tennessee Sweet Potato",
     "locale": "vi",
-    "commonName": "Bi cushaw Tennessee Sweet Potato",
-    "description": "Giong Tennessee Sweet Potato cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi cushaw Tennessee Sweet Potato"
   },
   {
     "scientificName": "Cucurbita argyrosperma",
     "cultivar": "White Cushaw",
     "locale": "vi",
-    "commonName": "Bi cushaw White Cushaw",
-    "description": "Giong White Cushaw cua Bi cushaw giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi cushaw White Cushaw"
   },
   {
     "scientificName": "Cucurbita ficifolia",
@@ -3733,36 +3306,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cucurbita ficifolia",
     "cultivar": "Asian White",
     "locale": "vi",
-    "commonName": "Bi la sung Asian White",
-    "description": "Giong Asian White cua Bi la sung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi la sung Asian White"
   },
   {
     "scientificName": "Cucurbita ficifolia",
     "cultivar": "Black Seed",
     "locale": "vi",
-    "commonName": "Bi la sung Black Seed",
-    "description": "Giong Black Seed cua Bi la sung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi la sung Black Seed"
   },
   {
     "scientificName": "Cucurbita ficifolia",
     "cultivar": "Chilacayote",
     "locale": "vi",
-    "commonName": "Bi la sung Chilacayote",
-    "description": "Giong Chilacayote cua Bi la sung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi la sung Chilacayote"
   },
   {
     "scientificName": "Cucurbita ficifolia",
     "cultivar": "Green Stripe",
     "locale": "vi",
-    "commonName": "Bi la sung Green Stripe",
-    "description": "Giong Green Stripe cua Bi la sung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi la sung Green Stripe"
   },
   {
     "scientificName": "Cucurbita ficifolia",
     "cultivar": "Mountain",
     "locale": "vi",
-    "commonName": "Bi la sung Mountain",
-    "description": "Giong Mountain cua Bi la sung giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi la sung Mountain"
   },
   {
     "scientificName": "Cucurbita maxima",
@@ -3774,36 +3342,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cucurbita maxima",
     "cultivar": "Buttercup",
     "locale": "vi",
-    "commonName": "Bi mua dong Buttercup",
-    "description": "Giong Buttercup cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi mua dong Buttercup"
   },
   {
     "scientificName": "Cucurbita maxima",
     "cultivar": "Hubbard",
     "locale": "vi",
-    "commonName": "Bi mua dong Hubbard",
-    "description": "Giong Hubbard cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi mua dong Hubbard"
   },
   {
     "scientificName": "Cucurbita maxima",
     "cultivar": "Kabocha",
     "locale": "vi",
-    "commonName": "Bi mua dong Kabocha",
-    "description": "Giong Kabocha cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi mua dong Kabocha"
   },
   {
     "scientificName": "Cucurbita maxima",
     "cultivar": "Queensland Blue",
     "locale": "vi",
-    "commonName": "Bi mua dong Queensland Blue",
-    "description": "Giong Queensland Blue cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi mua dong Queensland Blue"
   },
   {
     "scientificName": "Cucurbita maxima",
     "cultivar": "Red Kuri",
     "locale": "vi",
-    "commonName": "Bi mua dong Red Kuri",
-    "description": "Giong Red Kuri cua Bi mua dong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bi mua dong Red Kuri"
   },
   {
     "commonName": "Bi do",
@@ -3814,21 +3377,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bi do Butternut Waltham",
     "cultivar": "Butternut Waltham",
-    "description": "Bi do Butternut Waltham là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita moschata"
   },
   {
     "commonName": "Bi do Musquee de Provence",
     "cultivar": "Musquee de Provence",
-    "description": "Bi do Musquee de Provence là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita moschata"
   },
   {
     "commonName": "Bi do Tahitian",
     "cultivar": "Tahitian",
-    "description": "Bi do Tahitian là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita moschata"
   },
@@ -3841,28 +3401,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bi ngoi Black Beauty",
     "cultivar": "Black Beauty",
-    "description": "Bi ngoi Black Beauty là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita pepo"
   },
   {
     "commonName": "Bi ngoi Cocozelle",
     "cultivar": "Cocozelle",
-    "description": "Bi ngoi Cocozelle là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita pepo"
   },
   {
     "commonName": "Bi ngoi Eight Ball",
     "cultivar": "Eight Ball",
-    "description": "Bi ngoi Eight Ball là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita pepo"
   },
   {
     "commonName": "Bi ngoi Gold Rush",
     "cultivar": "Gold Rush",
-    "description": "Bi ngoi Gold Rush là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cucurbita pepo"
   },
@@ -3875,63 +3431,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Nghe Alleppey",
     "cultivar": "Alleppey",
-    "description": "Nghe Alleppey là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe IISR Prabha",
     "cultivar": "IISR Prabha",
-    "description": "Nghe IISR Prabha là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Lakadong",
     "cultivar": "Lakadong",
-    "description": "Nghe Lakadong là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Madras",
     "cultivar": "Madras",
-    "description": "Nghe Madras là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Prabha",
     "cultivar": "Prabha",
-    "description": "Nghe Prabha là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Prathibha",
     "cultivar": "Prathibha",
-    "description": "Nghe Prathibha là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Roma",
     "cultivar": "Roma",
-    "description": "Nghe Roma là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Suroma",
     "cultivar": "Suroma",
-    "description": "Nghe Suroma là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
   {
     "commonName": "Nghe Suvarna",
     "cultivar": "Suvarna",
-    "description": "Nghe Suvarna là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Curcuma longa"
   },
@@ -3944,35 +3491,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Sả Cochin",
     "cultivar": "Cochin",
-    "description": "Sả Cochin là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi.",
     "locale": "vi",
     "scientificName": "Cymbopogon citratus"
   },
   {
     "commonName": "Sả East Indian",
     "cultivar": "East Indian",
-    "description": "Sả East Indian là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi.",
     "locale": "vi",
     "scientificName": "Cymbopogon citratus"
   },
   {
     "commonName": "Sả Krishna",
     "cultivar": "Krishna",
-    "description": "Sả Krishna là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi.",
     "locale": "vi",
     "scientificName": "Cymbopogon citratus"
   },
   {
     "commonName": "Sả Pragati",
     "cultivar": "Pragati",
-    "description": "Sả Pragati là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi.",
     "locale": "vi",
     "scientificName": "Cymbopogon citratus"
   },
   {
     "commonName": "Sả West Indian",
     "cultivar": "West Indian",
-    "description": "Sả West Indian là cây thân cỏ với thân phình có hương chanh đặc trưng. Cây chịu hạn, ưa nắng và đất cát. Sả được dùng làm gia vị nấu ăn, pha trà hoặc đuổi muỗi.",
     "locale": "vi",
     "scientificName": "Cymbopogon citratus"
   },
@@ -3986,36 +3528,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Cynara cardunculus",
     "cultivar": "Bianco Avorio",
     "locale": "vi",
-    "commonName": "Atiso than Bianco Avorio",
-    "description": "Giong Bianco Avorio cua Atiso than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso than Bianco Avorio"
   },
   {
     "scientificName": "Cynara cardunculus",
     "cultivar": "Gigante",
     "locale": "vi",
-    "commonName": "Atiso than Gigante",
-    "description": "Giong Gigante cua Atiso than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso than Gigante"
   },
   {
     "scientificName": "Cynara cardunculus",
     "cultivar": "Gobbo di Nizza",
     "locale": "vi",
-    "commonName": "Atiso than Gobbo di Nizza",
-    "description": "Giong Gobbo di Nizza cua Atiso than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso than Gobbo di Nizza"
   },
   {
     "scientificName": "Cynara cardunculus",
     "cultivar": "Large Smooth",
     "locale": "vi",
-    "commonName": "Atiso than Large Smooth",
-    "description": "Giong Large Smooth cua Atiso than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso than Large Smooth"
   },
   {
     "scientificName": "Cynara cardunculus",
     "cultivar": "Porto Spineless",
     "locale": "vi",
-    "commonName": "Atiso than Porto Spineless",
-    "description": "Giong Porto Spineless cua Atiso than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso than Porto Spineless"
   },
   {
     "commonName": "Atiso",
@@ -4026,49 +3563,42 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Atiso Colorado Star",
     "cultivar": "Colorado Star",
-    "description": "Atiso Colorado Star là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
     "commonName": "Atiso Green Globe",
     "cultivar": "Green Globe",
-    "description": "Atiso Green Globe là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
     "commonName": "Atiso Green Globe Improved",
     "cultivar": "Green Globe Improved",
-    "description": "Atiso Green Globe Improved là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
     "commonName": "Atiso Imperial Star",
     "cultivar": "Imperial Star",
-    "description": "Atiso Imperial Star là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
     "commonName": "Atiso Opera",
     "cultivar": "Opera",
-    "description": "Atiso Opera là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
     "commonName": "Atiso Romanesco",
     "cultivar": "Romanesco",
-    "description": "Atiso Romanesco là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
   {
     "commonName": "Atiso Violetto",
     "cultivar": "Violetto",
-    "description": "Atiso Violetto là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Cynara cardunculus var. scolymus"
   },
@@ -4082,40 +3612,35 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Dahlia pinnata",
     "cultivar": "Arabian Night",
     "locale": "vi",
-    "commonName": "Thược duoc Arabian Night",
-    "description": "Giong Arabian Night cua Thược duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thược duoc Arabian Night"
   },
   {
     "scientificName": "Dahlia pinnata",
     "cultivar": "Bishop of Llandaff",
     "locale": "vi",
-    "commonName": "Thược duoc Bishop of Llandaff",
-    "description": "Giong Bishop of Llandaff cua Thược duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thược duoc Bishop of Llandaff"
   },
   {
     "scientificName": "Dahlia pinnata",
     "cultivar": "Cafe au Lait",
     "locale": "vi",
-    "commonName": "Thược duoc Cafe au Lait",
-    "description": "Giong Cafe au Lait cua Thược duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thược duoc Cafe au Lait"
   },
   {
     "scientificName": "Dahlia pinnata",
     "cultivar": "Kelvin Floodlight",
     "locale": "vi",
-    "commonName": "Thược duoc Kelvin Floodlight",
-    "description": "Giong Kelvin Floodlight cua Thược duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thược duoc Kelvin Floodlight"
   },
   {
     "scientificName": "Dahlia pinnata",
     "cultivar": "Thomas Edison",
     "locale": "vi",
-    "commonName": "Thược duoc Thomas Edison",
-    "description": "Giong Thomas Edison cua Thược duoc giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thược duoc Thomas Edison"
   },
   {
     "commonName": "Ca rot",
-    "description": "Ca rot là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Cà rốt là cây lấy củ vụ mát, tạo củ đẹp nhất trong đất sâu, tơi và không có đá hoặc phân chuồng tươi vón cục. Giữ mặt luống ẩm đều trong thời gian hạt nảy mầm khá chậm, sau đó tỉa cây để củ có chỗ lớn. Có thể thu non để ăn mềm hoặc để giống phù hợp phát triển đủ kích thước.",
     "locale": "vi",
     "scientificName": "Daucus carota"
   },
@@ -4164,36 +3689,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Delphinium elatum",
     "cultivar": "Black Knight",
     "locale": "vi",
-    "commonName": "Phi yen thao Black Knight",
-    "description": "Giong Black Knight cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phi yen thao Black Knight"
   },
   {
     "scientificName": "Delphinium elatum",
     "cultivar": "Blue Bird",
     "locale": "vi",
-    "commonName": "Phi yen thao Blue Bird",
-    "description": "Giong Blue Bird cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phi yen thao Blue Bird"
   },
   {
     "scientificName": "Delphinium elatum",
     "cultivar": "Galahad",
     "locale": "vi",
-    "commonName": "Phi yen thao Galahad",
-    "description": "Giong Galahad cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phi yen thao Galahad"
   },
   {
     "scientificName": "Delphinium elatum",
     "cultivar": "Magic Fountains",
     "locale": "vi",
-    "commonName": "Phi yen thao Magic Fountains",
-    "description": "Giong Magic Fountains cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phi yen thao Magic Fountains"
   },
   {
     "scientificName": "Delphinium elatum",
     "cultivar": "Pacific Giant",
     "locale": "vi",
-    "commonName": "Phi yen thao Pacific Giant",
-    "description": "Giong Pacific Giant cua Phi yen thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Phi yen thao Pacific Giant"
   },
   {
     "commonName": "Cẩm chướng",
@@ -4204,63 +3724,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cẩm chướng Benigna",
     "cultivar": "Benigna",
-    "description": "Cẩm chướng Benigna là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Can Can Scarlet",
     "cultivar": "Can Can Scarlet",
-    "description": "Cẩm chướng Can Can Scarlet là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Can Can White",
     "cultivar": "Can Can White",
-    "description": "Cẩm chướng Can Can White là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Chabaud Giant",
     "cultivar": "Chabaud Giant",
-    "description": "Cẩm chướng Chabaud Giant là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Grenadin Red",
     "cultivar": "Grenadin Red",
-    "description": "Cẩm chướng Grenadin Red là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Grenadin White",
     "cultivar": "Grenadin White",
-    "description": "Cẩm chướng Grenadin White là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Lillipot",
     "cultivar": "Lillipot",
-    "description": "Cẩm chướng Lillipot là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Oscar Mix",
     "cultivar": "Oscar Mix",
-    "description": "Cẩm chướng Oscar Mix là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
   {
     "commonName": "Cẩm chướng Oscar Scarlet",
     "cultivar": "Oscar Scarlet",
-    "description": "Cẩm chướng Oscar Scarlet là cây hoa thân thảo với cánh hoa răng cưa nhiều màu. Cây ưa nắng nhẹ và đất thoát nước. Hoa được dùng để cắm hoặc trồng viền.",
     "locale": "vi",
     "scientificName": "Dianthus caryophyllus"
   },
@@ -4273,35 +3784,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Vạn niên thanh Camille",
     "cultivar": "Camille",
-    "description": "Vạn niên thanh Camille là cây cảnh với lá lớn màu xanh lốm đốm trắng. Cây ưa bóng râm, chịu hạn tốt và dùng để trang trí nội thất. Lưu ý nhựa cây có thể gây kích ứng da.",
     "locale": "vi",
     "scientificName": "Dieffenbachia seguine"
   },
   {
     "commonName": "Vạn niên thanh Carina",
     "cultivar": "Carina",
-    "description": "Vạn niên thanh Carina là cây cảnh với lá lớn màu xanh lốm đốm trắng. Cây ưa bóng râm, chịu hạn tốt và dùng để trang trí nội thất. Lưu ý nhựa cây có thể gây kích ứng da.",
     "locale": "vi",
     "scientificName": "Dieffenbachia seguine"
   },
   {
     "commonName": "Vạn niên thanh Compacta",
     "cultivar": "Compacta",
-    "description": "Vạn niên thanh Compacta là cây cảnh với lá lớn màu xanh lốm đốm trắng. Cây ưa bóng râm, chịu hạn tốt và dùng để trang trí nội thất. Lưu ý nhựa cây có thể gây kích ứng da.",
     "locale": "vi",
     "scientificName": "Dieffenbachia seguine"
   },
   {
     "commonName": "Vạn niên thanh Reflector",
     "cultivar": "Reflector",
-    "description": "Vạn niên thanh Reflector là cây cảnh với lá lớn màu xanh lốm đốm trắng. Cây ưa bóng râm, chịu hạn tốt và dùng để trang trí nội thất. Lưu ý nhựa cây có thể gây kích ứng da.",
     "locale": "vi",
     "scientificName": "Dieffenbachia seguine"
   },
   {
     "commonName": "Vạn niên thanh Tropic Snow",
     "cultivar": "Tropic Snow",
-    "description": "Vạn niên thanh Tropic Snow là cây cảnh với lá lớn màu xanh lốm đốm trắng. Cây ưa bóng râm, chịu hạn tốt và dùng để trang trí nội thất. Lưu ý nhựa cây có thể gây kích ứng da.",
     "locale": "vi",
     "scientificName": "Dieffenbachia seguine"
   },
@@ -4314,56 +3820,48 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Nhãn Biew Kiew",
     "cultivar": "Biew Kiew",
-    "description": "Nhãn Biew Kiew là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Chompoo",
     "cultivar": "Chompoo",
-    "description": "Nhãn Chompoo là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Diamond River",
     "cultivar": "Diamond River",
-    "description": "Nhãn Diamond River là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Edau",
     "cultivar": "Edau",
-    "description": "Nhãn Edau là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Haew",
     "cultivar": "Haew",
-    "description": "Nhãn Haew là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Kohala",
     "cultivar": "Kohala",
-    "description": "Nhãn Kohala là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Ping Pong",
     "cultivar": "Ping Pong",
-    "description": "Nhãn Ping Pong là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
   {
     "commonName": "Nhãn Sri Chompoo",
     "cultivar": "Sri Chompoo",
-    "description": "Nhãn Sri Chompoo là cây ăn quả nhiệt đới cho trái vỏ nâu mỏng, thịt trắng giòn ngọt. Cây ưa nắng và đất thoát nước. Quả nhãn dùng ăn tươi hoặc sấy khô làm long nhãn.",
     "locale": "vi",
     "scientificName": "Dimocarpus longan"
   },
@@ -4376,63 +3874,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Thiết mộc lan Compacta",
     "cultivar": "Compacta",
-    "description": "Thiết mộc lan Compacta là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Janet Craig",
     "cultivar": "Janet Craig",
-    "description": "Thiết mộc lan Janet Craig là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Janet Craig Compacta",
     "cultivar": "Janet Craig Compacta",
-    "description": "Thiết mộc lan Janet Craig Compacta là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Lemon Lime",
     "cultivar": "Lemon Lime",
-    "description": "Thiết mộc lan Lemon Lime là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Lemon Surprise",
     "cultivar": "Lemon Surprise",
-    "description": "Thiết mộc lan Lemon Surprise là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Mass Cane",
     "cultivar": "Mass Cane",
-    "description": "Thiết mộc lan Mass Cane là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Massangeana",
     "cultivar": "Massangeana",
-    "description": "Thiết mộc lan Massangeana là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Tornado",
     "cultivar": "Tornado",
-    "description": "Thiết mộc lan Tornado là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
   {
     "commonName": "Thiết mộc lan Warneckii",
     "cultivar": "Warneckii",
-    "description": "Thiết mộc lan Warneckii là cây cảnh thân gỗ với lá dài xanh bóng. Cây ưa bóng bán phần và ít cần nước. Thường được trồng làm cây nội thất và lọc không khí.",
     "locale": "vi",
     "scientificName": "Dracaena fragrans"
   },
@@ -4446,36 +3935,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Dypsis lutescens",
     "cultivar": "Butterfly",
     "locale": "vi",
-    "commonName": "Cau vang Butterfly",
-    "description": "Giong Butterfly cua Cau vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau vang Butterfly"
   },
   {
     "scientificName": "Dypsis lutescens",
     "cultivar": "Compacta",
     "locale": "vi",
-    "commonName": "Cau vang Compacta",
-    "description": "Giong Compacta cua Cau vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau vang Compacta"
   },
   {
     "scientificName": "Dypsis lutescens",
     "cultivar": "Golden Cane",
     "locale": "vi",
-    "commonName": "Cau vang Golden Cane",
-    "description": "Giong Golden Cane cua Cau vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau vang Golden Cane"
   },
   {
     "scientificName": "Dypsis lutescens",
     "cultivar": "Golden Feather",
     "locale": "vi",
-    "commonName": "Cau vang Golden Feather",
-    "description": "Giong Golden Feather cua Cau vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau vang Golden Feather"
   },
   {
     "scientificName": "Dypsis lutescens",
     "cultivar": "Madagascar",
     "locale": "vi",
-    "commonName": "Cau vang Madagascar",
-    "description": "Giong Madagascar cua Cau vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau vang Madagascar"
   },
   {
     "scientificName": "Echinacea purpurea",
@@ -4487,36 +3971,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Echinacea purpurea",
     "cultivar": "Cheyenne Spirit",
     "locale": "vi",
-    "commonName": "Cuc mui tim Cheyenne Spirit",
-    "description": "Giong Cheyenne Spirit cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc mui tim Cheyenne Spirit"
   },
   {
     "scientificName": "Echinacea purpurea",
     "cultivar": "Green Jewel",
     "locale": "vi",
-    "commonName": "Cuc mui tim Green Jewel",
-    "description": "Giong Green Jewel cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc mui tim Green Jewel"
   },
   {
     "scientificName": "Echinacea purpurea",
     "cultivar": "Magnus",
     "locale": "vi",
-    "commonName": "Cuc mui tim Magnus",
-    "description": "Giong Magnus cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc mui tim Magnus"
   },
   {
     "scientificName": "Echinacea purpurea",
     "cultivar": "PowWow Wild Berry",
     "locale": "vi",
-    "commonName": "Cuc mui tim PowWow Wild Berry",
-    "description": "Giong PowWow Wild Berry cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc mui tim PowWow Wild Berry"
   },
   {
     "scientificName": "Echinacea purpurea",
     "cultivar": "White Swan",
     "locale": "vi",
-    "commonName": "Cuc mui tim White Swan",
-    "description": "Giong White Swan cua Cuc mui tim giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc mui tim White Swan"
   },
   {
     "commonName": "Trầu bà",
@@ -4527,28 +4006,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Trầu bà Jade",
     "cultivar": "Jade",
-    "description": "Trầu bà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Epipremnum aureum"
   },
   {
     "commonName": "Trầu bà Marble Queen",
     "cultivar": "Marble Queen",
-    "description": "Trầu bà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Epipremnum aureum"
   },
   {
     "commonName": "Trầu bà N Joy",
     "cultivar": "N Joy",
-    "description": "Trầu bà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Epipremnum aureum"
   },
   {
     "commonName": "Trầu bà Neon",
     "cultivar": "Neon",
-    "description": "Trầu bà là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Epipremnum aureum"
   },
@@ -4562,36 +4037,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Eriobotrya japonica",
     "cultivar": "Advance",
     "locale": "vi",
-    "commonName": "Ti ba Advance",
-    "description": "Giong Advance cua Ti ba giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ti ba Advance"
   },
   {
     "scientificName": "Eriobotrya japonica",
     "cultivar": "Big Jim",
     "locale": "vi",
-    "commonName": "Ti ba Big Jim",
-    "description": "Giong Big Jim cua Ti ba giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ti ba Big Jim"
   },
   {
     "scientificName": "Eriobotrya japonica",
     "cultivar": "Champagne",
     "locale": "vi",
-    "commonName": "Ti ba Champagne",
-    "description": "Giong Champagne cua Ti ba giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ti ba Champagne"
   },
   {
     "scientificName": "Eriobotrya japonica",
     "cultivar": "Gold Nugget",
     "locale": "vi",
-    "commonName": "Ti ba Gold Nugget",
-    "description": "Giong Gold Nugget cua Ti ba giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ti ba Gold Nugget"
   },
   {
     "scientificName": "Eriobotrya japonica",
     "cultivar": "Tanaka",
     "locale": "vi",
-    "commonName": "Ti ba Tanaka",
-    "description": "Giong Tanaka cua Ti ba giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ti ba Tanaka"
   },
   {
     "commonName": "Xà lách rocket",
@@ -4602,35 +4072,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Xà lách rocket Astro",
     "cultivar": "Astro",
-    "description": "Xà lách rocket là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eruca vesicaria"
   },
   {
     "commonName": "Xà lách rocket Esmee",
     "cultivar": "Esmee",
-    "description": "Xà lách rocket là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eruca vesicaria"
   },
   {
     "commonName": "Xà lách rocket Rocket",
     "cultivar": "Rocket",
-    "description": "Xà lách rocket là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eruca vesicaria"
   },
   {
     "commonName": "Xà lách rocket Slow Bolt",
     "cultivar": "Slow Bolt",
-    "description": "Xà lách rocket là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eruca vesicaria"
   },
   {
     "commonName": "Xà lách rocket Sylvetta",
     "cultivar": "Sylvetta",
-    "description": "Xà lách rocket là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eruca vesicaria"
   },
@@ -4643,14 +4108,12 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngò gai Broad Leaf",
     "cultivar": "Broad Leaf",
-    "description": "Ngò gai là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eryngium foetidum"
   },
   {
     "commonName": "Ngò gai Compact Leaf",
     "cultivar": "Compact Leaf",
-    "description": "Ngò gai là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Eryngium foetidum"
   },
@@ -4664,36 +4127,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Eucalyptus gunnii",
     "cultivar": "Azura",
     "locale": "vi",
-    "commonName": "Bach dan cider Azura",
-    "description": "Giong Azura cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bach dan cider Azura"
   },
   {
     "scientificName": "Eucalyptus gunnii",
     "cultivar": "Baby Blue",
     "locale": "vi",
-    "commonName": "Bach dan cider Baby Blue",
-    "description": "Giong Baby Blue cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bach dan cider Baby Blue"
   },
   {
     "scientificName": "Eucalyptus gunnii",
     "cultivar": "Compacta",
     "locale": "vi",
-    "commonName": "Bach dan cider Compacta",
-    "description": "Giong Compacta cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bach dan cider Compacta"
   },
   {
     "scientificName": "Eucalyptus gunnii",
     "cultivar": "France Bleu",
     "locale": "vi",
-    "commonName": "Bach dan cider France Bleu",
-    "description": "Giong France Bleu cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bach dan cider France Bleu"
   },
   {
     "scientificName": "Eucalyptus gunnii",
     "cultivar": "Silver Drop",
     "locale": "vi",
-    "commonName": "Bach dan cider Silver Drop",
-    "description": "Giong Silver Drop cua Bach dan cider giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bach dan cider Silver Drop"
   },
   {
     "scientificName": "Fatsia japonica",
@@ -4705,36 +4163,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Fatsia japonica",
     "cultivar": "Annelise",
     "locale": "vi",
-    "commonName": "Thong thien nhat Annelise",
-    "description": "Giong Annelise cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thong thien nhat Annelise"
   },
   {
     "scientificName": "Fatsia japonica",
     "cultivar": "Camouflage",
     "locale": "vi",
-    "commonName": "Thong thien nhat Camouflage",
-    "description": "Giong Camouflage cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thong thien nhat Camouflage"
   },
   {
     "scientificName": "Fatsia japonica",
     "cultivar": "Green Fingers",
     "locale": "vi",
-    "commonName": "Thong thien nhat Green Fingers",
-    "description": "Giong Green Fingers cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thong thien nhat Green Fingers"
   },
   {
     "scientificName": "Fatsia japonica",
     "cultivar": "Spider's Web",
     "locale": "vi",
-    "commonName": "Thong thien nhat Spider's Web",
-    "description": "Giong Spider's Web cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thong thien nhat Spider's Web"
   },
   {
     "scientificName": "Fatsia japonica",
     "cultivar": "Variegata",
     "locale": "vi",
-    "commonName": "Thong thien nhat Variegata",
-    "description": "Giong Variegata cua Thong thien nhat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thong thien nhat Variegata"
   },
   {
     "commonName": "Sung",
@@ -4745,35 +4198,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Sung Black Mission",
     "cultivar": "Black Mission",
-    "description": "Sung Black Mission là cây bụi nhỏ cho quả hình lê màu tím hoặc xanh. Cây ưa khí hậu ấm và đất thoát nước. Quả sung ăn tươi, muối chua hoặc làm mứt.",
     "locale": "vi",
     "scientificName": "Ficus carica"
   },
   {
     "commonName": "Sung Brown Turkey",
     "cultivar": "Brown Turkey",
-    "description": "Sung Brown Turkey là cây bụi nhỏ cho quả hình lê màu tím hoặc xanh. Cây ưa khí hậu ấm và đất thoát nước. Quả sung ăn tươi, muối chua hoặc làm mứt.",
     "locale": "vi",
     "scientificName": "Ficus carica"
   },
   {
     "commonName": "Sung Celeste",
     "cultivar": "Celeste",
-    "description": "Sung Celeste là cây bụi nhỏ cho quả hình lê màu tím hoặc xanh. Cây ưa khí hậu ấm và đất thoát nước. Quả sung ăn tươi, muối chua hoặc làm mứt.",
     "locale": "vi",
     "scientificName": "Ficus carica"
   },
   {
     "commonName": "Sung Chicago Hardy",
     "cultivar": "Chicago Hardy",
-    "description": "Sung Chicago Hardy là cây bụi nhỏ cho quả hình lê màu tím hoặc xanh. Cây ưa khí hậu ấm và đất thoát nước. Quả sung ăn tươi, muối chua hoặc làm mứt.",
     "locale": "vi",
     "scientificName": "Ficus carica"
   },
   {
     "commonName": "Sung Kadota",
     "cultivar": "Kadota",
-    "description": "Sung Kadota là cây bụi nhỏ cho quả hình lê màu tím hoặc xanh. Cây ưa khí hậu ấm và đất thoát nước. Quả sung ăn tươi, muối chua hoặc làm mứt.",
     "locale": "vi",
     "scientificName": "Ficus carica"
   },
@@ -4786,28 +4234,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đa búp Burgundy",
     "cultivar": "Burgundy",
-    "description": "Đa búp là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Ficus elastica"
   },
   {
     "commonName": "Đa búp Decora",
     "cultivar": "Decora",
-    "description": "Đa búp là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Ficus elastica"
   },
   {
     "commonName": "Đa búp Ruby",
     "cultivar": "Ruby",
-    "description": "Đa búp là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Ficus elastica"
   },
   {
     "commonName": "Đa búp Tineke",
     "cultivar": "Tineke",
-    "description": "Đa búp là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Ficus elastica"
   },
@@ -4821,36 +4265,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ficus lyrata",
     "cultivar": "Bambino",
     "locale": "vi",
-    "commonName": "Bang Singapore Bambino",
-    "description": "Giong Bambino cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bang Singapore Bambino"
   },
   {
     "scientificName": "Ficus lyrata",
     "cultivar": "Columnar",
     "locale": "vi",
-    "commonName": "Bang Singapore Columnar",
-    "description": "Giong Columnar cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bang Singapore Columnar"
   },
   {
     "scientificName": "Ficus lyrata",
     "cultivar": "Compacta",
     "locale": "vi",
-    "commonName": "Bang Singapore Compacta",
-    "description": "Giong Compacta cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bang Singapore Compacta"
   },
   {
     "scientificName": "Ficus lyrata",
     "cultivar": "Little Fiddle",
     "locale": "vi",
-    "commonName": "Bang Singapore Little Fiddle",
-    "description": "Giong Little Fiddle cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bang Singapore Little Fiddle"
   },
   {
     "scientificName": "Ficus lyrata",
     "cultivar": "Variegata",
     "locale": "vi",
-    "commonName": "Bang Singapore Variegata",
-    "description": "Giong Variegata cua Bang Singapore giup mo rong lua chon trong thu vien cay."
+    "commonName": "Bang Singapore Variegata"
   },
   {
     "commonName": "Tieu hoi",
@@ -4861,56 +4300,48 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Tieu hoi Bronze",
     "cultivar": "Bronze",
-    "description": "Tieu hoi Bronze là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Finale",
     "cultivar": "Finale",
-    "description": "Tieu hoi Finale là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Florence",
     "cultivar": "Florence",
-    "description": "Tieu hoi Florence là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Orion",
     "cultivar": "Orion",
-    "description": "Tieu hoi Orion là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Romanesco",
     "cultivar": "Romanesco",
-    "description": "Tieu hoi Romanesco là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Solaris",
     "cultivar": "Solaris",
-    "description": "Tieu hoi Solaris là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Sweet Florence",
     "cultivar": "Sweet Florence",
-    "description": "Tieu hoi Sweet Florence là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
   {
     "commonName": "Tieu hoi Zefa Fino",
     "cultivar": "Zefa Fino",
-    "description": "Tieu hoi Zefa Fino là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Foeniculum vulgare"
   },
@@ -4923,28 +4354,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dau tay Albion",
     "cultivar": "Albion",
-    "description": "Dau tay Albion là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Fragaria x ananassa"
   },
   {
     "commonName": "Dau tay Camarosa",
     "cultivar": "Camarosa",
-    "description": "Dau tay Camarosa là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Fragaria x ananassa"
   },
   {
     "commonName": "Dau tay Chandler",
     "cultivar": "Chandler",
-    "description": "Dau tay Chandler là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Fragaria x ananassa"
   },
   {
     "commonName": "Dau tay Seascape",
     "cultivar": "Seascape",
-    "description": "Dau tay Seascape là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Fragaria x ananassa"
   },
@@ -4957,35 +4384,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu nành Chiba Green",
     "cultivar": "Chiba Green",
-    "description": "Đậu nành là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Glycine max"
   },
   {
     "commonName": "Đậu nành Envy",
     "cultivar": "Envy",
-    "description": "Đậu nành là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Glycine max"
   },
   {
     "commonName": "Đậu nành Midori Giant",
     "cultivar": "Midori Giant",
-    "description": "Đậu nành là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Glycine max"
   },
   {
     "commonName": "Đậu nành Sayamusume",
     "cultivar": "Sayamusume",
-    "description": "Đậu nành là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Glycine max"
   },
   {
     "commonName": "Đậu nành Tankuro",
     "cultivar": "Tankuro",
-    "description": "Đậu nành là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Glycine max"
   },
@@ -4998,35 +4420,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đuôi công Big Leaf",
     "cultivar": "Big Leaf",
-    "description": "Đuôi công Big Leaf là cây cảnh với lá rộng có hoa văn như đuôi công. Cây ưa bóng râm, độ ẩm cao và đất mùn. Thích hợp trồng trong nhà để trang trí và làm sạch không khí.",
     "locale": "vi",
     "scientificName": "Goeppertia orbifolia"
   },
   {
     "commonName": "Đuôi công Jungle Moon",
     "cultivar": "Jungle Moon",
-    "description": "Đuôi công Jungle Moon là cây cảnh với lá rộng có hoa văn như đuôi công. Cây ưa bóng râm, độ ẩm cao và đất mùn. Thích hợp trồng trong nhà để trang trí và làm sạch không khí.",
     "locale": "vi",
     "scientificName": "Goeppertia orbifolia"
   },
   {
     "commonName": "Đuôi công Orbifolia",
     "cultivar": "Orbifolia",
-    "description": "Đuôi công Orbifolia là cây cảnh với lá rộng có hoa văn như đuôi công. Cây ưa bóng râm, độ ẩm cao và đất mùn. Thích hợp trồng trong nhà để trang trí và làm sạch không khí.",
     "locale": "vi",
     "scientificName": "Goeppertia orbifolia"
   },
   {
     "commonName": "Đuôi công Round Wave",
     "cultivar": "Round Wave",
-    "description": "Đuôi công Round Wave là cây cảnh với lá rộng có hoa văn như đuôi công. Cây ưa bóng râm, độ ẩm cao và đất mùn. Thích hợp trồng trong nhà để trang trí và làm sạch không khí.",
     "locale": "vi",
     "scientificName": "Goeppertia orbifolia"
   },
   {
     "commonName": "Đuôi công Silver Ring",
     "cultivar": "Silver Ring",
-    "description": "Đuôi công Silver Ring là cây cảnh với lá rộng có hoa văn như đuôi công. Cây ưa bóng râm, độ ẩm cao và đất mùn. Thích hợp trồng trong nhà để trang trí và làm sạch không khí.",
     "locale": "vi",
     "scientificName": "Goeppertia orbifolia"
   },
@@ -5039,21 +4456,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Huong duong Mammoth",
     "cultivar": "Mammoth",
-    "description": "Huong duong Mammoth là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Helianthus annuus"
   },
   {
     "commonName": "Huong duong Sunrich Gold",
     "cultivar": "Sunrich Gold",
-    "description": "Huong duong Sunrich Gold là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Helianthus annuus"
   },
   {
     "commonName": "Huong duong Teddy Bear",
     "cultivar": "Teddy Bear",
-    "description": "Huong duong Teddy Bear là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Helianthus annuus"
   },
@@ -5067,36 +4481,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Helianthus tuberosus",
     "cultivar": "Dwarf Sunray",
     "locale": "vi",
-    "commonName": "Atiso dat Dwarf Sunray",
-    "description": "Giong Dwarf Sunray cua Atiso dat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso dat Dwarf Sunray"
   },
   {
     "scientificName": "Helianthus tuberosus",
     "cultivar": "Fuseau",
     "locale": "vi",
-    "commonName": "Atiso dat Fuseau",
-    "description": "Giong Fuseau cua Atiso dat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso dat Fuseau"
   },
   {
     "scientificName": "Helianthus tuberosus",
     "cultivar": "Red Fuseau",
     "locale": "vi",
-    "commonName": "Atiso dat Red Fuseau",
-    "description": "Giong Red Fuseau cua Atiso dat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso dat Red Fuseau"
   },
   {
     "scientificName": "Helianthus tuberosus",
     "cultivar": "Stampede",
     "locale": "vi",
-    "commonName": "Atiso dat Stampede",
-    "description": "Giong Stampede cua Atiso dat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso dat Stampede"
   },
   {
     "scientificName": "Helianthus tuberosus",
     "cultivar": "White Fuseau",
     "locale": "vi",
-    "commonName": "Atiso dat White Fuseau",
-    "description": "Giong White Fuseau cua Atiso dat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Atiso dat White Fuseau"
   },
   {
     "commonName": "Dâm bụt",
@@ -5107,21 +4516,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dâm bụt Pink Giant",
     "cultivar": "Pink Giant",
-    "description": "Dâm bụt Pink Giant là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Hibiscus rosa-sinensis"
   },
   {
     "commonName": "Dâm bụt Red Single",
     "cultivar": "Red Single",
-    "description": "Dâm bụt Red Single là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Hibiscus rosa-sinensis"
   },
   {
     "commonName": "Dâm bụt Yellow Double",
     "cultivar": "Yellow Double",
-    "description": "Dâm bụt Yellow Double là cây bụi nhiệt đới với hoa lớn sặc sỡ. Cây ưa nắng, đất ẩm và ra hoa quanh năm. Hoa dâm bụt thường được trồng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Hibiscus rosa-sinensis"
   },
@@ -5135,36 +4541,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Howea forsteriana",
     "cultivar": "Forsteriana",
     "locale": "vi",
-    "commonName": "Cau kentia Forsteriana",
-    "description": "Giong Forsteriana cua Cau kentia giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau kentia Forsteriana"
   },
   {
     "scientificName": "Howea forsteriana",
     "cultivar": "Graceful",
     "locale": "vi",
-    "commonName": "Cau kentia Graceful",
-    "description": "Giong Graceful cua Cau kentia giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau kentia Graceful"
   },
   {
     "scientificName": "Howea forsteriana",
     "cultivar": "Norfolk",
     "locale": "vi",
-    "commonName": "Cau kentia Norfolk",
-    "description": "Giong Norfolk cua Cau kentia giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau kentia Norfolk"
   },
   {
     "scientificName": "Howea forsteriana",
     "cultivar": "Paradise",
     "locale": "vi",
-    "commonName": "Cau kentia Paradise",
-    "description": "Giong Paradise cua Cau kentia giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau kentia Paradise"
   },
   {
     "scientificName": "Howea forsteriana",
     "cultivar": "Sentry",
     "locale": "vi",
-    "commonName": "Cau kentia Sentry",
-    "description": "Giong Sentry cua Cau kentia giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cau kentia Sentry"
   },
   {
     "commonName": "Cẩm cù",
@@ -5175,56 +4576,48 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cẩm cù Australis",
     "cultivar": "Australis",
-    "description": "Cẩm cù Australis là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Chelsea",
     "cultivar": "Chelsea",
-    "description": "Cẩm cù Chelsea là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Compacta",
     "cultivar": "Compacta",
-    "description": "Cẩm cù Compacta là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Compacta Variegata",
     "cultivar": "Compacta Variegata",
-    "description": "Cẩm cù Compacta Variegata là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Krimson Princess",
     "cultivar": "Krimson Princess",
-    "description": "Cẩm cù Krimson Princess là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Krimson Queen",
     "cultivar": "Krimson Queen",
-    "description": "Cẩm cù Krimson Queen là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Krinkle",
     "cultivar": "Krinkle",
-    "description": "Cẩm cù Krinkle là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
   {
     "commonName": "Cẩm cù Pubicalyx Splash",
     "cultivar": "Pubicalyx Splash",
-    "description": "Cẩm cù Pubicalyx Splash là dây leo thân gỗ với hoa nhỏ cánh dày và mùi thơm ngọt. Cây ưa bóng râm, độ ẩm cao và thoát nước tốt. Thường trồng trong chậu treo để trang trí.",
     "locale": "vi",
     "scientificName": "Hoya carnosa"
   },
@@ -5237,63 +4630,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Tử cầu Bloomstruck",
     "cultivar": "Bloomstruck",
-    "description": "Tử cầu Bloomstruck là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Blue Deckle",
     "cultivar": "Blue Deckle",
-    "description": "Tử cầu Blue Deckle là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Endless Summer",
     "cultivar": "Endless Summer",
-    "description": "Tử cầu Endless Summer là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Mariesii",
     "cultivar": "Mariesii",
-    "description": "Tử cầu Mariesii là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Merritts Supreme",
     "cultivar": "Merritts Supreme",
-    "description": "Tử cầu Merritts Supreme là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Mini Penny",
     "cultivar": "Mini Penny",
-    "description": "Tử cầu Mini Penny là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Nikko Blue",
     "cultivar": "Nikko Blue",
-    "description": "Tử cầu Nikko Blue là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Penny Mac",
     "cultivar": "Penny Mac",
-    "description": "Tử cầu Penny Mac là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
   {
     "commonName": "Tử cầu Twist n Shout",
     "cultivar": "Twist n Shout",
-    "description": "Tử cầu Twist n Shout là cây bụi với chùm hoa lớn hình cầu có nhiều màu. Cây ưa khí hậu mát, đất chua nhẹ và ẩm. Hoa dùng trang trí sân vườn hoặc cắt cắm.",
     "locale": "vi",
     "scientificName": "Hydrangea macrophylla"
   },
@@ -5306,35 +4690,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngọc thảo Accent Mix",
     "cultivar": "Accent Mix",
-    "description": "Ngọc thảo Accent Mix là cây hoa nhỏ mọc thành bụi với cánh mềm mại nhiều màu. Cây ưa bóng râm và đất ẩm. Thích hợp trồng viền lối đi hoặc trong chậu để trang trí.",
     "locale": "vi",
     "scientificName": "Impatiens walleriana"
   },
   {
     "commonName": "Ngọc thảo Beacon Coral",
     "cultivar": "Beacon Coral",
-    "description": "Ngọc thảo Beacon Coral là cây hoa nhỏ mọc thành bụi với cánh mềm mại nhiều màu. Cây ưa bóng râm và đất ẩm. Thích hợp trồng viền lối đi hoặc trong chậu để trang trí.",
     "locale": "vi",
     "scientificName": "Impatiens walleriana"
   },
   {
     "commonName": "Ngọc thảo Dazzler",
     "cultivar": "Dazzler",
-    "description": "Ngọc thảo Dazzler là cây hoa nhỏ mọc thành bụi với cánh mềm mại nhiều màu. Cây ưa bóng râm và đất ẩm. Thích hợp trồng viền lối đi hoặc trong chậu để trang trí.",
     "locale": "vi",
     "scientificName": "Impatiens walleriana"
   },
   {
     "commonName": "Ngọc thảo Imara",
     "cultivar": "Imara",
-    "description": "Ngọc thảo Imara là cây hoa nhỏ mọc thành bụi với cánh mềm mại nhiều màu. Cây ưa bóng râm và đất ẩm. Thích hợp trồng viền lối đi hoặc trong chậu để trang trí.",
     "locale": "vi",
     "scientificName": "Impatiens walleriana"
   },
   {
     "commonName": "Ngọc thảo Super Elfin",
     "cultivar": "Super Elfin",
-    "description": "Ngọc thảo Super Elfin là cây hoa nhỏ mọc thành bụi với cánh mềm mại nhiều màu. Cây ưa bóng râm và đất ẩm. Thích hợp trồng viền lối đi hoặc trong chậu để trang trí.",
     "locale": "vi",
     "scientificName": "Impatiens walleriana"
   },
@@ -5347,21 +4726,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Rau muống Broad Leaf",
     "cultivar": "Broad Leaf",
-    "description": "Rau muống Broad Leaf là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Ipomoea aquatica"
   },
   {
     "commonName": "Rau muống Green Stem",
     "cultivar": "Green Stem",
-    "description": "Rau muống Green Stem là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Ipomoea aquatica"
   },
   {
     "commonName": "Rau muống Red Stem",
     "cultivar": "Red Stem",
-    "description": "Rau muống Red Stem là loại rau nước với thân rỗng và lá xanh non. Cây ưa nước và khí hậu nóng. Rau muống được dùng xào tỏi, luộc hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Ipomoea aquatica"
   },
@@ -5374,35 +4750,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Khoai lang Beauregard",
     "cultivar": "Beauregard",
-    "description": "Khoai lang Beauregard là cây dây leo cho củ vàng ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Ipomoea batatas"
   },
   {
     "commonName": "Khoai lang Georgia Jet",
     "cultivar": "Georgia Jet",
-    "description": "Khoai lang Georgia Jet là cây dây leo cho củ vàng ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Ipomoea batatas"
   },
   {
     "commonName": "Khoai lang Japanese Purple",
     "cultivar": "Japanese Purple",
-    "description": "Khoai lang Japanese Purple là cây dây leo cho củ vàng ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Ipomoea batatas"
   },
   {
     "commonName": "Khoai lang Jewel",
     "cultivar": "Jewel",
-    "description": "Khoai lang Jewel là cây dây leo cho củ vàng ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Ipomoea batatas"
   },
   {
     "commonName": "Khoai lang Okinawan",
     "cultivar": "Okinawan",
-    "description": "Khoai lang Okinawan là cây dây leo cho củ vàng ngọt và giàu tinh bột. Cây ưa khí hậu ấm và đất tơi xốp. Củ khoai lang dùng nướng, luộc hoặc làm bánh.",
     "locale": "vi",
     "scientificName": "Ipomoea batatas"
   },
@@ -5416,36 +4787,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Iris germanica",
     "cultivar": "Beverly Sills",
     "locale": "vi",
-    "commonName": "Dien vi rau Beverly Sills",
-    "description": "Giong Beverly Sills cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dien vi rau Beverly Sills"
   },
   {
     "scientificName": "Iris germanica",
     "cultivar": "Hello Darkness",
     "locale": "vi",
-    "commonName": "Dien vi rau Hello Darkness",
-    "description": "Giong Hello Darkness cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dien vi rau Hello Darkness"
   },
   {
     "scientificName": "Iris germanica",
     "cultivar": "Immortality",
     "locale": "vi",
-    "commonName": "Dien vi rau Immortality",
-    "description": "Giong Immortality cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dien vi rau Immortality"
   },
   {
     "scientificName": "Iris germanica",
     "cultivar": "Superstition",
     "locale": "vi",
-    "commonName": "Dien vi rau Superstition",
-    "description": "Giong Superstition cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dien vi rau Superstition"
   },
   {
     "scientificName": "Iris germanica",
     "cultivar": "Victoria Falls",
     "locale": "vi",
-    "commonName": "Dien vi rau Victoria Falls",
-    "description": "Giong Victoria Falls cua Dien vi rau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dien vi rau Victoria Falls"
   },
   {
     "commonName": "Hoa nhài",
@@ -5456,35 +4822,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hoa nhài Arabian Nights",
     "cultivar": "Arabian Nights",
-    "description": "Hoa nhài Arabian Nights là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Jasminum sambac"
   },
   {
     "commonName": "Hoa nhài Belle of India",
     "cultivar": "Belle of India",
-    "description": "Hoa nhài Belle of India là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Jasminum sambac"
   },
   {
     "commonName": "Hoa nhài Grand Duke",
     "cultivar": "Grand Duke",
-    "description": "Hoa nhài Grand Duke là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Jasminum sambac"
   },
   {
     "commonName": "Hoa nhài Maid of Orleans",
     "cultivar": "Maid of Orleans",
-    "description": "Hoa nhài Maid of Orleans là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Jasminum sambac"
   },
   {
     "commonName": "Hoa nhài Sambac Single",
     "cultivar": "Sambac Single",
-    "description": "Hoa nhài Sambac Single là cây leo hoặc bụi nhỏ với hoa trắng thơm ngát. Cây ưa nắng, đất ẩm và được sử dụng làm cảnh hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Jasminum sambac"
   },
@@ -5498,36 +4859,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Juglans regia",
     "cultivar": "Chandler",
     "locale": "vi",
-    "commonName": "Oc cho Chandler",
-    "description": "Giong Chandler cua Oc cho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oc cho Chandler"
   },
   {
     "scientificName": "Juglans regia",
     "cultivar": "Fernor",
     "locale": "vi",
-    "commonName": "Oc cho Fernor",
-    "description": "Giong Fernor cua Oc cho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oc cho Fernor"
   },
   {
     "scientificName": "Juglans regia",
     "cultivar": "Franquette",
     "locale": "vi",
-    "commonName": "Oc cho Franquette",
-    "description": "Giong Franquette cua Oc cho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oc cho Franquette"
   },
   {
     "scientificName": "Juglans regia",
     "cultivar": "Howard",
     "locale": "vi",
-    "commonName": "Oc cho Howard",
-    "description": "Giong Howard cua Oc cho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oc cho Howard"
   },
   {
     "scientificName": "Juglans regia",
     "cultivar": "Lara",
     "locale": "vi",
-    "commonName": "Oc cho Lara",
-    "description": "Giong Lara cua Oc cho giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oc cho Lara"
   },
   {
     "commonName": "Đậu vồng",
@@ -5538,41 +4894,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu vồng Indian Mix",
     "cultivar": "Indian Mix",
-    "description": "Đậu vồng Indian Mix là dây leo nhanh với hoa tím và quả dẹt. Cây ưa nắng, đất ẩm và có giàn để leo. Hạt và quả non được dùng nấu ăn sau khi xử lý kỹ.",
     "locale": "vi",
     "scientificName": "Lablab purpureus"
   },
   {
     "commonName": "Đậu vồng Purple Pod",
     "cultivar": "Purple Pod",
-    "description": "Đậu vồng Purple Pod là dây leo nhanh với hoa tím và quả dẹt. Cây ưa nắng, đất ẩm và có giàn để leo. Hạt và quả non được dùng nấu ăn sau khi xử lý kỹ.",
     "locale": "vi",
     "scientificName": "Lablab purpureus"
   },
   {
     "commonName": "Đậu vồng Rongai",
     "cultivar": "Rongai",
-    "description": "Đậu vồng Rongai là dây leo nhanh với hoa tím và quả dẹt. Cây ưa nắng, đất ẩm và có giàn để leo. Hạt và quả non được dùng nấu ăn sau khi xử lý kỹ.",
     "locale": "vi",
     "scientificName": "Lablab purpureus"
   },
   {
     "commonName": "Đậu vồng Ruby Moon",
     "cultivar": "Ruby Moon",
-    "description": "Đậu vồng Ruby Moon là dây leo nhanh với hoa tím và quả dẹt. Cây ưa nắng, đất ẩm và có giàn để leo. Hạt và quả non được dùng nấu ăn sau khi xử lý kỹ.",
     "locale": "vi",
     "scientificName": "Lablab purpureus"
   },
   {
     "commonName": "Đậu vồng White Seeded",
     "cultivar": "White Seeded",
-    "description": "Đậu vồng White Seeded là dây leo nhanh với hoa tím và quả dẹt. Cây ưa nắng, đất ẩm và có giàn để leo. Hạt và quả non được dùng nấu ăn sau khi xử lý kỹ.",
     "locale": "vi",
     "scientificName": "Lablab purpureus"
   },
   {
     "commonName": "Xà lách",
-    "description": "Xà lách là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Xà lách là rau ăn lá vụ mát, có thể thu lá non hoặc cả cây khi tạo búp. Trồng trên đất màu mỡ giữ ẩm tốt và che nắng chiều khi thời tiết nóng. Nóng và thiếu nước làm lá đắng, cây lên ngồng sớm, vì vậy nên thu đúng lúc đạt kích thước mong muốn.",
     "locale": "vi",
     "scientificName": "Lactuca sativa"
   },
@@ -5620,35 +4971,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bau Birdhouse",
     "cultivar": "Birdhouse",
-    "description": "Bau Birdhouse là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lagenaria siceraria"
   },
   {
     "commonName": "Bau Calabash",
     "cultivar": "Calabash",
-    "description": "Bau Calabash là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lagenaria siceraria"
   },
   {
     "commonName": "Bau Kashi Ganga",
     "cultivar": "Kashi Ganga",
-    "description": "Bau Kashi Ganga là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lagenaria siceraria"
   },
   {
     "commonName": "Bau Long Bottle",
     "cultivar": "Long Bottle",
-    "description": "Bau Long Bottle là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lagenaria siceraria"
   },
   {
     "commonName": "Bau Round Green",
     "cultivar": "Round Green",
-    "description": "Bau Round Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lagenaria siceraria"
   },
@@ -5662,36 +5008,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Lathyrus oleraceus",
     "cultivar": "Alderman",
     "locale": "vi",
-    "commonName": "Dau Ha Lan lay hat Alderman",
-    "description": "Giong Alderman cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau Ha Lan lay hat Alderman"
   },
   {
     "scientificName": "Lathyrus oleraceus",
     "cultivar": "Green Arrow",
     "locale": "vi",
-    "commonName": "Dau Ha Lan lay hat Green Arrow",
-    "description": "Giong Green Arrow cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau Ha Lan lay hat Green Arrow"
   },
   {
     "scientificName": "Lathyrus oleraceus",
     "cultivar": "Lincoln",
     "locale": "vi",
-    "commonName": "Dau Ha Lan lay hat Lincoln",
-    "description": "Giong Lincoln cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau Ha Lan lay hat Lincoln"
   },
   {
     "scientificName": "Lathyrus oleraceus",
     "cultivar": "Maestro",
     "locale": "vi",
-    "commonName": "Dau Ha Lan lay hat Maestro",
-    "description": "Giong Maestro cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau Ha Lan lay hat Maestro"
   },
   {
     "scientificName": "Lathyrus oleraceus",
     "cultivar": "Wando",
     "locale": "vi",
-    "commonName": "Dau Ha Lan lay hat Wando",
-    "description": "Giong Wando cua Dau Ha Lan lay hat giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau Ha Lan lay hat Wando"
   },
   {
     "commonName": "Nguyet que",
@@ -5702,35 +5043,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Nguyet que California Bay",
     "cultivar": "California Bay",
-    "description": "Nguyet que California Bay là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
     "commonName": "Nguyet que Compacta",
     "cultivar": "Compacta",
-    "description": "Nguyet que Compacta là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
     "commonName": "Nguyet que Little Ragu",
     "cultivar": "Little Ragu",
-    "description": "Nguyet que Little Ragu là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
     "commonName": "Nguyet que Saratoga",
     "cultivar": "Saratoga",
-    "description": "Nguyet que Saratoga là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
     "commonName": "Nguyet que Sweet Bay",
     "cultivar": "Sweet Bay",
-    "description": "Nguyet que Sweet Bay là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
@@ -5743,35 +5079,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Oải hương Ellagance Purple",
     "cultivar": "Ellagance Purple",
-    "description": "Oải hương là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lavandula angustifolia"
   },
   {
     "commonName": "Oải hương Hidcote",
     "cultivar": "Hidcote",
-    "description": "Oải hương là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lavandula angustifolia"
   },
   {
     "commonName": "Oải hương Melissa",
     "cultivar": "Melissa",
-    "description": "Oải hương là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lavandula angustifolia"
   },
   {
     "commonName": "Oải hương Munstead",
     "cultivar": "Munstead",
-    "description": "Oải hương là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lavandula angustifolia"
   },
   {
     "commonName": "Oải hương Royal Velvet",
     "cultivar": "Royal Velvet",
-    "description": "Oải hương là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Lavandula angustifolia"
   },
@@ -5784,35 +5115,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu lăng Black Beluga",
     "cultivar": "Black Beluga",
-    "description": "Đậu lăng Black Beluga là cây thảo nhỏ cho hạt nhỏ giàu protein. Cây thích khí hậu ôn hòa và đất thoát nước. Hạt đậu lăng được dùng nấu súp, salad hoặc nghiền làm món chay.",
     "locale": "vi",
     "scientificName": "Lens culinaris"
   },
   {
     "commonName": "Đậu lăng Eston",
     "cultivar": "Eston",
-    "description": "Đậu lăng Eston là cây thảo nhỏ cho hạt nhỏ giàu protein. Cây thích khí hậu ôn hòa và đất thoát nước. Hạt đậu lăng được dùng nấu súp, salad hoặc nghiền làm món chay.",
     "locale": "vi",
     "scientificName": "Lens culinaris"
   },
   {
     "commonName": "Đậu lăng Laird",
     "cultivar": "Laird",
-    "description": "Đậu lăng Laird là cây thảo nhỏ cho hạt nhỏ giàu protein. Cây thích khí hậu ôn hòa và đất thoát nước. Hạt đậu lăng được dùng nấu súp, salad hoặc nghiền làm món chay.",
     "locale": "vi",
     "scientificName": "Lens culinaris"
   },
   {
     "commonName": "Đậu lăng Pardina",
     "cultivar": "Pardina",
-    "description": "Đậu lăng Pardina là cây thảo nhỏ cho hạt nhỏ giàu protein. Cây thích khí hậu ôn hòa và đất thoát nước. Hạt đậu lăng được dùng nấu súp, salad hoặc nghiền làm món chay.",
     "locale": "vi",
     "scientificName": "Lens culinaris"
   },
   {
     "commonName": "Đậu lăng Richlea",
     "cultivar": "Richlea",
-    "description": "Đậu lăng Richlea là cây thảo nhỏ cho hạt nhỏ giàu protein. Cây thích khí hậu ôn hòa và đất thoát nước. Hạt đậu lăng được dùng nấu súp, salad hoặc nghiền làm món chay.",
     "locale": "vi",
     "scientificName": "Lens culinaris"
   },
@@ -5826,36 +5152,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Lepidium sativum",
     "cultivar": "Broadleaf",
     "locale": "vi",
-    "commonName": "Cai xoong can Broadleaf",
-    "description": "Giong Broadleaf cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai xoong can Broadleaf"
   },
   {
     "scientificName": "Lepidium sativum",
     "cultivar": "Curled",
     "locale": "vi",
-    "commonName": "Cai xoong can Curled",
-    "description": "Giong Curled cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai xoong can Curled"
   },
   {
     "scientificName": "Lepidium sativum",
     "cultivar": "Extra Curled",
     "locale": "vi",
-    "commonName": "Cai xoong can Extra Curled",
-    "description": "Giong Extra Curled cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai xoong can Extra Curled"
   },
   {
     "scientificName": "Lepidium sativum",
     "cultivar": "Persian",
     "locale": "vi",
-    "commonName": "Cai xoong can Persian",
-    "description": "Giong Persian cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai xoong can Persian"
   },
   {
     "scientificName": "Lepidium sativum",
     "cultivar": "Sprint",
     "locale": "vi",
-    "commonName": "Cai xoong can Sprint",
-    "description": "Giong Sprint cua Cai xoong can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cai xoong can Sprint"
   },
   {
     "scientificName": "Leptospermum scoparium",
@@ -5867,36 +5188,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Leptospermum scoparium",
     "cultivar": "Kiwi",
     "locale": "vi",
-    "commonName": "Manuka Kiwi",
-    "description": "Giong Kiwi cua Manuka giup mo rong lua chon trong thu vien cay."
+    "commonName": "Manuka Kiwi"
   },
   {
     "scientificName": "Leptospermum scoparium",
     "cultivar": "Nanum Rubrum",
     "locale": "vi",
-    "commonName": "Manuka Nanum Rubrum",
-    "description": "Giong Nanum Rubrum cua Manuka giup mo rong lua chon trong thu vien cay."
+    "commonName": "Manuka Nanum Rubrum"
   },
   {
     "scientificName": "Leptospermum scoparium",
     "cultivar": "Red Damask",
     "locale": "vi",
-    "commonName": "Manuka Red Damask",
-    "description": "Giong Red Damask cua Manuka giup mo rong lua chon trong thu vien cay."
+    "commonName": "Manuka Red Damask"
   },
   {
     "scientificName": "Leptospermum scoparium",
     "cultivar": "Snow White",
     "locale": "vi",
-    "commonName": "Manuka Snow White",
-    "description": "Giong Snow White cua Manuka giup mo rong lua chon trong thu vien cay."
+    "commonName": "Manuka Snow White"
   },
   {
     "scientificName": "Leptospermum scoparium",
     "cultivar": "Wiri Joan",
     "locale": "vi",
-    "commonName": "Manuka Wiri Joan",
-    "description": "Giong Wiri Joan cua Manuka giup mo rong lua chon trong thu vien cay."
+    "commonName": "Manuka Wiri Joan"
   },
   {
     "scientificName": "Levisticum officinale",
@@ -5908,36 +5224,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Levisticum officinale",
     "cultivar": "Common",
     "locale": "vi",
-    "commonName": "Ngo nui Common",
-    "description": "Giong Common cua Ngo nui giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo nui Common"
   },
   {
     "scientificName": "Levisticum officinale",
     "cultivar": "Dark Stem",
     "locale": "vi",
-    "commonName": "Ngo nui Dark Stem",
-    "description": "Giong Dark Stem cua Ngo nui giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo nui Dark Stem"
   },
   {
     "scientificName": "Levisticum officinale",
     "cultivar": "Giant Leaf",
     "locale": "vi",
-    "commonName": "Ngo nui Giant Leaf",
-    "description": "Giong Giant Leaf cua Ngo nui giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo nui Giant Leaf"
   },
   {
     "scientificName": "Levisticum officinale",
     "cultivar": "Maggi",
     "locale": "vi",
-    "commonName": "Ngo nui Maggi",
-    "description": "Giong Maggi cua Ngo nui giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo nui Maggi"
   },
   {
     "scientificName": "Levisticum officinale",
     "cultivar": "Verino",
     "locale": "vi",
-    "commonName": "Ngo nui Verino",
-    "description": "Giong Verino cua Ngo nui giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo nui Verino"
   },
   {
     "scientificName": "Lilium candidum",
@@ -5949,36 +5260,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Lilium candidum",
     "cultivar": "Album",
     "locale": "vi",
-    "commonName": "Hoa ly trang Album",
-    "description": "Giong Album cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa ly trang Album"
   },
   {
     "scientificName": "Lilium candidum",
     "cultivar": "Apollo",
     "locale": "vi",
-    "commonName": "Hoa ly trang Apollo",
-    "description": "Giong Apollo cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa ly trang Apollo"
   },
   {
     "scientificName": "Lilium candidum",
     "cultivar": "Candidum",
     "locale": "vi",
-    "commonName": "Hoa ly trang Candidum",
-    "description": "Giong Candidum cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa ly trang Candidum"
   },
   {
     "scientificName": "Lilium candidum",
     "cultivar": "Cascade",
     "locale": "vi",
-    "commonName": "Hoa ly trang Cascade",
-    "description": "Giong Cascade cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa ly trang Cascade"
   },
   {
     "scientificName": "Lilium candidum",
     "cultivar": "Snow Queen",
     "locale": "vi",
-    "commonName": "Hoa ly trang Snow Queen",
-    "description": "Giong Snow Queen cua Hoa ly trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Hoa ly trang Snow Queen"
   },
   {
     "commonName": "Vải",
@@ -5989,63 +5295,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Vải Bengal",
     "cultivar": "Bengal",
-    "description": "Vải Bengal là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Brewster",
     "cultivar": "Brewster",
-    "description": "Vải Brewster là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Emperor",
     "cultivar": "Emperor",
-    "description": "Vải Emperor là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Hak Ip",
     "cultivar": "Hak Ip",
-    "description": "Vải Hak Ip là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Kwai Mai Pink",
     "cultivar": "Kwai Mai Pink",
-    "description": "Vải Kwai Mai Pink là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Mauritius",
     "cultivar": "Mauritius",
-    "description": "Vải Mauritius là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải No Mai Tze",
     "cultivar": "No Mai Tze",
-    "description": "Vải No Mai Tze là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Sweet Cliff",
     "cultivar": "Sweet Cliff",
-    "description": "Vải Sweet Cliff là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
   {
     "commonName": "Vải Sweetheart",
     "cultivar": "Sweetheart",
-    "description": "Vải Sweetheart là cây ăn quả cho trái vỏ đỏ gai với thịt trắng ngọt. Cây ưa khí hậu nhiệt đới và cần tưới nước đủ. Quả vải dùng ăn tươi, làm mứt hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Litchi chinensis"
   },
@@ -6058,35 +5355,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mướp khía Emerald",
     "cultivar": "Emerald",
-    "description": "Mướp khía Emerald là dây leo cho quả dài có gờ chạy dọc, thịt mềm. Cây ưa nắng và đất ẩm, cần giàn leo. Quả dùng nấu canh, xào và làm món chay.",
     "locale": "vi",
     "scientificName": "Luffa acutangula"
   },
   {
     "commonName": "Mướp khía Hybrid Green",
     "cultivar": "Hybrid Green",
-    "description": "Mướp khía Hybrid Green là dây leo cho quả dài có gờ chạy dọc, thịt mềm. Cây ưa nắng và đất ẩm, cần giàn leo. Quả dùng nấu canh, xào và làm món chay.",
     "locale": "vi",
     "scientificName": "Luffa acutangula"
   },
   {
     "commonName": "Mướp khía Pusa Nasdar",
     "cultivar": "Pusa Nasdar",
-    "description": "Mướp khía Pusa Nasdar là dây leo cho quả dài có gờ chạy dọc, thịt mềm. Cây ưa nắng và đất ẩm, cần giàn leo. Quả dùng nấu canh, xào và làm món chay.",
     "locale": "vi",
     "scientificName": "Luffa acutangula"
   },
   {
     "commonName": "Mướp khía Satputia",
     "cultivar": "Satputia",
-    "description": "Mướp khía Satputia là dây leo cho quả dài có gờ chạy dọc, thịt mềm. Cây ưa nắng và đất ẩm, cần giàn leo. Quả dùng nấu canh, xào và làm món chay.",
     "locale": "vi",
     "scientificName": "Luffa acutangula"
   },
   {
     "commonName": "Mướp khía Summer Queen",
     "cultivar": "Summer Queen",
-    "description": "Mướp khía Summer Queen là dây leo cho quả dài có gờ chạy dọc, thịt mềm. Cây ưa nắng và đất ẩm, cần giàn leo. Quả dùng nấu canh, xào và làm món chay.",
     "locale": "vi",
     "scientificName": "Luffa acutangula"
   },
@@ -6099,35 +5391,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mướp hương Early White",
     "cultivar": "Early White",
-    "description": "Mướp hương Early White là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Luffa aegyptiaca"
   },
   {
     "commonName": "Mướp hương Hybrid Green",
     "cultivar": "Hybrid Green",
-    "description": "Mướp hương Hybrid Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Luffa aegyptiaca"
   },
   {
     "commonName": "Mướp hương Lucky Boy",
     "cultivar": "Lucky Boy",
-    "description": "Mướp hương Lucky Boy là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Luffa aegyptiaca"
   },
   {
     "commonName": "Mướp hương Smooth Beauty",
     "cultivar": "Smooth Beauty",
-    "description": "Mướp hương Smooth Beauty là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Luffa aegyptiaca"
   },
   {
     "commonName": "Mướp hương Summer Long",
     "cultivar": "Summer Long",
-    "description": "Mướp hương Summer Long là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Luffa aegyptiaca"
   },
@@ -6141,36 +5428,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Lupinus albus",
     "cultivar": "Amiga",
     "locale": "vi",
-    "commonName": "Dau lupin trang Amiga",
-    "description": "Giong Amiga cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau lupin trang Amiga"
   },
   {
     "scientificName": "Lupinus albus",
     "cultivar": "Boros",
     "locale": "vi",
-    "commonName": "Dau lupin trang Boros",
-    "description": "Giong Boros cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau lupin trang Boros"
   },
   {
     "scientificName": "Lupinus albus",
     "cultivar": "Dieta",
     "locale": "vi",
-    "commonName": "Dau lupin trang Dieta",
-    "description": "Giong Dieta cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau lupin trang Dieta"
   },
   {
     "scientificName": "Lupinus albus",
     "cultivar": "Lublanc",
     "locale": "vi",
-    "commonName": "Dau lupin trang Lublanc",
-    "description": "Giong Lublanc cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau lupin trang Lublanc"
   },
   {
     "scientificName": "Lupinus albus",
     "cultivar": "Multolupa",
     "locale": "vi",
-    "commonName": "Dau lupin trang Multolupa",
-    "description": "Giong Multolupa cua Dau lupin trang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau lupin trang Multolupa"
   },
   {
     "scientificName": "Macadamia integrifolia",
@@ -6182,36 +5464,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Macadamia integrifolia",
     "cultivar": "A4",
     "locale": "vi",
-    "commonName": "Mac ca A4",
-    "description": "Giong A4 cua Mac ca giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mac ca A4"
   },
   {
     "scientificName": "Macadamia integrifolia",
     "cultivar": "Beaumont",
     "locale": "vi",
-    "commonName": "Mac ca Beaumont",
-    "description": "Giong Beaumont cua Mac ca giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mac ca Beaumont"
   },
   {
     "scientificName": "Macadamia integrifolia",
     "cultivar": "H2",
     "locale": "vi",
-    "commonName": "Mac ca H2",
-    "description": "Giong H2 cua Mac ca giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mac ca H2"
   },
   {
     "scientificName": "Macadamia integrifolia",
     "cultivar": "Kau",
     "locale": "vi",
-    "commonName": "Mac ca Kau",
-    "description": "Giong Kau cua Mac ca giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mac ca Kau"
   },
   {
     "scientificName": "Macadamia integrifolia",
     "cultivar": "Mauka",
     "locale": "vi",
-    "commonName": "Mac ca Mauka",
-    "description": "Giong Mauka cua Mac ca giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mac ca Mauka"
   },
   {
     "commonName": "Táo",
@@ -6222,63 +5499,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Táo Braeburn",
     "cultivar": "Braeburn",
-    "description": "Táo Braeburn là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Cosmic Crisp",
     "cultivar": "Cosmic Crisp",
-    "description": "Táo Cosmic Crisp là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Envy",
     "cultivar": "Envy",
-    "description": "Táo Envy là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Fuji",
     "cultivar": "Fuji",
-    "description": "Táo Fuji là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Gala",
     "cultivar": "Gala",
-    "description": "Táo Gala là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Granny Smith",
     "cultivar": "Granny Smith",
-    "description": "Táo Granny Smith là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Honeycrisp",
     "cultivar": "Honeycrisp",
-    "description": "Táo Honeycrisp là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Jazz",
     "cultivar": "Jazz",
-    "description": "Táo Jazz là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
   {
     "commonName": "Táo Pink Lady",
     "cultivar": "Pink Lady",
-    "description": "Táo Pink Lady là cây ăn quả ôn đới cho trái giòn ngọt. Cây ưa khí hậu mát và cần chăm sóc tỉ mỉ. Quả táo được ăn tươi, làm nước ép hoặc nấu tráng miệng.",
     "locale": "vi",
     "scientificName": "Malus domestica"
   },
@@ -6291,35 +5559,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Xoài Cat Hoa Loc",
     "cultivar": "Cat Hoa Loc",
-    "description": "Xoài Cat Hoa Loc là cây nhiệt đới cho trái có vỏ xanh hoặc vàng, thịt ngọt và thơm. Cây ưa nắng và đất thoát nước tốt. Quả xoài dùng ăn tươi, làm sinh tố hoặc món tráng miệng.",
     "locale": "vi",
     "scientificName": "Mangifera indica"
   },
   {
     "commonName": "Xoài Irwin",
     "cultivar": "Irwin",
-    "description": "Xoài Irwin là cây nhiệt đới cho trái có vỏ xanh hoặc vàng, thịt ngọt và thơm. Cây ưa nắng và đất thoát nước tốt. Quả xoài dùng ăn tươi, làm sinh tố hoặc món tráng miệng.",
     "locale": "vi",
     "scientificName": "Mangifera indica"
   },
   {
     "commonName": "Xoài Keitt",
     "cultivar": "Keitt",
-    "description": "Xoài Keitt là cây nhiệt đới cho trái có vỏ xanh hoặc vàng, thịt ngọt và thơm. Cây ưa nắng và đất thoát nước tốt. Quả xoài dùng ăn tươi, làm sinh tố hoặc món tráng miệng.",
     "locale": "vi",
     "scientificName": "Mangifera indica"
   },
   {
     "commonName": "Xoài Kent",
     "cultivar": "Kent",
-    "description": "Xoài Kent là cây nhiệt đới cho trái có vỏ xanh hoặc vàng, thịt ngọt và thơm. Cây ưa nắng và đất thoát nước tốt. Quả xoài dùng ăn tươi, làm sinh tố hoặc món tráng miệng.",
     "locale": "vi",
     "scientificName": "Mangifera indica"
   },
   {
     "commonName": "Xoài Nam Doc Mai",
     "cultivar": "Nam Doc Mai",
-    "description": "Xoài Nam Doc Mai là cây nhiệt đới cho trái có vỏ xanh hoặc vàng, thịt ngọt và thơm. Cây ưa nắng và đất thoát nước tốt. Quả xoài dùng ăn tươi, làm sinh tố hoặc món tráng miệng.",
     "locale": "vi",
     "scientificName": "Mangifera indica"
   },
@@ -6332,35 +5595,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Khoai mì Golden Stem",
     "cultivar": "Golden Stem",
-    "description": "Khoai mì Golden Stem là cây thân củ cho rễ dài chứa nhiều tinh bột. Cây ưa khí hậu nhiệt đới khô và đất thoát nước. Củ khoai mì được luộc, nướng hoặc làm bột mì.",
     "locale": "vi",
     "scientificName": "Manihot esculenta"
   },
   {
     "commonName": "Khoai mì Kasetsart 50",
     "cultivar": "Kasetsart 50",
-    "description": "Khoai mì Kasetsart 50 là cây thân củ cho rễ dài chứa nhiều tinh bột. Cây ưa khí hậu nhiệt đới khô và đất thoát nước. Củ khoai mì được luộc, nướng hoặc làm bột mì.",
     "locale": "vi",
     "scientificName": "Manihot esculenta"
   },
   {
     "commonName": "Khoai mì MCol22",
     "cultivar": "MCol22",
-    "description": "Khoai mì MCol22 là cây thân củ cho rễ dài chứa nhiều tinh bột. Cây ưa khí hậu nhiệt đới khô và đất thoát nước. Củ khoai mì được luộc, nướng hoặc làm bột mì.",
     "locale": "vi",
     "scientificName": "Manihot esculenta"
   },
   {
     "commonName": "Khoai mì Rayong 11",
     "cultivar": "Rayong 11",
-    "description": "Khoai mì Rayong 11 là cây thân củ cho rễ dài chứa nhiều tinh bột. Cây ưa khí hậu nhiệt đới khô và đất thoát nước. Củ khoai mì được luộc, nướng hoặc làm bột mì.",
     "locale": "vi",
     "scientificName": "Manihot esculenta"
   },
   {
     "commonName": "Khoai mì TME 419",
     "cultivar": "TME 419",
-    "description": "Khoai mì TME 419 là cây thân củ cho rễ dài chứa nhiều tinh bột. Cây ưa khí hậu nhiệt đới khô và đất thoát nước. Củ khoai mì được luộc, nướng hoặc làm bột mì.",
     "locale": "vi",
     "scientificName": "Manihot esculenta"
   },
@@ -6374,36 +5632,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Maranta leuconeura",
     "cultivar": "Fascinator",
     "locale": "vi",
-    "commonName": "Cay cau nguyen Fascinator",
-    "description": "Giong Fascinator cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay cau nguyen Fascinator"
   },
   {
     "scientificName": "Maranta leuconeura",
     "cultivar": "Kerchoveana",
     "locale": "vi",
-    "commonName": "Cay cau nguyen Kerchoveana",
-    "description": "Giong Kerchoveana cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay cau nguyen Kerchoveana"
   },
   {
     "scientificName": "Maranta leuconeura",
     "cultivar": "Lemon Lime",
     "locale": "vi",
-    "commonName": "Cay cau nguyen Lemon Lime",
-    "description": "Giong Lemon Lime cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay cau nguyen Lemon Lime"
   },
   {
     "scientificName": "Maranta leuconeura",
     "cultivar": "Red Vein",
     "locale": "vi",
-    "commonName": "Cay cau nguyen Red Vein",
-    "description": "Giong Red Vein cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay cau nguyen Red Vein"
   },
   {
     "scientificName": "Maranta leuconeura",
     "cultivar": "Silver Band",
     "locale": "vi",
-    "commonName": "Cay cau nguyen Silver Band",
-    "description": "Giong Silver Band cua Cay cau nguyen giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cay cau nguyen Silver Band"
   },
   {
     "commonName": "Cuc La Ma",
@@ -6414,35 +5667,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cuc La Ma Astra",
     "cultivar": "Astra",
-    "description": "Cuc La Ma Astra là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Matricaria chamomilla"
   },
   {
     "commonName": "Cuc La Ma Bodegold",
     "cultivar": "Bodegold",
-    "description": "Cuc La Ma Bodegold là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Matricaria chamomilla"
   },
   {
     "commonName": "Cuc La Ma Chamomilla",
     "cultivar": "Chamomilla",
-    "description": "Cuc La Ma Chamomilla là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Matricaria chamomilla"
   },
   {
     "commonName": "Cuc La Ma German",
     "cultivar": "German",
-    "description": "Cuc La Ma German là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Matricaria chamomilla"
   },
   {
     "commonName": "Cuc La Ma Zloty Lan",
     "cultivar": "Zloty Lan",
-    "description": "Cuc La Ma Zloty Lan là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Matricaria chamomilla"
   },
@@ -6455,48 +5703,42 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Húng chanh Aurea",
     "cultivar": "Aurea",
-    "description": "Húng chanh Aurea là cây thảo mộc với lá dày và mùi thơm chanh mạnh. Cây dễ trồng trong chậu, ưa bóng nhẹ và đất ẩm. Lá được dùng làm gia vị và chữa ho.",
     "locale": "vi",
     "scientificName": "Melissa officinalis"
   },
   {
     "commonName": "Húng chanh Citronella",
     "cultivar": "Citronella",
-    "description": "Húng chanh Citronella là cây thảo mộc với lá dày và mùi thơm chanh mạnh. Cây dễ trồng trong chậu, ưa bóng nhẹ và đất ẩm. Lá được dùng làm gia vị và chữa ho.",
     "locale": "vi",
     "scientificName": "Melissa officinalis"
   },
   {
     "commonName": "Húng chanh Compact",
     "cultivar": "Compact",
-    "description": "Húng chanh Compact là cây thảo mộc với lá dày và mùi thơm chanh mạnh. Cây dễ trồng trong chậu, ưa bóng nhẹ và đất ẩm. Lá được dùng làm gia vị và chữa ho.",
     "locale": "vi",
     "scientificName": "Melissa officinalis"
   },
   {
     "commonName": "Húng chanh Lime",
     "cultivar": "Lime",
-    "description": "Húng chanh Lime là cây thảo mộc với lá dày và mùi thơm chanh mạnh. Cây dễ trồng trong chậu, ưa bóng nhẹ và đất ẩm. Lá được dùng làm gia vị và chữa ho.",
     "locale": "vi",
     "scientificName": "Melissa officinalis"
   },
   {
     "commonName": "Húng chanh Mandarina",
     "cultivar": "Mandarina",
-    "description": "Húng chanh Mandarina là cây thảo mộc với lá dày và mùi thơm chanh mạnh. Cây dễ trồng trong chậu, ưa bóng nhẹ và đất ẩm. Lá được dùng làm gia vị và chữa ho.",
     "locale": "vi",
     "scientificName": "Melissa officinalis"
   },
   {
     "commonName": "Húng chanh Quedlinburger",
     "cultivar": "Quedlinburger",
-    "description": "Húng chanh Quedlinburger là cây thảo mộc với lá dày và mùi thơm chanh mạnh. Cây dễ trồng trong chậu, ưa bóng nhẹ và đất ẩm. Lá được dùng làm gia vị và chữa ho.",
     "locale": "vi",
     "scientificName": "Melissa officinalis"
   },
   {
     "commonName": "Bạc hà",
-    "description": "Bạc hà là cây thảo mộc thơm dễ chịu, lá xanh và hương mát. Cây lan nhanh, thích đất ẩm và ánh sáng vừa, thích hợp trồng trong chậu. Lá bạc hà được dùng pha trà, làm salad hoặc trang trí món tráng miệng.",
+    "description": "Bạc hà Âu là cây thảo lâu năm phát triển mạnh, được trồng lấy lá thơm dùng cho đồ uống, món ăn và trà. Cây thích đất ẩm, màu mỡ và chịu được bóng bán phần, nhưng thân ngầm lan nhanh có thể lấn cây bên cạnh. Trồng trong chậu giúp kiểm soát cây dễ hơn.",
     "locale": "vi",
     "scientificName": "Mentha × piperita"
   },
@@ -6530,21 +5772,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mướp đắng Jade Star",
     "cultivar": "Jade Star",
-    "description": "Mướp đắng Jade Star là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt.",
     "locale": "vi",
     "scientificName": "Momordica charantia"
   },
   {
     "commonName": "Mướp đắng Taiwan Long",
     "cultivar": "Taiwan Long",
-    "description": "Mướp đắng Taiwan Long là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt.",
     "locale": "vi",
     "scientificName": "Momordica charantia"
   },
   {
     "commonName": "Mướp đắng White Pearl",
     "cultivar": "White Pearl",
-    "description": "Mướp đắng White Pearl là dây leo cho quả có vỏ sần và vị đắng đặc trưng. Cây ưa khí hậu nóng, đất ẩm và cần giàn leo. Quả mướp đắng được dùng xào, nhồi thịt hoặc nấu canh, có tác dụng giải nhiệt.",
     "locale": "vi",
     "scientificName": "Momordica charantia"
   },
@@ -6557,35 +5796,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Trầu bà Nam Mỹ Albo Variegata",
     "cultivar": "Albo Variegata",
-    "description": "Trầu bà Nam Mỹ là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Monstera deliciosa"
   },
   {
     "commonName": "Trầu bà Nam Mỹ Aurea",
     "cultivar": "Aurea",
-    "description": "Trầu bà Nam Mỹ là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Monstera deliciosa"
   },
   {
     "commonName": "Trầu bà Nam Mỹ Borsigiana",
     "cultivar": "Borsigiana",
-    "description": "Trầu bà Nam Mỹ là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Monstera deliciosa"
   },
   {
     "commonName": "Trầu bà Nam Mỹ Mint",
     "cultivar": "Mint",
-    "description": "Trầu bà Nam Mỹ là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Monstera deliciosa"
   },
   {
     "commonName": "Trầu bà Nam Mỹ Thai Constellation",
     "cultivar": "Thai Constellation",
-    "description": "Trầu bà Nam Mỹ là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Monstera deliciosa"
   },
@@ -6598,35 +5832,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Chùm ngây Dwarf",
     "cultivar": "Dwarf",
-    "description": "Chùm ngây Dwarf là cây thân gỗ nhỏ với lá kép và hoa trắng. Cây ưa nắng, chịu hạn và phát triển nhanh. Lá và quả được dùng làm rau ăn và có giá trị dinh dưỡng cao.",
     "locale": "vi",
     "scientificName": "Moringa oleifera"
   },
   {
     "commonName": "Chùm ngây High Cut",
     "cultivar": "High Cut",
-    "description": "Chùm ngây High Cut là cây thân gỗ nhỏ với lá kép và hoa trắng. Cây ưa nắng, chịu hạn và phát triển nhanh. Lá và quả được dùng làm rau ăn và có giá trị dinh dưỡng cao.",
     "locale": "vi",
     "scientificName": "Moringa oleifera"
   },
   {
     "commonName": "Chùm ngây ODC3",
     "cultivar": "ODC3",
-    "description": "Chùm ngây ODC3 là cây thân gỗ nhỏ với lá kép và hoa trắng. Cây ưa nắng, chịu hạn và phát triển nhanh. Lá và quả được dùng làm rau ăn và có giá trị dinh dưỡng cao.",
     "locale": "vi",
     "scientificName": "Moringa oleifera"
   },
   {
     "commonName": "Chùm ngây Periyakulam 1",
     "cultivar": "Periyakulam 1",
-    "description": "Chùm ngây Periyakulam 1 là cây thân gỗ nhỏ với lá kép và hoa trắng. Cây ưa nắng, chịu hạn và phát triển nhanh. Lá và quả được dùng làm rau ăn và có giá trị dinh dưỡng cao.",
     "locale": "vi",
     "scientificName": "Moringa oleifera"
   },
   {
     "commonName": "Chùm ngây PKM1",
     "cultivar": "PKM1",
-    "description": "Chùm ngây PKM1 là cây thân gỗ nhỏ với lá kép và hoa trắng. Cây ưa nắng, chịu hạn và phát triển nhanh. Lá và quả được dùng làm rau ăn và có giá trị dinh dưỡng cao.",
     "locale": "vi",
     "scientificName": "Moringa oleifera"
   },
@@ -6639,63 +5868,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Chuối Blue Java",
     "cultivar": "Blue Java",
-    "description": "Chuối Blue Java là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Cavendish",
     "cultivar": "Cavendish",
-    "description": "Chuối Cavendish là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Grand Nain",
     "cultivar": "Grand Nain",
-    "description": "Chuối Grand Nain là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Lady Finger",
     "cultivar": "Lady Finger",
-    "description": "Chuối Lady Finger là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Lakatan",
     "cultivar": "Lakatan",
-    "description": "Chuối Lakatan là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Namwa",
     "cultivar": "Namwa",
-    "description": "Chuối Namwa là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Pisang Raja",
     "cultivar": "Pisang Raja",
-    "description": "Chuối Pisang Raja là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Red Dacca",
     "cultivar": "Red Dacca",
-    "description": "Chuối Red Dacca là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
   {
     "commonName": "Chuối Williams",
     "cultivar": "Williams",
-    "description": "Chuối Williams là cây thân giả cao cho buồng quả mọc từ thân. Cây ưa khí hậu nóng ẩm và đất giàu hữu cơ. Quả chuối dùng ăn tươi, làm bánh hoặc sấy khô.",
     "locale": "vi",
     "scientificName": "Musa acuminata"
   },
@@ -6709,36 +5929,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Myrrhis odorata",
     "cultivar": "Aromatic",
     "locale": "vi",
-    "commonName": "Ngo ngot chau Au Aromatic",
-    "description": "Giong Aromatic cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo ngot chau Au Aromatic"
   },
   {
     "scientificName": "Myrrhis odorata",
     "cultivar": "British Sweet",
     "locale": "vi",
-    "commonName": "Ngo ngot chau Au British Sweet",
-    "description": "Giong British Sweet cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo ngot chau Au British Sweet"
   },
   {
     "scientificName": "Myrrhis odorata",
     "cultivar": "Common",
     "locale": "vi",
-    "commonName": "Ngo ngot chau Au Common",
-    "description": "Giong Common cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo ngot chau Au Common"
   },
   {
     "scientificName": "Myrrhis odorata",
     "cultivar": "Green Lace",
     "locale": "vi",
-    "commonName": "Ngo ngot chau Au Green Lace",
-    "description": "Giong Green Lace cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo ngot chau Au Green Lace"
   },
   {
     "scientificName": "Myrrhis odorata",
     "cultivar": "Mountain Sweet",
     "locale": "vi",
-    "commonName": "Ngo ngot chau Au Mountain Sweet",
-    "description": "Giong Mountain Sweet cua Ngo ngot chau Au giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ngo ngot chau Au Mountain Sweet"
   },
   {
     "scientificName": "Narcissus pseudonarcissus",
@@ -6750,36 +5965,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Narcissus pseudonarcissus",
     "cultivar": "Carlton",
     "locale": "vi",
-    "commonName": "Thuy tien vang Carlton",
-    "description": "Giong Carlton cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thuy tien vang Carlton"
   },
   {
     "scientificName": "Narcissus pseudonarcissus",
     "cultivar": "Dutch Master",
     "locale": "vi",
-    "commonName": "Thuy tien vang Dutch Master",
-    "description": "Giong Dutch Master cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thuy tien vang Dutch Master"
   },
   {
     "scientificName": "Narcissus pseudonarcissus",
     "cultivar": "Ice Follies",
     "locale": "vi",
-    "commonName": "Thuy tien vang Ice Follies",
-    "description": "Giong Ice Follies cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thuy tien vang Ice Follies"
   },
   {
     "scientificName": "Narcissus pseudonarcissus",
     "cultivar": "King Alfred",
     "locale": "vi",
-    "commonName": "Thuy tien vang King Alfred",
-    "description": "Giong King Alfred cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thuy tien vang King Alfred"
   },
   {
     "scientificName": "Narcissus pseudonarcissus",
     "cultivar": "Tete-a-Tete",
     "locale": "vi",
-    "commonName": "Thuy tien vang Tete-a-Tete",
-    "description": "Giong Tete-a-Tete cua Thuy tien vang giup mo rong lua chon trong thu vien cay."
+    "commonName": "Thuy tien vang Tete-a-Tete"
   },
   {
     "scientificName": "Nasturtium officinale",
@@ -6791,36 +6001,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Nasturtium officinale",
     "cultivar": "Aqua",
     "locale": "vi",
-    "commonName": "Xa lach xoong Aqua",
-    "description": "Giong Aqua cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xa lach xoong Aqua"
   },
   {
     "scientificName": "Nasturtium officinale",
     "cultivar": "Broadleaf",
     "locale": "vi",
-    "commonName": "Xa lach xoong Broadleaf",
-    "description": "Giong Broadleaf cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xa lach xoong Broadleaf"
   },
   {
     "scientificName": "Nasturtium officinale",
     "cultivar": "Cressida",
     "locale": "vi",
-    "commonName": "Xa lach xoong Cressida",
-    "description": "Giong Cressida cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xa lach xoong Cressida"
   },
   {
     "scientificName": "Nasturtium officinale",
     "cultivar": "Dark Green",
     "locale": "vi",
-    "commonName": "Xa lach xoong Dark Green",
-    "description": "Giong Dark Green cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xa lach xoong Dark Green"
   },
   {
     "scientificName": "Nasturtium officinale",
     "cultivar": "English",
     "locale": "vi",
-    "commonName": "Xa lach xoong English",
-    "description": "Giong English cua Xa lach xoong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xa lach xoong English"
   },
   {
     "commonName": "Ngo sen",
@@ -6831,35 +6036,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngo sen Jade Lotus",
     "cultivar": "Jade Lotus",
-    "description": "Ngo sen Jade Lotus là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Nelumbo nucifera"
   },
   {
     "commonName": "Ngo sen Long Section",
     "cultivar": "Long Section",
-    "description": "Ngo sen Long Section là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Nelumbo nucifera"
   },
   {
     "commonName": "Ngo sen Pond Select",
     "cultivar": "Pond Select",
-    "description": "Ngo sen Pond Select là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Nelumbo nucifera"
   },
   {
     "commonName": "Ngo sen Ruby Stem",
     "cultivar": "Ruby Stem",
-    "description": "Ngo sen Ruby Stem là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Nelumbo nucifera"
   },
   {
     "commonName": "Ngo sen Summer White",
     "cultivar": "Summer White",
-    "description": "Ngo sen Summer White là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Nelumbo nucifera"
   },
@@ -6872,35 +6072,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bạc hà mèo Citriodora",
     "cultivar": "Citriodora",
-    "description": "Bạc hà mèo Citriodora là cây thảo với lá mềm có mùi bạc hà nhẹ, thu hút mèo. Cây dễ trồng, ưa nắng và đất thoát nước. Lá được dùng làm trà hoặc đồ chơi cho mèo.",
     "locale": "vi",
     "scientificName": "Nepeta cataria"
   },
   {
     "commonName": "Bạc hà mèo Lemon",
     "cultivar": "Lemon",
-    "description": "Bạc hà mèo Lemon là cây thảo với lá mềm có mùi bạc hà nhẹ, thu hút mèo. Cây dễ trồng, ưa nắng và đất thoát nước. Lá được dùng làm trà hoặc đồ chơi cho mèo.",
     "locale": "vi",
     "scientificName": "Nepeta cataria"
   },
   {
     "commonName": "Bạc hà mèo Select Blue",
     "cultivar": "Select Blue",
-    "description": "Bạc hà mèo Select Blue là cây thảo với lá mềm có mùi bạc hà nhẹ, thu hút mèo. Cây dễ trồng, ưa nắng và đất thoát nước. Lá được dùng làm trà hoặc đồ chơi cho mèo.",
     "locale": "vi",
     "scientificName": "Nepeta cataria"
   },
   {
     "commonName": "Bạc hà mèo Velvet",
     "cultivar": "Velvet",
-    "description": "Bạc hà mèo Velvet là cây thảo với lá mềm có mùi bạc hà nhẹ, thu hút mèo. Cây dễ trồng, ưa nắng và đất thoát nước. Lá được dùng làm trà hoặc đồ chơi cho mèo.",
     "locale": "vi",
     "scientificName": "Nepeta cataria"
   },
   {
     "commonName": "Bạc hà mèo White Wonder",
     "cultivar": "White Wonder",
-    "description": "Bạc hà mèo White Wonder là cây thảo với lá mềm có mùi bạc hà nhẹ, thu hút mèo. Cây dễ trồng, ưa nắng và đất thoát nước. Lá được dùng làm trà hoặc đồ chơi cho mèo.",
     "locale": "vi",
     "scientificName": "Nepeta cataria"
   },
@@ -6913,41 +6108,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Thuốc lá cảnh Crimson Bedder",
     "cultivar": "Crimson Bedder",
-    "description": "Thuốc lá cảnh Crimson Bedder là cây hoa với hương thơm nồng và nhiều màu. Cây ưa nắng nhẹ, đất ẩm và được trồng làm cảnh. Hoa nở về chiều và thu hút bướm đêm.",
     "locale": "vi",
     "scientificName": "Nicotiana alata"
   },
   {
     "commonName": "Thuốc lá cảnh Domino",
     "cultivar": "Domino",
-    "description": "Thuốc lá cảnh Domino là cây hoa với hương thơm nồng và nhiều màu. Cây ưa nắng nhẹ, đất ẩm và được trồng làm cảnh. Hoa nở về chiều và thu hút bướm đêm.",
     "locale": "vi",
     "scientificName": "Nicotiana alata"
   },
   {
     "commonName": "Thuốc lá cảnh Grandiflora",
     "cultivar": "Grandiflora",
-    "description": "Thuốc lá cảnh Grandiflora là cây hoa với hương thơm nồng và nhiều màu. Cây ưa nắng nhẹ, đất ẩm và được trồng làm cảnh. Hoa nở về chiều và thu hút bướm đêm.",
     "locale": "vi",
     "scientificName": "Nicotiana alata"
   },
   {
     "commonName": "Thuốc lá cảnh Lime Green",
     "cultivar": "Lime Green",
-    "description": "Thuốc lá cảnh Lime Green là cây hoa với hương thơm nồng và nhiều màu. Cây ưa nắng nhẹ, đất ẩm và được trồng làm cảnh. Hoa nở về chiều và thu hút bướm đêm.",
     "locale": "vi",
     "scientificName": "Nicotiana alata"
   },
   {
     "commonName": "Thuốc lá cảnh Perfume White",
     "cultivar": "Perfume White",
-    "description": "Thuốc lá cảnh Perfume White là cây hoa với hương thơm nồng và nhiều màu. Cây ưa nắng nhẹ, đất ẩm và được trồng làm cảnh. Hoa nở về chiều và thu hút bướm đêm.",
     "locale": "vi",
     "scientificName": "Nicotiana alata"
   },
   {
     "commonName": "Húng quế",
-    "description": "Húng quế là cây thảo mộc có mùi thơm ngọt và vị cay nhẹ. Cây ưa nắng và đất thoát nước. Lá húng quế dùng trong món Ý, salad hoặc nấu canh.",
+    "description": "Húng quế là cây gia vị vụ ấm, được trồng lấy lá thơm dùng tươi hoặc nấu chín. Cây cần thời tiết ấm, nhiều ánh sáng, đất màu mỡ thoát nước và tưới đều nhưng không để úng rễ. Bấm ngọn và thu lá thường xuyên để cây phân nhánh; nhiệt độ lạnh làm cây suy nhanh.",
     "locale": "vi",
     "scientificName": "Ocimum basilicum"
   },
@@ -6995,35 +6185,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Húng quế tây Amrita",
     "cultivar": "Amrita",
-    "description": "Húng quế tây Amrita là giống húng có mùi thơm ngọt dịu và vị cay nhẹ. Cây ưa nắng, đất thoát nước và thường được dùng trong ẩm thực Ấn Độ và Thái Lan. Lá được dùng nấu canh, xào hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Ocimum tenuiflorum"
   },
   {
     "commonName": "Húng quế tây Kapoor",
     "cultivar": "Kapoor",
-    "description": "Húng quế tây Kapoor là giống húng có mùi thơm ngọt dịu và vị cay nhẹ. Cây ưa nắng, đất thoát nước và thường được dùng trong ẩm thực Ấn Độ và Thái Lan. Lá được dùng nấu canh, xào hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Ocimum tenuiflorum"
   },
   {
     "commonName": "Húng quế tây Krishna",
     "cultivar": "Krishna",
-    "description": "Húng quế tây Krishna là giống húng có mùi thơm ngọt dịu và vị cay nhẹ. Cây ưa nắng, đất thoát nước và thường được dùng trong ẩm thực Ấn Độ và Thái Lan. Lá được dùng nấu canh, xào hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Ocimum tenuiflorum"
   },
   {
     "commonName": "Húng quế tây Rama",
     "cultivar": "Rama",
-    "description": "Húng quế tây Rama là giống húng có mùi thơm ngọt dịu và vị cay nhẹ. Cây ưa nắng, đất thoát nước và thường được dùng trong ẩm thực Ấn Độ và Thái Lan. Lá được dùng nấu canh, xào hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Ocimum tenuiflorum"
   },
   {
     "commonName": "Húng quế tây Vana",
     "cultivar": "Vana",
-    "description": "Húng quế tây Vana là giống húng có mùi thơm ngọt dịu và vị cay nhẹ. Cây ưa nắng, đất thoát nước và thường được dùng trong ẩm thực Ấn Độ và Thái Lan. Lá được dùng nấu canh, xào hoặc pha trà.",
     "locale": "vi",
     "scientificName": "Ocimum tenuiflorum"
   },
@@ -7037,36 +6222,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Olea europaea",
     "cultivar": "Arbequina",
     "locale": "vi",
-    "commonName": "Oliu Arbequina",
-    "description": "Giong Arbequina cua Oliu giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oliu Arbequina"
   },
   {
     "scientificName": "Olea europaea",
     "cultivar": "Frantoio",
     "locale": "vi",
-    "commonName": "Oliu Frantoio",
-    "description": "Giong Frantoio cua Oliu giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oliu Frantoio"
   },
   {
     "scientificName": "Olea europaea",
     "cultivar": "Kalamata",
     "locale": "vi",
-    "commonName": "Oliu Kalamata",
-    "description": "Giong Kalamata cua Oliu giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oliu Kalamata"
   },
   {
     "scientificName": "Olea europaea",
     "cultivar": "Manzanilla",
     "locale": "vi",
-    "commonName": "Oliu Manzanilla",
-    "description": "Giong Manzanilla cua Oliu giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oliu Manzanilla"
   },
   {
     "scientificName": "Olea europaea",
     "cultivar": "Picual",
     "locale": "vi",
-    "commonName": "Oliu Picual",
-    "description": "Giong Picual cua Oliu giup mo rong lua chon trong thu vien cay."
+    "commonName": "Oliu Picual"
   },
   {
     "commonName": "Kinh giới tây",
@@ -7077,21 +6257,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Kinh giới tây Golden Oregano",
     "cultivar": "Golden Oregano",
-    "description": "Kinh giới tây Golden Oregano là thảo mộc thơm nhẹ nhàng với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải.",
     "locale": "vi",
     "scientificName": "Origanum vulgare"
   },
   {
     "commonName": "Kinh giới tây Greek Oregano",
     "cultivar": "Greek Oregano",
-    "description": "Kinh giới tây Greek Oregano là thảo mộc thơm nhẹ nhàng với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải.",
     "locale": "vi",
     "scientificName": "Origanum vulgare"
   },
   {
     "commonName": "Kinh giới tây Hot and Spicy",
     "cultivar": "Hot and Spicy",
-    "description": "Kinh giới tây Hot and Spicy là thảo mộc thơm nhẹ nhàng với lá nhỏ và vị cay nhẹ. Cây ưa nắng và đất khô, thích hợp trồng trong chậu. Lá được dùng trong ẩm thực Địa Trung Hải.",
     "locale": "vi",
     "scientificName": "Origanum vulgare"
   },
@@ -7104,35 +6281,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Củ sắn Agua Dulce",
     "cultivar": "Agua Dulce",
-    "description": "Củ sắn là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pachyrhizus erosus"
   },
   {
     "commonName": "Củ sắn Cristalina",
     "cultivar": "Cristalina",
-    "description": "Củ sắn là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pachyrhizus erosus"
   },
   {
     "commonName": "Củ sắn Morado",
     "cultivar": "Morado",
-    "description": "Củ sắn là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pachyrhizus erosus"
   },
   {
     "commonName": "Củ sắn Round Root",
     "cultivar": "Round Root",
-    "description": "Củ sắn là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pachyrhizus erosus"
   },
   {
     "commonName": "Củ sắn Yucatan White",
     "cultivar": "Yucatan White",
-    "description": "Củ sắn là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pachyrhizus erosus"
   },
@@ -7146,36 +6318,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Paeonia lactiflora",
     "cultivar": "Coral Charm",
     "locale": "vi",
-    "commonName": "Mau don thao Coral Charm",
-    "description": "Giong Coral Charm cua Mau don thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mau don thao Coral Charm"
   },
   {
     "scientificName": "Paeonia lactiflora",
     "cultivar": "Duchesse de Nemours",
     "locale": "vi",
-    "commonName": "Mau don thao Duchesse de Nemours",
-    "description": "Giong Duchesse de Nemours cua Mau don thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mau don thao Duchesse de Nemours"
   },
   {
     "scientificName": "Paeonia lactiflora",
     "cultivar": "Festiva Maxima",
     "locale": "vi",
-    "commonName": "Mau don thao Festiva Maxima",
-    "description": "Giong Festiva Maxima cua Mau don thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mau don thao Festiva Maxima"
   },
   {
     "scientificName": "Paeonia lactiflora",
     "cultivar": "Karl Rosenfield",
     "locale": "vi",
-    "commonName": "Mau don thao Karl Rosenfield",
-    "description": "Giong Karl Rosenfield cua Mau don thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mau don thao Karl Rosenfield"
   },
   {
     "scientificName": "Paeonia lactiflora",
     "cultivar": "Sarah Bernhardt",
     "locale": "vi",
-    "commonName": "Mau don thao Sarah Bernhardt",
-    "description": "Giong Sarah Bernhardt cua Mau don thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mau don thao Sarah Bernhardt"
   },
   {
     "commonName": "Chanh day",
@@ -7186,35 +6353,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Chanh day Frederick",
     "cultivar": "Frederick",
-    "description": "Chanh day Frederick có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Passiflora edulis"
   },
   {
     "commonName": "Chanh day Misty Gem",
     "cultivar": "Misty Gem",
-    "description": "Chanh day Misty Gem có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Passiflora edulis"
   },
   {
     "commonName": "Chanh day Panama Red",
     "cultivar": "Panama Red",
-    "description": "Chanh day Panama Red có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Passiflora edulis"
   },
   {
     "commonName": "Chanh day Possum Purple",
     "cultivar": "Possum Purple",
-    "description": "Chanh day Possum Purple có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Passiflora edulis"
   },
   {
     "commonName": "Chanh day Sweet Sunrise",
     "cultivar": "Sweet Sunrise",
-    "description": "Chanh day Sweet Sunrise có vỏ vàng và thịt mọng nước, vị chua dịu. Cây ưa khí hậu nhiệt đới, đất thoát nước tốt và nắng. Chanh được dùng pha nước, làm gia vị và có tác dụng thanh nhiệt.",
     "locale": "vi",
     "scientificName": "Passiflora edulis"
   },
@@ -7227,35 +6389,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Củ cải vàng Albion",
     "cultivar": "Albion",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pastinaca sativa"
   },
   {
     "commonName": "Củ cải vàng Gladiator",
     "cultivar": "Gladiator",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pastinaca sativa"
   },
   {
     "commonName": "Củ cải vàng Hollow Crown",
     "cultivar": "Hollow Crown",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pastinaca sativa"
   },
   {
     "commonName": "Củ cải vàng Javelin",
     "cultivar": "Javelin",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pastinaca sativa"
   },
   {
     "commonName": "Củ cải vàng Tender and True",
     "cultivar": "Tender and True",
-    "description": "Củ cải vàng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pastinaca sativa"
   },
@@ -7268,35 +6425,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Phong lữ Calliope Dark Red",
     "cultivar": "Calliope Dark Red",
-    "description": "Phong lữ Calliope Dark Red là cây hoa có mùi thơm và hoa rực rỡ. Cây ưa nắng nhẹ, dễ trồng. Thường được trồng trong chậu hoặc bồn hoa để trang trí.",
     "locale": "vi",
     "scientificName": "Pelargonium x hortorum"
   },
   {
     "commonName": "Phong lữ Maverick Red",
     "cultivar": "Maverick Red",
-    "description": "Phong lữ Maverick Red là cây hoa có mùi thơm và hoa rực rỡ. Cây ưa nắng nhẹ, dễ trồng. Thường được trồng trong chậu hoặc bồn hoa để trang trí.",
     "locale": "vi",
     "scientificName": "Pelargonium x hortorum"
   },
   {
     "commonName": "Phong lữ Orbit White",
     "cultivar": "Orbit White",
-    "description": "Phong lữ Orbit White là cây hoa có mùi thơm và hoa rực rỡ. Cây ưa nắng nhẹ, dễ trồng. Thường được trồng trong chậu hoặc bồn hoa để trang trí.",
     "locale": "vi",
     "scientificName": "Pelargonium x hortorum"
   },
   {
     "commonName": "Phong lữ Patriot",
     "cultivar": "Patriot",
-    "description": "Phong lữ Patriot là cây hoa có mùi thơm và hoa rực rỡ. Cây ưa nắng nhẹ, dễ trồng. Thường được trồng trong chậu hoặc bồn hoa để trang trí.",
     "locale": "vi",
     "scientificName": "Pelargonium x hortorum"
   },
   {
     "commonName": "Phong lữ Pinto Premium",
     "cultivar": "Pinto Premium",
-    "description": "Phong lữ Pinto Premium là cây hoa có mùi thơm và hoa rực rỡ. Cây ưa nắng nhẹ, dễ trồng. Thường được trồng trong chậu hoặc bồn hoa để trang trí.",
     "locale": "vi",
     "scientificName": "Pelargonium x hortorum"
   },
@@ -7309,35 +6461,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Trường sinh Golden Gate",
     "cultivar": "Golden Gate",
-    "description": "Trường sinh Golden Gate là cây mọng nước với lá dày màu xanh bóng. Cây ưa ánh sáng tán xạ và ít cần nước. Thích hợp để bàn hoặc làm cây phong thủy mang ý nghĩa tài lộc.",
     "locale": "vi",
     "scientificName": "Peperomia obtusifolia"
   },
   {
     "commonName": "Trường sinh Green",
     "cultivar": "Green",
-    "description": "Trường sinh Green là cây mọng nước với lá dày màu xanh bóng. Cây ưa ánh sáng tán xạ và ít cần nước. Thích hợp để bàn hoặc làm cây phong thủy mang ý nghĩa tài lộc.",
     "locale": "vi",
     "scientificName": "Peperomia obtusifolia"
   },
   {
     "commonName": "Trường sinh Lemon Lime",
     "cultivar": "Lemon Lime",
-    "description": "Trường sinh Lemon Lime là cây mọng nước với lá dày màu xanh bóng. Cây ưa ánh sáng tán xạ và ít cần nước. Thích hợp để bàn hoặc làm cây phong thủy mang ý nghĩa tài lộc.",
     "locale": "vi",
     "scientificName": "Peperomia obtusifolia"
   },
   {
     "commonName": "Trường sinh Marble",
     "cultivar": "Marble",
-    "description": "Trường sinh Marble là cây mọng nước với lá dày màu xanh bóng. Cây ưa ánh sáng tán xạ và ít cần nước. Thích hợp để bàn hoặc làm cây phong thủy mang ý nghĩa tài lộc.",
     "locale": "vi",
     "scientificName": "Peperomia obtusifolia"
   },
   {
     "commonName": "Trường sinh Variegata",
     "cultivar": "Variegata",
-    "description": "Trường sinh Variegata là cây mọng nước với lá dày màu xanh bóng. Cây ưa ánh sáng tán xạ và ít cần nước. Thích hợp để bàn hoặc làm cây phong thủy mang ý nghĩa tài lộc.",
     "locale": "vi",
     "scientificName": "Peperomia obtusifolia"
   },
@@ -7350,21 +6497,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Tia to Bicolor Shiso",
     "cultivar": "Bicolor Shiso",
-    "description": "Tia to Bicolor Shiso là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Perilla frutescens"
   },
   {
     "commonName": "Tia to Green Shiso",
     "cultivar": "Green Shiso",
-    "description": "Tia to Green Shiso là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Perilla frutescens"
   },
   {
     "commonName": "Tia to Red Shiso",
     "cultivar": "Red Shiso",
-    "description": "Tia to Red Shiso là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Perilla frutescens"
   },
@@ -7377,63 +6521,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bơ Bacon",
     "cultivar": "Bacon",
-    "description": "Bơ Bacon là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Fuerte",
     "cultivar": "Fuerte",
-    "description": "Bơ Fuerte là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Gwen",
     "cultivar": "Gwen",
-    "description": "Bơ Gwen là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Hass",
     "cultivar": "Hass",
-    "description": "Bơ Hass là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Lamb Hass",
     "cultivar": "Lamb Hass",
-    "description": "Bơ Lamb Hass là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Pinkerton",
     "cultivar": "Pinkerton",
-    "description": "Bơ Pinkerton là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Reed",
     "cultivar": "Reed",
-    "description": "Bơ Reed là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Sharwil",
     "cultivar": "Sharwil",
-    "description": "Bơ Sharwil là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
   {
     "commonName": "Bơ Zutano",
     "cultivar": "Zutano",
-    "description": "Bơ Zutano là cây ăn quả cho trái có vỏ dày và thịt béo ngậy. Cây ưa khí hậu ấm và đất thoát nước tốt. Quả bơ được dùng làm salad, sinh tố hoặc ăn sống.",
     "locale": "vi",
     "scientificName": "Persea americana"
   },
@@ -7446,21 +6581,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngò tây Curly",
     "cultivar": "Curly",
-    "description": "Ngò tây Curly là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Petroselinum crispum"
   },
   {
     "commonName": "Ngò tây Dark Green",
     "cultivar": "Dark Green",
-    "description": "Ngò tây Dark Green là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Petroselinum crispum"
   },
   {
     "commonName": "Ngò tây Italian Flat Leaf",
     "cultivar": "Italian Flat Leaf",
-    "description": "Ngò tây Italian Flat Leaf là rau gia vị với lá xanh và vị hơi cay. Cây ưa mát và đất ẩm. Ngò tây dùng trang trí món ăn hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Petroselinum crispum"
   },
@@ -7473,63 +6605,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Da yen thao Daddy Blue",
     "cultivar": "Daddy Blue",
-    "description": "Da yen thao Daddy Blue là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Double Cascade",
     "cultivar": "Double Cascade",
-    "description": "Da yen thao Double Cascade là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Dreams Red",
     "cultivar": "Dreams Red",
-    "description": "Da yen thao Dreams Red là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Easy Wave Pink",
     "cultivar": "Easy Wave Pink",
-    "description": "Da yen thao Easy Wave Pink là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Night Sky",
     "cultivar": "Night Sky",
-    "description": "Da yen thao Night Sky là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Opera Supreme",
     "cultivar": "Opera Supreme",
-    "description": "Da yen thao Opera Supreme là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Shock Wave Coral",
     "cultivar": "Shock Wave Coral",
-    "description": "Da yen thao Shock Wave Coral là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Supertunia Vista",
     "cultivar": "Supertunia Vista",
-    "description": "Da yen thao Supertunia Vista là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
   {
     "commonName": "Da yen thao Wave Purple",
     "cultivar": "Wave Purple",
-    "description": "Da yen thao Wave Purple là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Petunia x hybrida"
   },
@@ -7542,63 +6665,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Lan hồ điệp Classic White",
     "cultivar": "Classic White",
-    "description": "Lan hồ điệp Classic White là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp Moon Orchid",
     "cultivar": "Moon Orchid",
-    "description": "Lan hồ điệp Moon Orchid là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp Moonlight",
     "cultivar": "Moonlight",
-    "description": "Lan hồ điệp Moonlight là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp Pearl Drop",
     "cultivar": "Pearl Drop",
-    "description": "Lan hồ điệp Pearl Drop là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp Pure Love",
     "cultivar": "Pure Love",
-    "description": "Lan hồ điệp Pure Love là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp Snow Angel",
     "cultivar": "Snow Angel",
-    "description": "Lan hồ điệp Snow Angel là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp Snow Queen",
     "cultivar": "Snow Queen",
-    "description": "Lan hồ điệp Snow Queen là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp White Cloud",
     "cultivar": "White Cloud",
-    "description": "Lan hồ điệp White Cloud là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
   {
     "commonName": "Lan hồ điệp White Dream",
     "cultivar": "White Dream",
-    "description": "Lan hồ điệp White Dream là loài lan phổ biến với cành hoa cong và cánh hoa tròn. Cây ưa ánh sáng tán xạ, độ ẩm cao và cần tưới phun sương. Hoa lâu tàn nên được chuộng để trang trí nhà cửa và làm quà tặng.",
     "locale": "vi",
     "scientificName": "Phalaenopsis amabilis"
   },
@@ -7611,35 +6725,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu lima Christmas",
     "cultivar": "Christmas",
-    "description": "Đậu lima Christmas là cây họ đậu với hạt lớn hình hạt đậu bơ. Cây ưa khí hậu ấm và đất mùn. Hạt được dùng nấu súp, hầm hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Phaseolus lunatus"
   },
   {
     "commonName": "Đậu lima Dixie",
     "cultivar": "Dixie",
-    "description": "Đậu lima Dixie là cây họ đậu với hạt lớn hình hạt đậu bơ. Cây ưa khí hậu ấm và đất mùn. Hạt được dùng nấu súp, hầm hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Phaseolus lunatus"
   },
   {
     "commonName": "Đậu lima Fordhook 242",
     "cultivar": "Fordhook 242",
-    "description": "Đậu lima Fordhook 242 là cây họ đậu với hạt lớn hình hạt đậu bơ. Cây ưa khí hậu ấm và đất mùn. Hạt được dùng nấu súp, hầm hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Phaseolus lunatus"
   },
   {
     "commonName": "Đậu lima Henderson",
     "cultivar": "Henderson",
-    "description": "Đậu lima Henderson là cây họ đậu với hạt lớn hình hạt đậu bơ. Cây ưa khí hậu ấm và đất mùn. Hạt được dùng nấu súp, hầm hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Phaseolus lunatus"
   },
   {
     "commonName": "Đậu lima Jackson Wonder",
     "cultivar": "Jackson Wonder",
-    "description": "Đậu lima Jackson Wonder là cây họ đậu với hạt lớn hình hạt đậu bơ. Cây ưa khí hậu ấm và đất mùn. Hạt được dùng nấu súp, hầm hoặc chế biến món ăn.",
     "locale": "vi",
     "scientificName": "Phaseolus lunatus"
   },
@@ -7652,28 +6761,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu cô ve Blue Lake",
     "cultivar": "Blue Lake",
-    "description": "Đậu cô ve là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Phaseolus vulgaris"
   },
   {
     "commonName": "Đậu cô ve Dragon Tongue",
     "cultivar": "Dragon Tongue",
-    "description": "Đậu cô ve là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Phaseolus vulgaris"
   },
   {
     "commonName": "Đậu cô ve Kentucky Wonder",
     "cultivar": "Kentucky Wonder",
-    "description": "Đậu cô ve là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Phaseolus vulgaris"
   },
   {
     "commonName": "Đậu cô ve Provider",
     "cultivar": "Provider",
-    "description": "Đậu cô ve là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Phaseolus vulgaris"
   },
@@ -7686,49 +6791,42 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Trầu bà tim Brasil",
     "cultivar": "Brasil",
-    "description": "Trầu bà tim Brasil là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
   {
     "commonName": "Trầu bà tim Cream Splash",
     "cultivar": "Cream Splash",
-    "description": "Trầu bà tim Cream Splash là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
   {
     "commonName": "Trầu bà tim Gabby",
     "cultivar": "Gabby",
-    "description": "Trầu bà tim Gabby là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
   {
     "commonName": "Trầu bà tim Lemon Lime",
     "cultivar": "Lemon Lime",
-    "description": "Trầu bà tim Lemon Lime là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
   {
     "commonName": "Trầu bà tim Micans",
     "cultivar": "Micans",
-    "description": "Trầu bà tim Micans là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
   {
     "commonName": "Trầu bà tim Rio",
     "cultivar": "Rio",
-    "description": "Trầu bà tim Rio là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
   {
     "commonName": "Trầu bà tim Silver Stripe",
     "cultivar": "Silver Stripe",
-    "description": "Trầu bà tim Silver Stripe là cây leo trong nhà với lá hình tim mềm mại. Cây ưa bóng râm và đất ẩm, dễ chăm sóc. Thích hợp để treo hoặc trang trí trong nhà.",
     "locale": "vi",
     "scientificName": "Philodendron hederaceum"
   },
@@ -7741,56 +6839,48 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Tam bop Aunt Molly",
     "cultivar": "Aunt Molly",
-    "description": "Tam bop Aunt Molly là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Colombia",
     "cultivar": "Colombia",
-    "description": "Tam bop Colombia là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Cossack Pineapple",
     "cultivar": "Cossack Pineapple",
-    "description": "Tam bop Cossack Pineapple là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Giant Cape",
     "cultivar": "Giant Cape",
-    "description": "Tam bop Giant Cape là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Golden Berry",
     "cultivar": "Golden Berry",
-    "description": "Tam bop Golden Berry là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Golden Nugget",
     "cultivar": "Golden Nugget",
-    "description": "Tam bop Golden Nugget là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Inca Red",
     "cultivar": "Inca Red",
-    "description": "Tam bop Inca Red là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
   {
     "commonName": "Tam bop Peruvian Gold",
     "cultivar": "Peruvian Gold",
-    "description": "Tam bop Peruvian Gold là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis peruviana"
   },
@@ -7803,35 +6893,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cà Tomatillo Grande Rio",
     "cultivar": "Grande Rio",
-    "description": "Cà Tomatillo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis philadelphica"
   },
   {
     "commonName": "Cà Tomatillo Milpero",
     "cultivar": "Milpero",
-    "description": "Cà Tomatillo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis philadelphica"
   },
   {
     "commonName": "Cà Tomatillo Purple",
     "cultivar": "Purple",
-    "description": "Cà Tomatillo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis philadelphica"
   },
   {
     "commonName": "Cà Tomatillo Rio Grande Verde",
     "cultivar": "Rio Grande Verde",
-    "description": "Cà Tomatillo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis philadelphica"
   },
   {
     "commonName": "Cà Tomatillo Toma Verde",
     "cultivar": "Toma Verde",
-    "description": "Cà Tomatillo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Physalis philadelphica"
   },
@@ -7844,35 +6929,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dong tien Compact",
     "cultivar": "Compact",
-    "description": "Dong tien Compact là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pilea peperomioides"
   },
   {
     "commonName": "Dong tien Green Wheel",
     "cultivar": "Green Wheel",
-    "description": "Dong tien Green Wheel là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pilea peperomioides"
   },
   {
     "commonName": "Dong tien Mojito",
     "cultivar": "Mojito",
-    "description": "Dong tien Mojito là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pilea peperomioides"
   },
   {
     "commonName": "Dong tien Mooncoin",
     "cultivar": "Mooncoin",
-    "description": "Dong tien Mooncoin là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pilea peperomioides"
   },
   {
     "commonName": "Dong tien Sugar",
     "cultivar": "Sugar",
-    "description": "Dong tien Sugar là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pilea peperomioides"
   },
@@ -7885,28 +6965,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu Hà Lan Green Arrow",
     "cultivar": "Green Arrow",
-    "description": "Đậu Hà Lan là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pisum sativum"
   },
   {
     "commonName": "Đậu Hà Lan Little Marvel",
     "cultivar": "Little Marvel",
-    "description": "Đậu Hà Lan là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pisum sativum"
   },
   {
     "commonName": "Đậu Hà Lan Snow Pea",
     "cultivar": "Snow Pea",
-    "description": "Đậu Hà Lan là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pisum sativum"
   },
   {
     "commonName": "Đậu Hà Lan Sugar Snap",
     "cultivar": "Sugar Snap",
-    "description": "Đậu Hà Lan là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Pisum sativum"
   },
@@ -7920,36 +6996,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Portulaca oleracea",
     "cultivar": "Golden",
     "locale": "vi",
-    "commonName": "Rau sam Golden",
-    "description": "Giong Golden cua Rau sam giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau sam Golden"
   },
   {
     "scientificName": "Portulaca oleracea",
     "cultivar": "Green",
     "locale": "vi",
-    "commonName": "Rau sam Green",
-    "description": "Giong Green cua Rau sam giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau sam Green"
   },
   {
     "scientificName": "Portulaca oleracea",
     "cultivar": "Gruner Red",
     "locale": "vi",
-    "commonName": "Rau sam Gruner Red",
-    "description": "Giong Gruner Red cua Rau sam giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau sam Gruner Red"
   },
   {
     "scientificName": "Portulaca oleracea",
     "cultivar": "Red Gruner",
     "locale": "vi",
-    "commonName": "Rau sam Red Gruner",
-    "description": "Giong Red Gruner cua Rau sam giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau sam Red Gruner"
   },
   {
     "scientificName": "Portulaca oleracea",
     "cultivar": "Tall Green",
     "locale": "vi",
-    "commonName": "Rau sam Tall Green",
-    "description": "Giong Tall Green cua Rau sam giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau sam Tall Green"
   },
   {
     "scientificName": "Primula vulgaris",
@@ -7961,36 +7032,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Primula vulgaris",
     "cultivar": "Belarina",
     "locale": "vi",
-    "commonName": "Anh thao Belarina",
-    "description": "Giong Belarina cua Anh thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh thao Belarina"
   },
   {
     "scientificName": "Primula vulgaris",
     "cultivar": "Crescendo",
     "locale": "vi",
-    "commonName": "Anh thao Crescendo",
-    "description": "Giong Crescendo cua Anh thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh thao Crescendo"
   },
   {
     "scientificName": "Primula vulgaris",
     "cultivar": "Danova",
     "locale": "vi",
-    "commonName": "Anh thao Danova",
-    "description": "Giong Danova cua Anh thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh thao Danova"
   },
   {
     "scientificName": "Primula vulgaris",
     "cultivar": "Husky",
     "locale": "vi",
-    "commonName": "Anh thao Husky",
-    "description": "Giong Husky cua Anh thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh thao Husky"
   },
   {
     "scientificName": "Primula vulgaris",
     "cultivar": "Wanda",
     "locale": "vi",
-    "commonName": "Anh thao Wanda",
-    "description": "Giong Wanda cua Anh thao giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh thao Wanda"
   },
   {
     "scientificName": "Prunus armeniaca",
@@ -8002,36 +7068,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Prunus armeniaca",
     "cultivar": "Blenheim",
     "locale": "vi",
-    "commonName": "Mo tay Blenheim",
-    "description": "Giong Blenheim cua Mo tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mo tay Blenheim"
   },
   {
     "scientificName": "Prunus armeniaca",
     "cultivar": "Goldcot",
     "locale": "vi",
-    "commonName": "Mo tay Goldcot",
-    "description": "Giong Goldcot cua Mo tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mo tay Goldcot"
   },
   {
     "scientificName": "Prunus armeniaca",
     "cultivar": "Moorpark",
     "locale": "vi",
-    "commonName": "Mo tay Moorpark",
-    "description": "Giong Moorpark cua Mo tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mo tay Moorpark"
   },
   {
     "scientificName": "Prunus armeniaca",
     "cultivar": "Tilton",
     "locale": "vi",
-    "commonName": "Mo tay Tilton",
-    "description": "Giong Tilton cua Mo tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mo tay Tilton"
   },
   {
     "scientificName": "Prunus armeniaca",
     "cultivar": "Tomcot",
     "locale": "vi",
-    "commonName": "Mo tay Tomcot",
-    "description": "Giong Tomcot cua Mo tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Mo tay Tomcot"
   },
   {
     "scientificName": "Prunus avium",
@@ -8043,36 +7104,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Prunus avium",
     "cultivar": "Bing",
     "locale": "vi",
-    "commonName": "Anh dao ngot Bing",
-    "description": "Giong Bing cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao ngot Bing"
   },
   {
     "scientificName": "Prunus avium",
     "cultivar": "Lapins",
     "locale": "vi",
-    "commonName": "Anh dao ngot Lapins",
-    "description": "Giong Lapins cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao ngot Lapins"
   },
   {
     "scientificName": "Prunus avium",
     "cultivar": "Rainier",
     "locale": "vi",
-    "commonName": "Anh dao ngot Rainier",
-    "description": "Giong Rainier cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao ngot Rainier"
   },
   {
     "scientificName": "Prunus avium",
     "cultivar": "Stella",
     "locale": "vi",
-    "commonName": "Anh dao ngot Stella",
-    "description": "Giong Stella cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao ngot Stella"
   },
   {
     "scientificName": "Prunus avium",
     "cultivar": "Sweetheart",
     "locale": "vi",
-    "commonName": "Anh dao ngot Sweetheart",
-    "description": "Giong Sweetheart cua Anh dao ngot giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao ngot Sweetheart"
   },
   {
     "scientificName": "Prunus cerasus",
@@ -8084,36 +7140,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Prunus cerasus",
     "cultivar": "English Morello",
     "locale": "vi",
-    "commonName": "Anh dao chua English Morello",
-    "description": "Giong English Morello cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao chua English Morello"
   },
   {
     "scientificName": "Prunus cerasus",
     "cultivar": "Meteor",
     "locale": "vi",
-    "commonName": "Anh dao chua Meteor",
-    "description": "Giong Meteor cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao chua Meteor"
   },
   {
     "scientificName": "Prunus cerasus",
     "cultivar": "Montmorency",
     "locale": "vi",
-    "commonName": "Anh dao chua Montmorency",
-    "description": "Giong Montmorency cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao chua Montmorency"
   },
   {
     "scientificName": "Prunus cerasus",
     "cultivar": "Morello",
     "locale": "vi",
-    "commonName": "Anh dao chua Morello",
-    "description": "Giong Morello cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao chua Morello"
   },
   {
     "scientificName": "Prunus cerasus",
     "cultivar": "North Star",
     "locale": "vi",
-    "commonName": "Anh dao chua North Star",
-    "description": "Giong North Star cua Anh dao chua giup mo rong lua chon trong thu vien cay."
+    "commonName": "Anh dao chua North Star"
   },
   {
     "scientificName": "Prunus domestica",
@@ -8125,36 +7176,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Prunus domestica",
     "cultivar": "Damson",
     "locale": "vi",
-    "commonName": "Man tay Damson",
-    "description": "Giong Damson cua Man tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Man tay Damson"
   },
   {
     "scientificName": "Prunus domestica",
     "cultivar": "Italian Prune",
     "locale": "vi",
-    "commonName": "Man tay Italian Prune",
-    "description": "Giong Italian Prune cua Man tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Man tay Italian Prune"
   },
   {
     "scientificName": "Prunus domestica",
     "cultivar": "President",
     "locale": "vi",
-    "commonName": "Man tay President",
-    "description": "Giong President cua Man tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Man tay President"
   },
   {
     "scientificName": "Prunus domestica",
     "cultivar": "Stanley",
     "locale": "vi",
-    "commonName": "Man tay Stanley",
-    "description": "Giong Stanley cua Man tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Man tay Stanley"
   },
   {
     "scientificName": "Prunus domestica",
     "cultivar": "Victoria",
     "locale": "vi",
-    "commonName": "Man tay Victoria",
-    "description": "Giong Victoria cua Man tay giup mo rong lua chon trong thu vien cay."
+    "commonName": "Man tay Victoria"
   },
   {
     "commonName": "Đào",
@@ -8165,35 +7211,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đào Belle of Georgia",
     "cultivar": "Belle of Georgia",
-    "description": "Đào Belle of Georgia là cây ăn quả ôn đới cho trái có lông mịn, thịt vàng ngọt và thơm. Cây ưa khí hậu mát, đất thoát nước và cần cắt tỉa thường xuyên. Quả đào được ăn tươi hoặc làm mứt, bánh.",
     "locale": "vi",
     "scientificName": "Prunus persica"
   },
   {
     "commonName": "Đào Contender",
     "cultivar": "Contender",
-    "description": "Đào Contender là cây ăn quả ôn đới cho trái có lông mịn, thịt vàng ngọt và thơm. Cây ưa khí hậu mát, đất thoát nước và cần cắt tỉa thường xuyên. Quả đào được ăn tươi hoặc làm mứt, bánh.",
     "locale": "vi",
     "scientificName": "Prunus persica"
   },
   {
     "commonName": "Đào Elberta",
     "cultivar": "Elberta",
-    "description": "Đào Elberta là cây ăn quả ôn đới cho trái có lông mịn, thịt vàng ngọt và thơm. Cây ưa khí hậu mát, đất thoát nước và cần cắt tỉa thường xuyên. Quả đào được ăn tươi hoặc làm mứt, bánh.",
     "locale": "vi",
     "scientificName": "Prunus persica"
   },
   {
     "commonName": "Đào Redhaven",
     "cultivar": "Redhaven",
-    "description": "Đào Redhaven là cây ăn quả ôn đới cho trái có lông mịn, thịt vàng ngọt và thơm. Cây ưa khí hậu mát, đất thoát nước và cần cắt tỉa thường xuyên. Quả đào được ăn tươi hoặc làm mứt, bánh.",
     "locale": "vi",
     "scientificName": "Prunus persica"
   },
   {
     "commonName": "Đào Reliance",
     "cultivar": "Reliance",
-    "description": "Đào Reliance là cây ăn quả ôn đới cho trái có lông mịn, thịt vàng ngọt và thơm. Cây ưa khí hậu mát, đất thoát nước và cần cắt tỉa thường xuyên. Quả đào được ăn tươi hoặc làm mứt, bánh.",
     "locale": "vi",
     "scientificName": "Prunus persica"
   },
@@ -8206,35 +7247,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ổi Barbie Pink",
     "cultivar": "Barbie Pink",
-    "description": "Ổi Barbie Pink là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt.",
     "locale": "vi",
     "scientificName": "Psidium guajava"
   },
   {
     "commonName": "Ổi Crystal",
     "cultivar": "Crystal",
-    "description": "Ổi Crystal là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt.",
     "locale": "vi",
     "scientificName": "Psidium guajava"
   },
   {
     "commonName": "Ổi Mexican Cream",
     "cultivar": "Mexican Cream",
-    "description": "Ổi Mexican Cream là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt.",
     "locale": "vi",
     "scientificName": "Psidium guajava"
   },
   {
     "commonName": "Ổi Ruby Supreme",
     "cultivar": "Ruby Supreme",
-    "description": "Ổi Ruby Supreme là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt.",
     "locale": "vi",
     "scientificName": "Psidium guajava"
   },
   {
     "commonName": "Ổi White Indian",
     "cultivar": "White Indian",
-    "description": "Ổi White Indian là cây ăn quả nhiệt đới cho trái ruột trắng ngọt và thơm. Cây chịu hạn, ưa nắng và đất thoát nước. Ổi dùng ăn tươi, làm nước ép hoặc mứt.",
     "locale": "vi",
     "scientificName": "Psidium guajava"
   },
@@ -8247,63 +7283,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Lựu Angel Red",
     "cultivar": "Angel Red",
-    "description": "Lựu Angel Red là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Ariana",
     "cultivar": "Ariana",
-    "description": "Lựu Ariana là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Bhagwa",
     "cultivar": "Bhagwa",
-    "description": "Lựu Bhagwa là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Desertnyi",
     "cultivar": "Desertnyi",
-    "description": "Lựu Desertnyi là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Eversweet",
     "cultivar": "Eversweet",
-    "description": "Lựu Eversweet là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Kandahar",
     "cultivar": "Kandahar",
-    "description": "Lựu Kandahar là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Parfianka",
     "cultivar": "Parfianka",
-    "description": "Lựu Parfianka là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Salavatski",
     "cultivar": "Salavatski",
-    "description": "Lựu Salavatski là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
   {
     "commonName": "Lựu Wonderful",
     "cultivar": "Wonderful",
-    "description": "Lựu Wonderful là cây bụi hoặc cây nhỏ cho quả tròn vỏ dày, bên trong chứa nhiều hạt mọng đỏ. Cây ưa khí hậu khô và nắng. Hạt lựu được ăn tươi, ép nước hoặc dùng trang trí món ăn.",
     "locale": "vi",
     "scientificName": "Punica granatum"
   },
@@ -8316,69 +7343,60 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Lê Anjou",
     "cultivar": "Anjou",
-    "description": "Lê Anjou là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Bartlett",
     "cultivar": "Bartlett",
-    "description": "Lê Bartlett là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Bosc",
     "cultivar": "Bosc",
-    "description": "Lê Bosc là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Comice",
     "cultivar": "Comice",
-    "description": "Lê Comice là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Conference",
     "cultivar": "Conference",
-    "description": "Lê Conference là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Forelle",
     "cultivar": "Forelle",
-    "description": "Lê Forelle là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Hosui",
     "cultivar": "Hosui",
-    "description": "Lê Hosui là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Packhams Triumph",
     "cultivar": "Packhams Triumph",
-    "description": "Lê Packhams Triumph là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Lê Seckel",
     "cultivar": "Seckel",
-    "description": "Lê Seckel là cây ăn quả với trái hình bầu dục, vỏ mỏng và thịt ngọt giòn. Cây thích khí hậu mát và đất sâu. Quả lê dùng ăn tươi, làm salad hoặc ép nước.",
     "locale": "vi",
     "scientificName": "Pyrus communis"
   },
   {
     "commonName": "Củ cải trắng",
-    "description": "Củ cải trắng là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Củ cải là cây vụ mát sinh trưởng nhanh, được trồng lấy củ giòn; lá và quả non của một số giống cũng ăn được. Gieo thẳng trên đất tơi, giữ ẩm đều và tỉa sớm để củ không chen chúc. Thu hoạch đúng lúc vì củ quá lớn dễ xốp hoặc có vị cay gắt.",
     "locale": "vi",
     "scientificName": "Raphanus sativus"
   },
@@ -8420,36 +7438,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Rheum rhabarbarum",
     "cultivar": "Canada Red",
     "locale": "vi",
-    "commonName": "Dai hoang an than Canada Red",
-    "description": "Giong Canada Red cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dai hoang an than Canada Red"
   },
   {
     "scientificName": "Rheum rhabarbarum",
     "cultivar": "Crimson Cherry",
     "locale": "vi",
-    "commonName": "Dai hoang an than Crimson Cherry",
-    "description": "Giong Crimson Cherry cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dai hoang an than Crimson Cherry"
   },
   {
     "scientificName": "Rheum rhabarbarum",
     "cultivar": "Glaskins Perpetual",
     "locale": "vi",
-    "commonName": "Dai hoang an than Glaskins Perpetual",
-    "description": "Giong Glaskins Perpetual cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dai hoang an than Glaskins Perpetual"
   },
   {
     "scientificName": "Rheum rhabarbarum",
     "cultivar": "Timperley Early",
     "locale": "vi",
-    "commonName": "Dai hoang an than Timperley Early",
-    "description": "Giong Timperley Early cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dai hoang an than Timperley Early"
   },
   {
     "scientificName": "Rheum rhabarbarum",
     "cultivar": "Victoria",
     "locale": "vi",
-    "commonName": "Dai hoang an than Victoria",
-    "description": "Giong Victoria cua Dai hoang an than giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dai hoang an than Victoria"
   },
   {
     "scientificName": "Ribes nigrum",
@@ -8461,36 +7474,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ribes nigrum",
     "cultivar": "Ben Lomond",
     "locale": "vi",
-    "commonName": "Ly chua den Ben Lomond",
-    "description": "Giong Ben Lomond cua Ly chua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua den Ben Lomond"
   },
   {
     "scientificName": "Ribes nigrum",
     "cultivar": "Ben Sarek",
     "locale": "vi",
-    "commonName": "Ly chua den Ben Sarek",
-    "description": "Giong Ben Sarek cua Ly chua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua den Ben Sarek"
   },
   {
     "scientificName": "Ribes nigrum",
     "cultivar": "Blackdown",
     "locale": "vi",
-    "commonName": "Ly chua den Blackdown",
-    "description": "Giong Blackdown cua Ly chua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua den Blackdown"
   },
   {
     "scientificName": "Ribes nigrum",
     "cultivar": "Consort",
     "locale": "vi",
-    "commonName": "Ly chua den Consort",
-    "description": "Giong Consort cua Ly chua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua den Consort"
   },
   {
     "scientificName": "Ribes nigrum",
     "cultivar": "Titania",
     "locale": "vi",
-    "commonName": "Ly chua den Titania",
-    "description": "Giong Titania cua Ly chua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua den Titania"
   },
   {
     "scientificName": "Ribes rubrum",
@@ -8502,36 +7510,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ribes rubrum",
     "cultivar": "Detvan",
     "locale": "vi",
-    "commonName": "Ly chua do Detvan",
-    "description": "Giong Detvan cua Ly chua do giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua do Detvan"
   },
   {
     "scientificName": "Ribes rubrum",
     "cultivar": "Jonkheer van Tets",
     "locale": "vi",
-    "commonName": "Ly chua do Jonkheer van Tets",
-    "description": "Giong Jonkheer van Tets cua Ly chua do giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua do Jonkheer van Tets"
   },
   {
     "scientificName": "Ribes rubrum",
     "cultivar": "Red Lake",
     "locale": "vi",
-    "commonName": "Ly chua do Red Lake",
-    "description": "Giong Red Lake cua Ly chua do giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua do Red Lake"
   },
   {
     "scientificName": "Ribes rubrum",
     "cultivar": "Rovada",
     "locale": "vi",
-    "commonName": "Ly chua do Rovada",
-    "description": "Giong Rovada cua Ly chua do giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua do Rovada"
   },
   {
     "scientificName": "Ribes rubrum",
     "cultivar": "Wilder",
     "locale": "vi",
-    "commonName": "Ly chua do Wilder",
-    "description": "Giong Wilder cua Ly chua do giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly chua do Wilder"
   },
   {
     "scientificName": "Ribes uva-crispa",
@@ -8543,36 +7546,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Ribes uva-crispa",
     "cultivar": "Captivator",
     "locale": "vi",
-    "commonName": "Ly gai Captivator",
-    "description": "Giong Captivator cua Ly gai giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly gai Captivator"
   },
   {
     "scientificName": "Ribes uva-crispa",
     "cultivar": "Hinnonmaki Red",
     "locale": "vi",
-    "commonName": "Ly gai Hinnonmaki Red",
-    "description": "Giong Hinnonmaki Red cua Ly gai giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly gai Hinnonmaki Red"
   },
   {
     "scientificName": "Ribes uva-crispa",
     "cultivar": "Invicta",
     "locale": "vi",
-    "commonName": "Ly gai Invicta",
-    "description": "Giong Invicta cua Ly gai giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly gai Invicta"
   },
   {
     "scientificName": "Ribes uva-crispa",
     "cultivar": "Pixwell",
     "locale": "vi",
-    "commonName": "Ly gai Pixwell",
-    "description": "Giong Pixwell cua Ly gai giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly gai Pixwell"
   },
   {
     "scientificName": "Ribes uva-crispa",
     "cultivar": "Whinham",
     "locale": "vi",
-    "commonName": "Ly gai Whinham",
-    "description": "Giong Whinham cua Ly gai giup mo rong lua chon trong thu vien cay."
+    "commonName": "Ly gai Whinham"
   },
   {
     "commonName": "Hoa hồng",
@@ -8583,28 +7581,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hoa hồng Double Delight",
     "cultivar": "Double Delight",
-    "description": "Hoa hồng Double Delight là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu.",
     "locale": "vi",
     "scientificName": "Rosa chinensis"
   },
   {
     "commonName": "Hoa hồng Iceberg",
     "cultivar": "Iceberg",
-    "description": "Hoa hồng Iceberg là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu.",
     "locale": "vi",
     "scientificName": "Rosa chinensis"
   },
   {
     "commonName": "Hoa hồng Mister Lincoln",
     "cultivar": "Mister Lincoln",
-    "description": "Hoa hồng Mister Lincoln là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu.",
     "locale": "vi",
     "scientificName": "Rosa chinensis"
   },
   {
     "commonName": "Hoa hồng Peace",
     "cultivar": "Peace",
-    "description": "Hoa hồng Peace là cây bụi gai với hoa thơm và nhiều màu sắc. Cây ưa nắng, đất giàu hữu cơ và cần tỉa thường xuyên. Hoa hồng được trồng làm cảnh, cắm hoa hoặc chiết xuất tinh dầu.",
     "locale": "vi",
     "scientificName": "Rosa chinensis"
   },
@@ -8617,21 +7611,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hương thảo Arp",
     "cultivar": "Arp",
-    "description": "Hương thảo Arp là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm.",
     "locale": "vi",
     "scientificName": "Rosmarinus officinalis"
   },
   {
     "commonName": "Hương thảo Blue Spires",
     "cultivar": "Blue Spires",
-    "description": "Hương thảo Blue Spires là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm.",
     "locale": "vi",
     "scientificName": "Rosmarinus officinalis"
   },
   {
     "commonName": "Hương thảo Tuscan Blue",
     "cultivar": "Tuscan Blue",
-    "description": "Hương thảo Tuscan Blue là cây bụi hương thơm với lá kim xanh bạc. Cây chịu hạn tốt, ưa nắng và đất thoát nước. Lá hương thảo được dùng làm gia vị trong món nướng và có tinh dầu thơm.",
     "locale": "vi",
     "scientificName": "Rosmarinus officinalis"
   },
@@ -8644,35 +7635,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Mam xoi do Anne",
     "cultivar": "Anne",
-    "description": "Mam xoi do Anne là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
     "commonName": "Mam xoi do Caroline",
     "cultivar": "Caroline",
-    "description": "Mam xoi do Caroline là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
     "commonName": "Mam xoi do Heritage",
     "cultivar": "Heritage",
-    "description": "Mam xoi do Heritage là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
     "commonName": "Mam xoi do Joan J",
     "cultivar": "Joan J",
-    "description": "Mam xoi do Joan J là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
     "commonName": "Mam xoi do Tulameen",
     "cultivar": "Tulameen",
-    "description": "Mam xoi do Tulameen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
@@ -8685,35 +7671,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Rau chua Broad Leaf",
     "cultivar": "Broad Leaf",
-    "description": "Rau chua Broad Leaf là loại rau lá xanh với vị chua nhẹ. Cây ưa ẩm và khí hậu mát. Lá được dùng nấu canh chua, salad hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Rumex acetosa"
   },
   {
     "commonName": "Rau chua Green de Belleville",
     "cultivar": "Green de Belleville",
-    "description": "Rau chua Green de Belleville là loại rau lá xanh với vị chua nhẹ. Cây ưa ẩm và khí hậu mát. Lá được dùng nấu canh chua, salad hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Rumex acetosa"
   },
   {
     "commonName": "Rau chua Large Leaf",
     "cultivar": "Large Leaf",
-    "description": "Rau chua Large Leaf là loại rau lá xanh với vị chua nhẹ. Cây ưa ẩm và khí hậu mát. Lá được dùng nấu canh chua, salad hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Rumex acetosa"
   },
   {
     "commonName": "Rau chua Profusion",
     "cultivar": "Profusion",
-    "description": "Rau chua Profusion là loại rau lá xanh với vị chua nhẹ. Cây ưa ẩm và khí hậu mát. Lá được dùng nấu canh chua, salad hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Rumex acetosa"
   },
   {
     "commonName": "Rau chua Red Veined",
     "cultivar": "Red Veined",
-    "description": "Rau chua Red Veined là loại rau lá xanh với vị chua nhẹ. Cây ưa ẩm và khí hậu mát. Lá được dùng nấu canh chua, salad hoặc làm gia vị.",
     "locale": "vi",
     "scientificName": "Rumex acetosa"
   },
@@ -8727,36 +7708,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Saintpaulia ionantha",
     "cultivar": "Blue Dragon",
     "locale": "vi",
-    "commonName": "Tu linh lan chau Phi Blue Dragon",
-    "description": "Giong Blue Dragon cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Tu linh lan chau Phi Blue Dragon"
   },
   {
     "scientificName": "Saintpaulia ionantha",
     "cultivar": "Little Maya",
     "locale": "vi",
-    "commonName": "Tu linh lan chau Phi Little Maya",
-    "description": "Giong Little Maya cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Tu linh lan chau Phi Little Maya"
   },
   {
     "scientificName": "Saintpaulia ionantha",
     "cultivar": "Ma's Melody",
     "locale": "vi",
-    "commonName": "Tu linh lan chau Phi Ma's Melody",
-    "description": "Giong Ma's Melody cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Tu linh lan chau Phi Ma's Melody"
   },
   {
     "scientificName": "Saintpaulia ionantha",
     "cultivar": "Optimara",
     "locale": "vi",
-    "commonName": "Tu linh lan chau Phi Optimara",
-    "description": "Giong Optimara cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Tu linh lan chau Phi Optimara"
   },
   {
     "scientificName": "Saintpaulia ionantha",
     "cultivar": "Rob's Boolaroo",
     "locale": "vi",
-    "commonName": "Tu linh lan chau Phi Rob's Boolaroo",
-    "description": "Giong Rob's Boolaroo cua Tu linh lan chau Phi giup mo rong lua chon trong thu vien cay."
+    "commonName": "Tu linh lan chau Phi Rob's Boolaroo"
   },
   {
     "commonName": "Xô thơm",
@@ -8767,35 +7743,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Xô thơm Berggarten",
     "cultivar": "Berggarten",
-    "description": "Xô thơm Berggarten là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính.",
     "locale": "vi",
     "scientificName": "Salvia officinalis"
   },
   {
     "commonName": "Xô thơm Common",
     "cultivar": "Common",
-    "description": "Xô thơm Common là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính.",
     "locale": "vi",
     "scientificName": "Salvia officinalis"
   },
   {
     "commonName": "Xô thơm Golden",
     "cultivar": "Golden",
-    "description": "Xô thơm Golden là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính.",
     "locale": "vi",
     "scientificName": "Salvia officinalis"
   },
   {
     "commonName": "Xô thơm Purpurascens",
     "cultivar": "Purpurascens",
-    "description": "Xô thơm Purpurascens là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính.",
     "locale": "vi",
     "scientificName": "Salvia officinalis"
   },
   {
     "commonName": "Xô thơm Tricolor",
     "cultivar": "Tricolor",
-    "description": "Xô thơm Tricolor là cây thảo mộc với lá có lông mịn và hương thơm mạnh. Cây ưa nắng, chịu hạn và đất khô. Lá xô thơm được dùng nêm nếm món ăn và có dược tính.",
     "locale": "vi",
     "scientificName": "Salvia officinalis"
   },
@@ -8809,36 +7780,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Sambucus nigra",
     "cultivar": "Black Lace",
     "locale": "vi",
-    "commonName": "Co qua den Black Lace",
-    "description": "Giong Black Lace cua Co qua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co qua den Black Lace"
   },
   {
     "scientificName": "Sambucus nigra",
     "cultivar": "Haschberg",
     "locale": "vi",
-    "commonName": "Co qua den Haschberg",
-    "description": "Giong Haschberg cua Co qua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co qua den Haschberg"
   },
   {
     "scientificName": "Sambucus nigra",
     "cultivar": "Marge",
     "locale": "vi",
-    "commonName": "Co qua den Marge",
-    "description": "Giong Marge cua Co qua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co qua den Marge"
   },
   {
     "scientificName": "Sambucus nigra",
     "cultivar": "Nova",
     "locale": "vi",
-    "commonName": "Co qua den Nova",
-    "description": "Giong Nova cua Co qua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co qua den Nova"
   },
   {
     "scientificName": "Sambucus nigra",
     "cultivar": "York",
     "locale": "vi",
-    "commonName": "Co qua den York",
-    "description": "Giong York cua Co qua den giup mo rong lua chon trong thu vien cay."
+    "commonName": "Co qua den York"
   },
   {
     "commonName": "Luoi ho",
@@ -8849,28 +7815,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Luoi ho Black Coral",
     "cultivar": "Black Coral",
-    "description": "Luoi ho Black Coral là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sansevieria trifasciata"
   },
   {
     "commonName": "Luoi ho Hahnii",
     "cultivar": "Hahnii",
-    "description": "Luoi ho Hahnii là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sansevieria trifasciata"
   },
   {
     "commonName": "Luoi ho Laurentii",
     "cultivar": "Laurentii",
-    "description": "Luoi ho Laurentii là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sansevieria trifasciata"
   },
   {
     "commonName": "Luoi ho Moonshine",
     "cultivar": "Moonshine",
-    "description": "Luoi ho Moonshine là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sansevieria trifasciata"
   },
@@ -8884,36 +7846,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Satureja hortensis",
     "cultivar": "Aromata",
     "locale": "vi",
-    "commonName": "Huong dau mua he Aromata",
-    "description": "Giong Aromata cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+    "commonName": "Huong dau mua he Aromata"
   },
   {
     "scientificName": "Satureja hortensis",
     "cultivar": "Compacta",
     "locale": "vi",
-    "commonName": "Huong dau mua he Compacta",
-    "description": "Giong Compacta cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+    "commonName": "Huong dau mua he Compacta"
   },
   {
     "scientificName": "Satureja hortensis",
     "cultivar": "Dwarf Green",
     "locale": "vi",
-    "commonName": "Huong dau mua he Dwarf Green",
-    "description": "Giong Dwarf Green cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+    "commonName": "Huong dau mua he Dwarf Green"
   },
   {
     "scientificName": "Satureja hortensis",
     "cultivar": "Fine Leaf",
     "locale": "vi",
-    "commonName": "Huong dau mua he Fine Leaf",
-    "description": "Giong Fine Leaf cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+    "commonName": "Huong dau mua he Fine Leaf"
   },
   {
     "scientificName": "Satureja hortensis",
     "cultivar": "Saturn",
     "locale": "vi",
-    "commonName": "Huong dau mua he Saturn",
-    "description": "Giong Saturn cua Huong dau mua he giup mo rong lua chon trong thu vien cay."
+    "commonName": "Huong dau mua he Saturn"
   },
   {
     "commonName": "Ngu gia bi",
@@ -8924,35 +7881,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Ngu gia bi Compacta",
     "cultivar": "Compacta",
-    "description": "Ngu gia bi Compacta là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Schefflera arboricola"
   },
   {
     "commonName": "Ngu gia bi Gold Capella",
     "cultivar": "Gold Capella",
-    "description": "Ngu gia bi Gold Capella là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Schefflera arboricola"
   },
   {
     "commonName": "Ngu gia bi Janine",
     "cultivar": "Janine",
-    "description": "Ngu gia bi Janine là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Schefflera arboricola"
   },
   {
     "commonName": "Ngu gia bi Luseane",
     "cultivar": "Luseane",
-    "description": "Ngu gia bi Luseane là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Schefflera arboricola"
   },
   {
     "commonName": "Ngu gia bi Trinette",
     "cultivar": "Trinette",
-    "description": "Ngu gia bi Trinette là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Schefflera arboricola"
   },
@@ -8966,36 +7918,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Schlumbergera truncata",
     "cultivar": "Christmas Flame",
     "locale": "vi",
-    "commonName": "Xuong rong Giang sinh Christmas Flame",
-    "description": "Giong Christmas Flame cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xuong rong Giang sinh Christmas Flame"
   },
   {
     "scientificName": "Schlumbergera truncata",
     "cultivar": "Gold Charm",
     "locale": "vi",
-    "commonName": "Xuong rong Giang sinh Gold Charm",
-    "description": "Giong Gold Charm cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xuong rong Giang sinh Gold Charm"
   },
   {
     "scientificName": "Schlumbergera truncata",
     "cultivar": "Thanksgiving",
     "locale": "vi",
-    "commonName": "Xuong rong Giang sinh Thanksgiving",
-    "description": "Giong Thanksgiving cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xuong rong Giang sinh Thanksgiving"
   },
   {
     "scientificName": "Schlumbergera truncata",
     "cultivar": "Thor Carmen",
     "locale": "vi",
-    "commonName": "Xuong rong Giang sinh Thor Carmen",
-    "description": "Giong Thor Carmen cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xuong rong Giang sinh Thor Carmen"
   },
   {
     "scientificName": "Schlumbergera truncata",
     "cultivar": "White Christmas",
     "locale": "vi",
-    "commonName": "Xuong rong Giang sinh White Christmas",
-    "description": "Giong White Christmas cua Xuong rong Giang sinh giup mo rong lua chon trong thu vien cay."
+    "commonName": "Xuong rong Giang sinh White Christmas"
   },
   {
     "scientificName": "Scorzonera hispanica",
@@ -9007,36 +7954,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Scorzonera hispanica",
     "cultivar": "Black Peter",
     "locale": "vi",
-    "commonName": "Re scorzonera Black Peter",
-    "description": "Giong Black Peter cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re scorzonera Black Peter"
   },
   {
     "scientificName": "Scorzonera hispanica",
     "cultivar": "Duplex",
     "locale": "vi",
-    "commonName": "Re scorzonera Duplex",
-    "description": "Giong Duplex cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re scorzonera Duplex"
   },
   {
     "scientificName": "Scorzonera hispanica",
     "cultivar": "Hoffmanns",
     "locale": "vi",
-    "commonName": "Re scorzonera Hoffmanns",
-    "description": "Giong Hoffmanns cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re scorzonera Hoffmanns"
   },
   {
     "scientificName": "Scorzonera hispanica",
     "cultivar": "Long Black",
     "locale": "vi",
-    "commonName": "Re scorzonera Long Black",
-    "description": "Giong Long Black cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re scorzonera Long Black"
   },
   {
     "scientificName": "Scorzonera hispanica",
     "cultivar": "Russian Giant",
     "locale": "vi",
-    "commonName": "Re scorzonera Russian Giant",
-    "description": "Giong Russian Giant cua Re scorzonera giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re scorzonera Russian Giant"
   },
   {
     "commonName": "Su su",
@@ -9047,63 +7989,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Su su Green Pear",
     "cultivar": "Green Pear",
-    "description": "Su su Green Pear là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su Long Green",
     "cultivar": "Long Green",
-    "description": "Su su Long Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su Mexican Cream",
     "cultivar": "Mexican Cream",
-    "description": "Su su Mexican Cream là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su Round Green",
     "cultivar": "Round Green",
-    "description": "Su su Round Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su Spineless",
     "cultivar": "Spineless",
-    "description": "Su su Spineless là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su Spineless Green",
     "cultivar": "Spineless Green",
-    "description": "Su su Spineless Green là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su Tayota",
     "cultivar": "Tayota",
-    "description": "Su su Tayota là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su White Choko",
     "cultivar": "White Choko",
-    "description": "Su su White Choko là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
   {
     "commonName": "Su su White Pear",
     "cultivar": "White Pear",
-    "description": "Su su White Pear là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Sechium edule"
   },
@@ -9116,69 +8049,60 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Thanh long American Beauty",
     "cultivar": "American Beauty",
-    "description": "Thanh long American Beauty là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Colombiana",
     "cultivar": "Colombiana",
-    "description": "Thanh long Colombiana là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Condor",
     "cultivar": "Condor",
-    "description": "Thanh long Condor là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Lisa",
     "cultivar": "Lisa",
-    "description": "Thanh long Lisa là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Physical Graffiti",
     "cultivar": "Physical Graffiti",
-    "description": "Thanh long Physical Graffiti là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Purple Haze",
     "cultivar": "Purple Haze",
-    "description": "Thanh long Purple Haze là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Vietnam Red",
     "cultivar": "Vietnam Red",
-    "description": "Thanh long Vietnam Red là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Vietnam White",
     "cultivar": "Vietnam White",
-    "description": "Thanh long Vietnam White là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Thanh long Yellow Dragon",
     "cultivar": "Yellow Dragon",
-    "description": "Thanh long Yellow Dragon là cây xương rồng leo cho quả có vỏ gai, ruột đỏ, hồng hoặc trắng. Cây ưa nắng và đất khô thoát nước. Quả thanh long ngọt mát, dùng ăn tươi hoặc làm sinh tố.",
     "locale": "vi",
     "scientificName": "Selenicereus undatus"
   },
   {
     "commonName": "Cà chua",
-    "description": "Cà chua là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Cà chua là cây vụ ấm được trồng lấy quả để ăn tươi, nấu chín hoặc chế biến. Cây cần nắng mạnh, đất màu mỡ thoát nước, giá đỡ với giống sinh trưởng vô hạn và lượng nước ổn định tại vùng rễ. Theo dõi chồi non, lá và quả để phát hiện sâu bệnh; thu khi màu sắc và độ cứng phù hợp với từng giống.",
     "locale": "vi",
     "scientificName": "Solanum lycopersicum"
   },
@@ -9240,28 +8164,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cà tím Black Beauty",
     "cultivar": "Black Beauty",
-    "description": "Cà tím là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Solanum melongena"
   },
   {
     "commonName": "Cà tím Fairy Tale",
     "cultivar": "Fairy Tale",
-    "description": "Cà tím là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Solanum melongena"
   },
   {
     "commonName": "Cà tím Japanese Long",
     "cultivar": "Japanese Long",
-    "description": "Cà tím là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Solanum melongena"
   },
   {
     "commonName": "Cà tím Rosa Bianca",
     "cultivar": "Rosa Bianca",
-    "description": "Cà tím là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Solanum melongena"
   },
@@ -9274,35 +8194,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Dưa pepino El Camino",
     "cultivar": "El Camino",
-    "description": "Dưa pepino El Camino cho quả hình trứng, vỏ vàng kem với sọc tím, vị ngọt mát. Cây ưa khí hậu ấm và đất thoát nước. Quả dùng ăn tươi, làm salad hoặc tráng miệng.",
     "locale": "vi",
     "scientificName": "Solanum muricatum"
   },
   {
     "commonName": "Dưa pepino Golden Globe",
     "cultivar": "Golden Globe",
-    "description": "Dưa pepino Golden Globe cho quả hình trứng, vỏ vàng kem với sọc tím, vị ngọt mát. Cây ưa khí hậu ấm và đất thoát nước. Quả dùng ăn tươi, làm salad hoặc tráng miệng.",
     "locale": "vi",
     "scientificName": "Solanum muricatum"
   },
   {
     "commonName": "Dưa pepino Miski Prolific",
     "cultivar": "Miski Prolific",
-    "description": "Dưa pepino Miski Prolific cho quả hình trứng, vỏ vàng kem với sọc tím, vị ngọt mát. Cây ưa khí hậu ấm và đất thoát nước. Quả dùng ăn tươi, làm salad hoặc tráng miệng.",
     "locale": "vi",
     "scientificName": "Solanum muricatum"
   },
   {
     "commonName": "Dưa pepino Sweet Long",
     "cultivar": "Sweet Long",
-    "description": "Dưa pepino Sweet Long cho quả hình trứng, vỏ vàng kem với sọc tím, vị ngọt mát. Cây ưa khí hậu ấm và đất thoát nước. Quả dùng ăn tươi, làm salad hoặc tráng miệng.",
     "locale": "vi",
     "scientificName": "Solanum muricatum"
   },
   {
     "commonName": "Dưa pepino Valencia",
     "cultivar": "Valencia",
-    "description": "Dưa pepino Valencia cho quả hình trứng, vỏ vàng kem với sọc tím, vị ngọt mát. Cây ưa khí hậu ấm và đất thoát nước. Quả dùng ăn tươi, làm salad hoặc tráng miệng.",
     "locale": "vi",
     "scientificName": "Solanum muricatum"
   },
@@ -9315,41 +8230,36 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cà lông Andean Gold",
     "cultivar": "Andean Gold",
-    "description": "Cà lông Andean Gold (tamarillo) là cây thân gỗ nhỏ cho quả hình trứng màu đỏ hoặc vàng, vị chua ngọt. Cây ưa khí hậu mát và đất giàu hữu cơ. Quả được ăn tươi, làm nước ép hoặc nấu ăn.",
     "locale": "vi",
     "scientificName": "Solanum quitoense"
   },
   {
     "commonName": "Cà lông Baeza",
     "cultivar": "Baeza",
-    "description": "Cà lông Baeza (tamarillo) là cây thân gỗ nhỏ cho quả hình trứng màu đỏ hoặc vàng, vị chua ngọt. Cây ưa khí hậu mát và đất giàu hữu cơ. Quả được ăn tươi, làm nước ép hoặc nấu ăn.",
     "locale": "vi",
     "scientificName": "Solanum quitoense"
   },
   {
     "commonName": "Cà lông Quito Orange",
     "cultivar": "Quito Orange",
-    "description": "Cà lông Quito Orange (tamarillo) là cây thân gỗ nhỏ cho quả hình trứng màu đỏ hoặc vàng, vị chua ngọt. Cây ưa khí hậu mát và đất giàu hữu cơ. Quả được ăn tươi, làm nước ép hoặc nấu ăn.",
     "locale": "vi",
     "scientificName": "Solanum quitoense"
   },
   {
     "commonName": "Cà lông Selva",
     "cultivar": "Selva",
-    "description": "Cà lông Selva (tamarillo) là cây thân gỗ nhỏ cho quả hình trứng màu đỏ hoặc vàng, vị chua ngọt. Cây ưa khí hậu mát và đất giàu hữu cơ. Quả được ăn tươi, làm nước ép hoặc nấu ăn.",
     "locale": "vi",
     "scientificName": "Solanum quitoense"
   },
   {
     "commonName": "Cà lông Smooth Giant",
     "cultivar": "Smooth Giant",
-    "description": "Cà lông Smooth Giant (tamarillo) là cây thân gỗ nhỏ cho quả hình trứng màu đỏ hoặc vàng, vị chua ngọt. Cây ưa khí hậu mát và đất giàu hữu cơ. Quả được ăn tươi, làm nước ép hoặc nấu ăn.",
     "locale": "vi",
     "scientificName": "Solanum quitoense"
   },
   {
     "commonName": "Khoai tây",
-    "description": "Khoai tây là cây thân bụi cho củ nhiều tinh bột. Cây ưa khí hậu mát và đất sâu. Củ khoai tây dùng luộc, chiên, nướng hoặc làm khoai nghiền.",
+    "description": "Khoai tây là cây vụ mát đến ôn hòa, tạo củ ăn được dưới mặt đất. Trồng miếng củ giống sạch bệnh trong đất tơi thoát nước và vun đất hoặc phủ gốc khi thân lớn để củ không gặp ánh sáng. Có thể đào sớm lấy khoai non, hoặc chờ tán lá già tự nhiên nếu cần củ bảo quản.",
     "locale": "vi",
     "scientificName": "Solanum tuberosum"
   },
@@ -9425,35 +8335,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Lan ý Domino",
     "cultivar": "Domino",
-    "description": "Lan ý Domino là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất.",
     "locale": "vi",
     "scientificName": "Spathiphyllum wallisii"
   },
   {
     "commonName": "Lan ý Mauna Loa",
     "cultivar": "Mauna Loa",
-    "description": "Lan ý Mauna Loa là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất.",
     "locale": "vi",
     "scientificName": "Spathiphyllum wallisii"
   },
   {
     "commonName": "Lan ý Piccolino",
     "cultivar": "Piccolino",
-    "description": "Lan ý Piccolino là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất.",
     "locale": "vi",
     "scientificName": "Spathiphyllum wallisii"
   },
   {
     "commonName": "Lan ý Sensation",
     "cultivar": "Sensation",
-    "description": "Lan ý Sensation là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất.",
     "locale": "vi",
     "scientificName": "Spathiphyllum wallisii"
   },
   {
     "commonName": "Lan ý Sweet Chico",
     "cultivar": "Sweet Chico",
-    "description": "Lan ý Sweet Chico là cây nội thất với lá xanh bóng và hoa trắng tinh khiết. Cây chịu bóng, ưa đất ẩm và giúp lọc không khí. Thích hợp trang trí nội thất.",
     "locale": "vi",
     "scientificName": "Spathiphyllum wallisii"
   },
@@ -9466,28 +8371,24 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Rau bina Baby Leaf",
     "cultivar": "Baby Leaf",
-    "description": "Rau bina Baby Leaf là rau lá xanh xanh giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá rau bina dùng trong salad, xào hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Spinacia oleracea"
   },
   {
     "commonName": "Rau bina Bloomsdale",
     "cultivar": "Bloomsdale",
-    "description": "Rau bina Bloomsdale là rau lá xanh xanh giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá rau bina dùng trong salad, xào hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Spinacia oleracea"
   },
   {
     "commonName": "Rau bina Giant Winter",
     "cultivar": "Giant Winter",
-    "description": "Rau bina Giant Winter là rau lá xanh xanh giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá rau bina dùng trong salad, xào hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Spinacia oleracea"
   },
   {
     "commonName": "Rau bina Space",
     "cultivar": "Space",
-    "description": "Rau bina Space là rau lá xanh xanh giàu sắt và vitamin. Cây ưa mát, phát triển nhanh và dễ trồng. Lá rau bina dùng trong salad, xào hoặc nấu canh.",
     "locale": "vi",
     "scientificName": "Spinacia oleracea"
   },
@@ -9500,35 +8401,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Cỏ ngọt Candy",
     "cultivar": "Candy",
-    "description": "Cỏ ngọt Candy là cây thảo với lá có vị ngọt gấp nhiều lần đường. Cây ưa khí hậu ấm và đất tơi xốp. Lá cỏ ngọt được dùng làm chất tạo ngọt tự nhiên.",
     "locale": "vi",
     "scientificName": "Stevia rebaudiana"
   },
   {
     "commonName": "Cỏ ngọt Criolla",
     "cultivar": "Criolla",
-    "description": "Cỏ ngọt Criolla là cây thảo với lá có vị ngọt gấp nhiều lần đường. Cây ưa khí hậu ấm và đất tơi xốp. Lá cỏ ngọt được dùng làm chất tạo ngọt tự nhiên.",
     "locale": "vi",
     "scientificName": "Stevia rebaudiana"
   },
   {
     "commonName": "Cỏ ngọt Eirete",
     "cultivar": "Eirete",
-    "description": "Cỏ ngọt Eirete là cây thảo với lá có vị ngọt gấp nhiều lần đường. Cây ưa khí hậu ấm và đất tơi xốp. Lá cỏ ngọt được dùng làm chất tạo ngọt tự nhiên.",
     "locale": "vi",
     "scientificName": "Stevia rebaudiana"
   },
   {
     "commonName": "Cỏ ngọt Morita",
     "cultivar": "Morita",
-    "description": "Cỏ ngọt Morita là cây thảo với lá có vị ngọt gấp nhiều lần đường. Cây ưa khí hậu ấm và đất tơi xốp. Lá cỏ ngọt được dùng làm chất tạo ngọt tự nhiên.",
     "locale": "vi",
     "scientificName": "Stevia rebaudiana"
   },
   {
     "commonName": "Cỏ ngọt Sweet Leaf",
     "cultivar": "Sweet Leaf",
-    "description": "Cỏ ngọt Sweet Leaf là cây thảo với lá có vị ngọt gấp nhiều lần đường. Cây ưa khí hậu ấm và đất tơi xốp. Lá cỏ ngọt được dùng làm chất tạo ngọt tự nhiên.",
     "locale": "vi",
     "scientificName": "Stevia rebaudiana"
   },
@@ -9541,35 +8437,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Truc bach hop Albo",
     "cultivar": "Albo",
-    "description": "Truc bach hop Albo là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Syngonium podophyllum"
   },
   {
     "commonName": "Truc bach hop Berry",
     "cultivar": "Berry",
-    "description": "Truc bach hop Berry là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Syngonium podophyllum"
   },
   {
     "commonName": "Truc bach hop Neon Robusta",
     "cultivar": "Neon Robusta",
-    "description": "Truc bach hop Neon Robusta là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Syngonium podophyllum"
   },
   {
     "commonName": "Truc bach hop Pink Splash",
     "cultivar": "Pink Splash",
-    "description": "Truc bach hop Pink Splash là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Syngonium podophyllum"
   },
   {
     "commonName": "Truc bach hop White Butterfly",
     "cultivar": "White Butterfly",
-    "description": "Truc bach hop White Butterfly là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Syngonium podophyllum"
   },
@@ -9582,21 +8473,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Vạn thọ Antigua",
     "cultivar": "Antigua",
-    "description": "Vạn thọ Antigua là cây hoa thân thấp với hoa vàng cam rực rỡ. Cây ưa nắng và chịu hạn tốt. Hoa thường được trồng trang trí và sử dụng trong dịp lễ Tết.",
     "locale": "vi",
     "scientificName": "Tagetes erecta"
   },
   {
     "commonName": "Vạn thọ Orange Giant",
     "cultivar": "Orange Giant",
-    "description": "Vạn thọ Orange Giant là cây hoa thân thấp với hoa vàng cam rực rỡ. Cây ưa nắng và chịu hạn tốt. Hoa thường được trồng trang trí và sử dụng trong dịp lễ Tết.",
     "locale": "vi",
     "scientificName": "Tagetes erecta"
   },
   {
     "commonName": "Vạn thọ Yellow Supreme",
     "cultivar": "Yellow Supreme",
-    "description": "Vạn thọ Yellow Supreme là cây hoa thân thấp với hoa vàng cam rực rỡ. Cây ưa nắng và chịu hạn tốt. Hoa thường được trồng trang trí và sử dụng trong dịp lễ Tết.",
     "locale": "vi",
     "scientificName": "Tagetes erecta"
   },
@@ -9610,36 +8498,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tanacetum balsamita",
     "cultivar": "Aureum",
     "locale": "vi",
-    "commonName": "La thom costmary Aureum",
-    "description": "Giong Aureum cua La thom costmary giup mo rong lua chon trong thu vien cay."
+    "commonName": "La thom costmary Aureum"
   },
   {
     "scientificName": "Tanacetum balsamita",
     "cultivar": "Bible Leaf",
     "locale": "vi",
-    "commonName": "La thom costmary Bible Leaf",
-    "description": "Giong Bible Leaf cua La thom costmary giup mo rong lua chon trong thu vien cay."
+    "commonName": "La thom costmary Bible Leaf"
   },
   {
     "scientificName": "Tanacetum balsamita",
     "cultivar": "Common",
     "locale": "vi",
-    "commonName": "La thom costmary Common",
-    "description": "Giong Common cua La thom costmary giup mo rong lua chon trong thu vien cay."
+    "commonName": "La thom costmary Common"
   },
   {
     "scientificName": "Tanacetum balsamita",
     "cultivar": "Mint Geranium",
     "locale": "vi",
-    "commonName": "La thom costmary Mint Geranium",
-    "description": "Giong Mint Geranium cua La thom costmary giup mo rong lua chon trong thu vien cay."
+    "commonName": "La thom costmary Mint Geranium"
   },
   {
     "scientificName": "Tanacetum balsamita",
     "cultivar": "Sweet Leaf",
     "locale": "vi",
-    "commonName": "La thom costmary Sweet Leaf",
-    "description": "Giong Sweet Leaf cua La thom costmary giup mo rong lua chon trong thu vien cay."
+    "commonName": "La thom costmary Sweet Leaf"
   },
   {
     "scientificName": "Taraxacum officinale",
@@ -9651,36 +8534,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Taraxacum officinale",
     "cultivar": "Ameliore",
     "locale": "vi",
-    "commonName": "La bo cong anh Ameliore",
-    "description": "Giong Ameliore cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "La bo cong anh Ameliore"
   },
   {
     "scientificName": "Taraxacum officinale",
     "cultivar": "Catalogna",
     "locale": "vi",
-    "commonName": "La bo cong anh Catalogna",
-    "description": "Giong Catalogna cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "La bo cong anh Catalogna"
   },
   {
     "scientificName": "Taraxacum officinale",
     "cultivar": "Clio",
     "locale": "vi",
-    "commonName": "La bo cong anh Clio",
-    "description": "Giong Clio cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "La bo cong anh Clio"
   },
   {
     "scientificName": "Taraxacum officinale",
     "cultivar": "Thick Leaf",
     "locale": "vi",
-    "commonName": "La bo cong anh Thick Leaf",
-    "description": "Giong Thick Leaf cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "La bo cong anh Thick Leaf"
   },
   {
     "scientificName": "Taraxacum officinale",
     "cultivar": "Vert de Montmagny",
     "locale": "vi",
-    "commonName": "La bo cong anh Vert de Montmagny",
-    "description": "Giong Vert de Montmagny cua La bo cong anh giup mo rong lua chon trong thu vien cay."
+    "commonName": "La bo cong anh Vert de Montmagny"
   },
   {
     "scientificName": "Tetragonia tetragonioides",
@@ -9692,36 +8570,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tetragonia tetragonioides",
     "cultivar": "Coastal",
     "locale": "vi",
-    "commonName": "Rau bina New Zealand Coastal",
-    "description": "Giong Coastal cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau bina New Zealand Coastal"
   },
   {
     "scientificName": "Tetragonia tetragonioides",
     "cultivar": "Green Wave",
     "locale": "vi",
-    "commonName": "Rau bina New Zealand Green Wave",
-    "description": "Giong Green Wave cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau bina New Zealand Green Wave"
   },
   {
     "scientificName": "Tetragonia tetragonioides",
     "cultivar": "Maori",
     "locale": "vi",
-    "commonName": "Rau bina New Zealand Maori",
-    "description": "Giong Maori cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau bina New Zealand Maori"
   },
   {
     "scientificName": "Tetragonia tetragonioides",
     "cultivar": "Summer Green",
     "locale": "vi",
-    "commonName": "Rau bina New Zealand Summer Green",
-    "description": "Giong Summer Green cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau bina New Zealand Summer Green"
   },
   {
     "scientificName": "Tetragonia tetragonioides",
     "cultivar": "Warrigal",
     "locale": "vi",
-    "commonName": "Rau bina New Zealand Warrigal",
-    "description": "Giong Warrigal cua Rau bina New Zealand giup mo rong lua chon trong thu vien cay."
+    "commonName": "Rau bina New Zealand Warrigal"
   },
   {
     "commonName": "Xạ hương",
@@ -9732,21 +8605,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Xạ hương English Thyme",
     "cultivar": "English Thyme",
-    "description": "Xạ hương English Thyme là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà.",
     "locale": "vi",
     "scientificName": "Thymus vulgaris"
   },
   {
     "commonName": "Xạ hương French Thyme",
     "cultivar": "French Thyme",
-    "description": "Xạ hương French Thyme là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà.",
     "locale": "vi",
     "scientificName": "Thymus vulgaris"
   },
   {
     "commonName": "Xạ hương Lemon Thyme",
     "cultivar": "Lemon Thyme",
-    "description": "Xạ hương Lemon Thyme là cây thảo mộc nhỏ với lá xanh và hương thơm tinh dầu. Cây chịu hạn, ưa nắng và đất khô. Lá xạ hương được dùng trong nấu nướng và làm trà.",
     "locale": "vi",
     "scientificName": "Thymus vulgaris"
   },
@@ -9759,35 +8629,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Thái dương Burgundy",
     "cultivar": "Burgundy",
-    "description": "Thái dương Burgundy là cây cảnh với lá dày nhiều màu sắc bắt mắt. Cây ưa nắng và độ ẩm cao. Thích hợp trang trí sân vườn hoặc trong nhà.",
     "locale": "vi",
     "scientificName": "Tradescantia zebrina"
   },
   {
     "commonName": "Thái dương Purpusii",
     "cultivar": "Purpusii",
-    "description": "Thái dương Purpusii là cây cảnh với lá dày nhiều màu sắc bắt mắt. Cây ưa nắng và độ ẩm cao. Thích hợp trang trí sân vườn hoặc trong nhà.",
     "locale": "vi",
     "scientificName": "Tradescantia zebrina"
   },
   {
     "commonName": "Thái dương Quadricolor",
     "cultivar": "Quadricolor",
-    "description": "Thái dương Quadricolor là cây cảnh với lá dày nhiều màu sắc bắt mắt. Cây ưa nắng và độ ẩm cao. Thích hợp trang trí sân vườn hoặc trong nhà.",
     "locale": "vi",
     "scientificName": "Tradescantia zebrina"
   },
   {
     "commonName": "Thái dương Silver Plus",
     "cultivar": "Silver Plus",
-    "description": "Thái dương Silver Plus là cây cảnh với lá dày nhiều màu sắc bắt mắt. Cây ưa nắng và độ ẩm cao. Thích hợp trang trí sân vườn hoặc trong nhà.",
     "locale": "vi",
     "scientificName": "Tradescantia zebrina"
   },
   {
     "commonName": "Thái dương Violet Hill",
     "cultivar": "Violet Hill",
-    "description": "Thái dương Violet Hill là cây cảnh với lá dày nhiều màu sắc bắt mắt. Cây ưa nắng và độ ẩm cao. Thích hợp trang trí sân vườn hoặc trong nhà.",
     "locale": "vi",
     "scientificName": "Tradescantia zebrina"
   },
@@ -9801,36 +8666,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tragopogon porrifolius",
     "cultivar": "Fiore Blu",
     "locale": "vi",
-    "commonName": "Re hau Fiore Blu",
-    "description": "Giong Fiore Blu cua Re hau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re hau Fiore Blu"
   },
   {
     "scientificName": "Tragopogon porrifolius",
     "cultivar": "Giant White",
     "locale": "vi",
-    "commonName": "Re hau Giant White",
-    "description": "Giong Giant White cua Re hau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re hau Giant White"
   },
   {
     "scientificName": "Tragopogon porrifolius",
     "cultivar": "Mammoth Sandwich Island",
     "locale": "vi",
-    "commonName": "Re hau Mammoth Sandwich Island",
-    "description": "Giong Mammoth Sandwich Island cua Re hau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re hau Mammoth Sandwich Island"
   },
   {
     "scientificName": "Tragopogon porrifolius",
     "cultivar": "Sandwich",
     "locale": "vi",
-    "commonName": "Re hau Sandwich",
-    "description": "Giong Sandwich cua Re hau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re hau Sandwich"
   },
   {
     "scientificName": "Tragopogon porrifolius",
     "cultivar": "White French",
     "locale": "vi",
-    "commonName": "Re hau White French",
-    "description": "Giong White French cua Re hau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Re hau White French"
   },
   {
     "scientificName": "Tropaeolum majus",
@@ -9842,36 +8702,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tropaeolum majus",
     "cultivar": "Alaska",
     "locale": "vi",
-    "commonName": "Sen can Alaska",
-    "description": "Giong Alaska cua Sen can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sen can Alaska"
   },
   {
     "scientificName": "Tropaeolum majus",
     "cultivar": "Empress of India",
     "locale": "vi",
-    "commonName": "Sen can Empress of India",
-    "description": "Giong Empress of India cua Sen can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sen can Empress of India"
   },
   {
     "scientificName": "Tropaeolum majus",
     "cultivar": "Jewel Mix",
     "locale": "vi",
-    "commonName": "Sen can Jewel Mix",
-    "description": "Giong Jewel Mix cua Sen can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sen can Jewel Mix"
   },
   {
     "scientificName": "Tropaeolum majus",
     "cultivar": "Trailing Single",
     "locale": "vi",
-    "commonName": "Sen can Trailing Single",
-    "description": "Giong Trailing Single cua Sen can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sen can Trailing Single"
   },
   {
     "scientificName": "Tropaeolum majus",
     "cultivar": "Whirlybird",
     "locale": "vi",
-    "commonName": "Sen can Whirlybird",
-    "description": "Giong Whirlybird cua Sen can giup mo rong lua chon trong thu vien cay."
+    "commonName": "Sen can Whirlybird"
   },
   {
     "scientificName": "Tulipa gesneriana",
@@ -9883,36 +8738,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Tulipa gesneriana",
     "cultivar": "Angelique",
     "locale": "vi",
-    "commonName": "Uat kim huong Angelique",
-    "description": "Giong Angelique cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Uat kim huong Angelique"
   },
   {
     "scientificName": "Tulipa gesneriana",
     "cultivar": "Apeldoorn",
     "locale": "vi",
-    "commonName": "Uat kim huong Apeldoorn",
-    "description": "Giong Apeldoorn cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Uat kim huong Apeldoorn"
   },
   {
     "scientificName": "Tulipa gesneriana",
     "cultivar": "Ballerina",
     "locale": "vi",
-    "commonName": "Uat kim huong Ballerina",
-    "description": "Giong Ballerina cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Uat kim huong Ballerina"
   },
   {
     "scientificName": "Tulipa gesneriana",
     "cultivar": "Negrita",
     "locale": "vi",
-    "commonName": "Uat kim huong Negrita",
-    "description": "Giong Negrita cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Uat kim huong Negrita"
   },
   {
     "scientificName": "Tulipa gesneriana",
     "cultivar": "Queen of Night",
     "locale": "vi",
-    "commonName": "Uat kim huong Queen of Night",
-    "description": "Giong Queen of Night cua Uat kim huong giup mo rong lua chon trong thu vien cay."
+    "commonName": "Uat kim huong Queen of Night"
   },
   {
     "commonName": "Viet quat",
@@ -9923,35 +8773,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Viet quat Aurora",
     "cultivar": "Aurora",
-    "description": "Viet quat Aurora là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vaccinium corymbosum"
   },
   {
     "commonName": "Viet quat Bluecrop",
     "cultivar": "Bluecrop",
-    "description": "Viet quat Bluecrop là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vaccinium corymbosum"
   },
   {
     "commonName": "Viet quat Duke",
     "cultivar": "Duke",
-    "description": "Viet quat Duke là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vaccinium corymbosum"
   },
   {
     "commonName": "Viet quat Legacy",
     "cultivar": "Legacy",
-    "description": "Viet quat Legacy là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vaccinium corymbosum"
   },
   {
     "commonName": "Viet quat Sunshine Blue",
     "cultivar": "Sunshine Blue",
-    "description": "Viet quat Sunshine Blue là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vaccinium corymbosum"
   },
@@ -9964,35 +8809,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Xà lách cúc Favor",
     "cultivar": "Favor",
-    "description": "Xà lách cúc là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Valeriana locusta"
   },
   {
     "commonName": "Xà lách cúc Gala",
     "cultivar": "Gala",
-    "description": "Xà lách cúc là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Valeriana locusta"
   },
   {
     "commonName": "Xà lách cúc Large Dutch",
     "cultivar": "Large Dutch",
-    "description": "Xà lách cúc là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Valeriana locusta"
   },
   {
     "commonName": "Xà lách cúc Medaillon",
     "cultivar": "Medaillon",
-    "description": "Xà lách cúc là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Valeriana locusta"
   },
   {
     "commonName": "Xà lách cúc Vit",
     "cultivar": "Vit",
-    "description": "Xà lách cúc là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Valeriana locusta"
   },
@@ -10005,63 +8845,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Vạn anh Aztec Violet",
     "cultivar": "Aztec Violet",
-    "description": "Vạn anh Aztec Violet là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Endurascape",
     "cultivar": "Endurascape",
-    "description": "Vạn anh Endurascape là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Firehouse Red",
     "cultivar": "Firehouse Red",
-    "description": "Vạn anh Firehouse Red là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Homestead Purple",
     "cultivar": "Homestead Purple",
-    "description": "Vạn anh Homestead Purple là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Lanai Blue",
     "cultivar": "Lanai Blue",
-    "description": "Vạn anh Lanai Blue là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Lanai Twister",
     "cultivar": "Lanai Twister",
-    "description": "Vạn anh Lanai Twister là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Obsession Mix",
     "cultivar": "Obsession Mix",
-    "description": "Vạn anh Obsession Mix là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Quartz Purple",
     "cultivar": "Quartz Purple",
-    "description": "Vạn anh Quartz Purple là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
   {
     "commonName": "Vạn anh Quartz White",
     "cultivar": "Quartz White",
-    "description": "Vạn anh Quartz White là cây hoa thân thảo nở từng chùm hoa nhỏ nhiều màu. Cây ưa nắng và đất thoát nước. Phù hợp trồng viền lối đi, bồn hoa hoặc chậu treo.",
     "locale": "vi",
     "scientificName": "Verbena x hybrida"
   },
@@ -10074,35 +8905,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu tằm Aquadulce",
     "cultivar": "Aquadulce",
-    "description": "Đậu tằm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vicia faba"
   },
   {
     "commonName": "Đậu tằm Broad Windsor",
     "cultivar": "Broad Windsor",
-    "description": "Đậu tằm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vicia faba"
   },
   {
     "commonName": "Đậu tằm Crimson Flowered",
     "cultivar": "Crimson Flowered",
-    "description": "Đậu tằm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vicia faba"
   },
   {
     "commonName": "Đậu tằm Express",
     "cultivar": "Express",
-    "description": "Đậu tằm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vicia faba"
   },
   {
     "commonName": "Đậu tằm Windsor",
     "cultivar": "Windsor",
-    "description": "Đậu tằm là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vicia faba"
   },
@@ -10116,36 +8942,31 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Vigna angularis",
     "cultivar": "Dainagon",
     "locale": "vi",
-    "commonName": "Dau do adzuki Dainagon",
-    "description": "Giong Dainagon cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau do adzuki Dainagon"
   },
   {
     "scientificName": "Vigna angularis",
     "cultivar": "Erimo",
     "locale": "vi",
-    "commonName": "Dau do adzuki Erimo",
-    "description": "Giong Erimo cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau do adzuki Erimo"
   },
   {
     "scientificName": "Vigna angularis",
     "cultivar": "Hokkaido",
     "locale": "vi",
-    "commonName": "Dau do adzuki Hokkaido",
-    "description": "Giong Hokkaido cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau do adzuki Hokkaido"
   },
   {
     "scientificName": "Vigna angularis",
     "cultivar": "Red Chimes",
     "locale": "vi",
-    "commonName": "Dau do adzuki Red Chimes",
-    "description": "Giong Red Chimes cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau do adzuki Red Chimes"
   },
   {
     "scientificName": "Vigna angularis",
     "cultivar": "Takara",
     "locale": "vi",
-    "commonName": "Dau do adzuki Takara",
-    "description": "Giong Takara cua Dau do adzuki giup mo rong lua chon trong thu vien cay."
+    "commonName": "Dau do adzuki Takara"
   },
   {
     "commonName": "Đậu đen",
@@ -10156,35 +8977,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu đen Mash 1008",
     "cultivar": "Mash 1008",
-    "description": "Đậu đen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna mungo"
   },
   {
     "commonName": "Đậu đen Pant U19",
     "cultivar": "Pant U19",
-    "description": "Đậu đen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna mungo"
   },
   {
     "commonName": "Đậu đen PU31",
     "cultivar": "PU31",
-    "description": "Đậu đen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna mungo"
   },
   {
     "commonName": "Đậu đen T9",
     "cultivar": "T9",
-    "description": "Đậu đen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna mungo"
   },
   {
     "commonName": "Đậu đen Uttara",
     "cultivar": "Uttara",
-    "description": "Đậu đen là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna mungo"
   },
@@ -10197,49 +9013,42 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu xanh Berken",
     "cultivar": "Berken",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
   {
     "commonName": "Đậu xanh Camden",
     "cultivar": "Camden",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
   {
     "commonName": "Đậu xanh Jade AU",
     "cultivar": "Jade AU",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
   {
     "commonName": "Đậu xanh KPS1",
     "cultivar": "KPS1",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
   {
     "commonName": "Đậu xanh KPS2",
     "cultivar": "KPS2",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
   {
     "commonName": "Đậu xanh Pagasa 7",
     "cultivar": "Pagasa 7",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
   {
     "commonName": "Đậu xanh VC1973A",
     "cultivar": "VC1973A",
-    "description": "Đậu xanh là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna radiata"
   },
@@ -10252,21 +9061,18 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Đậu đũa Black Seeded",
     "cultivar": "Black Seeded",
-    "description": "Đậu đũa là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna unguiculata"
   },
   {
     "commonName": "Đậu đũa Purple Pod",
     "cultivar": "Purple Pod",
-    "description": "Đậu đũa là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna unguiculata"
   },
   {
     "commonName": "Đậu đũa Red Noodle",
     "cultivar": "Red Noodle",
-    "description": "Đậu đũa là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Vigna unguiculata"
   },
@@ -10279,35 +9085,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Hoa ban Cool Wave",
     "cultivar": "Cool Wave",
-    "description": "Hoa ban Cool Wave là cây hoa thấp với bông năm cánh nhiều màu sắc. Cây chịu lạnh và ra hoa vào mùa xuân. Được trồng viền lối đi, bồn hoa hoặc chậu cảnh.",
     "locale": "vi",
     "scientificName": "Viola tricolor"
   },
   {
     "commonName": "Hoa ban Delta Yellow",
     "cultivar": "Delta Yellow",
-    "description": "Hoa ban Delta Yellow là cây hoa thấp với bông năm cánh nhiều màu sắc. Cây chịu lạnh và ra hoa vào mùa xuân. Được trồng viền lối đi, bồn hoa hoặc chậu cảnh.",
     "locale": "vi",
     "scientificName": "Viola tricolor"
   },
   {
     "commonName": "Hoa ban Majestic Giants",
     "cultivar": "Majestic Giants",
-    "description": "Hoa ban Majestic Giants là cây hoa thấp với bông năm cánh nhiều màu sắc. Cây chịu lạnh và ra hoa vào mùa xuân. Được trồng viền lối đi, bồn hoa hoặc chậu cảnh.",
     "locale": "vi",
     "scientificName": "Viola tricolor"
   },
   {
     "commonName": "Hoa ban Matrix Blue",
     "cultivar": "Matrix Blue",
-    "description": "Hoa ban Matrix Blue là cây hoa thấp với bông năm cánh nhiều màu sắc. Cây chịu lạnh và ra hoa vào mùa xuân. Được trồng viền lối đi, bồn hoa hoặc chậu cảnh.",
     "locale": "vi",
     "scientificName": "Viola tricolor"
   },
   {
     "commonName": "Hoa ban Swiss Giant",
     "cultivar": "Swiss Giant",
-    "description": "Hoa ban Swiss Giant là cây hoa thấp với bông năm cánh nhiều màu sắc. Cây chịu lạnh và ra hoa vào mùa xuân. Được trồng viền lối đi, bồn hoa hoặc chậu cảnh.",
     "locale": "vi",
     "scientificName": "Viola tricolor"
   },
@@ -10320,63 +9121,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Nho Autumn Royal",
     "cultivar": "Autumn Royal",
-    "description": "Nho Autumn Royal là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Concord",
     "cultivar": "Concord",
-    "description": "Nho Concord là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Cotton Candy",
     "cultivar": "Cotton Candy",
-    "description": "Nho Cotton Candy là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Crimson Seedless",
     "cultivar": "Crimson Seedless",
-    "description": "Nho Crimson Seedless là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Flame Seedless",
     "cultivar": "Flame Seedless",
-    "description": "Nho Flame Seedless là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Italia",
     "cultivar": "Italia",
-    "description": "Nho Italia là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Moon Drops",
     "cultivar": "Moon Drops",
-    "description": "Nho Moon Drops là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Red Globe",
     "cultivar": "Red Globe",
-    "description": "Nho Red Globe là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
   {
     "commonName": "Nho Thompson Seedless",
     "cultivar": "Thompson Seedless",
-    "description": "Nho Thompson Seedless là dây leo cho chùm quả mọng nhỏ, vị ngọt hoặc chua ngọt. Cây ưa khí hậu ôn hòa và cần giàn leo. Quả nho dùng ăn tươi, làm rượu vang hoặc nho khô.",
     "locale": "vi",
     "scientificName": "Vitis vinifera"
   },
@@ -10389,63 +9181,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Kim tiền Black Raven",
     "cultivar": "Black Raven",
-    "description": "Kim tiền Black Raven là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Chameleon",
     "cultivar": "Chameleon",
-    "description": "Kim tiền Chameleon là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Dark Zam",
     "cultivar": "Dark Zam",
-    "description": "Kim tiền Dark Zam là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Lucky Classic",
     "cultivar": "Lucky Classic",
-    "description": "Kim tiền Lucky Classic là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Lucky Green",
     "cultivar": "Lucky Green",
-    "description": "Kim tiền Lucky Green là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Mini Zenzi",
     "cultivar": "Mini Zenzi",
-    "description": "Kim tiền Mini Zenzi là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Raven",
     "cultivar": "Raven",
-    "description": "Kim tiền Raven là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Super Nova",
     "cultivar": "Super Nova",
-    "description": "Kim tiền Super Nova là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
   {
     "commonName": "Kim tiền Zenzi",
     "cultivar": "Zenzi",
-    "description": "Kim tiền Zenzi là cây mọng nước với thân và lá cứng cáp, màu xanh đậm bóng. Cây chịu bóng, ít cần nước, thích hợp trồng trong nhà. Được coi là mang lại may mắn và tài lộc.",
     "locale": "vi",
     "scientificName": "Zamioculcas zamiifolia"
   },
@@ -10458,35 +9241,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Bắp ngọt Bodacious",
     "cultivar": "Bodacious",
-    "description": "Bắp ngọt Bodacious là giống ngô có hạt ngọt mềm. Cây ưa nắng và đất màu mỡ. Hạt bắp ngọt dùng luộc, nướng hoặc xào.",
     "locale": "vi",
     "scientificName": "Zea mays convar. saccharata"
   },
   {
     "commonName": "Bắp ngọt Golden Bantam",
     "cultivar": "Golden Bantam",
-    "description": "Bắp ngọt Golden Bantam là giống ngô có hạt ngọt mềm. Cây ưa nắng và đất màu mỡ. Hạt bắp ngọt dùng luộc, nướng hoặc xào.",
     "locale": "vi",
     "scientificName": "Zea mays convar. saccharata"
   },
   {
     "commonName": "Bắp ngọt Honey Select",
     "cultivar": "Honey Select",
-    "description": "Bắp ngọt Honey Select là giống ngô có hạt ngọt mềm. Cây ưa nắng và đất màu mỡ. Hạt bắp ngọt dùng luộc, nướng hoặc xào.",
     "locale": "vi",
     "scientificName": "Zea mays convar. saccharata"
   },
   {
     "commonName": "Bắp ngọt Peaches and Cream",
     "cultivar": "Peaches and Cream",
-    "description": "Bắp ngọt Peaches and Cream là giống ngô có hạt ngọt mềm. Cây ưa nắng và đất màu mỡ. Hạt bắp ngọt dùng luộc, nướng hoặc xào.",
     "locale": "vi",
     "scientificName": "Zea mays convar. saccharata"
   },
   {
     "commonName": "Bắp ngọt Silver Queen",
     "cultivar": "Silver Queen",
-    "description": "Bắp ngọt Silver Queen là giống ngô có hạt ngọt mềm. Cây ưa nắng và đất màu mỡ. Hạt bắp ngọt dùng luộc, nướng hoặc xào.",
     "locale": "vi",
     "scientificName": "Zea mays convar. saccharata"
   },
@@ -10499,63 +9277,54 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   {
     "commonName": "Gung Blue Hawaiian",
     "cultivar": "Blue Hawaiian",
-    "description": "Gung Blue Hawaiian là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Chinese",
     "cultivar": "Chinese",
-    "description": "Gung Chinese là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Chinese Pink",
     "cultivar": "Chinese Pink",
-    "description": "Gung Chinese Pink là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Himalayan",
     "cultivar": "Himalayan",
-    "description": "Gung Himalayan là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Maran",
     "cultivar": "Maran",
-    "description": "Gung Maran là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Nadia",
     "cultivar": "Nadia",
-    "description": "Gung Nadia là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Organic White",
     "cultivar": "Organic White",
-    "description": "Gung Organic White là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Queensland",
     "cultivar": "Queensland",
-    "description": "Gung Queensland là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
   {
     "commonName": "Gung Rio de Janeiro",
     "cultivar": "Rio de Janeiro",
-    "description": "Gung Rio de Janeiro là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
     "locale": "vi",
     "scientificName": "Zingiber officinale"
   },
@@ -10569,35 +9338,30 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "scientificName": "Zinnia elegans",
     "cultivar": "Benary's Giant",
     "locale": "vi",
-    "commonName": "Cuc ngau Benary's Giant",
-    "description": "Giong Benary's Giant cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc ngau Benary's Giant"
   },
   {
     "scientificName": "Zinnia elegans",
     "cultivar": "Profusion",
     "locale": "vi",
-    "commonName": "Cuc ngau Profusion",
-    "description": "Giong Profusion cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc ngau Profusion"
   },
   {
     "scientificName": "Zinnia elegans",
     "cultivar": "Queen Lime",
     "locale": "vi",
-    "commonName": "Cuc ngau Queen Lime",
-    "description": "Giong Queen Lime cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc ngau Queen Lime"
   },
   {
     "scientificName": "Zinnia elegans",
     "cultivar": "State Fair",
     "locale": "vi",
-    "commonName": "Cuc ngau State Fair",
-    "description": "Giong State Fair cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc ngau State Fair"
   },
   {
     "scientificName": "Zinnia elegans",
     "cultivar": "Zahara",
     "locale": "vi",
-    "commonName": "Cuc ngau Zahara",
-    "description": "Giong Zahara cua Cuc ngau giup mo rong lua chon trong thu vien cay."
+    "commonName": "Cuc ngau Zahara"
   }
 ];

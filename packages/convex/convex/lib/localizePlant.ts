@@ -25,7 +25,9 @@ export function localizePlantRows(
         return {
             displayName: scientificName,
             scientificName,
-            description: fallbackDescription,
+            description: isPlaceholderPlantDescription(fallbackDescription)
+                ? undefined
+                : fallbackDescription,
             localeUsed: "latin",
         };
     }
@@ -38,12 +40,20 @@ export function localizePlantRows(
     const first = rows[0];
     const picked = exact ?? en ?? first;
 
+    const pickedDescription = isPlaceholderPlantDescription(picked?.description)
+        ? undefined
+        : picked?.description;
+    const safeFallbackDescription = isPlaceholderPlantDescription(fallbackDescription)
+        ? undefined
+        : fallbackDescription;
+
     return {
         displayName: picked?.commonName ?? scientificName,
         scientificName,
-        description: picked?.description ?? fallbackDescription,
+        description: pickedDescription ?? safeFallbackDescription,
         localeUsed: picked?.locale ?? "latin",
         careContent: picked?.careContent,
         contentVersion: picked?.contentVersion,
     };
 }
+import { isPlaceholderPlantDescription } from "./plantContentQuality";

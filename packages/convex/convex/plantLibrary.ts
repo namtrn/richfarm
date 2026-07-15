@@ -8,6 +8,10 @@ import {
 } from "./lib/plantTaxonomy";
 import { isDisplayBasePlant } from "../../shared/src/plantBase";
 import { formatPlantFamilyDisplayName } from "../../shared/src/plantFamily";
+import {
+    isPlaceholderPlantDescription,
+    shouldUseBasePlantDescription,
+} from "./lib/plantContentQuality";
 
 const normalize = (value: string) =>
     value
@@ -34,16 +38,68 @@ const speciesKeyOf = (plant: any) => {
 };
 
 const localizedDisplayNameOf = async (ctx: any, plant: any, locale: string) => {
-    const i18n = await ctx.db
+    const normalizedLocale = locale.split("-")[0].toLowerCase();
+    const localized = await ctx.db
         .query("plantI18n")
         .withIndex("by_plant_locale", (q: any) =>
-            q.eq("plantId", plant._id).eq("locale", locale)
+            q.eq("plantId", plant._id).eq("locale", normalizedLocale)
         )
         .first();
 
+    const english = normalizedLocale === "en" ? localized : await ctx.db
+        .query("plantI18n")
+        .withIndex("by_plant_locale", (q: any) =>
+            q.eq("plantId", plant._id).eq("locale", "en")
+        )
+        .first();
+    const picked = localized ?? english;
+
+    let description = picked?.description;
+    if (!isBasePlant(plant)) {
+        const sameScientificName = (await ctx.db
+            .query("plantsMaster")
+            .withIndex("by_scientific_name", (q: any) =>
+                q.eq("scientificName", plant.scientificName)
+            )
+            .collect()).map(withComputedPlantTaxonomy);
+        const basePlant = sameScientificName.find((candidate: any) =>
+            isBasePlant(candidate) && speciesKeyOf(candidate) === speciesKeyOf(plant)
+        );
+        if (basePlant) {
+            const baseLocalized = await ctx.db
+                .query("plantI18n")
+                .withIndex("by_plant_locale", (q: any) =>
+                    q.eq("plantId", basePlant._id).eq("locale", normalizedLocale)
+                )
+                .first();
+            const baseEnglish = normalizedLocale === "en" ? baseLocalized : await ctx.db
+                .query("plantI18n")
+                .withIndex("by_plant_locale", (q: any) =>
+                    q.eq("plantId", basePlant._id).eq("locale", "en")
+                )
+                .first();
+            const basePicked = baseLocalized ?? baseEnglish;
+            if (shouldUseBasePlantDescription({
+                cultivarDescription: description,
+                baseDescription: basePicked?.description,
+                cultivar: plant.cultivar,
+                cultivarCommonName: picked?.commonName,
+                baseCommonName: basePicked?.commonName,
+            })) {
+                description = isPlaceholderPlantDescription(basePicked?.description)
+                    ? undefined
+                    : basePicked?.description;
+            }
+        }
+    }
+
+    if (isPlaceholderPlantDescription(description)) {
+        description = undefined;
+    }
+
     return {
-        commonName: i18n?.commonName ?? plant.scientificName,
-        description: i18n?.description,
+        commonName: picked?.commonName ?? plant.scientificName,
+        description,
     };
 };
 
