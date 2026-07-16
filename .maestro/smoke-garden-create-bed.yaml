@@ -62,7 +62,7 @@ appId: com.mygarden.app
           id: e2e-garden-create-length-input
       - eraseText
       - inputText: 3
-      - hideKeyboard
+      - tapOn: "New Garden"
       - tapOn:
           id: e2e-garden-create-submit
       - extendedWaitUntil:
