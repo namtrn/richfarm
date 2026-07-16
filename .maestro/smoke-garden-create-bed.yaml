@@ -62,9 +62,13 @@ appId: com.mygarden.app
           id: e2e-garden-create-length-input
       - eraseText
       - inputText: 3
-      - pressKey: Enter
+      - hideKeyboard
       - tapOn:
           id: e2e-garden-create-submit
+      - extendedWaitUntil:
+          notVisible:
+            id: e2e-garden-create-name-input
+          timeout: 10000
       - openLink:
           link: my-garden://garden
       - extendedWaitUntil:
