@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { APP_SCHEME, getAuthClient } from '../lib/auth-client';
 import { useTheme } from '../lib/theme';
+import { markServerCreatedAccount } from '../lib/sync/accountClaimIntent';
 
 /**
  * Feature flags — flip to true once the backend is configured.
@@ -132,6 +133,8 @@ export default function AuthScreen() {
         setError(t(errKey));
         return;
       }
+      const createdUserId = (result.data as { user?: { id?: string } } | null)?.user?.id;
+      if (createdUserId) await markServerCreatedAccount(createdUserId);
       setAuthPassword('');
       setAuthConfirm('');
       setPendingVerificationEmail(trimmedAuthEmail);

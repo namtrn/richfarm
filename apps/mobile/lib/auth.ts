@@ -33,25 +33,9 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-let anonymousSignInPromise: Promise<void> | null = null;
 let lastBootstrappedKey: string | null = null;
 let inFlightBootstrapKey: string | null = null;
 let inFlightBootstrapPromise: Promise<string | null> | null = null;
-
-async function ensureAnonymousSession() {
-  if (!anonymousSignInPromise) {
-    anonymousSignInPromise = (async () => {
-      const result = await authClient.signIn.anonymous();
-      if (result.error) {
-        throw new Error(result.error.message ?? 'Anonymous sign-in failed');
-      }
-    })().finally(() => {
-      anonymousSignInPromise = null;
-    });
-  }
-
-  await anonymousSignInPromise;
-}
 
 async function ensureBootstrappedUser(args: {
   initKey: string;
@@ -86,8 +70,10 @@ async function ensureBootstrappedUser(args: {
 function useProvideAuth(): AuthContextValue {
   const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
   const { data: session, isPending: isSessionLoading } = authClient.useSession();
+  const hasAccountSession = !!session
+    && (session.user as { isAnonymous?: boolean }).isAnonymous !== true;
 
-  const rawUser = useQuery(api.users.getCurrentUser, session ? {} : 'skip');
+  const rawUser = useQuery(api.users.getCurrentUser, hasAccountSession ? {} : 'skip');
   const sessionUserId =
     typeof session?.user?.id === 'string' && session.user.id.trim()
       ? session.user.id.trim()
@@ -97,7 +83,7 @@ function useProvideAuth(): AuthContextValue {
     deviceId && sessionUserId ? `rf_current_user_v2_${deviceId}_${sessionUserId}` : null;
   const { cached: cachedUser, remoteResolved } = useQueryCache(cacheKey, rawUser);
 
-  const user = !session ? null : remoteResolved ? rawUser : (cachedUser ?? null);
+  const user = !hasAccountSession ? null : remoteResolved ? rawUser : (cachedUser ?? null);
   const normalizedUser = user ? (sanitizeAnonymousProfile(user) as SanitizedUser) : null;
 
   const getOrCreateUserMutation = useMutation(api.users.getOrCreateUser);
@@ -112,7 +98,10 @@ function useProvideAuth(): AuthContextValue {
     }
 
     if (!session) {
-      await ensureAnonymousSession();
+      return null;
+    }
+
+    if ((session.user as { isAnonymous?: boolean }).isAnonymous === true) {
       return null;
     }
 

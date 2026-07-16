@@ -13,7 +13,7 @@ import {
 import { mapSyncActionToPhoto } from './mappers';
 import { useDeviceId } from '../deviceId';
 import { EntityOperationPayload, SyncActionType } from './types';
-import { authClient } from '../auth-client';
+import { useLocalSyncIdentity } from './identity';
 import { APP_VERSION } from '../appVersion';
 import { loadRenderedProjection, reconcileAuthoritativeSnapshot } from './reconciliation';
 import { loadPlantLocalData, savePlantLocalData } from '../plantLocalData';
@@ -22,8 +22,35 @@ import {
     rebasePreferencePatch,
     removePreferencePatch,
 } from './preferencesQueue';
+import * as ImagePicker from 'expo-image-picker';
+
+async function loadLocalPhotoBlob(photo: { localUri: string; source?: 'camera' | 'gallery' }) {
+    const read = async () => {
+        const response = await fetch(photo.localUri);
+        if (!response.ok) throw new Error('photo_file_not_found');
+        return await response.blob();
+    };
+    try {
+        return await read();
+    } catch (firstError) {
+        if (photo.source !== 'gallery') throw new Error('photo_file_not_found');
+        let permission = await ImagePicker.getMediaLibraryPermissionsAsync();
+        if (permission.status !== 'granted') {
+            permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        }
+        if (permission.status !== 'granted') throw new Error('photo_permission_required');
+        try {
+            return await read();
+        } catch {
+            throw firstError instanceof Error && firstError.message === 'photo_file_not_found'
+                ? firstError
+                : new Error('photo_file_not_found');
+        }
+    }
+}
 
 export type SyncExecutorResult = {
+    status: 'local_only' | 'synced' | 'partial' | 'scope_changed';
     ok: boolean;
     syncedCount: number;
     errorCount: number;
@@ -44,10 +71,8 @@ export function useSyncExecutor() {
     const applyPreferencesPatch = useMutation(api.userSettings.applyPreferencesPatch);
     const recordClientOutcome = useMutation(api.syncRuntime.recordClientOutcome);
     const { deviceId } = useDeviceId();
-    const { data: session } = authClient.useSession();
-    const scope = deviceId
-        ? `${deviceId}:${session?.user?.id ?? 'guest'}`
-        : undefined;
+    const { identity } = useLocalSyncIdentity();
+    const scope = identity?.scopeKey;
     const scopeRef = useRef(scope);
     scopeRef.current = scope;
     const inflightRef = useRef(false);
@@ -68,13 +93,24 @@ export function useSyncExecutor() {
     );
 
     const execute = useCallback(async (options?: SyncExecuteOptions): Promise<SyncExecutorResult> => {
+        if (!identity) {
+            return { status: 'scope_changed', ok: false, syncedCount: 0, errorCount: 0, queuedCount: 0 };
+        }
+        if (identity.kind === 'guest') {
+            const filteredQueue = filterQueue(await loadSyncQueue(identity.scopeKey), options);
+            lastQueuedCountRef.current = filteredQueue.length;
+            return {
+                status: 'local_only', ok: true, syncedCount: 0, errorCount: 0,
+                queuedCount: filteredQueue.length,
+            };
+        }
         if (inflightRef.current) {
             const queue = (await loadSyncQueue(scope)).filter(
                 (item) => !item.nextAttemptAt || item.nextAttemptAt <= Date.now()
             );
             const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
-            return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: filteredQueue.length };
+            return { status: 'partial', ok: false, syncedCount: 0, errorCount: 0, queuedCount: filteredQueue.length };
         }
 
         inflightRef.current = true;
@@ -93,6 +129,7 @@ export function useSyncExecutor() {
                 }
                 await setSyncGeneration(serverSession.generation, scope);
                 return {
+                    status: 'partial',
                     ok: false,
                     syncedCount: 0,
                     errorCount: outbox.operations.length,
@@ -110,7 +147,7 @@ export function useSyncExecutor() {
                     isCurrent: () => scopeRef.current === scope,
                 });
                 if (reconciliation.status === 'scope_changed') {
-                    return { ok: false, syncedCount: 0, errorCount: 0, queuedCount: outbox.operations.length };
+                    return { status: 'scope_changed', ok: false, syncedCount: 0, errorCount: 0, queuedCount: outbox.operations.length };
                 }
             }
             const queue = outbox.operations.filter(
@@ -224,8 +261,7 @@ export function useSyncExecutor() {
                     let storageId = photo.storageId;
                     if (!storageId) {
                         const uploadUrl = await generateUploadUrl({ deviceId });
-                        const response = await fetch(photo.localUri);
-                        const blob = await response.blob();
+                        const blob = await loadLocalPhotoBlob(photo);
                         const uploadResponse = await fetch(uploadUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': blob.type || 'application/octet-stream' },
@@ -328,8 +364,8 @@ export function useSyncExecutor() {
                         await quarantineSyncAction(item.id, result.status, scope);
                         await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: item.type, status: 'quarantined' });
                         if (item.plantId) {
-                            const local = await loadPlantLocalData(item.plantId);
-                            await savePlantLocalData(item.plantId, {
+                            const local = await loadPlantLocalData(identity.scopeKey, item.plantId);
+                            await savePlantLocalData(identity.scopeKey, item.plantId, {
                                 ...local,
                                 activities: item.type === 'activity'
                                     ? local.activities.filter((entry) => entry.id !== payload.localId)
@@ -377,6 +413,7 @@ export function useSyncExecutor() {
             }
 
             return {
+                status: errorCount === 0 ? 'synced' : 'partial',
                 ok: errorCount === 0,
                 syncedCount: syncedIds.size,
                 errorCount,
@@ -387,6 +424,7 @@ export function useSyncExecutor() {
             const filteredQueue = filterQueue(queue, options);
             lastQueuedCountRef.current = filteredQueue.length;
             return {
+                status: 'partial',
                 ok: false,
                 syncedCount: 0,
                 errorCount: 1,
@@ -395,7 +433,7 @@ export function useSyncExecutor() {
         } finally {
             inflightRef.current = false;
         }
-    }, [applyOperation, applyPreferencesPatch, convex, deviceId, ensureSession, filterQueue, generateUploadUrl, recordClientOutcome, registerSyncUpload, scope]);
+    }, [applyOperation, applyPreferencesPatch, convex, deviceId, ensureSession, filterQueue, generateUploadUrl, identity, recordClientOutcome, registerSyncUpload, scope]);
 
     return { execute };
 }

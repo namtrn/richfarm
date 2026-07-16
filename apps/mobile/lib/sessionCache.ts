@@ -1,19 +1,13 @@
 import { authClient } from './auth-client';
-import { useDeviceId } from './deviceId';
+import { useLocalSyncIdentity } from './sync/identity';
 
 export function useSessionScopedCacheKey(prefix: string, suffix = '') {
-  const { deviceId } = useDeviceId();
-  const { data: session } = authClient.useSession();
-  const sessionUserId =
-    typeof session?.user?.id === 'string' && session.user.id.trim()
-      ? session.user.id.trim()
-      : null;
-
-  if (!deviceId || !sessionUserId) return null;
-  return `${prefix}_${deviceId}_${sessionUserId}${suffix}`;
+  const { identity } = useLocalSyncIdentity();
+  if (!identity) return null;
+  return `${prefix}_${encodeURIComponent(identity.scopeKey)}${suffix}`;
 }
 
 export function useHasAuthSession() {
   const { data: session } = authClient.useSession();
-  return session !== null;
+  return !!session && (session.user as { isAnonymous?: boolean }).isAnonymous !== true;
 }

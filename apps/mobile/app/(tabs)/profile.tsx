@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking, AppState, Image } from 'react-native';
 import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff, Sprout, Cloud } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { usePaywall } from '../../hooks/usePaywall';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
-import { authClient, getAuthClient } from '../../lib/auth-client';
+import { getAuthClient } from '../../lib/auth-client';
 import { clearCachedCurrentUser } from '../../lib/authCache';
 import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
@@ -24,6 +24,9 @@ import { type AppMode } from '../../lib/appMode';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { TimezoneModal } from '../../components/ui/TimezoneModal';
+import { useReminders } from '../../hooks/useReminders';
+import { useLocalSearchParams } from 'expo-router';
+import { useLocalSyncIdentity } from '../../lib/sync/identity';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -41,7 +44,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const { themePreference, setThemePreference: setGlobalTheme } = useThemeContext();
   const { user, deviceId, updateProfile, isLoading } = useAuth();
-  const { data: authSession } = authClient.useSession();
+  const { identity: syncIdentity } = useLocalSyncIdentity();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
   const { appMode, switchMode, isLoading: isAppModeLoading } = useAppMode();
@@ -50,6 +53,17 @@ export default function ProfileScreen() {
   const deleteAccountMutation = useMutation((api as any).users.deleteAccount);
   const router = useRouter();
   const pathname = usePathname();
+  const { section } = useLocalSearchParams<{ section?: string }>();
+  const scrollRef = useRef<ScrollView>(null);
+  const gardenCheckY = useRef(0);
+  const preferencesY = useRef(0);
+  const preferencesContentY = useRef(0);
+  const { reminders, createReminder } = useReminders();
+  const [gardenCheckSaving, setGardenCheckSaving] = useState(false);
+  const hasGardenCheckReminder = useMemo(
+    () => reminders.some((reminder: any) => reminder.type === 'garden_check' && reminder.enabled),
+    [reminders]
+  );
 
   const currentLang = (i18n.language ?? 'en').split('-')[0].toLowerCase();
   const [name, setName] = useState(user?.name ?? '');
@@ -57,6 +71,7 @@ export default function ProfileScreen() {
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(
     resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
+  const [temperatureUnit, setTemperatureUnit] = useState<'C' | 'F'>(settings?.temperatureUnit === 'F' ? 'F' : 'C');
   const [localThemePref, setLocalThemePref] = useState<string>(settings?.theme ?? 'system');
   const [saving, setSaving] = useState(false);
   const isAnonymous = !user || user.isAnonymous;
@@ -102,6 +117,31 @@ export default function ProfileScreen() {
     setTimezone(user?.timezone ?? '');
   }, [user?.name, user?.timezone]);
 
+  useEffect(() => {
+    if (section !== 'garden-check') return;
+    const timer = setTimeout(() => scrollRef.current?.scrollTo({ y: gardenCheckY.current, animated: true }), 100);
+    return () => clearTimeout(timer);
+  }, [section]);
+
+  const handleCreateGardenCheck = async (intervalDays: number) => {
+    if (gardenCheckSaving || hasGardenCheckReminder) return;
+    setGardenCheckSaving(true);
+    try {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(8, 0, 0, 0);
+      await createReminder({
+        type: 'garden_check',
+        title: t('reminder.garden_check_title'),
+        description: t('reminder.garden_check_desc'),
+        nextRunAt: tomorrow.getTime(),
+        rrule: `FREQ=DAILY;INTERVAL=${intervalDays}`,
+      });
+    } finally {
+      setGardenCheckSaving(false);
+    }
+  };
+
   const refreshBackupCount = useCallback(async () => {
     const queue = await loadSyncQueue();
     setBackupCount(queue.filter((item) => item.type === 'photo').length);
@@ -146,7 +186,8 @@ export default function ProfileScreen() {
     // Note: themePreference local state is only used for the unit/save flow;
     // the live theme is controlled by ThemeContext (already synced there).
     setLocalThemePref(settings?.theme ?? 'system');
-  }, [settings?.unitSystem, settings?.theme, currentLang]);
+    setTemperatureUnit(settings?.temperatureUnit === 'F' ? 'F' : 'C');
+  }, [settings?.unitSystem, settings?.temperatureUnit, settings?.theme, currentLang]);
 
   useEffect(() => {
     void hydrateUnitSystemPreference().then((cached) => {
@@ -170,7 +211,7 @@ export default function ProfileScreen() {
         timezone: timezone.trim() || undefined,
       });
       await setUnitSystemPreference(unitSystem);
-      await updateSettings({ unitSystem, theme: localThemePref });
+      await updateSettings({ unitSystem, temperatureUnit, theme: localThemePref });
     } finally {
       setSaving(false);
     }
@@ -273,8 +314,8 @@ export default function ProfileScreen() {
             try {
               const authClient = await getAuthClient();
               await deleteAccountMutation({});
-              if (deviceId) {
-                await clearSyncNamespace(`${deviceId}:${authSession?.user?.id ?? 'guest'}`);
+              if (syncIdentity?.kind === 'account') {
+                await clearSyncNamespace(syncIdentity.scopeKey);
               }
               await authClient.signOut();
               await clearCachedCurrentUser(deviceId, { includeOnboarding: true });
@@ -348,6 +389,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 16 }}
     >
@@ -433,9 +475,15 @@ export default function ProfileScreen() {
         </View>
 
         {/* ── Preferences ─────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 2, gap: 10 }}>
+        <View
+          onLayout={(event) => { preferencesY.current = event.nativeEvent.layout.y; }}
+          style={{ paddingHorizontal: 2, gap: 10 }}
+        >
           <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{t('profile.preferences_title')}</Text>
-          <View style={{ gap: 16, paddingVertical: 4 }}>
+          <View
+            onLayout={(event) => { preferencesContentY.current = event.nativeEvent.layout.y; }}
+            style={{ gap: 16, paddingVertical: 4 }}
+          >
 
             {/* Language */}
             <View style={{ zIndex: 10 }}>
@@ -537,6 +585,35 @@ export default function ProfileScreen() {
               </View>
             </View>
 
+            {/* Temperature unit */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <CloudSun size={20} color={theme.primary} />
+                <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.temperature_unit_label')}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', backgroundColor: theme.accent, borderRadius: 20, padding: 2, gap: 4 }}>
+                {(['C', 'F'] as const).map((unit) => {
+                  const active = unit === temperatureUnit;
+                  return (
+                    <TouchableOpacity
+                      key={unit}
+                      onPress={() => setTemperatureUnit(unit)}
+                      style={{
+                        paddingHorizontal: 16,
+                        paddingVertical: 4,
+                        borderRadius: 18,
+                        backgroundColor: active ? theme.primary : 'transparent',
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? 'white' : theme.textSecondary }}>
+                        °{unit}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
             {/* Weather Card */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -627,6 +704,38 @@ export default function ProfileScreen() {
               </View>
             </View>
 
+            {/* Garden check */}
+            <View
+              onLayout={(event) => {
+                gardenCheckY.current = preferencesY.current + preferencesContentY.current + event.nativeEvent.layout.y;
+              }}
+              style={{ gap: 10, paddingTop: 4 }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Sprout size={20} color={theme.primary} />
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text style={{ fontSize: 16, color: theme.text }}>{t('reminder.garden_check_title')}</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, lineHeight: 18 }}>
+                    {hasGardenCheckReminder ? t('reminder.ritual_active') : t('reminder.ritual_desc')}
+                  </Text>
+                </View>
+              </View>
+              {!hasGardenCheckReminder ? (
+                <View style={{ flexDirection: 'row', gap: 8, paddingLeft: 30 }}>
+                  {[{ days: 1, label: t('reminder.ritual_daily') }, { days: 7, label: t('reminder.ritual_weekly') }].map((option) => (
+                    <TouchableOpacity
+                      key={option.days}
+                      disabled={gardenCheckSaving}
+                      onPress={() => void handleCreateGardenCheck(option.days)}
+                      style={{ flex: 1, minHeight: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: option.days === 1 ? theme.primary : theme.accent, borderWidth: option.days === 1 ? 0 : 1, borderColor: theme.border, opacity: gardenCheckSaving ? 0.6 : 1 }}
+                    >
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: option.days === 1 ? '#fff' : theme.textSecondary }}>{option.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : null}
+            </View>
+
             {/* Theme (Appearance) */}
             <View style={{ backgroundColor: theme.accent, borderRadius: 20, padding: 4, flexDirection: 'row', gap: 4 }}>
               {[
@@ -683,6 +792,7 @@ export default function ProfileScreen() {
                 <TouchableOpacity
                   key={mode}
                   onPress={() => handleSwitchMode(mode)}
+                  testID={`e2e-profile-mode-${mode}`}
                   disabled={switchingMode || isAppModeLoading}
                   style={{
                     flex: 1,

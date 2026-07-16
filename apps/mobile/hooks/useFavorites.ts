@@ -11,7 +11,7 @@ export function useFavorites() {
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
     const hasSession = useHasAuthSession();
-    const remoteFavorites = useQuery(api.favorites.list, deviceId ? { deviceId } : 'skip');
+    const remoteFavorites = useQuery(api.favorites.list, hasSession && deviceId ? { deviceId } : 'skip');
 
     const cacheKey = useSessionScopedCacheKey('rf_favorites_v2');
     const { cached, cacheLoaded } = useQueryCache(cacheKey, remoteFavorites);
@@ -21,6 +21,7 @@ export function useFavorites() {
     const toggleFavoriteMutation = useMutation(api.favorites.toggle);
 
     const toggleFavorite = async (plantMasterId: Id<'plantsMaster'>) => {
+        if (!hasSession) throw new Error('account_required');
         return await toggleFavoriteMutation({ plantMasterId, deviceId });
     };
 

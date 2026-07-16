@@ -279,7 +279,8 @@
     "units_label": "Units",
     "unit_metric": "Metric",
     "unit_imperial": "Imperial",
-    "unit_current": "Current: {{label}}"
+    "unit_current": "Current: {{label}}",
+    "temperature_unit_label": "Unidad de temperatura"
   },
   "offline": {
     "title": "Offline Mode",

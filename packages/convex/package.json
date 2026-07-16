@@ -5,14 +5,17 @@
   "main": "convex/_generated/api.js",
   "types": "convex/_generated/api.d.ts",
   "scripts": {
+    "typecheck": "tsc -p convex/tsconfig.json --noEmit",
+    "deploy": "npm run typecheck && convex deploy --typecheck disable",
     "test": "vitest run"
   },
   "dependencies": {
-    "convex": "^1.32.0",
+    "convex": "^1.42.2",
     "resend": "^6.9.3"
   },
   "devDependencies": {
     "convex-test": "^0.0.54",
+    "typescript": "~5.9.2",
     "vitest": "^3.2.4"
   }
 }

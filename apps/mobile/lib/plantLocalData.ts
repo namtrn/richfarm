@@ -69,8 +69,12 @@ export function createLocalId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export async function loadPlantLocalData(plantId: string): Promise<PlantLocalData> {
-  const raw = await AsyncStorage.getItem(`${STORAGE_PREFIX}${plantId}`);
+function storageKey(scope: string, plantId: string) {
+  return `${STORAGE_PREFIX}${encodeURIComponent(scope)}:${encodeURIComponent(plantId)}`;
+}
+
+export async function loadPlantLocalData(scope: string, plantId: string): Promise<PlantLocalData> {
+  const raw = await AsyncStorage.getItem(storageKey(scope, plantId));
   if (!raw) {
     return { ...EMPTY_DATA };
   }
@@ -88,6 +92,7 @@ export async function loadPlantLocalData(plantId: string): Promise<PlantLocalDat
 }
 
 export async function savePlantLocalData(
+  scope: string,
   plantId: string,
   data: PlantLocalData
 ): Promise<void> {
@@ -97,7 +102,11 @@ export async function savePlantLocalData(
     harvests: normalizeArray<PlantHarvestEntry>(data.harvests),
   };
   await AsyncStorage.setItem(
-    `${STORAGE_PREFIX}${plantId}`,
+    storageKey(scope, plantId),
     JSON.stringify(payload)
   );
+}
+
+export async function clearPlantLocalData(scope: string, plantId: string): Promise<void> {
+  await AsyncStorage.removeItem(storageKey(scope, plantId));
 }

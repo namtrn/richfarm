@@ -5,6 +5,7 @@ import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
 import { useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../lib/deviceId';
+import { useLocalSyncIdentity } from '../lib/sync/identity';
 
 const MIN_ATTEMPT_INTERVAL_MS = 15000;
 
@@ -14,7 +15,11 @@ export function useSyncTriggers(enabled: boolean = true) {
   const enabledRef = useRef(enabled);
   const { execute } = useSyncExecutor();
   const { deviceId } = useDeviceId();
-  const signal = useQuery(api.syncV2.syncSignal, enabled && deviceId ? { deviceId } : 'skip');
+  const { identity } = useLocalSyncIdentity();
+  const signal = useQuery(
+    api.syncV2.syncSignal,
+    enabled && deviceId && identity?.kind === 'account' ? { deviceId } : 'skip'
+  );
   const lastSignalRef = useRef<string | null>(null);
 
   useEffect(() => {

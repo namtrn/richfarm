@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
-import { authClient } from '../lib/auth-client';
-import { useDeviceId } from '../lib/deviceId';
-import { enqueueSyncAction } from '../lib/sync/queue';
+import { useLocalSyncIdentity } from '../lib/sync/identity';
+import { enqueueForIdentity } from '../lib/sync/guestClaim';
 import type { EntityOperationPayload } from '../lib/sync/types';
 import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
 
@@ -10,10 +9,9 @@ function uuid(prefix: string) {
 }
 
 export function useEntitySync() {
-  const { deviceId } = useDeviceId();
-  const { data: session } = authClient.useSession();
+  const { identity } = useLocalSyncIdentity();
   const { execute } = useSyncExecutor();
-  const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
+  const scope = identity?.scopeKey;
 
   const queueOperation = useCallback(async (
     operation: Omit<EntityOperationPayload, 'operationId' | 'entityUuid'> & {
@@ -21,20 +19,20 @@ export function useEntitySync() {
       entityUuid?: string;
     }
   ) => {
-    if (!scope) throw new Error('sync_scope_unavailable');
+    if (!scope || !identity) throw new Error('sync_scope_unavailable');
     const operationId = operation.operationId ?? uuid('operation');
     const entityUuid = operation.entityUuid ?? uuid(operation.entityType);
     const payload: EntityOperationPayload = { ...operation, operationId, entityUuid };
-    await enqueueSyncAction({
+    await enqueueForIdentity(identity, {
       id: operationId,
       type: 'entity',
       payload,
       createdAt: Date.now(),
       attempts: 0,
-    }, scope);
-    void execute({ types: ['entity'] });
+    });
+    if (identity?.kind === 'account') void execute({ types: ['entity'] });
     return { operationId, entityUuid };
-  }, [execute, scope]);
+  }, [execute, identity?.kind, scope]);
 
   return { queueOperation };
 }

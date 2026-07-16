@@ -519,7 +519,6 @@ function SpeciesGroupHeader({ basePlant, count }: { basePlant: any; count: numbe
 
     return (
         <View style={{ gap: 10, paddingTop: 8, paddingBottom: 4 }}>
-            <View style={{ height: 1, backgroundColor: theme.border, marginHorizontal: 4 }} />
             <View
                 style={{
                     paddingHorizontal: 4,
@@ -1711,9 +1710,10 @@ export default function LibraryScreen() {
             {/* Top bar: Search + Tabs */}
             <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 10, gap: 12, backgroundColor: theme.card, borderBottomWidth: 1, borderBottomColor: theme.border }}>
                 {/* Search bar — white card style */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ height: 40, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <View style={{
                         flex: 1,
+                        height: 40,
                         flexDirection: 'row',
                         alignItems: 'center',
                         backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
@@ -1723,7 +1723,7 @@ export default function LibraryScreen() {
                     }}>
                         <Search size={15} stroke={theme.textMuted} />
                         <TextInput
-                            style={{ flex: 1, paddingVertical: 10, fontSize: 15, color: theme.text }}
+                            style={{ flex: 1, height: 40, paddingVertical: 0, fontSize: 15, color: theme.text }}
                             placeholder={searchPlaceholder}
                             placeholderTextColor={theme.textMuted}
                             value={search}
@@ -1741,8 +1741,8 @@ export default function LibraryScreen() {
                             onPress={() => setBrowseMenuOpen(true)}
                             accessibilityLabel="Browse mode menu"
                             style={{
-                                width: 40,
-                                height: 40,
+                                width: 36,
+                                height: 36,
                                 borderRadius: 12,
                                 alignItems: 'center',
                                 justifyContent: 'center',

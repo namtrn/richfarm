@@ -99,7 +99,7 @@ export default function PlantDetailScreen() {
     () => plants.find((p: any) => String(p._id) === String(resolvedPlantId) || p.entityUuid === resolvedPlantId),
     [plants, resolvedPlantId]
   );
-  const { projection, entities } = useSyncProjection();
+  const { projection, entities, identity: syncIdentity } = useSyncProjection();
   const projectedActivities = entities('activity') as any[] | undefined;
   const projectedHarvests = entities('harvest') as any[] | undefined;
   const projectedPhotos = entities('photo') as any[] | undefined;
@@ -336,10 +336,10 @@ export default function PlantDetailScreen() {
   }, [photoModalOpen, photoModalPan]);
 
   useEffect(() => {
-    if (!resolvedPlantId) return;
+    if (!resolvedPlantId || !syncIdentity) return;
     let active = true;
     setLocalLoading(true);
-    loadPlantLocalData(resolvedPlantId)
+    loadPlantLocalData(syncIdentity.scopeKey, resolvedPlantId)
       .then((data) => {
         if (!active) return;
         setLocalData(data);
@@ -357,7 +357,7 @@ export default function PlantDetailScreen() {
     return () => {
       active = false;
     };
-  }, [resolvedPlantId, t]);
+  }, [resolvedPlantId, syncIdentity, t]);
 
 
   const currentBed = beds.find((b: any) => b._id === bedId);
@@ -390,7 +390,7 @@ export default function PlantDetailScreen() {
     updater: (prev: PlantLocalData) => PlantLocalData,
     errorSetter: (msg: string | null) => void,
   ): Promise<boolean> => {
-    if (!resolvedPlantId) return false;
+    if (!resolvedPlantId || !syncIdentity) return false;
     setLocalSaving(true);
     // Compute next data from current state synchronously
     let nextData: PlantLocalData | null = null;
@@ -405,7 +405,7 @@ export default function PlantDetailScreen() {
       return false;
     }
     try {
-      await savePlantLocalData(resolvedPlantId, nextData);
+      await savePlantLocalData(syncIdentity.scopeKey, resolvedPlantId, nextData);
       errorSetter(null);
       setLocalSaving(false);
       return true;

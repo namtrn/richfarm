@@ -16,6 +16,7 @@ import { useNotifications } from '../hooks/useNotifications';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { SubscriptionProvider } from '../hooks/useSubscription';
 import { AuthProvider } from '../lib/auth';
+import { GuestClaimCoordinator } from '../components/sync/GuestClaimCoordinator';
 import { convex } from '../lib/convex';
 import { BetterAuthConvexProvider } from '../lib/convexAuth';
 import { palette, useTheme } from '../lib/theme';
@@ -113,6 +114,7 @@ export default function RootLayout() {
     <I18nextProvider i18n={i18n}>
       <BetterAuthConvexProvider>
         <AuthProvider>
+          <GuestClaimCoordinator />
           <SubscriptionProvider>
             <ThemeProvider>
               <AppShellWithSettings>

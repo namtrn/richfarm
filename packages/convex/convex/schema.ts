@@ -570,6 +570,7 @@ export default defineSchema({
 
     // Units
     unitSystem: v.optional(v.string()), // "metric", "imperial"
+    temperatureUnit: v.optional(v.union(v.literal("C"), v.literal("F"))),
 
     // Notifications
     emailNotifications: v.optional(v.boolean()),

@@ -7,6 +7,7 @@ export type PreferencePatchOperation = {
   patch: {
     appMode?: string;
     unitSystem?: string;
+    temperatureUnit?: 'C' | 'F';
     theme?: string;
     defaultView?: string;
     showWeatherCard?: boolean;

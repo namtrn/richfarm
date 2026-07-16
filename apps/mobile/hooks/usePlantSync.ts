@@ -7,28 +7,30 @@ import {
   PlantPhotoEntry,
   createLocalId,
 } from '../lib/plantLocalData';
-import { enqueueSyncAction, removePendingPlantEntry } from '../lib/sync/queue';
+import { removePendingPlantEntry } from '../lib/sync/queue';
+import { enqueueForIdentity } from '../lib/sync/guestClaim';
 import { SyncAction } from '../lib/sync/types';
 import NetInfo from '@react-native-community/netinfo';
-import { authClient } from '../lib/auth-client';
+import { useLocalSyncIdentity } from '../lib/sync/identity';
 import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
 
 export function usePlantSync() {
   const { deviceId } = useDeviceId();
-  const { data: session } = authClient.useSession();
+  const { identity } = useLocalSyncIdentity();
   const { execute } = useSyncExecutor();
-  const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
+  const scope = identity?.scopeKey;
 
   const enqueueAction = useCallback(
     async (action: SyncAction) => {
-      await enqueueSyncAction(action, scope);
-      const network = await NetInfo.fetch();
-      if (network.isConnected && network.isInternetReachable !== false) {
+      if (!identity) throw new Error('sync_scope_unavailable');
+      await enqueueForIdentity(identity, action);
+      const network = identity?.kind === 'account' ? await NetInfo.fetch() : null;
+      if (network?.isConnected && network.isInternetReachable !== false) {
         void execute({ plantId: action.plantId });
       }
       return action;
     },
-    [execute, scope]
+    [execute, identity?.kind, scope]
   );
 
   const queuePhoto = useCallback(

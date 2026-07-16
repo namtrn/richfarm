@@ -70,6 +70,18 @@ async function serializedUpdate(
   return result;
 }
 
+export async function updateOutbox(
+  scope: string,
+  update: (envelope: OutboxEnvelope) => OutboxEnvelope
+): Promise<OutboxEnvelope> {
+  let result: OutboxEnvelope | null = null;
+  await serializedUpdate(scope, (envelope) => {
+    result = update(envelope);
+    return result;
+  });
+  return result!;
+}
+
 export function subscribeSyncQueue(
   scope: string | undefined,
   listener: (queue: SyncAction[]) => void

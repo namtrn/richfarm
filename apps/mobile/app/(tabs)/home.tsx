@@ -168,6 +168,7 @@ export default function HomeScreen() {
           {/* Settings icon overlay */}
           <TouchableOpacity
             onPress={() => router.push('/(tabs)/profile')}
+            testID="e2e-home-settings"
             style={{
               position: 'absolute',
               bottom: 0,
@@ -194,6 +195,7 @@ export default function HomeScreen() {
       {isWeatherCardReady && showWeatherCard ? (
         <WeatherCard
           model={weatherModel}
+          temperatureUnit={settings?.temperatureUnit === 'F' ? 'F' : 'C'}
           onHide={handleHideWeatherCard}
           isHiding={isSavingWeatherPreference}
         />

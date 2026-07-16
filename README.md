@@ -10,7 +10,7 @@ npx convex dev
 
 
 cd /Users/n/Documents/GitHub/richfarm/apps/mobile
-npx expo run:ios --device "iPhone 17 Pro"
+npx expo run:ios --device "iPhone 17"
 
 cd /Users/n/Documents/GitHub/richfarm/apps/dashboard
 npm run dev

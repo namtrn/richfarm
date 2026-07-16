@@ -13,7 +13,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import { Bell, Check, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from 'lucide-react-native';
+import { Bell, Check, ChevronRight, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from 'lucide-react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
 import { useReminders } from '../../hooks/useReminders';
@@ -1169,20 +1169,6 @@ export default function ReminderScreen() {
     );
   };
 
-  const handleCreateGardenCheck = (intervalDays: number) => {
-    if (!handleAuthRequired()) return;
-    void runReminderAction(
-      () => createReminder({
-        type: 'garden_check',
-        title: t('reminder.garden_check_title'),
-        description: t('reminder.garden_check_desc'),
-        nextRunAt: buildTomorrowMorning(),
-        rrule: `FREQ=DAILY;INTERVAL=${intervalDays}`,
-      }),
-      t('reminder.feedback_garden_check_created')
-    );
-  };
-
   const renderActiveReminderRow = (r: any) => {
     const Icon = REMINDER_ICONS[r.type] ?? REMINDER_ICONS.default;
     const time = new Date(r.nextRunAt).toLocaleString(i18n.language, {
@@ -1406,43 +1392,27 @@ export default function ReminderScreen() {
         </View>
       )}
 
-      <View style={{ backgroundColor: theme.card, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, gap: 12 }}>
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: '/(tabs)/profile', params: { section: 'garden-check' } })}
+        accessibilityRole="button"
+        accessibilityLabel={t('reminder.garden_check_settings')}
+        style={{ backgroundColor: theme.card, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: theme.border }}
+      >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: theme.successBg, alignItems: 'center', justifyContent: 'center' }}>
             <Bell size={18} color={theme.success} />
           </View>
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={{ fontSize: 15, fontWeight: '800', color: theme.text }}>
-              {t('reminder.ritual_title')}
+              {t('reminder.garden_check_title')}
             </Text>
-            <Text style={{ fontSize: 12, color: theme.textSecondary, lineHeight: 18 }}>
-              {hasGardenCheckReminder ? t('reminder.ritual_active') : t('reminder.ritual_desc')}
+            <Text style={{ fontSize: 12, color: theme.textSecondary }}>
+              {hasGardenCheckReminder ? t('reminder.garden_check_scheduled') : t('reminder.garden_check_not_set')}
             </Text>
           </View>
+          <ChevronRight size={20} color={theme.textSecondary} />
         </View>
-        {!hasGardenCheckReminder && (
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity
-              disabled={!canEdit}
-              onPress={() => handleCreateGardenCheck(1)}
-              style={{ flex: 1, minHeight: 40, backgroundColor: theme.primary, borderRadius: 12, alignItems: 'center', justifyContent: 'center', opacity: !canEdit ? 0.5 : 1 }}
-            >
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#fff' }}>
-                {t('reminder.ritual_daily')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              disabled={!canEdit}
-              onPress={() => handleCreateGardenCheck(7)}
-              style={{ flex: 1, minHeight: 40, backgroundColor: theme.accent, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border, opacity: !canEdit ? 0.5 : 1 }}
-            >
-              <Text style={{ fontSize: 13, fontWeight: '800', color: theme.textSecondary }}>
-                {t('reminder.ritual_weekly')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+      </TouchableOpacity>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 8 }}>
         {([

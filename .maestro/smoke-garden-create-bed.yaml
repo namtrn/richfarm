@@ -18,8 +18,22 @@ appId: com.mygarden.app
     visible:
       id: e2e-tab-home
     timeout: 60000
+- openLink:
+    link: my-garden://profile
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-mode-farmer
+    direction: DOWN
+    timeout: 10000
 - tapOn:
-    id: e2e-tab-garden
+    id: e2e-profile-mode-farmer
+- runFlow:
+    when:
+      visible: "Confirm"
+    commands:
+      - tapOn: "Confirm"
+- openLink:
+    link: my-garden://garden
 - tapOn:
     id: e2e-garden-create-close
     optional: true
@@ -28,7 +42,8 @@ appId: com.mygarden.app
       notVisible:
         id: e2e-garden-card
     commands:
-      - tapOn: "Create Garden"
+      - tapOn:
+          id: e2e-garden-empty-create
       - extendedWaitUntil:
           visible:
             id: e2e-garden-create-name-input
@@ -50,8 +65,8 @@ appId: com.mygarden.app
       - pressKey: Enter
       - tapOn:
           id: e2e-garden-create-submit
-      - tapOn:
-          id: e2e-tab-garden
+      - openLink:
+          link: my-garden://garden
       - extendedWaitUntil:
           visible:
             id: e2e-garden-card

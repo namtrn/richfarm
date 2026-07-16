@@ -26,6 +26,7 @@ export const upsertUserSettings = mutation({
         deviceId: v.optional(v.string()),
         appMode: v.optional(v.string()),
         unitSystem: v.optional(v.string()),
+        temperatureUnit: v.optional(v.union(v.literal('C'), v.literal('F'))),
         theme: v.optional(v.string()),
         showWeatherCard: v.optional(v.boolean()),
         onboarding: v.optional(
@@ -61,6 +62,7 @@ export const upsertUserSettings = mutation({
                 ...(normalizedAppMode !== undefined && { appMode: normalizedAppMode }),
                 ...(derivedAppMode !== undefined && { appMode: derivedAppMode }),
                 ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
+                ...(args.temperatureUnit !== undefined && { temperatureUnit: args.temperatureUnit }),
                 ...(args.theme !== undefined && { theme: args.theme }),
                 ...(args.showWeatherCard !== undefined && { showWeatherCard: args.showWeatherCard }),
                 ...(args.onboarding !== undefined && { onboarding: args.onboarding }),
@@ -79,6 +81,7 @@ export const upsertUserSettings = mutation({
             ...(normalizedAppMode !== undefined && { appMode: normalizedAppMode }),
             ...(derivedAppMode !== undefined && { appMode: derivedAppMode }),
             ...(args.unitSystem !== undefined && { unitSystem: args.unitSystem }),
+            ...(args.temperatureUnit !== undefined && { temperatureUnit: args.temperatureUnit }),
             ...(args.theme !== undefined && { theme: args.theme }),
             ...(args.showWeatherCard !== undefined && { showWeatherCard: args.showWeatherCard }),
             ...(args.onboarding !== undefined && { onboarding: args.onboarding }),
@@ -89,6 +92,7 @@ export const upsertUserSettings = mutation({
 const preferencePatch = v.object({
     appMode: v.optional(v.string()),
     unitSystem: v.optional(v.string()),
+    temperatureUnit: v.optional(v.union(v.literal('C'), v.literal('F'))),
     theme: v.optional(v.string()),
     defaultView: v.optional(v.string()),
     showWeatherCard: v.optional(v.boolean()),

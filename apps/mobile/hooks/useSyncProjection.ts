@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { authClient } from '../lib/auth-client';
-import { useDeviceId } from '../lib/deviceId';
+import { useLocalSyncIdentity } from '../lib/sync/identity';
 import { subscribeSyncQueue } from '../lib/sync/queue';
 import {
   loadRenderedProjection,
@@ -10,9 +9,8 @@ import {
 import type { EntityType } from '../lib/sync/types';
 
 export function useSyncProjection() {
-  const { deviceId } = useDeviceId();
-  const { data: session } = authClient.useSession();
-  const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
+  const { identity } = useLocalSyncIdentity();
+  const scope = identity?.scopeKey;
   const [projection, setProjection] = useState<ProjectionEnvelope | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -44,5 +42,5 @@ export function useSyncProjection() {
     projection ? Object.values(projection.entities[type]) : undefined
   ), [projection]);
 
-  return { projection, entities, isLoading: !loaded };
+  return { projection, entities, identity, isLoading: !loaded };
 }

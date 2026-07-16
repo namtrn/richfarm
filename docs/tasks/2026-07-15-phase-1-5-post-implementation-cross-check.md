@@ -119,3 +119,32 @@ REAL-CLIENT GATES PENDING**. It does not close the Phase 2 gate: production has
 not yet accumulated the minimum 100-operation metrics sample, the two-client
 failure matrix has not been executed, legacy cutoff has not been rehearsed, and
 an independent audit has not been completed.
+
+## Development deployment and simulator QA — 2026-07-16
+
+- Convex `1.42.2` deployed successfully to development deployment
+  `fantastic-beagle-190`; `syncRuntime:policy` is reachable.
+- Mobile TypeScript: PASS.
+- Full Vitest suite: PASS — 6 files, 52 tests.
+- API build and dashboard production build: PASS.
+- iOS `smoke-all-buttons`: PASS after guarding `ExpoGlassEffect` when an older
+  dev client has the JavaScript package but not the native module linked.
+- The Garden/Bed smoke flow was updated to select Farmer mode and use stable
+  router/test-ID selectors.
+- Garden creation reached submit on the simulator, but the anonymous Maestro
+  session cannot validate account-scoped sync: the mock auth mode does not
+  create a Better Auth/Convex identity, and authenticated entity hooks hide the
+  guest projection. The UI currently still permits the anonymous submit, so the
+  operation appears to disappear. This is a real UX/product-policy mismatch,
+  not a backend or TypeScript test failure.
+
+Next required decision for development QA: either require sign-in before
+account-scoped CRUD, or explicitly support a guest-local namespace and define
+how it is migrated when the user signs in. After that decision is implemented,
+rerun Garden → Bed and the offline/reconnect matrix with a real authenticated
+development session.
+
+Decision recorded: signed-out CRUD remains local-only and is claimed into the
+account after sign-in. The canonical identity model and implementation checklist
+are tracked in
+`docs/tasks/2026-07-16-phase-1-5-guest-local-identity-sync-task.md`.

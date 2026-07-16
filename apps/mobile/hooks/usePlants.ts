@@ -7,7 +7,7 @@ import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary } from './usePlantLibrary';
-import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
+import { useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useEntitySync } from './useEntitySync';
 import { useSyncProjection } from './useSyncProjection';
 
@@ -26,10 +26,12 @@ export function usePlants(status?: PlantStatus) {
     const { i18n } = useTranslation();
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
-    const hasSession = useHasAuthSession();
+    const { projection, entities, identity } = useSyncProjection();
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
-    const remotePlants = useQuery(api.plants.getUserPlants, deviceId ? { status, deviceId } : 'skip');
-    const { projection, entities } = useSyncProjection();
+    const remotePlants = useQuery(
+        api.plants.getUserPlants,
+        deviceId && identity?.kind === 'account' ? { status, deviceId } : 'skip'
+    );
     const projectedPlants = entities('plant') as any[] | undefined;
     const projectedGardens = entities('garden') as any[] | undefined;
     const projectedBeds = entities('bed') as any[] | undefined;
@@ -45,7 +47,9 @@ export function usePlants(status?: PlantStatus) {
     const optimisticPlants = projection && !projection.complete
         ? [...fallbackPlants.filter((row) => !filteredProjection?.some((pending) => pending.entityUuid === row.entityUuid)), ...(filteredProjection ?? [])]
         : projection ? filteredProjection : fallbackPlants;
-    const plants = !hasSession ? [] : projection?.complete ? filteredProjection : optimisticPlants;
+    const plants = identity?.kind === 'guest'
+        ? filteredProjection
+        : projection?.complete ? filteredProjection : optimisticPlants;
     const { plants: libraryPlants } = usePlantLibrary(locale);
     const libraryById = useMemo(
         () => new Map((libraryPlants ?? []).map((plant: any) => [String(plant._id), plant])),
@@ -148,7 +152,7 @@ export function usePlants(status?: PlantStatus) {
 
     return {
         plants: localizedPlants,
-        isLoading: plants === undefined && !cacheLoaded && !shouldBypassRemote,
+        isLoading: !identity || (plants === undefined && !cacheLoaded && !shouldBypassRemote),
         addPlant,
         updateStatus,
         updatePlant,

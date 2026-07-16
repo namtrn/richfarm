@@ -1,22 +1,32 @@
-import { useEffect, useRef } from 'react';
-import { Tabs } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { Tabs, useRouter } from 'expo-router';
 import { BottomTabBar, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { Bell, BookOpen, UserRound, Home, Fence, ScanSearch } from 'lucide-react-native';
+import { Bell, BookOpen, UserRound, Home, Fence, ScanSearch, Plus, Sprout, Grid2X2Plus } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import {
   Animated,
   Dimensions,
   Easing,
   NativeModules,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
+  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { requireOptionalNativeModule } from 'expo-modules-core';
+import {
+  GlassView,
+  isGlassEffectAPIAvailable,
+  isLiquidGlassAvailable,
+} from 'expo-glass-effect';
 import { palette, useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
+import { useGardens } from '../../hooks/useGardens';
+import { usePlantScanner } from '../../hooks/usePlantScanner';
 
 // expo-blur requires a native rebuild — guard against Expo Go where the native
 // module hasn't been compiled in yet.
@@ -29,6 +39,12 @@ if (isBlurAvailable) {
     BlurView = null;
   }
 }
+
+// A dev client can have the JS package installed before its native module has
+// been rebuilt. The package availability helpers require the native module, so
+// guard them with an optional lookup first.
+const isGlassEffectModuleLinked = Platform.OS === 'ios'
+  && requireOptionalNativeModule('ExpoGlassEffect') !== null;
 
 // Use pixel values so centering is reliable on all devices
 const TAB_BAR_WIDTH = 370;
@@ -89,6 +105,22 @@ function AnimatedTabButton({ accessibilityState, children, style, activePillColo
   );
 }
 
+function ActionTabButton({ onOpen, color }: { onOpen: () => void; color: string }) {
+  return (
+    <Pressable
+      onPress={onOpen}
+      testID="e2e-tab-actions"
+      accessibilityRole="button"
+      accessibilityLabel="Quick actions"
+      style={styles.actionTabButton}
+    >
+      <View style={[styles.actionTabCircle, { backgroundColor: color }]}>
+        <Plus size={25} color="white" strokeWidth={2.5} />
+      </View>
+    </Pressable>
+  );
+}
+
 function LiquidGlassBackground({ isDark }: { isDark: boolean }) {
   const tintOverlay = isDark ? 'rgba(10, 8, 7, 0.50)' : 'rgba(255, 255, 255, 0.30)';
   const topEdge = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.90)';
@@ -120,14 +152,46 @@ function LiquidGlassBackground({ isDark }: { isDark: boolean }) {
   );
 }
 
+function SplitTabBarBackground({
+  isDark,
+  borderColor,
+}: {
+  isDark: boolean;
+  borderColor: string;
+}) {
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <View
+        style={[
+          styles.navigationCluster,
+          {
+            borderColor,
+            shadowColor: isDark ? '#000000' : '#1a4731',
+            shadowOpacity: isDark ? 0.75 : 0.30,
+          },
+        ]}
+      >
+        <LiquidGlassBackground isDark={isDark} />
+      </View>
+    </View>
+  );
+}
+
 export default function TabLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const { bottom: safeBottom } = useSafeAreaInsets();
   const { appMode } = useAppMode();
+  const router = useRouter();
+  const { gardens } = useGardens();
+  const { openScanner, scannerModals } = usePlantScanner();
+  const [actionsOpen, setActionsOpen] = useState(false);
   const isGardener = appMode === 'gardener';
   const isDark = theme.background === palette.dark.background;
+  const hasNativeGlass = isGlassEffectModuleLinked
+    && isLiquidGlassAvailable()
+    && isGlassEffectAPIAvailable();
 
   const activePillColor = isDark
     ? 'rgba(64, 145, 108, 0.40)'
@@ -140,7 +204,41 @@ export default function TabLayout() {
   // Float 10px above the home indicator (safe area bottom)
   const floatBottom = safeBottom + 10;
 
+  const runAction = (action: 'plant' | 'scan' | 'bed' | 'garden') => {
+    setActionsOpen(false);
+    if (action === 'scan') {
+      requestAnimationFrame(openScanner);
+      return;
+    }
+    if (action === 'plant') {
+      router.push(`/(tabs)/library?mode=select&from=${isGardener ? 'gardener' : 'planning'}`);
+      return;
+    }
+    if (action === 'garden') {
+      router.push('/(tabs)/garden?create=1');
+      return;
+    }
+    if (gardens.length === 1) {
+      router.push({
+        pathname: '/(tabs)/garden/[gardenId]',
+        params: { gardenId: String(gardens[0]._id), addBed: '1' },
+      });
+      return;
+    }
+    router.push('/(tabs)/garden');
+  };
+
+  const actionItems = [
+    { key: 'plant' as const, label: t('garden.my_plants_add'), Icon: Sprout },
+    { key: 'scan' as const, label: t('tabs.scan'), Icon: ScanSearch },
+    ...(!isGardener ? [
+      { key: 'bed' as const, label: t('garden.add_bed'), Icon: Grid2X2Plus },
+      { key: 'garden' as const, label: t('garden.create_button'), Icon: Fence },
+    ] : []),
+  ];
+
   return (
+    <>
     <Tabs
       tabBar={(props) => (
         <View
@@ -164,7 +262,9 @@ export default function TabLayout() {
         tabBarButton: (props) => (
           <AnimatedTabButton {...props} activePillColor={activePillColor} />
         ),
-        tabBarBackground: () => <LiquidGlassBackground isDark={isDark} />,
+        tabBarBackground: () => (
+          <SplitTabBarBackground isDark={isDark} borderColor={borderColor} />
+        ),
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
         tabBarStyle: [
@@ -175,9 +275,6 @@ export default function TabLayout() {
             width: windowWidth > TAB_BAR_WIDTH ? TAB_BAR_WIDTH : '100%',
             alignSelf: 'center',
             backgroundColor: 'transparent',
-            borderColor,
-            shadowColor: isDark ? '#000000' : '#1a4731',
-            shadowOpacity: isDark ? 0.75 : 0.30,
           },
         ],
       }}
@@ -190,7 +287,7 @@ export default function TabLayout() {
       <Tabs.Screen name="growing" options={{ href: null }} />
       <Tabs.Screen name="explorer" options={{ href: null }} />
 
-      {/* Visible tabs — order: Home | Garden | Library | Reminder | More */}
+      {/* Visible tabs — order: Home | Garden | Library | Reminder | Actions */}
       <Tabs.Screen
         name="home"
         options={{
@@ -205,14 +302,6 @@ export default function TabLayout() {
           title: isGardener ? t('tabs.my_plants') : t('tabs.garden'),
           tabBarButtonTestID: 'e2e-tab-garden',
           tabBarIcon: ({ color }) => <Fence size={22} stroke={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="scan"
-        options={{
-          title: t('tabs.scan'),
-          tabBarButtonTestID: 'e2e-tab-scan',
-          tabBarIcon: ({ color }) => <ScanSearch size={22} stroke={color} />,
         }}
       />
       <Tabs.Screen
@@ -232,6 +321,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="scan"
+        options={{
+          title: '',
+          tabBarItemStyle: styles.actionTabItem,
+          tabBarButton: () => (
+            <ActionTabButton onOpen={() => setActionsOpen(true)} color={theme.primaryDark} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.more'),
@@ -241,6 +340,84 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    <Modal
+        visible={actionsOpen}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+        onRequestClose={() => setActionsOpen(false)}
+      >
+        <View style={styles.actionModal}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('common.cancel')}
+            style={styles.actionBackdrop}
+            onPress={() => setActionsOpen(false)}
+          />
+          {hasNativeGlass ? (
+            <GlassView
+              glassEffectStyle="clear"
+              colorScheme={isDark ? 'dark' : 'light'}
+              isInteractive
+              style={[
+                styles.actionPopup,
+                {
+                  bottom: floatBottom + 64,
+                  backgroundColor: 'transparent',
+                  shadowColor: isDark ? '#000000' : theme.text,
+                },
+              ]}
+            >
+              {actionItems.map(({ key, label, Icon }) => (
+                <Pressable
+                  key={key}
+                  onPress={() => runAction(key)}
+                  accessibilityRole="button"
+                  style={({ pressed }) => [
+                    styles.actionRow,
+                    { backgroundColor: pressed ? theme.accent : theme.card },
+                  ]}
+                >
+                  <View style={[styles.actionIcon, { backgroundColor: theme.accent }]}>
+                    <Icon size={20} color={theme.primary} />
+                  </View>
+                  <Text style={[styles.actionLabel, { color: theme.text }]}>{label}</Text>
+                </Pressable>
+              ))}
+            </GlassView>
+          ) : (
+            <View
+              style={[
+                styles.actionPopup,
+                {
+                  bottom: floatBottom + 64,
+                  backgroundColor: theme.card,
+                  shadowColor: isDark ? '#000000' : theme.text,
+                },
+              ]}
+            >
+            {actionItems.map(({ key, label, Icon }) => (
+              <Pressable
+                key={key}
+                onPress={() => runAction(key)}
+                accessibilityRole="button"
+                style={({ pressed }) => [
+                  styles.actionRow,
+                  { backgroundColor: pressed ? theme.accent : theme.card },
+                ]}
+              >
+                <View style={[styles.actionIcon, { backgroundColor: theme.accent }]}>
+                  <Icon size={20} color={theme.primary} />
+                </View>
+                <Text style={[styles.actionLabel, { color: theme.text }]}>{label}</Text>
+              </Pressable>
+            ))}
+            </View>
+          )}
+        </View>
+    </Modal>
+    {scannerModals}
+    </>
   );
 }
 
@@ -255,13 +432,23 @@ const styles = StyleSheet.create({
     position: 'relative',
     // left/right/bottom are set dynamically in the component using safe area insets
     height: 56,
-    borderWidth: 2,
+    borderWidth: 0,
     borderRadius: 28,
-    elevation: 12,
+    elevation: 0,
     // NOTE: DO NOT add overflow:hidden here — it clips the borderRadius pill shape
     // Clipping is handled inside LiquidGlassBackground
     paddingBottom: Platform.select({ ios: 4, android: 2, default: 2 }),
     paddingTop: 2,
+  },
+  navigationCluster: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 62,
+    borderWidth: 2,
+    borderRadius: 28,
+    elevation: 12,
     shadowOffset: { width: 0, height: 16 },
     shadowRadius: 40,
   },
@@ -294,6 +481,61 @@ const styles = StyleSheet.create({
   itemContent: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  actionTabButton: {
+    width: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionTabItem: {
+    flex: 0,
+    width: 52,
+    marginLeft: 10,
+    marginRight: 0,
+  },
+  actionTabCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionModal: {
+    flex: 1,
+  },
+  actionBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'transparent',
+  },
+  actionPopup: {
+    position: 'absolute',
+    right: TAB_BAR_SIDE_GAP,
+    width: 210,
+    borderRadius: 18,
+    padding: 5,
+    elevation: 16,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.22,
+    shadowRadius: 24,
+  },
+  actionRow: {
+    minHeight: 48,
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  actionIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: {
+    fontSize: 15,
+    fontWeight: '600',
   },
   glassTopEdge: {
     position: 'absolute',

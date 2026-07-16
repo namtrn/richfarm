@@ -25,13 +25,13 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const shouldBypassRemote = isKnown && isOffline;
     const hasSession = useHasAuthSession();
 
-    const remoteReminders = useQuery(api.reminders.getReminders, deviceId ? {
+    const remoteReminders = useQuery(api.reminders.getReminders, hasSession && deviceId ? {
         userPlantId,
         enabledOnly: false,
         deviceId,
     } : 'skip');
 
-    const remoteTodayReminders = useQuery(api.reminders.getTodayReminders, deviceId ? { deviceId } : 'skip');
+    const remoteTodayReminders = useQuery(api.reminders.getTodayReminders, hasSession && deviceId ? { deviceId } : 'skip');
 
     const remindersCacheKey = useSessionScopedCacheKey(
         'rf_reminders_v2',

@@ -557,7 +557,7 @@ export default function GardenDetailScreen() {
   const router = useRouter();
   const { appMode } = useAppMode();
   const { user, isLoading: isAuthLoading } = useAuth();
-  const { gardenId } = useLocalSearchParams<{ gardenId: string }>();
+  const { gardenId, addBed } = useLocalSearchParams<{ gardenId: string; addBed?: string }>();
   const resolvedGardenId = Array.isArray(gardenId) ? gardenId[0] : gardenId;
   const unitSystem = useUnitSystem();
 
@@ -584,6 +584,7 @@ export default function GardenDetailScreen() {
   const [editingBed, setEditingBed] = useState<any | null>(null);
   const [confirm, setConfirm] = useState<{ type: 'garden' | 'bed'; bed?: any } | null>(null);
   const [bedLimitError, setBedLimitError] = useState('');
+  const addBedHandledRef = useRef(false);
   const isPremium = isPremiumActive(user);
   const hasReachedBedLimit = !isAuthLoading && !isPremium && beds.length >= 3;
   const getLocationLabel = (key?: string) => {
@@ -600,6 +601,16 @@ export default function GardenDetailScreen() {
     setEditingBed(null);
     setShowBedForm(true);
   };
+
+  useEffect(() => {
+    if (addBed !== '1') {
+      addBedHandledRef.current = false;
+      return;
+    }
+    if (addBedHandledRef.current || !garden) return;
+    addBedHandledRef.current = true;
+    handleOpenCreateBed();
+  }, [addBed, garden, hasReachedBedLimit]);
 
   useEffect(() => {
     if (!hasReachedBedLimit) {

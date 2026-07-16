@@ -3,16 +3,14 @@ import { AppState } from 'react-native';
 import { loadOutbox, subscribeSyncQueue } from '../lib/sync/queue';
 import type { SyncAction } from '../lib/sync/types';
 import { useNetworkStatus } from './useNetworkStatus';
-import { useDeviceId } from '../lib/deviceId';
-import { authClient } from '../lib/auth-client';
+import { useLocalSyncIdentity } from '../lib/sync/identity';
 
 type SyncStatus = 'loading' | 'idle' | 'offline' | 'pending' | 'retry' | 'attention';
 
 export function useSyncStatus(plantId?: string) {
   const { isOffline, isOnline } = useNetworkStatus();
-  const { deviceId } = useDeviceId();
-  const { data: session } = authClient.useSession();
-  const scope = deviceId ? `${deviceId}:${session?.user?.id ?? 'guest'}` : undefined;
+  const { identity } = useLocalSyncIdentity();
+  const scope = identity?.scopeKey;
   const [queue, setQueue] = useState<SyncAction[]>([]);
   const [quarantine, setQuarantine] = useState<SyncAction[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -95,5 +93,6 @@ export function useSyncStatus(plantId?: string) {
     hasQuarantine: quarantineCount > 0,
     isOffline,
     isOnline,
+    isLocalOnly: identity?.kind === 'guest',
   };
 }

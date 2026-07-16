@@ -2,25 +2,27 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import type { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
-import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
+import { useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useQueryCache } from '../lib/queryCache';
 import { useEntitySync } from './useEntitySync';
 import { useSyncProjection } from './useSyncProjection';
 
 export function useGardens() {
   const { deviceId } = useDeviceId();
-  const hasSession = useHasAuthSession();
-  const remoteGardens = useQuery(api.gardens.getGardens, deviceId ? { deviceId } : 'skip');
+  const { projection, entities, identity } = useSyncProjection();
+  const remoteGardens = useQuery(
+    api.gardens.getGardens,
+    deviceId && identity?.kind === 'account' ? { deviceId } : 'skip'
+  );
   const cacheKey = useSessionScopedCacheKey('rf_gardens_v2');
   const { cached, cacheLoaded } = useQueryCache(cacheKey, remoteGardens);
-  const { projection, entities } = useSyncProjection();
   const projectedGardens = entities('garden') as any[] | undefined;
   const fallbackGardens = (remoteGardens ?? cached ?? []) as any[];
   const optimisticGardens = projection && !projection.complete
     ? [...fallbackGardens.filter((row) => !projectedGardens?.some((pending) => pending.entityUuid === row.entityUuid)), ...(projectedGardens ?? [])]
     : projection ? projectedGardens : fallbackGardens;
-  const gardens = !hasSession
-    ? []
+  const gardens = identity?.kind === 'guest'
+    ? projectedGardens
     : projection?.complete
       ? projectedGardens as typeof remoteGardens
       : optimisticGardens as typeof remoteGardens;
@@ -61,5 +63,5 @@ export function useGardens() {
     });
   };
 
-  return { gardens: gardens ?? [], isLoading: gardens === undefined && !cacheLoaded, createGarden, updateGarden, deleteGarden };
+  return { gardens: gardens ?? [], isLoading: !identity || (gardens === undefined && !cacheLoaded), createGarden, updateGarden, deleteGarden };
 }

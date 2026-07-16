@@ -1098,6 +1098,15 @@ Current verdict: **SOURCE IMPLEMENTATION ADVANCED; RELEASE GATE STILL CLOSED**.
 Phase 2 must not depend on this layer until the operational and independent-audit
 gates above are completed.
 
+## 2026-07-16 Guest-local identity completion task
+
+Signed-out local-only CRUD, canonical guest/account identities, and resumable
+guest-to-account claim behavior are tracked separately in:
+
+- `docs/tasks/2026-07-16-phase-1-5-guest-local-identity-sync-task.md`
+
+This is Phase 1.5 sync correctness work, not a production rollout/version gate.
+
 ### Final source-hardening status — 2026-07-15
 
 All repository-side blockers identified in the prior cross-check were completed:

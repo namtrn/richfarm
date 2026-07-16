@@ -62,6 +62,7 @@ import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
 import { usePlantSync } from '../../../hooks/usePlantSync';
 import { createLocalId, loadPlantLocalData, savePlantLocalData } from '../../../lib/plantLocalData';
+import { useLocalSyncIdentity } from '../../../lib/sync/identity';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -397,6 +398,7 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function LibraryPlantDetailScreen() {
+    const { identity: syncIdentity } = useLocalSyncIdentity();
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
@@ -698,21 +700,23 @@ export default function LibraryPlantDetailScreen() {
                                 ? daysAgoTimestamp(3)
                                 : daysAgoTimestamp(7);
             if (lastWaterAt) {
-                const existing = await loadPlantLocalData(String(createdPlantId));
+                if (!syncIdentity) throw new Error('sync_scope_unavailable');
+                const existing = await loadPlantLocalData(syncIdentity.scopeKey, String(createdPlantId));
                 const wateringEntry = {
                     id: createLocalId(),
                     type: 'watering' as const,
                     date: lastWaterAt,
                     note: undefined,
                 };
-                await savePlantLocalData(String(createdPlantId), {
+                await savePlantLocalData(syncIdentity.scopeKey, String(createdPlantId), {
                     ...existing,
                     activities: [wateringEntry, ...existing.activities],
                 });
                 await queueActivity(String(createdPlantId), wateringEntry);
             }
             if (gardenerGrowthStage) {
-                const existing = await loadPlantLocalData(String(createdPlantId));
+                if (!syncIdentity) throw new Error('sync_scope_unavailable');
+                const existing = await loadPlantLocalData(syncIdentity.scopeKey, String(createdPlantId));
                 const growthStageEntry = {
                     id: createLocalId(),
                     type: 'custom' as const,
@@ -728,7 +732,7 @@ export default function LibraryPlantDetailScreen() {
                                         : daysAgoTimestamp(30),
                     note: `${t('library.growth_stage', { defaultValue: 'Growth stage' })}: ${selectedGrowthStageLabel}`,
                 };
-                await savePlantLocalData(String(createdPlantId), {
+                await savePlantLocalData(syncIdentity.scopeKey, String(createdPlantId), {
                     ...existing,
                     activities: [growthStageEntry, ...existing.activities],
                 });

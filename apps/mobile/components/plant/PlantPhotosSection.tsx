@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { PlantLocalData } from '../../lib/plantLocalData';
 import { useTheme } from '../../lib/theme';
+import { useState } from 'react';
 
 type Props = {
     localData: PlantLocalData;
@@ -34,6 +35,7 @@ export function PlantPhotosSection({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
+    const [missingPhotoIds, setMissingPhotoIds] = useState<Set<string>>(new Set());
 
     const confirmRemove = (id: string) => {
         Alert.alert(
@@ -72,10 +74,19 @@ export function PlantPhotosSection({
                     <View style={{ flexDirection: 'row' }}>
                         {localData.photos.map((photo, index) => (
                             <View key={photo.id} style={{ marginRight: index === localData.photos.length - 1 ? 0 : 16 }}>
-                                <Image
-                                    source={{ uri: photo.uri }}
-                                    style={{ width: 140, height: 140, borderRadius: 10, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border }}
-                                />
+                                {missingPhotoIds.has(photo.id) ? (
+                                    <View style={{ width: 140, height: 140, borderRadius: 10, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, alignItems: 'center', justifyContent: 'center', padding: 12 }}>
+                                        <Text style={{ color: theme.textSecondary, fontSize: 12, fontWeight: '600', textAlign: 'center' }}>
+                                            {t('plant.photo_not_found', { defaultValue: 'Image not found' })}
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <Image
+                                        source={{ uri: photo.uri }}
+                                        onError={() => setMissingPhotoIds((current) => new Set(current).add(photo.id))}
+                                        style={{ width: 140, height: 140, borderRadius: 10, backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border }}
+                                    />
+                                )}
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                                     <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: '500' }}>
                                         {formatDate(photo.date)}

@@ -24,11 +24,12 @@ import { useThemeContext } from '../../lib/ThemeContext';
 
 type WeatherCardProps = {
     model: WeatherCardModel;
+    temperatureUnit?: 'C' | 'F';
     onHide?: () => void | Promise<void>;
     isHiding?: boolean;
 };
 
-export function WeatherCard({ model, onHide, isHiding = false }: WeatherCardProps) {
+export function WeatherCard({ model, temperatureUnit = 'C', onHide, isHiding = false }: WeatherCardProps) {
     const { t } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
@@ -46,6 +47,8 @@ export function WeatherCard({ model, onHide, isHiding = false }: WeatherCardProp
         rainfall, humidity, uvIndex, uvLabel,
         soilStatus, soilBars,
     } = model;
+    const displayTemperature = temperatureUnit === 'F' ? Math.round((temperature * 9) / 5 + 32) : temperature;
+    const displayFeelsLike = temperatureUnit === 'F' ? Math.round((feelsLike * 9) / 5 + 32) : feelsLike;
     const localizedCondition = t(`weather_card.condition_${conditionKey}`);
     const normalizedUv = uvLabel.toLowerCase().replace(/\s+/g, '_');
     const localizedUvLabel = t(`weather_card.uv_${normalizedUv}`);
@@ -95,10 +98,10 @@ export function WeatherCard({ model, onHide, isHiding = false }: WeatherCardProp
             <View style={styles.tempRow}>
                 <View style={styles.tempCol}>
                     <View style={styles.tempLeft}>
-                        <Text style={styles.tempNumber}>{temperature}°</Text>
-                        <Text style={styles.tempUnit}>{t('weather_card.temp_unit')}</Text>
+                        <Text style={styles.tempNumber}>{displayTemperature}°</Text>
+                        <Text style={styles.tempUnit}>{temperatureUnit}</Text>
                     </View>
-                    <Text style={styles.feelsLike}>{t('weather_card.feels_like', { value: feelsLike })}</Text>
+                    <Text style={styles.feelsLike}>{t('weather_card.feels_like', { value: displayFeelsLike })}</Text>
                 </View>
                 <View style={styles.sunIconWrapper}>
                     <Icon size={38} stroke={heroIcon.stroke} fill={heroIcon.fill} strokeWidth={1.5} />
