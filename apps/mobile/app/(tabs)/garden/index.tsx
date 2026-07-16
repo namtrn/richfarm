@@ -296,6 +296,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                         paddingHorizontal: 20,
                         paddingTop: 12,
                         paddingBottom: 40,
+                        maxHeight: '92%',
                         transform: [{ translateY: pan.y }],
                         shadowColor: '#000',
                         shadowOffset: { width: 0, height: -4 },
@@ -311,6 +312,12 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                             <X size={20} stroke={theme.textSecondary} />
                         </TouchableOpacity>
                     </View>
+
+                    <ScrollView
+                        keyboardDismissMode="on-drag"
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
+                    >
 
                     <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textAccent, marginBottom: 8 }}>{t('garden.name_label')}</Text>
                     <TextInput
@@ -416,6 +423,7 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                             : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{t('garden.create_action')}</Text>
                         }
                     </TouchableOpacity>
+                    </ScrollView>
                 </Animated.View>
             </View>
         </Modal>

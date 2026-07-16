@@ -62,7 +62,14 @@ appId: com.mygarden.app
           id: e2e-garden-create-length-input
       - eraseText
       - inputText: 3
-      - tapOn: "New Garden"
+      - swipe:
+          start: "50%,60%"
+          end: "50%,25%"
+          duration: 500
+      - swipe:
+          start: "50%,70%"
+          end: "50%,35%"
+          duration: 500
       - tapOn:
           id: e2e-garden-create-submit
       - extendedWaitUntil:
