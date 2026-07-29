@@ -30,6 +30,8 @@ import { InputSheet } from '../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
+const TEST_REMINDER_TRIGGER_ENABLED =
+  __DEV__ && process.env.EXPO_PUBLIC_ENABLE_TEST_TRIGGERS === 'true';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -735,7 +737,20 @@ export default function ReminderScreen() {
   const isGardener = appMode === 'gardener';
   const router = useRouter();
   const pathname = usePathname();
-  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder, snoozeReminder, skipReminder, resolveReminderOutcome } = useReminders();
+  const {
+    reminders,
+    todayReminders,
+    isLoading,
+    completeReminder,
+    createReminder,
+    updateReminder,
+    deleteReminder,
+    toggleReminder,
+    snoozeReminder,
+    skipReminder,
+    resolveReminderOutcome,
+    triggerCareReminderForTesting,
+  } = useReminders();
   const { plants } = usePlants();
   const { beds } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -789,7 +804,9 @@ export default function ReminderScreen() {
   }, [sortedReminders]);
 
   const activeReminders = useMemo(() => {
-    return sortedReminders.filter((r: any) => !isPlantedReminder(r) && r.enabled);
+    return sortedReminders.filter((r: any) =>
+      !isPlantedReminder(r) && r.enabled && !r._pendingOutcome
+    );
   }, [sortedReminders]);
 
   const getStage = (reminder: any): 'planning' | 'growing' | null => {
@@ -1368,6 +1385,29 @@ export default function ReminderScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {TEST_REMINDER_TRIGGER_ENABLED && (
+        <TouchableOpacity
+          testID="e2e-reminder-trigger-due"
+          onPress={() => void runReminderAction(
+            () => triggerCareReminderForTesting(),
+            'Test reminder is due now.',
+          )}
+          style={{
+            borderRadius: 14,
+            borderWidth: 1,
+            borderColor: theme.warning,
+            backgroundColor: theme.warningBg,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: theme.warning, fontSize: 13, fontWeight: '700' }}>
+            Trigger next care reminder (test only)
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {!canEdit && (
         <View style={{ backgroundColor: theme.warningBg, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.warning }}>

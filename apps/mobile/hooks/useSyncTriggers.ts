@@ -5,12 +5,15 @@ import { api } from '../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../lib/deviceId';
 import { useLocalSyncIdentity } from '../lib/sync/identity';
 import { useMobileRuntime } from '../lib/state/mobileRuntimeStore';
+import { getSyncRetryDelay } from '../lib/sync/syncTriggerPolicy';
 
 const MIN_ATTEMPT_INTERVAL_MS = 15000;
 
 export function useSyncTriggers(enabled: boolean = true) {
   const lastAttemptRef = useRef(0);
   const inflightRef = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const attemptSyncRef = useRef<() => void>(() => undefined);
   const enabledRef = useRef(enabled);
   const { execute } = useSyncExecutor();
   const { deviceId } = useDeviceId();
@@ -30,7 +33,16 @@ export function useSyncTriggers(enabled: boolean = true) {
   const attemptSync = useCallback(async () => {
     if (!enabledRef.current || inflightRef.current) return;
     const now = Date.now();
-    if (now - lastAttemptRef.current < MIN_ATTEMPT_INTERVAL_MS) return;
+    const retryDelay = getSyncRetryDelay(lastAttemptRef.current, now, MIN_ATTEMPT_INTERVAL_MS);
+    if (retryDelay > 0) {
+      if (!retryTimerRef.current) {
+        retryTimerRef.current = setTimeout(() => {
+          retryTimerRef.current = null;
+          attemptSyncRef.current();
+        }, retryDelay);
+      }
+      return;
+    }
 
     inflightRef.current = true;
     try {
@@ -40,6 +52,11 @@ export function useSyncTriggers(enabled: boolean = true) {
       inflightRef.current = false;
     }
   }, [execute]);
+  attemptSyncRef.current = () => { void attemptSync(); };
+
+  useEffect(() => () => {
+    if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+  }, []);
 
   useEffect(() => {
     if (enabledRef.current) {

@@ -166,6 +166,8 @@ export function composeRenderedProjection(
         const occurredAt = typeof payload.occurredAt === 'number' ? payload.occurredAt : action.createdAt;
         if (outcome === 'snoozed' && typeof payload.snoozedUntil === 'number') {
           reminder.snoozedUntil = payload.snoozedUntil;
+          reminder.nextRunAt = payload.snoozedUntil;
+          reminder._pendingOutcome = outcome;
         } else if (outcome === 'disabled' || outcome === 'deleted') {
           reminder.enabled = false;
         } else if (outcome !== 'edited') {

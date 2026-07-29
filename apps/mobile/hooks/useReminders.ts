@@ -8,8 +8,14 @@ import { useQueryCache } from '../lib/queryCache';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useSyncProjectionEntities } from './useSyncProjection';
 import { useEntitySync } from './useEntitySync';
+import {
+    getTestDueAt,
+    selectTestTriggerableCareReminder,
+} from '../lib/testReminderTrigger';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
+const TEST_REMINDER_TRIGGER_ENABLED =
+    __DEV__ && process.env.EXPO_PUBLIC_ENABLE_TEST_TRIGGERS === 'true';
 const E2E_NOW = process.env.EXPO_PUBLIC_E2E_NOW;
 const E2E_INITIAL_REMINDERS = E2E_REMINDER_MODE ? [{
     _id: 'e2e-reminder-overdue',
@@ -65,7 +71,11 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
                 && date.getDate() === now.getDate();
         })
         : projectedReminders.length > 0
-          ? projectedReminders.filter((reminder) => reminder.enabled && reminder.nextRunAt <= new Date().setHours(23, 59, 59, 999))
+          ? projectedReminders.filter((reminder) =>
+              reminder.enabled
+              && !reminder._pendingOutcome
+              && reminder.nextRunAt <= new Date().setHours(23, 59, 59, 999)
+            )
           : !hasSession ? [] : remoteTodayReminders ?? cachedToday;
 
     const queueOutcome = async (
@@ -223,6 +233,21 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         throw new Error('This legacy reminder does not support a check-only outcome.');
     };
 
+    const triggerCareReminderForTesting = async (reminderId?: string) => {
+        if (!TEST_REMINDER_TRIGGER_ENABLED) {
+            throw new Error('test_reminder_trigger_disabled');
+        }
+        const reminder = selectTestTriggerableCareReminder(reminders ?? [], reminderId);
+        if (!reminder) {
+            throw new Error('test_care_reminder_not_found');
+        }
+        await updateReminder(
+            reminder._id as Id<'reminders'>,
+            { nextRunAt: getTestDueAt(Date.now()) },
+        );
+        return reminder._id;
+    };
+
     return {
         reminders: reminders ?? [],
         todayReminders: todayReminders ?? [],
@@ -235,5 +260,6 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         snoozeReminder,
         skipReminder,
         resolveReminderOutcome,
+        triggerCareReminderForTesting,
     };
 }
