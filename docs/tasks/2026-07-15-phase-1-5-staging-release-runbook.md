@@ -148,6 +148,11 @@ Completed:
 - iOS native simulator build/install/launch: PASS on iPhone 17 / iOS 26.2;
 - base iOS Maestro smoke: PASS;
 - scoped preference/runtime restart Maestro flow: PASS.
+- Convex dev snapshot export including file storage: PASS;
+- Convex dev hierarchy backfill: PASS — 3 Gardens, 3 Beds, 3 Plants, and
+  2 Activities updated; Harvest and Photo required no changes;
+- second complete backfill: PASS — `changed: 0` for all six domains;
+- complete post-backfill audit: PASS — all pages exhausted with no issue rows.
 
 The scoped-state flow initially failed because it targeted controls as if
 Profile were still one long page. The flow now selects the Appearance and
@@ -158,7 +163,8 @@ Pending external/operational evidence:
 - Android offline/restart/reconnect flow: no `adb` executable or Android target
   is available in the current environment;
 - target staging deployment, migration audit/backfill, backup, interruption,
-  idempotency, and rollback rehearsal;
+  and rollback rehearsal; the equivalent snapshot/backfill/idempotency/audit
+  steps passed on the configured dev deployment;
 - two independent real-client failure matrix;
 - rollout observation with at least the configured minimum sample size;
 - legacy cutoff window and old-client validation;
@@ -166,3 +172,16 @@ Pending external/operational evidence:
 
 No production migration, cutoff, or rollout configuration was changed during
 this run.
+
+The dev rollout-health query returned zero rates, no breached thresholds, and
+`shouldPause: false`, but the bucket total was `0`. This is configuration
+validation only and does not satisfy the required observation window of at
+least 100 operations.
+
+The pre-backfill dev snapshot, including file storage, was downloaded to:
+
+```text
+/tmp/richfarm-phase-1-5-dev-pre-backfill.zip
+```
+
+It is a temporary local recovery artifact and is intentionally not committed.

@@ -54,6 +54,7 @@ All notable changes to the **RichFarm** project will be documented in this file.
 - API tests pass: 16/16 when executed with localhost listener access.
 - Dashboard production build passes.
 - iOS production export, native simulator build/install/launch, base smoke flow, and scoped-state restart flow pass.
+- Convex dev migration rehearsal created a full snapshot, backfilled 11 legacy rows, passed a second idempotency run with zero changes, and returned zero audit issues across all six domains.
 - Android device verification remains pending because the current environment does not provide `adb` or an attached emulator/device.
 - Operational Phase 1.5 release evidence remains tracked in the staging runbook; repository-side completion alone does not open Phase 2.
 

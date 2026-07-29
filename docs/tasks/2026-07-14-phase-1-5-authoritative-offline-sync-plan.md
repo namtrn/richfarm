@@ -1159,6 +1159,11 @@ Local verification on 2026-07-29:
   paginated Profile layout;
 - Android native flow: PENDING because this environment has no `adb` executable
   or attached Android target.
+- Convex dev migration: PASS for snapshot, hierarchy-ordered backfill,
+  idempotency, and complete six-domain audit; rollback import remains pending.
+- rollout health query: no breached threshold and `shouldPause: false`, but the
+  current bucket contains zero operations and therefore does not satisfy the
+  minimum observation sample.
 
 The Phase 2 gate remains **CLOSED** until the release runbook records:
 
