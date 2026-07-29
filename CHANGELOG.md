@@ -16,6 +16,8 @@ All notable changes to the **RichFarm** project will be documented in this file.
   recovery, and account scopes to care plans, reminders, and outcomes.
 - Batched push presentation by local day and Garden/Bed while retaining
   individually actionable in-app reminders.
+- Added a development-only care-reminder due trigger for deterministic native
+  testing; production builds cannot enable it.
 
 ### Version detail
 
@@ -43,20 +45,29 @@ All notable changes to the **RichFarm** project will be documented in this file.
   existing reminder edit/enable/disable/delete controls for user overrides.
 - Added outcome copy for English, Vietnamese, Spanish, French, Portuguese, and
   Chinese.
+- Fixed reconnects inside the sync throttle window so an offline outbox always
+  receives a trailing retry, and hid pending resolved reminders immediately
+  across offline restart.
+- Kept authenticated Convex queries read-only when resolving users; user
+  creation/update remains restricted to mutation contexts.
 
 #### Verification
 
 - Mobile and Convex TypeScript: PASS.
-- Convex tests: PASS (35/35), including derivation, versions, DST recurrence,
+- Convex tests: PASS (36/36), including derivation, versions, DST recurrence,
   batching, outcome semantics, idempotent retry, snapshots, and sync conflicts.
-- Mobile tests: PASS (46/46), including offline outcome projection and restart.
+- Mobile tests: PASS (51/51), including offline outcome projection, restart,
+  reconnect trailing retry, and the test-only due trigger.
 - API tests: PASS (16/16) with localhost listener access; API build PASS.
 - Dashboard production build and iOS production export: PASS.
 - iOS simulator native build/install/launch: PASS on iPhone 17 / iOS 26.2.
-- Native Phase 2 Maestro specification was added. Real notification delivery,
-  Phase 2 UI execution (local Convex environment variables were unavailable),
-  two-real-device convergence, Android, staging migration/rollout, and
-  independent-audit gates remain external and are not claimed as PASS.
+- Real-account iOS Simulator journey: PASS on the development deployment:
+  Library Tomato care plan/reminder activation, test-only due trigger, offline
+  performed outcome, process restart while offline, reconnect/outbox flush,
+  zero reminders due, and one reminder-sourced Activity visible.
+- Real push delivery, two-real-device convergence, Android, staging
+  migration/rollout, and independent-audit gates remain external and are not
+  claimed as PASS.
 
 ## [2026-07-29] — Phase 1 and Phase 1.5 release-candidate consolidation
 

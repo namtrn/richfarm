@@ -187,9 +187,6 @@ Verified locally:
 
 Pending external evidence:
 
-- the Phase 2 Maestro flow has not been executed: the local debug app built and
-  launched, but Metro reported missing `EXPO_PUBLIC_CONVEX_URL` and
-  `EXPO_PUBLIC_CONVEX_SITE_URL`, so application UI could not initialize;
 - real push delivery grouping has not been observed through Expo services;
 - Android is unavailable in this environment;
 - two independent physical/simulator clients have not executed the full
@@ -197,3 +194,53 @@ Pending external evidence:
 - no staging or production schema deployment/migration was performed;
 - no legacy cutoff or rollout setting was changed;
 - no independent Phase 2 audit has issued PASS.
+
+## Real-account development verification — 2026-07-29
+
+The development Convex deployment and iPhone 17 / iOS 26.2 Simulator were used
+with a real authenticated test account. No staging or production deployment was
+changed.
+
+Added a development-only trigger guarded by both `__DEV__` and
+`EXPO_PUBLIC_ENABLE_TEST_TRIGGERS=true`. It advances an existing care-plan
+reminder through the normal revisioned sync-v2 update command; it does not
+create a parallel reminder or bypass the outbox. The flag defaults to false and
+the control is absent from production builds.
+
+Verified native journey:
+
+- an existing Tomato userPlant retained its Library-derived watering cadence
+  and friendly condition-check reminder copy;
+- the test-only trigger made that plant's watering reminder overdue;
+- the reminder remained due after a process restart;
+- the performed outcome was recorded with simulator networking disabled;
+- the pending operation survived a second process restart;
+- reconnect flushed the exact durable outbox operation with no quarantine;
+- the home summary reconciled from one due reminder to zero;
+- Plant Detail displayed the resulting Watering Activity with
+  `Source: reminder`.
+
+This run exposed and fixed two repository regressions:
+
+- a reconnect arriving inside the 15-second sync throttle window was discarded
+  permanently. The trigger now schedules a trailing retry for the remaining
+  interval, including after offline restart;
+- pending performed/checked/skipped outcomes remained visible as due until
+  server reconciliation. Offline projection now suppresses resolved pending
+  reminders, while snooze advances the projected `nextRunAt`.
+
+The run also exposed a Convex query-safety error: `requireUser` could try to
+patch the user from a query. Query contexts now perform read-only identity
+lookup; mutations retain get-or-create/upsert behavior. Focused regression tests
+cover the query boundary, test-trigger selection/time, reconnect retry policy,
+and offline projection behavior.
+
+Final local verification after these fixes:
+
+- mobile TypeScript PASS and mobile tests PASS (51/51);
+- Convex TypeScript PASS and Convex tests PASS (36/36);
+- API tests PASS (16/16, with localhost listener permission) and API build PASS;
+- dashboard production build PASS;
+- iOS Expo export PASS;
+- `git diff --check` PASS;
+- real-account native journey PASS as described above.
