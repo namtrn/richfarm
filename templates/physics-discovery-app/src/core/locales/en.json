@@ -1,0 +1,48 @@
+{
+  "common": {
+    "continue": "Continue",
+    "reset": "Reset"
+  },
+  "home": {
+    "eyebrow": "LEARN BY DISCOVERY",
+    "title": "Touch physics. Then name the pattern.",
+    "subtitle": "Run an experiment, make a prediction, and reveal the equation only after it means something.",
+    "startLesson": "Start interactive lesson",
+    "openLab": "Open free lab"
+  },
+  "pendulum": {
+    "title": "Simple pendulum",
+    "description": "Discover what changes a pendulum's period through your own measurements."
+  },
+  "lesson": {
+    "progress": "Step {{current}} of {{total}}",
+    "complete": "Lesson complete",
+    "exploreTitle": "Make it swing",
+    "explorePrompt": "Drag the angle control, then release the pendulum. What do you notice?",
+    "questionTitle": "What changes the swing time?",
+    "questionPrompt": "Choose one variable to investigate. Do not worry about being right yet.",
+    "experimentTitle": "Change only the length",
+    "experimentPrompt": "Mass and gravity are locked. Compare ten swings at two different lengths.",
+    "predictionTitle": "Commit to a prediction",
+    "predictionPrompt": "If the string doubles in length, will the pendulum become faster or slower?",
+    "patternTitle": "Find the pattern",
+    "patternPrompt": "Compare your measurements. Does doubling length double the period?",
+    "equationTitle": "Compress the pattern",
+    "equationPrompt": "Your observations are summarized by T = 2π√(L/g).",
+    "challengeTitle": "Moon challenge",
+    "challengePrompt": "Gravity is weaker on the Moon. Predict the period, then test it."
+  },
+  "lab": {
+    "title": "Pendulum lab",
+    "subtitle": "All variables are unlocked. Explore freely and collect evidence."
+  },
+  "simulation": {
+    "length": "Length",
+    "mass": "Mass",
+    "angle": "Angle",
+    "gravity": "Gravity",
+    "period": "Period",
+    "play": "Play",
+    "pause": "Pause"
+  }
+}

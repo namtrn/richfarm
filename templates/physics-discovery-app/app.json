@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Physics Discovery",
+    "slug": "physics-discovery",
+    "scheme": "physics-discovery",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      "expo-localization"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.physicsdiscovery"
+    },
+    "android": {
+      "package": "com.example.physicsdiscovery"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

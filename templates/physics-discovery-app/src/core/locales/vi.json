@@ -1,0 +1,48 @@
+{
+  "common": {
+    "continue": "Tiếp tục",
+    "reset": "Làm lại"
+  },
+  "home": {
+    "eyebrow": "HỌC BẰNG KHÁM PHÁ",
+    "title": "Chạm vào vật lý. Rồi tự gọi tên quy luật.",
+    "subtitle": "Làm thí nghiệm, đưa ra dự đoán, và chỉ mở công thức khi nó đã có ý nghĩa.",
+    "startLesson": "Bắt đầu bài học tương tác",
+    "openLab": "Mở phòng thí nghiệm"
+  },
+  "pendulum": {
+    "title": "Con lắc đơn",
+    "description": "Tự đo đạc để khám phá yếu tố nào làm thay đổi chu kỳ con lắc."
+  },
+  "lesson": {
+    "progress": "Bước {{current}} / {{total}}",
+    "complete": "Hoàn thành bài học",
+    "exploreTitle": "Làm con lắc chuyển động",
+    "explorePrompt": "Thay đổi góc rồi thả con lắc. Bạn quan sát thấy gì?",
+    "questionTitle": "Điều gì làm đổi thời gian dao động?",
+    "questionPrompt": "Chọn một biến để khảo sát. Chưa cần lo câu trả lời đúng hay sai.",
+    "experimentTitle": "Chỉ thay đổi chiều dài",
+    "experimentPrompt": "Khối lượng và trọng lực đã khóa. So sánh mười dao động ở hai chiều dài.",
+    "predictionTitle": "Chốt dự đoán",
+    "predictionPrompt": "Nếu dây dài gấp đôi, con lắc sẽ nhanh hơn hay chậm hơn?",
+    "patternTitle": "Tìm quy luật",
+    "patternPrompt": "So sánh các phép đo. Chiều dài gấp đôi có làm chu kỳ gấp đôi không?",
+    "equationTitle": "Nén quy luật thành công thức",
+    "equationPrompt": "Các quan sát của bạn được tóm tắt bởi T = 2π√(L/g).",
+    "challengeTitle": "Thử thách Mặt Trăng",
+    "challengePrompt": "Trọng lực trên Mặt Trăng yếu hơn. Hãy dự đoán chu kỳ rồi kiểm chứng."
+  },
+  "lab": {
+    "title": "Phòng thí nghiệm con lắc",
+    "subtitle": "Mọi biến đều được mở. Hãy tự do khám phá và thu thập bằng chứng."
+  },
+  "simulation": {
+    "length": "Chiều dài",
+    "mass": "Khối lượng",
+    "angle": "Góc thả",
+    "gravity": "Trọng lực",
+    "period": "Chu kỳ",
+    "play": "Chạy",
+    "pause": "Dừng"
+  }
+}
