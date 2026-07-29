@@ -2,128 +2,81 @@
 
 All notable changes to the **RichFarm** project will be documented in this file.
 
-## [2026-07-29] — Phase 2 care plans and reminder activation
+## [Unreleased]
 
-### Short
+- Documented the Phase 2.5 plan for real-device push delivery, token and receipt
+  observability, safe notification routing, retry, and duplicate prevention.
+- No application version change.
 
-- Added per-plant, versioned care-plan snapshots derived only from trustworthy
-  Library values, with reviewable source/version evidence and user-owned tasks.
-- Added deterministic watering/moisture, fertilizer, pest/disease, and
-  harvest-readiness checks with friendly, non-coercive reminder copy.
-- Added explicit performed, checked-not-needed, snooze, skip, edit, disable, and
-  delete outcome semantics; only confirmed actions update care snapshots.
-- Extended Phase 1.5 sync v2, offline projections, tombstones, receipts, restart
-  recovery, and account scopes to care plans, reminders, and outcomes.
-- Batched push presentation by local day and Garden/Bed while retaining
-  individually actionable in-app reminders.
-- Added a development-only care-reminder due trigger for deterministic native
-  testing; production builds cannot enable it.
+## [2026-07-29] — Phase 2 care and release hardening
 
-### Version detail
+- Added versioned per-plant care plans, deterministic reminders, explicit
+  performed/check/snooze/skip outcomes, and multilingual care-plan UI.
+- Extended durable offline sync, projections, conflict handling, tombstones,
+  restart recovery, and account cleanup to care plans and reminder outcomes.
+- Added local-day and Garden/Bed batching plus a development-only due trigger;
+  fixed reconnect retry and pending-reminder visibility.
+- Completed Phase 1/1.5 hardening: scoped runtime state, durable plant-content
+  commands, keyboard-safe flows, current-role API authorization, and auth E2E.
+- Renamed native product identifiers and deep links to RichFarm and completed
+  repository, simulator, migration-rehearsal, and real-account verification.
+- Real push delivery, Android, staging rollout, and two-device convergence remain
+  external verification gates.
 
-#### Data and synchronization
+## [2026-07-16] — Guest identity and QA
 
-- Added additive `userPlantCarePlans` and `reminderOutcomes` tables plus
-  sync-compatible reminder identity/revision/care-plan metadata.
-- Added `carePlan`, `reminder`, and `reminderOutcome` to the existing durable
-  outbox, dependency ordering, authoritative snapshots, conflict handling,
-  reconciliation, and account-deletion cleanup.
-- Versioned snapshots retain the Library plant, content version, source label,
-  and exact cadence/harvest values used so later Library edits cannot silently
-  rewrite an active plan.
-- Planning plants retain draft plans without active reminders; Growing activates
-  enabled tasks; Harvested/Archived disables care-plan reminders.
+- Completed guest-to-account identity claiming across durable sync state.
+- Stabilized guest garden creation and keyboard handling in native QA flows.
 
-#### Outcomes and interface
+## [2026-07-15] — Local-first synchronization
 
-- Added DST-safe local-calendar recurrence calculation and deterministic
-  reminder identities.
-- Added checked-not-needed versus performed resolution in the Reminder UI.
-  Watering/fertilizing Activities and snapshots are created only for performed
-  outcomes; checks and skips retain their own explicit history.
-- Added a reviewable care-plan/version/source card to Plant Detail and retained
-  existing reminder edit/enable/disable/delete controls for user overrides.
-- Added outcome copy for English, Vietnamese, Spanish, French, Portuguese, and
-  Chinese.
-- Fixed reconnects inside the sync throttle window so an offline outbox always
-  receives a trailing retry, and hid pending resolved reminders immediately
-  across offline restart.
-- Kept authenticated Convex queries read-only when resolving users; user
-  creation/update remains restricted to mutation contexts.
+- Completed the user-plant lifecycle and authoritative offline sync v2.
+- Added pending projections, durable Activity/Harvest/Photo commands, restart
+  recovery, reconciliation, lifecycle hardening, and expanded iOS smoke tests.
 
-#### Verification
+## [2026-05-14] — Gardener flows and catalog
 
-- Mobile and Convex TypeScript: PASS.
-- Convex tests: PASS (36/36), including derivation, versions, DST recurrence,
-  batching, outcome semantics, idempotent retry, snapshots, and sync conflicts.
-- Mobile tests: PASS (51/51), including offline outcome projection, restart,
-  reconnect trailing retry, and the test-only due trigger.
-- API tests: PASS (16/16) with localhost listener access; API build PASS.
-- Dashboard production build and iOS production export: PASS.
-- iOS simulator native build/install/launch: PASS on iPhone 17 / iOS 26.2.
-- Real-account iOS Simulator journey: PASS on the development deployment:
-  Library Tomato care plan/reminder activation, test-only due trigger, offline
-  performed outcome, process restart while offline, reconnect/outbox flush,
-  zero reminders due, and one reminder-sourced Activity visible.
-- Real push delivery, two-real-device convergence, Android, staging
-  migration/rollout, and independent-audit gates remain external and are not
-  claimed as PASS.
+- Refined gardener plant flows, reminder batching, and skip behavior.
+- Expanded the plant catalog and synchronized master plants into backend admin.
 
-## [2026-07-29] — Phase 1 and Phase 1.5 release-candidate consolidation
+## [2026-05-11] — Plant assignment
 
-### Short
+- Refined garden/bed plant assignment and documented the RichFarm product goal.
 
-- Completed the Phase 1 user-plant lifecycle and the repository-side implementation for Phase 1.5 local-first synchronization.
-- Added scoped runtime/preferences/projection stores, durable Activity/Harvest/Photo commands, guest-to-account claim recovery, and keyboard-safe mobile input flows.
-- Renamed native identifiers and product surfaces from My Garden/Richfarm to RichFarm.
-- Hardened API and Better Auth authorization, verification email, reset-password, and signed-in profile flows.
-- Added native regression flows for state persistence, offline restart/reconnect, authentication, and deep links.
-- Phase 2 remains gated on staging migration rehearsal, real-device/two-client verification, rollout metrics, and an independent PASS audit.
+## [2026-03-12] — Settings, auth, and modes
 
-### Version detail
+- Fixed logout/onboarding reset, anonymous settings sync, timezone search,
+  verification email, and anonymous-session bootstrap.
+- Added gardener/farmer mode filtering and corrected scanner navigation.
 
-#### Phase 1 — user-plant lifecycle
+## [2026-03-11] — Onboarding and cleanup
 
-- Kept Planning and Growing as states of the same `userPlants` entity.
-- Preserved lifecycle transitions, activity events, harvest records, personal photos, reminders, garden/bed placement, and library references without mutating shared catalog data.
-- Centralized mobile add-plant and plant-content paths so guest and account users share consistent personal-data semantics.
-- Added keyboard-safe input sheets, deterministic draft cleanup, stable E2E identifiers, and regression evidence for high-risk create/edit flows.
+- Expanded backend auth/subscription support and added mobile scan/onboarding
+  screens.
+- Removed the obsolete duplicate Convex source tree.
 
-#### Phase 1.5 — authoritative local-first synchronization
+## [2026-03-10] — Monorepo and account hardening
 
-- Consolidated installation, session, network, active identity, and scope-token ownership in one mobile runtime store.
-- Added one active sync-scope store with guarded hydration, authoritative projection plus pending overlays, selector hooks, and stale-account publication protection.
-- Unified app mode, theme, units, and weather visibility under guest/account-scoped optimistic preferences.
-- Added serialized, idempotent durable commands for Activity, Harvest, and Photo metadata.
-- Added managed Photo staging, resumable upload phases, orphan cleanup, guest-claim remapping, legacy sidecar migration, and malformed-payload recovery.
-- Preserved failed/pending operations across restart and kept acknowledged operations until an authoritative snapshot is durably stored.
-- Added regression coverage for scope isolation, preferences, projection loading, reconciliation, guest claim, durable command serialization, and local-data migration.
+- Restructured the project as a monorepo and added localization tooling.
+- Hardened authentication, admin/subscription flows, password changes,
+  notification settings, support/legal surfaces, and navigation timeouts.
 
-#### Authentication and security
+## [2026-03-09] — Plant families
 
-- Made API authorization resolve current database role and active state instead of trusting stale JWT authorization claims.
-- Replaced shared development-secret fallbacks with generated local secrets and mandatory configured secrets outside local development.
-- Required configured authentication email delivery and added a stricter verification-email rate limit.
-- Improved sign-up, verification, sign-in redirect, reset-password, resend-verification, and post-sign-in profile flows.
-- Preserved the legacy secure auth storage namespace while changing the public deep-link scheme to `richfarm://`.
+- Added plant-family schema, indexing, explorer UI, and navigation.
+- Fixed related backend data and application UI issues.
 
-#### Native application and QA
+## [2026-03-08] — Dashboard and backend
 
-- Renamed iOS targets/workspaces, Android package/namespace, widgets, app groups, deep links, and documentation to RichFarm.
-- Added Maestro coverage for keyboard lifecycle, auth flows, profile session state, reset password, verification deep links, scoped preferences, and offline content restart/reconnect.
-- Added an Android auth E2E runner and ignored generated E2E artifacts.
+- Refined the dashboard plant editor and updated plant schema, seeding, and
+  backend documentation.
 
-#### Verification baseline
+## [2026-03-07] — Product completeness
 
-- Mobile TypeScript passes.
-- Mobile tests pass: 45/45.
-- Convex lifecycle/sync tests pass: 27/27.
-- API tests pass: 16/16 when executed with localhost listener access.
-- Dashboard production build passes.
-- iOS production export, native simulator build/install/launch, base smoke flow, and scoped-state restart flow pass.
-- Convex dev migration rehearsal created a full snapshot, backfilled 11 legacy rows, passed a second idempotency run with zero changes, and returned zero audit issues across all six domains.
-- Android device verification remains pending because the current environment does not provide `adb` or an attached emulator/device.
-- Operational Phase 1.5 release evidence remains tracked in the staging runbook; repository-side completion alone does not open Phase 2.
+- Improved application security and completeness.
+- Added richer garden summaries and gardener views.
+- Expanded master-plant admin with statistics, bulk actions, export, auth, and
+  proxy-backed development workflows.
 
 ## [2026-03-06]
 - **Documentation**:
