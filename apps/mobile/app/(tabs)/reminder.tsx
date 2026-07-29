@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,9 @@ import {
   Modal,
   TextInput,
   Pressable,
-  PanResponder,
-  Animated,
-  StyleSheet,
   Alert,
 } from 'react-native';
-import { Bell, Check, ChevronRight, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from 'lucide-react-native';
+import { Bell, Check, ChevronRight, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from '../../lib/icons';
 import { usePathname, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
 import { useReminders } from '../../hooks/useReminders';
@@ -29,6 +26,8 @@ import { useAppMode } from '../../hooks/useAppMode';
 import { useDeviceId } from '../../lib/deviceId';
 import { api } from '../../../../packages/convex/convex/_generated/api';
 import { getE2ENow } from '../../lib/e2eTime';
+import { InputSheet } from '../../components/ui/InputSheet';
+import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 
@@ -432,12 +431,12 @@ function ReminderFormModal({
     reminder?.waterLiters ? formatVolumeValue(reminder.waterLiters, unitSystem) : ''
   );
 
-  useEffect(() => {
+  const resetForm = useCallback(() => {
     setTitle(reminder?.title ?? '');
     setDescription(reminder?.description ?? '');
     setType(reminder?.type ?? 'watering');
-    setDateStr(formatDateInput(reminder?.nextRunAt));
-    setTimeStr(formatTimeInput(reminder?.nextRunAt));
+    setDateStr(formatDateInput(reminder?.nextRunAt ?? getE2ENow()));
+    setTimeStr(formatTimeInput(reminder?.nextRunAt ?? getE2ENow()));
     setRepeatDays(() => {
       if (!reminder?.rrule) return '';
       const match = reminder.rrule.match(/INTERVAL=(\d+)/);
@@ -459,33 +458,20 @@ function ReminderFormModal({
     setDateError('');
     setTimeError('');
     setWaterAmount(reminder?.waterLiters ? formatVolumeValue(reminder.waterLiters, unitSystem) : '');
-  }, [reminder, unitSystem, isGardener]);
+  }, [isGardener, reminder, unitSystem]);
 
-  const pan = useRef(new Animated.ValueXY()).current;
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          pan.setValue({ x: 0, y: gestureState.dy });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-          onClose();
-          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-        }
-      },
-    })
-  ).current;
+  const { activeInputRef: titleInputRef, close } = useInputModalLifecycle({
+    visible,
+    onClose,
+    // Create discards local state; Edit restores the persisted reminder snapshot.
+    onDiscard: resetForm,
+  });
 
   useEffect(() => {
     if (visible) {
-      pan.setValue({ x: 0, y: 0 });
+      resetForm();
     }
-  }, [visible, pan]);
+  }, [resetForm, visible]);
 
   const handleSave = async () => {
     const cleanTitle = title.trim() || (E2E_REMINDER_MODE ? 'E2E overdue harvest' : '');
@@ -517,48 +503,40 @@ function ReminderFormModal({
         enabled,
         waterLiters,
       });
-      onClose();
+      close();
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={{
-            backgroundColor: theme.card,
-            borderTopLeftRadius: 32,
-            borderTopRightRadius: 32,
-            paddingHorizontal: 20,
-            paddingTop: 12,
-            paddingBottom: 40,
-            transform: [{ translateY: pan.y }],
-          }}
+    <InputSheet
+      visible={visible}
+      title={reminder ? t('reminder.form_title_edit') : t('reminder.form_title_create')}
+      onClose={close}
+      closeTestID="e2e-reminder-form-close"
+      contentContainerStyle={{ gap: 16, paddingBottom: 20 }}
+      footer={(
+        <TouchableOpacity
+          disabled={!canEdit || saving || (!title.trim() && !E2E_REMINDER_MODE) || !!dateError || !!timeError}
+          onPress={handleSave}
+          testID="e2e-reminder-form-save"
+          style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || saving || (!title.trim() && !E2E_REMINDER_MODE) || !!dateError || !!timeError) ? 0.5 : 1, marginTop: 8 }}
         >
-          <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
-              {reminder ? t('reminder.form_title_edit') : t('reminder.form_title_create')}
-            </Text>
-            <TouchableOpacity onPress={onClose} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <X size={20} stroke={theme.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('reminder.form_save')}</Text>
+        </TouchableOpacity>
+      )}
+    >
           {!canEdit && (
             <View style={{ backgroundColor: theme.warningBg, borderRadius: 14, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: theme.warning }}>
               <Text style={{ fontSize: 13, color: theme.warning }}>{t('reminder.auth_warning')}</Text>
             </View>
           )}
 
-          <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
             <View style={{ gap: 6 }}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('reminder.form_title_label')}</Text>
               <TextInput
+                ref={titleInputRef}
                 value={title}
                 onChangeText={setTitle}
                 placeholder={t('reminder.form_title_placeholder')}
@@ -575,6 +553,7 @@ function ReminderFormModal({
                 onChangeText={setDescription}
                 placeholder={t('reminder.form_desc_placeholder')}
                 placeholderTextColor={theme.textMuted}
+                testID="e2e-reminder-form-description-input"
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
               />
             </View>
@@ -657,6 +636,7 @@ function ReminderFormModal({
                   placeholder={t('reminder.form_repeat_placeholder')}
                   placeholderTextColor={theme.textMuted}
                   keyboardType="numeric"
+                  testID="e2e-reminder-form-repeat-input"
                   style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
               )}
@@ -672,6 +652,7 @@ function ReminderFormModal({
                     placeholder={t('reminder.form_amount_placeholder', { unit: getVolumeUnitLabel(unitSystem) })}
                     placeholderTextColor={theme.textMuted}
                     keyboardType="numeric"
+                    testID="e2e-reminder-form-water-input"
                     style={{ flex: 1, backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                   />
                   <Text style={{ fontSize: 14, fontWeight: '600', color: theme.textSecondary }}>{getVolumeUnitLabel(unitSystem)}</Text>
@@ -742,19 +723,7 @@ function ReminderFormModal({
               </View>
               <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{enabled ? t('reminder.enabled') : t('reminder.disabled')}</Text>
             </TouchableOpacity>
-          </ScrollView>
-
-          <TouchableOpacity
-            disabled={!canEdit || saving || (!title.trim() && !E2E_REMINDER_MODE) || !!dateError || !!timeError}
-            onPress={handleSave}
-            testID="e2e-reminder-form-save"
-            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || saving || (!title.trim() && !E2E_REMINDER_MODE) || !!dateError || !!timeError) ? 0.5 : 1, marginTop: 8 }}
-          >
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('reminder.form_save')}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </Modal>
+    </InputSheet>
   );
 }
 

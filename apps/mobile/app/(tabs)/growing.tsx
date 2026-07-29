@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { Sprout, Leaf, Fence } from 'lucide-react-native';
+import { Sprout, Leaf, Fence } from '../../lib/icons';
 import { usePathname, useRouter } from 'expo-router';
 import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';

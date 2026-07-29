@@ -1,0 +1,61 @@
+appId: com.richfarm.app
+---
+- clearState
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+# The onboarding persistence request can still be in flight in a clean-state
+# simulator. A direct route makes this component regression independent of it.
+- openLink:
+    link: richfarm://garden
+- extendedWaitUntil:
+    visible:
+      id: e2e-garden-open-create
+    timeout: 30000
+- tapOn:
+    id: e2e-garden-create-close
+    optional: true
+- tapOn:
+    id: e2e-garden-open-create
+- extendedWaitUntil:
+    visible: "Garden name"
+    timeout: 10000
+- tapOn: "e.g. Balcony Garden, Backyard..."
+- waitForAnimationToEnd
+- takeScreenshot: create-garden-first-focus-keyboard
+- inputText: Draft Garden
+- tapOn:
+    id: e2e-garden-create-close
+- extendedWaitUntil:
+    notVisible:
+      id: e2e-garden-create-name-input
+    timeout: 10000
+- waitForAnimationToEnd
+- tapOn:
+    id: e2e-garden-open-create
+# React Native's iOS accessibility tree can remain stale after remounting a
+# native Modal even though the sheet is visibly open.
+- tapOn:
+    point: "50%,52%"
+- waitForAnimationToEnd
+- takeScreenshot: create-garden-refocus-keyboard
+- inputText: Fresh Garden
+# Screenshot is retained because iOS 26.2 exposes the correct remounted value
+# visually while its native Modal accessibility subtree remains stale.
+- takeScreenshot: create-garden-reopened-fresh-draft
+- tapOn:
+    point: "90%,11%"
+- waitForAnimationToEnd
+- assertVisible:
+    id: e2e-garden-open-create

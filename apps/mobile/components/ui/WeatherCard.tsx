@@ -16,7 +16,7 @@ import {
     Wind,
     Tornado,
     X,
-} from 'lucide-react-native';
+} from '../../lib/icons';
 import type { WeatherCardModel, WeatherConditionKey } from '../../features/weather/weatherLogic';
 import { useTheme } from '../../lib/theme';
 import type { ThemeColors } from '../../lib/theme';
@@ -66,7 +66,7 @@ export function WeatherCard({ model, temperatureUnit = 'C', onHide, isHiding = f
     );
 
     return (
-        <View style={styles.card}>
+        <View testID="e2e-home-weather-card" style={styles.card}>
             {/* ── Header ── */}
             <View style={styles.header}>
                 <View style={styles.locationRow}>

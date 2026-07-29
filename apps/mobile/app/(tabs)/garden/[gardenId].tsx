@@ -8,12 +8,9 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  PanResponder,
-  Animated,
-  StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Plus, Pencil, Trash2, X } from 'lucide-react-native';
+import { ArrowLeft, Plus, Pencil, Trash2 } from '../../../lib/icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useBeds } from '../../../hooks/useBeds';
@@ -25,6 +22,8 @@ import { useTheme } from '../../../lib/theme';
 import { useAuth } from '../../../lib/auth';
 import { isPremiumActive } from '../../../lib/access';
 import { useAppMode } from '../../../hooks/useAppMode';
+import { InputSheet } from '../../../components/ui/InputSheet';
+import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
 
 const LOCATION_TYPES = ['outdoor', 'indoor', 'greenhouse', 'balcony'] as const;
 const BED_TYPES = ['in_ground', 'raised', 'container', 'no_dig'] as const;
@@ -82,7 +81,7 @@ function BedFormModal({
   const isRaised = bedType === 'raised';
   const nameTooLong = name.trim().length > NAME_MAX;
 
-  useEffect(() => {
+  const resetForm = useCallback(() => {
     setName(bed?.name ?? '');
     const nextType = bed?.bedType ?? 'in_ground';
     setBedType(nextType);
@@ -99,31 +98,18 @@ function BedFormModal({
     setError('');
   }, [bed, gardenLocationType, unitSystem]);
 
-  const pan = useRef(new Animated.ValueXY()).current;
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          pan.setValue({ x: 0, y: gestureState.dy });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-          onClose();
-          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-        }
-      },
-    })
-  ).current;
+  const { activeInputRef: nameInputRef, close } = useInputModalLifecycle({
+    visible,
+    onClose,
+    // Create discards local state; Edit restores the persisted bed snapshot.
+    onDiscard: resetForm,
+  });
 
   useEffect(() => {
     if (visible) {
-      pan.setValue({ x: 0, y: 0 });
+      resetForm();
     }
-  }, [visible, pan]);
+  }, [resetForm, visible]);
 
   const parsedWidth = parseDistanceInput(width, unitSystem);
   const parsedLength = parseDistanceInput(length, unitSystem);
@@ -171,7 +157,7 @@ function BedFormModal({
         areaM2: computedAreaM2,
         soilType: soilType.trim() || undefined,
       });
-      onClose();
+      close();
     } catch (e: any) {
       const message = typeof e?.message === 'string' ? e.message : '';
       if (message === 'BED_LIMIT_FREE') {
@@ -185,36 +171,31 @@ function BedFormModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={{
-            backgroundColor: theme.card,
-            borderTopLeftRadius: 32,
-            borderTopRightRadius: 32,
-            paddingHorizontal: 20,
-            paddingTop: 12,
-            paddingBottom: 40,
-            maxHeight: '85%',
-            transform: [{ translateY: pan.y }],
-          }}
-        >
-          <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>
-              {bed ? t('garden.bed_modal_edit_title') : t('garden.bed_modal_create_title')}
-            </Text>
-            <TouchableOpacity onPress={onClose} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <X size={20} stroke={theme.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
+    <InputSheet
+      visible={visible}
+      title={bed ? t('garden.bed_modal_edit_title') : t('garden.bed_modal_create_title')}
+      onClose={close}
+      closeTestID="e2e-garden-bed-close"
+      maxHeight="85%"
+      contentContainerStyle={{ gap: 16, paddingBottom: 20 }}
+      footer={(
+        <>
+          {!!error && <Text style={{ fontSize: 12, color: theme.danger, marginTop: 4 }}>{error}</Text>}
+          <TouchableOpacity
+            disabled={saving || !name.trim() || dimensionsInvalid || nameTooLong}
+            onPress={handleSave}
+            testID="e2e-garden-bed-save"
+            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || dimensionsInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.bed_save')}</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    >
             <View style={{ gap: 6 }}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.bed_name_label')}</Text>
               <TextInput
+                ref={nameInputRef}
                 value={name}
                 onChangeText={setName}
                 placeholder={t('garden.bed_name_placeholder')}
@@ -288,6 +269,7 @@ function BedFormModal({
                   placeholder={t('garden.dimension_placeholder')}
                   placeholderTextColor={theme.textMuted}
                   keyboardType="numeric"
+                  testID="e2e-garden-bed-diameter-input"
                   style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
               </View>
@@ -303,6 +285,7 @@ function BedFormModal({
                     placeholder={t('garden.dimension_placeholder')}
                     placeholderTextColor={theme.textMuted}
                     keyboardType="numeric"
+                    testID="e2e-garden-bed-width-input"
                     style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                   />
                 </View>
@@ -316,6 +299,7 @@ function BedFormModal({
                     placeholder={t('garden.dimension_placeholder')}
                     placeholderTextColor={theme.textMuted}
                     keyboardType="numeric"
+                    testID="e2e-garden-bed-length-input"
                     style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: dimensionsInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                   />
                 </View>
@@ -334,6 +318,7 @@ function BedFormModal({
                   placeholderTextColor={theme.textMuted}
                   keyboardType="numeric"
                   editable={false}
+                  testID="e2e-garden-bed-area-output"
                   style={{ backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, opacity: 0.8 }}
                 />
               </View>
@@ -344,29 +329,12 @@ function BedFormModal({
                   onChangeText={setSoilType}
                   placeholder={t('garden.soil_placeholder')}
                   placeholderTextColor={theme.textMuted}
+                  testID="e2e-garden-bed-soil-input"
                   style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 />
               </View>
             </View>
-          </ScrollView>
-
-          {!!error && (
-            <Text style={{ fontSize: 12, color: theme.danger, marginTop: 4 }}>
-              {error}
-            </Text>
-          )}
-
-          <TouchableOpacity
-            disabled={saving || !name.trim() || dimensionsInvalid || nameTooLong}
-            onPress={handleSave}
-            testID="e2e-garden-bed-save"
-            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || dimensionsInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
-          >
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.bed_save')}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </Modal>
+    </InputSheet>
   );
 }
 
@@ -397,38 +365,24 @@ function GardenEditModal({
   const [saving, setSaving] = useState(false);
   const nameTooLong = name.trim().length > NAME_MAX;
 
-  useEffect(() => {
+  const resetForm = useCallback(() => {
     setName(garden?.name ?? '');
     setArea(garden?.areaM2 ? formatAreaValue(garden.areaM2, unitSystem) : '');
     setLocationType(garden?.locationType ?? 'outdoor');
     setDescription(garden?.description ?? '');
   }, [garden, unitSystem]);
 
-  const pan = useRef(new Animated.ValueXY()).current;
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          pan.setValue({ x: 0, y: gestureState.dy });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-          onClose();
-          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-        }
-      },
-    })
-  ).current;
+  const { activeInputRef: nameInputRef, close } = useInputModalLifecycle({
+    visible,
+    onClose,
+    onDiscard: resetForm,
+  });
 
   useEffect(() => {
     if (visible) {
-      pan.setValue({ x: 0, y: 0 });
+      resetForm();
     }
-  }, [visible, pan]);
+  }, [resetForm, visible]);
 
   const parsedArea = parseAreaInput(area, unitSystem);
   const areaInvalid = area.trim() !== '' && parsedArea === undefined;
@@ -443,46 +397,41 @@ function GardenEditModal({
         locationType,
         description: description.trim() || undefined,
       });
-      onClose();
+      close();
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={{
-            backgroundColor: theme.card,
-            borderTopLeftRadius: 32,
-            borderTopRightRadius: 32,
-            paddingHorizontal: 20,
-            paddingTop: 12,
-            paddingBottom: 40,
-            maxHeight: '85%',
-            transform: [{ translateY: pan.y }],
-          }}
+    <InputSheet
+      visible={visible}
+      title={t('garden.edit_title')}
+      onClose={close}
+      closeTestID="e2e-garden-edit-close"
+      maxHeight="85%"
+      contentContainerStyle={{ gap: 16, paddingBottom: 20 }}
+      footer={(
+        <TouchableOpacity
+          disabled={saving || !name.trim() || areaInvalid || nameTooLong}
+          onPress={handleSave}
+          testID="e2e-garden-edit-save"
+          style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
         >
-          <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('garden.edit_title')}</Text>
-            <TouchableOpacity onPress={onClose} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <X size={20} stroke={theme.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 500 }} contentContainerStyle={{ gap: 16, paddingBottom: 20 }}>
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.save_garden')}</Text>
+        </TouchableOpacity>
+      )}
+    >
             <View style={{ gap: 6 }}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('garden.name_label')}</Text>
               <TextInput
+                ref={nameInputRef}
                 value={name}
                 onChangeText={setName}
                 placeholder={t('garden.name_placeholder')}
                 placeholderTextColor={theme.textMuted}
                 maxLength={NAME_MAX}
+                testID="e2e-garden-edit-name-input"
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: nameTooLong ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
               />
               {nameTooLong && (
@@ -518,6 +467,7 @@ function GardenEditModal({
                 placeholder={t('garden.area_placeholder', { unit: getAreaUnitLabel(unitSystem) })}
                 placeholderTextColor={theme.textMuted}
                 keyboardType="numeric"
+                testID="e2e-garden-edit-area-input"
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: areaInvalid ? theme.danger : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
               />
               {areaInvalid && (
@@ -533,21 +483,11 @@ function GardenEditModal({
                 placeholder={t('garden.description_placeholder')}
                 placeholderTextColor={theme.textMuted}
                 multiline
+                testID="e2e-garden-edit-description-input"
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, minHeight: 80, textAlignVertical: 'top' }}
               />
             </View>
-          </ScrollView>
-
-          <TouchableOpacity
-            disabled={saving || !name.trim() || areaInvalid || nameTooLong}
-            onPress={handleSave}
-            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (saving || !name.trim() || areaInvalid || nameTooLong) ? 0.5 : 1, marginTop: 8 }}
-          >
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('garden.save_garden')}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
-    </Modal>
+    </InputSheet>
   );
 }
 
@@ -555,19 +495,19 @@ export default function GardenDetailScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { appMode } = useAppMode();
+  const { appMode, isLoading: isAppModeLoading } = useAppMode();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { gardenId, addBed } = useLocalSearchParams<{ gardenId: string; addBed?: string }>();
   const resolvedGardenId = Array.isArray(gardenId) ? gardenId[0] : gardenId;
   const unitSystem = useUnitSystem();
 
   useEffect(() => {
-    if (appMode === 'gardener') {
-      router.replace('/(tabs)/garden');
+    if (!isAppModeLoading && appMode === 'gardener') {
+      router.navigate('/(tabs)/garden');
     }
-  }, [appMode, router]);
+  }, [appMode, isAppModeLoading, router]);
 
-  const { gardens: gardensQuery, updateGarden, deleteGarden } = useGardens();
+  const { gardens: gardensQuery, isLoading: isGardensLoading, updateGarden, deleteGarden } = useGardens();
   const garden = useMemo(
     () => gardensQuery?.find((g: any) => g._id === resolvedGardenId),
     [gardensQuery, resolvedGardenId]
@@ -576,7 +516,7 @@ export default function GardenDetailScreen() {
   const { beds, createBed, updateBed, deleteBed } = useBeds(resolvedGardenId as Id<'gardens'>);
 
   const navigateToGardenList = () => {
-    router.replace('/(tabs)/garden');
+    router.navigate('/(tabs)/garden');
   };
 
   const [showGardenEdit, setShowGardenEdit] = useState(false);
@@ -628,12 +568,11 @@ export default function GardenDetailScreen() {
   );
 
   useEffect(() => {
-    if (gardensQuery === undefined) return;
-    if (garden) return;
-    router.replace('/(tabs)/garden');
-  }, [garden, gardensQuery, router]);
+    if (isGardensLoading || garden) return;
+    router.navigate('/(tabs)/garden');
+  }, [garden, isGardensLoading, router]);
 
-  if (gardensQuery === undefined) {
+  if (isGardensLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
         <ActivityIndicator size="large" color={theme.success} />
@@ -823,7 +762,7 @@ export default function GardenDetailScreen() {
                 }
                 if (action.type === 'garden') {
                   await deleteGarden(garden._id);
-                  router.replace('/(tabs)/garden');
+                  router.navigate('/(tabs)/garden');
                 }
               }}
               style={{ flex: 1, backgroundColor: theme.danger, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}

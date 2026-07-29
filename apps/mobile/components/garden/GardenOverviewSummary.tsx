@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Fence, Leaf, Sprout, Calendar } from 'lucide-react-native';
+import { Fence, Leaf, Sprout, Calendar } from '../../lib/icons';
 import { useTheme } from '../../lib/theme';
 
 export function GardenOverviewSummary({

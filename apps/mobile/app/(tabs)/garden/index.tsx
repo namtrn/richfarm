@@ -13,9 +13,8 @@ import {
     Image,
     Alert,
     StyleSheet,
-    PanResponder,
 } from 'react-native';
-import { Plus, Sprout, Leaf, Camera, Image as ImageIcon, X, Trash2, ArrowRight, BookOpen, Fence, Calendar, ChevronRight } from 'lucide-react-native';
+import { Plus, Sprout, Leaf, Camera, Image as ImageIcon, X, Trash2, ArrowRight, BookOpen, Fence, Calendar, ChevronRight } from '../../../lib/icons';
 import { useQuery, useAction } from 'convex/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,11 +25,12 @@ import {
     formatArea,
     formatAreaValue,
     getAreaUnitLabel,
-    getDistanceUnitLabel,
-    parseDistanceInput,
+    parseAreaInput,
     UnitSystem,
 } from '../../../lib/units';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
+import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
+import { InputSheet } from '../../../components/ui/InputSheet';
 import { usePlants } from '../../../hooks/usePlants';
 import { useReminders } from '../../../hooks/useReminders';
 import { useAuth } from '../../../lib/auth';
@@ -202,27 +202,35 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
     const { createGarden } = useGardens();
 
     const [name, setName] = useState('');
-    const [width, setWidth] = useState('');
-    const [length, setLength] = useState('');
+    const [area, setArea] = useState('');
     const [locationType, setLocationType] = useState<string>('outdoor');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const widthValue = parseDistanceInput(width, unitSystem);
-    const lengthValue = parseDistanceInput(length, unitSystem);
-    const areaM2 = widthValue && lengthValue ? widthValue * lengthValue : undefined;
+    const areaM2 = parseAreaInput(area, unitSystem);
+
+    const resetDraft = useCallback(() => {
+        setName('');
+        setArea('');
+        setLocationType('outdoor');
+        setError('');
+    }, []);
+    const { activeInputRef: nameInputRef, close: handleClose } = useInputModalLifecycle({
+        visible,
+        onClose,
+        onDiscard: resetDraft,
+    });
 
     const handleCreate = async () => {
         if (!deviceId) { setError(t('common.error')); return; }
         if (!name.trim()) { setError(t('garden.error_name')); return; }
         if (name.trim().length > NAME_MAX) { setError(t('garden.error_name_length', { max: NAME_MAX })); return; }
-        if (!widthValue || !lengthValue) { setError(t('garden.error_dimensions')); return; }
+        if (area.trim() && !areaM2) { setError(t('garden.error_create_area')); return; }
         setLoading(true);
         setError('');
         try {
-            await createGarden({ name: name.trim(), locationType, areaM2: widthValue * lengthValue });
-            setName(''); setWidth(''); setLength(''); setLocationType('outdoor');
-            onClose();
+            await createGarden({ name: name.trim(), locationType, areaM2 });
+            handleClose();
         } catch (e: any) {
             const message = typeof e?.message === 'string' ? e.message : '';
             if (message === 'GARDEN_LIMIT_FREE') {
@@ -257,70 +265,37 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
         { key: 'hall', label: t('garden.location_hall') },
     ];
 
-    const pan = useRef(new Animated.ValueXY()).current;
-    const panResponder = useRef(
-        PanResponder.create({
-            onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-            onPanResponderMove: (_, gestureState) => {
-                if (gestureState.dy > 0) {
-                    pan.setValue({ x: 0, y: gestureState.dy });
-                }
-            },
-            onPanResponderRelease: (_, gestureState) => {
-                if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-                    onClose();
-                    Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
-                } else {
-                    Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-                }
-            },
-        })
-    ).current;
-
-    useEffect(() => {
-        if (visible) {
-            pan.setValue({ x: 0, y: 0 });
-        }
-    }, [visible, pan]);
-
     return (
-        <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-            <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}>
-                <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-                <Animated.View
-                    {...panResponder.panHandlers}
+        <InputSheet
+            visible={visible}
+            title={t('garden.create_title')}
+            onClose={handleClose}
+            closeTestID="e2e-garden-create-close"
+            contentContainerStyle={{ paddingBottom: 8 }}
+            footer={({ keyboardVisible }) => (
+                <TouchableOpacity
+                    onPress={handleCreate}
+                    disabled={loading || isDeviceLoading}
+                    testID="e2e-garden-create-submit"
                     style={{
-                        backgroundColor: theme.card,
-                        borderTopLeftRadius: 32,
-                        borderTopRightRadius: 32,
-                        paddingHorizontal: 20,
-                        paddingTop: 12,
-                        paddingBottom: 40,
-                        maxHeight: '92%',
-                        transform: [{ translateY: pan.y }],
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: -4 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 12,
-                        elevation: 5,
+                        backgroundColor: theme.primary,
+                        borderRadius: keyboardVisible ? 14 : 18,
+                        height: keyboardVisible ? 44 : 52,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: (loading || isDeviceLoading) ? 0.6 : 1,
                     }}
                 >
-                    <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 20 }} />
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                        <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('garden.create_title')}</Text>
-                        <TouchableOpacity onPress={onClose} testID="e2e-garden-create-close" style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-                            <X size={20} stroke={theme.textSecondary} />
-                        </TouchableOpacity>
-                    </View>
-
-                    <ScrollView
-                        keyboardDismissMode="on-drag"
-                        keyboardShouldPersistTaps="handled"
-                        showsVerticalScrollIndicator={false}
-                    >
-
+                    {(loading || isDeviceLoading)
+                        ? <ActivityIndicator color="white" />
+                        : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{t('garden.create_action')}</Text>
+                    }
+                </TouchableOpacity>
+            )}
+        >
                     <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textAccent, marginBottom: 8 }}>{t('garden.name_label')}</Text>
                     <TextInput
+                        ref={nameInputRef}
                         value={name}
                         onChangeText={(v) => { setName(v); setError(''); }}
                         placeholder={t('garden.name_placeholder')}
@@ -376,57 +351,25 @@ function CreateGardenModal({ visible, onClose, unitSystem }: { visible: boolean;
                         })}
                     </ScrollView>
 
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textAccent, marginBottom: 8 }}>{t('garden.size_label')}</Text>
-                    <View style={{ flexDirection: 'row', gap: 12, marginBottom: 14 }}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary, marginBottom: 6 }}>{t('garden.width_label', { unit: getDistanceUnitLabel(unitSystem) })}</Text>
-                            <TextInput
-                                value={width}
-                                onChangeText={(v) => { setWidth(v); setError(''); }}
-                                placeholder={t('garden.dimension_placeholder')}
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="decimal-pad"
-                                testID="e2e-garden-create-width-input"
-                                style={{ backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: theme.text }}
-                            />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary, marginBottom: 6 }}>{t('garden.length_label', { unit: getDistanceUnitLabel(unitSystem) })}</Text>
-                            <TextInput
-                                value={length}
-                                onChangeText={(v) => { setLength(v); setError(''); }}
-                                placeholder={t('garden.dimension_placeholder')}
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="decimal-pad"
-                                testID="e2e-garden-create-length-input"
-                                style={{ backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: theme.text }}
-                            />
-                        </View>
-                    </View>
-
-                    <View style={{ marginBottom: 20, paddingHorizontal: 4 }}>
-                        <Text style={{ fontSize: 13, color: theme.textSecondary }}>
-                            {areaM2 ? t('garden.area_summary', { value: formatAreaValue(areaM2, unitSystem), unit: getAreaUnitLabel(unitSystem) }) : '—'}
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: theme.textAccent, marginBottom: 8 }}>{t('garden.create_area_label')}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.accent, borderWidth: 1, borderColor: theme.border, borderRadius: 14, marginBottom: 20 }}>
+                        <TextInput
+                            value={area}
+                            onChangeText={(v) => { setArea(v); setError(''); }}
+                            placeholder={t('garden.create_area_placeholder')}
+                            placeholderTextColor={theme.textMuted}
+                            keyboardType="decimal-pad"
+                            testID="e2e-garden-create-area-input"
+                            style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: theme.text }}
+                        />
+                        <Text style={{ color: theme.textSecondary, fontSize: 15, fontWeight: '600', paddingRight: 16 }}>
+                            {getAreaUnitLabel(unitSystem)}
                         </Text>
                     </View>
 
                     {!!error && <Text style={{ color: theme.danger, fontSize: 13, marginBottom: 10 }}>{error}</Text>}
 
-                    <TouchableOpacity
-                        onPress={handleCreate}
-                        disabled={loading || isDeviceLoading}
-                        testID="e2e-garden-create-submit"
-                        style={{ backgroundColor: theme.primary, borderRadius: 18, paddingVertical: 16, alignItems: 'center', opacity: (loading || isDeviceLoading) ? 0.6 : 1 }}
-                    >
-                        {(loading || isDeviceLoading)
-                            ? <ActivityIndicator color="white" />
-                            : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>{t('garden.create_action')}</Text>
-                        }
-                    </TouchableOpacity>
-                    </ScrollView>
-                </Animated.View>
-            </View>
-        </Modal>
+        </InputSheet>
     );
 }
 
@@ -629,7 +572,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const handleAddPlant = async () => {
         if (!canCreatePlant || !nickname.trim()) return;
         setSaving(true);
-        try { await createUserPlant({ nickname: nickname.trim() }); setNickname(''); setSheetOpen(false); }
+        try { await createUserPlant({ nickname: nickname.trim() }); closeQuickSheet(); }
         finally { setSaving(false); }
     };
 
@@ -677,6 +620,32 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         alternatives: any[];
     } | null>(null);
     const [isDetecting, setIsDetecting] = useState(false);
+
+    const resetQuickDraft = useCallback(() => setNickname(''), []);
+    const {
+        activeInputRef: nicknameInputRef,
+        close: closeQuickSheet,
+    } = useInputModalLifecycle({
+        visible: sheetOpen,
+        onClose: () => setSheetOpen(false),
+        onDiscard: resetQuickDraft,
+    });
+    const resetPhotoDraft = useCallback(() => {
+        setPhotoUri(null);
+        setDetectedName(t('planning.unknown_plant'));
+        setDetectNoMatch(false);
+        setDetectionResults(null);
+        setAiSessionActive(false);
+        setAiLimitError('');
+    }, [t]);
+    const {
+        activeInputRef: detectedNameInputRef,
+        close: closePhotoSheet,
+    } = useInputModalLifecycle({
+        visible: photoOpen,
+        onClose: () => setPhotoOpen(false),
+        onDiscard: resetPhotoDraft,
+    });
 
     const runDetection = async (base64: string) => {
         setIsDetecting(true);
@@ -757,7 +726,8 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     const handleCapture = () => {
         if (!canCreatePlant) return;
         setAiLimitError('');
-        setSheetOpen(false);
+        if (photoOpen) closePhotoSheet();
+        if (sheetOpen) closeQuickSheet();
         setScanSourceOpen(true);
     };
 
@@ -769,10 +739,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         if (hasDetectedName) {
             const matchedPlant = findLibraryMatchByName(detected);
             if (matchedPlant) {
-                setPhotoOpen(false);
-                setPhotoUri(null);
-                setAiSessionActive(false);
-                setAiLimitError('');
+                closePhotoSheet();
                 openLibraryMatch(String(matchedPlant._id), {
                     mode: 'select',
                     from: 'scanner',
@@ -792,8 +759,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                 nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
                 scannedPhotoUri: photoUri ?? undefined,
             });
-            setPhotoOpen(false);
-            setPhotoUri(null);
+            closePhotoSheet();
         }
         finally {
             setAiSessionActive(false);
@@ -886,18 +852,28 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                 </View>
             )}
 
-            {/* Add plant sheet */}
-            <Modal visible={sheetOpen} transparent animationType="slide" onRequestClose={() => setSheetOpen(false)}>
-                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={() => setSheetOpen(false)} />
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 20 }}>
-                    <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
-                    <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.modal_title')}</Text>
-
+            <InputSheet
+                visible={sheetOpen}
+                title={t('planning.modal_title')}
+                onClose={closeQuickSheet}
+                closeTestID="e2e-garden-planning-quick-close"
+                contentContainerStyle={{ gap: 20 }}
+                footer={(
+                    <TouchableOpacity
+                        disabled={!canCreatePlant || !nickname.trim() || saving}
+                        onPress={handleAddPlant}
+                        testID="e2e-planning-confirm-add"
+                        style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.6 : 1 }}
+                    >
+                        {saving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' }}>{t('planning.add_confirm')}</Text>}
+                    </TouchableOpacity>
+                )}
+            >
                     <View style={{ gap: 12 }}>
                         <TouchableOpacity
                             disabled={!canCreatePlant}
                             onPress={() => {
-                                setSheetOpen(false);
+                                closeQuickSheet();
                                 openLibrarySelect({ mode: 'select', from: 'planning' });
                             }}
                             testID="e2e-planning-option-library"
@@ -924,6 +900,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                     <View style={{ gap: 8, marginTop: 4 }}>
                         <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.quick_input_label')}</Text>
                         <TextInput
+                            ref={nicknameInputRef}
                             style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                             placeholder={t('planning.quick_input_placeholder')}
                             placeholderTextColor={theme.textMuted}
@@ -932,16 +909,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                             testID="e2e-planning-quick-input"
                         />
                     </View>
-                    <TouchableOpacity
-                        disabled={!canCreatePlant || !nickname.trim() || saving}
-                        onPress={handleAddPlant}
-                        testID="e2e-planning-confirm-add"
-                        style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.6 : 1, marginTop: 8 }}
-                    >
-                        {saving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' }}>{t('planning.add_confirm')}</Text>}
-                    </TouchableOpacity>
-                </View>
-            </Modal>
+            </InputSheet>
 
             <Modal
                 visible={scanSourceOpen}
@@ -960,12 +928,13 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                 </View>
             </Modal>
 
-            {/* Photo plant modal */}
-            <Modal visible={photoOpen} transparent animationType="slide" onRequestClose={() => setPhotoOpen(false)}>
-                <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setPhotoOpen(false)} />
-                <View style={{ backgroundColor: theme.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 12 }}>
-                    <View style={{ width: 36, height: 4, backgroundColor: theme.border, borderRadius: 2, alignSelf: 'center', marginBottom: 4 }} />
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{t('planning.detect_title')}</Text>
+            <InputSheet
+                visible={photoOpen}
+                title={t('planning.detect_title')}
+                onClose={closePhotoSheet}
+                closeTestID="e2e-garden-planning-photo-close"
+                contentContainerStyle={{ gap: 12 }}
+            >
                     {photoUri && (
                         <View style={{ position: 'relative' }}>
                             <Image source={{ uri: photoUri }} style={{ width: '100%', height: 200, borderRadius: 16 }} resizeMode="cover" />
@@ -1031,6 +1000,8 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                     )}
 
                     <TextInput
+                        ref={detectedNameInputRef}
+                        testID="e2e-garden-planning-detected-name"
                         style={{ backgroundColor: theme.accent, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: theme.text, borderWidth: 1, borderColor: theme.border }}
                         placeholder={t('planning.detect_name_placeholder')}
                         placeholderTextColor={theme.textMuted}
@@ -1052,7 +1023,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                             <TouchableOpacity
                                 style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.card }}
                                 onPress={() => {
-                                    setPhotoOpen(false);
+                                    closePhotoSheet();
                                     openLibrarySelect({
                                         mode: 'select',
                                         from: 'scanner',
@@ -1081,8 +1052,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                             {photoSaving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '700' }}>{t('planning.detect_save')}</Text>}
                         </TouchableOpacity>
                     </View>
-                </View>
-            </Modal>
+            </InputSheet>
         </>
     );
 }

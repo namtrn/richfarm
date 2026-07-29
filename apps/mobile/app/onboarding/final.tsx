@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle } from 'lucide-react-native';
+import { CheckCircle } from '../../lib/icons';
 import { useTheme } from '../../lib/theme';
 import { loadOnboardingData } from '../../lib/onboardingLocalData';
 import { normalizeOnboardingRole, type OnboardingRole } from '../../../../packages/shared/src/onboardingProfile';

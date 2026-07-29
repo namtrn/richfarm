@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { View } from 'react-native';
-import { Leaf } from 'lucide-react-native';
+import { Leaf } from '../../lib/icons';
 import { useTheme } from '../../lib/theme';
 
 interface PlantImageProps {

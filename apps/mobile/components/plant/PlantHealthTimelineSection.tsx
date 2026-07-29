@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Image, Text, View } from 'react-native';
-import { Camera, Droplets, FlaskConical, Scissors, Sparkles, PackageCheck } from 'lucide-react-native';
+import { Camera, Droplets, FlaskConical, Scissors, Sparkles, PackageCheck } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import type { PlantLocalData } from '../../lib/plantLocalData';
 import { useTheme } from '../../lib/theme';

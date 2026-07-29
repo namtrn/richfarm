@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { Alert, Animated, Image, Modal, NativeModules, PanResponder, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, Image, Modal, NativeModules, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, usePathname } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAction } from 'convex/react';
-import { X } from 'lucide-react-native';
 import { useAuth } from '../lib/auth';
 import { useDeviceId } from '../lib/deviceId';
 import { palette, useTheme } from '../lib/theme';
@@ -15,6 +14,8 @@ import { addScanEntry, updateScanEntry } from '../lib/scanHistory';
 import { usePlantLibrary } from './usePlantLibrary';
 import { usePlants } from './usePlants';
 import { normalizeCustomPlantNickname, useAddPlantFlow } from './useAddPlantFlow';
+import { useInputModalLifecycle } from './useInputModalLifecycle';
+import { InputSheet } from '../components/ui/InputSheet';
 import { api } from '../../../packages/convex/convex/_generated/api';
 
 let BlurView: React.ComponentType<{ style?: any; intensity?: number; tint?: string }> | null = null;
@@ -85,31 +86,22 @@ export function usePlantScanner(): UsePlantScannerResult {
   const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
 
-  const pan = useRef(new Animated.ValueXY()).current;
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          pan.setValue({ x: 0, y: gestureState.dy });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-          setPhotoOpen(false);
-          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-        }
-      },
-    })
-  ).current;
-
-  useEffect(() => {
-    if (photoOpen) {
-      pan.setValue({ x: 0, y: 0 });
-    }
-  }, [photoOpen, pan]);
+  const resetPhotoDraft = useCallback(() => {
+    setPhotoUri(null);
+    setDetectedName(t('planning.unknown_plant'));
+    setDetectedPlantMasterId(null);
+    setDetectNoMatch(false);
+    setIsDetecting(false);
+    setAiSessionActive(false);
+  }, [t]);
+  const {
+    activeInputRef: detectedNameInputRef,
+    close: closePhotoSheet,
+  } = useInputModalLifecycle({
+    visible: photoOpen,
+    onClose: () => setPhotoOpen(false),
+    onDiscard: resetPhotoDraft,
+  });
 
   const normalize = useCallback((value: string) =>
     value
@@ -169,10 +161,7 @@ export function usePlantScanner(): UsePlantScannerResult {
 
   const navigateToMatchedLibraryPlant = useCallback((matchedPlant: any) => {
     if (!matchedPlant) return;
-    setPhotoOpen(false);
-    setPhotoUri(null);
-    setDetectedPlantMasterId(null);
-    setAiSessionActive(false);
+    closePhotoSheet();
     setAiLimitError('');
     openLibraryMatch(String(matchedPlant._id), {
       mode: 'select',
@@ -180,7 +169,7 @@ export function usePlantScanner(): UsePlantScannerResult {
       scannedPhotoUri: photoUri ?? undefined,
       scanHistoryId: currentScanIdRef.current ?? undefined,
     });
-  }, [openLibraryMatch, photoUri]);
+  }, [closePhotoSheet, openLibraryMatch, photoUri]);
 
   const canStartAiScan = useCallback(async () => {
     if (isAuthLoading) return false;
@@ -349,15 +338,13 @@ export function usePlantScanner(): UsePlantScannerResult {
         }).then(notifyScanSaved);
         currentScanIdRef.current = null;
       }
-      setPhotoOpen(false);
-      setPhotoUri(null);
-      setAiSessionActive(false);
+      closePhotoSheet();
       setAiLimitError('');
       setDetectNoMatch(false);
     } finally {
       setPhotoSaving(false);
     }
-  }, [canEdit, createUserPlant, detectedName, notifyScanSaved, photoUri, t]);
+  }, [canEdit, closePhotoSheet, createUserPlant, detectedName, notifyScanSaved, photoUri, t]);
 
   const openScanner = useCallback(() => {
     if (isAuthLoading) return;
@@ -373,8 +360,9 @@ export function usePlantScanner(): UsePlantScannerResult {
       return;
     }
     setAiLimitError('');
+    if (photoOpen) closePhotoSheet();
     setScanSourceOpen(true);
-  }, [isAuthLoading, isAuthenticated, router, t]);
+  }, [closePhotoSheet, isAuthLoading, isAuthenticated, photoOpen, router, t]);
 
   useEffect(() => {
     if (!photoOpen) {
@@ -451,25 +439,13 @@ export function usePlantScanner(): UsePlantScannerResult {
   );
 
   const photoModal = (
-    <Modal
+    <InputSheet
       visible={photoOpen}
-      transparent
-      animationType="slide"
-      onRequestClose={() => setPhotoOpen(false)}
+      title={t('planning.detect_title')}
+      onClose={closePhotoSheet}
+      closeTestID="e2e-scanner-photo-close"
+      contentContainerStyle={{ gap: 20 }}
     >
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={() => setPhotoOpen(false)} />
-        <Animated.View
-          {...panResponder.panHandlers}
-          style={{ backgroundColor: theme.card, borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40, gap: 20, transform: [{ translateY: pan.y }] }}
-        >
-          <View style={{ width: 40, height: 5, borderRadius: 2.5, backgroundColor: theme.border, alignSelf: 'center', marginBottom: 4 }} />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text style={{ fontSize: 22, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>{t('planning.detect_title')}</Text>
-            <TouchableOpacity onPress={() => setPhotoOpen(false)} style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <X size={20} stroke={theme.textSecondary} />
-            </TouchableOpacity>
-          </View>
           {photoUri && (
             <Image
               source={{ uri: photoUri }}
@@ -480,6 +456,8 @@ export function usePlantScanner(): UsePlantScannerResult {
           <View style={{ gap: 12 }}>
             <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500', textAlign: 'center' }}>{t('planning.detect_hint')}</Text>
             <TextInput
+              ref={detectedNameInputRef}
+              testID="e2e-scanner-detected-name"
               style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
               placeholder={t('planning.detect_name_placeholder')}
               placeholderTextColor={theme.textMuted}
@@ -523,7 +501,7 @@ export function usePlantScanner(): UsePlantScannerResult {
               <TouchableOpacity
                 style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
                 onPress={() => {
-                  setPhotoOpen(false);
+                  closePhotoSheet();
                   openLibrarySelect({
                     mode: 'select',
                     from: 'scanner',
@@ -569,9 +547,7 @@ export function usePlantScanner(): UsePlantScannerResult {
               )}
             </TouchableOpacity>
           </View>
-        </Animated.View>
-      </View>
-    </Modal>
+    </InputSheet>
   );
 
   const scannerModals = useMemo(() => (

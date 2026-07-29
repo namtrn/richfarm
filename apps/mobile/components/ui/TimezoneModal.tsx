@@ -1,17 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-  Modal,
   View,
   Text,
   TextInput,
   TouchableOpacity,
   FlatList,
-  Pressable,
   StyleSheet,
 } from 'react-native';
-import { Search, X, Check } from 'lucide-react-native';
+import { Search, X, Check } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../lib/theme';
+import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
+import { InputSheet } from './InputSheet';
 
 // Common timezones list
 const TIMEZONES = [
@@ -34,6 +34,12 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
   const { t } = useTranslation();
   const theme = useTheme();
   const [search, setSearch] = useState('');
+  const discardSearch = useCallback(() => setSearch(''), []);
+  const { activeInputRef, close } = useInputModalLifecycle({
+    visible,
+    onClose,
+    onDiscard: discardSearch,
+  });
 
   const filteredTimezones = useMemo(() => {
     if (!search.trim()) return TIMEZONES;
@@ -42,24 +48,19 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
   }, [search]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
-        <View style={[styles.content, { backgroundColor: theme.card }]}>
-          <View style={[styles.dragHandle, { backgroundColor: theme.border }]} />
-          
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.text }]}>
-              {t('profile.timezone_label')}
-            </Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <X size={20} color={theme.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
+    <InputSheet
+      visible={visible}
+      title={t('profile.timezone_label')}
+      onClose={close}
+      closeTestID="e2e-timezone-close"
+      maxHeight="75%"
+      sheetStyle={styles.sheet}
+      scrollable={false}
+    >
           <View style={[styles.searchContainer, { backgroundColor: theme.accent, borderColor: theme.border }]}>
             <Search size={18} color={theme.textSecondary} />
             <TextInput
+              ref={activeInputRef}
               value={search}
               onChangeText={setSearch}
               placeholder={t('profile.timezone_search_placeholder', { defaultValue: 'Search timezone...' })}
@@ -67,6 +68,7 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
               style={[styles.searchInput, { color: theme.text }]}
               autoCapitalize="none"
               autoCorrect={false}
+              testID="e2e-timezone-search-input"
             />
             {search.length > 0 && (
               <TouchableOpacity onPress={() => setSearch('')}>
@@ -77,6 +79,7 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
 
           <FlatList
             data={filteredTimezones}
+            keyboardShouldPersistTaps="handled"
             keyExtractor={(item) => item}
             initialNumToRender={20}
             renderItem={({ item }) => {
@@ -85,7 +88,7 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
                 <TouchableOpacity
                   onPress={() => {
                     onSelect(item);
-                    onClose();
+                    close();
                   }}
                   style={[
                     styles.item,
@@ -104,48 +107,13 @@ export function TimezoneModal({ visible, onClose, selectedTimezone, onSelect }: 
             }}
             contentContainerStyle={styles.listContent}
           />
-        </View>
-      </View>
-    </Modal>
+    </InputSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  content: {
+  sheet: {
     height: '75%',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 12,
-  },
-  dragHandle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-  },
-  closeButton: {
-    padding: 4,
   },
   searchContainer: {
     flexDirection: 'row',

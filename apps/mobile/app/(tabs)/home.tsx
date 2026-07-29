@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
-import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from 'lucide-react-native';
+import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from '../../lib/icons';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';

@@ -16,7 +16,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from 'lucide-react-native';
+import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from '../../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary';
 import { PlantImage } from '../../../components/ui/PlantImage';
@@ -1815,6 +1815,7 @@ export default function LibraryScreen() {
                             </View>
                         ) : (
                             <FlatList
+                                keyboardShouldPersistTaps="handled"
                                 key={`families-${layoutMode}-${normalizedSearch ? 'search' : 'browse'}`}
                                 style={{ flex: 1 }}
                                 data={filteredFamilies}
@@ -1912,6 +1913,7 @@ export default function LibraryScreen() {
                                 </View>
                             ) : (
                                 <FlatList
+                                    keyboardShouldPersistTaps="handled"
                                     key={`${layoutMode}-${normalizedSearch ? 'search' : 'browse'}`}
                                     style={{ flex: 1 }}
                                     data={groupedPlantRows}
@@ -1950,6 +1952,7 @@ export default function LibraryScreen() {
                         </View>
                     ) : (
                         <FlatList
+                            keyboardShouldPersistTaps="handled"
                             data={filteredPests}
                             keyExtractor={pestKeyExtractor}
                             renderItem={renderPestItem}

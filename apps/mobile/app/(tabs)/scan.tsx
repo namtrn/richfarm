@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ScanSearch, Leaf, ChevronRight, Clock, CheckCircle, HelpCircle, Trash2 } from 'lucide-react-native';
+import { ScanSearch, Leaf, ChevronRight, Clock, CheckCircle, HelpCircle, Trash2 } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect } from 'react';

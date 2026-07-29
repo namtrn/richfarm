@@ -7,7 +7,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
 } from 'react-native';
-import { Search, X, ChevronRight, Bug } from 'lucide-react-native';
+import { Search, X, ChevronRight, Bug } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';

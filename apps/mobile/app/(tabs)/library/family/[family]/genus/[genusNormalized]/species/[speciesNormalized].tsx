@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { ArrowLeft, Search } from 'lucide-react-native';
+import { ArrowLeft, Search } from '../../../../../../../../lib/icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
@@ -72,6 +72,7 @@ export default function SpeciesScreen() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.background, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}>
                     <Search size={16} stroke={theme.textMuted} />
                     <TextInput
+                        testID="e2e-library-species-search"
                         value={search}
                         onChangeText={setSearch}
                         placeholder="Search plants"
@@ -87,6 +88,7 @@ export default function SpeciesScreen() {
                 </View>
             ) : (
                 <FlatList
+                    keyboardShouldPersistTaps="handled"
                     key={layoutMode}
                     data={filtered}
                     keyExtractor={(item: any) => String(item._id)}

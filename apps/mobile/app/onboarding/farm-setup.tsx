@@ -19,7 +19,7 @@ import {
   Crown,
   Users,
   Warehouse,
-} from 'lucide-react-native';
+} from '../../lib/icons';
 import { useRouter } from 'expo-router';
 import { useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
