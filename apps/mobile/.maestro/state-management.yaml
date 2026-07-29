@@ -1,0 +1,154 @@
+appId: com.richfarm.app
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+
+# Weather preference publishes to Home immediately.
+- openLink:
+    link: richfarm://profile
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-weather-show
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-weather-show
+- openLink:
+    link: richfarm://home
+- extendedWaitUntil:
+    visible:
+      id: e2e-home-weather-card
+    timeout: 10000
+- openLink:
+    link: richfarm://profile
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-weather-hide
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-weather-hide
+- openLink:
+    link: richfarm://home
+- extendedWaitUntil:
+    notVisible:
+      id: e2e-home-weather-card
+    timeout: 10000
+
+# Mode change updates the mounted tab layout without a restart/remount.
+- openLink:
+    link: richfarm://profile
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-mode-gardener
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-mode-gardener
+- runFlow:
+    when:
+      visible: "Confirm"
+    commands:
+      - tapOn: "Confirm"
+- extendedWaitUntil:
+    visible: "My Plants"
+    timeout: 10000
+- tapOn:
+    id: e2e-profile-mode-farmer
+- runFlow:
+    when:
+      visible: "Confirm"
+    commands:
+      - tapOn: "Confirm"
+- extendedWaitUntil:
+    visible: "Garden"
+    timeout: 10000
+
+# Restore weather and verify both preferences survive a process restart.
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-weather-show
+    direction: UP
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-weather-show
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-unit-imperial
+    direction: UP
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-unit-imperial
+- assertVisible:
+    id: e2e-profile-unit-imperial
+    selected: true
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-theme-dark
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-theme-dark
+- assertVisible:
+    id: e2e-profile-theme-dark
+    selected: true
+- stopApp
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- assertVisible: "Garden"
+- assertVisible:
+    id: e2e-home-weather-card
+- openLink:
+    link: richfarm://profile
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-unit-imperial
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: e2e-profile-unit-imperial
+    selected: true
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-theme-dark
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: e2e-profile-theme-dark
+    selected: true
+
+# Restore neutral defaults for subsequent smoke tests.
+- tapOn:
+    id: e2e-profile-theme-system
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-unit-metric
+    direction: UP
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-unit-metric

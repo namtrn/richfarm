@@ -1,0 +1,160 @@
+appId: com.richfarm.app
+tags:
+  - durable-content
+  - android-network
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+
+# Create a deterministic parent while online. Planning is a hidden tab route,
+# so navigate through the visible My Plants/Garden tab instead of deep-linking.
+- tapOn:
+    id: e2e-tab-garden
+
+# A fresh E2E identity may not have a parent garden yet.
+- runFlow:
+    when:
+      visible:
+        id: e2e-garden-empty-create
+    commands:
+      - tapOn:
+          id: e2e-garden-empty-create
+      - extendedWaitUntil:
+          visible:
+            id: e2e-garden-create-name-input
+          timeout: 10000
+      - tapOn:
+          id: e2e-garden-create-name-input
+      - eraseText
+      - inputText: Durable Network Garden
+      - tapOn:
+          id: e2e-garden-create-area-input
+      - eraseText
+      - inputText: "6"
+      - hideKeyboard
+      - scrollUntilVisible:
+          element:
+            id: e2e-garden-create-submit
+          direction: DOWN
+          timeout: 10000
+      - tapOn:
+          id: e2e-garden-create-submit
+      - extendedWaitUntil:
+          notVisible:
+            id: e2e-garden-create-name-input
+          timeout: 30000
+
+# The same tab exposes Garden and My Plants as an internal segmented view.
+- tapOn: My Plants
+- extendedWaitUntil:
+    visible:
+      id: e2e-planning-add-button
+    timeout: 30000
+- tapOn:
+    id: e2e-planning-add-button
+- tapOn:
+    id: e2e-planning-quick-input
+- eraseText
+- inputText: Durable Network Plant
+- tapOn:
+    id: e2e-planning-confirm-add
+- extendedWaitUntil:
+    visible: Durable Network Plant
+    timeout: 30000
+- tapOn: Durable Network Plant
+
+# Drop the real Android network before creating child commands.
+- setAirplaneMode: enabled
+- scrollUntilVisible:
+    element:
+      id: e2e-plant-activity-add
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: e2e-plant-activity-add
+- tapOn:
+    id: e2e-plant-activity-note-input
+- inputText: Durable offline activity 20260724
+- tapOn:
+    id: e2e-plant-activity-save
+- extendedWaitUntil:
+    visible: Durable offline activity 20260724
+    timeout: 10000
+- assertVisible:
+    id: e2e-sync-status-offline
+
+- scrollUntilVisible:
+    element:
+      id: e2e-plant-harvest-add
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: e2e-plant-harvest-add
+- tapOn:
+    id: e2e-plant-harvest-quantity-input
+- inputText: "7"
+- tapOn:
+    id: e2e-plant-harvest-unit-input
+- inputText: kg
+- tapOn:
+    id: e2e-plant-harvest-note-input
+- inputText: Durable offline harvest 20260724
+- tapOn:
+    id: e2e-plant-harvest-save
+- extendedWaitUntil:
+    visible: Durable offline harvest 20260724
+    timeout: 10000
+
+# Kill the process while still offline, relaunch, and prove both commands survived.
+- stopApp
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- tapOn:
+    id: e2e-tab-garden
+- extendedWaitUntil:
+    visible: Durable Network Plant
+    timeout: 30000
+- tapOn: Durable Network Plant
+- scrollUntilVisible:
+    element: Durable offline activity 20260724
+    direction: DOWN
+    timeout: 20000
+- assertVisible: Durable offline activity 20260724
+- scrollUntilVisible:
+    element: Durable offline harvest 20260724
+    direction: DOWN
+    timeout: 20000
+- assertVisible: Durable offline harvest 20260724
+- assertVisible:
+    id: e2e-sync-status-offline
+
+# Restore connectivity. Account scopes should flush; guest scopes remain safely local.
+- setAirplaneMode: disabled
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: Durable offline harvest 20260724
