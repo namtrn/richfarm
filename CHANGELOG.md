@@ -1,6 +1,61 @@
 # Changelog
 
-All notable changes to the **Richfarm** project will be documented in this file.
+All notable changes to the **RichFarm** project will be documented in this file.
+
+## [2026-07-29] — Phase 1 and Phase 1.5 release-candidate consolidation
+
+### Short
+
+- Completed the Phase 1 user-plant lifecycle and the repository-side implementation for Phase 1.5 local-first synchronization.
+- Added scoped runtime/preferences/projection stores, durable Activity/Harvest/Photo commands, guest-to-account claim recovery, and keyboard-safe mobile input flows.
+- Renamed native identifiers and product surfaces from My Garden/Richfarm to RichFarm.
+- Hardened API and Better Auth authorization, verification email, reset-password, and signed-in profile flows.
+- Added native regression flows for state persistence, offline restart/reconnect, authentication, and deep links.
+- Phase 2 remains gated on staging migration rehearsal, real-device/two-client verification, rollout metrics, and an independent PASS audit.
+
+### Version detail
+
+#### Phase 1 — user-plant lifecycle
+
+- Kept Planning and Growing as states of the same `userPlants` entity.
+- Preserved lifecycle transitions, activity events, harvest records, personal photos, reminders, garden/bed placement, and library references without mutating shared catalog data.
+- Centralized mobile add-plant and plant-content paths so guest and account users share consistent personal-data semantics.
+- Added keyboard-safe input sheets, deterministic draft cleanup, stable E2E identifiers, and regression evidence for high-risk create/edit flows.
+
+#### Phase 1.5 — authoritative local-first synchronization
+
+- Consolidated installation, session, network, active identity, and scope-token ownership in one mobile runtime store.
+- Added one active sync-scope store with guarded hydration, authoritative projection plus pending overlays, selector hooks, and stale-account publication protection.
+- Unified app mode, theme, units, and weather visibility under guest/account-scoped optimistic preferences.
+- Added serialized, idempotent durable commands for Activity, Harvest, and Photo metadata.
+- Added managed Photo staging, resumable upload phases, orphan cleanup, guest-claim remapping, legacy sidecar migration, and malformed-payload recovery.
+- Preserved failed/pending operations across restart and kept acknowledged operations until an authoritative snapshot is durably stored.
+- Added regression coverage for scope isolation, preferences, projection loading, reconciliation, guest claim, durable command serialization, and local-data migration.
+
+#### Authentication and security
+
+- Made API authorization resolve current database role and active state instead of trusting stale JWT authorization claims.
+- Replaced shared development-secret fallbacks with generated local secrets and mandatory configured secrets outside local development.
+- Required configured authentication email delivery and added a stricter verification-email rate limit.
+- Improved sign-up, verification, sign-in redirect, reset-password, resend-verification, and post-sign-in profile flows.
+- Preserved the legacy secure auth storage namespace while changing the public deep-link scheme to `richfarm://`.
+
+#### Native application and QA
+
+- Renamed iOS targets/workspaces, Android package/namespace, widgets, app groups, deep links, and documentation to RichFarm.
+- Added Maestro coverage for keyboard lifecycle, auth flows, profile session state, reset password, verification deep links, scoped preferences, and offline content restart/reconnect.
+- Added an Android auth E2E runner and ignored generated E2E artifacts.
+
+#### Verification baseline
+
+- Mobile TypeScript passes.
+- Mobile tests pass: 45/45.
+- Convex lifecycle/sync tests pass: 27/27.
+- API tests pass: 16/16 when executed with localhost listener access.
+- Dashboard production build passes.
+- iOS production export, native simulator build/install/launch, base smoke flow, and scoped-state restart flow pass.
+- Android device verification remains pending because the current environment does not provide `adb` or an attached emulator/device.
+- Operational Phase 1.5 release evidence remains tracked in the staging runbook; repository-side completion alone does not open Phase 2.
 
 ## [2026-03-06]
 - **Documentation**:

@@ -2,7 +2,7 @@
 
 Date: 2026-07-16
 
-Status: **OPEN — PHASE 1.5 COMPLETION GAP**
+Status: **SOURCE COMPLETE — OPERATIONAL VERIFICATION PENDING**
 
 ## Decision
 
@@ -408,3 +408,20 @@ In particular, modal and bottom-sheet close paths must use the shared
 `useInputModalLifecycle` hook so an input can focus and open the keyboard again
 after the modal is reopened. Create-form cancel actions discard their draft;
 edit forms restore their persisted source value.
+
+## Completion Update — 2026-07-29
+
+The source implementation now satisfies the guest identity, guest-local
+projection, no-network guest executor, resumable claim, scope transition,
+storage-state messaging, and automated pure-test requirements in this task.
+
+Remaining evidence is part of the parent Phase 1.5 operational gate:
+
+- restart and reconnect on physical/simulator iOS and Android installations;
+- interrupted guest claim followed by process restart;
+- account A → guest → account B isolation with delayed old-account responses;
+- two-client conflict and deletion scenarios;
+- independent release audit.
+
+Until those scenarios are recorded, this task is source-complete but does not by
+itself open Phase 2.

@@ -824,3 +824,30 @@ The independent audit initially found lifecycle correctness gaps. They have now 
 Final verification: Convex and mobile TypeScript checks passed; API and dashboard production builds passed; all 24 Vitest tests passed; `git diff --check` passed; Convex schema validation and deployment passed with the two new log indexes installed.
 
 For an independent re-check, use the focused prompt in `docs/tasks/2026-07-14-phase-1-user-plant-lifecycle-audit.md` under “Remediation update — 2026-07-14”.
+
+## Phase 1 Consolidated Status — 2026-07-29
+
+Status: **COMPLETE — MAINTAINED AS THE PHASE 1 BASELINE**
+
+The current repository preserves the Phase 1 lifecycle contract:
+
+- Planning and Growing remain states of one user-owned plant record.
+- Garden/Bed placement is optional where the product mode permits it.
+- Lifecycle changes create protected automatic activity events.
+- Manual Activity, Harvest, and Photo changes now enter the Phase 1.5 durable
+  command pipeline instead of relying on independent local writes.
+- Shared library rows remain read-only from personal add/edit flows.
+- Guest and signed-in users render the same lifecycle through isolated local or
+  account scopes.
+
+Verification on the 2026-07-29 working baseline:
+
+- mobile TypeScript: PASS;
+- mobile tests: PASS (45/45);
+- Convex lifecycle and sync tests: PASS (27/27);
+- API tests: PASS (16/16);
+- dashboard production build: PASS.
+
+Phase 1 is not blocked by the remaining Phase 1.5 operational rollout evidence.
+Phase 2 may consume the Phase 1 lifecycle only after the Phase 1.5 release gate
+is independently signed off.

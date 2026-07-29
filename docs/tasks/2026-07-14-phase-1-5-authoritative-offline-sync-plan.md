@@ -1127,3 +1127,47 @@ The remaining required evidence is explicitly procedural: target-backend
 migration/rollback rehearsal, the two-real-client failure matrix, rollout metric
 observation, legacy cutoff validation, and an independent PASS audit. Execute
 `docs/tasks/2026-07-15-phase-1-5-staging-release-runbook.md` before opening Phase 2.
+
+## Consolidated Release-Candidate Status — 2026-07-29
+
+Repository status: **PASS**.
+
+The source baseline now also includes:
+
+- a single mobile runtime owner for installation, auth classification, network,
+  active scope, and scope token;
+- one active sync-scope projection store with stale-scope publication guards;
+- guest/account-scoped optimistic preference ownership for mode, theme, units,
+  and weather visibility;
+- durable serialized Activity, Harvest, and Photo commands with managed Photo
+  staging and resumable upload state;
+- recovery tests for corrupt/legacy local payloads and guest-claim remapping;
+- Maestro specifications for preference restart and offline content
+  restart/reconnect.
+
+Local verification on 2026-07-29:
+
+- mobile TypeScript: PASS;
+- mobile suite: PASS (45/45);
+- Convex lifecycle/sync suite: PASS (27/27);
+- API suite: PASS (16/16) with localhost listener access;
+- dashboard production build: PASS;
+- iOS production export: PASS;
+- RichFarm iOS simulator build/install/launch: PASS on iPhone 17 / iOS 26.2;
+- base iOS Maestro smoke: PASS;
+- scoped preference/runtime restart flow: PASS after updating the flow for the
+  paginated Profile layout;
+- Android native flow: PENDING because this environment has no `adb` executable
+  or attached Android target.
+
+The Phase 2 gate remains **CLOSED** until the release runbook records:
+
+1. target-backend migration dry-run, backfill, and rollback rehearsal;
+2. iOS and Android offline/restart/reconnect device evidence;
+3. the required two-real-client conflict and account-transition matrix;
+4. rollout metrics and pause-threshold observation;
+5. legacy minimum-client enforcement validation;
+6. an independent audit verdict of PASS.
+
+These are evidence gates, not permission to weaken or delete the corresponding
+acceptance criteria.

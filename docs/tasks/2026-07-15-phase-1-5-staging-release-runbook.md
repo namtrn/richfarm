@@ -17,7 +17,12 @@ npm run dashboard:build
 cd apps/mobile && npx expo export --platform ios --output-dir /tmp/richfarm-phase-1-5-ios
 ```
 
-Expected current baseline: 6 Vitest files and 52 tests pass.
+Expected current baseline:
+
+- mobile: 13 files, 45 tests;
+- Convex: 2 files, 27 tests;
+- API: 2 files, 16 tests;
+- combined: 17 files, 88 tests.
 
 ## 2. Backend-first staging deploy
 
@@ -128,3 +133,36 @@ Phase 2 may begin only after all of the following evidence exists:
 
 If any item is missing or only inferred from unit tests, the Phase 2 gate remains
 closed.
+
+## Execution record — 2026-07-29
+
+Completed:
+
+- mobile TypeScript: PASS;
+- Convex TypeScript: PASS;
+- mobile tests: PASS (45/45);
+- Convex tests: PASS (27/27);
+- API build and tests: PASS (16/16);
+- dashboard production build: PASS;
+- iOS production export: PASS;
+- iOS native simulator build/install/launch: PASS on iPhone 17 / iOS 26.2;
+- base iOS Maestro smoke: PASS;
+- scoped preference/runtime restart Maestro flow: PASS.
+
+The scoped-state flow initially failed because it targeted controls as if
+Profile were still one long page. The flow now selects the Appearance and
+Garden & App pages explicitly and passes against the current UI.
+
+Pending external/operational evidence:
+
+- Android offline/restart/reconnect flow: no `adb` executable or Android target
+  is available in the current environment;
+- target staging deployment, migration audit/backfill, backup, interruption,
+  idempotency, and rollback rehearsal;
+- two independent real-client failure matrix;
+- rollout observation with at least the configured minimum sample size;
+- legacy cutoff window and old-client validation;
+- independent PASS audit.
+
+No production migration, cutoff, or rollout configuration was changed during
+this run.
