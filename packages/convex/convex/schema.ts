@@ -372,8 +372,14 @@ export default defineSchema({
   // ==========================================
   reminders: defineTable({
     userId: v.id("users"),
+    entityUuid: v.optional(v.string()),
+    revision: v.optional(v.number()),
     userPlantId: v.optional(v.id("userPlants")),
     bedId: v.optional(v.id("beds")), // Reminder cho cả bed
+    carePlanId: v.optional(v.id("userPlantCarePlans")),
+    carePlanVersion: v.optional(v.number()),
+    taskType: v.optional(v.string()),
+    timezone: v.optional(v.string()),
 
     // Content
     type: v.string(), // "watering", "fertilizing", "pruning", "pest_check", "harvest", "custom"
@@ -400,10 +406,67 @@ export default defineSchema({
     skippedCount: v.optional(v.number()),
   })
     .index("by_user", ["userId"])
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
     .index("by_user_next_run", ["userId", "nextRunAt"])
     .index("by_user_plant", ["userPlantId"])
     .index("by_bed", ["bedId"])
     .index("by_next_run", ["nextRunAt"]), // For cron job
+
+  userPlantCarePlans: defineTable({
+    userId: v.id("users"),
+    userPlantId: v.id("userPlants"),
+    entityUuid: v.string(),
+    revision: v.number(),
+    planVersion: v.number(),
+    status: v.union(
+      v.literal("draft"), v.literal("active"),
+      v.literal("superseded"), v.literal("disabled")
+    ),
+    sourcePlantId: v.optional(v.id("plantsMaster")),
+    sourceContentVersion: v.optional(v.number()),
+    sourceLabel: v.optional(v.string()),
+    sourceValues: v.object({
+      wateringFrequencyDays: v.optional(v.number()),
+      fertilizingFrequencyDays: v.optional(v.number()),
+      typicalDaysToHarvest: v.optional(v.number()),
+    }),
+    tasks: v.array(v.object({
+      type: v.union(
+        v.literal("watering"), v.literal("fertilizing"),
+        v.literal("pest_check"), v.literal("harvest_check")
+      ),
+      enabled: v.boolean(),
+      intervalDays: v.optional(v.number()),
+      expectedDate: v.optional(v.number()),
+    })),
+    activatedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
+    .index("by_user_plant", ["userId", "userPlantId"])
+    .index("by_plant_version", ["userPlantId", "planVersion"]),
+
+  reminderOutcomes: defineTable({
+    userId: v.id("users"),
+    userPlantId: v.optional(v.id("userPlants")),
+    reminderId: v.id("reminders"),
+    entityUuid: v.string(),
+    revision: v.number(),
+    operationId: v.string(),
+    outcome: v.union(
+      v.literal("performed"), v.literal("checked_not_needed"),
+      v.literal("snoozed"), v.literal("skipped"), v.literal("edited"),
+      v.literal("disabled"), v.literal("deleted")
+    ),
+    occurredAt: v.number(),
+    recordedAt: v.number(),
+    snoozedUntil: v.optional(v.number()),
+    note: v.optional(v.string()),
+    activityId: v.optional(v.id("logs")),
+  })
+    .index("by_user_entity_uuid", ["userId", "entityUuid"])
+    .index("by_user_operation", ["userId", "operationId"])
+    .index("by_reminder", ["reminderId"]),
 
   // ==========================================
   // Activity Logs

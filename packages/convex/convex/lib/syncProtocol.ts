@@ -1,7 +1,9 @@
 import type { Id } from '../_generated/dataModel';
 import type { MutationCtx } from '../_generated/server';
 
-export type SyncEntityType = 'garden' | 'bed' | 'plant' | 'activity' | 'harvest' | 'photo';
+export type SyncEntityType =
+  | 'garden' | 'bed' | 'plant' | 'activity' | 'harvest' | 'photo'
+  | 'carePlan' | 'reminder' | 'reminderOutcome';
 
 export function canonicalize(value: unknown): string {
   if (value === null || typeof value !== 'object') return JSON.stringify(value);

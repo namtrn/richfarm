@@ -15,10 +15,12 @@ import {
 } from './lib/syncProtocol';
 import { appendPlantActivity, recomputeActivitySnapshot } from './lib/plantActivities';
 import { isPremiumActive } from './lib/subscription';
+import { careReminderCopy, nextOccurrence } from './lib/carePlan';
 
 const entityTypeValidator = v.union(
   v.literal('garden'), v.literal('bed'), v.literal('plant'),
-  v.literal('activity'), v.literal('harvest'), v.literal('photo')
+  v.literal('activity'), v.literal('harvest'), v.literal('photo'),
+  v.literal('carePlan'), v.literal('reminder'), v.literal('reminderOutcome')
 );
 const operationTypeValidator = v.union(
   v.literal('create'), v.literal('update'), v.literal('delete')
@@ -29,7 +31,10 @@ const MANUAL_ACTIVITY_TYPES = new Set([
 ]);
 
 type OperationType = 'create' | 'update' | 'delete';
-type ParentRefs = { gardenUuid?: string | null; bedUuid?: string | null; plantUuid?: string | null };
+type ParentRefs = {
+  gardenUuid?: string | null; bedUuid?: string | null; plantUuid?: string | null;
+  carePlanUuid?: string | null; reminderUuid?: string | null;
+};
 type Operation = {
   operationId: string;
   syncGeneration: string;
@@ -77,6 +82,9 @@ async function lookupEntity(
     case 'activity': return await ctx.db.query('logs').withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId).eq('entityUuid', entityUuid)).unique();
     case 'harvest': return await ctx.db.query('harvestRecords').withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId).eq('entityUuid', entityUuid)).unique();
     case 'photo': return await ctx.db.query('plantPhotos').withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId).eq('entityUuid', entityUuid)).unique();
+    case 'carePlan': return await ctx.db.query('userPlantCarePlans').withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId).eq('entityUuid', entityUuid)).unique();
+    case 'reminder': return await ctx.db.query('reminders').withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId).eq('entityUuid', entityUuid)).unique();
+    case 'reminderOutcome': return await ctx.db.query('reminderOutcomes').withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId).eq('entityUuid', entityUuid)).unique();
   }
 }
 
@@ -89,13 +97,17 @@ async function resolveParents(
   const garden = refs?.gardenUuid ? await lookupEntity(ctx, userId, 'garden', refs.gardenUuid) : null;
   const bed = refs?.bedUuid ? await lookupEntity(ctx, userId, 'bed', refs.bedUuid) : null;
   const plant = refs?.plantUuid ? await lookupEntity(ctx, userId, 'plant', refs.plantUuid) : null;
+  const carePlan = refs?.carePlanUuid ? await lookupEntity(ctx, userId, 'carePlan', refs.carePlanUuid) : null;
+  const reminder = refs?.reminderUuid ? await lookupEntity(ctx, userId, 'reminder', refs.reminderUuid) : null;
   if (refs?.gardenUuid && (!garden || garden.isDeleted)) return { error: 'garden_missing_or_deleted' as const };
   if (refs?.bedUuid && !bed) return { error: 'bed_missing_or_deleted' as const };
   if (refs?.plantUuid && (!plant || plant.isDeleted)) return { error: 'plant_missing_or_deleted' as const };
+  if (refs?.carePlanUuid && (!carePlan || carePlan.status === 'disabled')) return { error: 'care_plan_missing_or_disabled' as const };
+  if (refs?.reminderUuid && !reminder) return { error: 'reminder_missing_or_deleted' as const };
   if (!options?.allowGardenBedMismatch && bed && garden && bed.gardenId !== garden._id) {
     return { error: 'garden_bed_mismatch' as const };
   }
-  return { garden, bed, plant };
+  return { garden, bed, plant, carePlan, reminder };
 }
 
 async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation) {
@@ -223,6 +235,125 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       }
       break;
     }
+    case 'carePlan': {
+      if (!parents.plant) return { status: 'invalid_parent' as const, reason: 'plant_required' };
+      const tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+      const validTypes = new Set(['watering', 'fertilizing', 'pest_check', 'harvest_check']);
+      if (tasks.some((task: any) => !task || !validTypes.has(task.type) || typeof task.enabled !== 'boolean')) {
+        return { status: 'invalid_parent' as const, reason: 'invalid_care_plan_tasks' };
+      }
+      const previous = await ctx.db.query('userPlantCarePlans')
+        .withIndex('by_user_plant', (q) => q.eq('userId', userId).eq('userPlantId', parents.plant._id))
+        .collect();
+      const planVersion = Math.max(0, ...previous.map((plan) => plan.planVersion)) + 1;
+      for (const plan of previous.filter((row) => row.status === 'active' || row.status === 'draft')) {
+        await ctx.db.patch(plan._id, { status: 'superseded', revision: plan.revision + 1 });
+      }
+      const libraryCare = parents.plant.plantMasterId
+        ? await ctx.db.query('plantCare').withIndex('by_plant', (q) => q.eq('plantId', parents.plant.plantMasterId)).first()
+        : null;
+      const libraryContent = parents.plant.plantMasterId
+        ? await ctx.db.query('plantCareI18n').withIndex('by_plant_locale', (q) =>
+            q.eq('plantId', parents.plant.plantMasterId).eq('locale', 'en')
+          ).first()
+        : null;
+      const trusted = (value: unknown) =>
+        typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.round(value) : undefined;
+      await ctx.db.insert('userPlantCarePlans', {
+        userId, userPlantId: parents.plant._id, entityUuid: op.entityUuid,
+        revision: 1, planVersion,
+        status: parents.plant.status === 'growing' ? 'active' : 'draft',
+        sourcePlantId: parents.plant.plantMasterId,
+        sourceContentVersion: trusted(libraryContent?.contentVersion),
+        sourceLabel: libraryCare ? 'library:plantCare' : undefined,
+        sourceValues: {
+          wateringFrequencyDays: trusted(libraryCare?.wateringFrequencyDays),
+          fertilizingFrequencyDays: trusted(libraryCare?.fertilizingFrequencyDays),
+          typicalDaysToHarvest: trusted(libraryCare?.typicalDaysToHarvest),
+        },
+        tasks: tasks as any,
+        activatedAt: parents.plant.status === 'growing' ? now : undefined,
+        createdAt: now,
+      });
+      break;
+    }
+    case 'reminder': {
+      if (!parents.plant || !parents.carePlan) return { status: 'invalid_parent' as const, reason: 'plant_and_care_plan_required' };
+      if (parents.plant.status !== 'growing' || parents.carePlan.status !== 'active') {
+        return { status: 'invalid_parent' as const, reason: 'care_plan_not_active' };
+      }
+      const task = stringValue(payload.taskType);
+      const nextRunAt = numberValue(payload.nextRunAt);
+      if (!task || !nextRunAt) return { status: 'invalid_parent' as const, reason: 'invalid_reminder_payload' };
+      const planTask = (parents.carePlan.tasks as any[]).find((row) => row.type === task);
+      if (!planTask?.enabled) return { status: 'invalid_parent' as const, reason: 'care_task_not_enabled' };
+      const copy = careReminderCopy(task as any);
+      await ctx.db.insert('reminders', {
+        userId, userPlantId: parents.plant._id, bedId: parents.plant.bedId,
+        carePlanId: parents.carePlan._id, carePlanVersion: parents.carePlan.planVersion,
+        taskType: task, type: task, entityUuid: op.entityUuid, revision: 1,
+        timezone: stringValue(payload.timezone) ?? 'UTC', title: copy.title,
+        description: copy.description, nextRunAt, rrule: stringValue(payload.rrule),
+        enabled: true, priority: 3, completedCount: 0, skippedCount: 0,
+        notificationMethods: ['push', 'in_app', 'care_plan_v2'],
+      });
+      break;
+    }
+    case 'reminderOutcome': {
+      if (!parents.reminder) return { status: 'invalid_parent' as const, reason: 'reminder_required' };
+      const outcome = stringValue(payload.outcome);
+      const allowed = new Set(['performed', 'checked_not_needed', 'snoozed', 'skipped', 'edited', 'disabled', 'deleted']);
+      if (!outcome || !allowed.has(outcome)) return { status: 'invalid_parent' as const, reason: 'invalid_outcome' };
+      const reminder = parents.reminder;
+      const occurredAt = numberValue(payload.occurredAt) ?? now;
+      const interval = Number(reminder.rrule?.match(/INTERVAL=(\d+)/i)?.[1] ?? 0);
+      const patch: Record<string, unknown> = { revision: (reminder.revision ?? 1) + 1 };
+      if (outcome === 'snoozed') {
+        const until = numberValue(payload.snoozedUntil);
+        if (!until || until <= occurredAt) return { status: 'invalid_parent' as const, reason: 'invalid_snooze_time' };
+        patch.snoozedUntil = until;
+      } else if (outcome === 'disabled' || outcome === 'deleted') patch.enabled = false;
+      else if (outcome !== 'edited') {
+        patch.lastRunAt = occurredAt;
+        patch.snoozedUntil = undefined;
+        patch.enabled = interval > 0;
+        if (interval > 0) patch.nextRunAt = nextOccurrence({
+          scheduledAt: reminder.nextRunAt, occurredAt, intervalDays: interval,
+          timezone: reminder.timezone ?? 'UTC',
+        });
+        if (outcome === 'skipped') patch.skippedCount = (reminder.skippedCount ?? 0) + 1;
+        else patch.completedCount = (reminder.completedCount ?? 0) + 1;
+      }
+      await ctx.db.patch(reminder._id, patch);
+      let activityId;
+      if (reminder.userPlantId) {
+        const activityType = outcome === 'performed'
+          ? reminder.taskType === 'watering' ? 'watering' : reminder.taskType === 'fertilizing' ? 'fertilizing'
+            : reminder.taskType === 'harvest_check' ? 'harvest_readiness_check' : 'pest_inspection'
+          : outcome === 'checked_not_needed'
+            ? reminder.taskType === 'watering' ? 'watering_check' : reminder.taskType === 'fertilizing' ? 'fertilizing_check'
+              : reminder.taskType === 'harvest_check' ? 'harvest_readiness_check' : 'pest_inspection'
+            : outcome === 'skipped' ? 'reminder_skipped' : undefined;
+        if (activityType) {
+          activityId = await appendPlantActivity(ctx, {
+            userId, userPlantId: reminder.userPlantId, reminderId: reminder._id,
+            entityUuid: `reminder-outcome-activity:${op.entityUuid}`, revision: 1,
+            type: activityType, occurredAt, source: 'reminder',
+            note: stringValue(payload.note), value: { action: outcome, reminderType: reminder.taskType ?? reminder.type },
+          });
+          if (activityType === 'watering') await ctx.db.patch(reminder.userPlantId, { lastWateredAt: occurredAt });
+          if (activityType === 'fertilizing') await ctx.db.patch(reminder.userPlantId, { lastFertilizedAt: occurredAt });
+        }
+      }
+      await ctx.db.insert('reminderOutcomes', {
+        userId, userPlantId: reminder.userPlantId, reminderId: reminder._id,
+        entityUuid: op.entityUuid, revision: 1, operationId: op.operationId,
+        outcome: outcome as any, occurredAt, recordedAt: now,
+        snoozedUntil: numberValue(payload.snoozedUntil),
+        note: stringValue(payload.note), activityId,
+      });
+      break;
+    }
   }
   return { status: 'applied' as const, revision: 1 };
 }
@@ -292,6 +423,8 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const nextGarden = nextBed?.gardenId ?? requestedGarden;
       await ctx.db.patch(entity._id, {
         ...(stringValue(payload.status) !== undefined && { status: stringValue(payload.status)! }),
+        ...(stringValue(payload.status) === 'growing' && !entity.plantedAt && { plantedAt: Date.now() }),
+        ...(stringValue(payload.status) === 'archived' && !entity.archivedAt && { archivedAt: Date.now() }),
         ...(stringValue(payload.nickname) !== undefined && { nickname: stringValue(payload.nickname) }),
         ...(stringValue(payload.notes) !== undefined && { notes: stringValue(payload.notes) }),
         ...(stringValue(payload.plantMasterId) !== undefined && {
@@ -312,6 +445,13 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
           userId, userPlantId: entity._id, type: 'status_changed', source: 'system',
           value: { fromStatus: previousStatus, toStatus: nextStatus },
         });
+      }
+      if (nextStatus === 'harvested' || nextStatus === 'archived') {
+        const reminders = await ctx.db.query('reminders')
+          .withIndex('by_user_plant', (q) => q.eq('userPlantId', entity._id)).collect();
+        for (const reminder of reminders.filter((row) => row.carePlanId && row.enabled)) {
+          await ctx.db.patch(reminder._id, { enabled: false, revision: (reminder.revision ?? 1) + 1 });
+        }
       }
       if (nextGarden !== previousGardenId || nextBed?._id !== previousBedId) {
         await appendPlantActivity(ctx, {
@@ -360,6 +500,24 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
         revision,
       });
       break;
+    case 'carePlan':
+      await ctx.db.patch(entity._id, {
+        ...(Array.isArray(payload.tasks) && { tasks: payload.tasks as any }),
+        ...(stringValue(payload.status) !== undefined && { status: stringValue(payload.status) as any }),
+        ...(stringValue(payload.status) === 'active' && !entity.activatedAt && { activatedAt: Date.now() }),
+        revision,
+      });
+      break;
+    case 'reminder':
+      await ctx.db.patch(entity._id, {
+        ...(numberValue(payload.nextRunAt) !== undefined && { nextRunAt: numberValue(payload.nextRunAt)! }),
+        ...(stringValue(payload.rrule) !== undefined && { rrule: stringValue(payload.rrule) }),
+        ...(booleanValue(payload.enabled) !== undefined && { enabled: booleanValue(payload.enabled)! }),
+        revision,
+      });
+      break;
+    case 'reminderOutcome':
+      return { status: 'invalid_parent' as const, reason: 'outcome_append_only' };
   }
   return { status: 'applied' as const, revision };
 }
@@ -407,6 +565,16 @@ async function deleteEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       break;
     }
     case 'photo': await ctx.db.delete(entity._id); break;
+    case 'carePlan': {
+      const reminders = await ctx.db.query('reminders').withIndex('by_user', (q) => q.eq('userId', userId)).collect();
+      for (const reminder of reminders.filter((row) => row.carePlanId === entity._id)) {
+        await ctx.db.patch(reminder._id, { enabled: false, revision: (reminder.revision ?? 1) + 1 });
+      }
+      await ctx.db.patch(entity._id, { status: 'disabled', revision });
+      break;
+    }
+    case 'reminder': await ctx.db.patch(entity._id, { enabled: false, revision }); break;
+    case 'reminderOutcome': await ctx.db.delete(entity._id); break;
   }
   return { status: 'applied' as const, revision };
 }
@@ -435,6 +603,8 @@ export const applyOperation = mutation({
       gardenUuid: v.optional(v.union(v.string(), v.null())),
       bedUuid: v.optional(v.union(v.string(), v.null())),
       plantUuid: v.optional(v.union(v.string(), v.null())),
+      carePlanUuid: v.optional(v.union(v.string(), v.null())),
+      reminderUuid: v.optional(v.union(v.string(), v.null())),
     })),
     payload: v.optional(v.any()),
   },
@@ -497,7 +667,8 @@ export const syncSignal = query({
 
 const domainValidator = v.union(
   v.literal('garden'), v.literal('bed'), v.literal('plant'), v.literal('activity'),
-  v.literal('harvest'), v.literal('photo'), v.literal('tombstone')
+  v.literal('harvest'), v.literal('photo'), v.literal('carePlan'),
+  v.literal('reminder'), v.literal('reminderOutcome'), v.literal('tombstone')
 );
 
 export const snapshotPage = query({
@@ -514,6 +685,9 @@ export const snapshotPage = query({
       case 'activity': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('logs').withIndex('by_user_entity_uuid', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
       case 'harvest': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('harvestRecords').withIndex('by_user_entity_uuid', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
       case 'photo': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('plantPhotos').withIndex('by_user_entity_uuid', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
+      case 'carePlan': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('userPlantCarePlans').withIndex('by_user_entity_uuid', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
+      case 'reminder': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('reminders').withIndex('by_user_entity_uuid', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
+      case 'reminderOutcome': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('reminderOutcomes').withIndex('by_user_entity_uuid', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
       case 'tombstone': return { status: 'ok' as const, domain: args.domain, ...(await ctx.db.query('entityTombstones').withIndex('by_user_deleted_at', (q) => q.eq('userId', user._id)).paginate(args.paginationOpts)) };
     }
   },

@@ -60,11 +60,27 @@ export async function deleteAppUserData(ctx: any, user: Doc<"users">) {
     }
   }
 
+  const reminderOutcomes = await ctx.db
+    .query("reminderOutcomes")
+    .withIndex("by_user_entity_uuid", (q: any) => q.eq("userId", user._id))
+    .collect();
+  for (const row of reminderOutcomes) {
+    await ctx.db.delete(row._id);
+  }
+
   const reminders = await ctx.db
     .query("reminders")
     .withIndex("by_user", (q: any) => q.eq("userId", user._id))
     .collect();
   for (const row of reminders) {
+    await ctx.db.delete(row._id);
+  }
+
+  const carePlans = await ctx.db
+    .query("userPlantCarePlans")
+    .withIndex("by_user_entity_uuid", (q: any) => q.eq("userId", user._id))
+    .collect();
+  for (const row of carePlans) {
     await ctx.db.delete(row._id);
   }
 

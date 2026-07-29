@@ -364,6 +364,58 @@ describe('Phase 1.5 sync v2', () => {
     expect(health.total).toBeGreaterThanOrEqual(1);
   });
 
+  it('syncs care plans and explicit reminder outcomes idempotently without false care activities', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({
+      operationId: 'care-plant', entityType: 'plant', entityUuid: 'care-plant',
+      type: 'create', payload: { status: 'growing' },
+    });
+    expect((await apply({
+      operationId: 'care-plan-create', entityType: 'carePlan', entityUuid: 'care-plan',
+      type: 'create', parentRefs: { plantUuid: 'care-plant' },
+      payload: {
+        sourceContentVersion: 4,
+        sourceValues: { wateringFrequencyDays: 3 },
+        tasks: [{ type: 'watering', enabled: true, intervalDays: 3 }],
+      },
+    })).status).toBe('applied');
+    expect((await apply({
+      operationId: 'care-reminder-create', entityType: 'reminder', entityUuid: 'water-reminder',
+      type: 'create', parentRefs: { plantUuid: 'care-plant', carePlanUuid: 'care-plan' },
+      payload: { taskType: 'watering', nextRunAt: 10, timezone: 'UTC', rrule: 'FREQ=DAILY;INTERVAL=3' },
+    })).status).toBe('applied');
+    const checked = {
+      operationId: 'checked-outcome', entityType: 'reminderOutcome' as const,
+      entityUuid: 'checked-outcome', type: 'create' as const,
+      parentRefs: { reminderUuid: 'water-reminder' },
+      payload: { outcome: 'checked_not_needed', occurredAt: 20 },
+    };
+    expect((await apply(checked)).status).toBe('applied');
+    expect((await apply(checked)).status).toBe('already_applied');
+    expect((await apply({
+      operationId: 'performed-outcome', entityType: 'reminderOutcome',
+      entityUuid: 'performed-outcome', type: 'create',
+      parentRefs: { reminderUuid: 'water-reminder' },
+      payload: { outcome: 'performed', occurredAt: 30 },
+    })).status).toBe('applied');
+    const ownerId = userId as Id<'users'>;
+    const state = await t.run(async (ctx) => {
+      const plant = await ctx.db.query('userPlants')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', ownerId).eq('entityUuid', 'care-plant')).unique();
+      const activities = plant
+        ? await ctx.db.query('logs').withIndex('by_user_plant', (q) => q.eq('userPlantId', plant._id)).collect()
+        : [];
+      const outcomes = await ctx.db.query('reminderOutcomes')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', ownerId)).collect();
+      return { plant, activities, outcomes };
+    });
+    expect(state.outcomes).toHaveLength(2);
+    expect(state.activities.filter((row) => row.type === 'watering')).toHaveLength(1);
+    expect(state.activities.filter((row) => row.type === 'watering_check')).toHaveLength(1);
+    expect(state.plant?.lastWateredAt).toBe(30);
+  });
+
   it('removes sync namespaces and uncommitted uploads during account deletion', async () => {
     const { user, userId } = await session();
     const storageId = await t.run(async (ctx) => await ctx.storage.store(new Blob(['account-orphan'])));

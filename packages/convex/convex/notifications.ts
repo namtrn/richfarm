@@ -2,6 +2,7 @@ import { internalMutation, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/user";
 import { resolveAppMode } from "./lib/appMode";
+import { batchKey } from "./lib/carePlan";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 const EXPO_BATCH_SIZE = 100;
@@ -151,9 +152,31 @@ export const sendDueReminders = internalMutation({
             const messages: ExpoPushMessage[] = [];
             const tokenRefs: any[] = [];
 
+            const notificationGroups = new Map<string, any[]>();
             for (const reminder of reminders) {
-                let body = reminder.description ?? "Reminder due";
-                if (appMode === "gardener" && reminder.bedId) {
+                let gardenId: string | undefined;
+                let bedId = reminder.bedId ? String(reminder.bedId) : undefined;
+                if (reminder.userPlantId) {
+                    const plant: any = await ctx.db.get(reminder.userPlantId);
+                    gardenId = plant?.gardenId ? String(plant.gardenId) : undefined;
+                    bedId = bedId ?? (plant?.bedId ? String(plant.bedId) : undefined);
+                }
+                const isCarePlan = Array.isArray(reminder.notificationMethods)
+                    && reminder.notificationMethods.includes("care_plan_v2");
+                const key = isCarePlan
+                    ? batchKey({ dueAt: reminder.nextRunAt, timezone: reminder.timezone, gardenId, bedId })
+                    : `legacy:${reminder._id}`;
+                const group = notificationGroups.get(key) ?? [];
+                group.push(reminder);
+                notificationGroups.set(key, group);
+            }
+
+            for (const group of notificationGroups.values()) {
+                const reminder = group[0];
+                let body = group.length > 1
+                    ? `${group.length} plant care checks are ready. Open RichFarm to review each plant.`
+                    : reminder.description ?? "A plant care check is ready.";
+                if (appMode === "gardener" && reminder.bedId && group.length === 1) {
                     const count = bedPlantCounts.get(String(reminder.bedId)) ?? 0;
                     body = buildBedCountLabel(count);
                 }
@@ -161,10 +184,11 @@ export const sendDueReminders = internalMutation({
                     messages.push({
                         to: token.token,
                         sound: "default",
-                        title: reminder.title,
+                        title: group.length > 1 ? "Plant care checks" : reminder.title,
                         body,
                         data: {
-                            reminderId: reminder._id,
+                            reminderId: group.length === 1 ? reminder._id : undefined,
+                            reminderIds: group.map((row) => row._id),
                             userPlantId: reminder.userPlantId,
                             bedId: reminder.bedId,
                             type: reminder.type,
