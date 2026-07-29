@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as authCleanup from "../authCleanup.js";
 import type * as beds from "../beds.js";
+import type * as carePlans from "../carePlans.js";
 import type * as cron from "../cron.js";
 import type * as data_pestsDiseasesSeed from "../data/pestsDiseasesSeed.js";
 import type * as data_plantI18n_en from "../data/plantI18n/en.js";
@@ -28,6 +29,7 @@ import type * as gardens from "../gardens.js";
 import type * as harvestRecords from "../harvestRecords.js";
 import type * as http from "../http.js";
 import type * as lib_appMode from "../lib/appMode.js";
+import type * as lib_carePlan from "../lib/carePlan.js";
 import type * as lib_deleteUserData from "../lib/deleteUserData.js";
 import type * as lib_localizePlant from "../lib/localizePlant.js";
 import type * as lib_ownership from "../lib/ownership.js";
@@ -79,6 +81,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authCleanup: typeof authCleanup;
   beds: typeof beds;
+  carePlans: typeof carePlans;
   cron: typeof cron;
   "data/pestsDiseasesSeed": typeof data_pestsDiseasesSeed;
   "data/plantI18n/en": typeof data_plantI18n_en;
@@ -96,6 +99,7 @@ declare const fullApi: ApiFromModules<{
   harvestRecords: typeof harvestRecords;
   http: typeof http;
   "lib/appMode": typeof lib_appMode;
+  "lib/carePlan": typeof lib_carePlan;
   "lib/deleteUserData": typeof lib_deleteUserData;
   "lib/localizePlant": typeof lib_localizePlant;
   "lib/ownership": typeof lib_ownership;

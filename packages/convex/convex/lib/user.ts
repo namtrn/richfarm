@@ -99,7 +99,11 @@ export async function upsertUserFromIdentity(ctx: any, deviceId?: string) {
  * Auth-first: không fallback về deviceId.
  */
 export async function requireUser(ctx: any, deviceId?: string) {
-  const user = await getOrCreateUserFromIdentity(ctx, deviceId);
+  const canWrite = typeof ctx.db.patch === 'function'
+    && typeof ctx.db.insert === 'function';
+  const user = canWrite
+    ? await getOrCreateUserFromIdentity(ctx, deviceId)
+    : await getUserByIdentity(ctx);
 
   if (!user) {
     throw new ConvexError({
