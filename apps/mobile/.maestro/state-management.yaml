@@ -22,6 +22,7 @@ appId: com.richfarm.app
 # Weather preference publishes to Home immediately.
 - openLink:
     link: richfarm://profile
+- tapOn: Appearance
 - scrollUntilVisible:
     element:
       id: e2e-profile-weather-show
@@ -37,6 +38,7 @@ appId: com.richfarm.app
     timeout: 10000
 - openLink:
     link: richfarm://profile
+- tapOn: Appearance
 - scrollUntilVisible:
     element:
       id: e2e-profile-weather-hide
@@ -54,6 +56,7 @@ appId: com.richfarm.app
 # Mode change updates the mounted tab layout without a restart/remount.
 - openLink:
     link: richfarm://profile
+- tapOn: Garden & App
 - scrollUntilVisible:
     element:
       id: e2e-profile-mode-gardener
@@ -81,6 +84,7 @@ appId: com.richfarm.app
     timeout: 10000
 
 # Restore weather and verify both preferences survive a process restart.
+- tapOn: Appearance
 - scrollUntilVisible:
     element:
       id: e2e-profile-weather-show
@@ -125,6 +129,7 @@ appId: com.richfarm.app
     id: e2e-home-weather-card
 - openLink:
     link: richfarm://profile
+- tapOn: Appearance
 - scrollUntilVisible:
     element:
       id: e2e-profile-unit-imperial
