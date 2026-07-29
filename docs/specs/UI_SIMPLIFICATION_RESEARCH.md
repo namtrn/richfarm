@@ -6,7 +6,7 @@
 
 ## 1. Bối cảnh hiện tại
 
-### App Richfarm đang hướng tới:
+### App RichFarm đang hướng tới:
 - **Farm / Food Production / Off-grid / Homestead** — hệ thống quản lý farm chuyên nghiệp.
 - Onboarding 5 bước phân loại user (mục tiêu farm, quy mô, kinh nghiệm…).
 - Schema đã có field `userSettings.onboarding` lưu `goals`, `experience`, `scaleEnvironment`.

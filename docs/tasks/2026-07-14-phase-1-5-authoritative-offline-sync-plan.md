@@ -6,7 +6,7 @@ Release gate: Must complete before Phase 2
 
 ## Objective
 
-Phase 1.5 makes Richfarm safe across offline use, retries, multiple devices, account changes, and missed realtime events.
+Phase 1.5 makes RichFarm safe across offline use, retries, multiple devices, account changes, and missed realtime events.
 
 The user experience must remain local-first:
 
@@ -20,7 +20,7 @@ User action
 
 Sync is an implementation detail. The user must not need to understand queues, retries, revisions, tombstones, or conflict recovery.
 
-This phase adapts the business invariants from `LOCAL_SUPABASE_SYNC_GUIDELINES.md` to Convex and the Richfarm domain:
+This phase adapts the business invariants from `LOCAL_SUPABASE_SYNC_GUIDELINES.md` to Convex and the RichFarm domain:
 
 - Designs become Gardens, Beds, Plants, Activities, Harvests, Photos, and other offline-editable entities.
 - Supabase transactions/RPCs become transactional Convex mutations.

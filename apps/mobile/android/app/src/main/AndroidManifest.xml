@@ -27,7 +27,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="my-garden"/>
+        <data android:scheme="richfarm"/>
       </intent-filter>
     </activity>
     <receiver android:name=".widget.PlantWidgetProvider" android:exported="false">

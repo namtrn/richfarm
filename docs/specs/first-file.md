@@ -1,7 +1,7 @@
-# My Garden — Spec và Edge Cases
+# RichFarm — Spec và Edge Cases
 
 ## Tổng quan
-**Mục tiêu**: Tài liệu Markdown này tổng hợp yêu cầu, tính năng, và phân tích **edge cases** cho ứng dụng **My Garden** (tabs: **Planning**, **Growing**, **Reminder**).
+**Mục tiêu**: Tài liệu Markdown này tổng hợp yêu cầu, tính năng, và phân tích **edge cases** cho ứng dụng **RichFarm** (tabs: **Planning**, **Growing**, **Reminder**).
 
 **Tech Stack**:
 - **Backend**: Convex (Auth + Database + Real-time + Storage)

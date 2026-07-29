@@ -1,7 +1,7 @@
-appId: com.mygarden.app
+appId: com.richfarm.app
 ---
 - openLink:
-    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
 - runFlow:
     when:
       visible: "Open"
@@ -19,7 +19,7 @@ appId: com.mygarden.app
       id: e2e-tab-home
     timeout: 60000
 - openLink:
-    link: my-garden://profile
+    link: richfarm://profile
 - scrollUntilVisible:
     element:
       id: e2e-profile-mode-farmer
@@ -33,7 +33,7 @@ appId: com.mygarden.app
     commands:
       - tapOn: "Confirm"
 - openLink:
-    link: my-garden://garden
+    link: richfarm://garden
 - tapOn:
     id: e2e-garden-create-close
     optional: true
@@ -54,14 +54,9 @@ appId: com.mygarden.app
       - inputText: QA Garden
       - pressKey: Enter
       - tapOn:
-          id: e2e-garden-create-width-input
+          id: e2e-garden-create-area-input
       - eraseText
-      - inputText: 2
-      - pressKey: Enter
-      - tapOn:
-          id: e2e-garden-create-length-input
-      - eraseText
-      - inputText: 3
+      - inputText: 6
       - swipe:
           start: "50%,60%"
           end: "50%,25%"
@@ -77,7 +72,7 @@ appId: com.mygarden.app
             id: e2e-garden-create-name-input
           timeout: 10000
       - openLink:
-          link: my-garden://garden
+          link: richfarm://garden
       - extendedWaitUntil:
           visible:
             id: e2e-garden-card

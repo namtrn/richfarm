@@ -1,4 +1,4 @@
-// My Garden — Convex Schema
+// RichFarm — Convex Schema
 // File: convex/schema.ts
 
 import { defineSchema, defineTable } from "convex/server";

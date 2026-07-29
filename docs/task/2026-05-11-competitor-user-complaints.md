@@ -1,10 +1,10 @@
-# Richfarm Competitor User Complaints
+# RichFarm Competitor User Complaints
 
 Date: 2026-05-11
 
 ## Executive Summary
 
-Richfarm is being built in a crowded category: plant care apps, plant identifier apps, and garden planners. Users do not only complain about missing features. They complain about apps that actively reduce trust:
+RichFarm is being built in a crowded category: plant care apps, plant identifier apps, and garden planners. Users do not only complain about missing features. They complain about apps that actively reduce trust:
 
 - watering schedules that kill plants when followed blindly
 - too many notifications until the user ignores all reminders
@@ -13,7 +13,7 @@ Richfarm is being built in a crowded category: plant care apps, plant identifier
 - AI diagnosis that is wrong, generic, or impossible to correct
 - garden planning advice presented as certainty when it is actually anecdotal
 
-The product lesson is simple: Richfarm should win by being practical, humble, and reliable. It should help users check and decide, not pretend to know every plant's exact need from a static schedule.
+The product lesson is simple: RichFarm should win by being practical, humble, and reliable. It should help users check and decide, not pretend to know every plant's exact need from a static schedule.
 
 ## How To Use This Document
 
@@ -21,7 +21,7 @@ Use this document when making product, design, data-model, monetization, or AI-s
 
 - what users reported
 - why it matters
-- what Richfarm should do differently
+- what RichFarm should do differently
 - links to source material
 
 The findings are qualitative. Reddit and app-store reviews are useful for discovering pain points, but they are not statistically representative.
@@ -47,7 +47,7 @@ Source types:
 
 ## Glossary
 
-- `Library`: Richfarm's shared catalog of plants, flowers, herbs, edible crops, fruits, indoor plants, and ornamentals. This should map to shared master data such as `plantsMaster`.
+- `Library`: RichFarm's shared catalog of plants, flowers, herbs, edible crops, fruits, indoor plants, and ornamentals. This should map to shared master data such as `plantsMaster`.
 - `User plant`: A plant saved by a user into their own garden or collection. This should map to user-owned data such as `userPlants`.
 - `Planning`: Plants the user is considering, planning, or staging before actual planting/growing.
 - `Growing`: Plants actively being grown in a garden, bed, pot, or user collection.
@@ -57,7 +57,7 @@ Source types:
 
 ## Complaint-To-Requirement Map
 
-| User complaint | Risk if Richfarm ignores it | Richfarm requirement |
+| User complaint | Risk if RichFarm ignores it | RichFarm requirement |
 |---|---|---|
 | Watering reminders are too prescriptive | Users overwater plants and stop trusting the app | Reminders should be check prompts with snooze/skip/log-condition |
 | Too many reminders | Users ignore notifications | Batch by day/garden/bed and support garden-check rituals |
@@ -84,10 +84,10 @@ What users reported:
 Why it matters:
 
 - Watering is one of the highest-frequency tasks in a plant app.
-- If Richfarm is wrong here, the app can directly contribute to dead plants.
+- If RichFarm is wrong here, the app can directly contribute to dead plants.
 - Trust is hard to recover once the user believes the app gave harmful advice.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Use wording like "Check soil", "Inspect plant", or "Check watering need" instead of blindly "Water now".
 - Let users complete a reminder as checked/skipped/snoozed, not only watered.
@@ -113,11 +113,11 @@ What users reported:
 
 Why it matters:
 
-- Reminders are central to Richfarm's value.
+- Reminders are central to RichFarm's value.
 - If reminders become noisy, users will disable notifications or mentally ignore the app.
 - A gardening workflow often happens as a batch: check the bed, water several plants, inspect pests, harvest what is ready.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Support task batching by garden, bed, plant type, and day.
 - Offer a "garden check" or "weekly ritual" style grouping.
@@ -141,11 +141,11 @@ What users reported:
 
 Why it matters:
 
-- Richfarm needs users to build a habit before premium value is obvious.
+- RichFarm needs users to build a habit before premium value is obvious.
 - Locking already-created data or core reminders creates resentment.
 - Guest/local-first usage is part of the app's current architecture and should remain useful.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Free/guest users should be able to save plants, manage basic garden state, and use basic reminders.
 - Premium should gate advanced AI volume, advanced diagnosis, analytics, widgets, or automation.
@@ -172,9 +172,9 @@ Why it matters:
 
 - A plant care app becomes a personal record: photos, logs, harvests, schedules, and names.
 - Losing that data is worse than missing a feature.
-- Richfarm already has offline/sync groundwork, so correctness here is a core product quality bar.
+- RichFarm already has offline/sync groundwork, so correctness here is a core product quality bar.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Offline queue must preserve failed actions instead of dropping them.
 - Photos, harvest logs, activity logs, reminders, and userPlants must survive restart.
@@ -203,7 +203,7 @@ Why it matters:
 - Scanner flows are also likely to be a first impression of the app.
 - Users need control when the model is uncertain or wrong.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Scanner must show uncertainty and allow manual correction.
 - Save unknown plants as userPlants without creating shared library rows.
@@ -230,10 +230,10 @@ What users reported:
 
 Why it matters:
 
-- Richfarm's garden planning should help users place plants better, not amplify uncertain folklore.
+- RichFarm's garden planning should help users place plants better, not amplify uncertain folklore.
 - Beginner gardeners need confidence, but false certainty is harmful.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Do not present companion planting as absolute truth.
 - Prefer evidence-aware guidance:
@@ -267,7 +267,7 @@ Why it matters:
 - Gardens and houseplants are often cared for by a household, not a single person.
 - Duplicate care tasks can directly harm plants.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Shared gardens are not required for the immediate MVP, but data design should not block them.
 - Future fields should support roles, action attribution, completed-by metadata, and shared task visibility.
@@ -285,7 +285,7 @@ Why it matters:
 - Toxicity and allergen information is high-signal for homes with children or pets.
 - If safety information is only shown once after a scan, the user may not find it later.
 
-Richfarm requirements:
+RichFarm requirements:
 
 - Store and show toxicity, allergen, and pet-safety metadata when available.
 - If a scan surfaces safety information, connect it to the plant profile or scan history.
@@ -295,7 +295,7 @@ Reference:
 
 - https://www.techradar.com/computing/websites-apps/picturethis
 
-## Richfarm Product Guardrails
+## RichFarm Product Guardrails
 
 - Treat reminders as prompts to inspect, not commands to blindly water/fertilize.
 - Reduce reminder fatigue with batching, snooze, skip, quiet hours, and ritual modes.
@@ -312,6 +312,6 @@ Reference:
 - Which features belong in free vs premium?
 - How many free AI scans per day/week are acceptable?
 - Should reminders default to "check" wording globally, or only for watering?
-- Should Richfarm add a household/shared-garden MVP now, or only preserve data-model room for it?
-- What source of truth should Richfarm use for plant safety/toxicity metadata?
+- Should RichFarm add a household/shared-garden MVP now, or only preserve data-model room for it?
+- What source of truth should RichFarm use for plant safety/toxicity metadata?
 

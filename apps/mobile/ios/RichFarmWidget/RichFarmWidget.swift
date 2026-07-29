@@ -2,10 +2,10 @@ import Foundation
 import WidgetKit
 import SwiftUI
 
-private let widgetAppName = "My Garden"
-private let widgetAppScheme = "my-garden"
+private let widgetAppName = "RichFarm"
+private let widgetAppScheme = "richfarm"
 private let widgetAppURL = URL(string: "\(widgetAppScheme)://")!
-private let widgetAppGroupId = "group.com.mygarden.app"
+private let widgetAppGroupId = "group.com.richfarm.app"
 
 struct PlantWidgetEntry: TimelineEntry {
     let date: Date
@@ -17,7 +17,7 @@ struct PlantWidgetEntry: TimelineEntry {
 
 struct Provider: TimelineProvider {
     private func log(_ message: String) {
-        print("[MyGardenWidget] \(message)")
+        print("[RichFarmWidget] \(message)")
     }
 
     func placeholder(in context: Context) -> PlantWidgetEntry {
@@ -58,7 +58,7 @@ struct Provider: TimelineProvider {
     }
 }
 
-struct MyGardenWidgetEntryView: View {
+struct RichFarmWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
 
@@ -274,12 +274,12 @@ struct StatItem: View {
     }
 }
 
-struct MyGardenWidget: Widget {
-    let kind: String = "MyGardenWidget"
+struct RichFarmWidget: Widget {
+    let kind: String = "RichFarmWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            MyGardenWidgetEntryView(entry: entry)
+            RichFarmWidgetEntryView(entry: entry)
         }
         .configurationDisplayName(widgetAppName)
         .description("Xem nhanh lịch chăm sóc cây")

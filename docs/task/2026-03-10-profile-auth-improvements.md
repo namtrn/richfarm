@@ -468,7 +468,7 @@ Context: Sau auth refactor sang Better Auth + `ConvexProviderWithAuth`, app iOS 
 
 - App launch thành công trên iOS simulator/device.
 - Native splash qua được.
-- UI dừng ở `LoadingScreen` với logo Richfarm và spinner.
+- UI dừng ở `LoadingScreen` với logo RichFarm và spinner.
 - Trường hợp dễ gặp nhất: app chưa có signed-in user thật, chỉ cần anonymous/onboarding flow.
 
 ## Root Cause

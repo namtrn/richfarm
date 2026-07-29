@@ -68,7 +68,7 @@ Cron 30 ngày chỉ dọn dần về sau, không xử lý ngay các rows cũ v�
 Đã bật verify email và Resend integration, nhưng vẫn cần test thực tế trên môi trường có `RESEND_API_KEY` + `AUTH_EMAIL_FROM`.
 
 Cần test:
-- sign up email mới -> nhận mail -> bấm deep link -> về `my-garden://verify-email`
+- sign up email mới -> nhận mail -> bấm deep link -> về `richfarm://verify-email`
 - sign in khi chưa verify -> thấy message đúng + resend hoạt động
 - verify xong -> sign in bình thường
 
@@ -85,7 +85,7 @@ Cần test:
 Hiện auth screen đã có flow request reset email, nhưng app vẫn chưa có màn `reset-password` để hoàn tất deep link trong mobile.
 
 Nếu giữ nút reset password ở auth screen, nên hoàn thiện nốt:
-- route `my-garden://reset-password`
+- route `richfarm://reset-password`
 - form nhập mật khẩu mới
 - success state sau reset
 

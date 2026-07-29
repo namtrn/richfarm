@@ -28,7 +28,7 @@ The May 12 pass fixed several core garden/plant/reminder flow issues, including:
 
 Status: Partially complete
 
-Users complain when reminders become noise. Richfarm still needs deeper reminder-volume controls.
+Users complain when reminders become noise. RichFarm still needs deeper reminder-volume controls.
 
 May 12 continuation pass completed:
 
@@ -63,7 +63,7 @@ Remaining work:
 
 Status: Not complete
 
-Richfarm should avoid magical friend/foe companion charts. This has not been built yet.
+RichFarm should avoid magical friend/foe companion charts. This has not been built yet.
 
 Remaining work:
 

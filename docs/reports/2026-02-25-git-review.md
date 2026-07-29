@@ -140,8 +140,8 @@ Xóa cascade toàn bộ data user:
 | `app.json` | +8 lines — likely RevenueCat or camera config |
 | `docs/reports/daily-report-2026-02-21.md` | **Deleted** — renamed/moved |
 | `docs/specs/image-storage-strategy.md` | Minor update (5 lines) |
-| `ios/MyGarden.xcodeproj/project.pbxproj` | +6 lines project config |
-| `ios/MyGarden/Info.plist` | Reformatted + thêm `NSCameraUsageDescription` |
+| `ios/RichFarm.xcodeproj/project.pbxproj` | +6 lines project config |
+| `ios/RichFarm/Info.plist` | Reformatted + thêm `NSCameraUsageDescription` |
 | `hooks/usePestsDiseases.ts` | Fix: bỏ `'skip'` khi không có type filter → always fetch |
 
 ### Untracked files (chưa commit)

@@ -1,4 +1,4 @@
-// Richfarm — Convex Plants
+// RichFarm — Convex Plants
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";

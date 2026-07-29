@@ -1,7 +1,7 @@
-appId: com.mygarden.app
+appId: com.richfarm.app
 ---
 - openLink:
-    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
 - runFlow:
     when:
       visible: "Open"

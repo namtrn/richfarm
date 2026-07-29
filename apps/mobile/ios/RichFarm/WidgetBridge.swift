@@ -14,7 +14,7 @@ class WidgetBridge: NSObject {
     
     @objc
     func updateWidget(_ data: NSDictionary) {
-        let defaults = UserDefaults(suiteName: "group.com.mygarden.app")
+        let defaults = UserDefaults(suiteName: "group.com.richfarm.app")
 
         log("updateWidget data=\(data)")
         
@@ -38,7 +38,7 @@ class WidgetBridge: NSObject {
         
         // Reload widgets
         if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadTimelines(ofKind: "MyGardenWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "RichFarmWidget")
         }
     }
     
@@ -57,7 +57,7 @@ class WidgetBridge: NSObject {
                 switch result {
                 case .success(let widgets):
                     let hasWidget = widgets.contains { widget in
-                        widget.kind == "MyGardenWidget"
+                        widget.kind == "RichFarmWidget"
                     }
                     self.log("isWidgetAdded=\(hasWidget)")
                     resolve(hasWidget)

@@ -1,4 +1,4 @@
-# Richfarm Business Requirements Document (BRD)
+# RichFarm Business Requirements Document (BRD)
 
 Last updated: 2026-02-23
 Owner: Product + Engineering
@@ -6,7 +6,7 @@ Status: Draft
 
 ## 1. Objective
 
-This document defines business goals, scope, requirements, and acceptance criteria for Richfarm.
+This document defines business goals, scope, requirements, and acceptance criteria for RichFarm.
 
 ## 2. Business Goals
 
@@ -17,7 +17,7 @@ This document defines business goals, scope, requirements, and acceptance criter
 
 ## 3. Problem Statement
 
-Garden users often have scattered information and no consistent daily workflow. Richfarm should convert plant care information into actionable, localized, and trackable tasks.
+Garden users often have scattered information and no consistent daily workflow. RichFarm should convert plant care information into actionable, localized, and trackable tasks.
 
 ## 4. Scope
 
@@ -145,6 +145,6 @@ NFR-05 Maintainability
 
 Supporting docs:
 - `docs/specs/APP_FUNCTIONAL_PLAN.md`
-- `docs/specs/MY_GARDEN_SPEC.md`
+- `docs/specs/RICHFARM_SPEC.md`
 - `docs/specs/UNIT_SYSTEM.md`
 - `docs/specs/LOCALIZATION.md`

@@ -1,7 +1,7 @@
-# Richfarm Project Review Report
+# RichFarm Project Review Report
 
 > Ngày review: 2026-02-19  
-> Tổng quan: Đánh giá tiến độ và các hạng mục còn thiếu của dự án Richfarm - Ứng dụng quản lý vườn thông minh
+> Tổng quan: Đánh giá tiến độ và các hạng mục còn thiếu của dự án RichFarm - Ứng dụng quản lý vườn thông minh
 
 ---
 
@@ -302,7 +302,7 @@ Files:     app/(tabs)/*.tsx
 
 ---
 
-## 📊 So sánh với Spec ban đầu (MY_GARDEN_SPEC.md)
+## 📊 So sánh với Spec ban đầu (RICHFARM_SPEC.md)
 
 | Feature trong Spec | Trạng thái | Ghi chú |
 |-------------------|-----------|---------|

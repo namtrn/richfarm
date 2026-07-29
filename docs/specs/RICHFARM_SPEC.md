@@ -1,7 +1,7 @@
-# My Garden — Spec
+# RichFarm — Spec
 
 ## Tổng quan
-**Mục tiêu**: Tài liệu Markdown này tổng hợp yêu cầu, tính năng, schema cơ sở dữ liệu và phân tích **edge cases** cho ứng dụng **My Garden** (tabs: **Planning**, **Growing**, **Reminder**). Nội dung phù hợp để dán vào file `MY_GARDEN_SPEC.md` và dùng làm tài liệu phát triển hoặc chuyển cho team.
+**Mục tiêu**: Tài liệu Markdown này tổng hợp yêu cầu, tính năng, schema cơ sở dữ liệu và phân tích **edge cases** cho ứng dụng **RichFarm** (tabs: **Planning**, **Growing**, **Reminder**). Nội dung phù hợp để dán vào file `RICHFARM_SPEC.md` và dùng làm tài liệu phát triển hoặc chuyển cho team.
 
 ---
 
@@ -196,4 +196,4 @@
 - **Danh mục mục đích**: cooking spices; regrow from scraps; grow indoor; hydroponics; fastest growing.
 
 ---
-**Hoàn tất**. Tài liệu này đã sẵn sàng để lưu thành file Markdown. Bạn có thể copy toàn bộ nội dung vào file `MY_GARDEN_SPEC.md` và chia sẻ cho team.  
+**Hoàn tất**. Tài liệu này đã sẵn sàng để lưu thành file Markdown. Bạn có thể copy toàn bộ nội dung vào file `RICHFARM_SPEC.md` và chia sẻ cho team.

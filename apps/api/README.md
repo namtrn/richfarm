@@ -1,4 +1,4 @@
-# Richfarm Backend
+# RichFarm Backend
 
 Backend workspace for the plant admin API that syncs `master_plants` into Convex.
 

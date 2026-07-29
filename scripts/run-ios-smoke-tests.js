@@ -7,7 +7,7 @@ const path = require("node:path");
 const repoRoot = path.resolve(__dirname, "..");
 const mobileRoot = path.join(repoRoot, "apps", "mobile");
 const metroStatusUrl = "http://127.0.0.1:8081/status";
-const devClientUrl = "my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081";
+const devClientUrl = "richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081";
 const defaultFlows = [
   ".maestro/smoke-all-buttons.yaml",
   ".maestro/smoke-home-library-health.yaml",
@@ -135,7 +135,7 @@ function chooseSimulator() {
 }
 
 function openDevClient(simulatorId) {
-  run("xcrun", ["simctl", "terminate", simulatorId, "com.mygarden.app"]);
+  run("xcrun", ["simctl", "terminate", simulatorId, "com.richfarm.app"]);
   log("Opening iOS dev client with the app scheme.");
   const result = run("xcrun", ["simctl", "openurl", simulatorId, devClientUrl]);
   if (result.status !== 0) {

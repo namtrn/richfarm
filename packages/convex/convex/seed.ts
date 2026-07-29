@@ -1,4 +1,4 @@
-// Richfarm — Seed Data
+// RichFarm — Seed Data
 // Chạy: npx convex run seed:seedAll
 // Hoặc từng function riêng lẻ qua Convex dashboard
 

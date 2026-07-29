@@ -1,4 +1,4 @@
-// Richfarm — Convex Users
+// RichFarm — Convex Users
 import { ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
@@ -53,6 +53,7 @@ export const updateProfile = mutation({
         name: v.optional(v.string()),
         locale: v.optional(v.string()),
         timezone: v.optional(v.string()),
+        avatarUrl: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const user = await requireUser(ctx, args.deviceId);
@@ -61,6 +62,7 @@ export const updateProfile = mutation({
             ...(args.name !== undefined && { name: args.name }),
             ...(args.locale !== undefined && { locale: args.locale }),
             ...(args.timezone !== undefined && { timezone: args.timezone }),
+            ...(args.avatarUrl !== undefined && { avatarUrl: args.avatarUrl }),
         });
     },
 });

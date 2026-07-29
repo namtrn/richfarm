@@ -1,4 +1,4 @@
-// Richfarm — Convex Schema
+// RichFarm — Convex Schema
 // File: packages/convex/convex/schema.ts
 
 import { defineSchema, defineTable } from "convex/server";
@@ -418,7 +418,7 @@ export default defineSchema({
     value: v.optional(v.any()), // Flexible data: { amountMl: 500, fertilizerType: "organic" }
 
     occurredAt: v.optional(v.number()), // when the real-world activity happened
-    recordedAt: v.number(), // when Richfarm persisted the activity
+    recordedAt: v.number(), // when RichFarm persisted the activity
     source: v.string(), // "manual", "sensor", "auto", "reminder"
     localId: v.optional(v.string()), // idempotency key for offline entries
     title: v.optional(v.string()),

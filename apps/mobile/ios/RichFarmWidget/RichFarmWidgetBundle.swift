@@ -2,8 +2,8 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct MyGardenWidgetBundle: WidgetBundle {
+struct RichFarmWidgetBundle: WidgetBundle {
     var body: some Widget {
-        MyGardenWidget()
+        RichFarmWidget()
     }
 }

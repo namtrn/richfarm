@@ -1,6 +1,6 @@
-# Richfarm Dashboard
+# RichFarm Dashboard
 
-Standalone React/Vite admin dashboard for Richfarm.
+Standalone React/Vite admin dashboard for RichFarm.
 
 ## Run Local
 

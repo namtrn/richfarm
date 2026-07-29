@@ -1,4 +1,4 @@
-# Richfarm
+# RichFarm
 
 # Đóng tất cả các process node và metro đang chạy ngầm
 killall -9 node 2>/dev/null || true
@@ -17,7 +17,7 @@ npm run dev
 
 
 
-Richfarm is a lightweight monorepo for the mobile app, admin dashboard, API, and Convex backend that power the Richfarm gardening product.
+RichFarm is a lightweight monorepo for the mobile app, admin dashboard, API, and Convex backend that power the RichFarm gardening product.
 
 ## Features
 
@@ -76,7 +76,7 @@ npm run api:dev
 
 ## Plant Taxonomy Workflow
 
-Richfarm now identifies library plants by normalized taxonomy instead of `scientificName` alone.
+RichFarm now identifies library plants by normalized taxonomy instead of `scientificName` alone.
 
 - Identity key: `(genusNormalized, speciesNormalized, cultivarNormalized)`
 - Base species rows use `cultivarNormalized="__default__"`
@@ -119,7 +119,7 @@ npm run test:smoke:ios
 - [Plant schema decision](./docs/specs/PLANT_SCHEMA_DECISION.md)
 - [Plant schema review](./docs/specs/PLANT_SCHEMA_REVIEW.md)
 - [Localization](./docs/specs/LOCALIZATION.md)
-- [My Garden specification](./docs/specs/MY_GARDEN_SPEC.md)
+- [RichFarm specification](./docs/specs/RICHFARM_SPEC.md)
 - [Functional plan](./docs/specs/APP_FUNCTIONAL_PLAN.md)
 
 ## Contributing

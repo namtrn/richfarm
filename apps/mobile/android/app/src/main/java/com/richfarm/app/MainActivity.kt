@@ -1,4 +1,4 @@
-package com.mygarden.app
+package com.richfarm.app
 
 import android.os.Build
 import android.os.Bundle

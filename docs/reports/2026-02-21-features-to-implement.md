@@ -1,4 +1,4 @@
-# Richfarm — Features To Implement
+# RichFarm — Features To Implement
 
 > Date: 2026-02-21
 > Scope: All remaining features **excluding auth** (Google OAuth, email/password, forgot password — already in progress via Better Auth)

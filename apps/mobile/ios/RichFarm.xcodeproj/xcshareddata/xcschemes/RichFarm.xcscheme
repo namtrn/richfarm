@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "MyGarden.app"
-               BlueprintName = "MyGarden"
-               ReferencedContainer = "container:MyGarden.xcodeproj">
+               BuildableName = "RichFarm.app"
+               BlueprintName = "RichFarm"
+               ReferencedContainer = "container:RichFarm.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MyGardenTests.xctest"
-               BlueprintName = "MyGardenTests"
-               ReferencedContainer = "container:MyGarden.xcodeproj">
+               BuildableName = "RichFarmTests.xctest"
+               BlueprintName = "RichFarmTests"
+               ReferencedContainer = "container:RichFarm.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MyGarden.app"
-            BlueprintName = "MyGarden"
-            ReferencedContainer = "container:MyGarden.xcodeproj">
+            BuildableName = "RichFarm.app"
+            BlueprintName = "RichFarm"
+            ReferencedContainer = "container:RichFarm.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MyGarden.app"
-            BlueprintName = "MyGarden"
-            ReferencedContainer = "container:MyGarden.xcodeproj">
+            BuildableName = "RichFarm.app"
+            BlueprintName = "RichFarm"
+            ReferencedContainer = "container:RichFarm.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

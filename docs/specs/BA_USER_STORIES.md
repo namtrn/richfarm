@@ -1,4 +1,4 @@
-# Richfarm BA User Stories
+# RichFarm BA User Stories
 
 Last updated: 2026-02-23
 

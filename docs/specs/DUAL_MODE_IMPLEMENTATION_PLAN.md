@@ -1,6 +1,6 @@
 # Implementation Plan: Dual Mode — 🌾 Farmer / 🌿 Gardener
 
-> Tài liệu hướng dẫn triển khai từng phase cho tính năng 2 mode trong Richfarm.
+> Tài liệu hướng dẫn triển khai từng phase cho tính năng 2 mode trong RichFarm.
 > Tham khảo: [UI_SIMPLIFICATION_RESEARCH.md](./UI_SIMPLIFICATION_RESEARCH.md)
 
 ---

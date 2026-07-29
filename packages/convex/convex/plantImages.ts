@@ -1,4 +1,4 @@
-// Richfarm — Plant Images Management
+// RichFarm — Plant Images Management
 // Quản lý ảnh cho plantsMaster library
 // imageUrl trong plantsMaster là string URL — dễ swap sang R2/Cloudinary sau
 

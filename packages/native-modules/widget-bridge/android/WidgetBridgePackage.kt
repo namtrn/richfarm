@@ -1,4 +1,4 @@
-package com.mygarden.app.widget
+package com.richfarm.app.widget
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

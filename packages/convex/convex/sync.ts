@@ -1,4 +1,4 @@
-// Richfarm — Convex Sync
+// RichFarm — Convex Sync
 // Batch sync from local queue to Convex tables
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";

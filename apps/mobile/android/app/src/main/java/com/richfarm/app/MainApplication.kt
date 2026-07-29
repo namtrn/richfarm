@@ -1,4 +1,4 @@
-package com.mygarden.app
+package com.richfarm.app
 
 import android.app.Application
 import android.content.res.Configuration
@@ -13,7 +13,7 @@ import com.facebook.react.common.ReleaseLevel
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactNativeHost
 
-import com.mygarden.app.widget.WidgetBridgePackage
+import com.richfarm.app.widget.WidgetBridgePackage
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper

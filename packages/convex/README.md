@@ -1,6 +1,6 @@
 # Convex Workspace
 
-This directory contains the Richfarm application schema, queries, mutations, seeds, and data maintenance utilities.
+This directory contains the RichFarm application schema, queries, mutations, seeds, and data maintenance utilities.
 
 ## Main Files
 
@@ -31,8 +31,8 @@ Auth email env vars for `Better Auth + Resend`:
 
 ```bash
 npx convex env set RESEND_API_KEY re_xxx
-npx convex env set AUTH_EMAIL_FROM "Richfarm <auth@your-domain.com>"
-npx convex env set AUTH_EMAIL_APP_NAME Richfarm
+npx convex env set AUTH_EMAIL_FROM "RichFarm <auth@your-domain.com>"
+npx convex env set AUTH_EMAIL_APP_NAME RichFarm
 ```
 
 `AUTH_EMAIL_APP_NAME` is optional. The sender domain must already be verified in Resend.

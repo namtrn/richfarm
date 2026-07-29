@@ -16,7 +16,7 @@
 4. [Plant Identification API Comparison](#4-plant-identification-api-comparison)
 5. [Technical Edge Cases & Solutions](#5-technical-edge-cases--solutions)
 6. [Rate Limiting & Abuse Prevention Strategy](#6-rate-limiting--abuse-prevention-strategy)
-7. [Existing Infrastructure in Richfarm](#7-existing-infrastructure-in-richfarm)
+7. [Existing Infrastructure in RichFarm](#7-existing-infrastructure-in-richfarm)
 8. [Recommendations & Decision Log](#8-recommendations--decision-log)
 9. [Appendix A — Source Links (Forums & Reviews)](#9-appendix-a--source-links-forums--reviews)
 
@@ -57,7 +57,7 @@ Source: App Store listing — https://apps.apple.com/us/app/planta-complete-plan
   - https://www.reddit.com/r/plants/comments/137tvuv  
   - https://www.reddit.com/r/plants/comments/13zivbo
 
-**Key Lessons for Richfarm**:
+**Key Lessons for RichFarm**:
 1. Frame reminders as “check” prompts, not prescriptions.
 2. Watering guidance must be contextual (environment, soil, pot size) or users will override it.
 3. Provide easy schedule overrides and “snooze” controls to keep trust.
@@ -85,7 +85,7 @@ Source: App Store listing — https://apps.apple.com/us/app/blossom-plant-identi
 - A February 2025 thread reports quality declines: crashes, chatbot responses that feel automated, less personalized schedules, and perceived declines in ID/diagnosis accuracy.  
   Source: https://www.reddit.com/r/plantclinic/comments/1ik19m2
 
-**Key Lessons for Richfarm**:
+**Key Lessons for RichFarm**:
 1. **Quality must be maintained** — Blossom's decline shows users will leave fast if accuracy drops
 2. AI chatbot is a risky feature — if it gives bad answers, it's worse than no chatbot
 3. Disease diagnosis is highly valued but must be accurate
@@ -110,7 +110,7 @@ Source: https://planter.garden/
 - Some users report conflicting advice when comparing Planter to other apps; treat as anecdotal and validate against horticultural sources.  
   Source: https://www.reddit.com/r/vegetablegardening/comments/1cv95n3
 
-**Key Lessons for Richfarm**:
+**Key Lessons for RichFarm**:
 1. Not a direct competitor for scan feature (planning-focused)
 2. Companion planting data is highly valued by users — we already have this in `plantsMaster`
 3. Garden size restrictions frustrate users — good that our bed system is flexible
@@ -137,7 +137,7 @@ Source: App Store listing — https://apps.apple.com/us/app/growit-vegetable-gar
 - Reviews mention missing plants in the database and a desire for more granular watering guidance.  
   Source: App Store reviews on listing — https://apps.apple.com/us/app/growit-vegetable-garden/id920034986
 
-**Key Lessons for Richfarm**:
+**Key Lessons for RichFarm**:
 1. Community features are valued but complex to build — consider for future.
 2. Coverage gaps (missing plants) are a common pain point — require curation + user feedback loops.
 3. Zip/zone-based recommendations work well — we already have USDA zone support.
@@ -194,7 +194,7 @@ Notes:
 
 _Derived from a qualitative scan of forum posts and reviews; validate via interviews/surveys before prioritizing._
 
-| Wish | Detail | Feasibility for Richfarm |
+| Wish | Detail | Feasibility for RichFarm |
 |---|---|---|
 | **Free accurate plant ID** | Willing to accept limited scans/day if quality is high | ✅ Can do with rate-limited plant.id |
 | **Disease diagnosis from photo** | Snap a pic of sick leaf, get diagnosis + treatment | ✅ plant.id health assessment API |
@@ -559,7 +559,7 @@ Sources:
 
 ---
 
-## 7. Existing Infrastructure in Richfarm
+## 7. Existing Infrastructure in RichFarm
 
 ### 7.1 What We Already Have (Reduces Work Significantly)
 

@@ -399,3 +399,12 @@ runtime-metrics calls and does not change attempts or retry timestamps.
   restored.
 - Guest executor returns `local_only`, performs zero network calls, and leaves
   retry metadata unchanged.
+
+### Mobile input and keyboard standard
+
+All inputs introduced or changed by this phase follow
+[`docs/standards/mobile-input-keyboard.md`](../standards/mobile-input-keyboard.md).
+In particular, modal and bottom-sheet close paths must use the shared
+`useInputModalLifecycle` hook so an input can focus and open the keyboard again
+after the modal is reopened. Create-form cancel actions discard their draft;
+edit forms restore their persisted source value.

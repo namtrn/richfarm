@@ -1,4 +1,4 @@
-package com.mygarden.app.widget
+package com.richfarm.app.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
-import com.mygarden.app.R
+import com.richfarm.app.R
 
 class PlantWidgetProvider : AppWidgetProvider() {
     
@@ -37,7 +37,7 @@ class PlantWidgetProvider : AppWidgetProvider() {
     
     companion object {
         private const val TAG = "PlantWidget"
-        const val ACTION_REFRESH = "com.mygarden.app.widget.ACTION_REFRESH"
+        const val ACTION_REFRESH = "com.richfarm.app.widget.ACTION_REFRESH"
         
         fun updateAppWidget(
             context: Context,
@@ -67,7 +67,7 @@ class PlantWidgetProvider : AppWidgetProvider() {
             }
             
             // Open app intent
-            val openAppIntent = Intent(context, com.mygarden.app.MainActivity::class.java)
+            val openAppIntent = Intent(context, com.richfarm.app.MainActivity::class.java)
             val openAppPendingIntent = PendingIntent.getActivity(
                 context, 0, openAppIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

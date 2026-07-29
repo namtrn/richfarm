@@ -367,7 +367,7 @@ Need:
 
 ### Master plant images
 
-- stored in platform controlled by Richfarm
+- stored in platform controlled by RichFarm
 - served via CDN
 - multiple images per plant
 - hard cap 3 images

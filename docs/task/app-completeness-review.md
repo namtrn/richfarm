@@ -1,4 +1,4 @@
-# Richfarm App Completeness Review
+# RichFarm App Completeness Review
 
 Date: 2026-03-06
 

@@ -1,13 +1,16 @@
-appId: com.mygarden.app
+appId: com.richfarm.app
 ---
 - openLink:
-    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- tapOn:
+    text: Open
+    optional: true
 - extendedWaitUntil:
     visible:
       id: e2e-tab-home
     timeout: 60000
 - openLink:
-    link: my-garden://auth?e2e=1
+    link: richfarm://auth?e2e=1
 - extendedWaitUntil:
     visible:
       id: e2e-auth-mode-signup
@@ -37,14 +40,14 @@ appId: com.mygarden.app
     visible: "Account created. Check your email to verify before signing in."
     timeout: 10000
 - openLink:
-    link: my-garden://verify-email
+    link: richfarm:///verify-email
 - extendedWaitUntil:
     visible: "Email verified"
     timeout: 10000
 - tapOn:
     id: e2e-auth-back-to-signin
 - openLink:
-    link: my-garden://auth?e2e=1
+    link: richfarm://auth?e2e=1
 - extendedWaitUntil:
     visible:
       id: e2e-auth-google-button

@@ -1,4 +1,4 @@
-// Richfarm — Recipe i18n
+// RichFarm — Recipe i18n
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 

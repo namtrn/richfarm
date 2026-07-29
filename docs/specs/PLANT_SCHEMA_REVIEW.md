@@ -280,7 +280,7 @@ varietyI18n:  { varietyId: cherry._id, locale: "vi", displayName: "Cà chua cher
 
 > [!IMPORTANT]
 > **Khuyến nghị: Dùng Option A trước**, vì:
-> 1. Richfarm đang ở giai đoạn sớm — chưa cần full taxonomy
+> 1. RichFarm đang ở giai đoạn sớm — chưa cần full taxonomy
 > 2. Breaking change risk thấp — chỉ thêm fields, không đổi table structure
 > 3. Có thể migrate lên Option B sau nếu cần (data transformation straightforward)
 > 4. Giữ velocity cao — không block các feature khác

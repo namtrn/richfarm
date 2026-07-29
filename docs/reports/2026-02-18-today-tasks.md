@@ -1,6 +1,6 @@
 ﻿# 2026-02-18 — Những gì cần làm hôm nay
 
-> Mục tiêu: Bổ sung Auth, Loading Screen, Convex Functions, Service Hooks cho Richfarm MVP.
+> Mục tiêu: Bổ sung Auth, Loading Screen, Convex Functions, Service Hooks cho RichFarm MVP.
 
 ---
 
@@ -176,7 +176,7 @@ Nếu hoàn thành sớm, có thể bắt đầu:
 
 ---
 
-## 🆕 Bổ sung 2026-02-18 (buổi chiều) — Richfarm App
+## 🆕 Bổ sung 2026-02-18 (buổi chiều) — RichFarm App
 
 > Các task dưới đây được thêm sau khi đã hoàn thành setup ban đầu.
 

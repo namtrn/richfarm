@@ -1,4 +1,4 @@
-// Richfarm — Convex Reminders
+// RichFarm — Convex Reminders
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";

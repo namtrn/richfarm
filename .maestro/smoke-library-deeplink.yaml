@@ -1,7 +1,7 @@
-appId: com.mygarden.app
+appId: com.richfarm.app
 ---
 - openLink:
-    link: my-garden://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
 - runFlow:
     when:
       visible: "Open"
@@ -26,12 +26,12 @@ appId: com.mygarden.app
       id: e2e-tab-home
     timeout: 60000
 - openLink:
-    link: com.mygarden.app://library?tab=pests
+    link: com.richfarm.app://library?tab=pests
 - extendedWaitUntil:
     visible:
       id: e2e-library-tab-pests-content
     timeout: 60000
 - openLink:
-    link: com.mygarden.app://library?tab=diseases
+    link: com.richfarm.app://library?tab=diseases
 - assertVisible:
     id: e2e-library-tab-pests-content

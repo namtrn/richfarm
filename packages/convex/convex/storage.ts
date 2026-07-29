@@ -1,4 +1,4 @@
-// Richfarm — Convex Storage Functions
+// RichFarm — Convex Storage Functions
 // Quản lý upload/download ảnh qua Convex Storage
 // Thiết kế để dễ migrate sang Cloudflare R2 sau này:
 //   - Chỉ cần thay đổi getImageUrl() để trả về R2 URL thay vì Convex URL

@@ -1,4 +1,4 @@
-# Richfarm Functional Plan (GrowIt/Planter-style)
+# RichFarm Functional Plan (GrowIt/Planter-style)
 
 ## 1) Product Scope
 - Mục tiêu: app quản lý vườn từ Planning -> Growing -> Reminder -> Harvest với trải nghiệm nhanh, rõ, actionable.

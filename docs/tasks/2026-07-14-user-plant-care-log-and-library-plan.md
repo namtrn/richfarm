@@ -4,7 +4,7 @@ Date: 2026-07-14
 
 ## Objective
 
-Richfarm has two immediate priorities:
+RichFarm has two immediate priorities:
 
 1. Adding a plant must create a useful, trackable user plant with care planning, reminders, activity history, photos, health records, and harvest records.
 2. The shared Plant Library must provide trustworthy content and structured care defaults that can support the user-plant experience.

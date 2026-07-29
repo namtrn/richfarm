@@ -1,4 +1,4 @@
-# Richfarm — Image Storage Strategy
+# RichFarm — Image Storage Strategy
 
 > Ngày tạo: 2026-02-18  
 > Trạng thái: Research & Decision  

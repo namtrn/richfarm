@@ -1,12 +1,12 @@
-# Richfarm Goal
+# RichFarm Goal
 
 Date: 2026-05-11
 
 ## Executive Summary
 
-This document defines the working goal for Richfarm after the project sat idle for a while. It is written for both humans and Codex `/goal` mode.
+This document defines the working goal for RichFarm after the project sat idle for a while. It is written for both humans and Codex `/goal` mode.
 
-Richfarm should become a local-first gardening app that supports the complete user journey:
+RichFarm should become a local-first gardening app that supports the complete user journey:
 
 1. Discover plants in a trustworthy library.
 2. Plan what to grow.
@@ -26,7 +26,7 @@ The goal assumes the current repository is `/Users/n/Documents/GitHub/richfarm`.
 
 ## Product Mission
 
-Richfarm helps home gardeners and plant owners decide what to grow, where to grow it, what to check today, and when to harvest.
+RichFarm helps home gardeners and plant owners decide what to grow, where to grow it, what to check today, and when to harvest.
 
 It should support:
 
@@ -128,10 +128,10 @@ These can be future work after the core lifecycle is reliable.
 Paste this block into Codex CLI after `/goal` is available.
 
 ```text
-/goal Hoàn thiện Richfarm thành app làm vườn local-first có thể dùng end-to-end: người dùng có thể khám phá thư viện cây/hoa/cây ăn được, chọn cây để lên kế hoạch trồng, đưa cây vào garden/bed hoặc My Plants, theo dõi lifecycle planning -> growing -> harvest, nhận reminder chăm sóc, dùng AI scanner để nhận diện cây và sâu bệnh, và xem thông tin chăm sóc/thu hoạch rõ ràng theo từng cây.
+/goal Hoàn thiện RichFarm thành app làm vườn local-first có thể dùng end-to-end: người dùng có thể khám phá thư viện cây/hoa/cây ăn được, chọn cây để lên kế hoạch trồng, đưa cây vào garden/bed hoặc My Plants, theo dõi lifecycle planning -> growing -> harvest, nhận reminder chăm sóc, dùng AI scanner để nhận diện cây và sâu bệnh, và xem thông tin chăm sóc/thu hoạch rõ ràng theo từng cây.
 
 Product north star:
-- Richfarm không phải app ghi chú cây đơn giản. Mục tiêu là vòng đời làm vườn: Library -> Planning -> Garden/Growing -> Reminder -> Harvest.
+- RichFarm không phải app ghi chú cây đơn giản. Mục tiêu là vòng đời làm vườn: Library -> Planning -> Garden/Growing -> Reminder -> Harvest.
 - App phải giúp user ra quyết định hôm nay: trồng gì, ở đâu, khi nào gieo/trồng/thu hoạch, cần check gì, có dấu hiệu sâu bệnh gì, và lịch chăm sóc nào đáng tin.
 - Trải nghiệm phải hữu ích cho cả cây ăn được, herbs, rau, quả, hoa, indoor/ornamental plants.
 
@@ -240,6 +240,6 @@ The next milestone is done when:
 
 - Competitor complaint research: `docs/task/2026-05-11-competitor-user-complaints.md`
 - Original functional plan: `docs/specs/APP_FUNCTIONAL_PLAN.md`
-- Original garden spec: `docs/specs/MY_GARDEN_SPEC.md`
+- Original garden spec: `docs/specs/RICHFARM_SPEC.md`
 - Existing completeness review: `docs/task/app-completeness-review.md`
 

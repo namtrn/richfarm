@@ -1,4 +1,4 @@
-package com.mygarden.app.widget
+package com.richfarm.app.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName

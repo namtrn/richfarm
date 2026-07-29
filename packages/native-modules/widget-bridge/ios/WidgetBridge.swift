@@ -11,7 +11,7 @@ class WidgetBridge: NSObject, RCTBridgeModule {
     
     @objc
     func updateWidget(_ data: NSDictionary) {
-        let defaults = UserDefaults(suiteName: "group.com.mygarden.app")
+        let defaults = UserDefaults(suiteName: "group.com.richfarm.app")
         
         if let plantCount = data["plantCount"] as? Int {
             defaults?.set(plantCount, forKey: "plantCount")
@@ -33,7 +33,7 @@ class WidgetBridge: NSObject, RCTBridgeModule {
         
         // Reload widgets
         if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadTimelines(ofKind: "MyGardenWidget")
+            WidgetCenter.shared.reloadTimelines(ofKind: "RichFarmWidget")
         }
     }
     
@@ -51,7 +51,7 @@ class WidgetBridge: NSObject, RCTBridgeModule {
                 switch result {
                 case .success(let widgets):
                     let hasWidget = widgets.contains { widget in
-                        widget.kind == "MyGardenWidget"
+                        widget.kind == "RichFarmWidget"
                     }
                     resolve(hasWidget)
                 case .failure(let error):

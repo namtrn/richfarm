@@ -1,4 +1,4 @@
-// Richfarm — Plant i18n
+// RichFarm — Plant i18n
 import { mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import {

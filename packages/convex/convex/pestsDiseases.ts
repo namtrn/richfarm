@@ -1,4 +1,4 @@
-// Richfarm — Pests and Diseases
+// RichFarm — Pests and Diseases
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 

@@ -50,7 +50,7 @@ updateJson('apps/mobile/package.json', (data) => {
   data.name = npmName;
 });
 
-replaceInFile('packages/widgets/ios/MyGardenWidget.swift', (text) =>
+replaceInFile('packages/widgets/ios/RichFarmWidget.swift', (text) =>
   text
     .replace(/widgetAppName = ".*?"/, `widgetAppName = "${appName}"`)
     .replace(/widgetAppScheme = ".*?"/, `widgetAppScheme = "${scheme}"`)
@@ -61,39 +61,39 @@ replaceInFile('packages/native-modules/widget-bridge/ios/WidgetBridge.swift', (t
   text.replace(/suiteName:\s*".*?"/, `suiteName: "${groupId}"`)
 );
 
-replaceInFileIfExists('apps/mobile/ios/MyGarden/WidgetBridge.swift', (text) =>
+replaceInFileIfExists('apps/mobile/ios/RichFarm/WidgetBridge.swift', (text) =>
   text.replace(/suiteName:\s*".*?"/, `suiteName: "${groupId}"`)
 );
 
-replaceInFileIfExists('apps/mobile/ios/MyGardenWidget/MyGardenWidget.swift', (text) =>
+replaceInFileIfExists('apps/mobile/ios/RichFarmWidget/RichFarmWidget.swift', (text) =>
   text
     .replace(/widgetAppName = ".*?"/, `widgetAppName = "${appName}"`)
     .replace(/widgetAppScheme = ".*?"/, `widgetAppScheme = "${scheme}"`)
     .replace(/widgetAppGroupId = ".*?"/, `widgetAppGroupId = "${groupId}"`)
 );
 
-replaceInFileIfExists('apps/mobile/ios/MyGarden/Info.plist', (text) =>
+replaceInFileIfExists('apps/mobile/ios/RichFarm/Info.plist', (text) =>
   text
     .replace(
       /<key>CFBundleDisplayName<\/key>\s*<string>.*?<\/string>/s,
       `<key>CFBundleDisplayName</key>\n    <string>${escapeXml(appName)}</string>`
     )
-    .replace(/<string>my-garden<\/string>/g, `<string>${scheme}</string>`)
-    .replace(/<string>com\.mygarden\.app<\/string>/g, `<string>${bundleId}</string>`)
+    .replace(/<string>richfarm<\/string>/g, `<string>${scheme}</string>`)
+    .replace(/<string>com\.richfarm\.app<\/string>/g, `<string>${bundleId}</string>`)
 );
 
-replaceInFileIfExists('apps/mobile/ios/MyGardenWidget/MyGardenWidget-Info.plist', (text) =>
+replaceInFileIfExists('apps/mobile/ios/RichFarmWidget/RichFarmWidget-Info.plist', (text) =>
   text.replace(
     /<key>CFBundleDisplayName<\/key>\s*<string>.*?<\/string>/s,
     `<key>CFBundleDisplayName</key>\n    <string>${escapeXml(appName)}Widget</string>`
   )
 );
 
-replaceInFileIfExists('apps/mobile/ios/MyGarden/MyGarden.entitlements', (text) =>
+replaceInFileIfExists('apps/mobile/ios/RichFarm/RichFarm.entitlements', (text) =>
   text.replace(/<string>group\.[^<]+<\/string>/g, `<string>${groupId}</string>`)
 );
 
-replaceInFileIfExists('apps/mobile/ios/MyGardenWidget/MyGardenWidget.entitlements', (text) =>
+replaceInFileIfExists('apps/mobile/ios/RichFarmWidget/RichFarmWidget.entitlements', (text) =>
   text.replace(/<string>group\.[^<]+<\/string>/g, `<string>${groupId}</string>`)
 );
 
@@ -101,21 +101,21 @@ updateIosXcodeProject(bundleId);
 
 replaceInFile('packages/widgets/android/PlantWidgetProvider.kt', (text) =>
   text
-    .replace(/package\s+com\.mygarden\.app\.widget/g, `package ${widgetPackage}`)
-    .replace(/com\.mygarden\.app\.widget/g, widgetPackage)
-    .replace(/com\.mygarden\.app\./g, `${androidPackage}.`)
+    .replace(/package\s+com\.richfarm\.app\.widget/g, `package ${widgetPackage}`)
+    .replace(/com\.richfarm\.app\.widget/g, widgetPackage)
+    .replace(/com\.richfarm\.app\./g, `${androidPackage}.`)
 );
 
 replaceInFile('packages/native-modules/widget-bridge/android/WidgetBridgeModule.kt', (text) =>
   text
-    .replace(/package\s+com\.mygarden\.app\.widget/g, `package ${widgetPackage}`)
-    .replace(/com\.mygarden\.app\.widget/g, widgetPackage)
+    .replace(/package\s+com\.richfarm\.app\.widget/g, `package ${widgetPackage}`)
+    .replace(/com\.richfarm\.app\.widget/g, widgetPackage)
 );
 
 replaceInFile('packages/native-modules/widget-bridge/android/WidgetBridgePackage.kt', (text) =>
   text
-    .replace(/package\s+com\.mygarden\.app\.widget/g, `package ${widgetPackage}`)
-    .replace(/com\.mygarden\.app\.widget/g, widgetPackage)
+    .replace(/package\s+com\.richfarm\.app\.widget/g, `package ${widgetPackage}`)
+    .replace(/com\.richfarm\.app\.widget/g, widgetPackage)
 );
 
 replaceInFile('packages/widgets/android/res/values/strings.xml', (text) =>
@@ -133,7 +133,7 @@ replaceInFileIfExists('apps/mobile/android/app/src/main/res/values/strings.xml',
 );
 
 replaceInFileIfExists('apps/mobile/android/app/src/main/AndroidManifest.xml', (text) =>
-  text.replace(/android:scheme="my-garden"/g, `android:scheme="${scheme}"`)
+  text.replace(/android:scheme="richfarm"/g, `android:scheme="${scheme}"`)
 );
 
 replaceInFileIfExists('apps/mobile/android/app/build.gradle', (text) =>
@@ -144,8 +144,8 @@ replaceInFileIfExists('apps/mobile/android/app/build.gradle', (text) =>
 
 updateAndroidPackage(androidPackage);
 
-replaceInFile('apps/mobile/app/index.tsx', (text) => text.replace(/Richfarm/g, appName));
-replaceInFile('apps/mobile/components/ui/LoadingScreen.tsx', (text) => text.replace(/Richfarm/g, appName));
+replaceInFile('apps/mobile/app/index.tsx', (text) => text.replace(/RichFarm/g, appName));
+replaceInFile('apps/mobile/components/ui/LoadingScreen.tsx', (text) => text.replace(/RichFarm/g, appName));
 
 console.log('Updated files:');
 for (const file of updated) {
@@ -184,22 +184,22 @@ function replaceInFileIfExists(relPath, replacer) {
 
 function updateIosXcodeProject(newBundleId) {
   if (!xcode) return;
-  const projectPath = path.join(root, 'apps/mobile/ios/MyGarden.xcodeproj/project.pbxproj');
+  const projectPath = path.join(root, 'apps/mobile/ios/RichFarm.xcodeproj/project.pbxproj');
   if (!fs.existsSync(projectPath)) return;
 
   const project = xcode.project(projectPath);
   project.parseSync();
-  project.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', newBundleId, null, 'MyGarden');
-  const widgetTargets = ['MyGardenWidget', '"MyGardenWidget"'];
+  project.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', newBundleId, null, 'RichFarm');
+  const widgetTargets = ['RichFarmWidget', '"RichFarmWidget"'];
   for (const target of widgetTargets) {
     project.updateBuildProperty('PRODUCT_BUNDLE_IDENTIFIER', `${newBundleId}.widget`, null, target);
-    project.updateBuildProperty('CODE_SIGN_ENTITLEMENTS', 'MyGardenWidget/MyGardenWidget.entitlements', null, target);
+    project.updateBuildProperty('CODE_SIGN_ENTITLEMENTS', 'RichFarmWidget/RichFarmWidget.entitlements', null, target);
     project.updateBuildProperty('SWIFT_VERSION', '5.0', null, target);
     project.updateBuildProperty('IPHONEOS_DEPLOYMENT_TARGET', '15.1', null, target);
     project.updateBuildProperty('TARGETED_DEVICE_FAMILY', '"1,2"', null, target);
   }
   fs.writeFileSync(projectPath, project.writeSync());
-  updated.push('apps/mobile/ios/MyGarden.xcodeproj/project.pbxproj');
+  updated.push('apps/mobile/ios/RichFarm.xcodeproj/project.pbxproj');
 }
 
 function updateAndroidPackage(newPackage) {
