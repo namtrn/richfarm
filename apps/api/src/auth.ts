@@ -80,14 +80,14 @@ export function createAuthRouter(db: SqliteDatabase, config: AuthConfig): Router
     res.json({ token, user: authUser });
   });
 
-  router.get("/me", requireAuth(config), (req: Request, res: Response) => {
+  router.get("/me", requireAuth(config, db), (req: Request, res: Response) => {
     res.json({ user: req.authUser });
   });
 
   return router;
 }
 
-export function requireAuth(config: AuthConfig) {
+export function requireAuth(config: AuthConfig, db?: SqliteDatabase) {
   return (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -104,10 +104,25 @@ export function requireAuth(config: AuthConfig) {
       }) as jwt.JwtPayload;
 
       const id = Number(decoded.sub);
-      const email = String(decoded.email ?? "");
-      const role = decoded.role;
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        res.status(401).json({ error: "Invalid token payload" });
+        return;
+      }
 
-      if (!Number.isFinite(id) || !email || (role !== "admin" && role !== "editor" && role !== "viewer")) {
+      // Authorization must reflect the current database state. JWT claims are
+      // authentication evidence only; trusting role/is_active from the token
+      // would keep disabled or demoted users authorized until expiry.
+      const user = db?.prepare(
+        `SELECT id, email, role, is_active FROM users WHERE id = ? LIMIT 1`,
+      ).get(id) as DbUserRow | undefined;
+      if (db && (!user || user.is_active !== 1)) {
+        res.status(401).json({ error: "Invalid or expired token" });
+        return;
+      }
+
+      const email = user?.email ?? String(decoded.email ?? "");
+      const role = user?.role ?? decoded.role;
+      if (!email || (role !== "admin" && role !== "editor" && role !== "viewer")) {
         res.status(401).json({ error: "Invalid token payload" });
         return;
       }

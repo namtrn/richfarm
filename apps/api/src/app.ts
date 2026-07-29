@@ -22,7 +22,7 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   const app = express();
   app.disable("x-powered-by");
   app.set("etag", false);
-  const authMiddleware = requireAuth(options.auth);
+  const authMiddleware = requireAuth(options.auth, db);
   const configuredOrigins = (process.env.CORS_ORIGINS ?? "")
     .split(",")
     .map((origin) => origin.trim())

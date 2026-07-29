@@ -1,4 +1,5 @@
 import "dotenv/config";
+import crypto from "crypto";
 import path from "path";
 
 import { ConvexSyncService } from "./convex-sync";
@@ -7,17 +8,15 @@ import { createDatabase, ensureBootstrapAdmin } from "./db";
 
 const port = Number(process.env.PORT ?? 4000);
 const dbPath = process.env.DB_PATH ?? path.resolve(process.cwd(), "data/richfarm.db");
-const jwtSecret = process.env.JWT_SECRET ?? "change-me-in-production";
+const jwtSecret = process.env.JWT_SECRET?.trim() || (
+  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+    ? crypto.randomBytes(32).toString("hex")
+    : ""
+);
 const jwtExpiresIn = process.env.JWT_EXPIRES_IN ?? "12h";
-const usingDefaultJwtSecret = jwtSecret === "change-me-in-production";
 
-if (process.env.NODE_ENV === "production" && usingDefaultJwtSecret) {
-  throw new Error("JWT_SECRET must be set in production");
-}
-
-if (usingDefaultJwtSecret) {
-  // eslint-disable-next-line no-console
-  console.warn("Using the default JWT secret. Set JWT_SECRET before any shared deployment.");
+if (!jwtSecret) {
+  throw new Error("JWT_SECRET must be set outside local development");
 }
 
 const db = createDatabase(dbPath);
