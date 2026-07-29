@@ -1128,6 +1128,20 @@ migration/rollback rehearsal, the two-real-client failure matrix, rollout metric
 observation, legacy cutoff validation, and an independent PASS audit. Execute
 `docs/tasks/2026-07-15-phase-1-5-staging-release-runbook.md` before opening Phase 2.
 
+## Phase 2 additive sync-domain extension — 2026-07-29
+
+Phase 2 extends, rather than replaces, this protocol with `carePlan`, `reminder`,
+and `reminderOutcome` entity domains. They use the same scoped durable outbox,
+stable operation IDs, session generation, receipt fingerprinting, revisions,
+tombstones, parent dependency ordering, snapshot pagination, optimistic
+projection, reconciliation, quarantine, account-switch invalidation, and
+account-deletion cleanup.
+
+Repository tests prove retry idempotency, check-versus-performed semantics,
+offline restart projection, and no duplicate outcomes/Activities. This source
+extension does not satisfy or waive the pending staging, two-real-client,
+Android, rollout-observation, legacy-cutoff, or independent-audit gates above.
+
 ## Consolidated Release-Candidate Status — 2026-07-29
 
 Repository status: **PASS**.

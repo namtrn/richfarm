@@ -173,6 +173,22 @@ Pending external/operational evidence:
 No production migration, cutoff, or rollout configuration was changed during
 this run.
 
+### Phase 2 extension note — 2026-07-29
+
+The repository schema and snapshot protocol now include care plans, reminders,
+and reminder outcomes. Before any staged Phase 2 rollout, repeat migration,
+backup/restore, two-client delete/conflict, account transition, and metric
+observation checks for those three domains in addition to the original six.
+
+Local Phase 2 source verification passed TypeScript, 35 Convex tests, 46 mobile
+tests, 16 API tests, API/dashboard builds, and iOS export. Native Phase 2
+iOS build/install/launch also passed on iPhone 17 / iOS 26.2. Phase 2 UI/Maestro
+execution remains pending because the local runtime lacks
+`EXPO_PUBLIC_CONVEX_URL` and `EXPO_PUBLIC_CONVEX_SITE_URL`. Real push delivery,
+Android, two-real-client convergence, staging deployment, and independent audit
+also remain pending. No production state, cutoff, or rollout configuration was
+changed.
+
 The dev rollout-health query returned zero rates, no breached thresholds, and
 `shouldPause: false`, but the bucket total was `0`. This is configuration
 validation only and does not satisfy the required observation window of at

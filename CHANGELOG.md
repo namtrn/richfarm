@@ -2,6 +2,62 @@
 
 All notable changes to the **RichFarm** project will be documented in this file.
 
+## [2026-07-29] — Phase 2 care plans and reminder activation
+
+### Short
+
+- Added per-plant, versioned care-plan snapshots derived only from trustworthy
+  Library values, with reviewable source/version evidence and user-owned tasks.
+- Added deterministic watering/moisture, fertilizer, pest/disease, and
+  harvest-readiness checks with friendly, non-coercive reminder copy.
+- Added explicit performed, checked-not-needed, snooze, skip, edit, disable, and
+  delete outcome semantics; only confirmed actions update care snapshots.
+- Extended Phase 1.5 sync v2, offline projections, tombstones, receipts, restart
+  recovery, and account scopes to care plans, reminders, and outcomes.
+- Batched push presentation by local day and Garden/Bed while retaining
+  individually actionable in-app reminders.
+
+### Version detail
+
+#### Data and synchronization
+
+- Added additive `userPlantCarePlans` and `reminderOutcomes` tables plus
+  sync-compatible reminder identity/revision/care-plan metadata.
+- Added `carePlan`, `reminder`, and `reminderOutcome` to the existing durable
+  outbox, dependency ordering, authoritative snapshots, conflict handling,
+  reconciliation, and account-deletion cleanup.
+- Versioned snapshots retain the Library plant, content version, source label,
+  and exact cadence/harvest values used so later Library edits cannot silently
+  rewrite an active plan.
+- Planning plants retain draft plans without active reminders; Growing activates
+  enabled tasks; Harvested/Archived disables care-plan reminders.
+
+#### Outcomes and interface
+
+- Added DST-safe local-calendar recurrence calculation and deterministic
+  reminder identities.
+- Added checked-not-needed versus performed resolution in the Reminder UI.
+  Watering/fertilizing Activities and snapshots are created only for performed
+  outcomes; checks and skips retain their own explicit history.
+- Added a reviewable care-plan/version/source card to Plant Detail and retained
+  existing reminder edit/enable/disable/delete controls for user overrides.
+- Added outcome copy for English, Vietnamese, Spanish, French, Portuguese, and
+  Chinese.
+
+#### Verification
+
+- Mobile and Convex TypeScript: PASS.
+- Convex tests: PASS (35/35), including derivation, versions, DST recurrence,
+  batching, outcome semantics, idempotent retry, snapshots, and sync conflicts.
+- Mobile tests: PASS (46/46), including offline outcome projection and restart.
+- API tests: PASS (16/16) with localhost listener access; API build PASS.
+- Dashboard production build and iOS production export: PASS.
+- iOS simulator native build/install/launch: PASS on iPhone 17 / iOS 26.2.
+- Native Phase 2 Maestro specification was added. Real notification delivery,
+  Phase 2 UI execution (local Convex environment variables were unavailable),
+  two-real-device convergence, Android, staging migration/rollout, and
+  independent-audit gates remain external and are not claimed as PASS.
+
 ## [2026-07-29] — Phase 1 and Phase 1.5 release-candidate consolidation
 
 ### Short
