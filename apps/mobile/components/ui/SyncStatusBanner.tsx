@@ -1,6 +1,8 @@
-import { Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import type { ViewStyle } from 'react-native';
-import { AlertTriangle, CloudOff, CloudUpload, RefreshCw, Save } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AlertTriangle, CloudOff, CloudUpload, RefreshCw, Save, X } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../lib/theme';
 import { useSyncStatus } from '../../hooks/useSyncStatus';
@@ -9,6 +11,7 @@ type SyncStatusBannerProps = {
   plantId?: string;
   showWhenIdle?: boolean;
   compact?: boolean;
+  localOnlyToast?: boolean;
   style?: ViewStyle;
 };
 
@@ -16,16 +19,31 @@ export function SyncStatusBanner({
   plantId,
   showWhenIdle = false,
   compact = false,
+  localOnlyToast = false,
   style,
 }: SyncStatusBannerProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const { status, queuedCount, hasPending, quarantineCount, hasQuarantine, isLocalOnly } = useSyncStatus(plantId);
+  const [showLocalToast, setShowLocalToast] = useState(false);
+
+  useEffect(() => {
+    if (!localOnlyToast || !isLocalOnly || !hasPending) {
+      setShowLocalToast(false);
+      return;
+    }
+
+    setShowLocalToast(true);
+    const timeout = setTimeout(() => setShowLocalToast(false), 4000);
+    return () => clearTimeout(timeout);
+  }, [hasPending, isLocalOnly, localOnlyToast, queuedCount]);
 
   if (status === 'loading') return null;
   if (status === 'pending' && !isLocalOnly) return null;
   if (!showWhenIdle && !hasPending && !hasQuarantine) return null;
   if (status === 'idle' && !showWhenIdle) return null;
+  if (localOnlyToast && isLocalOnly && hasPending && !showLocalToast) return null;
 
   const config =
     isLocalOnly && hasPending
@@ -77,7 +95,20 @@ export function SyncStatusBanner({
 
   return (
     <View
+      testID={`e2e-sync-status-${status}`}
       style={{
+        ...(localOnlyToast && isLocalOnly ? {
+          position: 'absolute',
+          top: insets.top + 8,
+          left: 12,
+          right: 12,
+          zIndex: 100,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.14,
+          shadowRadius: 10,
+        } : {}),
         backgroundColor: config.backgroundColor,
         borderWidth: 1,
         borderColor: config.borderColor,
@@ -100,6 +131,17 @@ export function SyncStatusBanner({
         >
           {config.title}
         </Text>
+        {localOnlyToast && isLocalOnly && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close', { defaultValue: 'Close' })}
+            hitSlop={10}
+            onPress={() => setShowLocalToast(false)}
+            style={{ padding: 2 }}
+          >
+            <X size={16} color={config.textColor} />
+          </Pressable>
+        )}
       </View>
       {!compact && (
         <Text style={{ fontSize: 12, color: theme.textSecondary }}>

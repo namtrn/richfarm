@@ -16,7 +16,9 @@ export type EntityOperationPayload = {
 
 export type SyncPhotoPayload = {
   localId: string;
-  uri: string;
+  uri?: string;
+  managedUri?: string;
+  phase?: 'staged' | 'uploaded';
   note?: string;
   date: number;
   source?: 'camera' | 'gallery';

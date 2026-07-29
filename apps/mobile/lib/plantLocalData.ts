@@ -73,22 +73,37 @@ function storageKey(scope: string, plantId: string) {
   return `${STORAGE_PREFIX}${encodeURIComponent(scope)}:${encodeURIComponent(plantId)}`;
 }
 
-export async function loadPlantLocalData(scope: string, plantId: string): Promise<PlantLocalData> {
+export async function inspectPlantLocalData(scope: string, plantId: string): Promise<
+  | { status: 'missing'; data: PlantLocalData }
+  | { status: 'valid'; data: PlantLocalData }
+  | { status: 'malformed'; raw: string; data: PlantLocalData }
+> {
   const raw = await AsyncStorage.getItem(storageKey(scope, plantId));
-  if (!raw) {
-    return { ...EMPTY_DATA };
-  }
-
+  if (!raw) return { status: 'missing', data: { ...EMPTY_DATA } };
   try {
     const parsed = JSON.parse(raw) as Partial<PlantLocalData>;
     return {
-      photos: normalizeArray<PlantPhotoEntry>(parsed.photos),
-      activities: normalizeArray<PlantActivityEntry>(parsed.activities),
-      harvests: normalizeArray<PlantHarvestEntry>(parsed.harvests),
+      status: 'valid',
+      data: {
+        photos: normalizeArray<PlantPhotoEntry>(parsed.photos),
+        activities: normalizeArray<PlantActivityEntry>(parsed.activities),
+        harvests: normalizeArray<PlantHarvestEntry>(parsed.harvests),
+      },
     };
   } catch {
-    return { ...EMPTY_DATA };
+    return { status: 'malformed', raw, data: { ...EMPTY_DATA } };
   }
+}
+
+export async function preservePlantLocalRecovery(scope: string, plantId: string, raw: string) {
+  await AsyncStorage.setItem(
+    `plant_local_recovery:v1:${encodeURIComponent(scope)}:${encodeURIComponent(plantId)}`,
+    raw,
+  );
+}
+
+export async function loadPlantLocalData(scope: string, plantId: string): Promise<PlantLocalData> {
+  return (await inspectPlantLocalData(scope, plantId)).data;
 }
 
 export async function savePlantLocalData(

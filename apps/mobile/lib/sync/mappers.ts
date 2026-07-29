@@ -12,7 +12,8 @@ export function mapSyncActionToPhoto(
   if (action.type !== 'photo' || !action.plantId) return null;
   const payload = action.payload as {
     localId: string;
-    uri: string;
+    uri?: string;
+    managedUri?: string;
     note?: string;
     date: number;
     source?: 'camera' | 'gallery';
@@ -25,7 +26,7 @@ export function mapSyncActionToPhoto(
     localId: payload.localId,
     capturedAt: payload.date,
     note: payload.note,
-    localUri: payload.uri,
+    localUri: payload.managedUri ?? payload.uri ?? '',
     source: payload.source,
     storageId: payload.storageId,
   };

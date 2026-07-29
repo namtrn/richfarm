@@ -16,13 +16,13 @@ import { EntityOperationPayload, SyncActionType } from './types';
 import { useLocalSyncIdentity } from './identity';
 import { APP_VERSION } from '../appVersion';
 import { loadRenderedProjection, reconcileAuthoritativeSnapshot } from './reconciliation';
-import { loadPlantLocalData, savePlantLocalData } from '../plantLocalData';
 import {
     loadPreferenceQueue,
+    acknowledgePreferencePatch,
     rebasePreferencePatch,
-    removePreferencePatch,
 } from './preferencesQueue';
 import * as ImagePicker from 'expo-image-picker';
+import { isManagedPlantPhotoUri, removeManagedPlantPhoto } from '../photo/managedPlantPhotos';
 
 async function loadLocalPhotoBlob(photo: { localUri: string; source?: 'camera' | 'gallery' }) {
     const read = async () => {
@@ -33,7 +33,9 @@ async function loadLocalPhotoBlob(photo: { localUri: string; source?: 'camera' |
     try {
         return await read();
     } catch (firstError) {
-        if (photo.source !== 'gallery') throw new Error('photo_file_not_found');
+        if (isManagedPlantPhotoUri(photo.localUri) || photo.source !== 'gallery') {
+            throw new Error('photo_file_not_found');
+        }
         let permission = await ImagePicker.getMediaLibraryPermissionsAsync();
         if (permission.status !== 'granted') {
             permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -157,6 +159,7 @@ export function useSyncExecutor() {
             lastQueuedCountRef.current = filteredQueue.length;
             const syncedIds = new Set<string>();
             const syncedEntityIds = new Set<string>();
+            const reconciledManagedPhotoUris = new Map<string, string>();
             let errorCount = 0;
 
             if (scope && serverSession) {
@@ -182,7 +185,7 @@ export function useSyncExecutor() {
                             });
                         }
                         if (result.status === 'applied' || result.status === 'already_applied') {
-                            await removePreferencePatch(scope, preference.operationId);
+                            await acknowledgePreferencePatch(scope, preference.operationId, result.revision);
                         } else {
                             errorCount++;
                         }
@@ -272,7 +275,11 @@ export function useSyncExecutor() {
                         }
                         const uploaded = await uploadResponse.json();
                         storageId = uploaded.storageId;
-                        await updateSyncActionPayload(item.id, { ...item.payload, storageId }, scope);
+                        await updateSyncActionPayload(item.id, {
+                            ...item.payload,
+                            storageId,
+                            phase: 'uploaded',
+                        }, scope);
                     }
                     await registerSyncUpload({
                         deviceId,
@@ -306,6 +313,8 @@ export function useSyncExecutor() {
                     if (result.status === 'applied' || result.status === 'already_applied' || result.status === 'discarded_deleted') {
                         syncedIds.add(item.id);
                         syncedEntityIds.add(item.id);
+                        const managedUri = (item.payload as any).managedUri;
+                        if (managedUri) reconciledManagedPhotoUris.set(item.id, managedUri);
                     } else if (result.status === 'invalid_parent' || result.status === 'operation_conflict' || result.status === 'wrong_generation') {
                         await quarantineSyncAction(item.id, result.status, scope);
                         await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: 'photo', status: 'quarantined' });
@@ -363,18 +372,6 @@ export function useSyncExecutor() {
                     if (result.status === 'discarded_deleted' || result.status === 'invalid_parent') {
                         await quarantineSyncAction(item.id, result.status, scope);
                         await recordClientOutcome({ deviceId, appVersion: APP_VERSION, entityType: item.type, status: 'quarantined' });
-                        if (item.plantId) {
-                            const local = await loadPlantLocalData(identity.scopeKey, item.plantId);
-                            await savePlantLocalData(identity.scopeKey, item.plantId, {
-                                ...local,
-                                activities: item.type === 'activity'
-                                    ? local.activities.filter((entry) => entry.id !== payload.localId)
-                                    : local.activities,
-                                harvests: item.type === 'harvest'
-                                    ? local.harvests.filter((entry) => entry.id !== payload.localId && entry.localId !== payload.localId)
-                                    : local.harvests,
-                            });
-                        }
                         errorCount++;
                         continue;
                     }
@@ -410,6 +407,9 @@ export function useSyncExecutor() {
             }
             if (syncedIds.size > 0) {
                 await removeSyncActions(Array.from(syncedIds), scope);
+                for (const id of syncedIds) {
+                    removeManagedPlantPhoto(reconciledManagedPhotoUris.get(id));
+                }
             }
 
             return {

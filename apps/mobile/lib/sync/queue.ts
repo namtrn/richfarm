@@ -136,7 +136,10 @@ export async function saveSyncQueue(queue: SyncAction[], scope?: string): Promis
 export async function enqueueSyncAction(action: SyncAction, scope?: string): Promise<void> {
   await serializedUpdate(scope, (envelope) => ({
     ...envelope,
-    operations: [...envelope.operations, action],
+    operations: [
+      ...envelope.operations.filter((existing) => existing.id !== action.id),
+      action,
+    ],
   }));
 }
 

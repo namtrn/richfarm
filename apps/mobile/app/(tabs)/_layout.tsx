@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { BottomTabBar, BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { Bell, BookOpen, UserRound, Home, Fence, ScanSearch, Plus, Sprout, Grid2X2Plus } from 'lucide-react-native';
+import { Bell, BookOpen, UserRound, Home, Fence, ScanSearch, Plus, Sprout, Grid2X2Plus } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import {
   Animated,
-  Dimensions,
   Easing,
   NativeModules,
   Modal,
@@ -52,9 +51,17 @@ const TAB_BAR_SIDE_GAP = 24;
 
 type AnimatedTabButtonProps = BottomTabBarButtonProps & {
   activePillColor: string;
+  activePillBorderColor: string;
 };
 
-function AnimatedTabButton({ accessibilityState, children, style, activePillColor, ...rest }: AnimatedTabButtonProps) {
+function AnimatedTabButton({
+  accessibilityState,
+  children,
+  style,
+  activePillColor,
+  activePillBorderColor,
+  ...rest
+}: AnimatedTabButtonProps) {
   const { onPress, onLongPress, testID, accessibilityLabel } = rest;
   const isSelected = accessibilityState?.selected ?? false;
   const progress = useRef(new Animated.Value(isSelected ? 1 : 0)).current;
@@ -95,6 +102,7 @@ function AnimatedTabButton({ accessibilityState, children, style, activePillColo
             styles.activePill,
             {
               backgroundColor: activePillColor,
+              borderColor: activePillBorderColor,
               opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [0, 1] }),
             },
           ]}
@@ -105,7 +113,15 @@ function AnimatedTabButton({ accessibilityState, children, style, activePillColo
   );
 }
 
-function ActionTabButton({ onOpen, color }: { onOpen: () => void; color: string }) {
+function ActionTabButton({
+  onOpen,
+  color,
+  isDark,
+}: {
+  onOpen: () => void;
+  color: string;
+  isDark: boolean;
+}) {
   return (
     <Pressable
       onPress={onOpen}
@@ -114,7 +130,16 @@ function ActionTabButton({ onOpen, color }: { onOpen: () => void; color: string 
       accessibilityLabel="Quick actions"
       style={styles.actionTabButton}
     >
-      <View style={[styles.actionTabCircle, { backgroundColor: color }]}>
+      <View
+        style={[
+          styles.actionTabCircle,
+          {
+            backgroundColor: color,
+            borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.72)',
+            shadowColor: isDark ? '#000000' : color,
+          },
+        ]}
+      >
         <Plus size={25} color="white" strokeWidth={2.5} />
       </View>
     </Pressable>
@@ -152,7 +177,7 @@ function LiquidGlassBackground({ isDark }: { isDark: boolean }) {
   );
 }
 
-function SplitTabBarBackground({
+function LiquidGlassTabBarBackground({
   isDark,
   borderColor,
 }: {
@@ -163,7 +188,7 @@ function SplitTabBarBackground({
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       <View
         style={[
-          styles.navigationCluster,
+          styles.glassPill,
           {
             borderColor,
             shadowColor: isDark ? '#000000' : '#1a4731',
@@ -196,6 +221,9 @@ export default function TabLayout() {
   const activePillColor = isDark
     ? 'rgba(64, 145, 108, 0.40)'
     : 'rgba(26, 71, 49, 0.12)';
+  const activePillBorderColor = isDark
+    ? 'rgba(255, 255, 255, 0.16)'
+    : 'rgba(255, 255, 255, 0.72)';
 
   const borderColor = isDark
     ? 'rgba(255, 255, 255, 0.22)'
@@ -260,10 +288,14 @@ export default function TabLayout() {
         tabBarInactiveTintColor: theme.textMuted,
         tabBarHideOnKeyboard: true,
         tabBarButton: (props) => (
-          <AnimatedTabButton {...props} activePillColor={activePillColor} />
+          <AnimatedTabButton
+            {...props}
+            activePillColor={activePillColor}
+            activePillBorderColor={activePillBorderColor}
+          />
         ),
         tabBarBackground: () => (
-          <SplitTabBarBackground isDark={isDark} borderColor={borderColor} />
+          <LiquidGlassTabBarBackground isDark={isDark} borderColor={borderColor} />
         ),
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
@@ -326,7 +358,11 @@ export default function TabLayout() {
           title: '',
           tabBarItemStyle: styles.actionTabItem,
           tabBarButton: () => (
-            <ActionTabButton onOpen={() => setActionsOpen(true)} color={theme.primaryDark} />
+            <ActionTabButton
+              onOpen={() => setActionsOpen(true)}
+              color={theme.primaryDark}
+              isDark={isDark}
+            />
           ),
         }}
       />
@@ -440,13 +476,13 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.select({ ios: 4, android: 2, default: 2 }),
     paddingTop: 2,
   },
-  navigationCluster: {
+  glassPill: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
-    right: 62,
-    borderWidth: 2,
+    right: 0,
+    borderWidth: 1,
     borderRadius: 28,
     elevation: 12,
     shadowOffset: { width: 0, height: 16 },
@@ -475,6 +511,7 @@ const styles = StyleSheet.create({
   },
   activePill: {
     ...StyleSheet.absoluteFillObject,
+    borderWidth: 1,
     borderRadius: 20,
     overflow: 'hidden',
   },
@@ -490,15 +527,20 @@ const styles = StyleSheet.create({
   actionTabItem: {
     flex: 0,
     width: 52,
-    marginLeft: 10,
-    marginRight: 0,
+    marginLeft: 4,
+    marginRight: 4,
   },
   actionTabCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 6,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.24,
+    shadowRadius: 10,
   },
   actionModal: {
     flex: 1,

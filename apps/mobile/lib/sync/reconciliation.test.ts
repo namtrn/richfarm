@@ -54,6 +54,24 @@ describe('rendered authoritative projection', () => {
     expect(rendered?.entities.garden['offline-garden']).toMatchObject({ name: 'No network', _pending: true });
   });
 
+  it('renders a staged private photo directly from the outbox', async () => {
+    const scope = 'offline:photo';
+    saveProjection(scope, { plant: { 'plant-a': { _id: 'server-plant', entityUuid: 'plant-a' } } });
+    await enqueueSyncAction({
+      id: 'photo-op', type: 'photo', plantId: 'plant-a', createdAt: 1, attempts: 0,
+      payload: {
+        localId: 'photo-a', managedUri: 'file:///private/richfarm/photo-a.jpg',
+        phase: 'staged', date: 10, source: 'camera',
+      },
+    }, scope);
+    expect((await loadRenderedProjection(scope))?.entities.photo['photo-a']).toMatchObject({
+      photoUrl: 'file:///private/richfarm/photo-a.jpg',
+      userPlantId: 'server-plant',
+      _operationId: 'photo-op',
+      _pending: true,
+    });
+  });
+
   it('applies pending update/delete without leaking across account scopes', async () => {
     const scopeA = 'device:user-a';
     const scopeB = 'device:user-b';

@@ -45,6 +45,14 @@ describe('user-scoped outbox v2', () => {
     expect((await loadSyncQueue('device:user-b')).map((item) => item.id)).toEqual(['b1']);
   });
 
+  it('upserts a retried operation ID instead of duplicating it', async () => {
+    await enqueueSyncAction(action('same'), 'device:user');
+    await enqueueSyncAction({ ...action('same'), attempts: 2 }, 'device:user');
+    const queue = await loadSyncQueue('device:user');
+    expect(queue).toHaveLength(1);
+    expect(queue[0]?.attempts).toBe(2);
+  });
+
   it('persists generation and moves terminal operations to quarantine', async () => {
     await enqueueSyncAction(action('terminal'), 'device:user');
     await setSyncGeneration('generation-1', 'device:user');

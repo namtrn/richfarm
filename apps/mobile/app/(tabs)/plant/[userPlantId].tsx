@@ -13,7 +13,7 @@ import {
   PanResponder,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from 'lucide-react-native';
+import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from '../../../lib/icons';
 import { usePlants, type PlantStatus } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
 import { useGardens } from '../../../hooks/useGardens';
@@ -26,12 +26,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
 import { useFavorites } from '../../../hooks/useFavorites';
 import {
-  createLocalId,
   loadPlantLocalData,
   savePlantLocalData,
   PlantLocalData,
   PlantActivityType,
-  PlantPhotoEntry,
 } from '../../../lib/plantLocalData';
 import { PlantPhotosSection } from '../../../components/plant/PlantPhotosSection';
 import { PlantActivitySection } from '../../../components/plant/PlantActivitySection';
@@ -42,8 +40,9 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useDeviceId } from '../../../lib/deviceId';
-import { useEntitySync } from '../../../hooks/useEntitySync';
 import { useSyncProjection } from '../../../hooks/useSyncProjection';
+import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
+import { migratePlantLocalData } from '../../../lib/commands/migratePlantLocalData';
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -94,7 +93,6 @@ export default function PlantDetailScreen() {
   const { plants, updatePlant, updateStatus, deletePlant } = usePlants();
   const { beds } = useBeds();
   const { gardens } = useGardens();
-  const { queueOperation } = useEntitySync();
   const plant = useMemo(
     () => plants.find((p: any) => String(p._id) === String(resolvedPlantId) || p.entityUuid === resolvedPlantId),
     [plants, resolvedPlantId]
@@ -123,7 +121,8 @@ export default function PlantDetailScreen() {
   const backendHarvests = projection?.complete ? projectedHarvests?.filter(belongsToPlant) : remoteHarvests;
   const backendPhotos = projection?.complete ? projectedPhotos?.filter(belongsToPlant) : undefined;
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const { queuePhoto, queueActivity, queueHarvest, removePendingActivity, removePendingHarvest, removePendingPhoto } = usePlantSync();
+  const { removePendingActivity, removePendingHarvest, removePendingPhoto } = usePlantSync();
+  const contentCommands = usePlantContentCommands();
   const { favorites, toggleFavorite } = useFavorites();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const navigateBackOrGrowing = () => {
@@ -222,7 +221,9 @@ export default function PlantDetailScreen() {
   }, [backendPhotos, localData.photos]);
   const mergedHarvests = useMemo(() => {
     if (!backendHarvests) return localData.harvests;
-    const syncedLocalIds = new Set(backendHarvests.map((entry: any) => entry.localId).filter(Boolean));
+    const syncedLocalIds = new Set(
+      backendHarvests.flatMap((entry: any) => [entry.localId, entry.entityUuid]).filter(Boolean)
+    );
     const pending = localData.harvests.filter((entry) => !syncedLocalIds.has(entry.id));
     const server = backendHarvests.map((entry: any) => ({
       id: String(entry._id),
@@ -238,7 +239,7 @@ export default function PlantDetailScreen() {
   const timelineData = useMemo<PlantLocalData>(() => {
     if (!backendActivities) return { ...localData, photos: mergedPhotos, harvests: mergedHarvests };
     const syncedLocalIds = new Set(
-      backendActivities.map((entry: any) => entry.localId).filter(Boolean)
+      backendActivities.flatMap((entry: any) => [entry.localId, entry.entityUuid]).filter(Boolean)
     );
     const serverEntries = backendActivities
       .filter((entry: any) => !entry.harvestRecordId)
@@ -358,6 +359,24 @@ export default function PlantDetailScreen() {
       active = false;
     };
   }, [resolvedPlantId, syncIdentity, t]);
+
+  useEffect(() => {
+    if (!resolvedPlantId || !syncIdentity || !plant?.entityUuid) return;
+    let active = true;
+    void migratePlantLocalData({
+      scope: syncIdentity.scopeKey,
+      legacyPlantId: resolvedPlantId,
+      plantUuid: plant.entityUuid,
+    }).then((result) => {
+      if (!active || result.status !== 'needs_attention') return;
+      setPhotoError(t('plant.local_load_error'));
+      setActivityError(t('plant.local_load_error'));
+      setHarvestError(t('plant.local_load_error'));
+    }).catch(() => {
+      // The read-only compatibility data remains visible and migration retries next hydration.
+    });
+    return () => { active = false; };
+  }, [plant?.entityUuid, resolvedPlantId, syncIdentity, t]);
 
 
   const currentBed = beds.find((b: any) => b._id === bedId);
@@ -556,19 +575,16 @@ export default function PlantDetailScreen() {
           : await ImagePicker.launchImageLibraryAsync({ quality: 0.7, allowsEditing: true });
 
       if (result.canceled || !result.assets?.[0]?.uri) return;
-      const newPhoto: PlantPhotoEntry = {
-        id: createLocalId(),
-        uri: result.assets[0].uri,
-        date: Date.now(),
+      if (!contentCommands || !plant?.entityUuid) throw new Error('sync_scope_unavailable');
+      await contentCommands.stageAndAddPhoto({
+        plantUuid: plant.entityUuid,
+        sourceUri: result.assets[0].uri,
+        takenAt: Date.now(),
         source: source === 'camera' ? 'camera' : 'gallery',
-      };
-      const saved = await persistLocalData(
-        (prev) => ({ ...prev, photos: [newPhoto, ...prev.photos] }),
-        setPhotoError,
-      );
-      if (saved && resolvedPlantId) {
-        await queuePhoto(resolvedPlantId, newPhoto);
-      }
+      });
+      setPhotoError(null);
+    } catch {
+      setPhotoError(t('plant.local_save_error'));
     } finally {
       setPhotoModalOpen(false);
     }
@@ -576,13 +592,16 @@ export default function PlantDetailScreen() {
 
   const handleRemovePhoto = async (photoId: string) => {
     const backendEntry = backendPhotos?.find((entry: any) => String(entry._id) === photoId);
-    if (backendEntry) {
-      await queueOperation({
+    if (backendEntry && contentCommands && plant?.entityUuid) {
+      await contentCommands.removeChild({
+        plantUuid: plant.entityUuid,
         entityType: 'photo',
         entityUuid: backendEntry.entityUuid ?? backendEntry.localId ?? `legacy:${backendEntry._id}`,
-        operationType: 'delete',
+        pendingOperationId: backendEntry._pending ? backendEntry._operationId : undefined,
+        managedUri: backendEntry.managedUri,
         baseRevision: backendEntry.revision ?? 1,
       });
+      return;
     } else if (resolvedPlantId) {
       await removePendingPhoto(resolvedPlantId, photoId);
     }
@@ -594,44 +613,37 @@ export default function PlantDetailScreen() {
 
   // Activity handlers
   const handleSaveActivity = async () => {
-    if (!canEdit) return;
+    if (!canEdit || !contentCommands || !plant?.entityUuid) return false;
     const date = parseDateInput(activityDate) ?? Date.now();
     const note = activityNote.trim() || undefined;
-    const newEntry = { id: createLocalId(), type: activityType, note, date };
-    const saved = await persistLocalData(
-      (prev) => ({ ...prev, activities: [newEntry, ...prev.activities] }),
-      setActivityError,
-    );
-    if (saved && resolvedPlantId) {
-      await queueActivity(resolvedPlantId, newEntry);
+    try {
+      await contentCommands.appendActivity({
+        plantUuid: plant.entityUuid,
+        type: activityType,
+        note,
+        date,
+      });
+      setActivityError(null);
+      return true;
+    } catch {
+      setActivityError(t('plant.local_save_error'));
+      return false;
     }
-    setActivityNote('');
-    setActivityType('watering');
-    setActivityDate(formatDateInput(Date.now()));
-    setActivityModalOpen(false);
   };
 
   const handleRemoveActivity = async (entryId: string) => {
     const backendEntry = backendActivities?.find((entry: any) => String(entry._id) === entryId);
-    if (backendEntry) {
-      await queueOperation({
+    if (backendEntry && contentCommands && plant?.entityUuid) {
+      await contentCommands.removeChild({
+        plantUuid: plant.entityUuid,
         entityType: 'activity',
         entityUuid: backendEntry.entityUuid ?? backendEntry.localId ?? `legacy:${backendEntry._id}`,
-        operationType: 'delete',
+        pendingOperationId: backendEntry._pending ? backendEntry._operationId : undefined,
         baseRevision: backendEntry.revision ?? 1,
       });
-      if (resolvedPlantId && backendEntry.localId) {
-        await removePendingActivity(resolvedPlantId, backendEntry.localId);
-        await persistLocalData(
-          (prev) => ({
-            ...prev,
-            activities: prev.activities.filter((entry) => entry.id !== backendEntry.localId),
-          }),
-          setActivityError,
-        );
-      }
       return;
     }
+    // Compatibility path for rows loaded from the legacy sidecar.
     if (resolvedPlantId) await removePendingActivity(resolvedPlantId, entryId);
     await persistLocalData(
       (prev) => ({ ...prev, activities: prev.activities.filter((e) => e.id !== entryId) }),
@@ -641,50 +653,37 @@ export default function PlantDetailScreen() {
 
   // Harvest handlers
   const handleSaveHarvest = async () => {
-    if (!canEdit) return;
+    if (!canEdit || !contentCommands || !plant?.entityUuid) return false;
     const date = parseDateInput(harvestDate) ?? Date.now();
-    const newEntry = {
-      id: createLocalId(),
-      quantity: harvestQuantity.trim() || undefined,
-      unit: harvestUnit.trim() || undefined,
-      note: harvestNote.trim() || undefined,
-      date,
-    };
-    const saved = await persistLocalData(
-      (prev) => ({ ...prev, harvests: [newEntry, ...prev.harvests] }),
-      setHarvestError,
-    );
-    if (saved && resolvedPlantId) {
-      await queueHarvest(resolvedPlantId, newEntry);
+    try {
+      await contentCommands.appendHarvest({
+        plantUuid: plant.entityUuid,
+        quantity: harvestQuantity,
+        unit: harvestUnit,
+        note: harvestNote,
+        date,
+      });
+      setHarvestError(null);
+      return true;
+    } catch {
+      setHarvestError(t('plant.local_save_error'));
+      return false;
     }
-    setHarvestQuantity('');
-    setHarvestUnit('');
-    setHarvestNote('');
-    setHarvestDate(formatDateInput(Date.now()));
-    setHarvestModalOpen(false);
   };
 
   const handleRemoveHarvest = async (entryId: string) => {
     const backendEntry = backendHarvests?.find((entry: any) => String(entry._id) === entryId);
-    if (backendEntry) {
-      await queueOperation({
+    if (backendEntry && contentCommands && plant?.entityUuid) {
+      await contentCommands.removeChild({
+        plantUuid: plant.entityUuid,
         entityType: 'harvest',
         entityUuid: backendEntry.entityUuid ?? backendEntry.localId ?? `legacy:${backendEntry._id}`,
-        operationType: 'delete',
+        pendingOperationId: backendEntry._pending ? backendEntry._operationId : undefined,
         baseRevision: backendEntry.revision ?? 1,
       });
-      if (resolvedPlantId && backendEntry.localId) {
-        await removePendingHarvest(resolvedPlantId, backendEntry.localId);
-        await persistLocalData(
-          (prev) => ({
-            ...prev,
-            harvests: prev.harvests.filter((entry) => entry.id !== backendEntry.localId),
-          }),
-          setHarvestError,
-        );
-      }
       return;
     }
+    // Compatibility path for rows loaded from the legacy sidecar.
     if (resolvedPlantId) await removePendingHarvest(resolvedPlantId, entryId);
     await persistLocalData(
       (prev) => ({ ...prev, harvests: prev.harvests.filter((e) => e.id !== entryId) }),
@@ -844,6 +843,8 @@ export default function PlantDetailScreen() {
       />
 
       <Animated.ScrollView
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 0, gap: 16, paddingBottom: 100 }}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -944,6 +945,7 @@ export default function PlantDetailScreen() {
           <View style={{ gap: 8 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.nickname_label')}</Text>
             <TextInput
+              testID="e2e-plant-nickname"
               value={nickname}
               onChangeText={setNickname}
               placeholder={t('plant.nickname_placeholder')}
@@ -955,6 +957,7 @@ export default function PlantDetailScreen() {
           <View style={{ gap: 8 }}>
             <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.notes_label')}</Text>
             <TextInput
+              testID="e2e-plant-notes"
               value={notes}
               onChangeText={setNotes}
               placeholder={t('plant.notes_placeholder')}
@@ -970,6 +973,7 @@ export default function PlantDetailScreen() {
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.expected_harvest_label')}</Text>
             </View>
             <TextInput
+              testID="e2e-plant-expected-harvest"
               value={expectedDate}
               onChangeText={setExpectedDate}
               placeholder={t('plant.expected_harvest_placeholder')}
@@ -1206,12 +1210,14 @@ export default function PlantDetailScreen() {
 
           <View style={{ gap: 12 }}>
             <TouchableOpacity
+              testID="e2e-plant-photo-camera"
               style={{ backgroundColor: theme.accent, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
               onPress={() => handleAddPhotoFrom('camera')}
             >
               <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>{t('plant.photos_source_camera')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              testID="e2e-plant-photo-gallery"
               style={{ backgroundColor: theme.accent, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
               onPress={() => handleAddPhotoFrom('library')}
             >

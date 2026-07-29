@@ -10,6 +10,11 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 }));
 vi.mock('../auth-client', () => ({ authClient: { useSession: vi.fn() } }));
 vi.mock('../deviceId', () => ({ useDeviceId: vi.fn() }));
+vi.mock('../photo/managedPlantPhotos', () => ({
+  copyManagedPlantPhotoToScope: vi.fn(async ({ managedUri, targetScope }) =>
+    `${managedUri}?scope=${encodeURIComponent(targetScope)}`),
+  clearManagedPlantPhotoScope: vi.fn(),
+}));
 
 import { claimGuestDataset, enqueueForIdentity, loadGuestClaim } from './guestClaim';
 import { loadOutbox } from './queue';
@@ -79,4 +84,3 @@ describe('guest claim', () => {
     expect(target.quarantine[0]?.lastError).toBe('claim_operation_conflict');
   });
 });
-

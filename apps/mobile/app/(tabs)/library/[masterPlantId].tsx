@@ -29,7 +29,7 @@ import {
     FlaskConical,
     MapPin,
     Dna,
-} from 'lucide-react-native';
+} from '../../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from 'convex/react';
@@ -60,9 +60,9 @@ import { useThemeContext } from '../../../lib/ThemeContext';
 import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
-import { usePlantSync } from '../../../hooks/usePlantSync';
-import { createLocalId, loadPlantLocalData, savePlantLocalData } from '../../../lib/plantLocalData';
-import { useLocalSyncIdentity } from '../../../lib/sync/identity';
+import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
+import { InputSheet } from '../../../components/ui/InputSheet';
+import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -398,7 +398,6 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function LibraryPlantDetailScreen() {
-    const { identity: syncIdentity } = useLocalSyncIdentity();
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
@@ -449,7 +448,7 @@ export default function LibraryPlantDetailScreen() {
 
     const { favorites, toggleFavorite } = useFavorites();
     const { addPlant, updatePlant } = usePlants();
-    const { queueActivity } = usePlantSync();
+    const contentCommands = usePlantContentCommands();
     const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
     const { gardens, createGarden } = useGardens();
@@ -495,7 +494,43 @@ export default function LibraryPlantDetailScreen() {
     const [gardenerExpectedDate, setGardenerExpectedDate] = useState('');
     const [activeDropdown, setActiveDropdown] = useState<'planted' | 'water' | 'growth' | null>(null);
     const [customDateEditor, setCustomDateEditor] = useState<'planted' | 'water' | null>(null);
+    const customDateOriginalRef = useRef('');
     const [gardenerGrowthStage, setGardenerGrowthStage] = useState('vegetative');
+
+    const resetGardenerDetailsDraft = useCallback(() => {
+        setGardenerNickname('');
+        setSelectedGardenId(undefined);
+        setCreateGardenMode(false);
+        setNewGardenName('');
+        setPlantedPreset('today');
+        setPlantedCustomValue('');
+        setWaterPreset('today');
+        setWaterCustomValue('');
+        setGardenerExpectedDate('');
+        setGardenerGrowthStage('vegetative');
+        setActiveDropdown(null);
+        setCustomDateEditor(null);
+    }, []);
+    const {
+        activeInputRef: gardenerInputRef,
+        close: closeGardenerDetails,
+    } = useInputModalLifecycle({
+        visible: gardenerDetailsOpen,
+        onClose: () => setGardenerDetailsOpen(false),
+        onDiscard: resetGardenerDetailsDraft,
+    });
+    const requestCloseGardenerDetails = useCallback(() => {
+        if (!addSaving) closeGardenerDetails();
+    }, [addSaving, closeGardenerDetails]);
+    const openCustomDateEditor = useCallback((kind: 'planted' | 'water') => {
+        customDateOriginalRef.current = kind === 'planted' ? plantedCustomValue : waterCustomValue;
+        setCustomDateEditor(kind);
+    }, [plantedCustomValue, waterCustomValue]);
+    const cancelCustomDateEditor = useCallback(() => {
+        if (customDateEditor === 'planted') setPlantedCustomValue(customDateOriginalRef.current);
+        if (customDateEditor === 'water') setWaterCustomValue(customDateOriginalRef.current);
+        setCustomDateEditor(null);
+    }, [customDateEditor]);
 
     const growthStageOptions = useMemo(
         () => [
@@ -638,17 +673,8 @@ export default function LibraryPlantDetailScreen() {
 
     const handleAddMyPlants = async () => {
         if (!showAdd) return;
-        setCreateGardenMode(false);
-        setNewGardenName('');
+        resetGardenerDetailsDraft();
         setSelectedGardenId(gardens.length > 0 ? String(gardens[0]._id) : undefined);
-        setPlantedPreset('today');
-        setPlantedCustomValue('');
-        setWaterPreset('today');
-        setWaterCustomValue('');
-        setGardenerExpectedDate('');
-        setGardenerGrowthStage('vegetative');
-        setActiveDropdown(null);
-        setCustomDateEditor(null);
         setGardenerDetailsOpen(true);
     };
 
@@ -700,25 +726,18 @@ export default function LibraryPlantDetailScreen() {
                                 ? daysAgoTimestamp(3)
                                 : daysAgoTimestamp(7);
             if (lastWaterAt) {
-                if (!syncIdentity) throw new Error('sync_scope_unavailable');
-                const existing = await loadPlantLocalData(syncIdentity.scopeKey, String(createdPlantId));
-                const wateringEntry = {
-                    id: createLocalId(),
+                if (!contentCommands) throw new Error('sync_scope_unavailable');
+                await contentCommands.appendActivity({
+                    plantUuid: String(createdPlantId),
                     type: 'watering' as const,
                     date: lastWaterAt,
                     note: undefined,
-                };
-                await savePlantLocalData(syncIdentity.scopeKey, String(createdPlantId), {
-                    ...existing,
-                    activities: [wateringEntry, ...existing.activities],
                 });
-                await queueActivity(String(createdPlantId), wateringEntry);
             }
             if (gardenerGrowthStage) {
-                if (!syncIdentity) throw new Error('sync_scope_unavailable');
-                const existing = await loadPlantLocalData(syncIdentity.scopeKey, String(createdPlantId));
-                const growthStageEntry = {
-                    id: createLocalId(),
+                if (!contentCommands) throw new Error('sync_scope_unavailable');
+                await contentCommands.appendActivity({
+                    plantUuid: String(createdPlantId),
                     type: 'custom' as const,
                     date:
                         plantedPreset === 'custom'
@@ -731,26 +750,9 @@ export default function LibraryPlantDetailScreen() {
                                         ? daysAgoTimestamp(7)
                                         : daysAgoTimestamp(30),
                     note: `${t('library.growth_stage', { defaultValue: 'Growth stage' })}: ${selectedGrowthStageLabel}`,
-                };
-                await savePlantLocalData(syncIdentity.scopeKey, String(createdPlantId), {
-                    ...existing,
-                    activities: [growthStageEntry, ...existing.activities],
                 });
-                await queueActivity(String(createdPlantId), growthStageEntry);
             }
-            setGardenerDetailsOpen(false);
-            setGardenerNickname('');
-            setSelectedGardenId(undefined);
-            setCreateGardenMode(false);
-            setNewGardenName('');
-            setGardenerExpectedDate('');
-            setPlantedPreset('today');
-            setPlantedCustomValue('');
-            setWaterPreset('today');
-            setWaterCustomValue('');
-            setGardenerGrowthStage('vegetative');
-            setActiveDropdown(null);
-            setCustomDateEditor(null);
+            closeGardenerDetails();
             router.replace({
                 pathname: '/(tabs)/plant/[userPlantId]',
                 params: {
@@ -1179,28 +1181,37 @@ export default function LibraryPlantDetailScreen() {
                     }
                 }}
             />
-            <Modal
+            <InputSheet
                 visible={gardenerDetailsOpen}
-                transparent
-                animationType="slide"
-                onRequestClose={() => {
-                    if (addSaving) return;
-                    setGardenerDetailsOpen(false);
-                }}
+                title={t('library.add_to_my_plants', { defaultValue: 'Add to My Plants' })}
+                onClose={requestCloseGardenerDetails}
+                closeTestID="e2e-library-gardener-details-close"
+                contentContainerStyle={{ gap: 12 }}
+                footer={(
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <TouchableOpacity
+                            onPress={requestCloseGardenerDetails}
+                            disabled={addSaving}
+                            testID="e2e-library-gardener-details-cancel"
+                            style={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: theme.border, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.background }}
+                        >
+                            <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 14 }}>{t('common.cancel')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => void handleCreateGardenerPlant()}
+                            disabled={addSaving}
+                            testID="e2e-library-gardener-details-save"
+                            style={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.primary, opacity: addSaving ? 0.7 : 1 }}
+                        >
+                            {addSaving ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('common.save')}</Text>}
+                        </TouchableOpacity>
+                    </View>
+                )}
             >
-                <Pressable
-                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
-                    onPress={() => {
-                        if (addSaving) return;
-                        setGardenerDetailsOpen(false);
-                    }}
-                />
                 <View style={{ position: 'relative', backgroundColor: theme.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: 1, borderBottomWidth: 0, borderColor: theme.border, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 24, gap: 12 }}>
-                    <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center' }} />
-                    <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>
-                        {t('library.add_to_my_plants', { defaultValue: 'Add to My Plants' })}
-                    </Text>
                     <TextInput
+                        ref={gardenerInputRef}
+                        testID="e2e-library-gardener-nickname"
                         value={gardenerNickname}
                         onChangeText={setGardenerNickname}
                         placeholder={t('plant.nickname_placeholder', { defaultValue: 'Plant name' })}
@@ -1248,6 +1259,8 @@ export default function LibraryPlantDetailScreen() {
                         ) : (
                             <View style={{ gap: 8 }}>
                                 <TextInput
+                                    ref={gardenerInputRef}
+                                    testID="e2e-library-new-garden-name"
                                     value={newGardenName}
                                     onChangeText={setNewGardenName}
                                     placeholder={t('garden.name_placeholder', { defaultValue: 'Garden name' })}
@@ -1312,32 +1325,14 @@ export default function LibraryPlantDetailScreen() {
                             {t('plant.expected_harvest_label')}
                         </Text>
                         <TextInput
+                            ref={gardenerInputRef}
+                            testID="e2e-library-expected-harvest-date"
                             value={gardenerExpectedDate}
                             onChangeText={setGardenerExpectedDate}
                             placeholder="YYYY-MM-DD"
                             placeholderTextColor={theme.textMuted}
                             style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
                         />
-                    </View>
-                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 2 }}>
-                        <TouchableOpacity
-                            onPress={() => setGardenerDetailsOpen(false)}
-                            disabled={addSaving}
-                            style={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: theme.border, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.background }}
-                        >
-                            <Text style={{ color: theme.textSecondary, fontWeight: '600', fontSize: 14 }}>{t('common.cancel')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => void handleCreateGardenerPlant()}
-                            disabled={addSaving}
-                            style={{ flex: 1, borderRadius: 12, borderWidth: 1, borderColor: theme.primary, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.primary, opacity: addSaving ? 0.7 : 1 }}
-                        >
-                            {addSaving ? (
-                                <ActivityIndicator color="#fff" />
-                            ) : (
-                                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('common.save')}</Text>
-                            )}
-                        </TouchableOpacity>
                     </View>
                     {activeDropdown !== null && (
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
@@ -1369,10 +1364,10 @@ export default function LibraryPlantDetailScreen() {
                                             onPress={() => {
                                                 if (activeDropdown === 'planted') {
                                                     setPlantedPreset(key as any);
-                                                    if (key === 'custom') setCustomDateEditor('planted');
+                                                    if (key === 'custom') openCustomDateEditor('planted');
                                                 } else if (activeDropdown === 'water') {
                                                     setWaterPreset(key as any);
-                                                    if (key === 'custom') setCustomDateEditor('water');
+                                                    if (key === 'custom') openCustomDateEditor('water');
                                                 } else {
                                                     setGardenerGrowthStage(key);
                                                 }
@@ -1392,17 +1387,19 @@ export default function LibraryPlantDetailScreen() {
                     )}
                     {customDateEditor !== null && (
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
-                            <Pressable style={{ ...{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }, backgroundColor: 'rgba(0,0,0,0.32)' }} onPress={() => setCustomDateEditor(null)} />
+                            <Pressable style={{ ...{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }, backgroundColor: 'rgba(0,0,0,0.32)' }} onPress={cancelCustomDateEditor} />
                             <View style={{ width: '100%', maxWidth: 420, backgroundColor: theme.card, borderRadius: 18, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 12, gap: 10, borderWidth: 1, borderColor: theme.border }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>
                                         {customDateEditor === 'planted' ? t('plant.planted_at_label', { defaultValue: 'Planted time' }) : 'Last time water'}
                                     </Text>
-                                    <TouchableOpacity onPress={() => setCustomDateEditor(null)} style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                    <TouchableOpacity onPress={cancelCustomDateEditor} style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                         <Text style={{ color: theme.textSecondary, fontSize: 20 }}>×</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <TextInput
+                                    ref={gardenerInputRef}
+                                    testID={`e2e-library-${customDateEditor}-custom-date`}
                                     value={customDateEditor === 'planted' ? plantedCustomValue : waterCustomValue}
                                     onChangeText={(value) => {
                                         if (customDateEditor === 'planted') setPlantedCustomValue(value);
@@ -1413,7 +1410,7 @@ export default function LibraryPlantDetailScreen() {
                                     style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, color: theme.text, fontSize: 14 }}
                                 />
                                 <View style={{ flexDirection: 'row', gap: 10, marginTop: 2 }}>
-                                    <TouchableOpacity onPress={() => setCustomDateEditor(null)} style={{ flex: 1, borderWidth: 1, borderColor: theme.border, borderRadius: 12, alignItems: 'center', paddingVertical: 11 }}>
+                                    <TouchableOpacity onPress={cancelCustomDateEditor} style={{ flex: 1, borderWidth: 1, borderColor: theme.border, borderRadius: 12, alignItems: 'center', paddingVertical: 11 }}>
                                         <Text style={{ color: theme.textSecondary, fontWeight: '600' }}>{t('common.cancel')}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => setCustomDateEditor(null)} style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 12, alignItems: 'center', paddingVertical: 11 }}>
@@ -1424,7 +1421,7 @@ export default function LibraryPlantDetailScreen() {
                         </View>
                     )}
                 </View>
-            </Modal>
+            </InputSheet>
         </View>
     );
 }

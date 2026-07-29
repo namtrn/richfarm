@@ -56,6 +56,7 @@ export function PlantPhotosSection({
                     <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.local_only')}</Text>
                 </View>
                 <TouchableOpacity
+                    testID="e2e-plant-photo-add"
                     onPress={onAddPhoto}
                     disabled={!canEdit || localSaving}
                     style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}

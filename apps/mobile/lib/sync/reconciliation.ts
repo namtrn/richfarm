@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { ConvexReactClient } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
-import type { EntityOperationPayload, EntityType } from './types';
-import { loadOutbox } from './queue';
+import type { EntityOperationPayload, EntityType, SyncPhotoPayload } from './types';
+import { loadOutbox, type OutboxEnvelope } from './queue';
 
 type SnapshotDomain = EntityType | 'tombstone';
 export type ProjectionEnvelope = {
@@ -64,14 +64,36 @@ function logicalId(row: Record<string, unknown> | undefined, fallback: string) {
 }
 
 /** Returns the server snapshot with the current outbox applied as an optimistic overlay. */
-export async function loadRenderedProjection(scope: string): Promise<ProjectionEnvelope | null> {
-  const authoritative = await loadAuthoritativeProjection(scope);
-  const outbox = await loadOutbox(scope);
+export function composeRenderedProjection(
+  scope: string,
+  authoritative: ProjectionEnvelope | null,
+  outbox: OutboxEnvelope
+): ProjectionEnvelope | null {
   if (!authoritative && outbox.operations.length === 0) return null;
   const rendered: ProjectionEnvelope = authoritative
     ? JSON.parse(JSON.stringify(authoritative))
     : emptyProjection(scope, outbox.syncGeneration ?? 'pending');
   for (const action of outbox.operations) {
+    if (action.type === 'photo' && action.plantId) {
+      const photo = action.payload as SyncPhotoPayload;
+      const plant = rendered.entities.plant[action.plantId] as Record<string, unknown> | undefined;
+      if (!plant || rendered.tombstones[`plant:${action.plantId}`]) continue;
+      rendered.entities.photo[photo.localId] = {
+        _id: photo.localId,
+        entityUuid: photo.localId,
+        localId: photo.localId,
+        userPlantId: logicalId(plant, action.plantId),
+        plantUuid: action.plantId,
+        photoUrl: photo.managedUri ?? photo.uri,
+        managedUri: photo.managedUri,
+        takenAt: photo.date,
+        source: photo.source,
+        phase: photo.phase ?? 'staged',
+        _operationId: action.id,
+        _pending: true,
+      };
+      continue;
+    }
     if (action.type !== 'entity') continue;
     const op = action.payload as EntityOperationPayload;
     const collection = rendered.entities[op.entityType];
@@ -102,6 +124,7 @@ export async function loadRenderedProjection(scope: string): Promise<ProjectionE
       ...payload,
       _id: logicalId(current, op.entityUuid),
       entityUuid: op.entityUuid,
+      _operationId: action.id,
       revision: current.revision ?? op.baseRevision ?? 0,
       _pending: true,
     };
@@ -123,6 +146,14 @@ export async function loadRenderedProjection(scope: string): Promise<ProjectionE
     collection[op.entityUuid] = row;
   }
   return rendered;
+}
+
+export async function loadRenderedProjection(scope: string): Promise<ProjectionEnvelope | null> {
+  const [authoritative, outbox] = await Promise.all([
+    loadAuthoritativeProjection(scope),
+    loadOutbox(scope),
+  ]);
+  return composeRenderedProjection(scope, authoritative, outbox);
 }
 
 export async function reconcileAuthoritativeSnapshot(input: {

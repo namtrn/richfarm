@@ -1,19 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
     TextInput,
-    Modal,
-    Pressable,
     ActivityIndicator,
     Alert,
-    Animated,
-    PanResponder,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PlantLocalData } from '../../lib/plantLocalData';
 import { useTheme } from '../../lib/theme';
+import { InputSheet } from '../ui/InputSheet';
+import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 
 type Props = {
     localData: PlantLocalData;
@@ -32,7 +30,7 @@ type Props = {
     onChangeUnit: (v: string) => void;
     onChangeNote: (v: string) => void;
     onChangeDate: (v: string) => void;
-    onSave: () => void;
+    onSave: () => Promise<boolean>;
     onRemove: (id: string) => void;
     formatDate: (value?: number) => string;
 };
@@ -60,39 +58,20 @@ export function PlantHarvestSection({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
-    const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
-
-    useEffect(() => {
-        if (!modalOpen) {
-            pan.setValue({ x: 0, y: 0 });
-        }
-    }, [modalOpen, pan]);
-
-    const closeModal = () => {
-        pan.setValue({ x: 0, y: 0 });
-        onCloseModal();
+    const resetDraft = useCallback(() => {
+        onChangeQuantity('');
+        onChangeUnit('');
+        onChangeNote('');
+        onChangeDate(formatDate(Date.now()));
+    }, [formatDate, onChangeDate, onChangeNote, onChangeQuantity, onChangeUnit]);
+    const { activeInputRef: dateInputRef, close: closeModal } = useInputModalLifecycle({
+        visible: modalOpen,
+        onClose: onCloseModal,
+        onDiscard: resetDraft,
+    });
+    const handleSave = async () => {
+        if (await onSave()) closeModal();
     };
-
-    const panResponder = useRef(
-        PanResponder.create({
-            onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-            onPanResponderMove: (_, gestureState) => {
-                if (gestureState.dy > 0) {
-                    pan.setValue({ x: 0, y: gestureState.dy });
-                }
-            },
-            onPanResponderRelease: (_, gestureState) => {
-                if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-                    closeModal();
-                } else {
-                    Animated.spring(pan, {
-                        toValue: { x: 0, y: 0 },
-                        useNativeDriver: false,
-                    }).start();
-                }
-            },
-        })
-    ).current;
 
     const confirmRemove = (id: string) => {
         Alert.alert(
@@ -114,6 +93,7 @@ export function PlantHarvestSection({
                         <Text style={{ fontSize: 11, color: theme.textMuted, marginTop: 2, fontWeight: '500' }}>{t('plant.synced_across_devices', { defaultValue: 'Synced across devices' })}</Text>
                     </View>
                     <TouchableOpacity
+                        testID="e2e-plant-harvest-add"
                         onPress={onOpenModal}
                         disabled={!canEdit || localSaving}
                         style={{ backgroundColor: theme.primary, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
@@ -132,7 +112,7 @@ export function PlantHarvestSection({
                         {localData.harvests.map((entry) => {
                             const quantityLine = [entry.quantity, entry.unit].filter(Boolean).join(' ');
                             return (
-                                <View key={entry.id} style={{ backgroundColor: theme.background, borderRadius: 10, padding: 14, borderWidth: 1, borderColor: theme.border }}>
+                                <View key={entry.id} testID={`e2e-plant-harvest-entry-${entry.id}`} style={{ backgroundColor: theme.background, borderRadius: 10, padding: 14, borderWidth: 1, borderColor: theme.border }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <Text style={{ fontSize: 15, fontWeight: '500', color: theme.text }}>
                                             {quantityLine || '--'}
@@ -157,39 +137,37 @@ export function PlantHarvestSection({
                 )}
             </View>
 
-            <Modal
+            <InputSheet
                 visible={modalOpen}
-                transparent
-                animationType="slide"
-                onRequestClose={closeModal}
+                title={t('plant.harvest_add')}
+                onClose={closeModal}
+                closeTestID="e2e-plant-harvest-close"
+                contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
+                footer={(
+                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
+                        <TouchableOpacity onPress={closeModal} style={{ flex: 1, borderRadius: 10, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
+                            <Text style={{ fontSize: 15, fontWeight: '500', color: theme.textSecondary }}>{t('common.cancel')}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            disabled={!canEdit || localSaving}
+                            onPress={handleSave}
+                            testID="e2e-plant-harvest-save"
+                            style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: '500', fontSize: 15 }}>{t('plant.harvest_save')}</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             >
-                <Pressable
-                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
-                    onPress={closeModal}
-                />
-                <Animated.View
-                    {...panResponder.panHandlers}
-                    style={{
-                        backgroundColor: theme.card,
-                        borderTopLeftRadius: 12,
-                        borderTopRightRadius: 12,
-                        paddingHorizontal: 20,
-                        paddingTop: 16,
-                        paddingBottom: 40,
-                        gap: 20,
-                        transform: [{ translateY: pan.y }],
-                    }}
-                >
-                    <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: theme.border, alignSelf: 'center', marginBottom: -4 }} />
-                    <Text style={{ fontSize: 20, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>{t('plant.harvest_add')}</Text>
-
                     <View style={{ gap: 8 }}>
                         <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>{t('plant.harvest_date_label')}</Text>
                         <TextInput
+                            ref={dateInputRef}
                             value={harvestDate}
                             onChangeText={onChangeDate}
                             placeholder={t('plant.expected_harvest_placeholder')}
                             placeholderTextColor={theme.textMuted}
+                            testID="e2e-plant-harvest-date-input"
                             style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                         />
                     </View>
@@ -203,6 +181,7 @@ export function PlantHarvestSection({
                                 placeholder={t('plant.harvest_quantity_placeholder')}
                                 placeholderTextColor={theme.textMuted}
                                 keyboardType="numeric"
+                                testID="e2e-plant-harvest-quantity-input"
                                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                             />
                         </View>
@@ -213,6 +192,7 @@ export function PlantHarvestSection({
                                 onChangeText={onChangeUnit}
                                 placeholder={t('plant.harvest_unit_placeholder')}
                                 placeholderTextColor={theme.textMuted}
+                                testID="e2e-plant-harvest-unit-input"
                                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                             />
                         </View>
@@ -226,27 +206,12 @@ export function PlantHarvestSection({
                             placeholder={t('plant.harvest_note_placeholder')}
                             placeholderTextColor={theme.textMuted}
                             multiline
+                            testID="e2e-plant-harvest-note-input"
                             style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text, minHeight: 80, textAlignVertical: 'top' }}
                         />
                     </View>
 
-                    <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
-                        <TouchableOpacity
-                            onPress={closeModal}
-                            style={{ flex: 1, borderRadius: 10, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
-                        >
-                            <Text style={{ fontSize: 15, fontWeight: '500', color: theme.textSecondary }}>{t('common.cancel')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            disabled={!canEdit || localSaving}
-                            onPress={onSave}
-                            style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canEdit || localSaving) ? 0.6 : 1 }}
-                        >
-                            <Text style={{ color: '#fff', fontWeight: '500', fontSize: 15 }}>{t('plant.harvest_save')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                </Animated.View>
-            </Modal>
+            </InputSheet>
         </>
     );
 }

@@ -3,7 +3,9 @@ import type { LocalSyncIdentity } from './identity';
 import { rotateGuestDatasetId } from './identity';
 import { clearSyncNamespace, enqueueSyncAction, loadOutbox, updateOutbox, type OutboxEnvelope } from './queue';
 import type { SyncAction } from './types';
+import type { SyncPhotoPayload } from './types';
 import { clearPlantLocalData, loadPlantLocalData, savePlantLocalData, type PlantLocalData } from '../plantLocalData';
+import { clearManagedPlantPhotoScope, copyManagedPlantPhotoToScope } from '../photo/managedPlantPhotos';
 
 const CLAIM_PREFIX = 'rf_guest_claim_v1_';
 let claimChain: Promise<void> = Promise.resolve();
@@ -134,6 +136,21 @@ function mergeActions(
   return { merged, conflicts };
 }
 
+async function remapManagedPhotoActions(actions: SyncAction[], targetScope: string) {
+  return Promise.all(actions.map(async (action) => {
+    if (action.type !== 'photo' || !action.plantId) return action;
+    const payload = action.payload as SyncPhotoPayload;
+    if (!payload.managedUri) return action;
+    const managedUri = await copyManagedPlantPhotoToScope({
+      managedUri: payload.managedUri,
+      targetScope,
+      plantUuid: action.plantId,
+      photoUuid: payload.localId,
+    });
+    return { ...action, payload: { ...payload, managedUri } };
+  }));
+}
+
 export async function claimGuestDataset(
   guest: Extract<LocalSyncIdentity, { kind: 'guest' }>,
   account: Extract<LocalSyncIdentity, { kind: 'account' }>
@@ -176,11 +193,15 @@ export async function claimGuestDataset(
       account.scopeKey,
       [...source.operations, ...source.quarantine]
     );
+    const [targetOperations, targetQuarantine] = await Promise.all([
+      remapManagedPhotoActions(source.operations, account.scopeKey),
+      remapManagedPhotoActions(source.quarantine, account.scopeKey),
+    ]);
 
     const imported = await updateOutbox(account.scopeKey, (target) => {
-      const operations = mergeActions(target.operations, source.operations);
+      const operations = mergeActions(target.operations, targetOperations);
       const quarantined = mergeActions(target.quarantine, [
-        ...source.quarantine,
+        ...targetQuarantine,
         ...operations.conflicts,
       ]);
       return {
@@ -206,19 +227,29 @@ export async function claimGuestDataset(
 }
 
 export async function enqueueForIdentity(identity: LocalSyncIdentity, action: SyncAction) {
+  return runForIdentityDestination(identity, async (destination) => {
+    await enqueueSyncAction(action, destination);
+    return destination;
+  });
+}
+
+export async function runForIdentityDestination<T>(
+  identity: LocalSyncIdentity,
+  runAtDestination: (scope: string) => Promise<T>,
+) {
   const run = async () => {
-    if (identity.kind === 'account') {
-      await enqueueSyncAction(action, identity.scopeKey);
-      return;
-    }
+    if (identity.kind === 'account') return runAtDestination(identity.scopeKey);
     const claim = await loadGuestClaim(identity.guestDatasetId);
     const destination = claim?.targetScopeKey && claim.status !== 'complete'
       ? claim.targetScopeKey
       : identity.scopeKey;
-    await enqueueSyncAction(action, destination);
+    return runAtDestination(destination);
   };
-  claimChain = claimChain.then(run, run);
+  let value!: T;
+  const capture = async () => { value = await run(); };
+  claimChain = claimChain.then(capture, capture);
   await claimChain;
+  return value;
 }
 
 export async function completeGuestClaim(args: {
@@ -252,6 +283,7 @@ export async function completeGuestClaim(args: {
   await saveClaim(finalizing);
   await rotateGuestDatasetId(record.guestDatasetId);
   await clearSyncNamespace(record.sourceScopeKey);
+  clearManagedPlantPhotoScope(record.sourceScopeKey);
   for (const plantId of record.sourcePlantIds ?? []) {
     await clearPlantLocalData(record.sourceScopeKey, plantId);
   }

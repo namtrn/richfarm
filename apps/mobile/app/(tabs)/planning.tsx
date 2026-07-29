@@ -1,5 +1,5 @@
-﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal, Pressable, Image, Alert, PanResponder, Animated, StyleSheet } from 'react-native';
-import { Plus, Calendar, Leaf, X } from 'lucide-react-native';
+﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal, Pressable, Image, Alert } from 'react-native';
+import { Plus, Calendar, Leaf } from '../../lib/icons';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useQuery, useAction } from 'convex/react';
 import { usePlants } from '../../hooks/usePlants';
@@ -20,6 +20,8 @@ import { normalizeCustomPlantNickname, useAddPlantFlow } from '../../hooks/useAd
 
 import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
+import { InputSheet } from '../../components/ui/InputSheet';
+import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 
 export default function PlanningScreen() {
   const { t, i18n } = useTranslation();
@@ -72,32 +74,22 @@ export default function PlanningScreen() {
     [plants]
   );
 
-  const pan = useRef(new Animated.ValueXY()).current;
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 5,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          pan.setValue({ x: 0, y: gestureState.dy });
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 120 || gestureState.vy > 0.5) {
-          setSheetOpen(false);
-          setPhotoOpen(false);
-          Animated.timing(pan, { toValue: { x: 0, y: 500 }, duration: 200, useNativeDriver: false }).start();
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-        }
-      },
-    })
-  ).current;
-
-  useEffect(() => {
-    if (sheetOpen || photoOpen) {
-      pan.setValue({ x: 0, y: 0 });
-    }
-  }, [sheetOpen, photoOpen, pan]);
+  const resetQuickDraft = useCallback(() => setNickname(''), []);
+  const { activeInputRef: nicknameInputRef, close: closeQuickSheet } = useInputModalLifecycle({
+    visible: sheetOpen,
+    onClose: () => setSheetOpen(false),
+    onDiscard: resetQuickDraft,
+  });
+  const resetPhotoDraft = useCallback(() => {
+    setPhotoUri(null);
+    setDetectedName(t('planning.unknown_plant'));
+    setDetectNoMatch(false);
+  }, [t]);
+  const { activeInputRef: detectedNameInputRef, close: closePhotoSheet } = useInputModalLifecycle({
+    visible: photoOpen,
+    onClose: () => setPhotoOpen(false),
+    onDiscard: resetPhotoDraft,
+  });
 
   const normalize = (value: string) =>
     value
@@ -121,8 +113,7 @@ export default function PlanningScreen() {
     setSaving(true);
     try {
       await createUserPlant({ nickname: nickname.trim() });
-      setNickname('');
-      setSheetOpen(false);
+      closeQuickSheet();
     } finally {
       setSaving(false);
     }
@@ -146,7 +137,7 @@ export default function PlanningScreen() {
 
   const handleSearchLibrary = () => {
     if (!canCreatePlant) return;
-    setSheetOpen(false);
+    closeQuickSheet();
     openLibrarySelect({ mode: 'select', from: 'planning' });
   };
 
@@ -221,7 +212,7 @@ export default function PlanningScreen() {
       return;
     }
     setAiLimitError('');
-    setSheetOpen(false);
+    closeQuickSheet();
     setScanSourceOpen(true);
   };
 
@@ -294,8 +285,7 @@ export default function PlanningScreen() {
     if (hasDetectedName) {
       const matchedPlant = findLibraryMatchByName(detected);
       if (matchedPlant) {
-        setPhotoOpen(false);
-        setPhotoUri(null);
+        closePhotoSheet();
         setAiSessionActive(false);
         setAiLimitError('');
         openLibraryMatch(String(matchedPlant._id), {
@@ -317,8 +307,7 @@ export default function PlanningScreen() {
       await createUserPlant({
         nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
       });
-      setPhotoOpen(false);
-      setPhotoUri(null);
+      closePhotoSheet();
       setAiSessionActive(false);
       setAiLimitError('');
       setDetectNoMatch(false);
@@ -469,6 +458,7 @@ export default function PlanningScreen() {
               {plannedPlants.map((plant) => (
                 <TouchableOpacity
                   key={plant._id}
+                  testID="e2e-planning-plant-card"
                   onPress={() =>
                     router.push({
                       pathname: '/(tabs)/plant/[userPlantId]',
@@ -498,27 +488,23 @@ export default function PlanningScreen() {
         </View>
       </ScrollView>
 
-      {/* Bottom Sheet Modal */}
-      <Modal
+      <InputSheet
         visible={sheetOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSheetOpen(false)}
-      >
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setSheetOpen(false)} />
-          <Animated.View
-            {...panResponder.panHandlers}
-            style={{ backgroundColor: theme.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40, gap: 20, transform: [{ translateY: pan.y }] }}
+        title={t('planning.modal_title')}
+        onClose={closeQuickSheet}
+        closeTestID="e2e-planning-quick-close"
+        contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
+        footer={(
+          <TouchableOpacity
+            style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.6 : 1, marginTop: 8 }}
+            disabled={!canCreatePlant || !nickname.trim() || saving}
+            onPress={handleAddPlant}
+            testID="e2e-planning-confirm-add"
           >
-            <View style={{ width: 40, height: 5, borderRadius: 2.5, backgroundColor: theme.border, alignSelf: 'center', marginBottom: 4 }} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.modal_title')}</Text>
-              <TouchableOpacity onPress={() => setSheetOpen(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-                <X size={20} stroke={theme.textSecondary} />
-              </TouchableOpacity>
-            </View>
-
+            {saving ? <ActivityIndicator color="white" /> : <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' }}>{t('planning.add_confirm')}</Text>}
+          </TouchableOpacity>
+        )}
+      >
             <View style={{ gap: 12 }}>
               <TouchableOpacity
                 style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
@@ -550,6 +536,7 @@ export default function PlanningScreen() {
             <View style={{ gap: 8, marginTop: 4 }}>
               <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.quick_input_label')}</Text>
               <TextInput
+                ref={nicknameInputRef}
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 placeholder={t('planning.quick_input_placeholder')}
                 placeholderTextColor={theme.textMuted}
@@ -559,21 +546,7 @@ export default function PlanningScreen() {
               />
             </View>
 
-            <TouchableOpacity
-              style={{ backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || !nickname.trim() || saving) ? 0.6 : 1, marginTop: 8 }}
-              disabled={!canCreatePlant || !nickname.trim() || saving}
-              onPress={handleAddPlant}
-              testID="e2e-planning-confirm-add"
-            >
-              {saving ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16, textAlign: 'center' }}>{t('planning.add_confirm')}</Text>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-      </Modal>
+      </InputSheet>
 
       <Modal
         visible={scanSourceOpen}
@@ -592,25 +565,13 @@ export default function PlanningScreen() {
         </View>
       </Modal>
 
-      <Modal
+      <InputSheet
         visible={photoOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setPhotoOpen(false)}
+        title={t('planning.detect_title')}
+        onClose={closePhotoSheet}
+        closeTestID="e2e-planning-photo-close"
+        contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       >
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setPhotoOpen(false)} />
-          <Animated.View
-            {...panResponder.panHandlers}
-            style={{ backgroundColor: theme.card, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40, gap: 20, transform: [{ translateY: pan.y }] }}
-          >
-            <View style={{ width: 40, height: 5, borderRadius: 2.5, backgroundColor: theme.border, alignSelf: 'center', marginBottom: 4 }} />
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text, letterSpacing: -0.5 }}>{t('planning.detect_title')}</Text>
-              <TouchableOpacity onPress={() => setPhotoOpen(false)} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-                <X size={20} stroke={theme.textSecondary} />
-              </TouchableOpacity>
-            </View>
             {photoUri && (
               <Image
                 source={{ uri: photoUri }}
@@ -621,6 +582,7 @@ export default function PlanningScreen() {
             <View style={{ gap: 12 }}>
               <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500', textAlign: 'center' }}>{t('planning.detect_hint')}</Text>
               <TextInput
+                ref={detectedNameInputRef}
                 style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
                 placeholder={t('planning.detect_name_placeholder')}
                 placeholderTextColor={theme.textMuted}
@@ -629,6 +591,7 @@ export default function PlanningScreen() {
                   setDetectedName(value);
                   if (detectNoMatch) setDetectNoMatch(false);
                 }}
+                testID="e2e-planning-detected-name-input"
               />
             </View>
             {detectNoMatch && (
@@ -643,7 +606,7 @@ export default function PlanningScreen() {
                 <TouchableOpacity
                   style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
                   onPress={() => {
-                    setPhotoOpen(false);
+                    closePhotoSheet();
                     openLibrarySelect({
                       mode: 'select',
                       from: 'scanner',
@@ -687,9 +650,7 @@ export default function PlanningScreen() {
                 )}
               </TouchableOpacity>
             </View>
-          </Animated.View>
-        </View>
-      </Modal>
+      </InputSheet>
 
     </>
   );
