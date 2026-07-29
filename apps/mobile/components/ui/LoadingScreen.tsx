@@ -1,5 +1,5 @@
 import { View, Text, ActivityIndicator } from 'react-native';
-import { Leaf } from 'lucide-react-native';
+import { Leaf } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../lib/theme';
 
@@ -17,7 +17,7 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
             <View style={{ width: 80, height: 80, backgroundColor: theme.primary, borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}>
                 <Leaf size={40} stroke="white" />
             </View>
-            <Text style={{ fontSize: 24, fontWeight: '500', color: theme.text }}>Richfarm</Text>
+            <Text style={{ fontSize: 24, fontWeight: '500', color: theme.text }}>RichFarm</Text>
             <ActivityIndicator size="large" color={theme.primary} />
             <Text style={{ fontSize: 14, color: theme.textSecondary }}>{loadingMessage}</Text>
         </View>

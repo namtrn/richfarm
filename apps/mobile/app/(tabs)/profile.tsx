@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert, Linking, AppState, Image } from 'react-native';
-import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff, Sprout, Cloud } from 'lucide-react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Pressable, Alert, Linking, AppState, Image, Dimensions } from 'react-native';
+import { UserRound, Globe, Clock, Save, Ruler, ChevronDown, ChevronUp, Check, Sun, Moon, Monitor, Crown, CloudSun, Lock, Bell, Mail, Bug, FileText, Shield, Eye, EyeOff, Sprout, Cloud } from '../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from 'convex/react';
 import { api } from '../../../../packages/convex/convex/_generated/api';
@@ -16,12 +16,13 @@ import { getAuthClient } from '../../lib/auth-client';
 import { clearCachedCurrentUser } from '../../lib/authCache';
 import { useTheme } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
-import { getCachedUnitSystemPreference, hydrateUnitSystemPreference, setUnitSystemPreference } from '../../lib/unitPreference';
+import type { ThemePreference } from '../../lib/ThemeContext';
 import { usePathname, useRouter } from 'expo-router';
 import { useAppMode } from '../../hooks/useAppMode';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { type AppMode } from '../../lib/appMode';
 import * as Notifications from 'expo-notifications';
+import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import { TimezoneModal } from '../../components/ui/TimezoneModal';
 import { useReminders } from '../../hooks/useReminders';
@@ -43,7 +44,7 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { themePreference, setThemePreference: setGlobalTheme } = useThemeContext();
-  const { user, deviceId, updateProfile, isLoading } = useAuth();
+  const { user, session, isAuthenticated, deviceId, updateProfile, isLoading } = useAuth();
   const { identity: syncIdentity } = useLocalSyncIdentity();
   const { execute: executeSyncNow } = useSyncExecutor();
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
@@ -69,13 +70,16 @@ export default function ProfileScreen() {
   const [name, setName] = useState(user?.name ?? '');
   const [timezone, setTimezone] = useState(user?.timezone ?? '');
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(
-    resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
+    resolveUnitSystem(settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined)
   );
   const [temperatureUnit, setTemperatureUnit] = useState<'C' | 'F'>(settings?.temperatureUnit === 'F' ? 'F' : 'C');
-  const [localThemePref, setLocalThemePref] = useState<string>(settings?.theme ?? 'system');
+  const [localThemePref, setLocalThemePref] = useState<ThemePreference>(settings?.theme ?? 'system');
   const [saving, setSaving] = useState(false);
-  const isAnonymous = !user || user.isAnonymous;
-  const displayName = isAnonymous ? t('profile.anonymous') : (user?.name || t('home.welcome_default'));
+  const sessionUser = session?.user as { name?: string; email?: string; image?: string } | undefined;
+  const isAnonymous = !isAuthenticated;
+  const displayName = isAnonymous
+    ? t('profile.anonymous')
+    : (user?.name || sessionUser?.name || t('home.welcome_default'));
   const initials = displayName
     .split(' ')
     .slice(0, 2)
@@ -92,6 +96,17 @@ export default function ProfileScreen() {
   const [switchingMode, setSwitchingMode] = useState(false);
   const { showWeatherCard, setWeatherCardVisible, isSaving: isUpdatingWeatherCard } = useWeatherCardPreference();
   const [timezoneModalOpen, setTimezoneModalOpen] = useState(false);
+  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+  const [gardenCheckMenuOpen, setGardenCheckMenuOpen] = useState(false);
+  const [settingsPage, setSettingsPage] = useState(0);
+  const settingsPagerRef = useRef<ScrollView>(null);
+  const settingsPageWidth = Dimensions.get('window').width;
+
+  const closePreferenceMenus = useCallback(() => {
+    setLanguageMenuOpen(false);
+    setThemeMenuOpen(false);
+    setGardenCheckMenuOpen(false);
+  }, []);
 
   // Change password
   const [showChangePw, setShowChangePw] = useState(false);
@@ -105,7 +120,7 @@ export default function ProfileScreen() {
   // Notification permission
   const [notifStatus, setNotifStatus] = useState<'enabled' | 'provisional' | 'denied' | 'undetermined'>('undetermined');
 
-  const email = user?.email ?? '—';
+  const email = user?.email ?? sessionUser?.email ?? '—';
   const appVersion = Constants.expoConfig?.version ?? Constants.manifest?.version ?? '—';
   const selectedLang = useMemo(
     () => LANGUAGES.find((l) => l.code === currentLang) ?? LANGUAGES[0],
@@ -182,24 +197,41 @@ export default function ProfileScreen() {
   }, [refreshNotificationStatus]);
 
   useEffect(() => {
-    setUnitSystem(resolveUnitSystem(getCachedUnitSystemPreference() ?? settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
+    setUnitSystem(resolveUnitSystem(settings?.unitSystem ?? undefined, currentLang, getLocales()[0]?.regionCode ?? undefined));
     // Note: themePreference local state is only used for the unit/save flow;
     // the live theme is controlled by ThemeContext (already synced there).
-    setLocalThemePref(settings?.theme ?? 'system');
+    setLocalThemePref(
+      settings?.theme === 'light' || settings?.theme === 'dark' ? settings.theme : 'system'
+    );
     setTemperatureUnit(settings?.temperatureUnit === 'F' ? 'F' : 'C');
   }, [settings?.unitSystem, settings?.temperatureUnit, settings?.theme, currentLang]);
-
-  useEffect(() => {
-    void hydrateUnitSystemPreference().then((cached) => {
-      if (!cached) return;
-      setUnitSystem(resolveUnitSystem(cached, currentLang, getLocales()[0]?.regionCode ?? undefined));
-    });
-  }, [currentLang]);
 
   const handleLanguageChange = async (code: string) => {
     if (code === currentLang) return;
     i18n.changeLanguage(code);
     await updateProfile({ locale: code });
+  };
+
+  const handlePickAvatar = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(t('profile.avatar_permission_title', 'Photo access needed'), t('profile.avatar_permission_desc', 'Allow photo access to choose a profile picture.'));
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    const uri = result.canceled ? undefined : result.assets?.[0]?.uri;
+    if (uri) await updateProfile({ avatarUrl: uri });
+  };
+
+  const goToSettingsPage = (page: number) => {
+    closePreferenceMenus();
+    setSettingsPage(page);
+    settingsPagerRef.current?.scrollTo({ x: page * settingsPageWidth, animated: true });
   };
 
   const handleSave = async () => {
@@ -210,7 +242,6 @@ export default function ProfileScreen() {
         locale: currentLang,
         timezone: timezone.trim() || undefined,
       });
-      await setUnitSystemPreference(unitSystem);
       await updateSettings({ unitSystem, temperatureUnit, theme: localThemePref });
     } finally {
       setSaving(false);
@@ -390,25 +421,53 @@ export default function ProfileScreen() {
   return (
     <ScrollView
       ref={scrollRef}
+      keyboardShouldPersistTaps="handled"
+      automaticallyAdjustKeyboardInsets
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 16 }}
     >
-      <View style={{ gap: 16 }}>
+      <View style={{ gap: 14 }}>
+        <View style={{ gap: 10 }}>
+          <Text style={{ fontSize: 24, fontWeight: '800', color: theme.text }}>{t('profile.settings_title', 'Settings')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            {[t('profile.settings_profile', 'Profile'), t('profile.settings_appearance', 'Appearance'), t('profile.settings_garden', 'Garden & App'), t('profile.settings_more', 'More')].map((label, index) => (
+              <TouchableOpacity key={label} onPress={() => goToSettingsPage(index)} style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, backgroundColor: settingsPage === index ? theme.primary : theme.accent }}>
+                <Text style={{ color: settingsPage === index ? '#fff' : theme.textSecondary, fontWeight: '700', fontSize: 13 }}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
+            {[0, 1, 2, 3].map((page) => <View key={page} style={{ width: page === settingsPage ? 18 : 6, height: 6, borderRadius: 3, backgroundColor: page === settingsPage ? theme.primary : theme.border }} />)}
+          </View>
+        </View>
+        <ScrollView
+          ref={settingsPagerRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled
+          onMomentumScrollEnd={(event) => {
+            closePreferenceMenus();
+            setSettingsPage(Math.round(event.nativeEvent.contentOffset.x / settingsPageWidth));
+          }}
+          style={{ marginHorizontal: -16 }}
+        >
+          <View style={{ width: settingsPageWidth, paddingHorizontal: 16, gap: 16 }}>
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: theme.accent, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
-              {(user?.image || user?.avatarUrl) ? (
-                <Image source={{ uri: user?.image || user?.avatarUrl }} style={{ width: '100%', height: '100%' }} />
+            <TouchableOpacity onPress={handlePickAvatar} accessibilityLabel={t('profile.change_avatar', 'Change avatar')} style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: theme.accent, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+              {(user?.image || user?.avatarUrl || sessionUser?.image) ? (
+                <Image source={{ uri: user?.image || user?.avatarUrl || sessionUser?.image }} style={{ width: '100%', height: '100%' }} />
               ) : (
                 <Text style={{ fontSize: 20, fontWeight: '500', color: theme.primary }}>{initials}</Text>
               )}
-            </View>
+            </TouchableOpacity>
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>
-                {isAnonymous ? t('profile.not_signed_in') : (user?.name || t('profile.user_section'))}
+                {isAnonymous ? t('profile.not_signed_in') : (user?.name || sessionUser?.name || t('profile.user_section'))}
               </Text>
               {!isAnonymous && (
-                <Text style={{ fontSize: 13, color: theme.textSecondary }}>{email}</Text>
+                <Text testID="e2e-profile-signed-in-email" style={{ fontSize: 13, color: theme.textSecondary }}>{email}</Text>
               )}
               {isAnonymous && (
                 <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.auth_create_to_sync')}</Text>
@@ -422,9 +481,10 @@ export default function ProfileScreen() {
                   setAuthMessage(null);
                   router.push({ pathname: '/auth', params: { returnTo: pathname } });
                 }}
-                style={{ backgroundColor: theme.text, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
+                testID="e2e-profile-auth-cta"
+                style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}
               >
-                <Text style={{ color: theme.card, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_in_or_create')}</Text>
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_in_or_create')}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -433,6 +493,7 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 onPress={handleSignOut}
                 disabled={authLoading}
+                testID="e2e-profile-sign-out"
                 style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
               >
                 <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.auth_sign_out')}</Text>
@@ -450,11 +511,9 @@ export default function ProfileScreen() {
 
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.subscription_title')}</Text>
-
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>
             {!isSubConfigured ? t('profile.sub_not_configured') : isSubLoading ? t('profile.sub_checking') : isPremium ? t('profile.sub_premium_active') : t('profile.sub_free_plan')}
           </Text>
-
           <TouchableOpacity
             onPress={handlePaywall}
             disabled={!isSubConfigured || isPresenting || isSubLoading}
@@ -462,7 +521,6 @@ export default function ProfileScreen() {
           >
             <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{isPremium ? t('profile.sub_manage') : t('profile.sub_upgrade')}</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             onPress={handleRestorePurchases}
             disabled={!isSubConfigured || isPresenting || isSubLoading}
@@ -470,15 +528,24 @@ export default function ProfileScreen() {
           >
             <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.sub_restore')}</Text>
           </TouchableOpacity>
-
           {paywallMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{paywallMessage}</Text>}
         </View>
+
+          </View>
+          <View style={{ width: settingsPageWidth, paddingHorizontal: 16, gap: 16 }}>
 
         {/* ── Preferences ─────────────────────────────────── */}
         <View
           onLayout={(event) => { preferencesY.current = event.nativeEvent.layout.y; }}
-          style={{ paddingHorizontal: 2, gap: 10 }}
+          style={{ paddingHorizontal: 2, gap: 10, position: 'relative' }}
         >
+          {(languageMenuOpen || themeMenuOpen || gardenCheckMenuOpen) && (
+            <Pressable
+              accessibilityLabel={t('common.close', 'Close')}
+              onPress={closePreferenceMenus}
+              style={{ position: 'absolute', top: 0, left: -16, right: -16, bottom: 0, zIndex: 5 }}
+            />
+          )}
           <Text style={{ fontSize: 18, fontWeight: '700', color: theme.text }}>{t('profile.preferences_title')}</Text>
           <View
             onLayout={(event) => { preferencesContentY.current = event.nativeEvent.layout.y; }}
@@ -493,8 +560,13 @@ export default function ProfileScreen() {
                   <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.language_label')}</Text>
                 </View>
                 <TouchableOpacity
-                  onPress={() => setLanguageMenuOpen((v) => !v)}
-                  style={{ backgroundColor: 'white', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border }}
+                  onPress={() => {
+                    const shouldOpen = !languageMenuOpen;
+                    closePreferenceMenus();
+                    setLanguageMenuOpen(shouldOpen);
+                  }}
+                  testID="e2e-profile-language-selector"
+                  style={{ backgroundColor: theme.card, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border }}
                 >
                   <Text style={{ fontSize: 16 }}>{selectedLang.flag}</Text>
                   <Text style={{ fontSize: 14, color: theme.text }}>{selectedLang.label}</Text>
@@ -518,7 +590,6 @@ export default function ProfileScreen() {
                         <Text style={{ flex: 1, fontSize: 14, fontWeight: active ? '700' : '400', color: active ? theme.success : theme.text }}>
                           {lang.label}
                         </Text>
-                        {active && <Check size={16} color={theme.success} />}
                       </TouchableOpacity>
                     );
                   })}
@@ -533,8 +604,9 @@ export default function ProfileScreen() {
               </View>
               <TouchableOpacity
                 onPress={() => setTimezoneModalOpen(true)}
+                testID="e2e-profile-timezone-selector"
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: theme.card,
                   borderRadius: 20,
                   paddingHorizontal: 12,
                   paddingVertical: 6,
@@ -562,9 +634,11 @@ export default function ProfileScreen() {
                   return (
                     <TouchableOpacity
                       key={unit}
+                      testID={`e2e-profile-unit-${unit}`}
+                      accessibilityState={{ selected: active }}
                       onPress={() => {
                         setUnitSystem(unit);
-                        void setUnitSystemPreference(unit);
+                        void updateSettings({ unitSystem: unit });
                       }}
                       style={{
                         paddingHorizontal: 12,
@@ -629,6 +703,8 @@ export default function ProfileScreen() {
                   return (
                     <TouchableOpacity
                       key={item.label}
+                      testID={`e2e-profile-weather-${item.value ? 'show' : 'hide'}`}
+                      accessibilityState={{ selected: active }}
                       onPress={() => {
                         void handleWeatherCardVisibility(item.value);
                       }}
@@ -709,69 +785,101 @@ export default function ProfileScreen() {
               onLayout={(event) => {
                 gardenCheckY.current = preferencesY.current + preferencesContentY.current + event.nativeEvent.layout.y;
               }}
-              style={{ gap: 10, paddingTop: 4 }}
+              style={{ gap: 8, paddingTop: 4, zIndex: 20 }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Sprout size={20} color={theme.primary} />
-                <View style={{ flex: 1, gap: 2 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <Sprout size={20} color={theme.primary} />
                   <Text style={{ fontSize: 16, color: theme.text }}>{t('reminder.garden_check_title')}</Text>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, lineHeight: 18 }}>
-                    {hasGardenCheckReminder ? t('reminder.ritual_active') : t('reminder.ritual_desc')}
-                  </Text>
                 </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    const shouldOpen = !gardenCheckMenuOpen;
+                    closePreferenceMenus();
+                    setGardenCheckMenuOpen(shouldOpen);
+                  }}
+                  disabled={hasGardenCheckReminder}
+                  style={{ backgroundColor: theme.card, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border, opacity: hasGardenCheckReminder ? 0.8 : 1 }}
+                >
+                  <Text style={{ fontSize: 14, color: hasGardenCheckReminder ? theme.success : theme.textSecondary }}>
+                    {hasGardenCheckReminder ? t('reminder.ritual_active') : t('reminder.ritual_not_set', 'Not set')}
+                  </Text>
+                  {!hasGardenCheckReminder && (gardenCheckMenuOpen ? <ChevronUp size={14} color={theme.textSecondary} /> : <ChevronDown size={14} color={theme.textSecondary} />)}
+                </TouchableOpacity>
               </View>
-              {!hasGardenCheckReminder ? (
-                <View style={{ flexDirection: 'row', gap: 8, paddingLeft: 30 }}>
-                  {[{ days: 1, label: t('reminder.ritual_daily') }, { days: 7, label: t('reminder.ritual_weekly') }].map((option) => (
+              {gardenCheckMenuOpen && !hasGardenCheckReminder && (
+                <View style={{ position: 'absolute', top: 38, right: 0, width: 180, backgroundColor: theme.card, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: theme.border, zIndex: 1000, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 }}>
+                  {[{ days: 1, label: t('reminder.ritual_daily') }, { days: 7, label: t('reminder.ritual_weekly') }].map((option, index, items) => (
                     <TouchableOpacity
                       key={option.days}
                       disabled={gardenCheckSaving}
-                      onPress={() => void handleCreateGardenCheck(option.days)}
-                      style={{ flex: 1, minHeight: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: option.days === 1 ? theme.primary : theme.accent, borderWidth: option.days === 1 ? 0 : 1, borderColor: theme.border, opacity: gardenCheckSaving ? 0.6 : 1 }}
+                      onPress={() => { setGardenCheckMenuOpen(false); void handleCreateGardenCheck(option.days); }}
+                      style={{ paddingHorizontal: 14, paddingVertical: 11, borderBottomWidth: index === items.length - 1 ? 0 : 1, borderColor: theme.accent, opacity: gardenCheckSaving ? 0.6 : 1 }}
                     >
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: option.days === 1 ? '#fff' : theme.textSecondary }}>{option.label}</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{option.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
-              ) : null}
+              )}
             </View>
 
             {/* Theme (Appearance) */}
-            <View style={{ backgroundColor: theme.accent, borderRadius: 20, padding: 4, flexDirection: 'row', gap: 4 }}>
-              {[
-                { id: 'light', label: t('profile.theme_light'), icon: Sun },
-                { id: 'dark', label: t('profile.theme_dark'), icon: Moon },
-                { id: 'system', label: t('profile.theme_system'), icon: Monitor },
-              ].map((item) => {
-                const active = item.id === themePreference;
-                const Icon = item.icon;
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    onPress={async () => {
-                      setLocalThemePref(item.id);
-                      setGlobalTheme(item.id as 'light' | 'dark' | 'system');
-                      await updateSettings({ theme: item.id });
-                    }}
-                    style={{
-                      flex: 1,
-                      paddingVertical: 10,
-                      borderRadius: 18,
-                      backgroundColor: active ? theme.primary : 'transparent',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    <Icon size={20} color={active ? 'white' : theme.primaryLight} />
-                    <Text style={{ fontSize: 12, fontWeight: active ? '600' : '400', color: active ? 'white' : theme.primaryLight }}>
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={{ zIndex: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {themePreference === 'light' ? <Sun size={20} color={theme.primary} /> : themePreference === 'dark' ? <Moon size={20} color={theme.primary} /> : <Monitor size={20} color={theme.primary} />}
+                  <Text style={{ fontSize: 16, color: theme.text }}>{t('profile.theme_title', 'Theme')}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    const shouldOpen = !themeMenuOpen;
+                    closePreferenceMenus();
+                    setThemeMenuOpen(shouldOpen);
+                  }}
+                  accessibilityLabel={t('profile.theme_title', 'Theme')}
+                  style={{ backgroundColor: theme.card, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: theme.border }}
+                >
+                  {themePreference === 'light' ? <Sun size={16} color={theme.primary} /> : themePreference === 'dark' ? <Moon size={16} color={theme.primary} /> : <Monitor size={16} color={theme.primary} />}
+                  <Text style={{ fontSize: 14, color: theme.text }}>
+                    {themePreference === 'light' ? t('profile.theme_light') : themePreference === 'dark' ? t('profile.theme_dark') : t('profile.theme_system')}
+                  </Text>
+                  {themeMenuOpen ? <ChevronUp size={14} color={theme.textSecondary} /> : <ChevronDown size={14} color={theme.textSecondary} />}
+                </TouchableOpacity>
+              </View>
+              {themeMenuOpen && (
+                <View style={{ position: 'absolute', top: 38, right: 0, width: 180, backgroundColor: theme.card, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: theme.border, zIndex: 1000, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 }}>
+                  {[
+                    { id: 'light', label: t('profile.theme_light'), icon: Sun },
+                    { id: 'dark', label: t('profile.theme_dark'), icon: Moon },
+                    { id: 'system', label: t('profile.theme_system'), icon: Monitor },
+                  ].map((item, index, items) => {
+                    const active = item.id === themePreference;
+                    const Icon = item.icon;
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        testID={`e2e-profile-theme-${item.id}`}
+                        accessibilityState={{ selected: active }}
+                        onPress={() => {
+                          setLocalThemePref(item.id as ThemePreference);
+                          setGlobalTheme(item.id as 'light' | 'dark' | 'system');
+                          setThemeMenuOpen(false);
+                        }}
+                        style={{ paddingHorizontal: 14, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: index === items.length - 1 ? 0 : 1, borderColor: theme.accent }}
+                      >
+                        <Icon size={18} color={active ? theme.primary : theme.textSecondary} />
+                        <Text style={{ flex: 1, fontSize: 14, fontWeight: active ? '700' : '400', color: active ? theme.primary : theme.text }}>{item.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
             </View>
           </View>
         </View>
+
+          </View>
+          <View style={{ width: settingsPageWidth, paddingHorizontal: 16, gap: 16 }}>
 
 
 
@@ -793,6 +901,7 @@ export default function ProfileScreen() {
                   key={mode}
                   onPress={() => handleSwitchMode(mode)}
                   testID={`e2e-profile-mode-${mode}`}
+                  accessibilityState={{ selected: active }}
                   disabled={switchingMode || isAppModeLoading}
                   style={{
                     flex: 1,
@@ -812,6 +921,9 @@ export default function ProfileScreen() {
             })}
           </View>
         </View>
+
+          </View>
+          <View style={{ width: settingsPageWidth, paddingHorizontal: 16, gap: 16 }}>
 
         <View style={{ paddingHorizontal: 2, gap: 14 }}>
           <Text style={{ fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.backup_title')}</Text>
@@ -854,6 +966,7 @@ export default function ProfileScreen() {
                   <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>{t('profile.change_password_current')}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14 }}>
                     <TextInput
+                      testID="e2e-profile-current-password"
                       value={currentPw}
                       onChangeText={setCurrentPw}
                       secureTextEntry={!showCurrentPw}
@@ -872,6 +985,7 @@ export default function ProfileScreen() {
                   <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.6 }}>{t('profile.change_password_new')}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.background, borderWidth: 1, borderColor: newPw.length > 0 && newPw.length < 8 ? theme.warning ?? '#f59e0b' : theme.border, borderRadius: 14 }}>
                     <TextInput
+                      testID="e2e-profile-new-password"
                       value={newPw}
                       onChangeText={setNewPw}
                       secureTextEntry={!showNewPw}
@@ -953,6 +1067,8 @@ export default function ProfileScreen() {
             <Text style={{ color: theme.background, fontSize: 16, fontWeight: '800', letterSpacing: 0.2 }}>{t('profile.save_settings')}</Text>
           </View>
         </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
       <TimezoneModal
         visible={timezoneModalOpen}

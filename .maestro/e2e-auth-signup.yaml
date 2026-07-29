@@ -1,0 +1,57 @@
+appId: com.richfarm.app
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- tapOn:
+    id: e2e-home-settings
+- extendedWaitUntil:
+    visible:
+      id: e2e-profile-auth-cta
+    timeout: 30000
+- tapOn:
+    id: e2e-profile-auth-cta
+- extendedWaitUntil:
+    visible:
+      id: e2e-auth-mode-signup
+    timeout: 30000
+- tapOn:
+    id: e2e-auth-mode-signup
+- tapOn:
+    id: e2e-auth-name-input
+- inputText: ${E2E_NAME}
+- tapOn:
+    id: e2e-auth-email-input
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: e2e-auth-password-input
+- inputText: ${E2E_PASSWORD}
+- tapOn:
+    id: e2e-auth-confirm-input
+- inputText: ${E2E_PASSWORD}
+- scrollUntilVisible:
+    element:
+      id: e2e-auth-primary-button
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: e2e-auth-primary-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 30000

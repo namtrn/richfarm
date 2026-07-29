@@ -31,6 +31,7 @@
     "convex:dev": "cd packages/convex && npx convex dev",
     "convex:deploy": "npm --prefix packages/convex run deploy --",
     "test:smoke:ios": "node scripts/run-ios-smoke-tests.js",
+    "test:e2e:auth:android": "node scripts/run-android-auth-e2e.js",
     "check:taxonomy": "cd packages/convex && npx convex run plantTaxonomyChecks:assertTaxonomyInvariants '{\"sampleLimit\":100,\"failOnMissingI18nLocales\":true}' && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
   },
   "devDependencies": {},

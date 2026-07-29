@@ -1,0 +1,22 @@
+appId: com.richfarm.app
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- tapOn:
+    text: Open
+    optional: true
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: e2e-home-settings
+    timeout: 60000
+- tapOn:
+    id: e2e-home-settings
+- extendedWaitUntil:
+    visible:
+      id: e2e-profile-signed-in-email
+    timeout: 30000
+- assertVisible: "epix.tester@proton.me"
+- assertNotVisible: "Not signed in yet"

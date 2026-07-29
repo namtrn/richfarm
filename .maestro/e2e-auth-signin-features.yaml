@@ -1,0 +1,177 @@
+appId: com.richfarm.app
+---
+# Sign in with the account verified between the two E2E phases.
+- runFlow:
+    when:
+      visible:
+        id: e2e-auth-back-to-signin
+    commands:
+      - tapOn:
+          id: e2e-auth-back-to-signin
+- runFlow:
+    when:
+      visible:
+        id: e2e-tab-home
+    commands:
+      - tapOn:
+          id: e2e-home-settings
+      - extendedWaitUntil:
+          visible:
+            id: e2e-profile-auth-cta
+          timeout: 30000
+      - tapOn:
+          id: e2e-profile-auth-cta
+- extendedWaitUntil:
+    visible:
+      id: e2e-auth-mode-signin
+    timeout: 30000
+- tapOn:
+    id: e2e-auth-mode-signin
+- tapOn:
+    id: e2e-auth-email-input
+- eraseText
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: e2e-auth-password-input
+- eraseText
+- inputText: ${E2E_PASSWORD}
+- scrollUntilVisible:
+    element:
+      id: e2e-auth-primary-button
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: e2e-auth-primary-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 30000
+
+# Prove that this is a real account session, not the anonymous device identity.
+- tapOn:
+    id: e2e-home-settings
+- extendedWaitUntil:
+    visible:
+      id: e2e-profile-signed-in-email
+    timeout: 30000
+- assertVisible: ${E2E_EMAIL}
+
+# Create a garden if this new account has none.
+- tapOn:
+    id: e2e-tab-garden
+- tapOn:
+    id: e2e-garden-tab-garden
+- runFlow:
+    when:
+      visible:
+        id: e2e-garden-empty-create
+    commands:
+      - tapOn:
+          id: e2e-garden-empty-create
+      - extendedWaitUntil:
+          visible:
+            id: e2e-garden-create-name-input
+          timeout: 10000
+      - tapOn:
+          id: e2e-garden-create-name-input
+      - inputText: ${E2E_GARDEN_NAME}
+      - tapOn:
+          id: e2e-garden-create-area-input
+      - inputText: "6"
+      - scrollUntilVisible:
+          element:
+            id: e2e-garden-create-submit
+          direction: DOWN
+          timeout: 10000
+      - tapOn:
+          id: e2e-garden-create-submit
+      - extendedWaitUntil:
+          visible:
+            id: e2e-garden-card
+          timeout: 30000
+
+# Create a plant from the authenticated My Plants view.
+- tapOn:
+    id: e2e-garden-tab-planning
+- extendedWaitUntil:
+    visible:
+      id: e2e-planning-add-button
+    timeout: 30000
+- tapOn:
+    id: e2e-planning-add-button
+- tapOn:
+    id: e2e-planning-quick-input
+- inputText: ${E2E_PLANT_NAME}
+- tapOn:
+    id: e2e-planning-confirm-add
+- extendedWaitUntil:
+    visible: ${E2E_PLANT_NAME}
+    timeout: 30000
+
+# Create a reminder and verify it appears in the authenticated account.
+- tapOn:
+    id: e2e-tab-reminder
+- extendedWaitUntil:
+    visible:
+      id: e2e-reminder-add-button
+    timeout: 30000
+- tapOn:
+    id: e2e-reminder-add-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-reminder-form-title-input
+    timeout: 10000
+- tapOn:
+    id: e2e-reminder-form-title-input
+- inputText: ${E2E_REMINDER_TITLE}
+- scrollUntilVisible:
+    element:
+      id: e2e-reminder-form-save
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: e2e-reminder-form-save
+- extendedWaitUntil:
+    visible: ${E2E_REMINDER_TITLE}
+    timeout: 30000
+
+# Sign out, sign back in, and prove the server-backed session is restored.
+- tapOn:
+    id: e2e-tab-home
+- tapOn:
+    id: e2e-home-settings
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-sign-out
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: e2e-profile-sign-out
+- extendedWaitUntil:
+    visible:
+      id: e2e-auth-mode-signin
+    timeout: 30000
+- tapOn:
+    id: e2e-auth-email-input
+- eraseText
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: e2e-auth-password-input
+- eraseText
+- inputText: ${E2E_PASSWORD}
+- scrollUntilVisible:
+    element:
+      id: e2e-auth-primary-button
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: e2e-auth-primary-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 30000
+- tapOn:
+    id: e2e-home-settings
+- extendedWaitUntil:
+    visible: ${E2E_EMAIL}
+    timeout: 30000

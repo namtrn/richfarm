@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff } from '../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { getAuthClient } from '../lib/auth-client';
 import { useTheme } from '../lib/theme';
@@ -83,7 +83,7 @@ export default function ResetPasswordScreen() {
       style={{ flex: 1, backgroundColor: theme.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 16, gap: 16 }}>
         <View style={{ gap: 8 }}>
           <Text style={{ fontSize: 24, fontWeight: '700', color: theme.text }}>{t('profile.auth_reset_password_title')}</Text>
           <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('profile.auth_reset_password_desc')}</Text>
@@ -97,6 +97,7 @@ export default function ResetPasswordScreen() {
             </TouchableOpacity>
           </View>
           <TextInput
+            testID="e2e-reset-password-new"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -116,6 +117,7 @@ export default function ResetPasswordScreen() {
             </TouchableOpacity>
           </View>
           <TextInput
+            testID="e2e-reset-password-confirm"
             value={confirm}
             onChangeText={setConfirm}
             secureTextEntry={!showConfirm}
@@ -134,6 +136,7 @@ export default function ResetPasswordScreen() {
         ) : null}
 
         <TouchableOpacity
+          testID="e2e-reset-password-submit"
           disabled={loading || !token || !passwordOk || !passwordsMatch}
           onPress={handleSubmit}
           style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 14, alignItems: 'center', opacity: loading || !token || !passwordOk || !passwordsMatch ? 0.5 : 1 }}

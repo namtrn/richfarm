@@ -1,0 +1,38 @@
+appId: com.richfarm.app
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- tapOn:
+    text: Open
+    optional: true
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: e2e-home-settings
+    timeout: 60000
+- tapOn:
+    id: e2e-home-settings
+- extendedWaitUntil:
+    visible: "Sign In or Create Account"
+    timeout: 30000
+- tapOn: "Sign In or Create Account"
+- extendedWaitUntil:
+    visible:
+      id: e2e-auth-email-input
+    timeout: 60000
+- tapOn:
+    id: e2e-auth-email-input
+- eraseText
+- inputText: epix.tester@proton.me
+- tapOn:
+    id: e2e-auth-password-input
+- inputText: EpiphyX456!
+- assertNotVisible: "EpiphyX456!"
+- tapOn:
+    id: e2e-auth-primary-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 30000

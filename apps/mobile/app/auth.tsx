@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
-import { ChevronLeft, Eye, EyeOff, UserRound } from 'lucide-react-native';
+import { ChevronLeft, Eye, EyeOff, UserRound } from '../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { APP_SCHEME, getAuthClient } from '../lib/auth-client';
@@ -56,7 +56,6 @@ export default function AuthScreen() {
   const [resetSent, setResetSent] = useState(false);
   const [verificationResent, setVerificationResent] = useState(false);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
-  const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const trimmedAuthName = authName.trim();
   const trimmedAuthEmail = authEmail.trim();
@@ -65,6 +64,8 @@ export default function AuthScreen() {
   const authEmailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedAuthEmail);
   const passwordsMatch = authMode !== 'signUp' || authConfirm === authPassword;
   const confirmTouched = authConfirm.length > 0;
+  const passwordValidForMode = authMode === 'signUp' ? authPasswordOk : authPassword.length > 0;
+  const showVerificationState = authMode === 'signIn' && pendingVerificationEmail !== null;
 
   const setError = (msg: string) => { setAuthMessage(msg); setAuthMessageIsError(true); };
   const setSuccess = (msg: string) => { setAuthMessage(msg); setAuthMessageIsError(false); };
@@ -85,23 +86,11 @@ export default function AuthScreen() {
     }
   }, [pendingVerificationEmail, trimmedAuthEmail]);
 
-  useEffect(() => {
-    return () => {
-      if (navigateTimeoutRef.current) {
-        clearTimeout(navigateTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const navigateBack = () => {
-    if (navigateTimeoutRef.current) {
-      clearTimeout(navigateTimeoutRef.current);
-      navigateTimeoutRef.current = null;
-    }
+  const navigateAfterSignIn = () => {
     if (returnTo) {
       router.replace(returnTo as any);
     } else {
-      router.back();
+      router.replace('/(tabs)/home');
     }
   };
 
@@ -126,7 +115,7 @@ export default function AuthScreen() {
         email: trimmedAuthEmail,
         password: authPassword,
         name: trimmedAuthName || fallbackAuthName,
-        callbackURL: `${APP_SCHEME}://verify-email`,
+        callbackURL: `${APP_SCHEME}:///verify-email`,
       });
       if (result.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_sign_up_failed');
@@ -150,7 +139,10 @@ export default function AuthScreen() {
   const handleSignIn = async () => {
     if (e2eAuthEnabled) {
       setPendingVerificationEmail(null);
+      setAuthPassword('');
+      setShowPassword(false);
       setSuccess(t('profile.auth_signed_in'));
+      navigateAfterSignIn();
       return;
     }
     setAuthLoading(true);
@@ -160,6 +152,7 @@ export default function AuthScreen() {
       const result = await authClient.signIn.email({
         email: trimmedAuthEmail,
         password: authPassword,
+        callbackURL: `${APP_SCHEME}:///verify-email`,
       });
       if (result.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_sign_in_failed');
@@ -170,10 +163,10 @@ export default function AuthScreen() {
         return;
       }
       setPendingVerificationEmail(null);
+      setAuthPassword('');
+      setShowPassword(false);
       setSuccess(t('profile.auth_signed_in'));
-      navigateTimeoutRef.current = setTimeout(() => {
-        navigateBack();
-      }, 900);
+      navigateAfterSignIn();
     } catch {
       setError(t('profile.auth_err_network'));
     } finally {
@@ -227,7 +220,7 @@ export default function AuthScreen() {
       }
       const result = await requestReset({
         email: trimmedAuthEmail,
-        redirectTo: `${APP_SCHEME}://reset-password`,
+        redirectTo: `${APP_SCHEME}:///reset-password`,
       });
       if (result?.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_forgot_failed');
@@ -260,7 +253,7 @@ export default function AuthScreen() {
       }
       const result = await sendVerificationEmail({
         email: trimmedAuthEmail,
-        callbackURL: `${APP_SCHEME}://verify-email`,
+        callbackURL: `${APP_SCHEME}:///verify-email`,
       });
       if (result?.error) {
         const errKey = mapAuthError(result.error.message, 'profile.auth_verify_email_resend_failed');
@@ -290,8 +283,8 @@ export default function AuthScreen() {
 
   const buttonDisabled =
     authLoading ||
-    (authMode === 'forgot' ? !authEmailOk || resetSent : !authEmailOk || !authPasswordOk) ||
-    (authMode === 'signUp' && confirmTouched && !passwordsMatch);
+    (authMode === 'forgot' ? !authEmailOk || resetSent : !authEmailOk || !passwordValidForMode) ||
+    (authMode === 'signUp' && (!confirmTouched || !passwordsMatch));
 
   return (
     <KeyboardAvoidingView
@@ -303,238 +296,248 @@ export default function AuthScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 60, gap: 16 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={{ gap: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <TouchableOpacity
-              onPress={() => (returnTo ? router.replace(returnTo as any) : router.back())}
-              style={{ paddingVertical: 8, paddingHorizontal: 8, marginLeft: -8 }}
-            >
-              <ChevronLeft size={22} color={theme.text} />
-            </TouchableOpacity>
-            <Text style={{ fontSize: 18, fontWeight: '500', color: theme.text }}>{t('profile.auth_account')}</Text>
-            <View style={{ width: 32 }} />
+        <View style={{ gap: 24 }}>
+          <TouchableOpacity
+            onPress={() => (returnTo ? router.replace(returnTo as any) : router.back())}
+            accessibilityLabel={t('profile.auth_back_to_sign_in')}
+            style={{ width: 40, height: 40, marginLeft: -8, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <ChevronLeft size={22} color={theme.text} />
+          </TouchableOpacity>
+
+          <View style={{ gap: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
+                <UserRound size={20} color={theme.primary} />
+              </View>
+              <Text
+                testID={authMode === 'signIn' ? 'e2e-auth-mode-signin' : undefined}
+                style={{ flex: 1, fontSize: 28, lineHeight: 34, fontWeight: '700', color: theme.text }}
+              >
+                {showVerificationState
+                  ? t('profile.auth_check_email', 'Check your email')
+                  : authMode === 'signUp'
+                    ? t('profile.auth_create_account')
+                    : authMode === 'forgot'
+                      ? t('profile.auth_reset_password_title')
+                      : t('profile.auth_sign_in')}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 14, lineHeight: 20, color: theme.textSecondary }}>
+              {showVerificationState
+                ? t('profile.auth_verify_email_sent')
+                : authMode === 'signUp'
+                  ? t('profile.auth_sign_up_subtitle', 'Create an account to sync and protect your garden data.')
+                  : authMode === 'forgot'
+                    ? t('profile.auth_reset_password_desc')
+                    : t('profile.auth_sign_in_subtitle', 'Sign in to continue to your garden.')}
+            </Text>
           </View>
 
-          <View style={{ gap: 20 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' }}>
-                <UserRound size={18} color={theme.textSecondary} />
-              </View>
-              <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
-                {authMode === 'forgot' ? t('profile.auth_send_reset_link') : t('profile.auth_sign_in_or_create')}
-              </Text>
-            </View>
-
-            {/* Mode toggle */}
-            {authMode !== 'forgot' ? (
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity
-                  onPress={() => setAuthMode('signIn')}
-                  testID="e2e-auth-mode-signin"
-                  style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signIn' ? theme.primary : theme.border, backgroundColor: authMode === 'signIn' ? theme.primary : theme.background }}
-                >
-                  <Text style={{ fontWeight: '500', color: authMode === 'signIn' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
-                    {t('profile.auth_sign_in')}
+          {showVerificationState ? (
+            <View style={{ gap: 16 }}>
+              <View style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, padding: 16, gap: 6 }}>
+                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('profile.email_label')}</Text>
+                <Text style={{ fontSize: 15, color: theme.text, fontWeight: '600' }}>{pendingVerificationEmail}</Text>
+                {authMessageIsError && authMessage && (
+                  <Text testID="e2e-auth-message-error" style={{ fontSize: 12, lineHeight: 18, color: theme.warning, marginTop: 4 }}>
+                    {authMessage}
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setAuthMode('signUp')}
-                  testID="e2e-auth-mode-signup"
-                  style={{ flex: 1, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: authMode === 'signUp' ? theme.primary : theme.border, backgroundColor: authMode === 'signUp' ? theme.primary : theme.background }}
-                >
-                  <Text style={{ fontWeight: '500', color: authMode === 'signUp' ? '#fff' : theme.textSecondary, fontSize: 13 }}>
-                    {t('profile.auth_sign_up')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                onPress={() => setAuthMode('signIn')}
-                style={{ backgroundColor: theme.background, borderRadius: 12, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
-              >
-                <Text style={{ fontWeight: '500', color: theme.textSecondary, fontSize: 13 }}>{t('profile.auth_back_to_sign_in')}</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Name field (sign up only) */}
-            {authMode === 'signUp' && (
-              <View style={{ gap: 6 }}>
-                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
-                  {t('profile.name_label')}
-                </Text>
-                <TextInput
-                  value={authName}
-                  onChangeText={setAuthName}
-                  autoCapitalize="words"
-                  autoCorrect={false}
-                  returnKeyType="next"
-                  placeholder={t('profile.name_placeholder')}
-                  placeholderTextColor={theme.textMuted}
-                  testID="e2e-auth-name-input"
-                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                />
-              </View>
-            )}
-
-            {/* Google button */}
-            <TouchableOpacity
-              onPress={handleGoogleSignIn}
-              disabled={authLoading || (!GOOGLE_OAUTH_ENABLED && !e2eAuthEnabled)}
-              testID="e2e-auth-google-button"
-              style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: authLoading || (!GOOGLE_OAUTH_ENABLED && !e2eAuthEnabled) ? 0.5 : 1 }}
-            >
-              <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>
-                {GOOGLE_OAUTH_ENABLED || e2eAuthEnabled ? t('profile.auth_continue_google') : t('profile.auth_google_coming_soon')}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Divider */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-              <Text style={{ fontSize: 12, color: theme.textMuted, fontWeight: '400' }}>{t('profile.email_label')}</Text>
-              <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-            </View>
-
-            {/* Email */}
-            <View style={{ gap: 6 }}>
-              <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
-                {t('profile.email_label')}
-              </Text>
-              <TextInput
-                value={authEmail}
-                onChangeText={setAuthEmail}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="email-address"
-                textContentType="emailAddress"
-                autoComplete="email"
-                returnKeyType="next"
-                placeholder={t('profile.auth_email_placeholder')}
-                placeholderTextColor={theme.textMuted}
-                testID="e2e-auth-email-input"
-                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: !authEmailOk && trimmedAuthEmail.length > 0 ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-              />
-            </View>
-
-            {/* Password (not for forgot) */}
-            {authMode !== 'forgot' && (
-              <View style={{ gap: 6 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
-                    {t('profile.auth_password_placeholder')}
-                  </Text>
-                  <TouchableOpacity onPress={() => setShowPassword((v) => !v)} style={{ paddingVertical: 2 }}>
-                    {showPassword ? <EyeOff size={14} color={theme.textSecondary} /> : <Eye size={14} color={theme.textSecondary} />}
-                  </TouchableOpacity>
-                </View>
-                <TextInput
-                  value={authPassword}
-                  onChangeText={setAuthPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  secureTextEntry={!showPassword && !e2eAuthEnabled}
-                  textContentType={e2eAuthEnabled ? 'none' : authMode === 'signUp' ? 'newPassword' : 'password'}
-                  autoComplete={e2eAuthEnabled ? 'off' : authMode === 'signUp' ? 'password-new' : 'password'}
-                  returnKeyType={authMode === 'signUp' ? 'next' : 'done'}
-                  placeholder={t('profile.auth_password_placeholder')}
-                  placeholderTextColor={theme.textMuted}
-                  testID="e2e-auth-password-input"
-                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: authPassword.length > 0 && !authPasswordOk ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                />
-              </View>
-            )}
-
-            {/* Confirm Password (sign up only) */}
-            {authMode === 'signUp' && (
-              <View style={{ gap: 6 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.3 }}>
-                    {t('profile.auth_confirm_password')}
-                  </Text>
-                  <TouchableOpacity onPress={() => setShowConfirm((v) => !v)} style={{ paddingVertical: 2 }}>
-                    {showConfirm ? <EyeOff size={14} color={theme.textSecondary} /> : <Eye size={14} color={theme.textSecondary} />}
-                  </TouchableOpacity>
-                </View>
-                <TextInput
-                  value={authConfirm}
-                  onChangeText={setAuthConfirm}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  secureTextEntry={!showConfirm && !e2eAuthEnabled}
-                  textContentType={e2eAuthEnabled ? 'none' : 'newPassword'}
-                  autoComplete={e2eAuthEnabled ? 'off' : 'password-new'}
-                  returnKeyType="done"
-                  placeholder={t('profile.auth_confirm_password')}
-                  placeholderTextColor={theme.textMuted}
-                  testID="e2e-auth-confirm-input"
-                  style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: confirmTouched && !passwordsMatch ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                />
-                {confirmTouched && !passwordsMatch && (
-                  <Text style={{ fontSize: 12, color: theme.warning }}>{t('profile.auth_password_mismatch')}</Text>
                 )}
               </View>
-            )}
-
-            {/* Feedback message */}
-            {authMessage && (
-              <View style={{ backgroundColor: authMessageIsError ? (theme.warningBg ?? '#fff7ed') : theme.background, borderWidth: 1, borderColor: authMessageIsError ? theme.warning : theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
-                <Text style={{ fontSize: 12, color: authMessageIsError ? theme.warning : theme.textSecondary }}>{authMessage}</Text>
-              </View>
-            )}
-
-            {/* Reset sent hint */}
-            {resetSent && !authMessageIsError && (
-              <Text style={{ fontSize: 12, color: theme.textMuted, lineHeight: 18 }}>
-                {t('profile.auth_reset_success_hint')}
-              </Text>
-            )}
-
-            {authMode === 'signIn' && pendingVerificationEmail && (
-              <View style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
-                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('profile.auth_verify_email_sent')}</Text>
-                <Text style={{ fontSize: 12, color: theme.text, fontWeight: '500', marginTop: 4 }}>{pendingVerificationEmail}</Text>
-              </View>
-            )}
-
-            {authMode === 'signIn' && (
               <TouchableOpacity
                 onPress={handleResendVerification}
-                disabled={authLoading || !authEmailOk || verificationResent}
-                style={{ paddingVertical: 4, alignItems: 'center', opacity: authLoading || !authEmailOk || verificationResent ? 0.5 : 1 }}
+                disabled={authLoading || verificationResent}
+                style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 13, alignItems: 'center', opacity: authLoading || verificationResent ? 0.5 : 1 }}
               >
-                <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '500' }}>
+                <Text style={{ color: '#fff', fontWeight: '600', fontSize: 14 }}>
                   {verificationResent ? t('profile.auth_verify_email_resent') : t('profile.auth_resend_verification')}
                 </Text>
               </TouchableOpacity>
-            )}
-
-            {/* Primary action button */}
-            <TouchableOpacity
-              onPress={authMode === 'forgot' ? handleForgotPassword : authMode === 'signUp' ? handleSignUp : handleSignIn}
-              disabled={buttonDisabled}
-              testID="e2e-auth-primary-button"
-              style={{
-                backgroundColor: authMode === 'signUp' ? theme.success : theme.text,
-                borderRadius: 14,
-                paddingVertical: 12,
-                alignItems: 'center',
-                opacity: buttonDisabled ? 0.5 : 1,
-              }}
-            >
-              <Text style={{ color: theme.card, fontWeight: '500', fontSize: 14 }}>{buttonLabel()}</Text>
-            </TouchableOpacity>
-
-            {/* Forgot password link */}
-            {authMode !== 'forgot' && (
               <TouchableOpacity
-                onPress={() => setAuthMode('forgot')}
-                disabled={authLoading}
-                style={{ paddingVertical: 4, alignItems: 'center' }}
+                testID="e2e-auth-back-to-signin"
+                onPress={() => {
+                  setPendingVerificationEmail(null);
+                  setAuthMessage(null);
+                  setAuthMessageIsError(false);
+                }}
+                style={{ paddingVertical: 8, alignItems: 'center' }}
               >
-                <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500' }}>{t('profile.auth_forgot_password')}</Text>
+                <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 14 }}>{t('profile.auth_back_to_sign_in')}</Text>
               </TouchableOpacity>
-            )}
-          </View>
+            </View>
+          ) : (
+            <View style={{ gap: 16 }}>
+              {(GOOGLE_OAUTH_ENABLED || e2eAuthEnabled) && authMode !== 'forgot' && (
+                <>
+                  <TouchableOpacity
+                    onPress={handleGoogleSignIn}
+                    disabled={authLoading}
+                    testID="e2e-auth-google-button"
+                    style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingVertical: 13, alignItems: 'center', opacity: authLoading ? 0.5 : 1 }}
+                  >
+                    <Text style={{ color: theme.text, fontWeight: '600', fontSize: 14 }}>{t('profile.auth_continue_google')}</Text>
+                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                    <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('profile.auth_or_email', 'or continue with email')}</Text>
+                    <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
+                  </View>
+                </>
+              )}
+
+              {authMode === 'signUp' && (
+                <View style={{ gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary }}>
+                    {t('profile.name_label')} <Text style={{ color: theme.textMuted, fontWeight: '400' }}>{t('profile.auth_optional', '(optional)')}</Text>
+                  </Text>
+                  <TextInput
+                    value={authName}
+                    onChangeText={setAuthName}
+                    autoCapitalize="words"
+                    autoCorrect={false}
+                    returnKeyType="next"
+                    placeholder={t('profile.name_placeholder')}
+                    placeholderTextColor={theme.textMuted}
+                    testID="e2e-auth-name-input"
+                    style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: theme.text }}
+                  />
+                </View>
+              )}
+
+              <View style={{ gap: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary }}>{t('profile.email_label')}</Text>
+                <TextInput
+                  value={authEmail}
+                  onChangeText={setAuthEmail}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  textContentType="emailAddress"
+                  autoComplete="email"
+                  returnKeyType="next"
+                  placeholder={t('profile.auth_email_placeholder')}
+                  placeholderTextColor={theme.textMuted}
+                  testID="e2e-auth-email-input"
+                  style={{ backgroundColor: theme.card, borderWidth: 1, borderColor: !authEmailOk && trimmedAuthEmail.length > 0 ? theme.warning : theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: theme.text }}
+                />
+              </View>
+
+              {authMode !== 'forgot' && (
+                <View style={{ gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary }}>
+                    {authMode === 'signUp' ? t('profile.auth_password_placeholder') : t('profile.auth_password', 'Password')}
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, borderWidth: 1, borderColor: authMode === 'signUp' && authPassword.length > 0 && !authPasswordOk ? theme.warning : theme.border, borderRadius: 14 }}>
+                    <TextInput
+                      value={authPassword}
+                      onChangeText={setAuthPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      secureTextEntry={!showPassword}
+                      textContentType={e2eAuthEnabled ? 'oneTimeCode' : authMode === 'signUp' ? 'newPassword' : 'password'}
+                      autoComplete={e2eAuthEnabled ? 'off' : authMode === 'signUp' ? 'password-new' : 'password'}
+                      returnKeyType={authMode === 'signUp' ? 'next' : 'done'}
+                      placeholder={authMode === 'signUp' ? t('profile.auth_password_placeholder') : t('profile.auth_password', 'Password')}
+                      placeholderTextColor={theme.textMuted}
+                      testID="e2e-auth-password-input"
+                      style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: theme.text }}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword((v) => !v)}
+                      accessibilityLabel={showPassword ? t('profile.auth_hide_password', 'Hide password') : t('profile.auth_show_password', 'Show password')}
+                      style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      {showPassword ? <EyeOff size={17} color={theme.textSecondary} /> : <Eye size={17} color={theme.textSecondary} />}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+
+              {authMode === 'signUp' && (
+                <View style={{ gap: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: theme.textSecondary }}>{t('profile.auth_confirm_password')}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, borderWidth: 1, borderColor: confirmTouched && !passwordsMatch ? theme.warning : theme.border, borderRadius: 14 }}>
+                    <TextInput
+                      value={authConfirm}
+                      onChangeText={setAuthConfirm}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      secureTextEntry={!showConfirm}
+                      textContentType={e2eAuthEnabled ? 'oneTimeCode' : 'newPassword'}
+                      autoComplete={e2eAuthEnabled ? 'off' : 'password-new'}
+                      returnKeyType="done"
+                      placeholder={t('profile.auth_confirm_password')}
+                      placeholderTextColor={theme.textMuted}
+                      testID="e2e-auth-confirm-input"
+                      style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 13, fontSize: 15, color: theme.text }}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowConfirm((v) => !v)}
+                      accessibilityLabel={showConfirm ? t('profile.auth_hide_password', 'Hide password') : t('profile.auth_show_password', 'Show password')}
+                      style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      {showConfirm ? <EyeOff size={17} color={theme.textSecondary} /> : <Eye size={17} color={theme.textSecondary} />}
+                    </TouchableOpacity>
+                  </View>
+                  {confirmTouched && !passwordsMatch && (
+                    <Text style={{ fontSize: 12, color: theme.warning }}>{t('profile.auth_password_mismatch')}</Text>
+                  )}
+                </View>
+              )}
+
+              {authMessage && (
+                <View
+                  testID={`e2e-auth-message-${authMessageIsError ? 'error' : 'success'}`}
+                  style={{ backgroundColor: authMessageIsError ? (theme.warningBg ?? '#fff7ed') : theme.card, borderWidth: 1, borderColor: authMessageIsError ? theme.warning : theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}
+                >
+                  <Text style={{ fontSize: 12, lineHeight: 18, color: authMessageIsError ? theme.warning : theme.textSecondary }}>{authMessage}</Text>
+                </View>
+              )}
+
+              {resetSent && !authMessageIsError && (
+                <Text style={{ fontSize: 12, color: theme.textMuted, lineHeight: 18 }}>{t('profile.auth_reset_success_hint')}</Text>
+              )}
+
+              {authMode === 'signIn' && (
+                <TouchableOpacity onPress={() => setAuthMode('forgot')} disabled={authLoading} style={{ alignSelf: 'flex-end', paddingVertical: 2 }}>
+                  <Text style={{ fontSize: 13, color: theme.primary, fontWeight: '600' }}>{t('profile.auth_forgot_password')}</Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                onPress={authMode === 'forgot' ? handleForgotPassword : authMode === 'signUp' ? handleSignUp : handleSignIn}
+                disabled={buttonDisabled}
+                testID="e2e-auth-primary-button"
+                style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 14, alignItems: 'center', opacity: buttonDisabled ? 0.5 : 1 }}
+              >
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{buttonLabel()}</Text>
+              </TouchableOpacity>
+
+              {authMode === 'forgot' ? (
+                <TouchableOpacity onPress={() => setAuthMode('signIn')} testID="e2e-auth-back-to-signin" style={{ paddingVertical: 8, alignItems: 'center' }}>
+                  <Text style={{ color: theme.primary, fontWeight: '600', fontSize: 14 }}>{t('profile.auth_back_to_sign_in')}</Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 4, paddingVertical: 6 }}>
+                  <Text style={{ color: theme.textSecondary, fontSize: 14 }}>
+                    {authMode === 'signUp'
+                      ? t('profile.auth_already_account', 'Already have an account?')
+                      : t('profile.auth_new_here', 'New to RichFarm?')}
+                  </Text>
+                  <TouchableOpacity
+                    testID={authMode === 'signUp' ? 'e2e-auth-mode-signin' : 'e2e-auth-mode-signup'}
+                    onPress={() => setAuthMode(authMode === 'signUp' ? 'signIn' : 'signUp')}
+                    style={{ paddingVertical: 4 }}
+                  >
+                    <Text style={{ color: theme.primary, fontWeight: '700', fontSize: 14 }}>
+                      {authMode === 'signUp' ? t('profile.auth_sign_in') : t('profile.auth_sign_up')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

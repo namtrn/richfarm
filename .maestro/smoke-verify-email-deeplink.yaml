@@ -1,0 +1,23 @@
+appId: com.richfarm.app
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- tapOn:
+    text: Open
+    optional: true
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    notVisible: "No script URL provided"
+    timeout: 60000
+- openLink:
+    link: richfarm:///verify-email
+- tapOn:
+    text: Open
+    optional: true
+- extendedWaitUntil:
+    visible: "Email verified"
+    timeout: 30000
+- assertVisible:
+    id: e2e-auth-back-to-signin

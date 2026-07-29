@@ -3,9 +3,10 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import type { Doc } from '../../../packages/convex/convex/_generated/dataModel';
 import { sanitizeAnonymousProfile } from '../../../packages/shared/src/authProfile';
-import { authClient } from './auth-client';
+import type { authClient } from './auth-client';
 import { useDeviceId } from './deviceId';
 import { useQueryCache } from './queryCache';
+import { useMobileRuntime } from './state/mobileRuntimeStore';
 
 type AppUser = Doc<'users'>;
 type SanitizedUser = AppUser & {
@@ -26,6 +27,7 @@ type AuthContextValue = {
     name?: string;
     locale?: string;
     timezone?: string;
+    avatarUrl?: string;
   }) => Promise<void>;
   deviceId: string | undefined;
   error: string | null;
@@ -69,7 +71,9 @@ async function ensureBootstrappedUser(args: {
 
 function useProvideAuth(): AuthContextValue {
   const { deviceId, isLoading: isDeviceLoading } = useDeviceId();
-  const { data: session, isPending: isSessionLoading } = authClient.useSession();
+  const session = useMobileRuntime((state) => state.session);
+  const authStatus = useMobileRuntime((state) => state.authStatus);
+  const isSessionLoading = authStatus === 'loading';
   const hasAccountSession = !!session
     && (session.user as { isAnonymous?: boolean }).isAnonymous !== true;
 
@@ -160,6 +164,7 @@ function useProvideAuth(): AuthContextValue {
     name?: string;
     locale?: string;
     timezone?: string;
+    avatarUrl?: string;
   }) => {
     await updateProfileMutation({ ...args, deviceId: deviceId ?? undefined });
   };
@@ -171,7 +176,9 @@ function useProvideAuth(): AuthContextValue {
     isLoading: isDeviceLoading || isSessionLoading || isBootstrapping,
     isReady,
     session,
-    isAuthenticated: !!normalizedUser && normalizedUser.isAnonymous !== true,
+    // Authentication is established by Better Auth. The Convex user document
+    // may still be loading/bootstrapping immediately after sign-in.
+    isAuthenticated: hasAccountSession,
     initUser,
     updateProfile,
     deviceId,

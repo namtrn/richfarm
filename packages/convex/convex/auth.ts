@@ -15,13 +15,17 @@ const trustedOriginsFromEnv = (process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
 
 const resendApiKey = process.env.RESEND_API_KEY?.trim();
 const authEmailFrom = process.env.AUTH_EMAIL_FROM?.trim();
-const authEmailAppName = process.env.AUTH_EMAIL_APP_NAME?.trim() || "Richfarm";
-const betterAuthSecret =
-  process.env.BETTER_AUTH_SECRET?.trim() ||
-  (process.env.NODE_ENV !== "production" ? "dev-secret-change-me" : undefined);
+const authEmailAppName = process.env.AUTH_EMAIL_APP_NAME?.trim() || "RichFarm";
+const betterAuthSecret = process.env.BETTER_AUTH_SECRET?.trim() || (
+  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+    ? Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) =>
+        byte.toString(16).padStart(2, "0")
+      ).join("")
+    : ""
+);
 
 if (!betterAuthSecret) {
-  throw new Error("BETTER_AUTH_SECRET is required in production");
+  throw new Error("BETTER_AUTH_SECRET must be set outside local development");
 }
 
 function escapeHtml(value: string): string {
@@ -42,9 +46,7 @@ async function sendAuthEmail(args: {
   url: string;
 }) {
   if (!resendApiKey || !authEmailFrom) {
-    console.warn("[auth] Email sending is not configured. Set RESEND_API_KEY and AUTH_EMAIL_FROM.");
-    console.info(`[auth] ${args.subject} link for ${args.to}: ${args.url}`);
-    return;
+    throw new Error("Authentication email delivery is not configured");
   }
 
   const escapedHeading = escapeHtml(args.heading);
@@ -100,7 +102,18 @@ export const createAuth = (ctx: Parameters<typeof authComponent.adapter>[0]) =>
     database: authComponent.adapter(ctx),
     secret: betterAuthSecret,
     baseURL: process.env.CONVEX_SITE_URL,
-    trustedOrigins: [...trustedOriginsFromEnv, "my-garden://"],
+    trustedOrigins: [...trustedOriginsFromEnv, "richfarm://"],
+    // Verification emails are externally-visible side effects. Keep this
+    // endpoint substantially stricter than the general auth limit so a client
+    // cannot use it to spam an address or burn through our email quota.
+    rateLimit: {
+      customRules: {
+        "/send-verification-email": {
+          window: 15 * 60,
+          max: 3,
+        },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       requireEmailVerification: true,
