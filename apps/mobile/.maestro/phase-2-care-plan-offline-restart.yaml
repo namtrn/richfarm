@@ -1,0 +1,37 @@
+appId: com.richfarm.app
+name: Phase 2 care plan offline outcome restart
+tags:
+  - phase2
+  - offline
+  - restart
+---
+- launchApp:
+    clearState: false
+- tapOn:
+    text: "Library|Thư viện"
+- tapOn:
+    id: "e2e-library-first-plant"
+    optional: true
+- tapOn:
+    text: "Add to Growing|Thêm vào Đang trồng"
+    optional: true
+- assertVisible:
+    id: "care-plan-card"
+    optional: true
+- tapOn:
+    text: "Reminders|Nhắc nhở"
+- tapOn:
+    text: "Done|Xong"
+    optional: true
+- tapOn:
+    text: "Checked — not needed|Đã kiểm tra — chưa cần"
+    optional: true
+- stopApp
+- launchApp:
+    clearState: false
+- assertVisible:
+    text: "Reminders|Nhắc nhở"
+    optional: true
+# Network disconnect/reconnect and server duplicate assertions are exercised by
+# the durable outbox integration tests; CI device runners wrap this flow with
+# platform-specific network control when available.

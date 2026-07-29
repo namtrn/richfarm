@@ -173,6 +173,12 @@
     "unnamed": "Unnamed plant"
   },
   "reminder": {
+    "outcome_title": "¿Qué encontraste?",
+    "outcome_checked_not_needed": "Revisado — no era necesario",
+    "outcome_watered": "Regado",
+    "outcome_fertilized": "Fertilizado",
+    "outcome_performed": "Revisión completada",
+    "feedback_checked": "Revisión registrada.",
     "title": "Recordatorio",
     "today": "Hoy",
     "no_reminders": "Sin recordatorios",

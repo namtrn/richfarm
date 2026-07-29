@@ -173,6 +173,12 @@
     "unnamed": "Unnamed plant"
   },
   "reminder": {
+    "outcome_title": "你检查到了什么？",
+    "outcome_checked_not_needed": "已检查—暂不需要",
+    "outcome_watered": "已浇水",
+    "outcome_fertilized": "已施肥",
+    "outcome_performed": "已完成检查",
+    "feedback_checked": "已记录检查。",
     "title": "提醒",
     "today": "今天",
     "no_reminders": "没有提醒",

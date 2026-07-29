@@ -173,6 +173,12 @@
     "unnamed": "Unnamed plant"
   },
   "reminder": {
+    "outcome_title": "Qu’avez-vous constaté ?",
+    "outcome_checked_not_needed": "Vérifié — pas nécessaire",
+    "outcome_watered": "Arrosé",
+    "outcome_fertilized": "Fertilisé",
+    "outcome_performed": "Vérification terminée",
+    "feedback_checked": "Vérification enregistrée.",
     "title": "Rappel",
     "today": "Aujourd'hui",
     "no_reminders": "Aucun rappel",

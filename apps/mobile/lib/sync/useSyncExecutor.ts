@@ -195,7 +195,10 @@ export function useSyncExecutor() {
                 }
             }
 
-            const entityRank = { garden: 0, bed: 1, plant: 2, activity: 3, harvest: 3, photo: 3 } as const;
+            const entityRank = {
+                garden: 0, bed: 1, plant: 2, carePlan: 3, reminder: 4,
+                activity: 5, harvest: 5, photo: 5, reminderOutcome: 5,
+            } as const;
             const entityItems = filteredQueue
                 .filter((item) => item.type === 'entity')
                 .sort((a, b) => {

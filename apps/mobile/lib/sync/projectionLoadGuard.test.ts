@@ -12,7 +12,10 @@ function projection(scope: string): ProjectionEnvelope {
     generation: 'g1',
     hydratedAt: 1,
     complete: true,
-    entities: { garden: {}, bed: {}, plant: {}, activity: {}, harvest: {}, photo: {} },
+    entities: {
+      garden: {}, bed: {}, plant: {}, activity: {}, harvest: {}, photo: {},
+      carePlan: {}, reminder: {}, reminderOutcome: {},
+    },
     tombstones: {},
   };
 }

@@ -30,6 +30,7 @@ export function usePlants(status?: PlantStatus) {
     const projectedPlants = useSyncProjectionEntities('plant') as any[];
     const projectedGardens = useSyncProjectionEntities('garden') as any[];
     const projectedBeds = useSyncProjectionEntities('bed') as any[];
+    const projectedCarePlans = useSyncProjectionEntities('carePlan') as any[];
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const remotePlants = useQuery(
         api.plants.getUserPlants,
@@ -116,6 +117,37 @@ export function usePlants(status?: PlantStatus) {
                 bedUuid: location.bedId ? uuidFor(projectedBeds, location.bedId) : null,
             } : undefined,
         });
+        if (status === 'growing' && current?.entityUuid) {
+            const draftPlan = projectedCarePlans.find((plan) =>
+                (String(plan.userPlantId) === String(plantId) || plan.plantUuid === current.entityUuid)
+                && plan.status === 'draft'
+            );
+            if (draftPlan?.entityUuid) {
+                await queueOperation({
+                    entityType: 'carePlan', entityUuid: draftPlan.entityUuid,
+                    operationType: 'update', baseRevision: draftPlan.revision ?? 1,
+                    payload: { status: 'active' },
+                });
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+                const start = current.plantedAt ?? Date.now();
+                for (const task of draftPlan.tasks ?? []) {
+                    if (!task.enabled) continue;
+                    const nextRunAt = task.type === 'harvest_check'
+                        ? task.expectedDate
+                        : task.intervalDays ? start + task.intervalDays * 86_400_000 : undefined;
+                    if (!nextRunAt) continue;
+                    await queueOperation({
+                        entityType: 'reminder', operationType: 'create',
+                        entityUuid: `${draftPlan.entityUuid}:${draftPlan.planVersion ?? 1}:${task.type}`,
+                        parentRefs: { plantUuid: current.entityUuid, carePlanUuid: draftPlan.entityUuid },
+                        payload: {
+                            taskType: task.type, nextRunAt, timezone,
+                            rrule: task.intervalDays ? `FREQ=DAILY;INTERVAL=${task.intervalDays}` : undefined,
+                        },
+                    });
+                }
+            }
+        }
     };
 
     const updatePlant = async (

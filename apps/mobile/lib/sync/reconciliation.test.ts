@@ -17,6 +17,7 @@ function saveProjection(scope: string, entities?: Partial<ProjectionEnvelope['en
     version: 1, scope, generation: 'g1', hydratedAt: 1, complete: true,
     entities: {
       garden: {}, bed: {}, plant: {}, activity: {}, harvest: {}, photo: {},
+      carePlan: {}, reminder: {}, reminderOutcome: {},
       ...entities,
     },
     tombstones: {},
@@ -52,6 +53,36 @@ describe('rendered authoritative projection', () => {
     const rendered = await loadRenderedProjection(scope);
     expect(rendered?.complete).toBe(false);
     expect(rendered?.entities.garden['offline-garden']).toMatchObject({ name: 'No network', _pending: true });
+  });
+
+  it('projects an offline reminder outcome across restart without claiming care was performed', async () => {
+    const scope = 'offline:care';
+    saveProjection(scope, {
+      reminder: {
+        'reminder-a': {
+          _id: 'server-reminder', entityUuid: 'reminder-a', revision: 1,
+          taskType: 'watering', enabled: true, nextRunAt: 10,
+        },
+      },
+    });
+    await enqueueSyncAction({
+      id: 'outcome-op', type: 'entity', createdAt: 20, attempts: 0,
+      payload: {
+        operationId: 'outcome-op', entityType: 'reminderOutcome',
+        entityUuid: 'outcome-a', operationType: 'create',
+        parentRefs: { reminderUuid: 'reminder-a' },
+        payload: { outcome: 'checked_not_needed', occurredAt: 20 },
+      },
+    }, scope);
+    const first = await loadRenderedProjection(scope);
+    const afterRestart = await loadRenderedProjection(scope);
+    expect(first?.entities.reminder['reminder-a']).toMatchObject({
+      lastRunAt: 20, _pendingOutcome: 'checked_not_needed',
+    });
+    expect(afterRestart?.entities.reminderOutcome['outcome-a']).toMatchObject({
+      outcome: 'checked_not_needed', _pending: true,
+    });
+    expect(afterRestart?.entities.activity).toEqual({});
   });
 
   it('renders a staged private photo directly from the outbox', async () => {

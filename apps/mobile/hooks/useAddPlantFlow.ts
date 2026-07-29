@@ -5,6 +5,9 @@ import { usePlantSync } from './usePlantSync';
 import { updateScanEntry } from '../lib/scanHistory';
 import type { PlantStatus } from './usePlants';
 import { createLocalId } from '../lib/plantLocalData';
+import { usePlantLibrary } from './usePlantLibrary';
+import { useTranslation } from 'react-i18next';
+import { useEntitySync } from './useEntitySync';
 
 type PositionInBed = {
   x: number;
@@ -123,7 +126,69 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
   const router = useRouter();
   const { appMode } = useAppMode();
   const { queuePhoto } = usePlantSync();
+  const { i18n } = useTranslation();
+  const { plants: libraryPlants } = usePlantLibrary(i18n.language);
+  const { queueOperation } = useEntitySync();
   const pendingAddRequestIds = useRef(new Map<string, string>());
+
+  const materializeCarePlan = useCallback(async (
+    plantUuid: string,
+    plantMasterId: string | undefined,
+    status: 'planning' | 'growing',
+    plantedAt?: number,
+  ) => {
+    if (!plantMasterId) return;
+    const libraryPlant = libraryPlants?.find((plant: any) => String(plant._id) === String(plantMasterId));
+    if (!libraryPlant) return;
+    const positive = (value: unknown) =>
+      typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.round(value) : undefined;
+    const watering = positive(libraryPlant.wateringFrequencyDays);
+    const fertilizing = positive(libraryPlant.fertilizingFrequencyDays);
+    const harvestDays = positive(libraryPlant.typicalDaysToHarvest);
+    const start = plantedAt ?? Date.now();
+    const tasks = [
+      { type: 'watering', enabled: watering !== undefined, intervalDays: watering },
+      { type: 'fertilizing', enabled: fertilizing !== undefined, intervalDays: fertilizing },
+      { type: 'pest_check', enabled: false },
+      {
+        type: 'harvest_check',
+        enabled: harvestDays !== undefined && status === 'growing',
+        expectedDate: harvestDays ? start + harvestDays * 86_400_000 : undefined,
+      },
+    ];
+    const carePlan = await queueOperation({
+      entityType: 'carePlan', operationType: 'create',
+      parentRefs: { plantUuid },
+      payload: {
+        sourceContentVersion: positive(libraryPlant.contentVersion),
+        sourceLabel: libraryPlant.source ?? 'library:plantCare',
+        sourceValues: {
+          wateringFrequencyDays: watering,
+          fertilizingFrequencyDays: fertilizing,
+          typicalDaysToHarvest: harvestDays,
+        },
+        tasks,
+      },
+    });
+    if (status !== 'growing') return;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    for (const task of tasks) {
+      if (!task.enabled) continue;
+      const nextRunAt = task.type === 'harvest_check'
+        ? task.expectedDate
+        : start + (task.intervalDays ?? 1) * 86_400_000;
+      if (!nextRunAt) continue;
+      await queueOperation({
+        entityType: 'reminder', operationType: 'create',
+        parentRefs: { plantUuid, carePlanUuid: carePlan.entityUuid },
+        entityUuid: `${carePlan.entityUuid}:1:${task.type}`,
+        payload: {
+          taskType: task.type, timezone, nextRunAt,
+          rrule: task.intervalDays ? `FREQ=DAILY;INTERVAL=${task.intervalDays}` : undefined,
+        },
+      });
+    }
+  }, [libraryPlants, queueOperation]);
 
   const navigateAfterAdd = useCallback(
     (args: Omit<CompleteLibraryAddArgs, 'plantMasterId'>) => {
@@ -245,11 +310,15 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
         status: args.status,
         clientRequestId,
       });
+      await materializeCarePlan(
+        String(addedPlantId), args.plantMasterId,
+        args.status ?? 'planning', args.plantedAt,
+      );
       await uploadScannerPhoto(addedPlantId, args.scannedPhotoUri);
       pendingAddRequestIds.current.delete(requestSignature);
       return addedPlantId;
     },
-    [addPlant, appMode, uploadScannerPhoto]
+    [addPlant, appMode, materializeCarePlan, uploadScannerPhoto]
   );
 
   const completeLibraryAdd = useCallback(
@@ -302,6 +371,12 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
           clientRequestId,
         });
       }
+      if (addedPlantId) {
+        await materializeCarePlan(
+          String(addedPlantId), args.plantMasterId, normalizedSelectionMode,
+          normalizedSelectionMode === 'growing' ? Date.now() : undefined,
+        );
+      }
 
       if (args.from === 'scanner' && addedPlantId) {
         await uploadScannerPhoto(addedPlantId, args.scannedPhotoUri);
@@ -324,7 +399,7 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
       pendingAddRequestIds.current.delete(requestSignature);
       return addedPlantId;
     },
-    [addPlant, appMode, navigateAfterAdd, updatePlant, uploadScannerPhoto]
+    [addPlant, appMode, materializeCarePlan, navigateAfterAdd, updatePlant, uploadScannerPhoto]
   );
 
   return {

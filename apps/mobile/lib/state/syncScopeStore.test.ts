@@ -21,6 +21,9 @@ function projection(scope: string, name: string): ProjectionEnvelope {
       activity: {},
       harvest: {},
       photo: {},
+      carePlan: {},
+      reminder: {},
+      reminderOutcome: {},
     },
     tombstones: {},
   };

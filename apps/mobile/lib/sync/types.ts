@@ -1,6 +1,8 @@
 import { PlantActivityType } from '../plantLocalData';
 
-export type EntityType = 'garden' | 'bed' | 'plant' | 'activity' | 'harvest' | 'photo';
+export type EntityType =
+  | 'garden' | 'bed' | 'plant' | 'activity' | 'harvest' | 'photo'
+  | 'carePlan' | 'reminder' | 'reminderOutcome';
 export type SyncActionType = 'photo' | 'activity' | 'harvest' | 'entity';
 
 export type EntityOperationPayload = {
@@ -10,7 +12,10 @@ export type EntityOperationPayload = {
   entityUuid: string;
   operationType: 'create' | 'update' | 'delete';
   baseRevision?: number;
-  parentRefs?: { gardenUuid?: string | null; bedUuid?: string | null; plantUuid?: string | null };
+  parentRefs?: {
+    gardenUuid?: string | null; bedUuid?: string | null; plantUuid?: string | null;
+    carePlanUuid?: string | null; reminderUuid?: string | null;
+  };
   payload?: unknown;
 };
 

@@ -6,6 +6,8 @@ import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
+import { useSyncProjectionEntities } from './useSyncProjection';
+import { useEntitySync } from './useEntitySync';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 const E2E_NOW = process.env.EXPO_PUBLIC_E2E_NOW;
@@ -24,6 +26,8 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
     const hasSession = useHasAuthSession();
+    const projectedReminders = useSyncProjectionEntities('reminder') as any[];
+    const { queueOperation } = useEntitySync();
 
     const remoteReminders = useQuery(api.reminders.getReminders, hasSession && deviceId ? {
         userPlantId,
@@ -44,7 +48,14 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { cached: cachedToday } =
         useQueryCache(todayCacheKey, remoteTodayReminders);
 
-    const reminders = E2E_REMINDER_MODE ? e2eReminders : !hasSession ? [] : remoteReminders ?? cachedReminders;
+    const projectedForPlant = projectedReminders.filter((reminder) =>
+        !userPlantId || String(reminder.userPlantId) === String(userPlantId)
+    );
+    const reminders = E2E_REMINDER_MODE
+        ? e2eReminders
+        : projectedForPlant.length > 0
+          ? projectedForPlant
+          : !hasSession ? [] : remoteReminders ?? cachedReminders;
     const todayReminders = E2E_REMINDER_MODE
         ? e2eReminders.filter((reminder) => {
             const date = new Date(reminder.nextRunAt);
@@ -53,7 +64,24 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
                 && date.getMonth() === now.getMonth()
                 && date.getDate() === now.getDate();
         })
-        : !hasSession ? [] : remoteTodayReminders ?? cachedToday;
+        : projectedReminders.length > 0
+          ? projectedReminders.filter((reminder) => reminder.enabled && reminder.nextRunAt <= new Date().setHours(23, 59, 59, 999))
+          : !hasSession ? [] : remoteTodayReminders ?? cachedToday;
+
+    const queueOutcome = async (
+        reminder: any,
+        outcome: 'performed' | 'checked_not_needed' | 'snoozed' | 'skipped' | 'edited' | 'disabled' | 'deleted',
+        extra: Record<string, unknown> = {},
+    ) => {
+        if (!reminder?.entityUuid) return false;
+        await queueOperation({
+            entityType: 'reminderOutcome',
+            operationType: 'create',
+            parentRefs: { reminderUuid: reminder.entityUuid },
+            payload: { outcome, occurredAt: Date.now(), ...extra },
+        });
+        return true;
+    };
 
     const createReminderMutation = useMutation(api.reminders.createReminder);
     const toggleReminderMutation = useMutation(api.reminders.toggleReminder);
@@ -94,6 +122,15 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             )));
             return;
         }
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (reminder?.entityUuid) {
+            await queueOperation({
+                entityType: 'reminder', entityUuid: reminder.entityUuid,
+                operationType: 'update', baseRevision: reminder.revision ?? 1,
+                payload: { enabled: !reminder.enabled },
+            });
+            return;
+        }
         return await toggleReminderMutation({ reminderId, deviceId });
     };
 
@@ -104,6 +141,8 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             )));
             return;
         }
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (await queueOutcome(reminder, 'performed')) return;
         return await completeReminderMutation({ reminderId, deviceId });
     };
 
@@ -128,6 +167,15 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             )));
             return;
         }
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (reminder?.entityUuid) {
+            await queueOperation({
+                entityType: 'reminder', entityUuid: reminder.entityUuid,
+                operationType: 'update', baseRevision: reminder.revision ?? 1,
+                payload: updates,
+            });
+            return;
+        }
         return await updateReminderMutation({ reminderId, ...updates, deviceId });
     };
 
@@ -136,6 +184,8 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             setE2EReminders((current) => current.filter((reminder) => reminder._id !== reminderId));
             return;
         }
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (await queueOutcome(reminder, 'deleted')) return;
         return await deleteReminderMutation({ reminderId, deviceId });
     };
 
@@ -146,6 +196,8 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             )));
             return;
         }
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (await queueOutcome(reminder, 'snoozed', { snoozedUntil })) return;
         return await snoozeReminderMutation({ reminderId, snoozedUntil, deviceId });
     };
 
@@ -156,7 +208,19 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             )));
             return;
         }
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (await queueOutcome(reminder, 'skipped')) return;
         return await skipReminderMutation({ reminderId, deviceId });
+    };
+
+    const resolveReminderOutcome = async (
+        reminderId: Id<'reminders'>,
+        outcome: 'performed' | 'checked_not_needed',
+    ) => {
+        const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
+        if (await queueOutcome(reminder, outcome)) return;
+        if (outcome === 'performed') return await completeReminderMutation({ reminderId, deviceId });
+        throw new Error('This legacy reminder does not support a check-only outcome.');
     };
 
     return {
@@ -170,5 +234,6 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         deleteReminder,
         snoozeReminder,
         skipReminder,
+        resolveReminderOutcome,
     };
 }

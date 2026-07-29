@@ -98,6 +98,7 @@ export default function PlantDetailScreen() {
     [plants, resolvedPlantId]
   );
   const { projection, entities, identity: syncIdentity } = useSyncProjection();
+  const carePlans = (entities('carePlan') ?? []) as any[];
   const projectedActivities = entities('activity') as any[] | undefined;
   const projectedHarvests = entities('harvest') as any[] | undefined;
   const projectedPhotos = entities('photo') as any[] | undefined;
@@ -190,6 +191,9 @@ export default function PlantDetailScreen() {
   const statusLabel = plant ? t(`plant.status_${plant.status}`) : '';
   const isPlanning = plant?.status === 'planning' || plant?.status === 'planting';
   const isGrowing = plant?.status === 'growing';
+  const activeCarePlan = carePlans
+    .filter((plan) => String(plan.userPlantId) === String(resolvedPlantId))
+    .sort((a, b) => (b.planVersion ?? 0) - (a.planVersion ?? 0))[0];
 
   const [notes, setNotes] = useState('');
   const [nickname, setNickname] = useState('');
@@ -913,6 +917,42 @@ export default function PlantDetailScreen() {
                 </View>
               </View>
             )}
+          </View>
+        )}
+
+        {activeCarePlan && (
+          <View testID="care-plan-card" style={{ backgroundColor: theme.card, borderRadius: 20, padding: 18, borderWidth: 1, borderColor: theme.border, gap: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>
+                {t('plant.care_plan_title', { defaultValue: 'Care plan' })}
+              </Text>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted }}>
+                {t('plant.care_plan_version', { defaultValue: 'Version {{version}}', version: activeCarePlan.planVersion })}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 12, color: theme.textSecondary }}>
+              {t('plant.care_plan_source', {
+                defaultValue: 'Snapshot from Library content v{{version}}',
+                version: activeCarePlan.sourceContentVersion ?? '—',
+              })}
+            </Text>
+            {(activeCarePlan.tasks ?? []).map((task: any) => (
+              <View key={task.type} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+                <Text style={{ flex: 1, fontSize: 14, color: theme.text }}>
+                  {t(`reminder.type_${task.type === 'harvest_check' ? 'harvest' : task.type}`, { defaultValue: task.type.replace(/_/g, ' ') })}
+                </Text>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: task.enabled ? theme.success : theme.textMuted }}>
+                  {task.enabled
+                    ? task.intervalDays
+                      ? t('plant.care_plan_every_days', { defaultValue: 'Every {{days}} days', days: task.intervalDays })
+                      : t('reminder.enabled')
+                    : t('reminder.disabled')}
+                </Text>
+              </View>
+            ))}
+            <Text style={{ fontSize: 11, color: theme.textMuted }}>
+              {t('plant.care_plan_edit_hint', { defaultValue: 'Edit or disable individual schedules from Reminders.' })}
+            </Text>
           </View>
         )}
 

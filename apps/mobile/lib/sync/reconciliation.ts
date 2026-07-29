@@ -17,6 +17,7 @@ export type ProjectionEnvelope = {
 
 const domains: SnapshotDomain[] = [
   'tombstone', 'garden', 'bed', 'plant', 'activity', 'harvest', 'photo',
+  'carePlan', 'reminder', 'reminderOutcome',
 ];
 const projectionListeners = new Set<(scope: string) => void>();
 
@@ -43,7 +44,10 @@ function emptyProjection(scope: string, generation: string): ProjectionEnvelope 
     generation,
     hydratedAt: Date.now(),
     complete: false,
-    entities: { garden: {}, bed: {}, plant: {}, activity: {}, harvest: {}, photo: {} },
+    entities: {
+      garden: {}, bed: {}, plant: {}, activity: {}, harvest: {}, photo: {},
+      carePlan: {}, reminder: {}, reminderOutcome: {},
+    },
     tombstones: {},
   };
 }
@@ -100,6 +104,7 @@ export function composeRenderedProjection(
     if (rendered.tombstones[`${op.entityType}:${op.entityUuid}`]) continue;
     const parentTypes: Array<[keyof NonNullable<EntityOperationPayload['parentRefs']>, EntityType]> = [
       ['gardenUuid', 'garden'], ['bedUuid', 'bed'], ['plantUuid', 'plant'],
+      ['carePlanUuid', 'carePlan'], ['reminderUuid', 'reminder'],
     ];
     const hasInvalidParent = parentTypes.some(([key, type]) => {
       const uuid = op.parentRefs?.[key];
@@ -143,7 +148,32 @@ export function composeRenderedProjection(
         ? undefined
         : logicalId(rendered.entities.plant[op.parentRefs.plantUuid] as Record<string, unknown>, op.parentRefs.plantUuid);
     }
+    if (op.parentRefs?.carePlanUuid !== undefined) {
+      row.carePlanId = op.parentRefs.carePlanUuid === null
+        ? undefined
+        : logicalId(rendered.entities.carePlan[op.parentRefs.carePlanUuid] as Record<string, unknown>, op.parentRefs.carePlanUuid);
+    }
+    if (op.parentRefs?.reminderUuid !== undefined) {
+      row.reminderId = op.parentRefs.reminderUuid === null
+        ? undefined
+        : logicalId(rendered.entities.reminder[op.parentRefs.reminderUuid] as Record<string, unknown>, op.parentRefs.reminderUuid);
+    }
     collection[op.entityUuid] = row;
+    if (op.entityType === 'reminderOutcome' && op.parentRefs?.reminderUuid) {
+      const reminder = rendered.entities.reminder[op.parentRefs.reminderUuid] as Record<string, unknown> | undefined;
+      if (reminder) {
+        const outcome = payload.outcome;
+        const occurredAt = typeof payload.occurredAt === 'number' ? payload.occurredAt : action.createdAt;
+        if (outcome === 'snoozed' && typeof payload.snoozedUntil === 'number') {
+          reminder.snoozedUntil = payload.snoozedUntil;
+        } else if (outcome === 'disabled' || outcome === 'deleted') {
+          reminder.enabled = false;
+        } else if (outcome !== 'edited') {
+          reminder.lastRunAt = occurredAt;
+          reminder._pendingOutcome = outcome;
+        }
+      }
+    }
   }
   return rendered;
 }

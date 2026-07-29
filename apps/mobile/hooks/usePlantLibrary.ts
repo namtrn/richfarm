@@ -153,6 +153,7 @@ function buildSeedPlantLibrary(locale: string) {
             hasImage: false,
             typicalDaysToHarvest: plant.typicalDaysToHarvest,
             wateringFrequencyDays: plant.wateringFrequencyDays,
+            fertilizingFrequencyDays: (plant as any).fertilizingFrequencyDays,
             lightRequirements: plant.lightRequirements,
             germinationDays: plant.germinationDays,
             spacingCm: plant.spacingCm,

@@ -341,7 +341,13 @@
     "feedback_batch_completed": "{{count}} reminders completed.",
     "feedback_batch_snoozed": "{{count}} reminders snoozed.",
     "feedback_batch_skipped": "{{count}} reminders skipped.",
-    "feedback_garden_check_created": "Garden check ritual created."
+    "feedback_garden_check_created": "Garden check ritual created.",
+    "outcome_title": "What did you find?",
+    "outcome_checked_not_needed": "Checked — not needed",
+    "outcome_watered": "Watered",
+    "outcome_fertilized": "Fertilized",
+    "outcome_performed": "Completed check",
+    "feedback_checked": "Check recorded."
   },
   "library": {
     "title": "Library",

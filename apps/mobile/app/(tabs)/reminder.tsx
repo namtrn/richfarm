@@ -735,7 +735,7 @@ export default function ReminderScreen() {
   const isGardener = appMode === 'gardener';
   const router = useRouter();
   const pathname = usePathname();
-  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder, snoozeReminder, skipReminder } = useReminders();
+  const { reminders, todayReminders, isLoading, completeReminder, createReminder, updateReminder, deleteReminder, toggleReminder, snoozeReminder, skipReminder, resolveReminderOutcome } = useReminders();
   const { plants } = usePlants();
   const { beds } = useBeds();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -1080,9 +1080,34 @@ export default function ReminderScreen() {
 
   const handleComplete = (reminder: any) => {
     if (!handleAuthRequired()) return;
-    void runReminderAction(
-      () => completeReminder(reminder._id),
-      t('reminder.feedback_completed')
+    if (!reminder.carePlanId && !reminder.taskType) {
+      void runReminderAction(() => completeReminder(reminder._id), t('reminder.feedback_completed'));
+      return;
+    }
+    Alert.alert(
+      t('reminder.outcome_title', { defaultValue: 'What did you find?' }),
+      getDisplayTitle(reminder),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('reminder.outcome_checked_not_needed', { defaultValue: 'Checked — not needed' }),
+          onPress: () => void runReminderAction(
+            () => resolveReminderOutcome(reminder._id, 'checked_not_needed'),
+            t('reminder.feedback_checked', { defaultValue: 'Check recorded' }),
+          ),
+        },
+        {
+          text: reminder.taskType === 'watering'
+            ? t('reminder.outcome_watered', { defaultValue: 'Watered' })
+            : reminder.taskType === 'fertilizing'
+              ? t('reminder.outcome_fertilized', { defaultValue: 'Fertilized' })
+              : t('reminder.outcome_performed', { defaultValue: 'Completed check' }),
+          onPress: () => void runReminderAction(
+            () => resolveReminderOutcome(reminder._id, 'performed'),
+            t('reminder.feedback_completed'),
+          ),
+        },
+      ],
     );
   };
 

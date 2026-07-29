@@ -340,7 +340,13 @@
     "feedback_batch_completed": "Đã hoàn thành {{count}} nhắc nhở.",
     "feedback_batch_snoozed": "Đã dời {{count}} nhắc nhở.",
     "feedback_batch_skipped": "Đã bỏ qua {{count}} nhắc nhở.",
-    "feedback_garden_check_created": "Đã tạo nhịp kiểm tra vườn."
+    "feedback_garden_check_created": "Đã tạo nhịp kiểm tra vườn.",
+    "outcome_title": "Bạn đã kiểm tra thấy gì?",
+    "outcome_checked_not_needed": "Đã kiểm tra — chưa cần",
+    "outcome_watered": "Đã tưới",
+    "outcome_fertilized": "Đã bón phân",
+    "outcome_performed": "Đã hoàn tất kiểm tra",
+    "feedback_checked": "Đã ghi nhận kiểm tra."
   },
   "library": {
     "title": "Thư viện",

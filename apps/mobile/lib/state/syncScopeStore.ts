@@ -25,6 +25,9 @@ const EMPTY_ENTITY_LISTS: Record<EntityType, unknown[]> = {
   activity: [],
   harvest: [],
   photo: [],
+  carePlan: [],
+  reminder: [],
+  reminderOutcome: [],
 };
 const EMPTY_CHILD_LISTS: SyncScopeState['plantChildLists'] = {
   activity: {}, harvest: {}, photo: {},
@@ -101,6 +104,9 @@ export function publishSyncScopeSnapshot(input: {
           activity: Object.values(projection.entities.activity),
           harvest: Object.values(projection.entities.harvest),
           photo: Object.values(projection.entities.photo),
+          carePlan: Object.values(projection.entities.carePlan),
+          reminder: Object.values(projection.entities.reminder),
+          reminderOutcome: Object.values(projection.entities.reminderOutcome),
         }
       : EMPTY_ENTITY_LISTS,
     plantChildLists: groupPlantChildren(projection, current.plantChildLists),

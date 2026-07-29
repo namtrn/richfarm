@@ -449,7 +449,7 @@ export default function LibraryPlantDetailScreen() {
     const { favorites, toggleFavorite } = useFavorites();
     const { addPlant, updatePlant } = usePlants();
     const contentCommands = usePlantContentCommands();
-    const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
+    const { completeLibraryAdd, createUserPlant } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
     const { gardens, createGarden } = useGardens();
 
@@ -695,21 +695,22 @@ export default function LibraryPlantDetailScreen() {
                 });
                 resolvedGardenId = String(createdGardenId);
             }
-            const createdPlantId = await addPlant({
-                plantMasterId: resolvedId as any,
+            const plantedAt =
+                plantedPreset === 'custom'
+                    ? parseDateTimeInput(plantedCustomValue)
+                    : plantedPreset === 'today'
+                        ? daysAgoTimestamp(0)
+                        : plantedPreset === 'yesterday'
+                            ? daysAgoTimestamp(1)
+                            : plantedPreset === 'seven_days'
+                                ? daysAgoTimestamp(7)
+                                : daysAgoTimestamp(30);
+            const createdPlantId = await createUserPlant({
+                plantMasterId: String(resolvedId),
                 nickname: gardenerNickname.trim() || undefined,
-                gardenId: resolvedGardenId ? (resolvedGardenId as any) : undefined,
+                gardenId: resolvedGardenId,
                 status: 'growing',
-                plantedAt:
-                    plantedPreset === 'custom'
-                        ? parseDateTimeInput(plantedCustomValue)
-                        : plantedPreset === 'today'
-                            ? daysAgoTimestamp(0)
-                            : plantedPreset === 'yesterday'
-                                ? daysAgoTimestamp(1)
-                                : plantedPreset === 'seven_days'
-                                    ? daysAgoTimestamp(7)
-                                    : daysAgoTimestamp(30),
+                plantedAt,
             });
             const expectedHarvestDate = parseDateInput(gardenerExpectedDate);
             if (expectedHarvestDate) {
