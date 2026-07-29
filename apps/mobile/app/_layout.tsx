@@ -22,6 +22,9 @@ import { BetterAuthConvexProvider } from '../lib/convexAuth';
 import { palette, useTheme } from '../lib/theme';
 import { ThemeProvider, useThemeContext } from '../lib/ThemeContext';
 import { quarantineLegacyQueue } from '../lib/sync/queue';
+import { MobileRuntimeCoordinator } from '../lib/state/MobileRuntimeCoordinator';
+import { SyncScopeCoordinator } from '../lib/state/SyncScopeCoordinator';
+import { ScopedPreferencesCoordinator } from '../lib/state/ScopedPreferencesCoordinator';
 
 function AuthGuard() {
   const { isReady, currentUser } = useAppReady();
@@ -103,29 +106,37 @@ export default function RootLayout() {
   if (!convex) {
     return (
       <I18nextProvider i18n={i18n}>
-        <AppShellOffline>
-          <OfflineScreen />
-        </AppShellOffline>
+        <MobileRuntimeCoordinator>
+          <AppShellOffline>
+            <OfflineScreen />
+          </AppShellOffline>
+        </MobileRuntimeCoordinator>
       </I18nextProvider>
     );
   }
 
   return (
     <I18nextProvider i18n={i18n}>
-      <BetterAuthConvexProvider>
-        <AuthProvider>
-          <GuestClaimCoordinator />
-          <SubscriptionProvider>
-            <ThemeProvider>
-              <AppShellWithSettings>
-                <OfflineBanner />
-                <SyncStatusBanner compact style={styles.syncBanner} />
-                <AuthGuard />
-              </AppShellWithSettings>
-            </ThemeProvider>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </BetterAuthConvexProvider>
+      <MobileRuntimeCoordinator>
+        <BetterAuthConvexProvider>
+          <AuthProvider>
+            <SyncScopeCoordinator>
+              <ScopedPreferencesCoordinator>
+                <GuestClaimCoordinator />
+                <SubscriptionProvider>
+                  <ThemeProvider>
+                    <AppShellWithSettings>
+                      <OfflineBanner />
+                      <SyncStatusBanner compact localOnlyToast style={styles.syncBanner} />
+                      <AuthGuard />
+                    </AppShellWithSettings>
+                  </ThemeProvider>
+                </SubscriptionProvider>
+              </ScopedPreferencesCoordinator>
+            </SyncScopeCoordinator>
+          </AuthProvider>
+        </BetterAuthConvexProvider>
+      </MobileRuntimeCoordinator>
     </I18nextProvider>
   );
 }

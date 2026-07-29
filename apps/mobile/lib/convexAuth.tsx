@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { ConvexProviderWithAuth } from 'convex/react';
 import { authClient } from './auth-client';
 import { createConvexClient } from './convex';
+import { useMobileRuntime } from './state/mobileRuntimeStore';
 
 function useBetterAuthForConvex() {
-  const { data: session, isPending } = authClient.useSession();
+  const session = useMobileRuntime((state) => state.session);
+  const isPending = useMobileRuntime((state) => state.authStatus === 'loading');
   const sessionId = session?.session?.id ?? null;
   const [cachedToken, setCachedToken] = useState<string | null>(null);
   const [tokenSessionId, setTokenSessionId] = useState<string | null>(null);
@@ -54,7 +56,7 @@ function useBetterAuthForConvex() {
 }
 
 export function BetterAuthConvexProvider({ children }: { children: ReactNode }) {
-  const { data: session } = authClient.useSession();
+  const session = useMobileRuntime((state) => state.session);
   const sessionId = session?.session?.id ?? 'anonymous';
   const convex = useMemo(() => createConvexClient(), [sessionId]);
 

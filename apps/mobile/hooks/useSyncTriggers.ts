@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { AppState } from 'react-native';
-import NetInfo from '@react-native-community/netinfo';
 import { useSyncExecutor } from '../lib/sync/useSyncExecutor';
 import { useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../lib/deviceId';
 import { useLocalSyncIdentity } from '../lib/sync/identity';
+import { useMobileRuntime } from '../lib/state/mobileRuntimeStore';
 
 const MIN_ATTEMPT_INTERVAL_MS = 15000;
 
@@ -16,6 +15,8 @@ export function useSyncTriggers(enabled: boolean = true) {
   const { execute } = useSyncExecutor();
   const { deviceId } = useDeviceId();
   const { identity } = useLocalSyncIdentity();
+  const network = useMobileRuntime((state) => state.network);
+  const appState = useMobileRuntime((state) => state.appState);
   const signal = useQuery(
     api.syncV2.syncSignal,
     enabled && deviceId && identity?.kind === 'account' ? { deviceId } : 'skip'
@@ -60,22 +61,8 @@ export function useSyncTriggers(enabled: boolean = true) {
   }, [enabled, execute, signal]);
 
   useEffect(() => {
-    if (!enabledRef.current) return;
-    const subscription = NetInfo.addEventListener((state) => {
-      if (state.isConnected && state.isInternetReachable !== false) {
-        attemptSync();
-      }
-    });
-    return () => subscription();
-  }, [attemptSync]);
-
-  useEffect(() => {
-    if (!enabledRef.current) return;
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        attemptSync();
-      }
-    });
-    return () => subscription.remove();
-  }, [attemptSync]);
+    if (network === 'online' && appState === 'active') {
+      attemptSync();
+    }
+  }, [appState, attemptSync, network]);
 }

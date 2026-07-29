@@ -1,5 +1,5 @@
-import { authClient } from './auth-client';
 import { useLocalSyncIdentity } from './sync/identity';
+import { useMobileRuntime } from './state/mobileRuntimeStore';
 
 export function useSessionScopedCacheKey(prefix: string, suffix = '') {
   const { identity } = useLocalSyncIdentity();
@@ -8,6 +8,5 @@ export function useSessionScopedCacheKey(prefix: string, suffix = '') {
 }
 
 export function useHasAuthSession() {
-  const { data: session } = authClient.useSession();
-  return !!session && (session.user as { isAnonymous?: boolean }).isAnonymous !== true;
+  return useMobileRuntime((state) => state.authStatus === 'account');
 }

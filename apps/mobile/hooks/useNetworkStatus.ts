@@ -1,11 +1,9 @@
-import { useNetInfo } from '@react-native-community/netinfo';
+import { useMobileRuntime } from '../lib/state/mobileRuntimeStore';
 
 export function useNetworkStatus() {
-  const netInfo = useNetInfo();
-  const isKnown =
-    netInfo.isConnected !== null || netInfo.isInternetReachable !== null;
-  const isOffline =
-    netInfo.isConnected === false || netInfo.isInternetReachable === false;
+  const network = useMobileRuntime((state) => state.network);
+  const isKnown = network !== 'unknown';
+  const isOffline = network === 'offline';
 
   return {
     isKnown,

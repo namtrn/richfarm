@@ -1,7 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-import { authClient } from '../auth-client';
-import { useDeviceId } from '../deviceId';
+import { useMobileRuntime } from '../state/mobileRuntimeStore';
 
 const GUEST_DATASET_KEY = 'rf_guest_dataset_id_v1';
 const identityListeners = new Set<() => void>();
@@ -79,33 +77,14 @@ export async function rotateGuestDatasetId(expectedCurrentId: string): Promise<s
   return next;
 }
 
+export function subscribeLocalSyncIdentityInvalidation(listener: () => void) {
+  identityListeners.add(listener);
+  return () => {
+    identityListeners.delete(listener);
+  };
+}
+
 export function useLocalSyncIdentity() {
-  const { deviceId } = useDeviceId();
-  const { data: session, isPending } = authClient.useSession();
-  const sessionUser = session?.user as ({ id?: string; isAnonymous?: boolean } | undefined);
-  const accountUserId = sessionUser?.isAnonymous !== true && typeof sessionUser?.id === 'string'
-    ? sessionUser.id
-    : null;
-  const [identity, setIdentity] = useState<LocalSyncIdentity | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    const resolve = () => {
-      if (!deviceId || isPending) {
-        setIdentity(null);
-        return;
-      }
-      void resolveLocalSyncIdentity(deviceId, accountUserId).then((next) => {
-        if (active) setIdentity(next);
-      });
-    };
-    resolve();
-    identityListeners.add(resolve);
-    return () => {
-      active = false;
-      identityListeners.delete(resolve);
-    };
-  }, [accountUserId, deviceId, isPending]);
-
+  const identity = useMobileRuntime((state) => state.identity);
   return { identity, isLoading: !identity };
 }

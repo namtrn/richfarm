@@ -6,13 +6,15 @@ import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useEntitySync } from './useEntitySync';
-import { useSyncProjection } from './useSyncProjection';
+import { useSyncProjectionEntities, useSyncProjectionMeta } from './useSyncProjection';
 
 export function useBeds(gardenId?: Id<'gardens'>) {
   const { deviceId } = useDeviceId();
   const { isKnown, isOffline } = useNetworkStatus();
   const shouldBypassRemote = isKnown && isOffline;
-  const { projection, entities, identity } = useSyncProjection();
+  const { hasProjection, isComplete, identity } = useSyncProjectionMeta();
+  const projectedBeds = useSyncProjectionEntities('bed') as any[];
+  const projectedGardens = useSyncProjectionEntities('garden') as any[];
 
   // Two unconditional hooks — React rules require hooks to always be called.
   // The correct one runs; the other is skipped via 'skip'.
@@ -25,8 +27,6 @@ export function useBeds(gardenId?: Id<'gardens'>) {
     !gardenId && deviceId && identity?.kind === 'account' ? { deviceId } : 'skip'
   );
   const remoteBeds = bedsFromGarden ?? allBeds;
-  const projectedBeds = entities('bed') as any[] | undefined;
-  const projectedGardens = entities('garden') as any[] | undefined;
 
   const cacheKey = useSessionScopedCacheKey(
     'rf_beds_v2',
@@ -38,12 +38,12 @@ export function useBeds(gardenId?: Id<'gardens'>) {
     (bed) => !gardenId || String(bed.gardenId) === String(gardenId)
   ) as typeof remoteBeds;
   const fallbackBeds = (remoteBeds ?? cached ?? []) as any[];
-  const optimisticBeds = (projection && !projection.complete
+  const optimisticBeds = (hasProjection && !isComplete
     ? [...fallbackBeds.filter((row) => !projectionBeds?.some((pending: any) => pending.entityUuid === row.entityUuid)), ...(projectionBeds ?? [])]
-    : projection ? projectionBeds : fallbackBeds) as typeof remoteBeds;
+    : hasProjection ? projectionBeds : fallbackBeds) as typeof remoteBeds;
   const beds: typeof remoteBeds = identity?.kind === 'guest'
     ? projectionBeds
-    : projection?.complete ? projectionBeds : optimisticBeds;
+    : isComplete ? projectionBeds : optimisticBeds;
 
   const { queueOperation } = useEntitySync();
   const uuidFor = (rows: any[] | undefined, id: unknown) =>

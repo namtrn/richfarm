@@ -5,25 +5,30 @@ import { useDeviceId } from '../lib/deviceId';
 import { useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useQueryCache } from '../lib/queryCache';
 import { useEntitySync } from './useEntitySync';
-import { useSyncProjection } from './useSyncProjection';
+import { useSyncProjectionEntities, useSyncProjectionMeta } from './useSyncProjection';
 
 export function useGardens() {
   const { deviceId } = useDeviceId();
-  const { projection, entities, identity } = useSyncProjection();
+  const {
+    hasProjection,
+    isComplete,
+    identity,
+    isLoading: isProjectionLoading,
+  } = useSyncProjectionMeta();
+  const projectedGardens = useSyncProjectionEntities('garden') as any[];
   const remoteGardens = useQuery(
     api.gardens.getGardens,
     deviceId && identity?.kind === 'account' ? { deviceId } : 'skip'
   );
   const cacheKey = useSessionScopedCacheKey('rf_gardens_v2');
   const { cached, cacheLoaded } = useQueryCache(cacheKey, remoteGardens);
-  const projectedGardens = entities('garden') as any[] | undefined;
   const fallbackGardens = (remoteGardens ?? cached ?? []) as any[];
-  const optimisticGardens = projection && !projection.complete
-    ? [...fallbackGardens.filter((row) => !projectedGardens?.some((pending) => pending.entityUuid === row.entityUuid)), ...(projectedGardens ?? [])]
-    : projection ? projectedGardens : fallbackGardens;
+  const optimisticGardens = hasProjection && !isComplete
+    ? [...fallbackGardens.filter((row) => !projectedGardens.some((pending) => pending.entityUuid === row.entityUuid)), ...projectedGardens]
+    : hasProjection ? projectedGardens : fallbackGardens;
   const gardens = identity?.kind === 'guest'
     ? projectedGardens
-    : projection?.complete
+    : isComplete
       ? projectedGardens as typeof remoteGardens
       : optimisticGardens as typeof remoteGardens;
   const { queueOperation } = useEntitySync();
@@ -63,5 +68,8 @@ export function useGardens() {
     });
   };
 
-  return { gardens: gardens ?? [], isLoading: !identity || (gardens === undefined && !cacheLoaded), createGarden, updateGarden, deleteGarden };
+  const isLoading = !identity || (identity.kind === 'guest'
+    ? isProjectionLoading
+    : gardens === undefined && !cacheLoaded);
+  return { gardens: gardens ?? [], isLoading, createGarden, updateGarden, deleteGarden };
 }

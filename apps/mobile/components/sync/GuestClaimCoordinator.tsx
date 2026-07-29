@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Text, View } from 'react-native';
-import { authClient } from '../../lib/auth-client';
 import { useDeviceId } from '../../lib/deviceId';
 import {
   consumeServerCreatedAccountMarker,
@@ -14,10 +13,12 @@ import { loadAuthoritativeProjection } from '../../lib/sync/reconciliation';
 import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useTranslation } from 'react-i18next';
+import { useMobileRuntime } from '../../lib/state/mobileRuntimeStore';
 
 export function GuestClaimCoordinator() {
   const { deviceId } = useDeviceId();
-  const { data: session, isPending } = authClient.useSession();
+  const session = useMobileRuntime((state) => state.session);
+  const isPending = useMobileRuntime((state) => state.authStatus === 'loading');
   const { execute } = useSyncExecutor();
   const { t } = useTranslation();
   const { isOnline } = useNetworkStatus();

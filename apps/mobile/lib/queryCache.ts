@@ -2,42 +2,42 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * useQueryCache — generic offline read-cache for Convex queries.
- *
- * Pattern (same as usePlantLibrary):
- *  1. On mount → load last-known value from AsyncStorage
- *  2. When remote arrives → update state + write-through to AsyncStorage
- *  3. Offline → returns cached data instead of undefined/[]
- *
- * @param key   AsyncStorage key (should include version + user scope)
- * @param remote  Value from Convex useQuery (undefined while loading, null if no match)
+ * Scope-safe offline read cache for Convex queries.
+ * The returned snapshot is synchronously masked when the cache key changes.
  */
 export function useQueryCache<T>(key: string | null, remote: T | undefined) {
-    const [cached, setCached] = useState<T | undefined>(undefined);
-    const [cacheLoaded, setCacheLoaded] = useState(false);
+    const [snapshot, setSnapshot] = useState<{
+        key: string | null;
+        cached: T | undefined;
+        loaded: boolean;
+    }>({ key: null, cached: undefined, loaded: false });
 
-    // 1. Load from AsyncStorage on mount / key change
     useEffect(() => {
         if (!key) {
-            setCacheLoaded(true);
+            setSnapshot({ key: null, cached: undefined, loaded: true });
             return;
         }
 
         let cancelled = false;
-        setCacheLoaded(false);
-        setCached(undefined);
-
+        setSnapshot({ key, cached: undefined, loaded: false });
         AsyncStorage.getItem(key)
             .then((raw) => {
                 if (cancelled || !raw) return;
                 try {
-                    setCached(JSON.parse(raw) as T);
+                    const cached = JSON.parse(raw) as T;
+                    setSnapshot((current) => current.key === key
+                        ? { key, cached, loaded: current.loaded }
+                        : current);
                 } catch {
-                    /* corrupted cache, ignore */
+                    // Disposable read caches may ignore malformed payloads.
                 }
             })
             .finally(() => {
-                if (!cancelled) setCacheLoaded(true);
+                if (!cancelled) {
+                    setSnapshot((current) => current.key === key
+                        ? { ...current, loaded: true }
+                        : current);
+                }
             });
 
         return () => {
@@ -45,16 +45,19 @@ export function useQueryCache<T>(key: string | null, remote: T | undefined) {
         };
     }, [key]);
 
-    // 2. Write-through when remote data arrives
     useEffect(() => {
         if (remote === undefined || !key) return;
-        setCached(remote);
+        setSnapshot((current) => current.key === key
+            ? { key, cached: remote, loaded: true }
+            : current);
         AsyncStorage.setItem(key, JSON.stringify(remote)).catch(() => undefined);
     }, [remote, key]);
 
-    // remoteResolved: true once Convex query returns (even null).
-    // Use this to avoid the `null ?? undefined = undefined` trap.
     const remoteResolved = remote !== undefined;
-
-    return { cached, cacheLoaded, remoteResolved };
+    const matchesScope = snapshot.key === key;
+    return {
+        cached: matchesScope ? snapshot.cached : undefined,
+        cacheLoaded: key === null || (matchesScope && snapshot.loaded),
+        remoteResolved,
+    };
 }

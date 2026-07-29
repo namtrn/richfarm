@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useMobileRuntime } from './state/mobileRuntimeStore';
 
 const STORAGE_KEY = 'rf_device_id';
 let cachedId: string | null = null;
@@ -45,19 +45,8 @@ export async function getDeviceId() {
 }
 
 export function useDeviceId() {
-  const [deviceId, setDeviceId] = useState<string | undefined>(cachedId ?? undefined);
-
-  useEffect(() => {
-    let mounted = true;
-    if (!deviceId) {
-      getDeviceId().then((id) => {
-        if (mounted) setDeviceId(id);
-      });
-    }
-    return () => {
-      mounted = false;
-    };
-  }, [deviceId]);
+  const installationId = useMobileRuntime((state) => state.installationId);
+  const deviceId = installationId ?? cachedId ?? undefined;
 
   return {
     deviceId,

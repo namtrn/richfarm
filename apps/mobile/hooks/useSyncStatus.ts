@@ -1,50 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
-import { AppState } from 'react-native';
-import { loadOutbox, subscribeSyncQueue } from '../lib/sync/queue';
-import type { SyncAction } from '../lib/sync/types';
-import { useNetworkStatus } from './useNetworkStatus';
-import { useLocalSyncIdentity } from '../lib/sync/identity';
+import { useMemo } from 'react';
+import { useMobileRuntime } from '../lib/state/mobileRuntimeStore';
+import { useSyncScope } from '../lib/state/syncScopeStore';
 
 type SyncStatus = 'loading' | 'idle' | 'offline' | 'pending' | 'retry' | 'attention';
 
 export function useSyncStatus(plantId?: string) {
-  const { isOffline, isOnline } = useNetworkStatus();
-  const { identity } = useLocalSyncIdentity();
-  const scope = identity?.scopeKey;
-  const [queue, setQueue] = useState<SyncAction[]>([]);
-  const [quarantine, setQuarantine] = useState<SyncAction[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    const refresh = async () => {
-      const outbox = await loadOutbox(scope);
-      if (!active) return;
-      setQueue(outbox.operations);
-      setQuarantine(outbox.quarantine);
-      setLoaded(true);
-    };
-
-    void refresh();
-
-    const unsubscribe = subscribeSyncQueue(scope, () => {
-      if (!active) return;
-      void refresh();
-    });
-
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        void refresh();
-      }
-    });
-
-    return () => {
-      active = false;
-      unsubscribe();
-      subscription.remove();
-    };
-  }, [scope]);
+  const identity = useMobileRuntime((state) => state.identity);
+  const activeScope = useMobileRuntime((state) => state.activeScope);
+  const network = useMobileRuntime((state) => state.network);
+  const storeScope = useSyncScope((state) => state.scope);
+  const hydration = useSyncScope((state) => state.hydration);
+  const outbox = useSyncScope((state) => state.outbox);
+  const visibleOutbox = activeScope === storeScope ? outbox : null;
+  const queue = visibleOutbox?.operations ?? [];
+  const quarantine = visibleOutbox?.quarantine ?? [];
+  const loaded = activeScope === storeScope
+    && hydration !== 'loading'
+    && hydration !== 'idle';
 
   const relevantQueue = useMemo(
     () => (plantId ? queue.filter((item) => item.plantId === plantId) : queue),
@@ -64,18 +36,20 @@ export function useSyncStatus(plantId?: string) {
   ).length;
   const queuedCount = relevantQueue.length;
   const quarantineCount = relevantQuarantine.length;
+  const isOffline = network === 'offline';
+  const isOnline = network === 'online';
 
   const status: SyncStatus = !loaded
     ? 'loading'
     : quarantineCount > 0
       ? 'attention'
       : queuedCount === 0
-      ? 'idle'
-      : isOffline
-        ? 'offline'
-        : failedCount > 0
-          ? 'retry'
-          : 'pending';
+        ? 'idle'
+        : isOffline
+          ? 'offline'
+          : failedCount > 0
+            ? 'retry'
+            : 'pending';
 
   return {
     loaded,

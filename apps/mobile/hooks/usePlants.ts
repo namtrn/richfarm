@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { usePlantLibrary } from './usePlantLibrary';
 import { useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useEntitySync } from './useEntitySync';
-import { useSyncProjection } from './useSyncProjection';
+import { useSyncProjectionEntities, useSyncProjectionMeta } from './useSyncProjection';
 
 export type PlantStatus =
     | 'planning'
@@ -26,15 +26,15 @@ export function usePlants(status?: PlantStatus) {
     const { i18n } = useTranslation();
     const { isKnown, isOffline } = useNetworkStatus();
     const shouldBypassRemote = isKnown && isOffline;
-    const { projection, entities, identity } = useSyncProjection();
+    const { hasProjection, isComplete, identity } = useSyncProjectionMeta();
+    const projectedPlants = useSyncProjectionEntities('plant') as any[];
+    const projectedGardens = useSyncProjectionEntities('garden') as any[];
+    const projectedBeds = useSyncProjectionEntities('bed') as any[];
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const remotePlants = useQuery(
         api.plants.getUserPlants,
         deviceId && identity?.kind === 'account' ? { status, deviceId } : 'skip'
     );
-    const projectedPlants = entities('plant') as any[] | undefined;
-    const projectedGardens = entities('garden') as any[] | undefined;
-    const projectedBeds = entities('bed') as any[] | undefined;
 
     const cacheKey = useSessionScopedCacheKey(
         'rf_plants_v2',
@@ -44,12 +44,12 @@ export function usePlants(status?: PlantStatus) {
 
     const filteredProjection = projectedPlants?.filter((plant) => !status || plant.status === status);
     const fallbackPlants = (remotePlants ?? cached ?? []) as any[];
-    const optimisticPlants = projection && !projection.complete
+    const optimisticPlants = hasProjection && !isComplete
         ? [...fallbackPlants.filter((row) => !filteredProjection?.some((pending) => pending.entityUuid === row.entityUuid)), ...(filteredProjection ?? [])]
-        : projection ? filteredProjection : fallbackPlants;
+        : hasProjection ? filteredProjection : fallbackPlants;
     const plants = identity?.kind === 'guest'
         ? filteredProjection
-        : projection?.complete ? filteredProjection : optimisticPlants;
+        : isComplete ? filteredProjection : optimisticPlants;
     const { plants: libraryPlants } = usePlantLibrary(locale);
     const libraryById = useMemo(
         () => new Map((libraryPlants ?? []).map((plant: any) => [String(plant._id), plant])),

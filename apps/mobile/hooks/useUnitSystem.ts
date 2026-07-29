@@ -1,30 +1,11 @@
-import { useEffect, useState } from 'react';
 import { getLocales } from 'expo-localization';
 import { useTranslation } from 'react-i18next';
-import { useUserSettings } from './useUserSettings';
-import { resolveUnitSystem, UnitSystem } from '../lib/units';
-import {
-    getCachedUnitSystemPreference,
-    hydrateUnitSystemPreference,
-    subscribeUnitSystemPreference,
-} from '../lib/unitPreference';
+import { resolveUnitSystem } from '../lib/units';
+import { useScopedPreferenceValue } from './useScopedPreference';
 
 export function useUnitSystem() {
     const { i18n } = useTranslation();
-    const { settings } = useUserSettings();
+    const unitSystem = useScopedPreferenceValue('unitSystem');
     const deviceRegion = getLocales()[0]?.regionCode ?? undefined;
-    const [localUnitSystem, setLocalUnitSystem] = useState<UnitSystem | undefined>(
-        getCachedUnitSystemPreference()
-    );
-
-    useEffect(() => {
-        void hydrateUnitSystemPreference().then((value) => {
-            setLocalUnitSystem(value);
-        });
-        return subscribeUnitSystemPreference((value) => {
-            setLocalUnitSystem(value);
-        });
-    }, []);
-
-    return resolveUnitSystem(localUnitSystem ?? settings?.unitSystem, i18n.language, deviceRegion);
+    return resolveUnitSystem(unitSystem, i18n.language, deviceRegion);
 }

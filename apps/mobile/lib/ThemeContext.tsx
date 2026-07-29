@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
-import { useUserSettings } from '../hooks/useUserSettings';
 import { palette, ThemeColors } from './palette';
+import { updateScopedPreferences, type ThemePreference } from './state/scopedPreferencesStore';
+import { useScopedPreferenceValue } from '../hooks/useScopedPreference';
 
-type ThemePreference = 'light' | 'dark' | 'system';
+export type { ThemePreference };
 
 interface ThemeContextValue {
     themePreference: ThemePreference;
@@ -16,17 +17,10 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const systemScheme = useColorScheme();
-    const { settings } = useUserSettings();
-    const [themePreference, setThemePreference] = useState<ThemePreference>(
-        (settings?.theme as ThemePreference) ?? 'system'
-    );
-
-    // Sync from Convex when settings load/change (e.g. on first mount or new device)
-    useEffect(() => {
-        if (settings?.theme) {
-            setThemePreference(settings.theme as ThemePreference);
-        }
-    }, [settings?.theme]);
+    const themePreference = useScopedPreferenceValue('theme');
+    const setThemePreference = useCallback((preference: ThemePreference) => {
+        void updateScopedPreferences({ theme: preference });
+    }, []);
 
     const isDark =
         themePreference === 'system'
@@ -35,8 +29,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const colors = isDark ? palette.dark : palette.light;
 
+    const value = useMemo(() => ({ themePreference, setThemePreference, colors, isDark }), [
+        colors,
+        isDark,
+        setThemePreference,
+        themePreference,
+    ]);
+
     return (
-        <ThemeContext.Provider value={{ themePreference, setThemePreference, colors, isDark }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     );

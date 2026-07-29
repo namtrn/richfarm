@@ -1,15 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useUserSettings } from './useUserSettings';
 import { normalizeAppMode, deriveAppModeFromOnboarding, type AppMode } from '../lib/appMode';
 import { loadOnboardingData, type OnboardingData } from '../lib/onboardingLocalData';
+import { updateScopedPreferences } from '../lib/state/scopedPreferencesStore';
+import {
+  useScopedPreferenceValue,
+  useScopedPreferencesLoading,
+  useScopedSettingsField,
+} from './useScopedPreference';
 
 export function useAppMode() {
-  const { settings, updateSettings, appMode, isLoading } = useUserSettings();
+  const storedAppMode = useScopedPreferenceValue('appMode');
+  const onboarding = useScopedSettingsField('onboarding');
+  const isLoading = useScopedPreferencesLoading();
   const [localOnboarding, setLocalOnboarding] = useState<OnboardingData | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    if (settings?.onboarding || settings?.appMode) return;
+    if (onboarding || storedAppMode) return;
     loadOnboardingData().then((data) => {
       if (!isMounted) return;
       setLocalOnboarding(data);
@@ -17,22 +24,22 @@ export function useAppMode() {
     return () => {
       isMounted = false;
     };
-  }, [settings?.onboarding, settings?.appMode]);
+  }, [onboarding, storedAppMode]);
 
   const normalized =
-    normalizeAppMode(settings?.appMode) ??
-    (settings?.onboarding ? deriveAppModeFromOnboarding(settings.onboarding) : undefined) ??
+    normalizeAppMode(storedAppMode) ??
+    (onboarding ? deriveAppModeFromOnboarding(onboarding) : undefined) ??
     (localOnboarding ? deriveAppModeFromOnboarding(localOnboarding) : undefined) ??
-    appMode;
+    undefined;
 
   const isFarmer = normalized === 'farmer';
   const isGardener = normalized === 'gardener';
 
   const switchMode = useCallback(
     async (mode: AppMode) => {
-      await updateSettings({ appMode: mode });
+      await updateScopedPreferences({ appMode: mode });
     },
-    [updateSettings]
+    []
   );
 
   return useMemo(
