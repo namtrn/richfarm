@@ -35,7 +35,6 @@ import { PlantPhotosSection } from '../../../components/plant/PlantPhotosSection
 import { PlantActivitySection } from '../../../components/plant/PlantActivitySection';
 import { PlantHarvestSection } from '../../../components/plant/PlantHarvestSection';
 import { PlantHealthTimelineSection } from '../../../components/plant/PlantHealthTimelineSection';
-import { SyncStatusBanner } from '../../../components/ui/SyncStatusBanner';
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { formatLengthCm, formatPlantsPerArea, formatSeedsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { useAppMode } from '../../../hooks/useAppMode';
@@ -840,11 +839,6 @@ export default function PlantDetailScreen() {
           <Text style={{ fontSize: 13, color: theme.warning, fontWeight: '500' }}>{t('plant.auth_warning')}</Text>
         </View>
       )}
-
-      <SyncStatusBanner
-        plantId={resolvedPlantId}
-        style={{ marginHorizontal: 16, marginBottom: 8 }}
-      />
 
       <Animated.ScrollView
         keyboardShouldPersistTaps="handled"

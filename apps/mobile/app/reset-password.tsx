@@ -5,6 +5,7 @@ import { Eye, EyeOff } from '../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { getAuthClient } from '../lib/auth-client';
 import { useTheme } from '../lib/theme';
+import { toast } from '../lib/toast';
 
 function firstParam(value: string | string[] | undefined) {
   if (Array.isArray(value)) return value[0];
@@ -36,8 +37,9 @@ export default function ResetPasswordScreen() {
   };
 
   const setSuccess = (msg: string) => {
-    setMessage(msg);
+    setMessage(null);
     setMessageIsError(false);
+    toast.success(msg, { testID: 'e2e-toast-reset-password-success' });
   };
 
   const handleSubmit = async () => {
@@ -129,9 +131,9 @@ export default function ResetPasswordScreen() {
           />
         </View>
 
-        {message ? (
-          <View style={{ backgroundColor: messageIsError ? (theme.warningBg ?? '#fff7ed') : (theme.successBg ?? theme.accent), borderWidth: 1, borderColor: messageIsError ? theme.warning : theme.success, borderRadius: 12, padding: 12 }}>
-            <Text style={{ color: messageIsError ? theme.warning : theme.success, fontSize: 13 }}>{message}</Text>
+        {message && messageIsError ? (
+          <View style={{ backgroundColor: theme.warningBg ?? '#fff7ed', borderWidth: 1, borderColor: theme.warning, borderRadius: 12, padding: 12 }}>
+            <Text style={{ color: theme.warning, fontSize: 13 }}>{message}</Text>
           </View>
         ) : null}
 

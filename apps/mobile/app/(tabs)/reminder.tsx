@@ -28,6 +28,7 @@ import { api } from '../../../../packages/convex/convex/_generated/api';
 import { getE2ENow } from '../../lib/e2eTime';
 import { InputSheet } from '../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
+import { toast } from '../../lib/toast';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 const TEST_REMINDER_TRIGGER_ENABLED =
@@ -761,7 +762,6 @@ export default function ReminderScreen() {
   const [editing, setEditing] = useState<any | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
   const [filter, setFilter] = useState<ReminderFilter>('all');
-  const [feedback, setFeedback] = useState<string | null>(null);
 
   const plantMap = useMemo(() => new Map(plants.map((p) => [String(p._id), p])), [plants]);
   const bedMap = useMemo(() => new Map(beds.map((b) => [String(b._id), b])), [beds]);
@@ -969,7 +969,7 @@ export default function ReminderScreen() {
         enabled: payload.enabled,
         waterLiters: payload.waterLiters,
       });
-      setFeedback(t('reminder.feedback_saved'));
+      toast.success(t('reminder.feedback_saved'), { testID: 'e2e-toast-reminder-saved' });
       return;
     }
     await createReminder({
@@ -982,7 +982,7 @@ export default function ReminderScreen() {
       rrule: payload.rrule,
       waterLiters: payload.waterLiters,
     });
-    setFeedback(t('reminder.feedback_saved'));
+    toast.success(t('reminder.feedback_saved'), { testID: 'e2e-toast-reminder-saved' });
   };
 
   const handleAuthRequired = () => {
@@ -998,18 +998,15 @@ export default function ReminderScreen() {
     return false;
   };
 
-  useEffect(() => {
-    if (!feedback) return;
-    const timer = setTimeout(() => setFeedback(null), 2600);
-    return () => clearTimeout(timer);
-  }, [feedback]);
-
   const runReminderAction = async (action: () => Promise<unknown>, successMessage: string) => {
     try {
       await action();
-      setFeedback(successMessage);
+      toast.success(successMessage, { testID: 'e2e-toast-reminder-success' });
     } catch (error) {
-      Alert.alert(t('common.error', { defaultValue: 'Error' }), error instanceof Error ? error.message : String(error));
+      toast.error(t('common.error', { defaultValue: 'Error' }), {
+        message: error instanceof Error ? error.message : String(error),
+        testID: 'e2e-toast-reminder-error',
+      });
     }
   };
 
@@ -1413,15 +1410,6 @@ export default function ReminderScreen() {
         <View style={{ backgroundColor: theme.warningBg, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: theme.warning }}>
           <Text style={{ fontSize: 13, color: theme.warning, fontWeight: '500' }}>
             {t('reminder.auth_warning')}
-          </Text>
-        </View>
-      )}
-
-      {!!feedback && (
-        <View style={{ backgroundColor: theme.successBg, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: theme.success, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Check size={18} color={theme.success} />
-          <Text style={{ flex: 1, fontSize: 13, color: theme.success, fontWeight: '700' }}>
-            {feedback}
           </Text>
         </View>
       )}

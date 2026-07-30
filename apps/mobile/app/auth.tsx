@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { APP_SCHEME, getAuthClient } from '../lib/auth-client';
 import { useTheme } from '../lib/theme';
 import { markServerCreatedAccount } from '../lib/sync/accountClaimIntent';
+import { toast } from '../lib/toast';
 
 /**
  * Feature flags — flip to true once the backend is configured.
@@ -68,7 +69,11 @@ export default function AuthScreen() {
   const showVerificationState = authMode === 'signIn' && pendingVerificationEmail !== null;
 
   const setError = (msg: string) => { setAuthMessage(msg); setAuthMessageIsError(true); };
-  const setSuccess = (msg: string) => { setAuthMessage(msg); setAuthMessageIsError(false); };
+  const setSuccess = (msg: string) => {
+    setAuthMessage(null);
+    setAuthMessageIsError(false);
+    toast.success(msg, { testID: 'e2e-toast-auth-success' });
+  };
 
   useEffect(() => {
     if (authMode === 'forgot') {
@@ -486,7 +491,7 @@ export default function AuthScreen() {
                 </View>
               )}
 
-              {authMessage && (
+              {authMessage && authMessageIsError && (
                 <View
                   testID={`e2e-auth-message-${authMessageIsError ? 'error' : 'success'}`}
                   style={{ backgroundColor: authMessageIsError ? (theme.warningBg ?? '#fff7ed') : theme.card, borderWidth: 1, borderColor: authMessageIsError ? theme.warning : theme.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}

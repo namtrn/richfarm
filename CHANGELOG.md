@@ -4,6 +4,10 @@ All notable changes to the **RichFarm** project will be documented in this file.
 
 ## [Unreleased]
 
+- Replaced transient in-screen offline, sync, reminder, and authentication
+  feedback with a theme-aware global toast overlay for iOS and Android.
+- Added persistent sync-attention feedback with a Review action, while keeping
+  validation and contextual guidance inline and destructive choices in dialogs.
 - Documented the Phase 2.5 plan for real-device push delivery, token and receipt
   observability, safe notification routing, retry, and duplicate prevention.
 - No application version change.

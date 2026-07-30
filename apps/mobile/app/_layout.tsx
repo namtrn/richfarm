@@ -1,19 +1,19 @@
 import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { StyleSheet, useColorScheme } from 'react-native';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { I18nextProvider, useTranslation } from 'react-i18next';
+import { I18nextProvider } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 import i18n from '../lib/i18n';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { OfflineScreen } from '../components/ui/OfflineScreen';
-import { SyncStatusBanner } from '../components/ui/SyncStatusBanner';
+import { RichToastHost } from '../components/ui/RichToastHost';
+import { SyncToastCoordinator } from '../components/sync/SyncToastCoordinator';
 import { useAppReady } from '../hooks/useAppReady';
 import { useSyncTriggers } from '../hooks/useSyncTriggers';
 import { useNotifications } from '../hooks/useNotifications';
-import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { SubscriptionProvider } from '../hooks/useSubscription';
 import { AuthProvider } from '../lib/auth';
 import { GuestClaimCoordinator } from '../components/sync/GuestClaimCoordinator';
@@ -77,27 +77,6 @@ function AppShellOffline({ children }: { children: ReactNode }) {
   );
 }
 
-function OfflineBanner() {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const { isOffline } = useNetworkStatus();
-
-  if (!isOffline) return null;
-
-  return (
-    <View
-      style={[
-        styles.offlineBanner,
-        { backgroundColor: theme.warningBg, borderColor: theme.warning },
-      ]}
-    >
-      <Text style={[styles.offlineBannerText, { color: theme.warning }]}>
-        {t('offline.banner')}
-      </Text>
-    </View>
-  );
-}
-
 export default function RootLayout() {
   useEffect(() => {
     void quarantineLegacyQueue();
@@ -126,9 +105,9 @@ export default function RootLayout() {
                 <SubscriptionProvider>
                   <ThemeProvider>
                     <AppShellWithSettings>
-                      <OfflineBanner />
-                      <SyncStatusBanner compact localOnlyToast style={styles.syncBanner} />
                       <AuthGuard />
+                      <SyncToastCoordinator />
+                      <RichToastHost />
                     </AppShellWithSettings>
                   </ThemeProvider>
                 </SubscriptionProvider>
@@ -144,23 +123,5 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-  },
-  offlineBanner: {
-    marginHorizontal: 12,
-    marginTop: 8,
-    marginBottom: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  offlineBannerText: {
-    fontSize: 12,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  syncBanner: {
-    marginHorizontal: 12,
-    marginBottom: 4,
   },
 });
