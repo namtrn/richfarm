@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
     View,
     Text,
@@ -12,6 +12,7 @@ import type { PlantLocalData, PlantActivityType } from '../../lib/plantLocalData
 import { useTheme } from '../../lib/theme';
 import { InputSheet } from '../ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
+import { toast } from '../../lib/toast';
 
 type Props = {
     localData: PlantLocalData;
@@ -54,6 +55,9 @@ export function PlantActivitySection({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
+    useEffect(() => {
+        if (error) toast.error(t('common.error'), { message: error, key: 'plant-activity-error' });
+    }, [error, t]);
     const resetDraft = useCallback(() => {
         onChangeType('watering');
         onChangeNote('');
@@ -161,11 +165,6 @@ export function PlantActivitySection({
                                 )}
                             </View>
                         ))}
-                    </View>
-                )}
-                {error && (
-                    <View style={{ marginTop: 12, padding: 8, backgroundColor: theme.dangerBg, borderRadius: 8 }}>
-                        <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '500' }}>{error}</Text>
                     </View>
                 )}
             </View>

@@ -28,6 +28,7 @@ import { TimezoneModal } from '../../components/ui/TimezoneModal';
 import { useReminders } from '../../hooks/useReminders';
 import { useLocalSearchParams } from 'expo-router';
 import { useLocalSyncIdentity } from '../../lib/sync/identity';
+import { toast } from '../../lib/toast';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -87,12 +88,9 @@ export default function ProfileScreen() {
     .join('');
   const [backupCount, setBackupCount] = useState(0);
   const [backingUp, setBackingUp] = useState(false);
-  const [backupMessage, setBackupMessage] = useState<string | null>(null);
   const isCloudBackupLinked = !!CLOUD_BACKUP_PROVIDER;
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
-  const [authMessage, setAuthMessage] = useState<string | null>(null);
-  const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
   const [switchingMode, setSwitchingMode] = useState(false);
   const { showWeatherCard, setWeatherCardVisible, isSaving: isUpdatingWeatherCard } = useWeatherCardPreference();
   const [timezoneModalOpen, setTimezoneModalOpen] = useState(false);
@@ -115,7 +113,6 @@ export default function ProfileScreen() {
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [changePwLoading, setChangePwLoading] = useState(false);
-  const [changePwMessage, setChangePwMessage] = useState<string | null>(null);
 
   // Notification permission
   const [notifStatus, setNotifStatus] = useState<'enabled' | 'provisional' | 'denied' | 'undetermined'>('undetermined');
@@ -257,21 +254,18 @@ export default function ProfileScreen() {
 
   const handleBackupNow = async () => {
     if (!isCloudBackupLinked) {
-      setBackupMessage(t('profile.backup_link_required'));
+      toast.warning(t('profile.backup_link_required'));
       return;
     }
     setBackingUp(true);
-    setBackupMessage(null);
     try {
       const result = await executeSyncNow({ types: ['photo'] });
       if (result.queuedCount === 0 && result.syncedCount === 0) {
-        setBackupMessage(t('profile.backup_empty'));
+        toast.info(t('profile.backup_empty'));
       } else if (result.ok) {
-        setBackupMessage(t('profile.backup_success'));
+        toast.success(t('profile.backup_success'));
       } else {
-        setBackupMessage(
-          t('profile.backup_not_ready', { count: result.queuedCount })
-        );
+        toast.warning(t('profile.backup_not_ready', { count: result.queuedCount }));
       }
       await refreshBackupCount();
     } finally {
@@ -280,17 +274,18 @@ export default function ProfileScreen() {
   };
 
   const handleLinkCloudBackup = () => {
-    setBackupMessage(t('profile.backup_link_required'));
+    toast.warning(t('profile.backup_link_required'));
   };
 
   const handleSignOut = async () => {
     setAuthLoading(true);
-    setAuthMessage(null);
     try {
       const authClient = await getAuthClient();
       const result = await authClient.signOut();
       if (result.error) {
-        setAuthMessage(result.error.message ?? t('profile.auth_sign_out_failed'));
+        toast.error(t('profile.auth_sign_out_failed'), {
+          message: result.error.message,
+        });
         return;
       }
       await clearCachedCurrentUser(deviceId);
@@ -303,7 +298,6 @@ export default function ProfileScreen() {
   const handleChangePassword = async () => {
     if (newPw.length < 8) return;
     setChangePwLoading(true);
-    setChangePwMessage(null);
     try {
       const authClient = await getAuthClient();
       const result = await (authClient as any).changePassword({
@@ -311,15 +305,19 @@ export default function ProfileScreen() {
         newPassword: newPw,
       });
       if (result?.error) {
-        setChangePwMessage(result.error.message ?? t('profile.change_password_failed'));
+        toast.error(t('profile.change_password_failed'), {
+          message: result.error.message,
+        });
         return;
       }
-      setChangePwMessage(t('profile.change_password_success'));
+      toast.success(t('profile.change_password_success'));
       setCurrentPw('');
       setNewPw('');
       setShowChangePw(false);
     } catch (error) {
-      setChangePwMessage(error instanceof Error ? error.message : t('profile.change_password_failed'));
+      toast.error(t('profile.change_password_failed'), {
+        message: error instanceof Error ? error.message : undefined,
+      });
     } finally {
       setChangePwLoading(false);
     }
@@ -341,7 +339,6 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             setAuthLoading(true);
-            setAuthMessage(null);
             try {
               const authClient = await getAuthClient();
               await deleteAccountMutation({});
@@ -354,7 +351,7 @@ export default function ProfileScreen() {
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : t('profile.delete_account_failed');
-              setAuthMessage(message);
+              toast.error(t('profile.delete_account_failed'), { message });
             } finally {
               setAuthLoading(false);
             }
@@ -365,22 +362,21 @@ export default function ProfileScreen() {
   };
 
   const handlePaywall = async () => {
-    setPaywallMessage(null);
     const result = await presentPaywall();
     if (result.status === 'purchased' || result.status === 'restored') {
-      setPaywallMessage(t('profile.sub_active'));
+      toast.success(t('profile.sub_active'));
       return;
     }
     if (result.status === 'cancelled') {
-      setPaywallMessage(t('profile.sub_cancelled'));
+      toast.info(t('profile.sub_cancelled'));
       return;
     }
     if (result.status === 'not_presented') {
-      setPaywallMessage(t('profile.sub_paywall_unavailable'));
+      toast.warning(t('profile.sub_paywall_unavailable'));
       return;
     }
     if (result.status === 'error') {
-      setPaywallMessage(result.errorMessage ?? t('profile.sub_paywall_error'));
+      toast.error(t('profile.sub_paywall_error'), { message: result.errorMessage });
     }
   };
 
@@ -408,13 +404,12 @@ export default function ProfileScreen() {
   };
 
   const handleRestorePurchases = async () => {
-    setPaywallMessage(null);
     try {
       await restorePurchases();
-      setPaywallMessage(t('profile.sub_restored'));
+      toast.success(t('profile.sub_restored'));
     } catch (error) {
       const message = error instanceof Error ? error.message : t('profile.sub_restore_failed');
-      setPaywallMessage(message);
+      toast.error(t('profile.sub_restore_failed'), { message });
     }
   };
 
@@ -478,7 +473,6 @@ export default function ProfileScreen() {
             <View style={{ gap: 12 }}>
               <TouchableOpacity
                 onPress={() => {
-                  setAuthMessage(null);
                   router.push({ pathname: '/auth', params: { returnTo: pathname } });
                 }}
                 testID="e2e-profile-auth-cta"
@@ -489,7 +483,6 @@ export default function ProfileScreen() {
             </View>
           ) : (
             <View>
-              {authMessage && <Text style={{ fontSize: 12, color: theme.textSecondary, marginBottom: 12 }}>{authMessage}</Text>}
               <TouchableOpacity
                 onPress={handleSignOut}
                 disabled={authLoading}
@@ -528,7 +521,6 @@ export default function ProfileScreen() {
           >
             <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.sub_restore')}</Text>
           </TouchableOpacity>
-          {paywallMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{paywallMessage}</Text>}
         </View>
 
           </View>
@@ -936,9 +928,6 @@ export default function ProfileScreen() {
             </Text>
           )}
           <Text style={{ fontSize: 13, color: theme.textSecondary }}>{t('profile.backup_queue_count', { count: backupCount })}</Text>
-          {backupMessage && (
-            <Text style={{ fontSize: 13, color: theme.success, fontWeight: '500' }}>{backupMessage}</Text>
-          )}
           <TouchableOpacity
             onPress={isCloudBackupLinked ? handleBackupNow : handleLinkCloudBackup}
             disabled={backingUp}
@@ -956,7 +945,7 @@ export default function ProfileScreen() {
           <View style={{ paddingHorizontal: 2, gap: 14 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <Text style={{ flex: 1, fontSize: 16, fontWeight: '700', color: theme.text }}>{t('profile.change_password_title')}</Text>
-              <TouchableOpacity onPress={() => { setShowChangePw((v) => !v); setChangePwMessage(null); }}>
+              <TouchableOpacity onPress={() => setShowChangePw((v) => !v)}>
                 {showChangePw ? <ChevronUp size={18} color={theme.textSecondary} /> : <ChevronDown size={18} color={theme.textSecondary} />}
               </TouchableOpacity>
             </View>
@@ -1001,7 +990,6 @@ export default function ProfileScreen() {
                     </TouchableOpacity>
                   </View>
                 </View>
-                {changePwMessage && <Text style={{ fontSize: 12, color: theme.textSecondary }}>{changePwMessage}</Text>}
                 <TouchableOpacity
                   onPress={handleChangePassword}
                   disabled={changePwLoading || currentPw.length === 0 || newPw.length < 8}

@@ -6,6 +6,8 @@ All notable changes to the **RichFarm** project will be documented in this file.
 
 - Replaced transient in-screen offline, sync, reminder, and authentication
   feedback with a theme-aware global toast overlay for iOS and Android.
+- Moved guest-data claiming, Profile actions, and plant Activity, Harvest, and
+  Photo operation feedback out of screen flow and into the same toast overlay.
 - Added persistent sync-attention feedback with a Review action, while keeping
   validation and contextual guidance inline and destructive choices in dialogs.
 - Documented the Phase 2.5 plan for real-device push delivery, token and receipt

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Alert } from 'react-native';
 import { useDeviceId } from '../../lib/deviceId';
 import {
   consumeServerCreatedAccountMarker,
@@ -14,6 +14,7 @@ import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { useTranslation } from 'react-i18next';
 import { useMobileRuntime } from '../../lib/state/mobileRuntimeStore';
+import { toast } from '../../lib/toast';
 
 export function GuestClaimCoordinator() {
   const { deviceId } = useDeviceId();
@@ -24,7 +25,6 @@ export function GuestClaimCoordinator() {
   const { isOnline } = useNetworkStatus();
   const handledRef = useRef<string | null>(null);
   const [retryNonce, setRetryNonce] = useState(0);
-  const [claimMessage, setClaimMessage] = useState<'running' | 'complete' | 'attention' | null>(null);
 
   useEffect(() => {
     const user = session?.user as ({ id?: string; isAnonymous?: boolean } | undefined);
@@ -41,13 +41,21 @@ export function GuestClaimCoordinator() {
 
     const executeClaim = async (guest: Awaited<ReturnType<typeof resolveLocalSyncIdentity>>) => {
       if (guest.kind !== 'guest') return;
-      setClaimMessage('running');
+      toast.info(t('sync.claim_running'), {
+        key: 'guest-claim',
+        persistent: true,
+        testID: 'e2e-toast-guest-claim-running',
+      });
       const account = await resolveLocalSyncIdentity(deviceId, accountUserId);
       if (account.kind !== 'account') return;
       const record = await claimGuestDataset(guest, account);
       if (!active) return;
       if (record.status === 'needs_attention') {
-        setClaimMessage('attention');
+        toast.warning(t('sync.claim_attention'), {
+          key: 'guest-claim',
+          persistent: true,
+          testID: 'e2e-toast-guest-claim-attention',
+        });
         return;
       }
       const result = await execute();
@@ -69,8 +77,10 @@ export function GuestClaimCoordinator() {
           generation: projection.generation,
         });
         if (completed.status === 'complete') {
-          setClaimMessage('complete');
-          setTimeout(() => { if (active) setClaimMessage(null); }, 3_000);
+          toast.success(t('sync.claim_complete'), {
+            key: 'guest-claim',
+            testID: 'e2e-toast-guest-claim-complete',
+          });
         } else {
           retryLater();
         }
@@ -115,12 +125,5 @@ export function GuestClaimCoordinator() {
     return () => { active = false; };
   }, [deviceId, execute, isOnline, isPending, retryNonce, session?.user, t]);
 
-  if (!claimMessage) return null;
-  return (
-    <View style={{ backgroundColor: claimMessage === 'attention' ? '#fef3c7' : '#ecfdf5', paddingHorizontal: 16, paddingVertical: 10 }}>
-      <Text style={{ color: claimMessage === 'attention' ? '#92400e' : '#166534', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>
-        {t(`sync.claim_${claimMessage}`)}
-      </Text>
-    </View>
-  );
+  return null;
 }

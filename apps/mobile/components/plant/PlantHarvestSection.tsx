@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
     View,
     Text,
@@ -12,6 +12,7 @@ import type { PlantLocalData } from '../../lib/plantLocalData';
 import { useTheme } from '../../lib/theme';
 import { InputSheet } from '../ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
+import { toast } from '../../lib/toast';
 
 type Props = {
     localData: PlantLocalData;
@@ -58,6 +59,9 @@ export function PlantHarvestSection({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
+    useEffect(() => {
+        if (error) toast.error(t('common.error'), { message: error, key: 'plant-harvest-error' });
+    }, [error, t]);
     const resetDraft = useCallback(() => {
         onChangeQuantity('');
         onChangeUnit('');
@@ -128,11 +132,6 @@ export function PlantHarvestSection({
                                 </View>
                             );
                         })}
-                    </View>
-                )}
-                {error && (
-                    <View style={{ marginTop: 12, padding: 8, backgroundColor: theme.dangerBg, borderRadius: 8 }}>
-                        <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '500' }}>{error}</Text>
                     </View>
                 )}
             </View>

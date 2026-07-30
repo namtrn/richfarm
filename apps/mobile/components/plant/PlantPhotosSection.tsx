@@ -10,7 +10,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { PlantLocalData } from '../../lib/plantLocalData';
 import { useTheme } from '../../lib/theme';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { toast } from '../../lib/toast';
 
 type Props = {
     localData: PlantLocalData;
@@ -36,6 +37,9 @@ export function PlantPhotosSection({
     const { t } = useTranslation();
     const theme = useTheme();
     const [missingPhotoIds, setMissingPhotoIds] = useState<Set<string>>(new Set());
+    useEffect(() => {
+        if (error) toast.error(t('common.error'), { message: error, key: 'plant-photo-error' });
+    }, [error, t]);
 
     const confirmRemove = (id: string) => {
         Alert.alert(
@@ -100,11 +104,6 @@ export function PlantPhotosSection({
                         ))}
                     </View>
                 </ScrollView>
-            )}
-            {error && (
-                <View style={{ marginTop: 12, padding: 8, backgroundColor: theme.dangerBg, borderRadius: 8 }}>
-                    <Text style={{ fontSize: 11, color: theme.danger, fontWeight: '500' }}>{error}</Text>
-                </View>
             )}
         </View>
     );
