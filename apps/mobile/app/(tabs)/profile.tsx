@@ -295,7 +295,9 @@ export default function ProfileScreen() {
       await clearCachedCurrentUser(deviceId);
       router.replace({ pathname: '/auth', params: { returnTo: '/' } });
     } catch (error) {
-      setAuthMessage(error instanceof Error ? error.message : t('profile.auth_sign_out_failed'));
+      toast.error(t('profile.auth_sign_out_failed'), {
+        message: error instanceof Error ? error.message : undefined,
+      });
     } finally {
       setAuthLoading(false);
     }
