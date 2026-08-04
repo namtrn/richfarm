@@ -496,15 +496,24 @@ describe('Phase 1.5 sync v2', () => {
       operationId: 'checked-outcome', entityType: 'reminderOutcome' as const,
       entityUuid: 'checked-outcome', type: 'create' as const,
       parentRefs: { reminderUuid: 'water-reminder' },
-      payload: { outcome: 'checked_not_needed', occurredAt: 20 },
+      payload: { outcome: 'checked_not_needed', occurredAt: 20, occurrenceKey: 'water-reminder:10' },
     };
     expect((await apply(checked)).status).toBe('applied');
     expect((await apply(checked)).status).toBe('already_applied');
+    const currentReminder = await t.run(async (ctx) =>
+      (await ctx.db.query('reminders').withIndex('by_user_entity_uuid', (q) =>
+        q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'water-reminder')
+      ).unique())
+    );
+    expect(currentReminder).not.toBeNull();
     expect((await apply({
       operationId: 'performed-outcome', entityType: 'reminderOutcome',
       entityUuid: 'performed-outcome', type: 'create',
       parentRefs: { reminderUuid: 'water-reminder' },
-      payload: { outcome: 'performed', occurredAt: 30 },
+      payload: {
+        outcome: 'performed', occurredAt: 30,
+        occurrenceKey: `water-reminder:${currentReminder!.nextRunAt}`,
+      },
     })).status).toBe('applied');
     const ownerId = userId as Id<'users'>;
     const state = await t.run(async (ctx) => {
@@ -521,6 +530,75 @@ describe('Phase 1.5 sync v2', () => {
     expect(state.activities.filter((row) => row.type === 'watering')).toHaveLength(1);
     expect(state.activities.filter((row) => row.type === 'watering_check')).toHaveLength(1);
     expect(state.plant?.lastWateredAt).toBe(30);
+  });
+
+  it('rejects stale or disabled reminder outcomes before creating activities', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({
+      operationId: 'guard-plant', entityType: 'plant', entityUuid: 'guard-plant',
+      type: 'create', payload: { status: 'growing' },
+    });
+    await apply({
+      operationId: 'guard-plan', entityType: 'carePlan', entityUuid: 'guard-plan',
+      type: 'create', parentRefs: { plantUuid: 'guard-plant' },
+      payload: {
+        sourceValues: { wateringFrequencyDays: 3 },
+        tasks: [{ type: 'watering', enabled: true, intervalDays: 3 }],
+      },
+    });
+    await apply({
+      operationId: 'guard-reminder', entityType: 'reminder', entityUuid: 'guard-reminder',
+      type: 'create', parentRefs: { plantUuid: 'guard-plant', carePlanUuid: 'guard-plan' },
+      payload: { taskType: 'watering', nextRunAt: 10, timezone: 'UTC', rrule: 'FREQ=DAILY;INTERVAL=3' },
+    });
+
+    const missingOccurrence: any = await apply({
+      operationId: 'missing-occurrence', entityType: 'reminderOutcome', entityUuid: 'missing-occurrence',
+      type: 'create', parentRefs: { reminderUuid: 'guard-reminder' },
+      payload: { outcome: 'performed', occurredAt: 11 },
+    });
+    expect(missingOccurrence.reason).toBe('occurrence_key_required');
+
+    const staleOutcome: any = await apply({
+      operationId: 'stale-outcome', entityType: 'reminderOutcome', entityUuid: 'stale-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'guard-reminder' },
+      payload: { outcome: 'performed', occurredAt: 11, occurrenceKey: 'guard-reminder:9' },
+    });
+    expect(staleOutcome.reason).toBe('stale_reminder_occurrence');
+
+    expect((await apply({
+      operationId: 'disable-guard-reminder', entityType: 'reminder', entityUuid: 'guard-reminder',
+      type: 'update', baseRevision: 1, payload: { enabled: false },
+    })).status).toBe('applied');
+    const disabledOutcome: any = await apply({
+      operationId: 'disabled-outcome', entityType: 'reminderOutcome', entityUuid: 'disabled-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'guard-reminder' },
+      payload: { outcome: 'performed', occurredAt: 12, occurrenceKey: 'guard-reminder:10' },
+    });
+    expect(disabledOutcome.reason).toBe('reminder_disabled');
+
+    await t.run(async (ctx) => {
+      await ctx.db.insert('reminders', {
+        userId: userId as Id<'users'>,
+        entityUuid: 'legacy-sync-reminder',
+        type: 'custom',
+        title: 'Legacy reminder',
+        nextRunAt: 50,
+        enabled: true,
+      });
+    });
+    const implicitLegacy: any = await apply({
+      operationId: 'legacy-implicit-outcome', entityType: 'reminderOutcome', entityUuid: 'legacy-implicit-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'legacy-sync-reminder' },
+      payload: { outcome: 'disabled', occurredAt: 51 },
+    });
+    expect(implicitLegacy.reason).toBe('legacy_occurrence_exemption_required');
+    expect((await apply({
+      operationId: 'legacy-explicit-outcome', entityType: 'reminderOutcome', entityUuid: 'legacy-explicit-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'legacy-sync-reminder' },
+      payload: { outcome: 'disabled', occurredAt: 51, legacyCompatibility: true },
+    })).status).toBe('applied');
   });
 
   it('removes sync namespaces and uncommitted uploads during account deletion', async () => {

@@ -5,7 +5,7 @@ import { getOwnedPlantOrThrow } from "./lib/ownership";
 import { appendPlantActivity } from "./lib/plantActivities";
 import {
   CareTask, CareTaskType, applyCareTaskOverrides, careReminderCopy,
-  deriveCarePlan, nextOccurrence,
+  deriveCarePlan, nextOccurrence, validateReminderOccurrence,
 } from "./lib/carePlan";
 import { markSyncDatasetChanged } from "./lib/syncProtocol";
 
@@ -151,6 +151,8 @@ export const resolveReminder = mutation({
     reminderId: v.id("reminders"), operationId: v.string(),
     outcome: outcomeValidator, occurredAt: v.optional(v.number()),
     snoozedUntil: v.optional(v.number()), note: v.optional(v.string()),
+    occurrenceKey: v.optional(v.string()),
+    legacyCompatibility: v.optional(v.boolean()),
     intervalDays: v.optional(v.number()), enabled: v.optional(v.boolean()),
     deviceId: v.optional(v.string()),
   },
@@ -163,6 +165,21 @@ export const resolveReminder = mutation({
     if (prior) return prior;
     const reminder = await ctx.db.get(args.reminderId);
     if (!reminder || reminder.userId !== user._id) throw new Error("Reminder not found");
+    if (!reminder.enabled) throw new Error("Reminder is disabled");
+    const plant = reminder.userPlantId ? await ctx.db.get(reminder.userPlantId) : null;
+    if (!plant || plant.isDeleted || plant.status === "harvested" || plant.status === "archived") {
+      throw new Error("Reminder plant is inactive");
+    }
+    const occurrenceError = validateReminderOccurrence(
+      reminder,
+      args.occurrenceKey,
+      args.legacyCompatibility,
+    );
+    if (occurrenceError === "stale_reminder_occurrence") throw new Error("Reminder occurrence is stale");
+    if (occurrenceError === "occurrence_key_required") throw new Error("Reminder occurrence key is required");
+    if (occurrenceError === "legacy_occurrence_exemption_required") {
+      throw new Error("Legacy reminder compatibility must be explicit");
+    }
     const occurredAt = args.occurredAt ?? Date.now();
     const interval = args.intervalDays
       ?? Number(reminder.rrule?.match(/INTERVAL=(\d+)/i)?.[1] ?? 0);
@@ -174,7 +191,10 @@ export const resolveReminder = mutation({
       patch.enabled = false;
     } else if (args.outcome === "edited") {
       if (args.enabled !== undefined) patch.enabled = args.enabled;
-      if (args.intervalDays) patch.rrule = `FREQ=DAILY;INTERVAL=${Math.round(args.intervalDays)}`;
+      if (args.intervalDays !== undefined) {
+        if (!Number.isFinite(args.intervalDays) || args.intervalDays <= 0) throw new Error("Invalid interval");
+        patch.rrule = `FREQ=DAILY;INTERVAL=${Math.max(1, Math.round(args.intervalDays))}`;
+      }
     } else {
       patch.lastRunAt = occurredAt;
       patch.snoozedUntil = undefined;

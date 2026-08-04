@@ -8,6 +8,54 @@ export type CareTask = {
   expectedDate?: number;
 };
 
+export type ReminderOccurrenceValidationError =
+  | "stale_reminder_occurrence"
+  | "occurrence_key_required"
+  | "legacy_occurrence_exemption_required";
+
+/** Phase 2 reminders are identified by a care-plan parent or explicit domain marker. */
+export function isCarePlanReminder(reminder: {
+  carePlanId?: unknown;
+  notificationMethods?: unknown;
+}) {
+  return Boolean(reminder.carePlanId)
+    || (Array.isArray(reminder.notificationMethods)
+      && reminder.notificationMethods.includes("care_plan_v2"));
+}
+
+export function reminderOccurrenceKey(reminder: {
+  _id: unknown;
+  entityUuid?: unknown;
+  nextRunAt: unknown;
+}) {
+  return `${reminder.entityUuid ?? reminder._id}:${reminder.nextRunAt}`;
+}
+
+/**
+ * Phase 2 callers must carry the occurrence key. Legacy custom reminders may
+ * omit it only when the caller explicitly opts into compatibility behavior.
+ */
+export function validateReminderOccurrence(
+  reminder: {
+    _id: unknown;
+    entityUuid?: unknown;
+    nextRunAt: unknown;
+    carePlanId?: unknown;
+    notificationMethods?: unknown;
+  },
+  occurrenceKey: unknown,
+  legacyCompatibility: unknown,
+): ReminderOccurrenceValidationError | undefined {
+  const expected = reminderOccurrenceKey(reminder);
+  if (typeof occurrenceKey === "string") {
+    return occurrenceKey === expected ? undefined : "stale_reminder_occurrence";
+  }
+  if (isCarePlanReminder(reminder)) return "occurrence_key_required";
+  return legacyCompatibility === true
+    ? undefined
+    : "legacy_occurrence_exemption_required";
+}
+
 export type LibraryCareSource = {
   plantId?: string;
   contentVersion?: number;
@@ -19,7 +67,7 @@ export type LibraryCareSource = {
 
 function trustedPositiveInteger(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) && value > 0
-    ? Math.round(value)
+    ? Math.max(1, Math.round(value))
     : undefined;
 }
 

@@ -15,7 +15,11 @@ import {
 } from './lib/syncProtocol';
 import { appendPlantActivity, recomputeActivitySnapshot } from './lib/plantActivities';
 import { isPremiumActive } from './lib/subscription';
-import { careReminderCopy, nextOccurrence } from './lib/carePlan';
+import {
+  careReminderCopy,
+  nextOccurrence,
+  validateReminderOccurrence,
+} from './lib/carePlan';
 
 const entityTypeValidator = v.union(
   v.literal('garden'), v.literal('bed'), v.literal('plant'),
@@ -258,7 +262,9 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
           ).first()
         : null;
       const trusted = (value: unknown) =>
-        typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.round(value) : undefined;
+        typeof value === 'number' && Number.isFinite(value) && value > 0
+          ? Math.max(1, Math.round(value))
+          : undefined;
       await ctx.db.insert('userPlantCarePlans', {
         userId, userPlantId: parents.plant._id, entityUuid: op.entityUuid,
         revision: 1, planVersion,
@@ -305,6 +311,19 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const allowed = new Set(['performed', 'checked_not_needed', 'snoozed', 'skipped', 'edited', 'disabled', 'deleted']);
       if (!outcome || !allowed.has(outcome)) return { status: 'invalid_parent' as const, reason: 'invalid_outcome' };
       const reminder = parents.reminder;
+      if (!reminder.enabled) return { status: 'invalid_parent' as const, reason: 'reminder_disabled' };
+      const plant: any = reminder.userPlantId
+        ? await ctx.db.get(reminder.userPlantId as Id<'userPlants'>)
+        : null;
+      if (plant?.isDeleted || plant?.status === 'harvested' || plant?.status === 'archived') {
+        return { status: 'invalid_parent' as const, reason: 'reminder_plant_inactive' };
+      }
+      const occurrenceError = validateReminderOccurrence(
+        reminder,
+        stringValue(payload.occurrenceKey),
+        booleanValue(payload.legacyCompatibility),
+      );
+      if (occurrenceError) return { status: 'invalid_parent' as const, reason: occurrenceError };
       const occurredAt = numberValue(payload.occurredAt) ?? now;
       const interval = Number(reminder.rrule?.match(/INTERVAL=(\d+)/i)?.[1] ?? 0);
       const patch: Record<string, unknown> = { revision: (reminder.revision ?? 1) + 1 };

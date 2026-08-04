@@ -88,7 +88,12 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             entityType: 'reminderOutcome',
             operationType: 'create',
             parentRefs: { reminderUuid: reminder.entityUuid },
-            payload: { outcome, occurredAt: Date.now(), ...extra },
+            payload: {
+                outcome,
+                occurredAt: Date.now(),
+                occurrenceKey: `${reminder.entityUuid}:${reminder.nextRunAt}`,
+                ...extra,
+            },
         });
         return true;
     };
@@ -153,7 +158,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         }
         const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
         if (await queueOutcome(reminder, 'performed')) return;
-        return await completeReminderMutation({ reminderId, deviceId });
+        return await completeReminderMutation({ reminderId, deviceId, legacyCompatibility: true });
     };
 
     const updateReminder = async (
@@ -196,7 +201,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         }
         const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
         if (await queueOutcome(reminder, 'deleted')) return;
-        return await deleteReminderMutation({ reminderId, deviceId });
+        return await deleteReminderMutation({ reminderId, deviceId, legacyCompatibility: true });
     };
 
     const snoozeReminder = async (reminderId: Id<'reminders'>, snoozedUntil: number) => {
@@ -208,7 +213,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         }
         const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
         if (await queueOutcome(reminder, 'snoozed', { snoozedUntil })) return;
-        return await snoozeReminderMutation({ reminderId, snoozedUntil, deviceId });
+        return await snoozeReminderMutation({ reminderId, snoozedUntil, deviceId, legacyCompatibility: true });
     };
 
     const skipReminder = async (reminderId: Id<'reminders'>) => {
@@ -220,7 +225,7 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
         }
         const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
         if (await queueOutcome(reminder, 'skipped')) return;
-        return await skipReminderMutation({ reminderId, deviceId });
+        return await skipReminderMutation({ reminderId, deviceId, legacyCompatibility: true });
     };
 
     const resolveReminderOutcome = async (
@@ -229,7 +234,9 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     ) => {
         const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
         if (await queueOutcome(reminder, outcome)) return;
-        if (outcome === 'performed') return await completeReminderMutation({ reminderId, deviceId });
+        if (outcome === 'performed') {
+            return await completeReminderMutation({ reminderId, deviceId, legacyCompatibility: true });
+        }
         throw new Error('This legacy reminder does not support a check-only outcome.');
     };
 

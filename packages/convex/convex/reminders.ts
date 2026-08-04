@@ -3,6 +3,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { getOwnedBedOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
+import { validateReminderOccurrence } from "./lib/carePlan";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -20,6 +21,19 @@ function buildNextRunAtFromRule(rrule: string | undefined, from = Date.now()) {
     const intervalDays = getDailyIntervalDays(rrule);
     if (!intervalDays) return undefined;
     return from + intervalDays * DAY_MS;
+}
+
+function assertReminderOccurrence(
+    reminder: any,
+    occurrenceKey: string | undefined,
+    legacyCompatibility: boolean | undefined,
+) {
+    const error = validateReminderOccurrence(reminder, occurrenceKey, legacyCompatibility);
+    if (error === "stale_reminder_occurrence") throw new Error("Reminder occurrence is stale");
+    if (error === "occurrence_key_required") throw new Error("Reminder occurrence key is required");
+    if (error === "legacy_occurrence_exemption_required") {
+        throw new Error("Legacy reminder compatibility must be explicit");
+    }
 }
 
 // Lấy tất cả reminders của user
@@ -219,6 +233,8 @@ export const snoozeReminder = mutation({
     args: {
         reminderId: v.id("reminders"),
         snoozedUntil: v.number(),
+        occurrenceKey: v.optional(v.string()),
+        legacyCompatibility: v.optional(v.boolean()),
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -228,6 +244,7 @@ export const snoozeReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
+        assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
 
         await ctx.db.patch(args.reminderId, {
             snoozedUntil: args.snoozedUntil,
@@ -238,6 +255,8 @@ export const snoozeReminder = mutation({
 export const skipReminder = mutation({
     args: {
         reminderId: v.id("reminders"),
+        occurrenceKey: v.optional(v.string()),
+        legacyCompatibility: v.optional(v.boolean()),
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -247,6 +266,7 @@ export const skipReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
+        assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
 
         const now = Date.now();
         const nextRunAt = buildNextRunAtFromRule(reminder.rrule, now);
@@ -264,6 +284,8 @@ export const skipReminder = mutation({
 export const completeReminder = mutation({
     args: {
         reminderId: v.id("reminders"),
+        occurrenceKey: v.optional(v.string()),
+        legacyCompatibility: v.optional(v.boolean()),
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -273,6 +295,7 @@ export const completeReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
+        assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
 
         const now = Date.now();
         const nextRunAt = buildNextRunAtFromRule(reminder.rrule, now);
@@ -290,6 +313,8 @@ export const completeReminder = mutation({
 export const deleteReminder = mutation({
     args: {
         reminderId: v.id("reminders"),
+        occurrenceKey: v.optional(v.string()),
+        legacyCompatibility: v.optional(v.boolean()),
         deviceId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
@@ -299,6 +324,7 @@ export const deleteReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
+        assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
 
         await ctx.db.delete(args.reminderId);
     },

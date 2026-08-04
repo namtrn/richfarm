@@ -20,8 +20,15 @@ describe("care plan derivation", () => {
   });
 
   it("does not invent missing or invalid intervals", () => {
-    const plan = deriveCarePlan({ wateringFrequencyDays: 0, fertilizingFrequencyDays: NaN });
+    const plan = deriveCarePlan({
+      wateringFrequencyDays: 0,
+      fertilizingFrequencyDays: NaN,
+      typicalDaysToHarvest: Infinity,
+    });
     expect(plan.tasks.filter((task) => task.enabled)).toHaveLength(0);
+
+    const positiveFraction = deriveCarePlan({ wateringFrequencyDays: 0.25 });
+    expect(positiveFraction.tasks[0]).toMatchObject({ enabled: true, intervalDays: 1 });
   });
 
   it("applies explicit overrides without mutating the source snapshot", () => {

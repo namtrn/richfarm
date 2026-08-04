@@ -141,7 +141,9 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
     const libraryPlant = libraryPlants?.find((plant: any) => String(plant._id) === String(plantMasterId));
     if (!libraryPlant) return;
     const positive = (value: unknown) =>
-      typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.round(value) : undefined;
+      typeof value === 'number' && Number.isFinite(value) && value > 0
+        ? Math.max(1, Math.round(value))
+        : undefined;
     const watering = positive(libraryPlant.wateringFrequencyDays);
     const fertilizing = positive(libraryPlant.fertilizingFrequencyDays);
     const harvestDays = positive(libraryPlant.typicalDaysToHarvest);
