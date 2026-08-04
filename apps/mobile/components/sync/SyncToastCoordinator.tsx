@@ -21,6 +21,8 @@ export function SyncToastCoordinator() {
     quarantineCount,
     hasPending,
     hasQuarantine,
+    hasRecovery,
+    recovery,
     isLocalOnly,
   } = useSyncStatus();
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -29,10 +31,12 @@ export function SyncToastCoordinator() {
 
   useEffect(() => {
     if (status === 'loading') return;
+    const hasAttention = hasQuarantine || hasRecovery;
     const signature = [
       status,
       queuedCount,
       quarantineCount,
+      hasRecovery ? recovery?.reason ?? 'recovery' : 'healthy',
       isOffline ? 'offline' : 'online',
       isLocalOnly ? 'local' : 'account',
     ].join(':');
@@ -44,7 +48,7 @@ export function SyncToastCoordinator() {
       isOffline,
       isLocalOnly,
       hasPending,
-      hasQuarantine,
+      hasQuarantine: hasAttention,
       previouslyHadPending: previousHadPending.current,
     });
 
@@ -52,8 +56,10 @@ export function SyncToastCoordinator() {
       showToast({
         key: SYNC_TOAST_KEY,
         tone: 'error',
-        title: t('sync.attention_title', { count: quarantineCount }),
-        message: t('sync.attention_desc'),
+        title: hasRecovery
+          ? t('sync.recovery_title')
+          : t('sync.attention_title', { count: quarantineCount }),
+        message: hasRecovery ? t('sync.recovery_desc') : t('sync.attention_desc'),
         persistent: true,
         actionLabel: t('sync.review_action', { defaultValue: 'Review' }),
         onAction: () => setReviewOpen(true),
@@ -110,10 +116,12 @@ export function SyncToastCoordinator() {
   }, [
     hasPending,
     hasQuarantine,
+    hasRecovery,
     isLocalOnly,
     isOffline,
     quarantineCount,
     queuedCount,
+    recovery?.reason,
     status,
     t,
   ]);
@@ -151,6 +159,31 @@ export function SyncToastCoordinator() {
         </View>
 
         <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 30 }}>
+          {hasRecovery && (
+            <View
+              testID="e2e-sync-recovery-item"
+              style={{
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: theme.warning,
+                backgroundColor: theme.warningBg,
+                padding: 14,
+                gap: 5,
+              }}
+            >
+              <Text style={{ color: theme.text, fontSize: 14, fontWeight: '800' }}>
+                {t('sync.recovery_title')}
+              </Text>
+              <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
+                {t('sync.recovery_desc')}
+              </Text>
+              {!!recovery?.reason && (
+                <Text style={{ color: theme.textSecondary, fontSize: 11 }}>
+                  {recovery.reason}
+                </Text>
+              )}
+            </View>
+          )}
           {quarantine.map((item, index) => {
             return (
               <View

@@ -11,8 +11,15 @@ function legacyUuid(id: string) {
   return `legacy:${id}`;
 }
 
+const BACKFILLABLE_ISSUES = new Set(['missing_uuid', 'missing_revision']);
+
+function nonBackfillableIssues(issues: string[]) {
+  return issues.filter((issue) => !BACKFILLABLE_ISSUES.has(issue));
+}
+
 async function inspectRow(ctx: any, domain: string, row: any) {
   const issues: string[] = [];
+  if (!row.userId) issues.push('missing_owner');
   if (!row.entityUuid) issues.push('missing_uuid');
   if (!row.revision) issues.push('missing_revision');
   if (row.entityUuid && row.userId) {
@@ -31,16 +38,25 @@ async function inspectRow(ctx: any, domain: string, row: any) {
   }
   const parent = async (id: any, label: string) => {
     if (!id) return null;
-    const value = await ctx.db.get(id);
-    if (!value) issues.push(`${label}_missing`);
-    else if (value.userId !== row.userId) issues.push(`${label}_ownership_mismatch`);
-    return value;
+    try {
+      const value = await ctx.db.get(id);
+      if (!value) issues.push(`${label}_missing`);
+      else if (value.userId !== row.userId) issues.push(`${label}_ownership_mismatch`);
+      else if (value.isDeleted === true) issues.push(`${label}_deleted`);
+      return value;
+    } catch {
+      // A malformed legacy reference must be reported as a manual-review row,
+      // not abort the cursor and leave the rest of the dataset unaudited.
+      issues.push(`${label}_invalid`);
+      return null;
+    }
   };
   if (domain === 'bed') await parent(row.gardenId, 'garden');
   if (domain === 'plant') {
     const garden = await parent(row.gardenId, 'garden');
     const bed = await parent(row.bedId, 'bed');
     if (bed && garden && bed.gardenId !== garden._id) issues.push('garden_bed_mismatch');
+    if (bed && !garden) issues.push('garden_required_for_bed');
   }
   if (domain === 'activity' || domain === 'harvest' || domain === 'photo') {
     await parent(row.userPlantId, 'plant');
@@ -92,7 +108,14 @@ export const auditPage = internalQuery({
     const issueRows = [];
     for (const row of page.page) {
       const issues = await inspectRow(ctx, args.domain, row);
-      if (issues.length) issueRows.push({ id: String(row._id), userId: String(row.userId), issues });
+      if (issues.length) {
+        issueRows.push({
+          id: String(row._id),
+          userId: String(row.userId),
+          issues,
+          backfillable: nonBackfillableIssues(issues).length === 0,
+        });
+      }
     }
     return {
       domain: args.domain,
@@ -118,7 +141,14 @@ export const backfillPage = internalMutation({
       }
     })();
     let changed = 0;
+    const manualReviewRows: Array<{ id: string; userId: string; issues: string[] }> = [];
     for (const row of page.page) {
+      const issues = await inspectRow(ctx, args.domain, row);
+      const manualIssues = nonBackfillableIssues(issues);
+      if (manualIssues.length) {
+        manualReviewRows.push({ id: String(row._id), userId: String(row.userId), issues: manualIssues });
+        continue;
+      }
       if (row.entityUuid && row.revision) continue;
       await ctx.db.patch(row._id, {
         ...(!row.entityUuid && { entityUuid: legacyUuid(String(row._id)) }),
@@ -126,6 +156,13 @@ export const backfillPage = internalMutation({
       });
       changed++;
     }
-    return { domain: args.domain, changed, continueCursor: page.continueCursor, isDone: page.isDone };
+    return {
+      domain: args.domain,
+      changed,
+      skipped: manualReviewRows.length,
+      manualReviewRows,
+      continueCursor: page.continueCursor,
+      isDone: page.isDone,
+    };
   },
 });

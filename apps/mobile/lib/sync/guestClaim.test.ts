@@ -11,8 +11,10 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 vi.mock('../auth-client', () => ({ authClient: { useSession: vi.fn() } }));
 vi.mock('../deviceId', () => ({ useDeviceId: vi.fn() }));
 vi.mock('../photo/managedPlantPhotos', () => ({
-  copyManagedPlantPhotoToScope: vi.fn(async ({ managedUri, targetScope }) =>
-    `${managedUri}?scope=${encodeURIComponent(targetScope)}`),
+  copyManagedPlantPhotoToScope: vi.fn(async ({ managedUri, targetScope }) => {
+    if (managedUri === 'missing://photo') throw new Error('managed_photo_missing');
+    return `${managedUri}?scope=${encodeURIComponent(targetScope)}`;
+  }),
   clearManagedPlantPhotoScope: vi.fn(),
 }));
 
@@ -82,5 +84,22 @@ describe('guest claim', () => {
     expect(record.status).toBe('needs_attention');
     expect(target.operations[0]?.payload).toMatchObject({ payload: { name: 'Account version' } });
     expect(target.quarantine[0]?.lastError).toBe('claim_operation_conflict');
+  });
+
+  it('moves a claim Photo with a missing private file into recovery quarantine', async () => {
+    await enqueueForIdentity(guest, {
+      id: 'missing-photo-op', plantId: 'plant', type: 'photo', createdAt: 1, attempts: 0,
+      payload: {
+        localId: 'missing-photo', managedUri: 'missing://photo', phase: 'staged',
+        date: 1, source: 'camera',
+      },
+    });
+    const record = await claimGuestDataset(guest, accountA);
+    const target = await loadOutbox(accountA.scopeKey);
+    expect(record.status).toBe('needs_attention');
+    expect(target.operations).toEqual([]);
+    expect(target.quarantine).toContainEqual(expect.objectContaining({
+      id: 'missing-photo-op', lastError: 'managed_photo_missing',
+    }));
   });
 });

@@ -110,7 +110,9 @@ export function publishSyncScopeSnapshot(input: {
         }
       : EMPTY_ENTITY_LISTS,
     plantChildLists: groupPlantChildren(projection, current.plantChildLists),
-    hydration: input.outbox.quarantine.length > 0 ? 'needs_attention' : 'ready',
+    hydration: input.outbox.needsAttention || input.outbox.quarantine.length > 0
+      ? 'needs_attention'
+      : 'ready',
     error: null,
   });
   return true;

@@ -24,9 +24,21 @@ function compareVersions(left: string, right: string) {
   return 0;
 }
 
+function validateThresholds(thresholds: typeof DEFAULT_SYNC_THRESHOLDS) {
+  for (const key of ['conflictRate', 'wrongGenerationRate', 'retryableRate', 'quarantineRate'] as const) {
+    const value = thresholds[key];
+    if (!Number.isFinite(value) || value < 0 || value > 1) {
+      throw new Error(`INVALID_SYNC_THRESHOLD:${key}`);
+    }
+  }
+  if (!Number.isInteger(thresholds.minimumSampleSize) || thresholds.minimumSampleSize < 1) {
+    throw new Error('INVALID_SYNC_THRESHOLD:minimumSampleSize');
+  }
+}
+
 export async function assertLegacyWriteAllowed(ctx: MutationCtx, clientVersion?: string) {
   const config = await ctx.db.query('syncRuntimeConfig').withIndex('by_key', (q) => q.eq('key', CONFIG_KEY)).unique();
-  if (!config?.legacyEnforcementAt || Date.now() < config.legacyEnforcementAt) return;
+  if (config?.legacyEnforcementAt === undefined || Date.now() < config.legacyEnforcementAt) return;
   if (!clientVersion || compareVersions(clientVersion, config.minimumSafeClientVersion) < 0) {
     throw new Error('SYNC_CLIENT_UPGRADE_REQUIRED');
   }
@@ -44,8 +56,11 @@ export const configure = internalMutation({
     })),
   },
   handler: async (ctx, args) => {
+    const thresholds = args.thresholds ?? DEFAULT_SYNC_THRESHOLDS;
+    if (!args.minimumSafeClientVersion.trim()) throw new Error('INVALID_MINIMUM_SAFE_CLIENT_VERSION');
+    validateThresholds(thresholds);
     const current = await ctx.db.query('syncRuntimeConfig').withIndex('by_key', (q) => q.eq('key', CONFIG_KEY)).unique();
-    const value = { key: CONFIG_KEY, ...args, thresholds: args.thresholds ?? DEFAULT_SYNC_THRESHOLDS, updatedAt: Date.now() };
+    const value = { key: CONFIG_KEY, ...args, thresholds, updatedAt: Date.now() };
     if (current) {
       await ctx.db.patch(current._id, value);
       return current._id;
@@ -94,11 +109,45 @@ export const recordOutcome = internalMutation({
   },
 });
 
+function resolveObservationWindow(args: {
+  bucket?: string;
+  startBucket?: string;
+  endBucket?: string;
+}) {
+  const exactBucket = args.bucket?.trim();
+  const startBucket = args.startBucket?.trim();
+  const endBucket = args.endBucket?.trim();
+  if (exactBucket && (startBucket || endBucket)) {
+    throw new Error('INVALID_ROLLOUT_OBSERVATION_WINDOW');
+  }
+  if (Boolean(startBucket) !== Boolean(endBucket)) {
+    throw new Error('INVALID_ROLLOUT_OBSERVATION_WINDOW');
+  }
+  const start = exactBucket || startBucket || new Date().toISOString().slice(0, 13);
+  const end = exactBucket || endBucket || start;
+  if (!start || !end || start > end) {
+    throw new Error('INVALID_ROLLOUT_OBSERVATION_WINDOW');
+  }
+  return {
+    startBucket: start,
+    endBucket: end,
+    label: start === end ? start : `${start}..${end}`,
+  };
+}
+
 export const rolloutHealth = query({
-  args: { bucket: v.optional(v.string()) },
+  args: {
+    bucket: v.optional(v.string()),
+    startBucket: v.optional(v.string()),
+    endBucket: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
-    const bucket = args.bucket ?? new Date().toISOString().slice(0, 13);
-    const rows = await ctx.db.query('syncOutcomeMetrics').withIndex('by_bucket_dimensions', (q) => q.eq('bucket', bucket)).collect();
+    const observationWindow = resolveObservationWindow(args);
+    const rows = await ctx.db.query('syncOutcomeMetrics')
+      .withIndex('by_bucket_dimensions', (q) => q
+        .gte('bucket', observationWindow.startBucket)
+        .lte('bucket', observationWindow.endBucket))
+      .collect();
     const total = rows.reduce((sum, row) => sum + row.count, 0);
     const count = (statuses: string[]) => rows.filter((row) => statuses.includes(row.status)).reduce((sum, row) => sum + row.count, 0);
     const config = await ctx.db.query('syncRuntimeConfig').withIndex('by_key', (q) => q.eq('key', CONFIG_KEY)).unique();
@@ -110,8 +159,26 @@ export const rolloutHealth = query({
       quarantineRate: total ? count(['quarantined']) / total : 0,
     };
     const breached = total >= thresholds.minimumSampleSize
-      ? Object.entries(rates).filter(([key, rate]) => rate > thresholds[key as keyof typeof rates]).map(([key]) => key)
+      ? Object.entries(rates)
+        .filter(([key, rate]) => {
+          const threshold = thresholds[key as keyof typeof rates];
+          // A configured zero threshold means zero tolerance, but a healthy
+          // zero-error bucket should not pause merely because 0 >= 0.
+          return rate > 0 && rate >= threshold;
+        })
+        .map(([key]) => key)
       : [];
-    return { bucket, total, rates, thresholds, breached, shouldPause: Boolean(config?.rolloutPaused || breached.length) };
+    return {
+      bucket: observationWindow.label,
+      observationWindow: {
+        startBucket: observationWindow.startBucket,
+        endBucket: observationWindow.endBucket,
+      },
+      total,
+      rates,
+      thresholds,
+      breached,
+      shouldPause: Boolean(config?.rolloutPaused || breached.length),
+    };
   },
 });

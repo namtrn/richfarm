@@ -51,8 +51,12 @@ async function loadLocalPhotoBlob(photo: { localUri: string; source?: 'camera' |
     }
 }
 
+function photoNeedsRecovery(message: string) {
+    return message === 'photo_file_not_found' || message === 'managed_photo_missing';
+}
+
 export type SyncExecutorResult = {
-    status: 'local_only' | 'synced' | 'partial' | 'scope_changed';
+    status: 'local_only' | 'synced' | 'partial' | 'scope_changed' | 'needs_attention';
     ok: boolean;
     syncedCount: number;
     errorCount: number;
@@ -118,6 +122,17 @@ export function useSyncExecutor() {
         inflightRef.current = true;
         try {
             const outbox = await loadOutbox(scope);
+            if (outbox.needsAttention) {
+                const filteredQueue = filterQueue(outbox.operations, options);
+                lastQueuedCountRef.current = filteredQueue.length;
+                return {
+                    status: 'needs_attention',
+                    ok: false,
+                    syncedCount: 0,
+                    errorCount: 0,
+                    queuedCount: filteredQueue.length,
+                };
+            }
             let generation = outbox.syncGeneration;
             const serverSession = await ensureSession({ deviceId, appVersion: APP_VERSION });
             if (generation && serverSession && generation !== serverSession.generation) {
@@ -329,7 +344,21 @@ export function useSyncExecutor() {
                     errorCount += 1;
                     const message =
                         error instanceof Error ? error.message : 'photo_upload_failed';
-                    await markSyncAttempt(item.id, message, scope);
+                    if (photoNeedsRecovery(message)) {
+                        // A missing local binary cannot be fixed by retrying the
+                        // network request forever. Keep the operation and its
+                        // stable IDs in quarantine so the user can recover or
+                        // replace the file explicitly.
+                        await quarantineSyncAction(item.id, message, scope);
+                        await recordClientOutcome({
+                            deviceId,
+                            appVersion: APP_VERSION,
+                            entityType: 'photo',
+                            status: 'quarantined',
+                        });
+                    } else {
+                        await markSyncAttempt(item.id, message, scope);
+                    }
                 }
             }
 

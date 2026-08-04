@@ -82,4 +82,24 @@ describe('active SyncScopeStore', () => {
     });
     expect(syncScopeStore.getState().plantChildLists.activity['plant-b']).toBe(plantB);
   });
+
+  it('publishes corrupt outbox recovery as visible needs-attention state', () => {
+    beginSyncScope('account-a', 'token-a');
+    publishSyncScopeSnapshot({
+      scope: 'account-a',
+      scopeToken: 'token-a',
+      projection: projection('account-a', 'Garden A'),
+      outbox: {
+        ...outbox('account-a'),
+        needsAttention: true,
+        recovery: {
+          reason: 'malformed_json',
+          rawStorageKey: 'rf_sync_outbox_recovery_v2_account-a',
+          detectedAt: 1,
+        },
+      },
+    });
+    expect(syncScopeStore.getState().hydration).toBe('needs_attention');
+    expect(syncScopeStore.getState().outbox?.needsAttention).toBe(true);
+  });
 });

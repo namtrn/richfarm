@@ -144,7 +144,40 @@ describe('Phase 1.5 sync v2', () => {
     });
     expect(audit.issueRows).toContainEqual(expect.objectContaining({
       issues: expect.arrayContaining(['garden_ownership_mismatch']),
+      backfillable: false,
     }));
+  });
+
+  it('does not backfill a row whose parent requires manual review', async () => {
+    let bedId!: Id<'beds'>;
+    await t.run(async (ctx) => {
+      const owner = (await ctx.db.query('users').first())!;
+      const gardenId = await ctx.db.insert('gardens', {
+        userId: owner._id, name: 'Deleted parent', locationType: 'outdoor',
+      });
+      bedId = await ctx.db.insert('beds', {
+        userId: owner._id, gardenId, name: 'Orphan', locationType: 'outdoor',
+      });
+      await ctx.db.delete(gardenId);
+    });
+    const audit = await t.query(internal.syncMigration.auditPage, {
+      domain: 'bed', paginationOpts: { numItems: 50, cursor: null },
+    });
+    expect(audit.issueRows).toContainEqual(expect.objectContaining({
+      backfillable: false,
+      issues: expect.arrayContaining(['garden_missing']),
+    }));
+    const backfill = await t.mutation(internal.syncMigration.backfillPage, {
+      domain: 'bed', paginationOpts: { numItems: 50, cursor: null },
+    });
+    expect(backfill.changed).toBe(0);
+    expect(backfill.skipped).toBeGreaterThanOrEqual(1);
+    expect(backfill.manualReviewRows).toContainEqual(expect.objectContaining({
+      id: String(bedId), issues: ['garden_missing'],
+    }));
+    const row = await t.run(async (ctx) => await ctx.db.get(bedId!));
+    expect(row?.entityUuid).toBeUndefined();
+    expect(row?.revision).toBeUndefined();
   });
 
   it('applies preference patches with revision, generation, and receipts', async () => {
@@ -330,6 +363,16 @@ describe('Phase 1.5 sync v2', () => {
     })).resolves.toBeDefined();
   });
 
+  it('treats a zero timestamp as an enabled legacy cutoff', async () => {
+    const { user } = await session();
+    await t.mutation(internal.syncRuntime.configure, {
+      minimumSafeClientVersion: '2.0.0', legacyEnforcementAt: 0, rolloutPaused: false,
+    });
+    await expect(user.mutation(api.gardens.createGarden, {
+      name: 'Old timestamp', locationType: 'outdoor', clientVersion: '1.9.9',
+    })).rejects.toThrow('SYNC_CLIENT_UPGRADE_REQUIRED');
+  });
+
   it('preserves server-side free Garden limits through the v2 path', async () => {
     const { user, generation, userId } = await session();
     await t.run(async (ctx) => await ctx.db.patch(userId as Id<'users'>, { subscription: undefined }));
@@ -362,6 +405,70 @@ describe('Phase 1.5 sync v2', () => {
     expect(JSON.stringify(rows)).not.toContain('SECRET_USER_PAYLOAD');
     const health = await t.query(api.syncRuntime.rolloutHealth, {});
     expect(health.total).toBeGreaterThanOrEqual(1);
+  });
+
+  it('pauses when a configured rate reaches its threshold at the minimum sample', async () => {
+    const { user } = await session();
+    await t.mutation(internal.syncRuntime.configure, {
+      minimumSafeClientVersion: '1.0.0', rolloutPaused: false,
+      thresholds: {
+        conflictRate: 0.02, wrongGenerationRate: 0.01,
+        retryableRate: 0.05, quarantineRate: 0.02, minimumSampleSize: 100,
+      },
+    });
+    for (let index = 0; index < 98; index += 1) {
+      await t.mutation(internal.syncRuntime.recordOutcome, {
+        appVersion: '2.0.0', entityType: 'garden', status: 'applied',
+      });
+    }
+    await t.mutation(internal.syncRuntime.recordOutcome, {
+      appVersion: '2.0.0', entityType: 'garden', status: 'revision_conflict',
+    });
+    await t.mutation(internal.syncRuntime.recordOutcome, {
+      appVersion: '2.0.0', entityType: 'garden', status: 'revision_conflict',
+    });
+    const health = await user.query(api.syncRuntime.rolloutHealth, {});
+    expect(health.total).toBe(100);
+    expect(health.rates.conflictRate).toBe(0.02);
+    expect(health.breached).toContain('conflictRate');
+    expect(health.shouldPause).toBe(true);
+  });
+
+  it('aggregates rollout health across an explicitly recorded observation window', async () => {
+    const { user } = await session();
+    await t.mutation(internal.syncRuntime.configure, {
+      minimumSafeClientVersion: '1.0.0', rolloutPaused: false,
+      thresholds: {
+        conflictRate: 0.02, wrongGenerationRate: 0.01,
+        retryableRate: 0.05, quarantineRate: 0.02, minimumSampleSize: 100,
+      },
+    });
+    await t.run(async (ctx) => {
+      await ctx.db.insert('syncOutcomeMetrics', {
+        bucket: '2026-08-03T09', appVersion: '2.0.0', entityType: 'garden',
+        status: 'applied', count: 60, updatedAt: 1,
+      });
+      await ctx.db.insert('syncOutcomeMetrics', {
+        bucket: '2026-08-03T10', appVersion: '2.0.0', entityType: 'garden',
+        status: 'applied', count: 38, updatedAt: 1,
+      });
+      await ctx.db.insert('syncOutcomeMetrics', {
+        bucket: '2026-08-03T10', appVersion: '2.0.0', entityType: 'garden',
+        status: 'revision_conflict', count: 2, updatedAt: 1,
+      });
+    });
+    const health = await user.query(api.syncRuntime.rolloutHealth, {
+      startBucket: '2026-08-03T09',
+      endBucket: '2026-08-03T10',
+    });
+    expect(health.observationWindow).toEqual({
+      startBucket: '2026-08-03T09',
+      endBucket: '2026-08-03T10',
+    });
+    expect(health.total).toBe(100);
+    expect(health.rates.conflictRate).toBe(0.02);
+    expect(health.breached).toContain('conflictRate');
+    expect(health.shouldPause).toBe(true);
   });
 
   it('syncs care plans and explicit reminder outcomes idempotently without false care activities', async () => {

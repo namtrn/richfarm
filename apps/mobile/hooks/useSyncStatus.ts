@@ -14,6 +14,8 @@ export function useSyncStatus(plantId?: string) {
   const visibleOutbox = activeScope === storeScope ? outbox : null;
   const queue = visibleOutbox?.operations ?? [];
   const quarantine = visibleOutbox?.quarantine ?? [];
+  const recovery = visibleOutbox?.recovery;
+  const hasRecovery = visibleOutbox?.needsAttention === true;
   const loaded = activeScope === storeScope
     && hydration !== 'loading'
     && hydration !== 'idle';
@@ -41,7 +43,7 @@ export function useSyncStatus(plantId?: string) {
 
   const status: SyncStatus = !loaded
     ? 'loading'
-    : quarantineCount > 0
+    : hasRecovery || quarantineCount > 0
       ? 'attention'
       : queuedCount === 0
         ? 'idle'
@@ -55,6 +57,7 @@ export function useSyncStatus(plantId?: string) {
     loaded,
     queue: relevantQueue,
     quarantine: relevantQuarantine,
+    recovery,
     status,
     queuedCount,
     failedCount,
@@ -65,6 +68,7 @@ export function useSyncStatus(plantId?: string) {
     hasPending: queuedCount > 0,
     quarantineCount,
     hasQuarantine: quarantineCount > 0,
+    hasRecovery,
     isOffline,
     isOnline,
     isLocalOnly: identity?.kind === 'guest',

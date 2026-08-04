@@ -11,7 +11,9 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 
 import {
   enqueueSyncAction,
+  enqueueSyncActions,
   clearSyncNamespace,
+  getSyncRecoveryStorageKey,
   loadOutbox,
   loadSyncQueue,
   quarantineLegacyQueue,
@@ -53,6 +55,48 @@ describe('user-scoped outbox v2', () => {
     expect(queue[0]?.attempts).toBe(2);
   });
 
+  it('deduplicates operation IDs within a batch import', async () => {
+    await enqueueSyncActions([
+      action('batch-1'),
+      { ...action('batch-1'), attempts: 3 },
+      action('batch-2'),
+    ], 'device:user');
+    const queue = await loadSyncQueue('device:user');
+    expect(queue.map((item) => item.id)).toEqual(['batch-1', 'batch-2']);
+    expect(queue[0]?.attempts).toBe(3);
+  });
+
+  it('quarantines a conflicting duplicate ID instead of overwriting the active operation', async () => {
+    const original = action('batch-conflict');
+    const conflicting = {
+      ...original,
+      payload: { ...original.payload, date: 2 },
+    };
+    await enqueueSyncActions([original, conflicting], 'device:user');
+    const outbox = await loadOutbox('device:user');
+    expect(outbox.operations).toEqual([original]);
+    expect(outbox.quarantine).toContainEqual(expect.objectContaining({
+      id: 'batch-conflict',
+      payload: conflicting.payload,
+      lastError: 'batch_operation_conflict',
+    }));
+  });
+
+  it('quarantines a batch conflict against an operation already on disk', async () => {
+    const original = action('persisted-conflict');
+    await enqueueSyncAction(original, 'device:user');
+    await enqueueSyncActions([{
+      ...original,
+      payload: { ...original.payload, note: 'different fingerprint' },
+    }], 'device:user');
+    const outbox = await loadOutbox('device:user');
+    expect(outbox.operations).toEqual([original]);
+    expect(outbox.quarantine[0]).toMatchObject({
+      id: original.id,
+      lastError: 'batch_operation_conflict',
+    });
+  });
+
   it('persists generation and moves terminal operations to quarantine', async () => {
     await enqueueSyncAction(action('terminal'), 'device:user');
     await setSyncGeneration('generation-1', 'device:user');
@@ -68,6 +112,39 @@ describe('user-scoped outbox v2', () => {
     expect(await quarantineLegacyQueue()).toBe(1);
     expect(await loadSyncQueue('device:user')).toEqual([]);
     expect((await loadOutbox()).quarantine.map((item) => item.id)).toEqual(['legacy']);
+  });
+
+  it.each([
+    ['malformed JSON', '{not-json', 'malformed_json'],
+    ['unsupported version', JSON.stringify({ version: 1, scope: 'device:user', operations: [], quarantine: [] }), 'unsupported_version'],
+    ['wrong scope', JSON.stringify({ version: 2, scope: 'device:other', operations: [], quarantine: [] }), 'scope_mismatch'],
+  ] as const)('preserves %s outbox data in recovery', async (_label, raw, reason) => {
+    storage.set('rf_sync_outbox_v2_device%3Auser', raw);
+    const first = await loadOutbox('device:user');
+    expect(first).toMatchObject({
+      scope: 'device:user',
+      operations: [],
+      quarantine: [],
+      needsAttention: true,
+      recovery: { reason },
+    });
+    expect(storage.get(getSyncRecoveryStorageKey('device:user'))).toBe(raw);
+
+    // A second load models an app restart: the recovery marker remains durable
+    // and is not interpreted as a healthy empty queue.
+    const afterRestart = await loadOutbox('device:user');
+    expect(afterRestart.needsAttention).toBe(true);
+    expect(afterRestart.recovery?.reason).toBe(reason);
+  });
+
+  it('preserves a malformed legacy queue and does not delete its source key', async () => {
+    const raw = '{legacy-corrupt';
+    storage.set('rf_sync_queue_v1', raw);
+    expect(await quarantineLegacyQueue()).toBe(0);
+    expect(storage.get('rf_sync_queue_v1')).toBe(raw);
+    expect(storage.get(getSyncRecoveryStorageKey())).toBe(raw);
+    expect((await loadOutbox()).recovery?.reason).toBe('malformed_legacy_queue');
+    expect((await loadOutbox()).needsAttention).toBe(true);
   });
 
   it('cancels a pending Photo before upload when the user removes it locally', async () => {

@@ -717,6 +717,8 @@
     "review_title": "Changes to review",
     "review_preserved": "This change is preserved safely on this device.",
     "synced_title": "Changes synced",
+    "recovery_title": "Sync needs recovery",
+    "recovery_desc": "The local sync queue is preserved for recovery. Sync is paused so pending changes cannot be lost.",
     "claim_existing_title": "Add data from this device?",
     "claim_existing_desc": "This device has data created while signed out. Add it to this account?",
     "claim_keep_device": "Keep on this device",

@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { LocalSyncIdentity } from './identity';
 import { rotateGuestDatasetId } from './identity';
+import { operationFingerprint, stable } from './fingerprint';
+export { operationFingerprint } from './fingerprint';
 import { clearSyncNamespace, enqueueSyncAction, loadOutbox, updateOutbox, type OutboxEnvelope } from './queue';
 import type { SyncAction } from './types';
 import type { SyncPhotoPayload } from './types';
@@ -39,32 +41,6 @@ export type GuestClaimRecord = {
 
 function claimKey(datasetId: string) {
   return `${CLAIM_PREFIX}${datasetId}`;
-}
-
-function stable(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(stable).join(',')}]`;
-  if (value && typeof value === 'object') {
-    return `{${Object.entries(value as Record<string, unknown>)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, child]) => `${JSON.stringify(key)}:${stable(child)}`)
-      .join(',')}}`;
-  }
-  return JSON.stringify(value);
-}
-
-export function operationFingerprint(action: SyncAction) {
-  if (action.type === 'entity') {
-    const payload = action.payload as any;
-    return stable({
-      entityType: payload.entityType,
-      entityUuid: payload.entityUuid,
-      operationType: payload.operationType,
-      baseRevision: payload.baseRevision,
-      parentRefs: payload.parentRefs,
-      payload: payload.payload,
-    });
-  }
-  return stable({ type: action.type, plantId: action.plantId, payload: action.payload });
 }
 
 function sourceFingerprint(envelope: OutboxEnvelope) {
@@ -137,18 +113,37 @@ function mergeActions(
 }
 
 async function remapManagedPhotoActions(actions: SyncAction[], targetScope: string) {
-  return Promise.all(actions.map(async (action) => {
-    if (action.type !== 'photo' || !action.plantId) return action;
+  const mapped: SyncAction[] = [];
+  const failed: SyncAction[] = [];
+  for (const action of actions) {
+    if (action.type !== 'photo' || !action.plantId) {
+      mapped.push(action);
+      continue;
+    }
     const payload = action.payload as SyncPhotoPayload;
-    if (!payload.managedUri) return action;
-    const managedUri = await copyManagedPlantPhotoToScope({
-      managedUri: payload.managedUri,
-      targetScope,
-      plantUuid: action.plantId,
-      photoUuid: payload.localId,
-    });
-    return { ...action, payload: { ...payload, managedUri } };
-  }));
+    if (!payload.managedUri) {
+      mapped.push(action);
+      continue;
+    }
+    try {
+      const managedUri = await copyManagedPlantPhotoToScope({
+        managedUri: payload.managedUri,
+        targetScope,
+        plantUuid: action.plantId,
+        photoUuid: payload.localId,
+      });
+      mapped.push({ ...action, payload: { ...payload, managedUri } });
+    } catch (error) {
+      // A claim must remain resumable and visible when a private source file
+      // disappeared. Import the durable operation into quarantine instead of
+      // aborting the whole claim or retrying the missing file forever.
+      failed.push({
+        ...action,
+        lastError: error instanceof Error ? error.message : 'managed_photo_missing',
+      });
+    }
+  }
+  return { mapped, failed };
 }
 
 export async function claimGuestDataset(
@@ -199,9 +194,11 @@ export async function claimGuestDataset(
     ]);
 
     const imported = await updateOutbox(account.scopeKey, (target) => {
-      const operations = mergeActions(target.operations, targetOperations);
+      const operations = mergeActions(target.operations, targetOperations.mapped);
       const quarantined = mergeActions(target.quarantine, [
-        ...targetQuarantine,
+        ...targetQuarantine.mapped,
+        ...targetOperations.failed,
+        ...targetQuarantine.failed,
         ...operations.conflicts,
       ]);
       return {
@@ -213,6 +210,8 @@ export async function claimGuestDataset(
     record = {
       ...record,
       status: source.quarantine.length > 0
+        || targetOperations.failed.length > 0
+        || targetQuarantine.failed.length > 0
         || imported.quarantine.some((item) => item.lastError === 'claim_operation_conflict')
         ? 'needs_attention'
         : 'executing',
