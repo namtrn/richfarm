@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { Bell, Check, ChevronRight, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from '../../lib/icons';
-import { usePathname, useRouter } from 'expo-router';
+import { useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useQuery } from 'convex/react';
 import { useReminders } from '../../hooks/useReminders';
 import { usePlants } from '../../hooks/usePlants';
@@ -738,6 +738,8 @@ export default function ReminderScreen() {
   const isGardener = appMode === 'gardener';
   const router = useRouter();
   const pathname = usePathname();
+  const { reminderId: focusedReminderParam } = useLocalSearchParams<{ reminderId?: string }>();
+  const focusedReminderId = typeof focusedReminderParam === 'string' ? focusedReminderParam : undefined;
   const {
     reminders,
     todayReminders,
@@ -779,8 +781,12 @@ export default function ReminderScreen() {
   }, [plants]);
 
   const sortedReminders = useMemo(() => {
-    return [...reminders].sort((a, b) => a.nextRunAt - b.nextRunAt);
-  }, [reminders]);
+    return [...reminders].sort((a, b) => {
+      const aFocused = focusedReminderId && String(a._id) === focusedReminderId ? 0 : 1;
+      const bFocused = focusedReminderId && String(b._id) === focusedReminderId ? 0 : 1;
+      return aFocused - bFocused || a.nextRunAt - b.nextRunAt;
+    });
+  }, [focusedReminderId, reminders]);
 
   const normalizeText = (value?: string) =>
     (value ?? '')

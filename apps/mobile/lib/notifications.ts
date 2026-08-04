@@ -4,6 +4,27 @@ import { Platform } from 'react-native';
 
 let notificationHandlerConfigured = false;
 
+export type PushPermissionState =
+  | 'granted'
+  | 'provisional'
+  | 'denied'
+  | 'undetermined'
+  | 'unsupported'
+  | 'unknown';
+
+export type NotificationRegistrationState = {
+  status: 'idle' | 'registering' | 'registered' | 'unsupported' | 'failed';
+  permission: PushPermissionState;
+  platform: string;
+  deviceId?: string;
+  lastAttemptAt?: number;
+  error?: string;
+};
+
+export type NotificationResponseListener = (
+  response: Notifications.NotificationResponse,
+) => void;
+
 function ensureNotificationHandler() {
   if (notificationHandlerConfigured) return;
   notificationHandlerConfigured = true;
@@ -18,6 +39,17 @@ function ensureNotificationHandler() {
   });
 }
 
+export async function getPushPermissionStatus(): Promise<PushPermissionState> {
+  if (!Constants.isDevice) return 'unsupported';
+  const permission = await Notifications.getPermissionsAsync();
+  if (permission.status === 'granted') return 'granted';
+  if (permission.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) {
+    return 'provisional';
+  }
+  if (permission.status === 'denied') return 'denied';
+  return 'undetermined';
+}
+
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   ensureNotificationHandler();
 
@@ -25,11 +57,15 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
 
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
+  let iosAuthorizationStatus: any;
   if (existingStatus !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
+    const permission = await Notifications.requestPermissionsAsync();
+    finalStatus = permission.status;
+    iosAuthorizationStatus = permission.ios?.status;
   }
-  if (finalStatus !== 'granted') return null;
+  const isGranted = finalStatus === 'granted'
+    || iosAuthorizationStatus === Notifications.IosAuthorizationStatus.PROVISIONAL;
+  if (!isGranted) throw new Error('push_permission_denied');
 
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
@@ -44,4 +80,12 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     projectId ? { projectId } : undefined
   );
   return tokenResponse.data;
+}
+
+export function subscribeNotificationResponses(listener: NotificationResponseListener) {
+  return Notifications.addNotificationResponseReceivedListener(listener);
+}
+
+export async function getLastNotificationResponse() {
+  return await Notifications.getLastNotificationResponseAsync();
 }

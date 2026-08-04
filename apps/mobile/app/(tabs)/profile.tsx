@@ -53,6 +53,7 @@ export default function ProfileScreen() {
   const { isPremium, isConfigured: isSubConfigured, isLoading: isSubLoading, restorePurchases } = useSubscription();
   const { presentPaywall, isPresenting } = usePaywall();
   const deleteAccountMutation = useMutation((api as any).users.deleteAccount);
+  const deactivateDeviceTokensMutation = useMutation(api.notifications.deactivateDeviceTokens);
   const router = useRouter();
   const pathname = usePathname();
   const { section } = useLocalSearchParams<{ section?: string }>();
@@ -280,6 +281,9 @@ export default function ProfileScreen() {
   const handleSignOut = async () => {
     setAuthLoading(true);
     try {
+      if (deviceId) {
+        await deactivateDeviceTokensMutation({ deviceId });
+      }
       const authClient = await getAuthClient();
       const result = await authClient.signOut();
       if (result.error) {
@@ -290,6 +294,8 @@ export default function ProfileScreen() {
       }
       await clearCachedCurrentUser(deviceId);
       router.replace({ pathname: '/auth', params: { returnTo: '/' } });
+    } catch (error) {
+      setAuthMessage(error instanceof Error ? error.message : t('profile.auth_sign_out_failed'));
     } finally {
       setAuthLoading(false);
     }

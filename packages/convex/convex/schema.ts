@@ -594,6 +594,42 @@ export default defineSchema({
     .index("by_device", ["deviceId"])
     .index("by_token", ["token"]),
 
+  // Durable Expo dispatch state. One row represents one batched message for
+  // one device token. The stable dispatch key lets cron retries and the
+  // development trigger share the same ticket/receipt lifecycle.
+  notificationDispatches: defineTable({
+    userId: v.id("users"),
+    dispatchKey: v.string(),
+    batchKey: v.string(),
+    tokenId: v.id("deviceTokens"),
+    items: v.array(v.object({
+      reminderId: v.id("reminders"),
+      occurrenceKey: v.string(),
+      scheduledAt: v.number(),
+    })),
+    status: v.union(
+      v.literal("reserved"),
+      v.literal("ticket_accepted"),
+      v.literal("delivered"),
+      v.literal("retryable"),
+      v.literal("unknown"),
+      v.literal("permanent_failure")
+    ),
+    expoTicketId: v.optional(v.string()),
+    attemptCount: v.number(),
+    lastAttemptAt: v.optional(v.number()),
+    nextAttemptAt: v.optional(v.number()),
+    receiptCheckAt: v.optional(v.number()),
+    lastError: v.optional(v.string()),
+    acceptedAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_dispatch_key", ["dispatchKey"])
+    .index("by_user", ["userId"])
+    .index("by_status_receipt", ["status", "receiptCheckAt"]),
+
   // ==========================================
   // AI Analysis Queue (for background processing)
   // ==========================================

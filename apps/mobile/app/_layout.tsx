@@ -25,12 +25,13 @@ import { quarantineLegacyQueue } from '../lib/sync/queue';
 import { MobileRuntimeCoordinator } from '../lib/state/MobileRuntimeCoordinator';
 import { SyncScopeCoordinator } from '../lib/state/SyncScopeCoordinator';
 import { ScopedPreferencesCoordinator } from '../lib/state/ScopedPreferencesCoordinator';
+import { NotificationDevStatus } from '../components/ui/NotificationDevStatus';
 
 function AuthGuard() {
   const { isReady, currentUser } = useAppReady();
 
   useSyncTriggers(isReady);
-  useNotifications(isReady);
+  const notificationRegistration = useNotifications(isReady);
 
   useEffect(() => {
     if (!isReady) return;
@@ -42,10 +43,20 @@ function AuthGuard() {
   }, [isReady, currentUser?.locale]);
 
   if (!isReady) {
-    return <LoadingScreen />;
+    return (
+      <>
+        <LoadingScreen />
+        <NotificationDevStatus registration={notificationRegistration} />
+      </>
+    );
   }
 
-  return <Slot />;
+  return (
+    <>
+      <Slot />
+      <NotificationDevStatus registration={notificationRegistration} />
+    </>
+  );
 }
 
 function AppShellWithSettings({ children }: { children: ReactNode }) {

@@ -128,6 +128,14 @@ export async function deleteAppUserData(ctx: any, user: Doc<"users">) {
     await ctx.db.delete(row._id);
   }
 
+  const notificationDispatches = await ctx.db
+    .query("notificationDispatches")
+    .withIndex("by_user", (q: any) => q.eq("userId", user._id))
+    .collect();
+  for (const row of notificationDispatches) {
+    await ctx.db.delete(row._id);
+  }
+
   const authoredRecipes = await ctx.db
     .query("preservationRecipes")
     .withIndex("by_author", (q: any) => q.eq("authorId", user._id))
