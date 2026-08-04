@@ -605,7 +605,7 @@ The import and content pipeline should report or reject:
 - Create activity events from confirmed reminder actions.
 - Stop recurring reminders when harvested or archived.
 
-### Phase 3: Library quality foundation
+### Phase 3.1: Library quality foundation
 
 - Expand the structured care/content model.
 - Add source, review status, and version metadata.

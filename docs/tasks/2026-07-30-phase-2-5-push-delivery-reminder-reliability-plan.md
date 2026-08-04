@@ -1,7 +1,7 @@
 # Phase 2.5 — Push Delivery and Reminder Reliability
 
-**Planned:** 2026-07-30  
-**Status:** Ready for implementation  
+**Planned:** 2026-07-30
+**Status:** Implementation reviewed; source fixes and physical/staging gates open
 **Scope:** Complete the Phase 2 reminder delivery path on real devices without
 changing Phase 1.5 synchronization contracts or expanding the Library catalog.
 
@@ -31,6 +31,23 @@ sync-v2 engine, or enable a production rollout.
 - Simulator verification covers in-app due state, offline outcome, restart,
   reconnect, and Activity idempotency, but it cannot prove Expo/APNs delivery
   because the app does not register an Expo push token on a simulator.
+
+### Review findings — 2026-08-03
+
+The original five source findings were re-reviewed after implementation and
+are now closed by code and regression tests: per-token retry isolation,
+same-account token re-registration after logout, provider unknown
+reconciliation, development token observability, and explicit stale-occurrence
+policy. The root-mounted `useNotifications` hook now invalidates its
+`user:token` registration cache when auth/device scope is torn down or changed,
+so logging back into the same account with the same token re-registers it after
+the server token was deactivated.
+
+Physical-device, provider, staging, and Phase 1.5 operational evidence remain
+open.
+
+See `docs/tasks/2026-08-03-phase-2-5-push-delivery-completion-task.md` for the
+required fixes and evidence matrix.
 
 ## Required implementation
 

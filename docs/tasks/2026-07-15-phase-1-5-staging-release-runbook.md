@@ -100,7 +100,21 @@ revisions, receipts, tombstones, outboxes, and projection contents.
 
 ## 6. Metrics and pause thresholds
 
-Review `syncRuntime:rolloutHealth` for each rollout bucket. Default pause
+Review `syncRuntime:rolloutHealth` using a recorded observation window. For a
+single hourly bucket, query the exact bucket:
+
+```sh
+npx convex run syncRuntime:rolloutHealth '{"bucket":"2026-08-03T09"}'
+```
+
+For a sample collected across multiple hours, query the aggregate window and
+retain the returned `observationWindow`, `total`, `rates`, and `breached` fields:
+
+```sh
+npx convex run syncRuntime:rolloutHealth '{"startBucket":"2026-08-03T09","endBucket":"2026-08-03T10"}'
+```
+
+The recorded window must contain at least 100 staging operations. Default pause
 thresholds are:
 
 - combined operation/revision conflict rate: 2%;
