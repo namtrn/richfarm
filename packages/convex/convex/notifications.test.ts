@@ -143,6 +143,20 @@ describe("reminder push delivery", () => {
     expect(tokens.find((token) => token.deviceId === "device-b")?.isActive).toBe(false);
   });
 
+  it("does not dispatch a reminder whose care plan was superseded", async () => {
+    await t.run(async (ctx) => {
+      const plan = (await ctx.db.query("userPlantCarePlans").collect())[0]!;
+      await ctx.db.patch(plan._id, { status: "superseded" });
+    });
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await t.action(internal.notifications.sendDueReminders, { now });
+    expect(result).toMatchObject({ dueReminderCount: 0, attemptedMessages: 0 });
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(await t.run(async (ctx) => await ctx.db.query("notificationDispatches").collect())).toHaveLength(0);
+  });
+
   it("keeps retry independent when two devices receive mixed receipt outcomes", async () => {
     await t.run(async (ctx) => {
       const user = (await ctx.db.query("users").collect())[0]!;
@@ -240,6 +254,45 @@ describe("reminder push delivery", () => {
     }));
     expect(afterSwitch.token?.userId).toBe(afterSwitch.user?._id);
     expect(afterSwitch.token?.isActive).toBe(true);
+  });
+
+  it("does not deactivate a re-bound token from a late old-account receipt", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.endsWith("/send")) {
+        return new Response(JSON.stringify({ data: [{ status: "ok", id: "late-ticket" }] }), { status: 200 });
+      }
+      return new Response(JSON.stringify({
+        data: { "late-ticket": { status: "error", details: { error: "DeviceNotRegistered" } } },
+      }), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const userA = t.withIdentity(identity);
+    await t.action(internal.notifications.sendDueReminders, { now });
+    await userA.mutation(api.notifications.deactivateDeviceTokens, { deviceId: "device-a" });
+
+    const identityB = { subject: "late-receipt-user-b", tokenIdentifier: "test:late-receipt-user-b" };
+    await t.run(async (ctx) => {
+      await ctx.db.insert("users", {
+        tokenIdentifier: identityB.tokenIdentifier,
+        isActive: true,
+        timezone: "UTC",
+      });
+    });
+    const userB = t.withIdentity(identityB);
+    await userB.mutation(api.notifications.registerDeviceToken, {
+      token: "ExponentPushToken[device-a]",
+      deviceId: "device-a",
+      platform: "ios",
+    });
+
+    await t.action(internal.notifications.sendDueReminders, { now: now + 20_000 });
+    const state = await t.run(async (ctx) => ({
+      token: (await ctx.db.query("deviceTokens").collect())[0],
+      dispatch: (await ctx.db.query("notificationDispatches").collect())[0],
+    }));
+    expect(state.token?.isActive).toBe(true);
+    expect(state.dispatch?.status).toBe("permanent_failure");
   });
 
   it("does not resend an unknown request after a provider timeout", async () => {
@@ -367,11 +420,36 @@ describe("reminder push delivery", () => {
         occurrenceKey: expect.stringContaining("push-reminder:"),
         attemptedMessages: 0,
       });
+      const syncState = await t.run(async (ctx) => (await ctx.db.query("syncAccountState").collect())[0]);
+      expect(syncState?.sequence).toBe(1);
     } finally {
       if (previousEnvironment === undefined) delete process.env.RICHFARM_ENVIRONMENT;
       else process.env.RICHFARM_ENVIRONMENT = previousEnvironment;
       if (previousGate === undefined) delete process.env.RICHFARM_DEV_REMINDER_TRIGGER_TOKEN;
       else process.env.RICHFARM_DEV_REMINDER_TRIGGER_TOKEN = previousGate;
+    }
+  });
+
+  it("rejects the development trigger in production even with the gate token", async () => {
+    const previousEnvironment = process.env.RICHFARM_ENVIRONMENT;
+    const previousGate = process.env.RICHFARM_DEV_REMINDER_TRIGGER_TOKEN;
+    const previousNodeEnvironment = process.env.NODE_ENV;
+    process.env.RICHFARM_ENVIRONMENT = "development";
+    process.env.RICHFARM_DEV_REMINDER_TRIGGER_TOKEN = "local-gate";
+    process.env.NODE_ENV = "production";
+    try {
+      const user = t.withIdentity(identity);
+      await expect(user.action(api.notifications.triggerCareReminderForDevelopment, {
+        gate: "local-gate",
+        dispatchNow: false,
+      })).rejects.toThrow("test_reminder_trigger_not_available");
+    } finally {
+      if (previousEnvironment === undefined) delete process.env.RICHFARM_ENVIRONMENT;
+      else process.env.RICHFARM_ENVIRONMENT = previousEnvironment;
+      if (previousGate === undefined) delete process.env.RICHFARM_DEV_REMINDER_TRIGGER_TOKEN;
+      else process.env.RICHFARM_DEV_REMINDER_TRIGGER_TOKEN = previousGate;
+      if (previousNodeEnvironment === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = previousNodeEnvironment;
     }
   });
 });

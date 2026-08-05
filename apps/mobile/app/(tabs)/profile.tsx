@@ -28,6 +28,7 @@ import { TimezoneModal } from '../../components/ui/TimezoneModal';
 import { useReminders } from '../../hooks/useReminders';
 import { useLocalSearchParams } from 'expo-router';
 import { useLocalSyncIdentity } from '../../lib/sync/identity';
+import { notifyNotificationPermissionChanged } from '../../lib/notifications';
 import { toast } from '../../lib/toast';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
@@ -333,6 +334,7 @@ export default function ProfileScreen() {
 
   const handleEnableNotifications = async () => {
     await Notifications.requestPermissionsAsync();
+    notifyNotificationPermissionChanged();
     await refreshNotificationStatus();
   };
 

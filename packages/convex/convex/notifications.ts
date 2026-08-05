@@ -11,7 +11,7 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { getUserByIdentity, requireUser } from "./lib/user";
 import { resolveAppMode } from "./lib/appMode";
-import { batchKey, reminderOccurrenceKey } from "./lib/carePlan";
+import { batchKey, isCarePlanReminder, reminderOccurrenceKey } from "./lib/carePlan";
 import { markSyncDatasetChanged } from "./lib/syncProtocol";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
@@ -90,8 +90,12 @@ function retryAt(now: number, attemptCount: number) {
     return now + Math.min(RETRY_MAX_MS, RETRY_BASE_MS * 2 ** Math.min(attemptCount, 5));
 }
 
-function isStoppedPlant(plant: any) {
-    return !plant || plant.isDeleted || plant.status === "harvested" || plant.status === "archived";
+function isStoppedPlant(plant: any, userId?: Id<"users">) {
+    return !plant
+        || (userId !== undefined && plant.userId !== userId)
+        || plant.isDeleted
+        || plant.status === "harvested"
+        || plant.status === "archived";
 }
 
 function itemKey(item: { occurrenceKey: string }) {
@@ -123,6 +127,29 @@ async function reminderLocation(ctx: any, reminder: any) {
                 ? String(plant.bedId)
                 : undefined,
     };
+}
+
+async function isDispatchableReminder(ctx: any, reminder: any, plant: any) {
+    if (reminder.userPlantId && isStoppedPlant(plant, reminder.userId)) return false;
+    if (!isCarePlanReminder(reminder)) return true;
+    if (!reminder.carePlanId || !reminder.userPlantId) return false;
+    const carePlan = await ctx.db.get(reminder.carePlanId);
+    return Boolean(
+        carePlan
+        && carePlan.userId === reminder.userId
+        && carePlan.userPlantId === reminder.userPlantId
+        && carePlan.status === "active"
+        && plant
+        && plant.userId === reminder.userId
+    );
+}
+
+async function deactivateDispatchToken(ctx: any, row: any, now: number) {
+    const token = await ctx.db.get(row.tokenId);
+    // A token row can be rebound after logout. A late receipt from the old
+    // account must never deactivate the new account's registration.
+    if (!token || token.userId !== row.userId) return;
+    await ctx.db.patch(row.tokenId, { isActive: false, lastUsedAt: now });
 }
 
 export const registerDeviceToken = mutation({
@@ -262,7 +289,7 @@ export const prepareDueNotificationDispatches = internalMutation({
             const notSnoozed = !reminder.snoozedUntil || reminder.snoozedUntil <= now;
             if (!reminder.enabled || !wantsPush || !notSnoozed) continue;
             const location = await reminderLocation(ctx, reminder);
-            if (reminder.userPlantId && isStoppedPlant(location.plant)) continue;
+            if (!await isDispatchableReminder(ctx, reminder, location.plant)) continue;
             dueCandidates.push({ ...reminder, _location: location });
         }
 
@@ -384,6 +411,7 @@ export const prepareDueNotificationDispatches = internalMutation({
                         body: displayBody,
                         data: {
                             version: "care-plan-v2",
+                            userId: String(userId),
                             batchKey: groupKey,
                             reminderId: pending.length === 1 ? first._id : undefined,
                             reminderIds: pending.map((reminder) => reminder._id),
@@ -441,9 +469,20 @@ export const prepareDueNotificationDispatches = internalMutation({
 });
 
 export const listPendingNotificationReceipts = internalQuery({
-    args: { now: v.optional(v.number()) },
+    args: {
+        now: v.optional(v.number()),
+        userId: v.optional(v.id("users")),
+    },
     handler: async (ctx, args) => {
         const now = args.now ?? Date.now();
+        if (args.userId) {
+            return (await ctx.db.query("notificationDispatches")
+                .withIndex("by_user", (q) => q.eq("userId", args.userId!))
+                .collect())
+                .filter((row) => row.status === "ticket_accepted"
+                    && row.receiptCheckAt !== undefined
+                    && row.receiptCheckAt <= now);
+        }
         return await ctx.db
             .query("notificationDispatches")
             .withIndex("by_status_receipt", (q) => q.eq("status", "ticket_accepted").lte("receiptCheckAt", now))
@@ -472,6 +511,7 @@ export const deferNotificationReceipts = internalMutation({
 
 async function dispatchEvidence(ctx: any, row: any) {
     const token = await ctx.db.get(row.tokenId);
+    const tokenBelongsToDispatchUser = token?.userId === row.userId;
     return {
         dispatchId: row._id,
         userId: row.userId,
@@ -489,7 +529,8 @@ async function dispatchEvidence(ctx: any, row: any) {
         deliveredAt: row.deliveredAt,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
-        token: token ? {
+        tokenRebound: Boolean(token && !tokenBelongsToDispatchUser),
+        token: token && tokenBelongsToDispatchUser ? {
             deviceId: token.deviceId,
             platform: token.platform,
             isActive: token.isActive,
@@ -513,6 +554,7 @@ async function markDispatchDelivered(ctx: any, row: any, now: number) {
         const reminder = await ctx.db.get(item.reminderId);
         if (!reminder || !reminder.enabled || reminder.userId !== row.userId) continue;
         if (reminder.nextRunAt !== item.scheduledAt) continue;
+        if (occurrenceKey(reminder) !== item.occurrenceKey) continue;
         if (reminder.snoozedUntil && reminder.snoozedUntil > now) continue;
         const nextLastNotifiedAt = Math.max(reminder.lastNotifiedAt ?? 0, item.scheduledAt);
         if (nextLastNotifiedAt !== reminder.lastNotifiedAt) {
@@ -577,7 +619,7 @@ export const recordExpoSendResults = internalMutation({
                 const error = result.error ?? "expo_provider_error";
                 const permanent = error === "DeviceNotRegistered";
                 if (permanent) {
-                    await ctx.db.patch(row.tokenId, { isActive: false, lastUsedAt: args.now });
+                    await deactivateDispatchToken(ctx, row, args.now);
                 }
                 await ctx.db.patch(row._id, {
                     status: permanent ? "permanent_failure" : "retryable",
@@ -641,7 +683,7 @@ export const recordExpoReceiptResults = internalMutation({
                 const error = result.error ?? "expo_receipt_error";
                 const permanent = error === "DeviceNotRegistered";
                 if (permanent) {
-                    await ctx.db.patch(row.tokenId, { isActive: false, lastUsedAt: args.now });
+                    await deactivateDispatchToken(ctx, row, args.now);
                 }
                 await ctx.db.patch(row._id, {
                     status: permanent ? "permanent_failure" : "retryable",
@@ -714,7 +756,7 @@ export const applyUnknownNotificationDispatchResolution = internalMutation({
             if (!args.providerTicketId) throw new Error("Provider ticket is required");
             const error = args.providerError ?? "expo_receipt_error";
             const permanent = error === "DeviceNotRegistered";
-            if (permanent) await ctx.db.patch(row.tokenId, { isActive: false, lastUsedAt: args.now });
+            if (permanent) await deactivateDispatchToken(ctx, row, args.now);
             await ctx.db.patch(row._id, {
                 expoTicketId: args.providerTicketId,
                 status: permanent ? "permanent_failure" : "retryable",
@@ -762,7 +804,10 @@ export const sendDueReminders = internalAction({
     },
     handler: async (ctx, args): Promise<any> => {
         const now = args.now ?? Date.now();
-        const pendingReceipts: any[] = await ctx.runQuery(internal.notifications.listPendingNotificationReceipts, { now });
+        const pendingReceipts: any[] = await ctx.runQuery(internal.notifications.listPendingNotificationReceipts, {
+            now,
+            userId: args.userId,
+        });
         let receiptDelivered = 0;
         let receiptRejected = 0;
         const receiptReasons: string[] = [];
@@ -1040,8 +1085,10 @@ export const prepareDevelopmentReminderTrigger = internalMutation({
         if (!selected || selected.userId !== user._id) throw new Error("test_reminder_not_found");
         if (!selected.enabled) throw new Error("test_reminder_disabled");
         if (!selected.carePlanId && !selected.taskType) throw new Error("test_care_reminder_required");
-        const plant = selected.userPlantId ? await ctx.db.get(selected.userPlantId) : null;
-        if (selected.userPlantId && isStoppedPlant(plant)) throw new Error("test_reminder_plant_inactive");
+        const selectedLocation = await reminderLocation(ctx, selected);
+        if (!await isDispatchableReminder(ctx, selected, selectedLocation.plant)) {
+            throw new Error("test_reminder_inactive");
+        }
 
         const now = args.now ?? Date.now();
         const triggerAt = now - 60_000;
@@ -1051,6 +1098,7 @@ export const prepareDevelopmentReminderTrigger = internalMutation({
             snoozedUntil: undefined,
             revision: (selected.revision ?? 1) + 1,
         });
+        await markSyncDatasetChanged(ctx, user._id);
         const location = await reminderLocation(ctx, { ...selected, nextRunAt: triggerAt });
         const activeTokens = (await ctx.db.query("deviceTokens")
             .withIndex("by_user", (q) => q.eq("userId", user._id))

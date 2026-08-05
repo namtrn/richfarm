@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   getPermissionsAsync: vi.fn(),
   requestPermissionsAsync: vi.fn(),
   getExpoPushTokenAsync: vi.fn(),
+  addPushTokenListener: vi.fn(),
 }));
 
 vi.mock('expo-constants', () => ({
@@ -20,6 +21,7 @@ vi.mock('expo-notifications', () => ({
   getPermissionsAsync: mocks.getPermissionsAsync,
   requestPermissionsAsync: mocks.requestPermissionsAsync,
   getExpoPushTokenAsync: mocks.getExpoPushTokenAsync,
+  addPushTokenListener: mocks.addPushTokenListener,
   setNotificationHandler: vi.fn(),
   setNotificationChannelAsync: vi.fn(),
   addNotificationResponseReceivedListener: vi.fn(),
@@ -29,7 +31,10 @@ vi.mock('react-native', () => ({ Platform: { OS: 'ios' } }));
 
 import {
   getPushPermissionStatus,
+  notifyNotificationPermissionChanged,
   registerForPushNotificationsAsync,
+  subscribeNotificationRegistrationRetry,
+  subscribePushTokenChanges,
 } from './notifications';
 
 describe('push permission and registration states', () => {
@@ -58,5 +63,31 @@ describe('push permission and registration states', () => {
     mocks.getPermissionsAsync.mockResolvedValueOnce({ status: 'granted', ios: { status: 'authorized' } });
     mocks.getExpoPushTokenAsync.mockResolvedValueOnce({ data: 'ExponentPushToken[retry]' });
     await expect(registerForPushNotificationsAsync()).resolves.toBe('ExponentPushToken[retry]');
+  });
+
+  it('forwards Expo token rotation events and supports cleanup', () => {
+    const remove = vi.fn();
+    const listener = vi.fn();
+    mocks.addPushTokenListener.mockImplementationOnce((callback: (token: { data: string }) => void) => {
+      callback({ data: 'ExponentPushToken[rotated]' });
+      return { remove };
+    });
+
+    const subscription = subscribePushTokenChanges(listener);
+
+    expect(listener).toHaveBeenCalledWith('ExponentPushToken[rotated]');
+    subscription.remove();
+    expect(remove).toHaveBeenCalledTimes(1);
+  });
+
+  it('notifies the root registration flow after an in-app permission transition', () => {
+    const listener = vi.fn();
+    const unsubscribe = subscribeNotificationRegistrationRetry(listener);
+
+    notifyNotificationPermissionChanged();
+    expect(listener).toHaveBeenCalledTimes(1);
+    unsubscribe();
+    notifyNotificationPermissionChanged();
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 });

@@ -6,8 +6,8 @@ import {
 } from './notificationRouting';
 
 const reminders = [
-  { _id: 'reminder-a', entityUuid: 'entity-a', userPlantId: 'plant-a' },
-  { _id: 'reminder-b', entityUuid: 'entity-b', userPlantId: 'plant-b' },
+  { _id: 'reminder-a', entityUuid: 'entity-a', userId: 'account-a', userPlantId: 'plant-a', nextRunAt: 100, enabled: true },
+  { _id: 'reminder-b', entityUuid: 'entity-b', userId: 'account-a', userPlantId: 'plant-b', nextRunAt: 200, enabled: true },
 ];
 
 describe('notification routing', () => {
@@ -19,7 +19,7 @@ describe('notification routing', () => {
     };
     expect(extractNotificationReminderIds(data)).toEqual(['entity-a', 'reminder-a']);
     expect(notificationResponseKey('expo-response-1', data)).toBe(
-      'expo-response-1:entity-a,reminder-a:2026-08-03:garden-a:bed-a',
+      'semantic::entity-a,reminder-a::2026-08-03:garden-a:bed-a',
     );
     expect(notificationResponseKey('expo-response-1', data)).toBe(
       notificationResponseKey('expo-response-1', data),
@@ -49,5 +49,60 @@ describe('notification routing', () => {
   it('drops stale or wrong-account payloads with no authoritative match', () => {
     expect(resolveNotificationRoute(reminders, { reminderId: 'deleted-reminder' })).toBeNull();
     expect(resolveNotificationRoute(reminders, { reminderId: 'account-b-reminder' })).toBeNull();
+  });
+
+  it('drops a stale occurrence even when the reminder still exists', () => {
+    expect(resolveNotificationRoute(reminders, {
+      reminderIds: ['reminder-a'], occurrenceKeys: ['entity-a:99'],
+    })).toBeNull();
+    expect(resolveNotificationRoute(reminders, {
+      reminderIds: ['reminder-a'], occurrenceKeys: ['entity-a:100'],
+    })).toEqual({
+      pathname: '/(tabs)/reminder',
+      params: { reminderId: 'reminder-a', userPlantId: 'plant-a' },
+    });
+  });
+
+  it('rejects a wrong-account or disabled reminder even when the identifier matches', () => {
+    expect(resolveNotificationRoute(reminders, {
+      userId: 'account-b', reminderId: 'reminder-a',
+    })).toBeNull();
+    expect(resolveNotificationRoute([
+      { ...reminders[0], enabled: false },
+    ], {
+      userId: 'account-a', reminderId: 'reminder-a',
+    })).toBeNull();
+  });
+
+  it('rejects tombstoned reminders and inactive authoritative plants', () => {
+    expect(resolveNotificationRoute([
+      { ...reminders[0], tombstoned: true },
+    ], { reminderId: 'reminder-a' })).toBeNull();
+    expect(resolveNotificationRoute(reminders, {
+      version: 'care-plan-v2', userId: 'account-a', reminderId: 'reminder-a',
+    }, [
+      { _id: 'plant-a', userId: 'account-a', status: 'harvested' },
+    ])).toBeNull();
+    expect(resolveNotificationRoute(reminders, {
+      version: 'care-plan-v2', reminderId: 'reminder-a',
+    }, [
+      { _id: 'plant-a', userId: 'account-a', status: 'growing' },
+    ])).toBeNull();
+  });
+
+  it('accepts a singular occurrence key and deduplicates semantic response keys', () => {
+    expect(resolveNotificationRoute(reminders, {
+      userId: 'account-a', reminderId: 'entity-a', occurrenceKey: 'entity-a:100',
+    })).toEqual({
+      pathname: '/(tabs)/reminder',
+      params: { reminderId: 'reminder-a', userPlantId: 'plant-a' },
+    });
+    const data = {
+      userId: 'account-a', reminderIds: ['reminder-a'], occurrenceKeys: ['entity-a:100'],
+      batchKey: 'day:garden:bed',
+    };
+    expect(notificationResponseKey('response-a', data)).toBe(
+      notificationResponseKey('response-b', data),
+    );
   });
 });

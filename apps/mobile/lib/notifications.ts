@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 let notificationHandlerConfigured = false;
+const notificationRegistrationRetryListeners = new Set<() => void>();
 
 export type PushPermissionState =
   | 'granted'
@@ -84,6 +85,21 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
 
 export function subscribeNotificationResponses(listener: NotificationResponseListener) {
   return Notifications.addNotificationResponseReceivedListener(listener);
+}
+
+export function subscribePushTokenChanges(listener: (token: string) => void) {
+  return Notifications.addPushTokenListener((token) => listener(token.data));
+}
+
+export function subscribeNotificationRegistrationRetry(listener: () => void) {
+  notificationRegistrationRetryListeners.add(listener);
+  return () => {
+    notificationRegistrationRetryListeners.delete(listener);
+  };
+}
+
+export function notifyNotificationPermissionChanged() {
+  for (const listener of notificationRegistrationRetryListeners) listener();
 }
 
 export async function getLastNotificationResponse() {

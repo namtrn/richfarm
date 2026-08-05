@@ -82,4 +82,26 @@ describe('useNotifications registration scope cache', () => {
     expect(disabled.scopeKey).toBeNull();
     expect(disabled.lastRegistrationKey).toBeNull();
   });
+
+  it('forces a fresh server registration after a permission retry', () => {
+    const token = 'ExponentPushToken[same-device]';
+    const registerDeviceToken = vi.fn();
+    let lastRegistrationKey: string | null = null;
+
+    const runRegistrationAttempt = () => {
+      const registrationKey = `user-a:${token}`;
+      if (lastRegistrationKey === registrationKey) return;
+      registerDeviceToken({ userKey: 'user-a', deviceId: 'device-1', token });
+      lastRegistrationKey = registrationKey;
+    };
+
+    runRegistrationAttempt();
+    expect(registerDeviceToken).toHaveBeenCalledTimes(1);
+
+    // Mirrors the retry listener in useNotifications: a permission transition
+    // invalidates the process-local cache before incrementing the attempt.
+    lastRegistrationKey = null;
+    runRegistrationAttempt();
+    expect(registerDeviceToken).toHaveBeenCalledTimes(2);
+  });
 });

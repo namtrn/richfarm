@@ -10,18 +10,20 @@ import {
   getLastNotificationResponse,
   type NotificationRegistrationState,
   registerForPushNotificationsAsync,
+  subscribeNotificationRegistrationRetry,
   subscribeNotificationResponses,
+  subscribePushTokenChanges,
 } from '../lib/notifications';
 import {
-  notificationResponseKey,
-  resolveNotificationRoute,
-} from '../lib/notificationRouting';
+  decideNotificationResponse,
+  shouldClearPendingNotificationResponse,
+} from '../lib/notificationResponse';
 import {
   notificationRegistrationScopeKey,
   updateNotificationRegistrationScope,
 } from '../lib/notificationRegistration';
 import { useSyncScope } from '../lib/state/syncScopeStore';
-import { useSyncProjectionEntities } from './useSyncProjection';
+import { useSyncProjectionEntities, useSyncProjectionMeta } from './useSyncProjection';
 
 export function useNotifications(enabled: boolean = true) {
   const { user, deviceId } = useAuth();
@@ -80,6 +82,25 @@ export function useNotifications(enabled: boolean = true) {
   }, []);
 
   useEffect(() => {
+    if (!enabled || !deviceId || !registrationUserKey) return;
+    const subscription = subscribePushTokenChanges(() => {
+      setAttempt((value) => value + 1);
+    });
+    return () => subscription.remove();
+  }, [deviceId, enabled, registrationUserKey]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    return subscribeNotificationRegistrationRetry(() => {
+      // Permission can transition from denied/undetermined to granted while
+      // this hook remains mounted. A fresh attempt must rebind the server row;
+      // otherwise the same token cache would short-circuit registerDeviceToken.
+      lastRegistrationRef.current = null;
+      setAttempt((value) => value + 1);
+    });
+  }, [enabled]);
+
+  useEffect(() => {
     if (!enabled || !enabledRef.current || !deviceId || !user) {
       setRegistration({ status: 'idle', permission: 'unknown', platform: Platform.OS, deviceId });
       return;
@@ -133,50 +154,64 @@ export function useNotifications(enabled: boolean = true) {
   }, [attempt, deviceId, enabled, registerDeviceToken, registrationUserKey, user]);
 
   const reminders = useSyncProjectionEntities('reminder') as any[];
-  const hydration = useSyncScope((state) => state.hydration);
+  const plants = useSyncProjectionEntities('plant') as any[];
+  const { isComplete: projectionComplete } = useSyncProjectionMeta();
   const scope = useSyncScope((state) => state.scope);
   const pendingResponse = useRef<any>(null);
   const handledResponses = useRef(new Set<string>());
+  const [responseVersion, setResponseVersion] = useState(0);
   const previousScope = useRef(scope);
 
   useEffect(() => {
     if (previousScope.current !== scope) {
+      if (shouldClearPendingNotificationResponse(previousScope.current, scope)) {
+        pendingResponse.current = null;
+      }
       previousScope.current = scope;
-      pendingResponse.current = null;
       handledResponses.current.clear();
     }
   }, [scope]);
 
   useEffect(() => {
     if (!enabled || !user) return;
+    let active = true;
     const accept = (response: any) => {
+      if (!active) return;
       pendingResponse.current = response;
+      // Refs preserve the response across hydration, but do not cause a
+      // render. Bump state so a response arriving after projection completion
+      // evaluates immediately (warm taps and late cold-start promises).
+      setResponseVersion((value) => value + 1);
     };
     const subscription = subscribeNotificationResponses(accept);
     void getLastNotificationResponse().then((response) => {
       if (response) accept(response);
     });
-    return () => subscription.remove();
-  }, [enabled, user]);
+    return () => {
+      active = false;
+      subscription.remove();
+    };
+  }, [enabled, registrationUserKey]);
 
   useEffect(() => {
-    if (!enabled || !user || !scope || hydration !== 'ready') return;
+    if (!enabled || !user || !scope || !projectionComplete) return;
     const response = pendingResponse.current;
     if (!response) return;
-    const data = response.notification?.request?.content?.data as Record<string, unknown> | undefined;
-    const responseKey = notificationResponseKey(
-      response.notification?.request?.identifier,
-      data,
-    );
-    if (handledResponses.current.has(responseKey)) return;
+    const decision = decideNotificationResponse({
+      response,
+      authoritative: projectionComplete,
+      reminders,
+      plants,
+      handledKeys: handledResponses.current,
+    });
+    if (decision.status !== 'handled') return;
 
-    // A complete, account-scoped projection is authoritative. If it contains
-    // no referenced reminder, this is a stale, deleted, or wrong-account push.
-    handledResponses.current.add(responseKey);
+    // Mark/clear only after the authoritative projection has produced its
+    // route decision. Before that point, retain the response for a retry.
+    handledResponses.current.add(decision.responseKey);
     pendingResponse.current = null;
-    const route = resolveNotificationRoute(reminders, data);
-    if (route) router.push(route);
-  }, [enabled, hydration, reminders, router, scope, user]);
+    if (decision.route) router.push(decision.route);
+  }, [enabled, plants, projectionComplete, reminders, responseVersion, router, scope, user]);
 
   return registration;
 }
