@@ -7,6 +7,17 @@ import { useQueryCache } from '../lib/queryCache';
 import { useSessionScopedCacheKey } from '../lib/sessionCache';
 import { useEntitySync } from './useEntitySync';
 import { useSyncProjectionEntities, useSyncProjectionMeta } from './useSyncProjection';
+import { isLocalProjectionEntityRow } from '../lib/sync/remoteEntity';
+
+export function shouldSkipRemoteGardenQuery(
+  gardenId: unknown,
+  projectedGardens: readonly unknown[],
+) {
+  return projectedGardens.some((garden) => (
+    isLocalProjectionEntityRow(garden)
+    && String(garden._id) === String(gardenId)
+  ));
+}
 
 export function useBeds(gardenId?: Id<'gardens'>) {
   const { deviceId } = useDeviceId();
@@ -15,12 +26,14 @@ export function useBeds(gardenId?: Id<'gardens'>) {
   const { hasProjection, isComplete, identity } = useSyncProjectionMeta();
   const projectedBeds = useSyncProjectionEntities('bed') as any[];
   const projectedGardens = useSyncProjectionEntities('garden') as any[];
+  const skipRemoteGardenQuery = shouldSkipRemoteGardenQuery(gardenId, projectedGardens);
+  const remoteGardenId = skipRemoteGardenQuery ? undefined : gardenId;
 
   // Two unconditional hooks — React rules require hooks to always be called.
   // The correct one runs; the other is skipped via 'skip'.
   const bedsFromGarden = useQuery(
     api.gardens.getBedsInGarden,
-    gardenId && deviceId && identity?.kind === 'account' ? { gardenId, deviceId } : 'skip'
+    remoteGardenId && deviceId && identity?.kind === 'account' ? { gardenId: remoteGardenId, deviceId } : 'skip'
   );
   const allBeds = useQuery(
     api.beds.getBeds,

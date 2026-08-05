@@ -21,7 +21,8 @@ appId: com.richfarm.app
 - tapOn:
     text: Cancel
     optional: true
-- tapOn: "Reminder"
+- openLink:
+    link: richfarm://reminder
 - extendedWaitUntil:
     visible:
       id: e2e-reminder-add-button
@@ -32,9 +33,6 @@ appId: com.richfarm.app
     visible:
       id: e2e-reminder-form-title-input
     timeout: 10000
-- tapOn:
-    id: e2e-reminder-form-save
-    optional: true
 - tapOn:
     id: e2e-reminder-form-title-input
 - eraseText

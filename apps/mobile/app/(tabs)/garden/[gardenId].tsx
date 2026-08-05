@@ -649,7 +649,7 @@ export default function GardenDetailScreen() {
             <Text style={{ fontSize: 15, fontWeight: '600', color: theme.textMuted }}>{t('garden.no_beds')}</Text>
           </View>
         ) : (
-          <View style={{ gap: 10 }}>
+          <View testID="e2e-garden-bed-list" style={{ gap: 10 }}>
             {beds.map((b) => (
               <View
                 key={b._id}

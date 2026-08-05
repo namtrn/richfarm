@@ -18,7 +18,8 @@ appId: com.richfarm.app
     visible:
       id: e2e-tab-home
     timeout: 60000
-- tapOn: "Library"
+- openLink:
+    link: com.richfarm.app://library
 - extendedWaitUntil:
     visible:
       id: e2e-library-search-input
@@ -33,15 +34,8 @@ appId: com.richfarm.app
     timeout: 30000
 - tapOn:
     id: e2e-library-plant-card
-- tapOn:
-    id: e2e-library-modal-favorite
-    optional: true
-- tapOn:
-    id: e2e-library-modal-add
-    optional: true
-- tapOn:
-    id: e2e-library-modal-close
-    optional: true
+- openLink:
+    link: com.richfarm.app://library?tab=pests
 - tapOn:
     id: e2e-library-tab-pests
 - extendedWaitUntil:

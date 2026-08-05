@@ -18,7 +18,8 @@ appId: com.richfarm.app
     visible:
       id: e2e-tab-home
     timeout: 60000
-- tapOn: "Scan"
+- openLink:
+    link: richfarm://scan
 - extendedWaitUntil:
     visible:
       id: e2e-scan-open-button

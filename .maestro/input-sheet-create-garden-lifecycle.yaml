@@ -18,7 +18,7 @@ appId: com.richfarm.app
 # The onboarding persistence request can still be in flight in a clean-state
 # simulator. A direct route makes this component regression independent of it.
 - openLink:
-    link: richfarm://garden
+    link: richfarm:///garden
 - extendedWaitUntil:
     visible:
       id: e2e-garden-open-create

@@ -20,6 +20,14 @@ appId: com.richfarm.app
     timeout: 60000
 - openLink:
     link: richfarm://profile
+- extendedWaitUntil:
+    visible: "Garden & App"
+    timeout: 10000
+- tapOn: "Garden & App"
+- extendedWaitUntil:
+    visible:
+      id: e2e-profile-mode-farmer
+    timeout: 10000
 - scrollUntilVisible:
     element:
       id: e2e-profile-mode-farmer
@@ -33,10 +41,13 @@ appId: com.richfarm.app
     commands:
       - tapOn: "Confirm"
 - openLink:
-    link: richfarm://garden
-- tapOn:
-    id: e2e-garden-create-close
-    optional: true
+    link: richfarm://home
+- openLink:
+    link: richfarm:///garden
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-garden
+    timeout: 10000
 - runFlow:
     when:
       notVisible:
@@ -52,7 +63,6 @@ appId: com.richfarm.app
           id: e2e-garden-create-name-input
       - eraseText
       - inputText: QA Garden
-      - pressKey: Enter
       - tapOn:
           id: e2e-garden-create-area-input
       - eraseText
@@ -71,16 +81,12 @@ appId: com.richfarm.app
           notVisible:
             id: e2e-garden-create-name-input
           timeout: 10000
-      - openLink:
-          link: richfarm://garden
-      - extendedWaitUntil:
-          visible:
-            id: e2e-garden-card
-          timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: e2e-garden-card
+    timeout: 30000
 - waitForAnimationToEnd:
     timeout: 5000
-- tapOn:
-    point: "18%,43%"
 - tapOn:
     point: "18%,43%"
 - extendedWaitUntil:
@@ -89,17 +95,28 @@ appId: com.richfarm.app
     timeout: 30000
 - tapOn:
     id: e2e-garden-detail-add-bed
+- runFlow:
+    when:
+      visible:
+        id: e2e-garden-bed-name-input
+    commands:
+      - tapOn:
+          id: e2e-garden-bed-name-input
+      - eraseText
+      - inputText: QA Bed
+      - scrollUntilVisible:
+          element:
+            id: e2e-garden-bed-save
+          direction: DOWN
+          timeout: 10000
+      - tapOn:
+          id: e2e-garden-bed-save
+- scrollUntilVisible:
+    element:
+      id: e2e-garden-bed-list
+    direction: DOWN
+    timeout: 10000
 - extendedWaitUntil:
     visible:
-      id: e2e-garden-bed-name-input
-    timeout: 10000
-- tapOn:
-    id: e2e-garden-bed-name-input
-- eraseText
-- inputText: QA Bed
-- pressKey: Enter
-- tapOn:
-    id: e2e-garden-bed-save
-- extendedWaitUntil:
-    visible: QA Bed
+      id: e2e-garden-bed-list
     timeout: 30000

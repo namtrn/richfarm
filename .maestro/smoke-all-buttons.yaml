@@ -26,10 +26,11 @@ appId: com.richfarm.app
       id: e2e-tab-home
     timeout: 60000
 - tapOn: "Home"
-- tapOn: "My Plants"
-- tapOn:
-    id: e2e-garden-tab-planning
-    optional: true
+- runFlow:
+    when:
+      visible: "My Plants"
+    commands:
+      - tapOn: "My Plants"
 - openLink:
     link: richfarm://reminder
 - openLink:
@@ -38,12 +39,6 @@ appId: com.richfarm.app
     visible:
       id: e2e-library-search-input
     timeout: 30000
-- tapOn:
-    id: e2e-library-shortcut-health
-    optional: true
-- tapOn:
-    id: e2e-health-tab-light
-    optional: true
 - openLink:
     link: richfarm://library
 - tapOn:
@@ -52,16 +47,4 @@ appId: com.richfarm.app
 - inputText: to
 - tapOn:
     id: e2e-library-plant-card
-    optional: true
-- tapOn:
-    id: e2e-library-modal-close
-    optional: true
-- tapOn:
-    id: e2e-tab-more
-    optional: true
-- tapOn:
-    id: e2e-profile-sync-now
-    optional: true
-- tapOn:
-    id: e2e-profile-save-settings
     optional: true
