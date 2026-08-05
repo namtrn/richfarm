@@ -532,6 +532,58 @@ describe('Phase 1.5 sync v2', () => {
     expect(state.plant?.lastWateredAt).toBe(30);
   });
 
+  it('derives care-plan defaults on the server and requires a new version for task edits', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({
+      operationId: 'canonical-plant', entityType: 'plant', entityUuid: 'canonical-plant',
+      type: 'create', payload: { status: 'growing' },
+    });
+
+    expect((await apply({
+      operationId: 'canonical-plan', entityType: 'carePlan', entityUuid: 'canonical-plan',
+      type: 'create', parentRefs: { plantUuid: 'canonical-plant' },
+      payload: {
+        sourceContentVersion: 999,
+        sourceValues: { wateringFrequencyDays: 99 },
+        tasks: [{ type: 'watering', enabled: true, intervalDays: 3 }],
+      },
+    })).status).toBe('applied');
+
+    const plan = await t.run(async (ctx) => await ctx.db.query('userPlantCarePlans')
+      .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'canonical-plan'))
+      .unique());
+    expect(plan?.sourceContentVersion).toBeUndefined();
+    expect(plan?.sourceValues.wateringFrequencyDays).toBeUndefined();
+    expect(plan?.tasks).toHaveLength(4);
+    expect(plan?.tasks.find((task) => task.type === 'watering')).toMatchObject({ enabled: true, intervalDays: 3 });
+    expect(plan?.tasks.find((task) => task.type === 'pest_check')).toMatchObject({ enabled: false });
+
+    const duplicateType: any = await apply({
+      operationId: 'duplicate-care-tasks', entityType: 'carePlan', entityUuid: 'duplicate-plan',
+      type: 'create', parentRefs: { plantUuid: 'canonical-plant' },
+      payload: {
+        tasks: [
+          { type: 'watering', enabled: true, intervalDays: 3 },
+          { type: 'watering', enabled: false, intervalDays: 5 },
+        ],
+      },
+    });
+    expect(duplicateType.reason).toBe('invalid_care_plan_tasks');
+
+    const taskMutation: any = await apply({
+      operationId: 'in-place-care-task-edit', entityType: 'carePlan', entityUuid: 'canonical-plan',
+      type: 'update', baseRevision: 1,
+      payload: { tasks: [{ type: 'watering', enabled: false, intervalDays: 9 }] },
+    });
+    expect(taskMutation.reason).toBe('care_plan_version_required');
+    const unchanged = await t.run(async (ctx) => await ctx.db.query('userPlantCarePlans')
+      .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'canonical-plan'))
+      .unique());
+    expect(unchanged?.revision).toBe(1);
+    expect(unchanged?.tasks.find((task) => task.type === 'watering')).toMatchObject({ enabled: true, intervalDays: 3 });
+  });
+
   it('rejects stale or disabled reminder outcomes before creating activities', async () => {
     const { user, generation, userId } = await session();
     const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
@@ -599,6 +651,135 @@ describe('Phase 1.5 sync v2', () => {
       type: 'create', parentRefs: { reminderUuid: 'legacy-sync-reminder' },
       payload: { outcome: 'disabled', occurredAt: 51, legacyCompatibility: true },
     })).status).toBe('applied');
+  });
+
+  it('rejects outcomes when the care plan is superseded or the plant is gone', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({
+      operationId: 'inactive-plant', entityType: 'plant', entityUuid: 'inactive-plant',
+      type: 'create', payload: { status: 'growing' },
+    });
+    await apply({
+      operationId: 'inactive-plan', entityType: 'carePlan', entityUuid: 'inactive-plan',
+      type: 'create', parentRefs: { plantUuid: 'inactive-plant' },
+      payload: { tasks: [{ type: 'watering', enabled: true, intervalDays: 3 }] },
+    });
+    await apply({
+      operationId: 'inactive-reminder', entityType: 'reminder', entityUuid: 'inactive-reminder',
+      type: 'create', parentRefs: { plantUuid: 'inactive-plant', carePlanUuid: 'inactive-plan' },
+      payload: { taskType: 'watering', nextRunAt: 10, timezone: 'UTC', rrule: 'FREQ=DAILY;INTERVAL=3' },
+    });
+
+    await t.run(async (ctx) => {
+      const plan = await ctx.db.query('userPlantCarePlans')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'inactive-plan'))
+        .unique();
+      if (plan) await ctx.db.patch(plan._id, { status: 'superseded' });
+    });
+    const superseded: any = await apply({
+      operationId: 'superseded-outcome', entityType: 'reminderOutcome', entityUuid: 'superseded-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'inactive-reminder' },
+      payload: { outcome: 'performed', occurredAt: 11, occurrenceKey: 'inactive-reminder:10' },
+    });
+    expect(superseded.reason).toBe('care_plan_inactive');
+
+    await t.run(async (ctx) => {
+      const plan = await ctx.db.query('userPlantCarePlans')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'inactive-plan'))
+        .unique();
+      const plant = await ctx.db.query('userPlants')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'inactive-plant'))
+        .unique();
+      if (plan) await ctx.db.patch(plan._id, { status: 'active' });
+      if (plant) await ctx.db.patch(plant._id, { isDeleted: true });
+    });
+    const missingPlant: any = await apply({
+      operationId: 'missing-plant-outcome', entityType: 'reminderOutcome', entityUuid: 'missing-plant-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'inactive-reminder' },
+      payload: { outcome: 'performed', occurredAt: 12, occurrenceKey: 'inactive-reminder:10' },
+    });
+    expect(missingPlant.reason).toBe('reminder_plant_inactive');
+    expect(await t.run(async (ctx) => await ctx.db.query('reminderOutcomes').collect())).toHaveLength(0);
+  });
+
+  it('deletes disabled reminders through sync without requiring an active parent', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({
+      operationId: 'delete-plant', entityType: 'plant', entityUuid: 'delete-plant',
+      type: 'create', payload: { status: 'growing' },
+    });
+    await apply({
+      operationId: 'delete-plan', entityType: 'carePlan', entityUuid: 'delete-plan',
+      type: 'create', parentRefs: { plantUuid: 'delete-plant' },
+      payload: { tasks: [{ type: 'watering', enabled: true, intervalDays: 3 }] },
+    });
+    await apply({
+      operationId: 'delete-reminder-create', entityType: 'reminder', entityUuid: 'delete-reminder',
+      type: 'create', parentRefs: { plantUuid: 'delete-plant', carePlanUuid: 'delete-plan' },
+      payload: { taskType: 'watering', nextRunAt: 10, timezone: 'UTC', rrule: 'FREQ=DAILY;INTERVAL=3' },
+    });
+    expect((await apply({
+      operationId: 'disable-delete-reminder', entityType: 'reminder', entityUuid: 'delete-reminder',
+      type: 'update', baseRevision: 1, payload: { enabled: false },
+    })).status).toBe('applied');
+
+    const staleDelete: any = await apply({
+      operationId: 'stale-delete-reminder', entityType: 'reminder', entityUuid: 'delete-reminder',
+      type: 'delete', baseRevision: 2,
+      payload: { occurrenceKey: 'delete-reminder:9' },
+    });
+    expect(staleDelete.reason).toBe('stale_reminder_occurrence');
+
+    expect((await apply({
+      operationId: 'delete-reminder', entityType: 'reminder', entityUuid: 'delete-reminder',
+      type: 'delete', baseRevision: 2,
+      payload: { occurrenceKey: 'delete-reminder:10' },
+    })).status).toBe('applied');
+    const state = await t.run(async (ctx) => ({
+      reminder: await ctx.db.query('reminders')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'delete-reminder')).unique(),
+      tombstone: await ctx.db.query('entityTombstones')
+        .withIndex('by_user_entity', (q) => q.eq('userId', userId as Id<'users'>).eq('entityType', 'reminder').eq('entityUuid', 'delete-reminder')).unique(),
+    }));
+    expect(state.reminder?.enabled).toBe(false);
+    expect(state.tombstone).not.toBeNull();
+  });
+
+  it('keeps legacy deleted outcome cleanup idempotent for an inactive reminder', async () => {
+    const { user, generation, userId } = await session();
+    const apply = (args: any) => user.mutation(api.syncV2.applyOperation, { syncGeneration: generation, ...args });
+    await apply({
+      operationId: 'legacy-delete-plant', entityType: 'plant', entityUuid: 'legacy-delete-plant',
+      type: 'create', payload: { status: 'growing' },
+    });
+    await apply({
+      operationId: 'legacy-delete-plan', entityType: 'carePlan', entityUuid: 'legacy-delete-plan',
+      type: 'create', parentRefs: { plantUuid: 'legacy-delete-plant' },
+      payload: { tasks: [{ type: 'watering', enabled: true, intervalDays: 3 }] },
+    });
+    await apply({
+      operationId: 'legacy-delete-reminder-create', entityType: 'reminder', entityUuid: 'legacy-delete-reminder',
+      type: 'create', parentRefs: { plantUuid: 'legacy-delete-plant', carePlanUuid: 'legacy-delete-plan' },
+      payload: { taskType: 'watering', nextRunAt: 10, timezone: 'UTC', rrule: 'FREQ=DAILY;INTERVAL=3' },
+    });
+    await t.run(async (ctx) => {
+      const plan = await ctx.db.query('userPlantCarePlans')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'legacy-delete-plan')).unique();
+      const reminder = await ctx.db.query('reminders')
+        .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'legacy-delete-reminder')).unique();
+      if (plan) await ctx.db.patch(plan._id, { status: 'superseded' });
+      if (reminder) await ctx.db.patch(reminder._id, { enabled: false });
+    });
+
+    expect((await apply({
+      operationId: 'legacy-delete-outcome', entityType: 'reminderOutcome', entityUuid: 'legacy-delete-outcome',
+      type: 'create', parentRefs: { reminderUuid: 'legacy-delete-reminder' },
+      payload: { outcome: 'deleted', occurredAt: 11, occurrenceKey: 'legacy-delete-reminder:10' },
+    })).status).toBe('applied');
+    expect(await t.run(async (ctx) => await ctx.db.query('reminders')
+      .withIndex('by_user_entity_uuid', (q) => q.eq('userId', userId as Id<'users'>).eq('entityUuid', 'legacy-delete-reminder')).unique())).toBeNull();
   });
 
   it('removes sync namespaces and uncommitted uploads during account deletion', async () => {

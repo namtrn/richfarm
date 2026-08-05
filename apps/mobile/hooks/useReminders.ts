@@ -200,8 +200,29 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
             return;
         }
         const reminder = (reminders ?? []).find((row: any) => String(row._id) === String(reminderId));
-        if (await queueOutcome(reminder, 'deleted')) return;
-        return await deleteReminderMutation({ reminderId, deviceId, legacyCompatibility: true });
+        if (reminder?.entityUuid) {
+            const occurrenceKey = typeof reminder.nextRunAt === 'number'
+                ? `${reminder.entityUuid}:${reminder.nextRunAt}`
+                : undefined;
+            await queueOperation({
+                entityType: 'reminder',
+                entityUuid: reminder.entityUuid,
+                operationType: 'delete',
+                baseRevision: reminder.revision ?? 1,
+                payload: occurrenceKey
+                    ? { occurrenceKey }
+                    : { legacyCompatibility: true },
+            });
+            return;
+        }
+        const occurrenceKey = typeof reminder?.nextRunAt === 'number' && reminder?._id
+            ? `${reminder._id}:${reminder.nextRunAt}`
+            : undefined;
+        return await deleteReminderMutation({
+            reminderId,
+            deviceId,
+            ...(occurrenceKey ? { occurrenceKey } : { legacyCompatibility: true }),
+        });
     };
 
     const snoozeReminder = async (reminderId: Id<'reminders'>, snoozedUntil: number) => {

@@ -78,6 +78,23 @@ async function activatePlan(ctx: any, user: any, plant: any, plan: any) {
   }
 }
 
+async function disablePlanReminders(ctx: any, userId: any, userPlantId: any, carePlanId: any) {
+  const reminders = await ctx.db.query("reminders")
+    .withIndex("by_user_plant", (q: any) => q.eq("userPlantId", userPlantId))
+    .collect();
+  for (const reminder of reminders) {
+    if (
+      reminder.userId !== userId
+      || reminder.carePlanId !== carePlanId
+      || !reminder.enabled
+    ) continue;
+    await ctx.db.patch(reminder._id, {
+      enabled: false,
+      revision: (reminder.revision ?? 1) + 1,
+    });
+  }
+}
+
 export const getSuggestedPlan = query({
   args: { userPlantId: v.id("userPlants"), deviceId: v.optional(v.string()) },
   handler: async (ctx, args) => {
@@ -127,6 +144,7 @@ export const materializePlan = mutation({
     const planVersion = Math.max(0, ...plans.map((plan: any) => plan.planVersion)) + 1;
     for (const plan of plans.filter((row: any) => row.status === "active" || row.status === "draft")) {
       await ctx.db.patch(plan._id, { status: "superseded", revision: plan.revision + 1 });
+      await disablePlanReminders(ctx, user._id, plant._id, plan._id);
     }
     const active = plant.status === "growing";
     const id = await ctx.db.insert("userPlantCarePlans", {
@@ -167,8 +185,25 @@ export const resolveReminder = mutation({
     if (!reminder || reminder.userId !== user._id) throw new Error("Reminder not found");
     if (!reminder.enabled) throw new Error("Reminder is disabled");
     const plant = reminder.userPlantId ? await ctx.db.get(reminder.userPlantId) : null;
-    if (!plant || plant.isDeleted || plant.status === "harvested" || plant.status === "archived") {
+    if (
+      !plant
+      || plant.userId !== user._id
+      || plant.isDeleted
+      || plant.status === "harvested"
+      || plant.status === "archived"
+    ) {
       throw new Error("Reminder plant is inactive");
+    }
+    if (reminder.carePlanId) {
+      const carePlan = await ctx.db.get(reminder.carePlanId);
+      if (
+        !carePlan
+        || carePlan.userId !== user._id
+        || carePlan.status !== "active"
+        || carePlan.userPlantId !== plant._id
+      ) {
+        throw new Error("Reminder care plan is inactive");
+      }
     }
     const occurrenceError = validateReminderOccurrence(
       reminder,

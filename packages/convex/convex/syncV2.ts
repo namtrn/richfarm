@@ -16,9 +16,13 @@ import {
 import { appendPlantActivity, recomputeActivitySnapshot } from './lib/plantActivities';
 import { isPremiumActive } from './lib/subscription';
 import {
+  applyCareTaskOverrides,
   careReminderCopy,
+  deriveCarePlan,
   nextOccurrence,
   validateReminderOccurrence,
+  type CareTask,
+  type CareTaskType,
 } from './lib/carePlan';
 
 const entityTypeValidator = v.union(
@@ -73,6 +77,40 @@ function objectValue(value: unknown) {
     : undefined;
 }
 
+type CareTaskOverrides = Partial<Record<CareTaskType, Partial<Omit<CareTask, 'type'>>>>;
+
+const CARE_TASK_TYPES = new Set<CareTaskType>([
+  'watering', 'fertilizing', 'pest_check', 'harvest_check',
+]);
+
+function parseCareTaskOverrides(value: unknown): CareTaskOverrides | null | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) return null;
+
+  const overrides: CareTaskOverrides = {};
+  for (const rawTask of value) {
+    const task = objectValue(rawTask);
+    const type = stringValue(task?.type) as CareTaskType | undefined;
+    if (!type || !CARE_TASK_TYPES.has(type) || overrides[type]) return null;
+    const enabled = booleanValue(task?.enabled);
+    if (enabled === undefined) return null;
+
+    const intervalDays = task?.intervalDays === undefined
+      ? undefined
+      : numberValue(task.intervalDays);
+    if (task?.intervalDays !== undefined && (intervalDays === undefined || intervalDays <= 0)) {
+      return null;
+    }
+    const expectedDate = task?.expectedDate === undefined
+      ? undefined
+      : numberValue(task.expectedDate);
+    if (task?.expectedDate !== undefined && expectedDate === undefined) return null;
+
+    overrides[type] = { enabled, intervalDays, expectedDate };
+  }
+  return overrides;
+}
+
 async function lookupEntity(
   ctx: MutationCtx,
   userId: Id<'users'>,
@@ -112,6 +150,29 @@ async function resolveParents(
     return { error: 'garden_bed_mismatch' as const };
   }
   return { garden, bed, plant, carePlan, reminder };
+}
+
+async function disableCarePlanReminders(
+  ctx: MutationCtx,
+  userId: Id<'users'>,
+  userPlantId: Id<'userPlants'>,
+  carePlanId?: Id<'userPlantCarePlans'>,
+) {
+  const reminders = await ctx.db.query('reminders')
+    .withIndex('by_user_plant', (q) => q.eq('userPlantId', userPlantId))
+    .collect();
+  for (const reminder of reminders) {
+    if (
+      reminder.userId !== userId
+      || !reminder.carePlanId
+      || (carePlanId && reminder.carePlanId !== carePlanId)
+      || !reminder.enabled
+    ) continue;
+    await ctx.db.patch(reminder._id, {
+      enabled: false,
+      revision: (reminder.revision ?? 1) + 1,
+    });
+  }
 }
 
 async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation) {
@@ -241,9 +302,8 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
     }
     case 'carePlan': {
       if (!parents.plant) return { status: 'invalid_parent' as const, reason: 'plant_required' };
-      const tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
-      const validTypes = new Set(['watering', 'fertilizing', 'pest_check', 'harvest_check']);
-      if (tasks.some((task: any) => !task || !validTypes.has(task.type) || typeof task.enabled !== 'boolean')) {
+      const taskOverrides = parseCareTaskOverrides(payload.tasks);
+      if (taskOverrides === null) {
         return { status: 'invalid_parent' as const, reason: 'invalid_care_plan_tasks' };
       }
       const previous = await ctx.db.query('userPlantCarePlans')
@@ -252,6 +312,7 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const planVersion = Math.max(0, ...previous.map((plan) => plan.planVersion)) + 1;
       for (const plan of previous.filter((row) => row.status === 'active' || row.status === 'draft')) {
         await ctx.db.patch(plan._id, { status: 'superseded', revision: plan.revision + 1 });
+        await disableCarePlanReminders(ctx, userId, parents.plant._id, plan._id);
       }
       const libraryCare = parents.plant.plantMasterId
         ? await ctx.db.query('plantCare').withIndex('by_plant', (q) => q.eq('plantId', parents.plant.plantMasterId)).first()
@@ -261,23 +322,24 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
             q.eq('plantId', parents.plant.plantMasterId).eq('locale', 'en')
           ).first()
         : null;
-      const trusted = (value: unknown) =>
-        typeof value === 'number' && Number.isFinite(value) && value > 0
-          ? Math.max(1, Math.round(value))
-          : undefined;
+      const derived = deriveCarePlan({
+        plantId: parents.plant.plantMasterId ? String(parents.plant.plantMasterId) : undefined,
+        contentVersion: libraryContent?.contentVersion,
+        sourceLabel: libraryCare ? 'library:plantCare' : undefined,
+        wateringFrequencyDays: libraryCare?.wateringFrequencyDays,
+        fertilizingFrequencyDays: libraryCare?.fertilizingFrequencyDays,
+        typicalDaysToHarvest: libraryCare?.typicalDaysToHarvest,
+      }, parents.plant.plantedAt);
+      const tasks = applyCareTaskOverrides(derived.tasks, taskOverrides ?? {});
       await ctx.db.insert('userPlantCarePlans', {
         userId, userPlantId: parents.plant._id, entityUuid: op.entityUuid,
         revision: 1, planVersion,
         status: parents.plant.status === 'growing' ? 'active' : 'draft',
         sourcePlantId: parents.plant.plantMasterId,
-        sourceContentVersion: trusted(libraryContent?.contentVersion),
-        sourceLabel: libraryCare ? 'library:plantCare' : undefined,
-        sourceValues: {
-          wateringFrequencyDays: trusted(libraryCare?.wateringFrequencyDays),
-          fertilizingFrequencyDays: trusted(libraryCare?.fertilizingFrequencyDays),
-          typicalDaysToHarvest: trusted(libraryCare?.typicalDaysToHarvest),
-        },
-        tasks: tasks as any,
+        sourceContentVersion: derived.sourceContentVersion,
+        sourceLabel: derived.sourceLabel,
+        sourceValues: derived.sourceValues,
+        tasks,
         activatedAt: parents.plant.status === 'growing' ? now : undefined,
         createdAt: now,
       });
@@ -311,12 +373,34 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       const allowed = new Set(['performed', 'checked_not_needed', 'snoozed', 'skipped', 'edited', 'disabled', 'deleted']);
       if (!outcome || !allowed.has(outcome)) return { status: 'invalid_parent' as const, reason: 'invalid_outcome' };
       const reminder = parents.reminder;
-      if (!reminder.enabled) return { status: 'invalid_parent' as const, reason: 'reminder_disabled' };
+      const isCleanup = outcome === 'deleted';
+      if (!isCleanup && !reminder.enabled) return { status: 'invalid_parent' as const, reason: 'reminder_disabled' };
+      const isPhase2Reminder = Boolean(reminder.carePlanId)
+        || (Array.isArray(reminder.notificationMethods)
+          && reminder.notificationMethods.includes('care_plan_v2'));
       const plant: any = reminder.userPlantId
         ? await ctx.db.get(reminder.userPlantId as Id<'userPlants'>)
         : null;
-      if (plant?.isDeleted || plant?.status === 'harvested' || plant?.status === 'archived') {
+      if (!isCleanup && isPhase2Reminder && (
+        !plant
+        || plant.userId !== userId
+        || plant.isDeleted
+        || plant.status === 'harvested'
+        || plant.status === 'archived'
+      )) {
         return { status: 'invalid_parent' as const, reason: 'reminder_plant_inactive' };
+      }
+      if (!isCleanup && reminder.carePlanId) {
+        const carePlan = await ctx.db.get(reminder.carePlanId as Id<'userPlantCarePlans'>);
+        if (
+          !carePlan
+          || carePlan.userId !== userId
+          || carePlan.status !== 'active'
+          || !plant
+          || carePlan.userPlantId !== plant._id
+        ) {
+          return { status: 'invalid_parent' as const, reason: 'care_plan_inactive' };
+        }
       }
       const occurrenceError = validateReminderOccurrence(
         reminder,
@@ -325,6 +409,26 @@ async function createEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       );
       if (occurrenceError) return { status: 'invalid_parent' as const, reason: occurrenceError };
       const occurredAt = numberValue(payload.occurredAt) ?? now;
+      if (isCleanup) {
+        if (reminder.entityUuid) {
+          await writeTombstone(ctx, {
+            userId,
+            entityType: 'reminder',
+            entityUuid: reminder.entityUuid,
+            deleteOperationId: op.operationId,
+            previousRevision: reminder.revision,
+          });
+        }
+        await ctx.db.delete(reminder._id);
+        await ctx.db.insert('reminderOutcomes', {
+          userId, userPlantId: reminder.userPlantId, reminderId: reminder._id,
+          entityUuid: op.entityUuid, revision: 1, operationId: op.operationId,
+          outcome: 'deleted', occurredAt, recordedAt: now,
+          snoozedUntil: numberValue(payload.snoozedUntil),
+          note: stringValue(payload.note),
+        });
+        break;
+      }
       const interval = Number(reminder.rrule?.match(/INTERVAL=(\d+)/i)?.[1] ?? 0);
       const patch: Record<string, unknown> = { revision: (reminder.revision ?? 1) + 1 };
       if (outcome === 'snoozed') {
@@ -468,7 +572,7 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       if (nextStatus === 'harvested' || nextStatus === 'archived') {
         const reminders = await ctx.db.query('reminders')
           .withIndex('by_user_plant', (q) => q.eq('userPlantId', entity._id)).collect();
-        for (const reminder of reminders.filter((row) => row.carePlanId && row.enabled)) {
+        for (const reminder of reminders.filter((row) => row.userId === userId && row.carePlanId && row.enabled)) {
           await ctx.db.patch(reminder._id, { enabled: false, revision: (reminder.revision ?? 1) + 1 });
         }
       }
@@ -519,14 +623,32 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
         revision,
       });
       break;
-    case 'carePlan':
+    case 'carePlan': {
+      if (payload.tasks !== undefined) {
+        return { status: 'invalid_parent' as const, reason: 'care_plan_version_required' };
+      }
+      if (payload.status !== undefined && payload.status !== 'active' && payload.status !== 'disabled') {
+        return { status: 'invalid_parent' as const, reason: 'invalid_care_plan_status' };
+      }
+      if (payload.status === 'active') {
+        if (!['draft', 'active'].includes(entity.status)) {
+          return { status: 'invalid_parent' as const, reason: 'care_plan_version_required' };
+        }
+        const plant = await ctx.db.get(entity.userPlantId as Id<'userPlants'>);
+        if (!plant || plant.userId !== userId || plant.isDeleted || plant.status !== 'growing') {
+          return { status: 'invalid_parent' as const, reason: 'plant_not_growing' };
+        }
+      }
+      if (payload.status === 'disabled') {
+        await disableCarePlanReminders(ctx, userId, entity.userPlantId, entity._id);
+      }
       await ctx.db.patch(entity._id, {
-        ...(Array.isArray(payload.tasks) && { tasks: payload.tasks as any }),
-        ...(stringValue(payload.status) !== undefined && { status: stringValue(payload.status) as any }),
-        ...(stringValue(payload.status) === 'active' && !entity.activatedAt && { activatedAt: Date.now() }),
+        ...(payload.status !== undefined && { status: payload.status as any }),
+        ...(payload.status === 'active' && !entity.activatedAt && { activatedAt: Date.now() }),
         revision,
       });
       break;
+    }
     case 'reminder':
       await ctx.db.patch(entity._id, {
         ...(numberValue(payload.nextRunAt) !== undefined && { nextRunAt: numberValue(payload.nextRunAt)! }),
@@ -544,6 +666,15 @@ async function updateEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
 async function deleteEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation, entity: any) {
   const currentRevision = entity.revision ?? 1;
   if (op.baseRevision !== currentRevision) return { status: 'revision_conflict' as const, revision: currentRevision };
+  if (op.entityType === 'reminder') {
+    const payload = payloadRecord(op.payload);
+    const occurrenceError = validateReminderOccurrence(
+      entity,
+      stringValue(payload.occurrenceKey),
+      booleanValue(payload.legacyCompatibility),
+    );
+    if (occurrenceError) return { status: 'invalid_parent' as const, reason: occurrenceError };
+  }
   const tombstone = await writeTombstone(ctx, {
     userId, entityType: op.entityType, entityUuid: op.entityUuid,
     deleteOperationId: op.operationId, previousRevision: currentRevision,
@@ -568,7 +699,10 @@ async function deleteEntity(ctx: MutationCtx, userId: Id<'users'>, op: Operation
       await ctx.db.delete(entity._id);
       break;
     }
-    case 'plant': await ctx.db.patch(entity._id, { isDeleted: true, revision, version: (entity.version ?? 1) + 1 }); break;
+    case 'plant':
+      await disableCarePlanReminders(ctx, userId, entity._id);
+      await ctx.db.patch(entity._id, { isDeleted: true, revision, version: (entity.version ?? 1) + 1 });
+      break;
     case 'activity': {
       await ctx.db.delete(entity._id);
       const snapshot = await recomputeActivitySnapshot(ctx, entity.userPlantId, entity.type);

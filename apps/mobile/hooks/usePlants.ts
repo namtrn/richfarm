@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../packages/convex/convex/_generated/api';
+import { addLocalDays } from '../../../packages/convex/convex/lib/carePlan';
 import { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
@@ -134,7 +135,7 @@ export function usePlants(status?: PlantStatus) {
                     if (!task.enabled) continue;
                     const nextRunAt = task.type === 'harvest_check'
                         ? task.expectedDate
-                        : task.intervalDays ? start + task.intervalDays * 86_400_000 : undefined;
+                        : task.intervalDays ? addLocalDays(start, task.intervalDays, timezone) : undefined;
                     if (!nextRunAt) continue;
                     await queueOperation({
                         entityType: 'reminder', operationType: 'create',

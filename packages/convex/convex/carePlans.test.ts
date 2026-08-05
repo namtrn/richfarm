@@ -90,4 +90,60 @@ describe("care-plan reminder occurrence policy", () => {
     });
     expect(legacyOutcome?.outcome).toBe("disabled");
   });
+
+  it("superseding a plan disables its reminders and blocks old outcomes", async () => {
+    const userId = await t.run(async (ctx) => await ctx.db.insert("users", {
+      tokenIdentifier: identity.tokenIdentifier,
+      isActive: true,
+      timezone: "UTC",
+    }));
+    const user = t.withIdentity(identity);
+    const plantId = await user.mutation(api.plants.addPlant, { status: "growing" });
+    const oldPlanId = await t.run(async (ctx) => await ctx.db.insert("userPlantCarePlans", {
+      userId,
+      userPlantId: plantId,
+      entityUuid: "old-plan",
+      revision: 1,
+      planVersion: 1,
+      status: "active",
+      sourceValues: { wateringFrequencyDays: 3 },
+      tasks: [{ type: "watering", enabled: true, intervalDays: 3 }],
+      activatedAt: 1,
+      createdAt: 1,
+    }));
+    const oldReminderId = await t.run(async (ctx) => await ctx.db.insert("reminders", {
+      userId,
+      userPlantId: plantId,
+      carePlanId: oldPlanId,
+      carePlanVersion: 1,
+      entityUuid: "old-reminder",
+      revision: 1,
+      taskType: "watering",
+      timezone: "UTC",
+      type: "watering",
+      title: "Old care check",
+      nextRunAt: 100,
+      rrule: "FREQ=DAILY;INTERVAL=3",
+      enabled: true,
+      notificationMethods: ["push", "care_plan_v2"],
+    }));
+
+    await user.mutation(api.carePlans.materializePlan, {
+      userPlantId: plantId,
+      operationId: "new-plan-version",
+    });
+
+    const state = await t.run(async (ctx) => ({
+      plan: await ctx.db.get(oldPlanId),
+      reminder: await ctx.db.get(oldReminderId),
+    }));
+    expect(state.plan?.status).toBe("superseded");
+    expect(state.reminder?.enabled).toBe(false);
+    await expect(user.mutation(api.carePlans.resolveReminder, {
+      reminderId: oldReminderId,
+      operationId: "old-plan-outcome",
+      outcome: "performed",
+      occurrenceKey: "old-reminder:100",
+    })).rejects.toThrow("Reminder is disabled");
+  });
 });

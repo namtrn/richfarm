@@ -67,6 +67,18 @@ async function syncAutoGrowingWateringReminder(
         if (autoReminder?.enabled) {
             await ctx.db.patch(autoReminder._id, { enabled: false });
         }
+        if (targetStatus === "harvested" || targetStatus === "archived") {
+            for (const reminder of reminders) {
+                const isCarePlan = reminder.carePlanId
+                    || (Array.isArray(reminder.notificationMethods)
+                        && reminder.notificationMethods.includes("care_plan_v2"));
+                if (!isCarePlan || !reminder.enabled) continue;
+                await ctx.db.patch(reminder._id, {
+                    enabled: false,
+                    revision: (reminder.revision ?? 1) + 1,
+                });
+            }
+        }
         return;
     }
 

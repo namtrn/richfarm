@@ -8,6 +8,7 @@ import { createLocalId } from '../lib/plantLocalData';
 import { usePlantLibrary } from './usePlantLibrary';
 import { useTranslation } from 'react-i18next';
 import { useEntitySync } from './useEntitySync';
+import { addLocalDays } from '../../../packages/convex/convex/lib/carePlan';
 
 type PositionInBed = {
   x: number;
@@ -148,6 +149,7 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
     const fertilizing = positive(libraryPlant.fertilizingFrequencyDays);
     const harvestDays = positive(libraryPlant.typicalDaysToHarvest);
     const start = plantedAt ?? Date.now();
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const tasks = [
       { type: 'watering', enabled: watering !== undefined, intervalDays: watering },
       { type: 'fertilizing', enabled: fertilizing !== undefined, intervalDays: fertilizing },
@@ -173,12 +175,11 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
       },
     });
     if (status !== 'growing') return;
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     for (const task of tasks) {
       if (!task.enabled) continue;
       const nextRunAt = task.type === 'harvest_check'
         ? task.expectedDate
-        : start + (task.intervalDays ?? 1) * 86_400_000;
+        : addLocalDays(start, task.intervalDays ?? 1, timezone);
       if (!nextRunAt) continue;
       await queueOperation({
         entityType: 'reminder', operationType: 'create',

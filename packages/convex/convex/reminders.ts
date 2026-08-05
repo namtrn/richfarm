@@ -3,7 +3,8 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserByIdentityOrDevice, requireUser } from "./lib/user";
 import { getOwnedBedOrThrow, getOwnedPlantOrThrow } from "./lib/ownership";
-import { validateReminderOccurrence } from "./lib/carePlan";
+import { isCarePlanReminder, validateReminderOccurrence } from "./lib/carePlan";
+import { markSyncDatasetChanged, writeTombstone } from "./lib/syncProtocol";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -34,6 +35,55 @@ function assertReminderOccurrence(
     if (error === "legacy_occurrence_exemption_required") {
         throw new Error("Legacy reminder compatibility must be explicit");
     }
+}
+
+function isStoppedPlant(plant: any, userId: any) {
+    return !plant
+        || plant.userId !== userId
+        || plant.isDeleted
+        || plant.status === "harvested"
+        || plant.status === "archived";
+}
+
+async function assertReminderParentActive(ctx: any, user: any, reminder: any) {
+    if (reminder.userPlantId) {
+        const plant = await ctx.db.get(reminder.userPlantId);
+        if (isStoppedPlant(plant, user._id)) throw new Error("Reminder plant is inactive");
+
+        if (isCarePlanReminder(reminder)) {
+            if (!reminder.carePlanId) throw new Error("Reminder care plan is inactive");
+            const carePlan = await ctx.db.get(reminder.carePlanId);
+            if (
+                !carePlan
+                || carePlan.userId !== user._id
+                || carePlan.userPlantId !== plant._id
+                || carePlan.status !== "active"
+            ) {
+                throw new Error("Reminder care plan is inactive");
+            }
+        }
+        return;
+    }
+
+    // A marker without a plant/plan is malformed Phase 2 data. Legacy custom
+    // reminders without a plant remain valid only through explicit legacy
+    // compatibility at the caller boundary.
+    if (isCarePlanReminder(reminder)) throw new Error("Reminder care plan is inactive");
+}
+
+async function assertReminderActionable(ctx: any, user: any, reminder: any) {
+    if (!reminder.enabled) throw new Error("Reminder is disabled");
+    await assertReminderParentActive(ctx, user, reminder);
+}
+
+function assertReminderDeletable(
+    reminder: any,
+    occurrenceKey: string | undefined,
+    legacyCompatibility: boolean | undefined,
+) {
+    // Deletion is cleanup, not a reminder outcome. Ownership is checked by the
+    // mutation before this helper; only the targeted occurrence is protected.
+    assertReminderOccurrence(reminder, occurrenceKey, legacyCompatibility);
 }
 
 // Lấy tất cả reminders của user
@@ -188,6 +238,10 @@ export const toggleReminder = mutation({
             throw new Error("Reminder not found or unauthorized");
         }
 
+        if (!reminder.enabled) {
+            await assertReminderParentActive(ctx, user, reminder);
+        }
+
         await ctx.db.patch(args.reminderId, {
             enabled: !reminder.enabled,
         });
@@ -217,6 +271,7 @@ export const updateReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
+        if (args.enabled === true) await assertReminderParentActive(ctx, user, reminder);
         if (args.userPlantId) {
             await getOwnedPlantOrThrow(ctx, user._id, args.userPlantId);
         }
@@ -245,6 +300,7 @@ export const snoozeReminder = mutation({
             throw new Error("Reminder not found or unauthorized");
         }
         assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
+        await assertReminderActionable(ctx, user, reminder);
 
         await ctx.db.patch(args.reminderId, {
             snoozedUntil: args.snoozedUntil,
@@ -267,6 +323,7 @@ export const skipReminder = mutation({
             throw new Error("Reminder not found or unauthorized");
         }
         assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
+        await assertReminderActionable(ctx, user, reminder);
 
         const now = Date.now();
         const nextRunAt = buildNextRunAtFromRule(reminder.rrule, now);
@@ -296,6 +353,7 @@ export const completeReminder = mutation({
             throw new Error("Reminder not found or unauthorized");
         }
         assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
+        await assertReminderActionable(ctx, user, reminder);
 
         const now = Date.now();
         const nextRunAt = buildNextRunAtFromRule(reminder.rrule, now);
@@ -324,8 +382,18 @@ export const deleteReminder = mutation({
         if (!reminder || reminder.userId !== user._id) {
             throw new Error("Reminder not found or unauthorized");
         }
-        assertReminderOccurrence(reminder, args.occurrenceKey, args.legacyCompatibility);
+        assertReminderDeletable(reminder, args.occurrenceKey, args.legacyCompatibility);
 
+        if (reminder.entityUuid) {
+            await writeTombstone(ctx, {
+                userId: user._id,
+                entityType: "reminder",
+                entityUuid: reminder.entityUuid,
+                deleteOperationId: `direct-reminder-delete:${String(args.reminderId)}`,
+                previousRevision: reminder.revision,
+            });
+        }
         await ctx.db.delete(args.reminderId);
+        await markSyncDatasetChanged(ctx, user._id);
     },
 });
