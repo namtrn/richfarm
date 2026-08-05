@@ -4,7 +4,9 @@ Date: 2026-08-03
 Related task: `2026-08-03-phase-2-release-completion-task.md`
 Repository HEAD during verification: `d06cf469820cb2d3839b5b04fbdc58c822a3045c`
 The implementation and evidence updates are uncommitted working-tree changes;
-no commit, deployment, or external migration was created by this task.
+no commit, staging/production deployment, or production migration was created
+by this task. A development-only Convex rehearsal is recorded in the current
+verification addendum.
 
 ## Source implementation verified
 
@@ -45,9 +47,9 @@ no commit, deployment, or external migration was created by this task.
 | Check | Result | Command/context |
 |---|---|---|
 | Mobile typecheck | PASS | `npm --prefix apps/mobile run typecheck` |
-| Mobile Vitest | PASS — 19 files, 70 tests | `npx vitest run apps/mobile` |
+| Mobile Vitest | PASS — 22 files, 85 tests | `npx vitest run apps/mobile` |
 | Convex typecheck | PASS | `npm run typecheck --workspace @richfarm/convex` |
-| Convex Vitest | PASS — 6 files, 51 tests | `npx vitest run packages/convex/convex` |
+| Convex Vitest | PASS — 7 files, 62 tests | `npx vitest run packages/convex/convex` |
 | API Vitest | PASS — 2 files, 16 tests | Node 24.13.0 / `better-sqlite3` ABI 137; ephemeral localhost socket permission granted for the run |
 | API build | PASS | `npm run api:build` |
 | Dashboard build | PASS | `npm run dashboard:build` |
@@ -57,8 +59,9 @@ no commit, deployment, or external migration was created by this task.
 The API test must use the checked-in Node 24-compatible native
 `better-sqlite3` binary; the default Node 26 runtime reports an ABI mismatch.
 The iOS export must run from `apps/mobile` so Metro resolves the workspace
-mobile dependencies. No deployment or external service was mutated by these
-checks.
+mobile dependencies. These source checks did not deploy or mutate staging or
+production; the separate development-only migration rehearsal is recorded in
+the current verification addendum.
 
 ## Source review findings — 5 closed, 0 open
 
@@ -85,3 +88,44 @@ These source checks do not close the release gate:
 
 Until those records exist, repository source verification is PASS but staging,
 native, provider, multi-client, and production release status remain OPEN.
+
+## Current verification addendum — 2026-08-04
+
+The 2026-08-04 source rerun is the current baseline for this working tree:
+
+| Check | Result | Context |
+|---|---|---|
+| Mobile typecheck | PASS | Node 24.13.0 |
+| Mobile Vitest | PASS — 22 files, 85 tests | includes hook-level warm/cold response, permission-transition, token-rotation, stale-occurrence, routing, and local-projection coverage |
+| Convex typecheck | PASS | Node 24.13.0 |
+| Convex Vitest | PASS — 7 files, 62 tests | includes server care-plan canonicalization/version guard, reminder lifecycle guards, and cleanup deletion |
+| API Vitest | PASS — 2 files, 16 tests | Node 24.13.0 / `better-sqlite3` ABI 137; local socket permission |
+| API build | PASS |  |
+| Dashboard build | PASS |  |
+| iOS export | PASS | `/tmp/richfarm-phase-2-5-local-20260804-final4` |
+| README iOS Maestro suite | PASS — 9/9 default flows on iPhone 17 / iOS 26.2; simulator only | development env + E2E reminder mock |
+| `git diff --check` | PASS |  |
+
+Current source behavior now explicitly includes: server-derived canonical care
+task snapshots with in-place task mutation rejected; DST-aware initial
+recurrence scheduling on mobile; stale/disabled/inactive reminder-action
+guards; lifecycle disabling on care-plan replacement and plant harvest/archive;
+cleanup deletion for disabled/inactive reminders with occurrence protection and
+sync tombstones; authoritative cold-start response gating across scope
+hydration;
+occurrence-key validation on notification tap when the provider supplies
+occurrence keys; account-scoped plant/payload routing; Expo token rotation
+retry; and an explicit permission-transition signal from Profile to the root
+registration hook. The five prior Phase 2/2.5 source findings remain CLOSED.
+
+The development-only Convex rehearsal on `fantastic-beagle-190` passed a
+second zero-change backfill and clean audits for Garden, Bed, Plant, Activity,
+Harvest, and Photo; it is not staging evidence. The [external validation
+runbook](2026-08-04-phase-1-5-to-2-5-external-validation-runbook.md) is ready
+for staging, two-client, physical iOS/Android, Expo/APNs/FCM, and rollout
+evidence. Those external gates remain OPEN.
+
+The current default API test environment uses Node 26 and reports the known
+`better-sqlite3` ABI mismatch; the earlier API 2/16 PASS remains valid only when
+rerun with Node 24.13.0/ABI 137 and local socket permission. This mobile-only
+follow-up does not claim a new API PASS.

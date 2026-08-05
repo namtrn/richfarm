@@ -26,8 +26,9 @@ sync-v2 engine, or enable a production rollout.
 - Due care reminders are grouped by local day and preferably Garden/Bed before
   being sent through the Expo Push API.
 - Foreground presentation requests banner, notification-list, and sound.
-- The current development trigger runs from the app and advances a reminder
-  through the normal sync-v2 update path.
+- The current development trigger is available from the app and through a
+  gated Convex CLI action; both paths advance a reminder through the normal
+  revisioned dispatch semantics.
 - Simulator verification covers in-app due state, offline outcome, restart,
   reconnect, and Activity idempotency, but it cannot prove Expo/APNs delivery
   because the app does not register an Expo push token on a simulator.
@@ -44,10 +45,24 @@ so logging back into the same account with the same token re-registers it after
 the server token was deactivated.
 
 Physical-device, provider, staging, and Phase 1.5 operational evidence remain
-open.
+open. The local simulator smoke suite is not a substitute for those gates.
 
 See `docs/tasks/2026-08-03-phase-2-5-push-delivery-completion-task.md` for the
 required fixes and evidence matrix.
+
+The current external execution packet is
+`docs/tasks/2026-08-04-phase-1-5-to-2-5-external-validation-runbook.md`.
+
+### Local verification addendum — 2026-08-04
+
+Mobile typecheck and 22 mobile test files / 85 tests pass; Convex typecheck and
+7 Convex test files / 62 tests pass; API build, API 2 files / 16 tests under
+Node 24.13.0, dashboard build, iOS export, and `git diff --check` pass. The
+README iOS Maestro suite passed all 9 default flows on iPhone 17 / iOS 26.2.
+The simulator showed `hook=unsupported permission=unsupported token=none`, so
+physical iOS/Android delivery, Expo/APNs/FCM receipts, staging migration and
+schema evidence, two-client isolation, observation metrics, and rollout
+approval remain OPEN.
 
 ## Required implementation
 

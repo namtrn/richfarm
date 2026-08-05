@@ -222,3 +222,27 @@ git diff --check
 - Android PASS without a real Android verification environment.
 - Claiming APNs/Expo delivery PASS without direct physical-device evidence.
 - Phase 3 Plant Library expansion.
+
+## Current source addendum — 2026-08-04
+
+Local review additionally closed the permission-transition retry gap and the
+client-side stale-occurrence routing gap. Cold-start notification responses now
+wait for a complete authoritative projection and survive the null-to-account
+scope transition; wrong-account decisions are still discarded only after that
+authoritative route decision. Reminder deletion is cleanup: direct deletion
+checks ownership/occurrence only, sync deletion writes a tombstone, and legacy
+`deleted` outcomes remain compatible for disabled/inactive reminders. Direct
+reminder mutations still enforce active care-plan/plant parents for actionable
+outcomes, and plant status changes disable care-plan reminders. The shared
+DST-aware scheduler is now used for initial mobile reminder creation, while
+server sync validates and canonicalizes care-plan task snapshots and requires a
+new plan version for task changes. The current local baseline is mobile 21 files
+/ 85 tests and Convex 7 files / 62 tests. The README iOS Maestro suite passed all 9 default flows on
+iPhone 17 / iOS 26.2; the simulator reported no Expo token and unsupported
+notification permission, so physical push delivery remains unverified.
+
+The exact remaining external execution steps are in the
+[Phase 1.5–2.5 external validation runbook](2026-08-04-phase-1-5-to-2-5-external-validation-runbook.md).
+Physical iOS/Android delivery, Expo/APNs/FCM receipts, staging migration and
+schema evidence, two-client isolation, observation metrics, and independent
+rollout approval remain OPEN.

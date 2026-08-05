@@ -17,12 +17,19 @@ npm run dashboard:build
 cd apps/mobile && npx expo export --platform ios --output-dir /tmp/richfarm-phase-1-5-ios
 ```
 
-Expected current baseline:
+Historical baseline recorded on 2026-07-29:
 
 - mobile: 13 files, 45 tests;
 - Convex: 2 files, 27 tests;
 - API: 2 files, 16 tests;
 - combined: 17 files, 88 tests.
+
+For the current source baseline, use the
+[2026-08-04 external validation runbook](2026-08-04-phase-1-5-to-2-5-external-validation-runbook.md):
+mobile 20 files / 76 tests, Convex 6 files / 53 tests, and API 2 files / 16
+tests. The README iOS Maestro suite also passed all 9 simulator flows. The
+historical execution record below is retained for provenance and does not close
+the staging, device, provider, two-client, or rollout gates.
 
 ## 2. Backend-first staging deploy
 

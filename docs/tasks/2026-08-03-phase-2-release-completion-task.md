@@ -179,3 +179,24 @@ git diff --check
 - Expanding or rewriting the Plant Library catalog.
 - Inventing care intervals when Library data is missing.
 - Enabling production rollout before the Phase 1.5 and Phase 2.5 gates pass.
+
+## Current source addendum — 2026-08-04
+
+The remaining local implementation gaps are closed and regression-tested:
+
+- `syncV2` derives the canonical care-plan task set from trusted Library values,
+  applies validated per-task overrides, and rejects in-place task edits so a
+  new plan version is required;
+- mobile initial reminder creation uses the shared DST-aware local-calendar
+  recurrence helper;
+- notification routing rejects provider payloads whose occurrence key is no
+  longer the current reminder occurrence;
+- Profile permission changes notify the root registration hook, in addition to
+  app activation, reconnect, and Expo token-rotation retries.
+
+Local source verification is current at mobile 22 files / 85 tests and Convex
+7 files / 62 tests. The README iOS Maestro suite also passed all 9 default
+flows on iPhone 17 / iOS 26.2; simulator push status was unsupported with no
+token, so this is not physical-device delivery evidence. The [external validation runbook](2026-08-04-phase-1-5-to-2-5-external-validation-runbook.md)
+contains the still-open staging, physical-device, provider, two-client, and
+rollout steps. Phase 2 remains source-ready but not externally release-ready.
