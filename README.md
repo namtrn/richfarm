@@ -74,6 +74,20 @@ npm start
 npm run api:dev
 ```
 
+### Start the dashboard and API together
+
+Use the root runner for local dashboard development. It owns both processes,
+forwards Ctrl-C, and stops the sibling if either service fails:
+
+```bash
+npm run dashboard:dev
+```
+
+The dashboard's `/api` proxy reports a JSON `503 Backend unavailable` response
+until the API is listening on port `4000`. The standalone workspace commands
+(`npm --prefix apps/dashboard run dev` and `npm run api:dev`) remain available
+when each service is needed separately.
+
 ## Plant Taxonomy Workflow
 
 RichFarm now identifies library plants by normalized taxonomy instead of `scientificName` alone.

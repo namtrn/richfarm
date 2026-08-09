@@ -19,7 +19,7 @@
     "android": "npm --prefix apps/mobile run android",
     "ios": "npm --prefix apps/mobile run ios",
     "web": "npm --prefix apps/mobile run web",
-    "dashboard:dev": "npm --prefix apps/dashboard run dev",
+    "dashboard:dev": "node scripts/run-dashboard-dev.js",
     "dashboard:build": "npm --prefix apps/dashboard run build",
     "api:dev": "npm --prefix apps/api run dev",
     "api:build": "npm --prefix apps/api run build",
@@ -32,7 +32,8 @@
     "convex:deploy": "npm --prefix packages/convex run deploy --",
     "test:smoke:ios": "node scripts/run-ios-smoke-tests.js",
     "test:e2e:auth:android": "node scripts/run-android-auth-e2e.js",
-    "check:taxonomy": "cd packages/convex && npx convex run plantTaxonomyChecks:assertTaxonomyInvariants '{\"sampleLimit\":100,\"failOnMissingI18nLocales\":true}' && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
+    "test:dashboard:dev": "node --test scripts/run-dashboard-dev.test.js",
+    "check:taxonomy": "cd packages/convex && npx convex run plantTaxonomyChecks:assertTaxonomyInvariants \"{\\\"serviceToken\\\":\\\"${CONVEX_ADMIN_FUNCTION_KEY}\\\",\\\"sampleLimit\\\":100,\\\"failOnMissingI18nLocales\\\":true}\" && npx convex run plantTaxonomyChecks:seedAlignmentReport '{\"sampleLimit\":100}'"
   },
   "devDependencies": {},
   "dependencies": {
