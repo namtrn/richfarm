@@ -4,9 +4,11 @@ type GroupHook = ReturnType<typeof useGroups>;
 
 export function GroupManager({
     g,
+    isAdmin,
     onToast,
 }: {
     g: GroupHook;
+    isAdmin: boolean;
     onToast: (type: "success" | "error", msg: string) => void;
 }) {
     async function handleSave() {
@@ -126,13 +128,15 @@ export function GroupManager({
                                 >
                                     Edit
                                 </button>
-                                <button
-                                    className="btn danger"
-                                    onClick={() => void handleDelete()}
-                                    disabled={g.saving}
-                                >
-                                    Delete
-                                </button>
+                                {isAdmin && (
+                                    <button
+                                        className="btn danger"
+                                        onClick={() => void handleDelete()}
+                                        disabled={g.saving}
+                                    >
+                                        Delete
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

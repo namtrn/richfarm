@@ -91,10 +91,10 @@ export default function App() {
         />
 
         {activePage === "plants" && (
-          <PlantManager p={plants} i18n={i18n} backend={backend} onToast={addToast} />
+          <PlantManager p={plants} i18n={i18n} backend={backend} isAdmin={auth.isAdmin} onToast={addToast} />
         )}
         {activePage === "groups" && (
-          <GroupManager g={groups} onToast={addToast} />
+          <GroupManager g={groups} isAdmin={auth.isAdmin} onToast={addToast} />
         )}
         {activePage === "photos" && (
           <PhotoManager ph={photos} onToast={addToast} />

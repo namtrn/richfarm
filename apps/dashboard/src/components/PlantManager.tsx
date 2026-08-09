@@ -148,11 +148,13 @@ export function PlantManager({
     p,
     i18n,
     backend,
+    isAdmin,
     onToast,
 }: {
     p: PlantHook;
     i18n: I18nHook;
     backend: BackendHook;
+    isAdmin: boolean;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
 }) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -301,7 +303,9 @@ export function PlantManager({
                     <span className="bulk-count">{selectedCount} selected</span>
                     <button className="btn ghost" onClick={() => void handleBulk("activate")} disabled={backend.bulkLoading}>✓ Activate</button>
                     <button className="btn ghost" onClick={() => void handleBulk("deactivate")} disabled={backend.bulkLoading}>⊘ Deactivate</button>
-                    <button className="btn danger" onClick={() => void handleBulk("delete")} disabled={backend.bulkLoading}>🗑 Delete</button>
+                    {isAdmin && (
+                        <button className="btn danger" onClick={() => void handleBulk("delete")} disabled={backend.bulkLoading}>🗑 Delete</button>
+                    )}
                     <button className="btn ghost" onClick={() => setSelectedIds(new Set())} style={{ marginLeft: "auto" }}>✕ Clear</button>
                 </div>
             )}
@@ -504,7 +508,7 @@ export function PlantManager({
                         {p.mode === "view" && p.selected && (
                             <div className="actions">
                                 <button className="btn secondary" onClick={() => p.startEdit(p.selected!)}>Edit</button>
-                                <button className="btn danger" onClick={() => void handleDelete()} disabled={p.saving}>Delete</button>
+                                {isAdmin && <button className="btn danger" onClick={() => void handleDelete()} disabled={p.saving}>Delete</button>}
                             </div>
                         )}
                         {(p.mode === "create" || p.mode === "edit") && (
@@ -610,6 +614,7 @@ function PlantDetail({
                     <p className="muted">Purposes: {(plant.purposes ?? []).join(", ") || "—"}</p>
                     <p className="muted">Source: {plant.source ?? "—"} · {plant.sourceSystem ?? "—"}/{plant.sourceId ?? "—"}</p>
                     <p className="muted">Content: {plant.contentStatus ?? "published"} · review {plant.reviewStatus ?? "unreviewed"} · version {plant.contentVersion ?? 1}</p>
+                    <p className="muted">Care status: {plant.careStatus ?? "missing"} · tier {plant.contentTier ?? "taxonomy_only"}</p>
                     <p className="muted">Growth stage: {plant.growthStage ?? "—"} · reviewed by {plant.reviewedBy ?? "—"}</p>
                     {plant.sourceUrl && <p className="muted">Source URL: {plant.sourceUrl}</p>}
                     {plant.notes && <p className="muted">Notes: {plant.notes}</p>}
@@ -659,7 +664,7 @@ function PlantDetail({
                                     <p className="i18n-common-name">{row.commonName}</p>
                                     <p className="i18n-desc">{row.description ?? "No description"}</p>
                                     {row.careContent && <p className="muted small">Care: {row.careContent}</p>}
-                                    <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · {row.source ?? "no source"}</p>
+                                    <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
                                 </div>
                             );
                         })}
@@ -1016,6 +1021,15 @@ function PlantForm({
                             <option value="unreviewed">Unreviewed</option>
                             <option value="in_review">In review</option>
                             <option value="reviewed">Reviewed</option>
+                        </select>
+                    </label>
+                    <label>
+                        Care status
+                        <select value={f.careStatus} onChange={(e) => set({ careStatus: e.target.value as PlantHook["form"]["careStatus"] })}>
+                            <option value="missing">Missing</option>
+                            <option value="awaiting_review">Awaiting review</option>
+                            <option value="verified">Verified</option>
+                            <option value="not_applicable">Not applicable</option>
                         </select>
                     </label>
                     <label>

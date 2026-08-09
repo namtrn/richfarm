@@ -10,10 +10,11 @@ export type I18nRow = {
   contentVersion?: number;
   source?: string;
   sourceUrl?: string;
-  contentStatus?: "draft" | "published" | "needs_review" | "archived";
-  reviewStatus?: "unreviewed" | "in_review" | "reviewed";
+  contentStatus?: string;
+  reviewStatus?: string;
   reviewedAt?: number | string;
   reviewedBy?: string;
+  contentOrigin?: "authored" | "inherited" | "imported";
 };
 
 export type Plant = {
@@ -62,6 +63,8 @@ export type Plant = {
   reviewStatus?: "unreviewed" | "in_review" | "reviewed";
   reviewedAt?: number | string;
   reviewedBy?: string;
+  careStatus?: "missing" | "awaiting_review" | "verified" | "not_applicable";
+  contentTier?: "taxonomy_only" | "full_detail";
   growthStage?: string;
   soilPhMin?: number;
   soilPhMax?: number;
@@ -109,6 +112,7 @@ export type PlantI18nRow = {
   reviewStatus?: string;
   reviewedAt?: number | string;
   reviewedBy?: string;
+  contentOrigin?: "authored" | "inherited" | "imported";
   plantScientificName?: string;
   plantGroup?: string;
 };
@@ -184,6 +188,7 @@ export type PlantFormState = {
   family: string;
   notes: string;
   isActive: boolean;
+  growthStage: string;
   source: string;
   sourceSystem: string;
   sourceId: string;
@@ -193,6 +198,7 @@ export type PlantFormState = {
   contentVersion: string;
   reviewStatus: "unreviewed" | "in_review" | "reviewed";
   reviewedBy: string;
+  careStatus: "missing" | "awaiting_review" | "verified" | "not_applicable";
 };
 
 export type GroupFormState = {
@@ -217,6 +223,7 @@ export type I18nFormState = {
   contentStatus: "draft" | "published" | "needs_review" | "archived";
   reviewStatus: "unreviewed" | "in_review" | "reviewed";
   reviewedBy: string;
+  contentOrigin: "authored" | "inherited" | "imported";
 };
 
 export type PhotoFormState = {

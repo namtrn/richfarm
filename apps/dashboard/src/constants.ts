@@ -99,6 +99,7 @@ export const emptyPlantForm: PlantFormState = {
     family: "",
     notes: "",
     isActive: true,
+    growthStage: "seedling",
     source: "",
     sourceSystem: "sqlite",
     sourceId: "",
@@ -108,6 +109,7 @@ export const emptyPlantForm: PlantFormState = {
     contentVersion: "1",
     reviewStatus: "unreviewed",
     reviewedBy: "",
+    careStatus: "missing",
 };
 
 export const emptyGroupForm: GroupFormState = {
@@ -132,6 +134,7 @@ export const emptyI18nForm: I18nFormState = {
     contentStatus: "published",
     reviewStatus: "unreviewed",
     reviewedBy: "",
+    contentOrigin: "imported",
 };
 
 export const emptyPhotoForm: PhotoFormState = {

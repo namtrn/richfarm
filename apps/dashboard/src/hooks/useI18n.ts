@@ -15,6 +15,7 @@ function toFormState(row: PlantI18nRow): I18nFormState {
         contentStatus: (row.contentStatus as I18nFormState["contentStatus"]) ?? "published",
         reviewStatus: (row.reviewStatus as I18nFormState["reviewStatus"]) ?? "unreviewed",
         reviewedBy: row.reviewedBy ?? "",
+        contentOrigin: (row.contentOrigin as I18nFormState["contentOrigin"]) ?? "imported",
     };
 }
 

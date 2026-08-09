@@ -49,6 +49,8 @@ type BackendPlantRow = {
     reviewed_at?: string | null;
     reviewed_by?: string | null;
     sync_origin?: string;
+    care_status?: string;
+    care_field_evidence?: Record<string, unknown>;
     metadata_json?: Record<string, unknown>;
     i18n?: Record<string, {
         common_name?: string;
@@ -61,6 +63,7 @@ type BackendPlantRow = {
         review_status?: string;
         reviewed_at?: string;
         reviewed_by?: string;
+        content_origin?: string;
     }>;
 };
 
@@ -95,6 +98,7 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
             reviewStatus: localeRow?.review_status as Plant["reviewStatus"],
             reviewedAt: localeRow?.reviewed_at,
             reviewedBy: localeRow?.reviewed_by,
+            contentOrigin: localeRow?.content_origin as "authored" | "inherited" | "imported" | undefined,
         };
     });
 
@@ -333,6 +337,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             contentVersion: plant.contentVersion !== undefined ? String(plant.contentVersion) : "1",
             reviewStatus: plant.reviewStatus ?? "unreviewed",
             reviewedBy: plant.reviewedBy ?? "",
+            careStatus: plant.careStatus ?? "missing",
         };
     }
 
@@ -505,6 +510,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             content_version: parseOptionalNumber(form.contentVersion) ?? 1,
             review_status: form.reviewStatus,
             reviewed_by: form.reviewedBy.trim() || null,
+            care_status: form.careStatus,
             metadata_json: {
                 ...(form.source.trim() ? { source: form.source.trim() } : {}),
                 ...(cultivar ? { cultivar } : {}),
@@ -519,6 +525,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
                     content_version: parseOptionalNumber(form.contentVersion) ?? 1,
                     review_status: form.reviewStatus,
                     reviewed_by: form.reviewedBy.trim() || undefined,
+                    content_origin: "authored",
                 },
                 en: {
                     common_name: form.enCommonName.trim(),
@@ -529,6 +536,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
                     content_version: parseOptionalNumber(form.contentVersion) ?? 1,
                     review_status: form.reviewStatus,
                     reviewed_by: form.reviewedBy.trim() || undefined,
+                    content_origin: "authored",
                 },
             },
         };
