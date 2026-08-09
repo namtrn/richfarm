@@ -1,0 +1,49 @@
+{
+  "manifestVersion": "1",
+  "updatedAt": "2026-08-09",
+  "notes": "Source manifest for the externalDataGate. Every source referenced by plant content must be registered here with a license and a retrievable URL before bulk import may run. Fail-closed: rows referencing an unregistered source fail the gate; rows with no source at all keep the gate at not_run (blocker).",
+  "sources": [
+    {
+      "sourceSystem": "richfarm-seed",
+      "license": "internal",
+      "licenseUrl": "https://github.com/richfarm/repo/blob/main/AGENTS.md",
+      "sourceUrl": "packages/convex/convex/data/plantI18nSource",
+      "provenanceNote": "Baseline identity/common-name rows generated inside this repository; not external curation evidence."
+    },
+    {
+      "sourceSystem": "gbif",
+      "license": "CC0",
+      "licenseUrl": "https://www.gbif.org/terms",
+      "sourceUrl": "https://www.gbif.org",
+      "provenanceNote": "Taxonomy identity and distribution evidence only; not a care-data source. License must be re-verified per import batch."
+    },
+    {
+      "sourceSystem": "catalogue-of-life",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://www.checklistbank.org/license",
+      "sourceUrl": "https://www.checklistbank.org",
+      "provenanceNote": "Taxonomy identity and synonym evidence only."
+    },
+    {
+      "sourceSystem": "powo-kew",
+      "license": "CC-BY-3.0",
+      "licenseUrl": "https://powo.science.kew.org/about",
+      "sourceUrl": "https://powo.science.kew.org",
+      "provenanceNote": "Taxonomy, distribution and accepted-name evidence only."
+    },
+    {
+      "sourceSystem": "rhs",
+      "license": "pending_license_check",
+      "licenseUrl": "",
+      "sourceUrl": "https://www.rhs.org.uk",
+      "provenanceNote": "Care/planting guidance candidate. NOT yet approved: license must be verified before any RHS-derived field may be imported."
+    },
+    {
+      "sourceSystem": "vn-mard-khuyen-nong",
+      "license": "pending_license_check",
+      "licenseUrl": "",
+      "sourceUrl": "https://www.mard.gov.vn",
+      "provenanceNote": "Vietnamese official agricultural guidance candidate. NOT yet approved: page-level license and reproducibility must be verified before use."
+    }
+  ]
+}

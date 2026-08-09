@@ -1,0 +1,2933 @@
+{
+  "listVersion": "v1",
+  "createdAt": "2026-08-09",
+  "owner": "Plant Content Owner",
+  "assignees": {
+    "owner": "TBD",
+    "taxonomyReviewer": "TBD",
+    "localeReviewers": [
+      "TBD"
+    ],
+    "careReviewers": [
+      "TBD"
+    ]
+  },
+  "scope": "Phase 3.1 full-detail investment; identity set cross-checked against repository seed.",
+  "criteria": [
+    "Entry must exist in repository seed data (identity validated against plantI18nSource).",
+    "Categories prioritized: rau_cu, gia_vi, cay_an_qua, hoa_cay_canh, ban_dia.",
+    "Full-detail investment starts here; taxonomy-only coverage is independent."
+  ],
+  "entries": [
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "solanum",
+        "speciesNormalized": "lycopersicum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 1,
+      "rationale": "Cà chua là rau ăn quả phổ biến nhất trong vườn nhà Việt Nam, có tín hiệu search/Add Plant cao nhất.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Solanum lycopersicum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Tomato"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "solanum",
+        "speciesNormalized": "melongena",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 2,
+      "rationale": "Cà tím trồng phổ biến cả vụ mưa lẫn vụ nắng, nhu cầu care profile rõ ràng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Solanum melongena"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Eggplant"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "capsicum",
+        "speciesNormalized": "annuum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 3,
+      "rationale": "Ớt ngọt/ớt chuông phổ biến, nhiều cultivar cần phân tách rõ base-variant.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Capsicum annuum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bell Pepper"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "capsicum",
+        "speciesNormalized": "frutescens",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 4,
+      "rationale": "Ớt chỉ thiên gắn với ẩm thực Việt, trồng sân thượng và ruộng đều có.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Capsicum frutescens"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bird's Eye Chili"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "lactuca",
+        "speciesNormalized": "sativa",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 5,
+      "rationale": "Xà lách là rau ăn lá có chu kỳ ngắn, người dùng trồng liên tục theo vụ.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Lactuca sativa"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Lettuce"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "daucus",
+        "speciesNormalized": "carota",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 6,
+      "rationale": "Cà rốt phổ biến vụ đông xuân, cần care đất/pH chính xác.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Daucus carota"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Carrot"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "solanum",
+        "speciesNormalized": "tuberosum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 7,
+      "rationale": "Khoai tây là cây lương thực vụ đông, cần hướng dẫn bón và luân canh.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Solanum tuberosum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Potato"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "ipomoea",
+        "speciesNormalized": "batatas",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 8,
+      "rationale": "Khoai lang dễ trồng, lá và củ đều dùng được, hợp vườn nhỏ.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Ipomoea batatas"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Sweet Potato"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "brassica",
+        "speciesNormalized": "oleracea",
+        "cultivarNormalized": "var. italica"
+      },
+      "category": "rau_cu",
+      "rank": 9,
+      "rationale": "Bông cải xanh phổ biến vụ đông, đại diện nhóm brassica đông xuân.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Brassica oleracea var. italica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Broccoli"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "brassica",
+        "speciesNormalized": "oleracea",
+        "cultivarNormalized": "var. capitata"
+      },
+      "category": "rau_cu",
+      "rank": 10,
+      "rationale": "Bắp cải là rau vụ đông chủ lực, nhu cầu kho tàng và care đầy đủ.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Brassica oleracea var. capitata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Cabbage"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "brassica",
+        "speciesNormalized": "oleracea",
+        "cultivarNormalized": "var. sabellica"
+      },
+      "category": "rau_cu",
+      "rank": 11,
+      "rationale": "Cải xoăn kale phổ biến với nhóm ăn healthy, tín hiệu tăng gần đây.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Brassica oleracea var. sabellica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Kale"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "spinacia",
+        "speciesNormalized": "oleracea",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 12,
+      "rationale": "Cải bó xôi vụ đông, care nước và nhiệt độ cần chính xác.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Spinacia oleracea"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Spinach"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "brassica",
+        "speciesNormalized": "rapa",
+        "cultivarNormalized": "subsp. chinensis"
+      },
+      "category": "rau_cu",
+      "rank": 13,
+      "rationale": "Cải thìa là rau ăn lá trồng quanh năm tại Việt Nam.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Brassica rapa subsp. chinensis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bok Choy"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "ipomoea",
+        "speciesNormalized": "aquatica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 14,
+      "rationale": "Rau muống là rau bản địa trồng phổ biến nhất, gắn với vườn nhà Việt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Ipomoea aquatica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Water Spinach"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "basella",
+        "speciesNormalized": "alba",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 15,
+      "rationale": "Mồng tơi dễ trồng mùa hè, cây bản địa nhiệt đới.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Basella alba"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Malabar Spinach"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "momordica",
+        "speciesNormalized": "charantia",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 16,
+      "rationale": "Khổ qua trồng giàn phổ biến, quả dùng trong bữa ăn hằng ngày.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Momordica charantia"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bitter Melon"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "allium",
+        "speciesNormalized": "cepa",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 17,
+      "rationale": "Hành tây cần care khoảng cách/bón rõ ràng, vụ đông xuân.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Allium cepa"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bulb Onion"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "allium",
+        "speciesNormalized": "sativum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 18,
+      "rationale": "Tỏi là gia vị lẫn rau, trồng vụ đông ở đồng bằng sông Hồng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Allium sativum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Garlic"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "allium",
+        "speciesNormalized": "fistulosum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 19,
+      "rationale": "Hành lá trồng quanh năm, phổ biến mọi vườn nhà.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Allium fistulosum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Green Onion"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "allium",
+        "speciesNormalized": "porrum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 20,
+      "rationale": "Tỏi tây ít phổ biến hơn nhưng thuộc nhóm rau vụ đông.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Allium porrum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Leek"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "raphanus",
+        "speciesNormalized": "sativus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 21,
+      "rationale": "Củ cải trắng vụ đông, chu kỳ ngắn, dễ bắt đầu cho người mới.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Raphanus sativus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Daikon Radish"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "cucumis",
+        "speciesNormalized": "sativus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 22,
+      "rationale": "Dưa chuột trồng giàn phổ biến, nhu cầu care nước cao.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Cucumis sativus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Cucumber"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "cucurbita",
+        "speciesNormalized": "pepo",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 23,
+      "rationale": "Bí xanh/zucchini vụ hè, đại diện nhóm bí trồng giàn.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Cucurbita pepo"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Zucchini"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "cucurbita",
+        "speciesNormalized": "moschata",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 24,
+      "rationale": "Bí đỏ trồng bò lan, phổ biến vụ mưa.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Cucurbita moschata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Squash"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "sechium",
+        "speciesNormalized": "edule",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 25,
+      "rationale": "Su su là rau leo nhiệt đới quen thuộc ở miền Bắc.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Sechium edule"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Chayote"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "abelmoschus",
+        "speciesNormalized": "esculentus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 26,
+      "rationale": "Đậu bắp ưa nắng nóng, trồng vụ hè, nhiều cultivar phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Abelmoschus esculentus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Okra"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "phaseolus",
+        "speciesNormalized": "vulgaris",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 27,
+      "rationale": "Đậu cô ve trồng leo, vụ thu đông và xuân.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Phaseolus vulgaris"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Common Bean"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "vigna",
+        "speciesNormalized": "unguiculata",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 28,
+      "rationale": "Đậu đũa là cây leo quen thuộc của vườn nhà Việt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Vigna unguiculata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Yard-long Bean"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "zea",
+        "speciesNormalized": "mays",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 29,
+      "rationale": "Ngô ngọt vụ xuân hè, cần care đất và thụ phấn.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Zea mays convar. saccharata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Sweet Corn"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "apium",
+        "speciesNormalized": "graveolens",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 30,
+      "rationale": "Cần tây vụ đông, phổ biến trong nấu ăn.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Apium graveolens"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Celery"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "asparagus",
+        "speciesNormalized": "officinalis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 31,
+      "rationale": "Măng tây là cây trồng giá trị cao, nhiều năm.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Asparagus officinalis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Asparagus"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "beta",
+        "speciesNormalized": "vulgaris",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 32,
+      "rationale": "Củ dền vụ đông, nhu cầu đất tơi xốp.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Beta vulgaris"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Beetroot"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "cichorium",
+        "speciesNormalized": "intybus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 33,
+      "rationale": "Rau diếp xoăn/radicchio phổ biến với nhóm ăn salad.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Cichorium intybus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Radicchio"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "eruca",
+        "speciesNormalized": "vesicaria",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 34,
+      "rationale": "Arugula/rocket phổ biến trong vườn rau sạch.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Eruca vesicaria"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Arugula"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "valeriana",
+        "speciesNormalized": "locusta",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "rau_cu",
+      "rank": 35,
+      "rationale": "Rau mầm trụ/corn salad cho vụ đông ngắn ngày.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Valeriana locusta"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Corn Salad"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "ocimum",
+        "speciesNormalized": "basilicum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 36,
+      "rationale": "Húng quế là gia vị Việt phổ biến nhất, trồng quanh năm.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Ocimum basilicum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Basil"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "ocimum",
+        "speciesNormalized": "tenuiflorum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 37,
+      "rationale": "Húng chanh/rau húng lủi gắn với ẩm thực và sức khỏe.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Ocimum tenuiflorum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Holy Basil"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "mentha",
+        "speciesNormalized": "piperita",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 38,
+      "rationale": "Bạc hà dễ trồng trong chậu, nhu cầu cao.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Mentha × piperita"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Mint"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "coriandrum",
+        "speciesNormalized": "sativum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 39,
+      "rationale": "Rau mùi là gia vị không thể thiếu trong bữa ăn Việt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Coriandrum sativum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Coriander"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "anethum",
+        "speciesNormalized": "graveolens",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 40,
+      "rationale": "Thì là dùng cho món chả cá, trồng vụ đông.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Anethum graveolens"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Dill"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "petroselinum",
+        "speciesNormalized": "crispum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 41,
+      "rationale": "Mùi tây phổ biến trong vườn gia vị.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Petroselinum crispum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Parsley"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "allium",
+        "speciesNormalized": "schoenoprasum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 42,
+      "rationale": "Hẹ trồng quanh năm, dễ nhân giống.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Allium schoenoprasum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Chive"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "rosmarinus",
+        "speciesNormalized": "officinalis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 43,
+      "rationale": "Hương thảo phổ biến với người làm vườn hiện đại.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Rosmarinus officinalis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Rosemary"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "thymus",
+        "speciesNormalized": "vulgaris",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 44,
+      "rationale": "Cỏ xạ hương là gia vị khô lâu, dễ trồng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Thymus vulgaris"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Thyme"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "salvia",
+        "speciesNormalized": "officinalis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 45,
+      "rationale": "Xô thơm/cây xô thơm phổ biến vườn gia vị.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Salvia officinalis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Sage"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "origanum",
+        "speciesNormalized": "vulgare",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 46,
+      "rationale": "Kinh giới tây phổ biến trong nấu ăn Âu.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Origanum vulgare"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Oregano"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "foeniculum",
+        "speciesNormalized": "vulgare",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 47,
+      "rationale": "Thì là Ai Cập dùng lá và hạt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Foeniculum vulgare"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Fennel"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "cymbopogon",
+        "speciesNormalized": "citratus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 48,
+      "rationale": "Sả là gia vị Việt, trồng chậu được.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Cymbopogon citratus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Lemongrass"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "zingiber",
+        "speciesNormalized": "officinale",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 49,
+      "rationale": "Gừng trồng phổ biến, gia vị lẫn thuốc dân gian.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Zingiber officinale"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Ginger"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "curcuma",
+        "speciesNormalized": "longa",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 50,
+      "rationale": "Nghệ dùng tươi lẫn bột, dễ trồng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Curcuma longa"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Turmeric"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "eryngium",
+        "speciesNormalized": "foetidum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 51,
+      "rationale": "Mùi tàu là gia vị bản địa Đông Nam Á.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Eryngium foetidum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Culantro"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "perilla",
+        "speciesNormalized": "frutescens",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 52,
+      "rationale": "Tía tô phổ biến trong món ăn Việt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Perilla frutescens"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Perilla / Shiso"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "laurus",
+        "speciesNormalized": "nobilis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "gia_vi",
+      "rank": 53,
+      "rationale": "Nguyệt quế trồng chậu, lá dùng gia vị.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Laurus nobilis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bay Laurel"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "fragaria",
+        "speciesNormalized": "ananassa",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 54,
+      "rationale": "Dâu tây trồng chậu phổ biến, nhu cầu care chi tiết.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Fragaria x ananassa"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Strawberry"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "vaccinium",
+        "speciesNormalized": "corymbosum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 55,
+      "rationale": "Việt quất cần đất chua đặc thù, care quan trọng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Vaccinium corymbosum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Blueberry"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "citrullus",
+        "speciesNormalized": "lanatus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 56,
+      "rationale": "Dưa hấu vụ xuân hè, phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Citrullus lanatus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Watermelon"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "carica",
+        "speciesNormalized": "papaya",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 57,
+      "rationale": "Đu đủ trồng nhanh cho quả, phổ biến vườn nhà.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Carica papaya"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Papaya"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "ananas",
+        "speciesNormalized": "comosus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 58,
+      "rationale": "Dứa/khóm dễ trồng, nhiệt đới.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Ananas comosus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Pineapple"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "musa",
+        "speciesNormalized": "acuminata",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 59,
+      "rationale": "Chuối là cây ăn quả chủ lực.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Musa acuminata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Banana"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "mangifera",
+        "speciesNormalized": "indica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 60,
+      "rationale": "Xoài là cây ăn quả nhiệt đới phổ biến nhất.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Mangifera indica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Mango"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "persea",
+        "speciesNormalized": "americana",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 61,
+      "rationale": "Bơ nhu cầu tăng mạnh, cần hướng dẫn trồng đúng giống.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Persea americana"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Avocado"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "psidium",
+        "speciesNormalized": "guajava",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 62,
+      "rationale": "Ổi trồng khắp nơi, sai quả quanh năm.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Psidium guajava"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Guava"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "ficus",
+        "speciesNormalized": "carica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 63,
+      "rationale": "Sung/fig phổ biến trồng chậu.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Ficus carica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Fig"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "dimocarpus",
+        "speciesNormalized": "longan",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 64,
+      "rationale": "Nhãn là cây ăn quả bản địa Đông Nam Á.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Dimocarpus longan"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Longan"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "litchi",
+        "speciesNormalized": "chinensis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 65,
+      "rationale": "Vải thiều nổi tiếng vùng Bắc Giang.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Litchi chinensis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Lychee"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "passiflora",
+        "speciesNormalized": "edulis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 66,
+      "rationale": "Chanh dây trồng giàn, phổ biến Đà Lạt và miền Bắc.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Passiflora edulis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Passion Fruit"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "selenicereus",
+        "speciesNormalized": "undatus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 67,
+      "rationale": "Thanh long là cây ăn quả xuất khẩu chủ lực.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Selenicereus undatus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Dragon Fruit"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "punica",
+        "speciesNormalized": "granatum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 68,
+      "rationale": "Lựu trồng chậu và vườn, ưa nắng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Punica granatum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Pomegranate"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "citrus",
+        "speciesNormalized": "aurantiifolia",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 69,
+      "rationale": "Chanh ta không thể thiếu trong ẩm thực Việt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Citrus aurantiifolia"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Key Lime"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "citrus",
+        "speciesNormalized": "sinensis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 70,
+      "rationale": "Cam là cây ăn quả có múi chủ lực.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Citrus sinensis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Orange"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "vitis",
+        "speciesNormalized": "vinifera",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 71,
+      "rationale": "Nho trồng giàn, nhu cầu care tỉa cành.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Vitis vinifera"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Grape"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "malus",
+        "speciesNormalized": "domestica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 72,
+      "rationale": "Táo ôn đới, chăm sóc đặc thù.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Malus domestica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Apple"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "pyrus",
+        "speciesNormalized": "communis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 73,
+      "rationale": "Lê ôn đới, care lạnh đông.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Pyrus communis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Pear"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "prunus",
+        "speciesNormalized": "persica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 74,
+      "rationale": "Đào trồng vùng lạnh, phổ biến vùng núi.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Prunus persica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Peach"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "prunus",
+        "speciesNormalized": "domestica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 75,
+      "rationale": "Mận phổ biến vùng ôn đới nhiệt đới mát.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Prunus domestica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Plum"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "eriobotrya",
+        "speciesNormalized": "japonica",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 76,
+      "rationale": "Sơn trà/loquat trồng vùng mát.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Eriobotrya japonica"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Loquat"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "rubus",
+        "speciesNormalized": "idaeus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "cay_an_qua",
+      "rank": 77,
+      "rationale": "Mâm xôi vùng lạnh, nhu cầu tăng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Rubus idaeus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Raspberry"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "rosa",
+        "speciesNormalized": "chinensis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 78,
+      "rationale": "Hoa hồng là cây cảnh được trồng nhiều nhất.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Rosa chinensis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Rose"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "tagetes",
+        "speciesNormalized": "erecta",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 79,
+      "rationale": "Cúc vạn thọ trồng dịp Tết, phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Tagetes erecta"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Marigold"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "helianthus",
+        "speciesNormalized": "annuus",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 80,
+      "rationale": "Hướng dương trồng phổ biến cảnh lẫn hạt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Helianthus annuus"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Sunflower"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "chrysanthemum",
+        "speciesNormalized": "morifolium",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 81,
+      "rationale": "Cúc là hoa cắm phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Chrysanthemum morifolium"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Chrysanthemum"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "lavandula",
+        "speciesNormalized": "angustifolia",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 82,
+      "rationale": "Oải hương phổ biến với nhóm trồng thảo mộc.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Lavandula angustifolia"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Lavender"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "aloe",
+        "speciesNormalized": "vera",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 83,
+      "rationale": "Lô hội trồng chậu, dễ chăm, đa công dụng.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Aloe vera"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Aloe Vera"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "sansevieria",
+        "speciesNormalized": "trifasciata",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 84,
+      "rationale": "Lưỡi hổ là cây cảnh nội thất phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Sansevieria trifasciata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Snake Plant"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "chlorophytum",
+        "speciesNormalized": "comosum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 85,
+      "rationale": "Cây nhện dễ trồng treo.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Chlorophytum comosum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Spider Plant"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "epipremnum",
+        "speciesNormalized": "aureum",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 86,
+      "rationale": "Trầu bà vàng phổ biến nhất trong cây nội thất.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Epipremnum aureum"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Pothos"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "monstera",
+        "speciesNormalized": "deliciosa",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 87,
+      "rationale": "Trầu bà nam mỹ/ monstera hot trend gần đây.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Monstera deliciosa"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Monstera"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "spathiphyllum",
+        "speciesNormalized": "wallisii",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 88,
+      "rationale": "Vĩ hoa trắng/peace lily dễ trồng trong nhà.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Spathiphyllum wallisii"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Peace Lily"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "bougainvillea",
+        "speciesNormalized": "glabra",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 89,
+      "rationale": "Hoa giấy phổ biến ban công Việt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Bougainvillea glabra"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Bougainvillea"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "hibiscus",
+        "speciesNormalized": "rosa-sinensis",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 90,
+      "rationale": "Dâm bụt trồng hàng rào phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Hibiscus rosa-sinensis"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Hibiscus"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "jasminum",
+        "speciesNormalized": "sambac",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "ban_dia",
+      "rank": 91,
+      "rationale": "Hoa nhài là hoa bản địa, dùng ướp trà.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Jasminum sambac"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Jasmine"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "dahlia",
+        "speciesNormalized": "pinnata",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 92,
+      "rationale": "Thược dược phổ biến vùng mát.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Dahlia pinnata"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Dahlia"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "begonia",
+        "speciesNormalized": "semperflorens",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 93,
+      "rationale": "Thu hải đường trồng bồn phổ biến.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Begonia semperflorens"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Wax Begonia"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "hydrangea",
+        "speciesNormalized": "macrophylla",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 94,
+      "rationale": "Cẩm tú cầu phổ biến Đà Lạt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Hydrangea macrophylla"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Hydrangea"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "zinnia",
+        "speciesNormalized": "elegans",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 95,
+      "rationale": "Cúc xinh dễ trồng từ hạt.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Zinnia elegans"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Zinnia"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "tulipa",
+        "speciesNormalized": "gesneriana",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 96,
+      "rationale": "Tulip trồng vụ đông lạnh, cần care củ.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Tulipa gesneriana"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Tulip"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    },
+    {
+      "canonicalIdentity": {
+        "genusNormalized": "viola",
+        "speciesNormalized": "tricolor",
+        "cultivarNormalized": "__default__"
+      },
+      "category": "hoa_cay_canh",
+      "rank": 97,
+      "rationale": "Pansy trồng vụ đông.",
+      "targetLocales": [
+        "en",
+        "vi"
+      ],
+      "targetCoverage": "full_detail",
+      "sourceRefs": [
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/en.json",
+          "locator": "Viola tricolor"
+        },
+        {
+          "sourceSystem": "richfarm-seed",
+          "sourceUrl": "packages/convex/convex/data/plantI18nSource/vi.json",
+          "locator": "Pansy"
+        }
+      ],
+      "assignedTo": null,
+      "reviewedBy": null,
+      "reviewedAt": null
+    }
+  ]
+}
