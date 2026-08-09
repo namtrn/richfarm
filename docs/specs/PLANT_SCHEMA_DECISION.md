@@ -432,10 +432,11 @@ Lệnh chạy qua CLI:
 
 ```bash
 # 1) Dry run 100 rows
-npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":true,"limit":100}'
+export CONVEX_ADMIN_FUNCTION_KEY=...
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill "{\"serviceToken\":\"${CONVEX_ADMIN_FUNCTION_KEY}\",\"dryRun\":true,\"limit\":100}"
 
 # 2) Chạy thật 100 rows/batch (có confirm token)
-npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":false,"limit":100,"confirm":"BACKFILL_TAXONOMY"}'
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill "{\"serviceToken\":\"${CONVEX_ADMIN_FUNCTION_KEY}\",\"dryRun\":false,\"limit\":100,\"confirm\":\"BACKFILL_TAXONOMY\"}"
 
 # 3) Lặp lại step 2 đến khi scanned = 0
 

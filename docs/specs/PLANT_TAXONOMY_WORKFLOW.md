@@ -142,13 +142,14 @@ npx convex run plantTaxonomyMigration:listTaxonomyManualReview '{"limit":50}'
 ### Dry-run taxonomy backfill
 
 ```bash
-npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":true,"limit":200}'
+export CONVEX_ADMIN_FUNCTION_KEY=...
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill "{\"serviceToken\":\"${CONVEX_ADMIN_FUNCTION_KEY}\",\"dryRun\":true,\"limit\":200}"
 ```
 
 ### Apply taxonomy backfill
 
 ```bash
-npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":false,"limit":200,"confirm":"BACKFILL_TAXONOMY"}'
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill "{\"serviceToken\":\"${CONVEX_ADMIN_FUNCTION_KEY}\",\"dryRun\":false,\"limit\":200,\"confirm\":\"BACKFILL_TAXONOMY\"}"
 ```
 
 ### Remove legacy `commonNames`

@@ -55,5 +55,6 @@ See [PLANT_TAXONOMY_WORKFLOW.md](../docs/specs/PLANT_TAXONOMY_WORKFLOW.md) for t
 ```bash
 npm run check:taxonomy
 npx convex run plantTaxonomyMigration:listTaxonomyManualReview '{"limit":50}'
-npx convex run plantTaxonomyMigration:runTaxonomyBackfill '{"dryRun":true,"limit":200}'
+export CONVEX_ADMIN_FUNCTION_KEY=...
+npx convex run plantTaxonomyMigration:runTaxonomyBackfill "{\"serviceToken\":\"${CONVEX_ADMIN_FUNCTION_KEY}\",\"dryRun\":true,\"limit\":200}"
 ```
