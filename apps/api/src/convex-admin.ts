@@ -2,7 +2,11 @@ import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 
-import type { ConvexSyncService } from "./convex-sync";
+import {
+  CONVEX_ADMIN_PROXY_CONFIG_VARS,
+  type ConvexReadiness,
+  type ConvexSyncService,
+} from "./convex-sync";
 
 const requestSchema = z.object({
   path: z.string().trim().min(1).max(120),
@@ -33,12 +37,42 @@ const allowedMutations = new Set([
   "plantAdmin:bulkUpdatePlantI18n",
 ]);
 
+const ADMIN_PROXY_NOT_CONFIGURED = "CONVEX_ADMIN_PROXY_NOT_CONFIGURED";
+const ADMIN_PROXY_CONFIG_ACTION = "Set the listed server environment variables in the API environment and restart the server.";
+
+function adminProxyReadiness(syncService?: ConvexSyncService): ConvexReadiness["adminProxy"] | null {
+  const getReadiness = (syncService as unknown as { getReadiness?: unknown } | undefined)?.getReadiness;
+  if (typeof getReadiness !== "function") {
+    return null;
+  }
+
+  return (getReadiness as () => ConvexReadiness).call(syncService).adminProxy;
+}
+
+function adminProxyUnavailableResponse(syncService?: ConvexSyncService) {
+  const readiness = adminProxyReadiness(syncService);
+  const missing = readiness?.missing ?? [...CONVEX_ADMIN_PROXY_CONFIG_VARS];
+  const missingText = missing.join(", ") || "unknown server configuration";
+
+  return {
+    // Keep the historical prefix so clients that intentionally fall back to
+    // SQLite can continue to recognize this capability as unavailable.
+    error: `Convex admin proxy is not configured: missing server configuration (${missingText}). ${ADMIN_PROXY_CONFIG_ACTION}`,
+    code: ADMIN_PROXY_NOT_CONFIGURED,
+    reason: "missing_server_configuration",
+    missing,
+    missingVariables: missing,
+    action: ADMIN_PROXY_CONFIG_ACTION,
+    retryable: false,
+  };
+}
+
 export function createConvexAdminRouter(syncService?: ConvexSyncService): Router {
   const router = Router();
 
   router.use((_req: Request, res: Response, next: NextFunction) => {
     if (!syncService?.isAdminProxyEnabled()) {
-      res.status(503).json({ error: "Convex admin proxy is not configured" });
+      res.status(503).json(adminProxyUnavailableResponse(syncService));
       return;
     }
 

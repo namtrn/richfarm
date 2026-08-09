@@ -23,10 +23,21 @@ Default:
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `CONVEX_URL`
-- `CONVEX_ADMIN_KEY`
+- `CONVEX_ADMIN_KEY` (optional deployment-admin credential; not used by app-function paths)
 - `CONVEX_ADMIN_FUNCTION_KEY`
 - `CONVEX_UPSERT_MUTATION`
 - `CONVEX_DELETE_MUTATION`
+
+The unauthenticated `GET /api/health` endpoint includes a value-free
+`convex` readiness snapshot for the `read`, `sync`, and `adminProxy`
+capabilities. Each capability reports `enabled` and a `missing` list containing
+only environment-variable names; credential values are never returned. The
+admin proxy and backend sync require `CONVEX_URL` and
+`CONVEX_ADMIN_FUNCTION_KEY`. The function token is sent in Convex function
+arguments; the optional deployment admin key is not sent on these paths, so a
+key from another deployment cannot cause an authorization mismatch. A partial
+setup returns HTTP 503 with the missing names and an action to set them in the
+API environment and restart the server.
 
 ## Auth
 
@@ -37,7 +48,9 @@ Default:
 ## Convex Sync Contract
 
 The backend syncs plant rows through [`masterSync.ts`](/Users/n/Documents/GitHub/richfarm/packages/convex/convex/masterSync.ts).
-Admin-only Convex CRUD now also requires `CONVEX_ADMIN_FUNCTION_KEY`; keep it server-side and do not expose it to dashboard/mobile clients.
+Admin-only Convex CRUD requires `CONVEX_ADMIN_FUNCTION_KEY`; keep it
+server-side and do not expose it to dashboard/mobile clients. Convex function
+authorization is intentionally separate from deployment-admin authorization.
 
 Current behavior:
 

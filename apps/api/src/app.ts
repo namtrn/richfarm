@@ -5,7 +5,7 @@ import helmet from "helmet";
 import { ZodError } from "zod";
 
 import { createAuthRouter, requireAuth, requireRole, type AuthConfig } from "./auth";
-import type { ConvexSyncService } from "./convex-sync";
+import { getConvexReadiness, type ConvexReadiness, type ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
 import { createGenericDataRouter } from "./generic-data";
 import { createContentSyncRouter } from "./content-sync";
@@ -16,6 +16,18 @@ import { createConvexAdminRouter } from "./convex-admin";
 interface CreateAppOptions {
   auth: AuthConfig;
   syncService?: ConvexSyncService;
+}
+
+function getHealthConvexReadiness(syncService?: ConvexSyncService): ConvexReadiness {
+  const getReadiness = (syncService as unknown as { getReadiness?: unknown } | undefined)?.getReadiness;
+  if (typeof getReadiness === "function") {
+    return (getReadiness as () => ConvexReadiness).call(syncService);
+  }
+
+  // A test or embedding caller may omit the sync service entirely. Keep the
+  // health response shape stable while reporting that no Convex capability is
+  // configured; no credential values are ever included.
+  return getConvexReadiness({});
 }
 
 export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
@@ -90,21 +102,24 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
     res.json({
       status: "ok",
       timestamp: new Date().toISOString(),
+      convex: getHealthConvexReadiness(options.syncService),
     });
   });
 
   app.use("/api/auth", createAuthRouter(db, options.auth));
 
-  app.use("/api/master-plants", (req, res, next) => {
-    if (req.method === "GET") {
-      next();
-      return;
-    }
-
-    authMiddleware(req, res, next);
-  });
-  app.use("/api/master-plants", createMasterPlantsRouter(db, options.syncService));
-  app.use("/api/master-plants-i18n", authMiddleware, createMasterPlantI18nRouter(db, options.syncService));
+  app.use(
+    "/api/master-plants",
+    authMiddleware,
+    requireRole(["admin", "editor"]),
+    createMasterPlantsRouter(db, options.syncService),
+  );
+  app.use(
+    "/api/master-plants-i18n",
+    authMiddleware,
+    requireRole(["admin", "editor"]),
+    createMasterPlantI18nRouter(db, options.syncService),
+  );
   app.use("/api/content-sync", authMiddleware, requireRole(["admin"]), createContentSyncRouter());
   app.use("/api/convex-admin", authMiddleware, requireRole(["admin", "editor"]), createConvexAdminRouter(options.syncService));
   app.use(

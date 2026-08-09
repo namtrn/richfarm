@@ -25,7 +25,7 @@ ensureBootstrapAdmin(db, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD);
 const syncService = new ConvexSyncService({
   deployUrl: process.env.CONVEX_URL,
   adminKey: process.env.CONVEX_ADMIN_KEY,
-  adminFunctionKey: process.env.CONVEX_ADMIN_FUNCTION_KEY,
+  serviceToken: process.env.CONVEX_ADMIN_FUNCTION_KEY,
   upsertMutation: process.env.CONVEX_UPSERT_MUTATION ?? "masterSync:upsertPlantFromBackend",
   deleteMutation: process.env.CONVEX_DELETE_MUTATION ?? "masterSync:deletePlantFromBackend",
 });
@@ -62,7 +62,16 @@ const server = app.listen(port, "0.0.0.0", () => {
   // eslint-disable-next-line no-console
   console.log(`Using database at: ${dbPath}`);
   // eslint-disable-next-line no-console
-  console.log(`Convex sync: ${syncService.isEnabled() ? "enabled" : "disabled"}`);
+  const convexReadiness = syncService.getReadiness();
+  const formatReadiness = (enabled: boolean, missing: readonly string[]) => (
+    enabled ? "enabled" : `disabled (missing ${missing.join(", ") || "server configuration"})`
+  );
+  // eslint-disable-next-line no-console
+  console.log(`Convex read: ${formatReadiness(convexReadiness.read.enabled, convexReadiness.read.missing)}`);
+  // eslint-disable-next-line no-console
+  console.log(`Convex sync: ${formatReadiness(convexReadiness.sync.enabled, convexReadiness.sync.missing)}`);
+  // eslint-disable-next-line no-console
+  console.log(`Convex admin proxy: ${formatReadiness(convexReadiness.adminProxy.enabled, convexReadiness.adminProxy.missing)}`);
 });
 
 function shutdown() {
