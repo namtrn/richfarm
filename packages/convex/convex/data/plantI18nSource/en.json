@@ -5001,9 +5001,11 @@
   },
   {
     "commonName": "Bay Laurel",
-    "description": "Bay Laurel for diversified seed coverage in the library.",
+    "description": "Sweet bay is a slow-growing evergreen tree or shrub with glossy, aromatic leaves that are dried for seasoning soups, stews and stocks. It is grown in containers in cooler climates and trained as a standard or clipped hedge in mild ones. Give it full sun to part shade, well-drained soil and shelter from harsh wind and frost; potted plants must come indoors or into a protected spot below freezing. Leaves are best harvested after the new growth has hardened, then air-dried; the plant tolerates hard pruning and reshoots readily.",
     "locale": "en",
-    "scientificName": "Laurus nobilis"
+    "scientificName": "Laurus nobilis",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "California Bay Bay Laurel",
@@ -7581,9 +7583,11 @@
   },
   {
     "commonName": "Raspberry",
-    "description": "Raspberry for diversified seed coverage in the library.",
+    "description": "Raspberry is a hardy, clump-forming bramble that spreads by underground runners and bears clusters of soft, aromatic berries on biennial canes. Summer-fruiting types crop on two-year-old canes in early summer; everbearing types add a fall crop on the current season's growth. Plant canes in full sun in well-drained, slightly acidic soil with a trellis or support, and keep the root zone evenly moist. Remove spent canes after harvest and tie in the new canes; ripening berries need protection from birds. The fruits are highly perishable and best picked when they slip easily off the white core.",
     "locale": "en",
-    "scientificName": "Rubus idaeus"
+    "scientificName": "Rubus idaeus",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "Anne Raspberry",
@@ -8742,9 +8746,11 @@
   },
   {
     "commonName": "Corn Salad",
-    "description": "Corn Salad for diversified seed coverage in the library.",
+    "description": "Corn salad is a low-growing cool-season green with small, spoon-shaped leaves in loose rosettes. It is prized for a mild, nutty flavor and for germinating and growing well in the short, chilly days of late autumn and early spring, when other salad leaves slow down. Sow in shallow drills in moist, cool soil and harvest whole rosettes or individual leaves; in mild regions it can be overwintered under a light mulch or cold frame. Plants bolt quickly once days lengthen and warm, so succession-sow in short intervals.",
     "locale": "en",
-    "scientificName": "Valeriana locusta"
+    "scientificName": "Valeriana locusta",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "Favor Corn Salad",

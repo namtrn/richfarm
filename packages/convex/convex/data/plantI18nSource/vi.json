@@ -1202,7 +1202,7 @@
     "commonName": "Banksia bien Sentinel"
   },
   {
-    "commonName": "Mong toi",
+    "commonName": "Mồng tơi",
     "description": "Mồng tơi là cây dây leo nhiệt đới trồng lấy lá non và ngọn, khi nấu chín có vị ngọt nhẹ và hơi nhớt tự nhiên, thường dùng nấu canh với cua, tôm hoặc thịt. Đây là một trong số ít rau ăn lá vẫn xanh tốt trong mùa hè nóng ẩm, thời điểm các loại rau ôn đới dễ lên ngồng. Nên gieo dưới chân giàn, hàng rào hoặc tháp leo trong đất tơi xốp, giàu mùn và giữ ẩm đều. Thường xuyên thu ngọn non để cây ra nhánh mềm đều; dạng thân đỏ cũng ăn ngon và tạo màu cho vườn.",
     "locale": "vi",
     "scientificName": "Basella alba",
@@ -1210,55 +1210,55 @@
     "content_origin": "authored"
   },
   {
-    "commonName": "Mong toi Ceylon",
+    "commonName": "Mồng tơi Ceylon",
     "cultivar": "Ceylon",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Green Stem",
+    "commonName": "Mồng tơi Green Stem",
     "cultivar": "Green Stem",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Green Tower",
+    "commonName": "Mồng tơi Green Tower",
     "cultivar": "Green Tower",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Malabar Giant",
+    "commonName": "Mồng tơi Malabar Giant",
     "cultivar": "Malabar Giant",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Red Stem",
+    "commonName": "Mồng tơi Red Stem",
     "cultivar": "Red Stem",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Rubra",
+    "commonName": "Mồng tơi Rubra",
     "cultivar": "Rubra",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Ruby Vine",
+    "commonName": "Mồng tơi Ruby Vine",
     "cultivar": "Ruby Vine",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Select",
+    "commonName": "Mồng tơi Select",
     "cultivar": "Select",
     "locale": "vi",
     "scientificName": "Basella alba"
   },
   {
-    "commonName": "Mong toi Vining Giant",
+    "commonName": "Mồng tơi Vining Giant",
     "cultivar": "Vining Giant",
     "locale": "vi",
     "scientificName": "Basella alba"
@@ -5033,37 +5033,39 @@
     "commonName": "Dau Ha Lan lay hat Wando"
   },
   {
-    "commonName": "Nguyet que",
-    "description": "Nguyet que là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "commonName": "Nguyệt quế",
+    "description": "Nguyệt quế là cây gỗ hoặc bụi thường xanh sinh trưởng chậm, lá bóng và thơm, phơi khô làm gia vị cho súp, món hầm và nước dùng. Ở vùng khí hậu mát, cây thường được trồng trong chậu và cắt tỉa thành dáng trụ, hoặc trồng làm hàng rào cắt tỉa ở vùng ấm áp. Cần nắng đầy đủ đến bóng bán phần, đất thoát nước tốt và tránh gió lạnh, sương giá; cây trồng chậu phải đưa vào nhà hoặc nơi có mái che khi nhiệt độ xuống dưới đóng băng. Lá thu hoạch tốt nhất sau khi đợt non đã già rồi phơi khô; cây chịu cắt tỉa mạnh và nảy chồi lại dễ dàng.",
     "locale": "vi",
-    "scientificName": "Laurus nobilis"
+    "scientificName": "Laurus nobilis",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
-    "commonName": "Nguyet que California Bay",
+    "commonName": "Nguyệt quế California Bay",
     "cultivar": "California Bay",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
-    "commonName": "Nguyet que Compacta",
+    "commonName": "Nguyệt quế Compacta",
     "cultivar": "Compacta",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
-    "commonName": "Nguyet que Little Ragu",
+    "commonName": "Nguyệt quế Little Ragu",
     "cultivar": "Little Ragu",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
-    "commonName": "Nguyet que Saratoga",
+    "commonName": "Nguyệt quế Saratoga",
     "cultivar": "Saratoga",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
   },
   {
-    "commonName": "Nguyet que Sweet Bay",
+    "commonName": "Nguyệt quế Sweet Bay",
     "cultivar": "Sweet Bay",
     "locale": "vi",
     "scientificName": "Laurus nobilis"
@@ -7625,37 +7627,39 @@
     "scientificName": "Rosmarinus officinalis"
   },
   {
-    "commonName": "Mam xoi do",
-    "description": "Mam xoi do là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "commonName": "Mâm xôi đỏ",
+    "description": "Mâm xôi đỏ là cây bụi gai cứng cáp, lan rễ ngầm và cho chùm quả mọng mềm, thơm trên cành hai năm tuổi. Giống cho quả mùa hè chín trên cành của năm trước; giống cho quả quanh năm còn có thêm vụ thu trên chồi của mùa hiện tại. Trồng nơi đủ nắng, đất hơi chua và thoát nước tốt, cắm giàn hoặc cọc đỡ và giữ ẩm đều vùng rễ. Sau khi thu hoạch, cắt bỏ cành đã cho quả và buộc các chồi mới; quả chín cần lưới che chim. Quả rất dễ dập, nên hái khi chúng tách nhẹ khỏi lõi trắng.",
     "locale": "vi",
-    "scientificName": "Rubus idaeus"
+    "scientificName": "Rubus idaeus",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
-    "commonName": "Mam xoi do Anne",
+    "commonName": "Mâm xôi đỏ Anne",
     "cultivar": "Anne",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
-    "commonName": "Mam xoi do Caroline",
+    "commonName": "Mâm xôi đỏ Caroline",
     "cultivar": "Caroline",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
-    "commonName": "Mam xoi do Heritage",
+    "commonName": "Mâm xôi đỏ Heritage",
     "cultivar": "Heritage",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
-    "commonName": "Mam xoi do Joan J",
+    "commonName": "Mâm xôi đỏ Joan J",
     "cultivar": "Joan J",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
   },
   {
-    "commonName": "Mam xoi do Tulameen",
+    "commonName": "Mâm xôi đỏ Tulameen",
     "cultivar": "Tulameen",
     "locale": "vi",
     "scientificName": "Rubus idaeus"
@@ -8800,9 +8804,11 @@
   },
   {
     "commonName": "Xà lách cúc",
-    "description": "Xà lách cúc là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Xà lách cúc (còn gọi là rau mầm trụ, corn salad) là loại rau ăn lá mọc thấp, lá nhỏ hình thìa xếp thành hoa thị lỏng lẻo, có vị ngọt bùi nhẹ. Điểm đáng giá của cây là nảy mầm và sinh trưởng tốt trong những ngày ngắn, se lạnh cuối thu và đầu xuân, khi các loại rau trộn khác chậm phát triển. Gieo theo hàng nông trong đất mát và ẩm; có thể thu cả hoa thị hoặc hái lá dần. Ở vùng khí hậu ôn hòa, cây sống qua đông dưới lớp phủ nhẹ. Cây nhanh ra ngồng khi ngày dài và ấm lên, nên gieo rải vụ theo từng đợt ngắn.",
     "locale": "vi",
-    "scientificName": "Valeriana locusta"
+    "scientificName": "Valeriana locusta",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "Xà lách cúc Favor",
