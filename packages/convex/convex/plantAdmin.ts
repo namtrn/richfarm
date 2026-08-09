@@ -27,6 +27,68 @@ import {
   upsertPlantCareI18n,
   upsertPlantCareProfile,
 } from "./lib/plantCare";
+import { requireAdminServiceToken } from "./lib/adminAuth";
+
+const adminTokenArg = { serviceToken: v.string() };
+
+function validatePlantMetadata(args: {
+  soilPhMin?: number;
+  soilPhMax?: number;
+  moistureTarget?: number;
+  lightHours?: number;
+  recordVersion?: number;
+  contentVersion?: number;
+  sourceUrl?: string;
+  growthStage?: string;
+}) {
+  if (args.soilPhMin !== undefined && (args.soilPhMin < 0 || args.soilPhMin > 14)) {
+    throw new Error("Soil pH minimum must be between 0 and 14");
+  }
+  if (args.soilPhMax !== undefined && (args.soilPhMax < 0 || args.soilPhMax > 14)) {
+    throw new Error("Soil pH maximum must be between 0 and 14");
+  }
+  if (args.soilPhMin !== undefined && args.soilPhMax !== undefined && args.soilPhMin > args.soilPhMax) {
+    throw new Error("Soil pH minimum must be less than or equal to maximum");
+  }
+  if (args.moistureTarget !== undefined && (args.moistureTarget < 0 || args.moistureTarget > 100)) {
+    throw new Error("Moisture target must be between 0 and 100");
+  }
+  if (args.lightHours !== undefined && (args.lightHours < 0 || args.lightHours > 24)) {
+    throw new Error("Light hours must be between 0 and 24");
+  }
+  if (args.recordVersion !== undefined && args.recordVersion < 1) {
+    throw new Error("Record version must be positive");
+  }
+  if (args.contentVersion !== undefined && args.contentVersion < 1) {
+    throw new Error("Content version must be positive");
+  }
+  if (args.sourceUrl && !/^https?:\/\//i.test(args.sourceUrl.trim())) {
+    throw new Error("Source URL must use http or https");
+  }
+  if (args.growthStage && !["seedling", "vegetative", "flowering", "harvest"].includes(args.growthStage.trim())) {
+    throw new Error("Invalid growth stage");
+  }
+}
+
+async function ensureSourceIdentityAvailable(
+  ctx: any,
+  sourceSystem?: string,
+  sourceId?: string,
+  excludedPlantId?: any,
+) {
+  const normalizedSystem = sourceSystem?.trim();
+  const normalizedId = sourceId?.trim();
+  if (!normalizedSystem || !normalizedId) return;
+  const existing = await ctx.db
+    .query("plantsMaster")
+    .withIndex("by_source_identity", (q: any) =>
+      q.eq("sourceSystem", normalizedSystem).eq("sourceId", normalizedId),
+    )
+    .first();
+  if (existing && existing._id !== excludedPlantId) {
+    throw new Error("A plant with the same source identity already exists");
+  }
+}
 
 async function upsertPlantI18n(
   ctx: any,
@@ -34,7 +96,20 @@ async function upsertPlantI18n(
   locale: "vi" | "en",
   commonName: string,
   description?: string,
+  options?: {
+    source?: string;
+    sourceUrl?: string;
+    contentStatus?: "draft" | "published" | "needs_review" | "archived";
+    contentVersion?: number;
+    reviewStatus?: "unreviewed" | "in_review" | "reviewed";
+    reviewedAt?: number;
+    reviewedBy?: string;
+  },
 ) {
+  const normalizedCommonName = commonName.trim();
+  if (!normalizedCommonName) {
+    throw new Error(`A ${locale} common name is required`);
+  }
   const existing = await ctx.db
     .query("plantI18n")
     .withIndex("by_plant_locale", (q: any) => q.eq("plantId", plantId).eq("locale", locale))
@@ -44,15 +119,29 @@ async function upsertPlantI18n(
     await ctx.db.insert("plantI18n", {
       plantId,
       locale,
-      commonName,
+      commonName: normalizedCommonName,
       description: description?.trim() || undefined,
+      source: options?.source?.trim() || undefined,
+      sourceUrl: options?.sourceUrl?.trim() || undefined,
+      contentStatus: options?.contentStatus,
+      contentVersion: options?.contentVersion,
+      reviewStatus: options?.reviewStatus,
+      reviewedAt: options?.reviewedAt,
+      reviewedBy: options?.reviewedBy?.trim() || undefined,
     });
     return;
   }
 
   await ctx.db.patch(existing._id, {
-    commonName,
+    commonName: normalizedCommonName,
     description: description?.trim() || undefined,
+    ...(options?.source !== undefined && { source: options.source.trim() || undefined }),
+    ...(options?.sourceUrl !== undefined && { sourceUrl: options.sourceUrl.trim() || undefined }),
+    ...(options?.contentStatus !== undefined && { contentStatus: options.contentStatus }),
+    ...(options?.contentVersion !== undefined && { contentVersion: options.contentVersion }),
+    ...(options?.reviewStatus !== undefined && { reviewStatus: options.reviewStatus }),
+    ...(options?.reviewedAt !== undefined && { reviewedAt: options.reviewedAt }),
+    ...(options?.reviewedBy !== undefined && { reviewedBy: options.reviewedBy.trim() || undefined }),
   });
 }
 
@@ -352,6 +441,7 @@ async function assertBaseExistsForVariant(
 
 export const updatePlant = mutation({
   args: {
+    ...adminTokenArg,
     plantId: v.id("plantsMaster"),
     scientificName: v.string(),
     cultivar: v.optional(v.string()),
@@ -381,12 +471,42 @@ export const updatePlant = mutation({
     seedRatePerM2: v.optional(v.number()),
     waterLitersPerM2: v.optional(v.number()),
     yieldKgPerM2: v.optional(v.number()),
+    fertilizingFrequencyDays: v.optional(v.number()),
+    soilPhMin: v.optional(v.number()),
+    soilPhMax: v.optional(v.number()),
+    moistureTarget: v.optional(v.number()),
+    lightHours: v.optional(v.number()),
+    growthStage: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+    source: v.optional(v.string()),
+    sourceSystem: v.optional(v.string()),
+    sourceId: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    recordVersion: v.optional(v.number()),
+    contentStatus: v.optional(v.union(
+      v.literal("draft"), v.literal("published"), v.literal("needs_review"), v.literal("archived"),
+    )),
+    contentVersion: v.optional(v.number()),
+    reviewStatus: v.optional(v.union(
+      v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed"),
+    )),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    validatePlantMetadata(args);
     const plant = await ctx.db.get(args.plantId);
     if (!plant) {
       throw new Error("Plant not found");
     }
+    await ensureSourceIdentityAvailable(
+      ctx,
+      args.sourceSystem ?? (plant as any).sourceSystem,
+      args.sourceId ?? (plant as any).sourceId,
+      args.plantId,
+    );
 
     const scientificName = args.scientificName.trim();
     const cultivar = args.cultivar ?? (plant as any).cultivar;
@@ -423,6 +543,23 @@ export const updatePlant = mutation({
       commonNameGroupVi: args.commonNameGroupVi?.trim() || undefined,
       commonNameGroupEn: args.commonNameGroupEn?.trim() || undefined,
       imageUrl: args.imageUrl ?? undefined,
+      ...(args.isActive !== undefined && { isActive: args.isActive }),
+      ...(args.source !== undefined && { source: args.source.trim() || undefined }),
+      ...(args.sourceSystem !== undefined && { sourceSystem: args.sourceSystem.trim() || undefined }),
+      ...(args.sourceId !== undefined && { sourceId: args.sourceId.trim() || undefined }),
+      ...(args.sourceUrl !== undefined && { sourceUrl: args.sourceUrl.trim() || undefined }),
+      ...(args.recordVersion !== undefined && { recordVersion: args.recordVersion }),
+      ...(args.contentStatus !== undefined && { contentStatus: args.contentStatus }),
+      ...(args.contentVersion !== undefined && { contentVersion: args.contentVersion }),
+      ...(args.reviewStatus !== undefined && { reviewStatus: args.reviewStatus }),
+      ...(args.reviewedAt !== undefined && { reviewedAt: args.reviewedAt }),
+      ...(args.reviewedBy !== undefined && { reviewedBy: args.reviewedBy.trim() || undefined }),
+      ...(args.growthStage !== undefined && { growthStage: args.growthStage.trim() || undefined }),
+      ...(args.soilPhMin !== undefined && { soilPhMin: args.soilPhMin }),
+      ...(args.soilPhMax !== undefined && { soilPhMax: args.soilPhMax }),
+      ...(args.moistureTarget !== undefined && { moistureTarget: args.moistureTarget }),
+      ...(args.lightHours !== undefined && { lightHours: args.lightHours }),
+      ...(args.notes !== undefined && { notes: args.notes.trim() || undefined }),
       ...taxonomyFieldsForStorage(taxonomy),
       ...(args.purposes !== undefined && {
         purposes: args.purposes.map((item) => item.trim()).filter(Boolean),
@@ -438,10 +575,24 @@ export const updatePlant = mutation({
       seedRatePerM2: args.seedRatePerM2,
       waterLitersPerM2: args.waterLitersPerM2,
       yieldKgPerM2: args.yieldKgPerM2,
+      fertilizingFrequencyDays: args.fertilizingFrequencyDays,
+      soilPhMin: args.soilPhMin,
+      soilPhMax: args.soilPhMax,
+      moistureTarget: args.moistureTarget,
+      lightHours: args.lightHours,
     });
 
-    await upsertPlantI18n(ctx, args.plantId, "vi", args.viCommonName, args.viDescription);
-    await upsertPlantI18n(ctx, args.plantId, "en", args.enCommonName, args.enDescription);
+    const i18nMetadata = {
+      source: args.source,
+      sourceUrl: args.sourceUrl,
+      contentStatus: args.contentStatus,
+      contentVersion: args.contentVersion,
+      reviewStatus: args.reviewStatus,
+      reviewedAt: args.reviewedAt,
+      reviewedBy: args.reviewedBy,
+    };
+    await upsertPlantI18n(ctx, args.plantId, "vi", args.viCommonName, args.viDescription, i18nMetadata);
+    await upsertPlantI18n(ctx, args.plantId, "en", args.enCommonName, args.enDescription, i18nMetadata);
     await syncPlantTaxonomyCommonNames(ctx, {
       family: args.family?.trim() || undefined,
       genus: taxonomy.genus,
@@ -461,6 +612,7 @@ export const updatePlant = mutation({
 
 export const listPlants = query({
   args: {
+    ...adminTokenArg,
     page: v.number(),
     pageSize: v.number(),
     viewMode: v.optional(v.union(v.literal("common"), v.literal("family"))),
@@ -470,6 +622,7 @@ export const listPlants = query({
     filterNoImage: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const viewMode = args.viewMode ?? "common";
     const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
     const i18nRows = await ctx.db.query("plantI18n").collect();
@@ -482,6 +635,12 @@ export const listPlants = query({
       description?: string;
       careContent?: string;
       contentVersion?: number;
+      source?: string;
+      sourceUrl?: string;
+      contentStatus?: string;
+      reviewStatus?: string;
+      reviewedAt?: number;
+      reviewedBy?: string;
     }>>();
 
     for (const row of mergeCareIntoI18nRows(i18nRows, careByPlantLocale)) {
@@ -493,6 +652,12 @@ export const listPlants = query({
         description: row.description ?? undefined,
         careContent: row.careContent ?? undefined,
         contentVersion: row.contentVersion ?? undefined,
+        source: row.source ?? undefined,
+        sourceUrl: row.sourceUrl ?? undefined,
+        contentStatus: row.contentStatus ?? undefined,
+        reviewStatus: row.reviewStatus ?? undefined,
+        reviewedAt: row.reviewedAt ?? undefined,
+        reviewedBy: row.reviewedBy ?? undefined,
       });
       i18nByPlantId.set(key, list);
     }
@@ -576,6 +741,23 @@ export const listPlants = query({
         seedRatePerM2: plantWithCare.seedRatePerM2 ?? undefined,
         waterLitersPerM2: plantWithCare.waterLitersPerM2 ?? undefined,
         yieldKgPerM2: plantWithCare.yieldKgPerM2 ?? undefined,
+        fertilizingFrequencyDays: plantWithCare.fertilizingFrequencyDays ?? undefined,
+        soilPhMin: plantWithCare.soilPhMin ?? undefined,
+        soilPhMax: plantWithCare.soilPhMax ?? undefined,
+        moistureTarget: plantWithCare.moistureTarget ?? undefined,
+        lightHours: plantWithCare.lightHours ?? undefined,
+        isActive: plant.isActive !== false,
+        sourceSystem: plant.sourceSystem ?? undefined,
+        sourceId: plant.sourceId ?? undefined,
+        recordVersion: plant.recordVersion ?? undefined,
+        sourceUrl: plant.sourceUrl ?? undefined,
+        contentStatus: plant.contentStatus ?? undefined,
+        contentVersion: plant.contentVersion ?? undefined,
+        reviewStatus: plant.reviewStatus ?? undefined,
+        reviewedAt: plant.reviewedAt ?? undefined,
+        reviewedBy: plant.reviewedBy ?? undefined,
+        growthStage: plant.growthStage ?? undefined,
+        notes: plant.notes ?? undefined,
         source: plant.source ?? undefined,
         i18nRows: i18nByPlantId.get(plant._id.toString()) ?? [],
       };
@@ -734,6 +916,7 @@ export const listPlants = query({
 
 export const createPlant = mutation({
   args: {
+    ...adminTokenArg,
     scientificName: v.string(),
     cultivar: v.optional(v.string()),
     family: v.optional(v.string()),
@@ -762,8 +945,32 @@ export const createPlant = mutation({
     seedRatePerM2: v.optional(v.number()),
     waterLitersPerM2: v.optional(v.number()),
     yieldKgPerM2: v.optional(v.number()),
+    fertilizingFrequencyDays: v.optional(v.number()),
+    soilPhMin: v.optional(v.number()),
+    soilPhMax: v.optional(v.number()),
+    moistureTarget: v.optional(v.number()),
+    lightHours: v.optional(v.number()),
+    growthStage: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+    source: v.optional(v.string()),
+    sourceSystem: v.optional(v.string()),
+    sourceId: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    recordVersion: v.optional(v.number()),
+    contentStatus: v.optional(v.union(
+      v.literal("draft"), v.literal("published"), v.literal("needs_review"), v.literal("archived"),
+    )),
+    contentVersion: v.optional(v.number()),
+    reviewStatus: v.optional(v.union(
+      v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed"),
+    )),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    validatePlantMetadata(args);
     const scientificName = args.scientificName.trim();
     if (!scientificName) {
       throw new Error("Scientific name is required");
@@ -787,6 +994,7 @@ export const createPlant = mutation({
 
     const group = args.group.trim() || "other";
     const purposes = (args.purposes ?? []).map((item) => item.trim()).filter(Boolean);
+    await ensureSourceIdentityAvailable(ctx, args.sourceSystem, args.sourceId);
     const allPlants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
     const resolvedGroupBasePlantId = await resolveGroupBasePlantId(ctx, {
       plants: allPlants,
@@ -805,6 +1013,23 @@ export const createPlant = mutation({
       commonNameGroupEn: args.commonNameGroupEn?.trim() || undefined,
       imageUrl: args.imageUrl ?? undefined,
       purposes,
+      ...(args.isActive !== undefined && { isActive: args.isActive }),
+      ...(args.source !== undefined && { source: args.source.trim() || undefined }),
+      ...(args.sourceSystem !== undefined && { sourceSystem: args.sourceSystem.trim() || undefined }),
+      ...(args.sourceId !== undefined && { sourceId: args.sourceId.trim() || undefined }),
+      ...(args.sourceUrl !== undefined && { sourceUrl: args.sourceUrl.trim() || undefined }),
+      ...(args.recordVersion !== undefined && { recordVersion: args.recordVersion }),
+      ...(args.contentStatus !== undefined && { contentStatus: args.contentStatus }),
+      ...(args.contentVersion !== undefined && { contentVersion: args.contentVersion }),
+      ...(args.reviewStatus !== undefined && { reviewStatus: args.reviewStatus }),
+      ...(args.reviewedAt !== undefined && { reviewedAt: args.reviewedAt }),
+      ...(args.reviewedBy !== undefined && { reviewedBy: args.reviewedBy.trim() || undefined }),
+      ...(args.growthStage !== undefined && { growthStage: args.growthStage.trim() || undefined }),
+      ...(args.soilPhMin !== undefined && { soilPhMin: args.soilPhMin }),
+      ...(args.soilPhMax !== undefined && { soilPhMax: args.soilPhMax }),
+      ...(args.moistureTarget !== undefined && { moistureTarget: args.moistureTarget }),
+      ...(args.lightHours !== undefined && { lightHours: args.lightHours }),
+      ...(args.notes !== undefined && { notes: args.notes.trim() || undefined }),
       ...taxonomyFieldsForStorage(taxonomy),
     });
     await upsertPlantCareProfile(ctx, plantId, {
@@ -817,6 +1042,11 @@ export const createPlant = mutation({
       seedRatePerM2: args.seedRatePerM2,
       waterLitersPerM2: args.waterLitersPerM2,
       yieldKgPerM2: args.yieldKgPerM2,
+      fertilizingFrequencyDays: args.fertilizingFrequencyDays,
+      soilPhMin: args.soilPhMin,
+      soilPhMax: args.soilPhMax,
+      moistureTarget: args.moistureTarget,
+      lightHours: args.lightHours,
     });
 
     if (isDisplayBasePlant({ cultivarNormalized: taxonomyIdentity.cultivarNormalized })) {
@@ -825,8 +1055,17 @@ export const createPlant = mutation({
       });
     }
 
-    await upsertPlantI18n(ctx, plantId, "vi", args.viCommonName, args.viDescription);
-    await upsertPlantI18n(ctx, plantId, "en", args.enCommonName, args.enDescription);
+    const i18nMetadata = {
+      source: args.source,
+      sourceUrl: args.sourceUrl,
+      contentStatus: args.contentStatus,
+      contentVersion: args.contentVersion,
+      reviewStatus: args.reviewStatus,
+      reviewedAt: args.reviewedAt,
+      reviewedBy: args.reviewedBy,
+    };
+    await upsertPlantI18n(ctx, plantId, "vi", args.viCommonName, args.viDescription, i18nMetadata);
+    await upsertPlantI18n(ctx, plantId, "en", args.enCommonName, args.enDescription, i18nMetadata);
     await syncPlantTaxonomyCommonNames(ctx, {
       family: args.family?.trim() || undefined,
       genus: taxonomy.genus,
@@ -846,9 +1085,11 @@ export const createPlant = mutation({
 
 export const deletePlant = mutation({
   args: {
+    ...adminTokenArg,
     plantId: v.id("plantsMaster"),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const plant = await ctx.db.get(args.plantId);
     if (!plant) {
       throw new Error("Plant not found");
@@ -869,12 +1110,26 @@ export const deletePlant = mutation({
       }
     }
 
+    const referencedUserPlant = (await ctx.db.query("userPlants").collect())
+      .find((row: any) => String(row.plantMasterId ?? "") === String(args.plantId) && row.isDeleted !== true);
+    if (referencedUserPlant) {
+      throw new Error("Cannot delete a plant while user plants still reference it; deactivate it instead");
+    }
+
     const i18nRows = await ctx.db
       .query("plantI18n")
       .withIndex("by_plant_locale", (q: any) => q.eq("plantId", args.plantId))
       .collect();
     const careRows = await getPlantCareI18nRowsByPlantId(ctx, args.plantId);
     const careProfile = await getPlantCareProfileByPlantId(ctx, args.plantId);
+    const relationRows = [
+      ...await ctx.db.query("plantRelations").withIndex("by_plant", (q: any) => q.eq("plantId", args.plantId)).collect(),
+      ...await ctx.db.query("plantRelations").withIndex("by_related_plant", (q: any) => q.eq("relatedPlantId", args.plantId)).collect(),
+    ];
+    const favoriteRows = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_plant", (q: any) => q.eq("plantMasterId", args.plantId))
+      .collect();
 
     for (const row of i18nRows) {
       await ctx.db.delete(row._id);
@@ -885,6 +1140,12 @@ export const deletePlant = mutation({
     if (careProfile) {
       await ctx.db.delete(careProfile._id);
     }
+    for (const row of new Map(relationRows.map((item: any) => [String(item._id), item])).values()) {
+      await ctx.db.delete((row as any)._id);
+    }
+    for (const row of favoriteRows) {
+      await ctx.db.delete(row._id);
+    }
 
     await ctx.db.delete(args.plantId);
     return { ok: true };
@@ -892,8 +1153,9 @@ export const deletePlant = mutation({
 });
 
 export const backfillGroupBasePlants = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: { ...adminTokenArg },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
     const scientificGroups = new Map<string, any[]>();
     for (const plant of plants) {
@@ -927,8 +1189,9 @@ export const backfillGroupBasePlants = mutation({
 });
 
 export const listPlantGroups = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { ...adminTokenArg },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     return await ctx.db
       .query("plantGroups")
       .withIndex("by_sort_order")
@@ -938,6 +1201,7 @@ export const listPlantGroups = query({
 
 export const createPlantGroup = mutation({
   args: {
+    ...adminTokenArg,
     key: v.string(),
     displayNameVi: v.string(),
     displayNameEn: v.string(),
@@ -947,6 +1211,7 @@ export const createPlantGroup = mutation({
     sortOrder: v.number(),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const key = args.key.trim();
     if (!key) {
       throw new Error("Group key is required");
@@ -984,6 +1249,7 @@ export const createPlantGroup = mutation({
 
 export const updatePlantGroup = mutation({
   args: {
+    ...adminTokenArg,
     groupId: v.id("plantGroups"),
     key: v.string(),
     displayNameVi: v.string(),
@@ -994,6 +1260,7 @@ export const updatePlantGroup = mutation({
     sortOrder: v.number(),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const group = await ctx.db.get(args.groupId);
     if (!group) {
       throw new Error("Group not found");
@@ -1037,17 +1304,20 @@ export const updatePlantGroup = mutation({
 
 export const deletePlantGroup = mutation({
   args: {
+    ...adminTokenArg,
     groupId: v.id("plantGroups"),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     await ctx.db.delete(args.groupId);
     return { ok: true };
   },
 });
 
 export const listPlantI18n = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { ...adminTokenArg },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const rows = await ctx.db.query("plantI18n").collect();
     const careByPlantLocale = await getPlantCareI18nMap(ctx);
     const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
@@ -1062,7 +1332,13 @@ export const listPlantI18n = query({
         commonName: row.commonName,
         description: row.description ?? undefined,
         careContent: row.careContent ?? undefined,
+        source: row.source ?? undefined,
+        sourceUrl: row.sourceUrl ?? undefined,
+        contentStatus: row.contentStatus ?? undefined,
         contentVersion: row.contentVersion ?? undefined,
+        reviewStatus: row.reviewStatus ?? undefined,
+        reviewedAt: row.reviewedAt ?? undefined,
+        reviewedBy: row.reviewedBy ?? undefined,
         plantScientificName: plant?.scientificName ?? "",
         plantGroup: plant?.group ?? "",
       };
@@ -1072,11 +1348,13 @@ export const listPlantI18n = query({
 
 export const exportPlantI18nSource = query({
   args: {
+    ...adminTokenArg,
     locale: v.optional(v.string()),
     offset: v.optional(v.number()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const localeFilter = args.locale?.trim().toLowerCase();
     const rows = await ctx.db.query("plantI18n").collect();
     const careByPlantLocale = await getPlantCareI18nMap(ctx);
@@ -1093,6 +1371,14 @@ export const exportPlantI18nSource = query({
           locale: row.locale,
           commonName: row.commonName,
           description: row.description ?? undefined,
+          careContent: row.careContent ?? undefined,
+          source: row.source ?? undefined,
+          sourceUrl: row.sourceUrl ?? undefined,
+          contentStatus: row.contentStatus ?? undefined,
+          contentVersion: row.contentVersion ?? undefined,
+          reviewStatus: row.reviewStatus ?? undefined,
+          reviewedAt: row.reviewedAt ?? undefined,
+          reviewedBy: row.reviewedBy ?? undefined,
         };
       })
       .filter((row) => row.scientificName)
@@ -1118,14 +1404,30 @@ export const exportPlantI18nSource = query({
 
 export const createPlantI18n = mutation({
   args: {
+    ...adminTokenArg,
     plantId: v.id("plantsMaster"),
     locale: v.string(),
     commonName: v.string(),
     description: v.optional(v.string()),
     careContent: v.optional(v.string()),
     contentVersion: v.optional(v.number()),
+    source: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    contentStatus: v.optional(v.union(
+      v.literal("draft"), v.literal("published"), v.literal("needs_review"), v.literal("archived"),
+    )),
+    reviewStatus: v.optional(v.union(
+      v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed"),
+    )),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    const plant = await ctx.db.get(args.plantId);
+    if (!plant) {
+      throw new Error("Plant not found");
+    }
     const locale = args.locale.trim().toLowerCase();
     if (!locale) {
       throw new Error("Locale is required");
@@ -1145,6 +1447,13 @@ export const createPlantI18n = mutation({
       locale,
       commonName: args.commonName.trim(),
       description: args.description?.trim() || undefined,
+      source: args.source?.trim() || undefined,
+      sourceUrl: args.sourceUrl?.trim() || undefined,
+      contentStatus: args.contentStatus,
+      contentVersion: args.contentVersion,
+      reviewStatus: args.reviewStatus,
+      reviewedAt: args.reviewedAt,
+      reviewedBy: args.reviewedBy?.trim() || undefined,
     });
     await upsertPlantCareI18n(
       ctx,
@@ -1152,6 +1461,13 @@ export const createPlantI18n = mutation({
       locale,
       args.careContent?.trim() || undefined,
       args.contentVersion ?? undefined,
+      {
+        source: args.source,
+        sourceUrl: args.sourceUrl,
+        contentStatus: args.contentStatus,
+        reviewedAt: args.reviewedAt,
+        reviewedBy: args.reviewedBy,
+      },
     );
 
     return { rowId };
@@ -1160,14 +1476,26 @@ export const createPlantI18n = mutation({
 
 export const updatePlantI18n = mutation({
   args: {
+    ...adminTokenArg,
     rowId: v.id("plantI18n"),
     locale: v.string(),
     commonName: v.string(),
     description: v.optional(v.string()),
     careContent: v.optional(v.string()),
     contentVersion: v.optional(v.number()),
+    source: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    contentStatus: v.optional(v.union(
+      v.literal("draft"), v.literal("published"), v.literal("needs_review"), v.literal("archived"),
+    )),
+    reviewStatus: v.optional(v.union(
+      v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed"),
+    )),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const row = await ctx.db.get(args.rowId);
     if (!row) {
       throw new Error("Row not found");
@@ -1177,6 +1505,9 @@ export const updatePlantI18n = mutation({
       throw new Error("Locale is required");
     }
     if (locale !== row.locale) {
+      if (row.locale === "vi" || row.locale === "en") {
+        throw new Error("Required vi/en locales cannot be renamed");
+      }
       const existing = await ctx.db
         .query("plantI18n")
         .withIndex("by_plant_locale", (q: any) =>
@@ -1201,6 +1532,13 @@ export const updatePlantI18n = mutation({
       locale,
       commonName: args.commonName.trim(),
       description: args.description?.trim() || undefined,
+      ...(args.source !== undefined && { source: args.source.trim() || undefined }),
+      ...(args.sourceUrl !== undefined && { sourceUrl: args.sourceUrl.trim() || undefined }),
+      ...(args.contentStatus !== undefined && { contentStatus: args.contentStatus }),
+      ...(args.contentVersion !== undefined && { contentVersion: args.contentVersion }),
+      ...(args.reviewStatus !== undefined && { reviewStatus: args.reviewStatus }),
+      ...(args.reviewedAt !== undefined && { reviewedAt: args.reviewedAt }),
+      ...(args.reviewedBy !== undefined && { reviewedBy: args.reviewedBy.trim() || undefined }),
     });
     await upsertPlantCareI18n(
       ctx,
@@ -1208,6 +1546,13 @@ export const updatePlantI18n = mutation({
       locale,
       args.careContent?.trim() || undefined,
       args.contentVersion ?? undefined,
+      {
+        source: args.source,
+        sourceUrl: args.sourceUrl,
+        contentStatus: args.contentStatus,
+        reviewedAt: args.reviewedAt,
+        reviewedBy: args.reviewedBy,
+      },
     );
 
     return { ok: true };
@@ -1216,11 +1561,16 @@ export const updatePlantI18n = mutation({
 
 export const deletePlantI18n = mutation({
   args: {
+    ...adminTokenArg,
     rowId: v.id("plantI18n"),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const row = await ctx.db.get(args.rowId);
     if (row) {
+      if (row.locale === "vi" || row.locale === "en") {
+        throw new Error("Required vi/en locales cannot be deleted");
+      }
       const careRows = await getPlantCareI18nRowsByPlantId(ctx, row.plantId);
       const matchingCare = careRows.find((careRow: any) => careRow.locale === row.locale);
       if (matchingCare) {
@@ -1233,8 +1583,9 @@ export const deletePlantI18n = mutation({
 });
 
 export const listPlantPhotos = query({
-  args: {},
-  handler: async (ctx) => {
+  args: { ...adminTokenArg },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const photos = await ctx.db.query("plantPhotos").collect();
     return photos.map((photo) => ({
       _id: photo._id,
@@ -1257,6 +1608,7 @@ export const listPlantPhotos = query({
 
 export const createPlantPhoto = mutation({
   args: {
+    ...adminTokenArg,
     userPlantId: v.id("userPlants"),
     userId: v.id("users"),
     localId: v.optional(v.string()),
@@ -1272,6 +1624,7 @@ export const createPlantPhoto = mutation({
     aiModelVersion: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const photoId = await ctx.db.insert("plantPhotos", {
       userPlantId: args.userPlantId,
       userId: args.userId,
@@ -1294,6 +1647,7 @@ export const createPlantPhoto = mutation({
 
 export const updatePlantPhoto = mutation({
   args: {
+    ...adminTokenArg,
     photoId: v.id("plantPhotos"),
     userPlantId: v.id("userPlants"),
     userId: v.id("users"),
@@ -1310,6 +1664,7 @@ export const updatePlantPhoto = mutation({
     aiModelVersion: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const photo = await ctx.db.get(args.photoId);
     if (!photo) {
       throw new Error("Photo not found");
@@ -1337,15 +1692,18 @@ export const updatePlantPhoto = mutation({
 
 export const deletePlantPhoto = mutation({
   args: {
+    ...adminTokenArg,
     photoId: v.id("plantPhotos"),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     await ctx.db.delete(args.photoId);
     return { ok: true };
   },
 });
 export const bulkUpdatePlantI18n = mutation({
   args: {
+    ...adminTokenArg,
     updates: v.array(v.object({
       plantId: v.id("plantsMaster"),
       locale: v.string(),
@@ -1354,6 +1712,7 @@ export const bulkUpdatePlantI18n = mutation({
     })),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     let updatedCount = 0;
     for (const update of args.updates) {
       const existing = await ctx.db

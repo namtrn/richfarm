@@ -16,9 +16,11 @@ import {
     withComputedPlantTaxonomy,
 } from "./lib/plantTaxonomy";
 import { upsertPlantCareI18n, upsertPlantCareProfile } from "./lib/plantCare";
+import { requireAdminServiceToken } from "./lib/adminAuth";
 
 export const upsertPlantI18n = mutation({
     args: {
+        serviceToken: v.string(),
         plantId: v.id("plantsMaster"),
         locale: v.string(),
         commonName: v.string(),
@@ -27,9 +29,18 @@ export const upsertPlantI18n = mutation({
         contentVersion: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
+        requireAdminServiceToken(args.serviceToken);
         const normalized = args.locale.toLowerCase().trim();
         if (!normalized) {
             throw new Error("Locale is required");
+        }
+        const plant = await ctx.db.get(args.plantId);
+        if (!plant) {
+            throw new Error("Plant not found");
+        }
+        const commonName = args.commonName.trim();
+        if (!commonName) {
+            throw new Error("Common name is required");
         }
 
         const existing = await ctx.db
@@ -41,7 +52,7 @@ export const upsertPlantI18n = mutation({
 
         if (existing) {
             await ctx.db.patch(existing._id, {
-                commonName: args.commonName,
+                commonName,
                 description: args.description,
             });
             if (args.careContent !== undefined || args.contentVersion !== undefined) {
@@ -59,7 +70,7 @@ export const upsertPlantI18n = mutation({
         await ctx.db.insert("plantI18n", {
             plantId: args.plantId,
             locale: normalized,
-            commonName: args.commonName,
+            commonName,
             description: args.description,
         });
         if (args.careContent !== undefined || args.contentVersion !== undefined) {
@@ -273,8 +284,9 @@ export const syncEnglishSeedContent = internalMutation({
 });
 
 export const migrateLegacyCareToPlantCareI18n = mutation({
-    args: {},
-    handler: async (ctx) => {
+    args: { serviceToken: v.string() },
+    handler: async (ctx, args) => {
+        requireAdminServiceToken(args.serviceToken);
         const rows = await ctx.db.query("plantI18n").collect();
         let migrated = 0;
         let cleaned = 0;
@@ -295,12 +307,9 @@ export const migrateLegacyCareToPlantCareI18n = mutation({
                     migrated += 1;
                 }
 
-                await ctx.db.replace(row._id, {
-                    plantId: row.plantId,
-                    locale: row.locale,
-                    commonName: row.commonName,
-                    description: row.description ?? undefined,
-                });
+                // Keep Phase 3 source/review/content metadata on the i18n row;
+                // only the legacy care field is moved out.
+                await ctx.db.patch(row._id, { careContent: undefined } as any);
                 cleaned += 1;
             }
         }
