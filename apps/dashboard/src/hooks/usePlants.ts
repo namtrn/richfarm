@@ -17,20 +17,51 @@ type BackendPlantRow = {
     plant_code?: string;
     common_name?: string;
     scientific_name?: string | null;
+    source_system?: string;
+    source_id?: string | null;
+    record_version?: number;
     category?: string;
     group?: string;
     family?: string | null;
     purposes?: string[];
     typical_days_to_harvest?: number | null;
     germination_days?: number | null;
+    watering_frequency_days?: number | null;
+    fertilizing_frequency_days?: number | null;
+    soil_ph_min?: number | null;
+    soil_ph_max?: number | null;
+    moisture_target?: number | null;
+    light_hours?: number | null;
+    light_requirements?: string | null;
+    max_plants_per_m2?: number | null;
+    seed_rate_per_m2?: number | null;
     spacing_cm?: number | null;
     water_liters_per_m2?: number | null;
     yield_kg_per_m2?: number | null;
+    growth_stage?: string | null;
     image_url?: string | null;
     is_active?: boolean;
     notes?: string | null;
+    source_url?: string | null;
+    content_status?: Plant["contentStatus"];
+    content_version?: number;
+    review_status?: Plant["reviewStatus"];
+    reviewed_at?: string | null;
+    reviewed_by?: string | null;
+    sync_origin?: string;
     metadata_json?: Record<string, unknown>;
-    i18n?: Partial<Record<"vi" | "en", { common_name?: string; description?: string }>>;
+    i18n?: Record<string, {
+        common_name?: string;
+        description?: string;
+        care_content_json?: Record<string, unknown>;
+        content_version?: number;
+        source?: string;
+        source_url?: string;
+        content_status?: string;
+        review_status?: string;
+        reviewed_at?: string;
+        reviewed_by?: string;
+    }>;
 };
 
 type BackendPlantListResponse = {
@@ -51,12 +82,19 @@ function parseTaxonomy(scientificName: string) {
 function mapBackendPlant(row: BackendPlantRow): Plant {
     const scientificName = row.scientific_name || row.plant_code || row.common_name || "";
     const taxonomy = parseTaxonomy(scientificName);
-    const i18nRows = (["vi", "en"] as const).map((locale) => {
-        const localeRow = row.i18n?.[locale];
+    const i18nRows = Object.entries(row.i18n ?? {}).map(([locale, localeRow]) => {
         return {
             locale,
             commonName: localeRow?.common_name || (locale === "vi" ? row.common_name : scientificName) || "",
             description: localeRow?.description,
+            careContent: localeRow?.care_content_json ? JSON.stringify(localeRow.care_content_json) : undefined,
+            contentVersion: localeRow?.content_version,
+            source: localeRow?.source,
+            sourceUrl: localeRow?.source_url,
+            contentStatus: localeRow?.content_status as Plant["contentStatus"],
+            reviewStatus: localeRow?.review_status as Plant["reviewStatus"],
+            reviewedAt: localeRow?.reviewed_at,
+            reviewedBy: localeRow?.reviewed_by,
         };
     });
 
@@ -65,6 +103,9 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         genus: taxonomy.genus,
         species: taxonomy.species,
         scientificName,
+        sourceSystem: row.source_system,
+        sourceId: row.source_id ?? undefined,
+        recordVersion: row.record_version,
         group: row.group || row.category || "other",
         family: row.family ?? undefined,
         description: row.notes ?? undefined,
@@ -72,10 +113,26 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         purposes: row.purposes ?? [],
         typicalDaysToHarvest: row.typical_days_to_harvest ?? undefined,
         germinationDays: row.germination_days ?? undefined,
+        wateringFrequencyDays: row.watering_frequency_days ?? undefined,
+        fertilizingFrequencyDays: row.fertilizing_frequency_days ?? undefined,
+        soilPhMin: row.soil_ph_min ?? undefined,
+        soilPhMax: row.soil_ph_max ?? undefined,
+        moistureTarget: row.moisture_target ?? undefined,
+        lightHours: row.light_hours ?? undefined,
+        lightRequirements: row.light_requirements ?? undefined,
         spacingCm: row.spacing_cm ?? undefined,
         waterLitersPerM2: row.water_liters_per_m2 ?? undefined,
         yieldKgPerM2: row.yield_kg_per_m2 ?? undefined,
-        source: "backend",
+        growthStage: row.growth_stage ?? undefined,
+        source: typeof row.metadata_json?.source === "string" ? row.metadata_json.source : row.source_system ?? "backend",
+        sourceUrl: row.source_url ?? undefined,
+        isActive: row.is_active ?? true,
+        contentStatus: row.content_status,
+        contentVersion: row.content_version,
+        reviewStatus: row.review_status,
+        reviewedAt: row.reviewed_at ?? undefined,
+        reviewedBy: row.reviewed_by ?? undefined,
+        notes: row.notes ?? undefined,
         cultivar: typeof row.metadata_json?.cultivar === "string" ? row.metadata_json.cultivar : undefined,
         i18nRows,
     };
@@ -252,6 +309,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             enDescription: en?.description ?? "",
             typicalDaysToHarvest: plant.typicalDaysToHarvest !== undefined ? String(plant.typicalDaysToHarvest) : "",
             wateringFrequencyDays: plant.wateringFrequencyDays !== undefined ? String(plant.wateringFrequencyDays) : "",
+            fertilizingFrequencyDays: plant.fertilizingFrequencyDays !== undefined ? String(plant.fertilizingFrequencyDays) : "",
             germinationDays: plant.germinationDays !== undefined ? String(plant.germinationDays) : "",
             spacingCm: plant.spacingCm !== undefined ? String(plant.spacingCm) : "",
             lightRequirements: plant.lightRequirements ?? "",
@@ -259,13 +317,22 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             seedRatePerM2: plant.seedRatePerM2 !== undefined ? String(plant.seedRatePerM2) : "",
             waterLitersPerM2: plant.waterLitersPerM2 !== undefined ? String(plant.waterLitersPerM2) : "",
             yieldKgPerM2: plant.yieldKgPerM2 !== undefined ? String(plant.yieldKgPerM2) : "",
-            // Advanced fields (may not be on Convex schema — default to empty)
-            soilPhMin: "",
-            soilPhMax: "",
-            moistureTarget: "",
-            lightHours: "",
-            notes: "",
-            isActive: true,
+            soilPhMin: plant.soilPhMin !== undefined ? String(plant.soilPhMin) : "",
+            soilPhMax: plant.soilPhMax !== undefined ? String(plant.soilPhMax) : "",
+            moistureTarget: plant.moistureTarget !== undefined ? String(plant.moistureTarget) : "",
+            lightHours: plant.lightHours !== undefined ? String(plant.lightHours) : "",
+            notes: plant.notes ?? "",
+            isActive: plant.isActive !== false,
+            growthStage: plant.growthStage ?? "seedling",
+            source: plant.source ?? "",
+            sourceSystem: plant.sourceSystem ?? "sqlite",
+            sourceId: plant.sourceId ?? "",
+            sourceUrl: plant.sourceUrl ?? "",
+            recordVersion: plant.recordVersion !== undefined ? String(plant.recordVersion) : "1",
+            contentStatus: plant.contentStatus ?? "published",
+            contentVersion: plant.contentVersion !== undefined ? String(plant.contentVersion) : "1",
+            reviewStatus: plant.reviewStatus ?? "unreviewed",
+            reviewedBy: plant.reviewedBy ?? "",
         };
     }
 
@@ -315,6 +382,45 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             return null;
         }
 
+        const numericFields: Array<[string, string]> = [
+            ["Days to harvest", form.typicalDaysToHarvest],
+            ["Watering frequency", form.wateringFrequencyDays],
+            ["Fertilizing frequency", form.fertilizingFrequencyDays],
+            ["Germination days", form.germinationDays],
+            ["Spacing", form.spacingCm],
+            ["Max plants/m²", form.maxPlantsPerM2],
+            ["Seed rate/m²", form.seedRatePerM2],
+            ["Water liters/m²", form.waterLitersPerM2],
+            ["Yield kg/m²", form.yieldKgPerM2],
+            ["Soil pH minimum", form.soilPhMin],
+            ["Soil pH maximum", form.soilPhMax],
+            ["Moisture target", form.moistureTarget],
+            ["Light hours", form.lightHours],
+            ["Record version", form.recordVersion],
+            ["Content version", form.contentVersion],
+        ];
+        for (const [label, value] of numericFields) {
+            if (value.trim() && parseOptionalNumber(value) === undefined) {
+                setError(`${label} must be a valid number.`);
+                return null;
+            }
+        }
+        const soilPhMin = parseOptionalNumber(form.soilPhMin);
+        const soilPhMax = parseOptionalNumber(form.soilPhMax);
+        if (soilPhMin !== undefined && soilPhMax !== undefined && soilPhMin > soilPhMax) {
+            setError("Soil pH minimum must be less than or equal to maximum.");
+            return null;
+        }
+        if (form.sourceUrl.trim()) {
+            try {
+                const sourceUrl = new URL(form.sourceUrl.trim());
+                if (!/^https?:$/.test(sourceUrl.protocol)) throw new Error("unsupported protocol");
+            } catch {
+                setError("Source URL must be a valid http(s) URL.");
+                return null;
+            }
+        }
+
         const parsedPayload = {
             scientificName,
             cultivar,
@@ -337,13 +443,30 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             // Growing params: parse string → number | undefined
             typicalDaysToHarvest: parseOptionalNumber(form.typicalDaysToHarvest),
             wateringFrequencyDays: parseOptionalNumber(form.wateringFrequencyDays),
+            fertilizingFrequencyDays: parseOptionalNumber(form.fertilizingFrequencyDays),
             germinationDays: parseOptionalNumber(form.germinationDays),
             spacingCm: parseOptionalNumber(form.spacingCm),
             lightRequirements: form.lightRequirements.trim() || undefined,
+            soilPhMin: parseOptionalNumber(form.soilPhMin),
+            soilPhMax: parseOptionalNumber(form.soilPhMax),
+            moistureTarget: parseOptionalNumber(form.moistureTarget),
+            lightHours: parseOptionalNumber(form.lightHours),
             maxPlantsPerM2: parseOptionalNumber(form.maxPlantsPerM2),
             seedRatePerM2: parseOptionalNumber(form.seedRatePerM2),
             waterLitersPerM2: parseOptionalNumber(form.waterLitersPerM2),
             yieldKgPerM2: parseOptionalNumber(form.yieldKgPerM2),
+            notes: form.notes.trim() || undefined,
+            isActive: form.isActive,
+            growthStage: form.growthStage.trim() || "seedling",
+            source: form.source.trim(),
+            sourceSystem: form.sourceSystem.trim() || "sqlite",
+            sourceId: form.sourceId.trim() || undefined,
+            sourceUrl: form.sourceUrl.trim(),
+            recordVersion: parseOptionalNumber(form.recordVersion),
+            contentStatus: form.contentStatus,
+            contentVersion: parseOptionalNumber(form.contentVersion),
+            reviewStatus: form.reviewStatus,
+            reviewedBy: form.reviewedBy.trim(),
         };
         const backendPayload = {
             plant_code: [
@@ -356,29 +479,56 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             group: form.group.trim() || "other",
             family: form.family.trim() || null,
             purposes: parsePurposes(form.purposes),
-            growth_stage: "seedling",
+            growth_stage: form.growthStage.trim() || "seedling",
             typical_days_to_harvest: parseOptionalNumber(form.typicalDaysToHarvest) ?? null,
             germination_days: parseOptionalNumber(form.germinationDays) ?? null,
+            watering_frequency_days: parseOptionalNumber(form.wateringFrequencyDays) ?? null,
+            fertilizing_frequency_days: parseOptionalNumber(form.fertilizingFrequencyDays) ?? null,
+            soil_ph_min: parseOptionalNumber(form.soilPhMin) ?? null,
+            soil_ph_max: parseOptionalNumber(form.soilPhMax) ?? null,
+            moisture_target: parseOptionalNumber(form.moistureTarget) ?? null,
+            light_hours: parseOptionalNumber(form.lightHours) ?? null,
+            light_requirements: form.lightRequirements.trim() || null,
             spacing_cm: parseOptionalNumber(form.spacingCm) ?? null,
+            max_plants_per_m2: parseOptionalNumber(form.maxPlantsPerM2) ?? null,
+            seed_rate_per_m2: parseOptionalNumber(form.seedRatePerM2) ?? null,
             water_liters_per_m2: parseOptionalNumber(form.waterLitersPerM2) ?? null,
             yield_kg_per_m2: parseOptionalNumber(form.yieldKgPerM2) ?? null,
             image_url: form.imageUrl.trim() || null,
             is_active: form.isActive,
-            notes: form.viDescription.trim() || form.enDescription.trim() || null,
+            notes: form.notes.trim() || null,
+            source_system: form.sourceSystem.trim() || "sqlite",
+            source_id: form.sourceId.trim() || null,
+            record_version: parseOptionalNumber(form.recordVersion) ?? 1,
+            source_url: form.sourceUrl.trim() || null,
+            content_status: form.contentStatus,
+            content_version: parseOptionalNumber(form.contentVersion) ?? 1,
+            review_status: form.reviewStatus,
+            reviewed_by: form.reviewedBy.trim() || null,
             metadata_json: {
+                ...(form.source.trim() ? { source: form.source.trim() } : {}),
                 ...(cultivar ? { cultivar } : {}),
-                lightRequirements: form.lightRequirements.trim() || undefined,
-                maxPlantsPerM2: parseOptionalNumber(form.maxPlantsPerM2),
-                seedRatePerM2: parseOptionalNumber(form.seedRatePerM2),
             },
             i18n: {
                 vi: {
                     common_name: form.viCommonName.trim(),
                     description: form.viDescription.trim() || undefined,
+                    source: form.source.trim() || undefined,
+                    source_url: form.sourceUrl.trim() || undefined,
+                    content_status: form.contentStatus,
+                    content_version: parseOptionalNumber(form.contentVersion) ?? 1,
+                    review_status: form.reviewStatus,
+                    reviewed_by: form.reviewedBy.trim() || undefined,
                 },
                 en: {
                     common_name: form.enCommonName.trim(),
                     description: form.enDescription.trim() || undefined,
+                    source: form.source.trim() || undefined,
+                    source_url: form.sourceUrl.trim() || undefined,
+                    content_status: form.contentStatus,
+                    content_version: parseOptionalNumber(form.contentVersion) ?? 1,
+                    review_status: form.reviewStatus,
+                    reviewed_by: form.reviewedBy.trim() || undefined,
                 },
             },
         };
@@ -527,6 +677,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setViewMode: resetAndSetViewMode,
         goToPage,
         load,
+        retry: load,
         select,
         startCreate,
         startEdit,
