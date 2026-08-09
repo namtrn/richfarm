@@ -1195,9 +1195,11 @@
   },
   {
     "commonName": "Malabar Spinach",
-    "description": "Malabar Spinach for diversified seed coverage in the library.",
+    "description": "Malabar spinach is a tropical vining plant grown for its tender young leaves and shoot tips, which cook down with a mild, slightly mucilaginous texture. It is one of the few leafy greens that stays productive through hot, humid summers, when true spinach bolts. Plant it at the base of a trellis, fence, or teepee in fertile, moisture-retentive soil and keep the canopy well watered. Harvest tips regularly to force dense, soft regrowth; the red-stemmed forms are equally edible and add color to the garden.",
     "locale": "en",
-    "scientificName": "Basella alba"
+    "scientificName": "Basella alba",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "Ceylon Malabar Spinach",

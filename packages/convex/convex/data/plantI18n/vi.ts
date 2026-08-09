@@ -1207,9 +1207,11 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
   },
   {
     "commonName": "Mong toi",
-    "description": "Mong toi là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+    "description": "Mồng tơi là cây dây leo nhiệt đới trồng lấy lá non và ngọn, khi nấu chín có vị ngọt nhẹ và hơi nhớt tự nhiên, thường dùng nấu canh với cua, tôm hoặc thịt. Đây là một trong số ít rau ăn lá vẫn xanh tốt trong mùa hè nóng ẩm, thời điểm các loại rau ôn đới dễ lên ngồng. Nên gieo dưới chân giàn, hàng rào hoặc tháp leo trong đất tơi xốp, giàu mùn và giữ ẩm đều. Thường xuyên thu ngọn non để cây ra nhánh mềm đều; dạng thân đỏ cũng ăn ngon và tạo màu cho vườn.",
     "locale": "vi",
-    "scientificName": "Basella alba"
+    "scientificName": "Basella alba",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "Mong toi Ceylon",
