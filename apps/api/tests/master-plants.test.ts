@@ -151,9 +151,17 @@ describe("master plants API", () => {
     expect(response.body.error).toBe("Validation failed");
   });
 
-  it("allows unauthenticated read access", async () => {
+  it("requires authenticated read access", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
-    const response = await request(app).get("/api/master-plants");
+    const unauthenticated = await request(app).get("/api/master-plants");
+    expect(unauthenticated.status).toBe(401);
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email: "admin@example.com",
+      password: "password123",
+    });
+    const response = await request(app)
+      .get("/api/master-plants")
+      .set("Authorization", `Bearer ${loginResponse.body.token}`);
     expect(response.status).toBe(200);
   });
 
@@ -180,15 +188,20 @@ describe("master plants API", () => {
       ],
     } as unknown as ConvexSyncService;
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email: "admin@example.com",
+      password: "password123",
+    });
+    const authHeader = `Bearer ${loginResponse.body.token}`;
 
-    const listResponse = await request(app).get("/api/master-plants");
+    const listResponse = await request(app).get("/api/master-plants").set("Authorization", authHeader);
     expect(listResponse.status).toBe(200);
     expect(listResponse.body.pagination.total).toBe(1);
     expect(listResponse.body.data[0].plant_code).toMatch(/^SOLANUM_LYCOPERSICUM_ROMA_VF_/);
     expect(listResponse.body.data[0].plant_code).not.toContain(" ");
     expect(listResponse.body.data[0].family).toBe("Solanaceae");
 
-    const statsResponse = await request(app).get("/api/master-plants/stats");
+    const statsResponse = await request(app).get("/api/master-plants/stats").set("Authorization", authHeader);
     expect(statsResponse.status).toBe(200);
     expect(statsResponse.body).toMatchObject({
       total: 1,
@@ -236,7 +249,9 @@ describe("master plants API", () => {
     expect(syncResponse.status).toBe(200);
     expect(syncResponse.body.upserted).toBe(1);
 
-    const sqliteList = await request(app).get("/api/master-plants?source=sqlite");
+    const sqliteList = await request(app)
+      .get("/api/master-plants?source=sqlite")
+      .set("Authorization", authHeader);
     expect(sqliteList.status).toBe(200);
     expect(sqliteList.body.pagination.total).toBe(1);
     expect(sqliteList.body.data[0].id).toBe(1);
