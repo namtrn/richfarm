@@ -178,7 +178,7 @@ export default function PlantDetailScreen() {
 
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const masterPlant = useQuery(
-    api.plantImages.getPlantById,
+    api.plantLibrary.getById,
     plant?.plantMasterId
       ? { plantId: plant.plantMasterId, locale }
       : 'skip'

@@ -454,11 +454,11 @@ export default function LibraryPlantDetailScreen() {
     const { gardens, createGarden } = useGardens();
 
     const masterPlant = useQuery(
-        api.plantImages.getPlantById,
+        api.plantLibrary.getById,
         resolvedId && !isSeedFallbackId ? { plantId: resolvedId as any, locale } : 'skip',
     );
     const plantVariants = useQuery(
-        api.plantImages.getPlantVariants,
+        api.plantLibrary.getVariants,
         resolvedId && !isSeedFallbackId ? { plantId: resolvedId as any, locale } : 'skip',
     );
     const seedMasterPlant = useMemo(

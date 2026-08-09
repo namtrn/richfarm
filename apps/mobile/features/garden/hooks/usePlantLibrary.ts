@@ -6,15 +6,12 @@ import { useDeviceId } from '../../../lib/deviceId';
 // Hook để lấy danh sách plants từ library (plantsMaster)
 export function usePlantLibrary(group?: string, locale?: string) {
     const { deviceId } = useDeviceId();
-    const plants = useQuery(api.plantImages.getPlantsWithImages, {
+    const plants = useQuery(api.plantLibrary.listCanonical, {
         group,
         locale,
+        limit: 10000,
     });
-
-    const plantsWithoutImages = useQuery(
-        api.plantImages.getPlantsWithoutImages,
-        { locale }
-    );
+    const plantsWithoutImages = plants?.filter((plant: any) => !plant.imageUrl);
 
     const updatePlantImageMutation = useMutation(api.plantImages.updatePlantImage);
 

@@ -1399,7 +1399,7 @@ export default function LibraryScreen() {
     const selectedPlantIsSeed = selectedPlant ? isSeedPlant(selectedPlant) : false;
     const selectedPlantId = selectedPlant && !selectedPlantIsSeed ? String(selectedPlant._id) : undefined;
     const selectedPlantRemote = useQuery(
-        api.plantImages.getPlantById,
+        api.plantLibrary.getById,
         selectedPlantId ? { plantId: selectedPlantId as any, locale } : 'skip'
     );
 
