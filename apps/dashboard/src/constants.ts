@@ -84,6 +84,7 @@ export const emptyPlantForm: PlantFormState = {
     enDescription: "",
     typicalDaysToHarvest: "",
     wateringFrequencyDays: "",
+    fertilizingFrequencyDays: "",
     germinationDays: "",
     spacingCm: "",
     lightRequirements: "",
@@ -98,6 +99,15 @@ export const emptyPlantForm: PlantFormState = {
     family: "",
     notes: "",
     isActive: true,
+    source: "",
+    sourceSystem: "sqlite",
+    sourceId: "",
+    sourceUrl: "",
+    recordVersion: "1",
+    contentStatus: "published",
+    contentVersion: "1",
+    reviewStatus: "unreviewed",
+    reviewedBy: "",
 };
 
 export const emptyGroupForm: GroupFormState = {
@@ -117,6 +127,11 @@ export const emptyI18nForm: I18nFormState = {
     description: "",
     careContent: "",
     contentVersion: "",
+    source: "",
+    sourceUrl: "",
+    contentStatus: "published",
+    reviewStatus: "unreviewed",
+    reviewedBy: "",
 };
 
 export const emptyPhotoForm: PhotoFormState = {

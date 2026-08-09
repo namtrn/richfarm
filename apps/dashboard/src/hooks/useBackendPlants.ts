@@ -150,6 +150,27 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         }
     }, [authedFetch, loadStats]);
 
+    const retrySyncOutbox = useCallback(async (): Promise<string | null> => {
+        setError("");
+        try {
+            const retryResponse = await authedFetch("/api/master-plants/sync-outbox/retry-failed", {
+                method: "POST",
+            });
+            const retryBody = await retryResponse.json().catch(() => ({}));
+            if (!retryResponse.ok) throw new Error(retryBody.error ?? "Cannot retry sync outbox");
+            const processResponse = await authedFetch("/api/master-plants/sync-outbox/process", {
+                method: "POST",
+            });
+            const processBody = await processResponse.json().catch(() => ({}));
+            if (!processResponse.ok) throw new Error(processBody.error ?? "Cannot process sync outbox");
+            await loadStats();
+            return `Retried ${retryBody.retried ?? 0}; applied ${processBody.applied ?? 0}`;
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Cannot retry sync outbox");
+            return null;
+        }
+    }, [authedFetch, loadStats]);
+
     return {
         stats, statsLoading, loadStats,
         bulkLoading, bulkAction,
@@ -157,6 +178,7 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         importLoading, importPlants,
         syncJsonLoading, syncConvexToJson,
         syncSqliteLoading, syncConvexToSqlite,
+        retrySyncOutbox,
         error, setError,
     };
 }

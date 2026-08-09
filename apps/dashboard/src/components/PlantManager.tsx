@@ -9,6 +9,7 @@ import {
     getLocaleRow,
     computeScientificName,
     LIGHT_OPTIONS,
+    GROWTH_STAGE_OPTIONS,
     DEFAULT_CULTIVAR_NORMALIZED,
 } from "../constants";
 
@@ -283,8 +284,16 @@ export function PlantManager({
                 </div>
             </div>
 
-            {p.error && <p className="error-message">{p.error}</p>}
-            {backend.error && <p className="error-message">{backend.error}</p>}
+            {p.error && (
+                <p className="error-message">
+                    {p.error} <button className="btn ghost" onClick={() => void p.retry()}>Retry</button>
+                </p>
+            )}
+            {backend.error && (
+                <p className="error-message">
+                    {backend.error} <button className="btn ghost" onClick={() => void backend.retrySyncOutbox()}>Retry sync</button>
+                </p>
+            )}
 
             {/* Bulk action toolbar */}
             {selectedCount > 0 && (
@@ -452,6 +461,9 @@ export function PlantManager({
                                                 {renderI18nBadge(plant.i18nRows, "en")}
                                             </td>
                                             <td>
+                                                <span className={`badge ${plant.isActive === false ? "warn" : "ok"}`} title="Active status">
+                                                    {plant.isActive === false ? "OFF" : "ON"}
+                                                </span>
                                                 {plant.imageUrl
                                                     ? <span className="badge ok">✓</span>
                                                     : <span className="badge warn">✕</span>}
@@ -578,6 +590,8 @@ function PlantDetail({
                         {variant ? <span className="badge warn">VARIANT</span> : <span className="badge ok">BASE</span>}
                         {vi ? <span className="badge ok">VI</span> : <span className="badge warn">VI</span>}
                         {en ? <span className="badge ok">EN</span> : <span className="badge warn">EN</span>}
+                        <span className={`badge ${plant.isActive === false ? "warn" : "ok"}`}>{plant.isActive === false ? "INACTIVE" : "ACTIVE"}</span>
+                        <span className="badge small">v{plant.contentVersion ?? 1}</span>
                         <span className={`badge ${plant.imageUrl ? "ok" : "warn"}`}>Image</span>
                     </div>
                 </div>
@@ -594,15 +608,23 @@ function PlantDetail({
                     <p className="muted">Category: {plant.group}</p>
                     <p>{plant.description || "No description"}</p>
                     <p className="muted">Purposes: {(plant.purposes ?? []).join(", ") || "—"}</p>
-                    <p className="muted">Source: {plant.source ?? "—"}</p>
+                    <p className="muted">Source: {plant.source ?? "—"} · {plant.sourceSystem ?? "—"}/{plant.sourceId ?? "—"}</p>
+                    <p className="muted">Content: {plant.contentStatus ?? "published"} · review {plant.reviewStatus ?? "unreviewed"} · version {plant.contentVersion ?? 1}</p>
+                    <p className="muted">Growth stage: {plant.growthStage ?? "—"} · reviewed by {plant.reviewedBy ?? "—"}</p>
+                    {plant.sourceUrl && <p className="muted">Source URL: {plant.sourceUrl}</p>}
+                    {plant.notes && <p className="muted">Notes: {plant.notes}</p>}
                 </div>
                 <div>
                     <h4>Growth Data</h4>
                     <ul className="meta-list">
                         <li>Days to harvest: {plant.typicalDaysToHarvest ?? "—"}</li>
                         <li>Watering (days): {plant.wateringFrequencyDays ?? "—"}</li>
+                        <li>Fertilizing (days): {plant.fertilizingFrequencyDays ?? "—"}</li>
                         <li>Germination (days): {plant.germinationDays ?? "—"}</li>
                         <li>Light: {plant.lightRequirements ?? "—"}</li>
+                        <li>Light hours/day: {plant.lightHours ?? "—"}</li>
+                        <li>Soil pH: {plant.soilPhMin ?? "—"}–{plant.soilPhMax ?? "—"}</li>
+                        <li>Moisture target: {plant.moistureTarget ?? "—"}%</li>
                         <li>Spacing (cm): {plant.spacingCm ?? "—"}</li>
                         <li>Max plants/m²: {plant.maxPlantsPerM2 ?? "—"}</li>
                         <li>Seed rate/m²: {plant.seedRatePerM2 ?? "—"}</li>
@@ -636,6 +658,8 @@ function PlantDetail({
                                     </div>
                                     <p className="i18n-common-name">{row.commonName}</p>
                                     <p className="i18n-desc">{row.description ?? "No description"}</p>
+                                    {row.careContent && <p className="muted small">Care: {row.careContent}</p>}
+                                    <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · {row.source ?? "no source"}</p>
                                 </div>
                             );
                         })}
@@ -916,8 +940,17 @@ function PlantForm({
                 <div className="grid-3">
                     <NumericInput label="Days to harvest" value={f.typicalDaysToHarvest} onChange={(v) => set({ typicalDaysToHarvest: v })} placeholder="e.g. 80" />
                     <NumericInput label="Watering (days)" value={f.wateringFrequencyDays} onChange={(v) => set({ wateringFrequencyDays: v })} placeholder="e.g. 2" />
+                    <NumericInput label="Fertilizing (days)" value={f.fertilizingFrequencyDays} onChange={(v) => set({ fertilizingFrequencyDays: v })} placeholder="e.g. 14" />
                     <NumericInput label="Germination (days)" value={f.germinationDays} onChange={(v) => set({ germinationDays: v })} placeholder="e.g. 7" />
                     <NumericInput label="Spacing (cm)" value={f.spacingCm} onChange={(v) => set({ spacingCm: v })} placeholder="e.g. 45" />
+                    <label>
+                        Growth stage
+                        <select value={f.growthStage} onChange={(e) => set({ growthStage: e.target.value })}>
+                            {GROWTH_STAGE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </select>
+                    </label>
                     <label>
                         Light requirements
                         <select value={f.lightRequirements} onChange={(e) => set({ lightRequirements: e.target.value })}>
@@ -948,6 +981,48 @@ function PlantForm({
                     Notes (internal)
                     <textarea rows={2} placeholder="Admin notes..." value={f.notes} onChange={(e) => set({ notes: e.target.value })} />
                 </label>
+                <div className="section-header-compact" style={{ marginTop: 16 }}>Source &amp; review metadata</div>
+                <div className="grid-3">
+                    <label>
+                        Source
+                        <input placeholder="e.g. seed catalog" value={f.source} onChange={(e) => set({ source: e.target.value })} />
+                    </label>
+                    <label>
+                        Source system
+                        <input placeholder="sqlite / partner" value={f.sourceSystem} onChange={(e) => set({ sourceSystem: e.target.value })} />
+                    </label>
+                    <label>
+                        Source ID
+                        <input placeholder="Stable upstream ID" value={f.sourceId} onChange={(e) => set({ sourceId: e.target.value })} />
+                    </label>
+                    <label>
+                        Source URL
+                        <input type="url" placeholder="https://…" value={f.sourceUrl} onChange={(e) => set({ sourceUrl: e.target.value })} />
+                    </label>
+                    <NumericInput label="Record version" value={f.recordVersion} onChange={(v) => set({ recordVersion: v })} step="1" />
+                    <NumericInput label="Content version" value={f.contentVersion} onChange={(v) => set({ contentVersion: v })} step="1" />
+                    <label>
+                        Content status
+                        <select value={f.contentStatus} onChange={(e) => set({ contentStatus: e.target.value as PlantHook["form"]["contentStatus"] })}>
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                            <option value="needs_review">Needs review</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </label>
+                    <label>
+                        Review status
+                        <select value={f.reviewStatus} onChange={(e) => set({ reviewStatus: e.target.value as PlantHook["form"]["reviewStatus"] })}>
+                            <option value="unreviewed">Unreviewed</option>
+                            <option value="in_review">In review</option>
+                            <option value="reviewed">Reviewed</option>
+                        </select>
+                    </label>
+                    <label>
+                        Reviewed by
+                        <input value={f.reviewedBy} onChange={(e) => set({ reviewedBy: e.target.value })} />
+                    </label>
+                </div>
             </div>
 
             <div className="form-actions" style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>

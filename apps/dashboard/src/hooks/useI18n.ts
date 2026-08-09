@@ -10,6 +10,11 @@ function toFormState(row: PlantI18nRow): I18nFormState {
         description: row.description ?? "",
         careContent: row.careContent ?? "",
         contentVersion: row.contentVersion ? String(row.contentVersion) : "",
+        source: row.source ?? "",
+        sourceUrl: row.sourceUrl ?? "",
+        contentStatus: (row.contentStatus as I18nFormState["contentStatus"]) ?? "published",
+        reviewStatus: (row.reviewStatus as I18nFormState["reviewStatus"]) ?? "unreviewed",
+        reviewedBy: row.reviewedBy ?? "",
     };
 }
 
@@ -122,6 +127,11 @@ export function useI18n(authedFetch: AuthedFetch) {
                 description: form.description.trim() || undefined,
                 careContent: form.careContent.trim() || undefined,
                 contentVersion,
+                source: form.source.trim() || undefined,
+                sourceUrl: form.sourceUrl.trim() || undefined,
+                contentStatus: form.contentStatus,
+                reviewStatus: form.reviewStatus,
+                reviewedBy: form.reviewedBy.trim() || undefined,
             };
 
             if (mode === "create") {
@@ -179,6 +189,11 @@ export function useI18n(authedFetch: AuthedFetch) {
         description?: string;
         careContent?: string;
         contentVersion?: number;
+        source?: string;
+        sourceUrl?: string;
+        contentStatus?: I18nFormState["contentStatus"];
+        reviewStatus?: I18nFormState["reviewStatus"];
+        reviewedBy?: string;
     }) {
         return convexAdminMutation<{ rowId: string }>(authedFetch, "plantAdmin:createPlantI18n", input);
     }

@@ -8,6 +8,12 @@ export type I18nRow = {
   description?: string;
   careContent?: string;
   contentVersion?: number;
+  source?: string;
+  sourceUrl?: string;
+  contentStatus?: "draft" | "published" | "needs_review" | "archived";
+  reviewStatus?: "unreviewed" | "in_review" | "reviewed";
+  reviewedAt?: number | string;
+  reviewedBy?: string;
 };
 
 export type Plant = {
@@ -37,6 +43,7 @@ export type Plant = {
   // Growing params
   typicalDaysToHarvest?: number;
   wateringFrequencyDays?: number;
+  fertilizingFrequencyDays?: number;
   lightRequirements?: string;
   germinationDays?: number;
   spacingCm?: number;
@@ -45,6 +52,22 @@ export type Plant = {
   waterLitersPerM2?: number;
   yieldKgPerM2?: number;
   source?: string;
+  sourceSystem?: string;
+  sourceId?: string;
+  recordVersion?: number;
+  sourceUrl?: string;
+  isActive?: boolean;
+  contentStatus?: "draft" | "published" | "needs_review" | "archived";
+  contentVersion?: number;
+  reviewStatus?: "unreviewed" | "in_review" | "reviewed";
+  reviewedAt?: number | string;
+  reviewedBy?: string;
+  growthStage?: string;
+  soilPhMin?: number;
+  soilPhMax?: number;
+  moistureTarget?: number;
+  lightHours?: number;
+  notes?: string;
   i18nRows: I18nRow[];
 };
 
@@ -80,6 +103,12 @@ export type PlantI18nRow = {
   description?: string;
   careContent?: string;
   contentVersion?: number;
+  source?: string;
+  sourceUrl?: string;
+  contentStatus?: string;
+  reviewStatus?: string;
+  reviewedAt?: number | string;
+  reviewedBy?: string;
   plantScientificName?: string;
   plantGroup?: string;
 };
@@ -139,6 +168,7 @@ export type PlantFormState = {
   // Growing params (stored as strings for input binding, parsed on save)
   typicalDaysToHarvest: string;
   wateringFrequencyDays: string;
+  fertilizingFrequencyDays: string;
   germinationDays: string;
   spacingCm: string;
   lightRequirements: string;
@@ -154,6 +184,15 @@ export type PlantFormState = {
   family: string;
   notes: string;
   isActive: boolean;
+  source: string;
+  sourceSystem: string;
+  sourceId: string;
+  sourceUrl: string;
+  recordVersion: string;
+  contentStatus: "draft" | "published" | "needs_review" | "archived";
+  contentVersion: string;
+  reviewStatus: "unreviewed" | "in_review" | "reviewed";
+  reviewedBy: string;
 };
 
 export type GroupFormState = {
@@ -173,6 +212,11 @@ export type I18nFormState = {
   description: string;
   careContent: string;
   contentVersion: string;
+  source: string;
+  sourceUrl: string;
+  contentStatus: "draft" | "published" | "needs_review" | "archived";
+  reviewStatus: "unreviewed" | "in_review" | "reviewed";
+  reviewedBy: string;
 };
 
 export type PhotoFormState = {
