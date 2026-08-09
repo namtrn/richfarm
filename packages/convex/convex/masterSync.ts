@@ -11,6 +11,7 @@ import {
 } from "./lib/plantTaxonomy";
 import { requireAdminServiceToken } from "./lib/adminAuth";
 import { isDisplayBasePlant } from "../../shared/src/plantBase";
+import { recomputeCareStatus } from "../../shared/src/plantCareStatus";
 
 const nullableString = v.optional(v.union(v.string(), v.null()));
 const nullableNumber = v.optional(v.union(v.number(), v.null()));
@@ -37,7 +38,14 @@ const localizedRowValidator = v.object({
   review_status: reviewStatus,
   reviewed_at: nullableString,
   reviewed_by: nullableString,
+  content_origin: v.optional(v.union(
+    v.literal("authored"),
+    v.literal("inherited"),
+    v.literal("imported"),
+  )),
 });
+
+const careFieldEvidenceValidator = v.optional(v.record(v.string(), v.any()));
 
 const backendRowValidator = v.object({
   // SQLite's numeric id is useful as a legacy fallback, but source_id is the
@@ -88,6 +96,13 @@ const backendRowValidator = v.object({
   reviewed_by: nullableString,
   sync_origin: v.optional(v.string()),
   metadata_json: v.optional(v.any()),
+  care_status: v.optional(v.union(
+    v.literal("missing"),
+    v.literal("awaiting_review"),
+    v.literal("verified"),
+    v.literal("not_applicable"),
+  )),
+  care_field_evidence: careFieldEvidenceValidator,
   i18n: v.record(v.string(), localizedRowValidator),
   created_at: nullableString,
   updated_at: nullableString,
@@ -172,6 +187,7 @@ async function upsertPlantI18n(ctx: any, plantId: any, locale: string, row: any)
     reviewStatus: row.review_status ?? "unreviewed",
     reviewedAt: normalizeReviewedAt(row.reviewed_at),
     reviewedBy: row.reviewed_by?.trim() || undefined,
+    contentOrigin: row.content_origin ?? "imported",
   };
 
   if (existing) await ctx.db.patch(existing._id, payload);
@@ -324,8 +340,12 @@ export const upsertPlantFromBackend = mutation({
       reviewedAt: normalizeReviewedAt(args.row.reviewed_at),
       reviewedBy: args.row.reviewed_by?.trim() || undefined,
     };
-    if (careExisting) await ctx.db.patch(careExisting._id, carePayload);
-    else await ctx.db.insert("plantCare", carePayload);
+    const careStatusPatch = {
+      careStatus: args.row.care_status ?? recomputeCareStatus(carePayload, args.row.care_field_evidence as any),
+      careFieldEvidence: args.row.care_field_evidence,
+    };
+    if (careExisting) await ctx.db.patch(careExisting._id, { ...carePayload, ...careStatusPatch });
+    else await ctx.db.insert("plantCare", { ...carePayload, ...careStatusPatch });
 
     // The backend row is a full source-of-truth snapshot. Remove locales that
     // were deleted upstream so a retry/reconciliation cannot resurrect stale
@@ -447,6 +467,7 @@ export const listAll = query({
           reviewStatus: row.reviewStatus,
           reviewedAt: row.reviewedAt,
           reviewedBy: row.reviewedBy,
+          contentOrigin: row.contentOrigin,
         };
       });
       const localized = rows.find((row: any) => row.locale === requestedLocale) ??
@@ -493,6 +514,8 @@ export const listAll = query({
         seedRatePerM2: care?.seedRatePerM2,
         waterLitersPerM2: care?.waterLitersPerM2,
         yieldKgPerM2: care?.yieldKgPerM2,
+        careStatus: care?.careStatus ?? recomputeCareStatus(care, care?.careFieldEvidence as any),
+        careFieldEvidence: care?.careFieldEvidence,
       };
     });
   },

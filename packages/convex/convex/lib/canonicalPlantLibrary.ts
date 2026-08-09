@@ -4,6 +4,8 @@ import {
   shouldUseBasePlantDescription,
 } from "./plantContentQuality";
 import { withComputedPlantTaxonomy } from "./plantTaxonomy";
+import { recomputeCareStatus } from "./plantCare";
+import priorityListV1 from "../data/plantPriorityList.v1.json";
 
 type CanonicalOptions = {
   locale?: string;
@@ -14,6 +16,26 @@ type CanonicalOptions = {
   limit?: number;
   includeInactive?: boolean;
 };
+
+// Giai đoạn 0 contract: the frozen priority list decides which canonical
+// identities may be classified as full_detail. Entries with
+// targetCoverage=full_detail form the denominator of the 90% coverage metric.
+const PRIORITY_FULL_DETAIL_IDENTITIES = new Set(
+  (priorityListV1.entries ?? [])
+    .filter((entry: any) => entry.targetCoverage === "full_detail")
+    .map((entry: any) => {
+      const identity = entry.canonicalIdentity;
+      return `${identity.genusNormalized}|${identity.speciesNormalized}|${identity.cultivarNormalized}`;
+    }),
+);
+
+function priorityIdentityKey(plant: any) {
+  return [
+    plant.genusNormalized ?? "",
+    plant.speciesNormalized ?? "",
+    plant.cultivarNormalized ?? "",
+  ].join("|");
+}
 
 const normalize = (value: unknown) => String(value ?? "")
   .normalize("NFD")
@@ -107,6 +129,8 @@ function mergeLocaleContent(plant: any, rows: any[], base: any | null, baseRows:
     localeUsed: pickedContent?.locale ?? picked?.locale ?? "latin",
     careContent: care?.careContent,
     contentVersion: care?.contentVersion,
+    contentOrigin: picked?.contentOrigin ?? "imported",
+    inheritedFromId: base?._id,
   };
 }
 
@@ -166,6 +190,35 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       : isPublishedCare(baseCare)
         ? baseCare
         : undefined;
+
+    // Phase 3.1 record-level care status: persisted aggregate when present,
+    // otherwise recomputed from the profile + per-field evidence.
+    const careStatus = care
+      ? (care.careStatus ?? recomputeCareStatus(care, care.careFieldEvidence))
+      : "missing";
+
+    // computed missingViCommonName: no verified Vietnamese common name.
+    // The vi row counts only when it is production-usable.
+    const hasVerifiedViName = rows.some((row) =>
+      row.locale === "vi" &&
+      (row.contentStatus === undefined || row.contentStatus === "published") &&
+      String(row.commonName ?? "").trim(),
+    );
+    const missingViCommonName = !hasVerifiedViName;
+
+    // computed contentTier (never persisted): full_detail requires the
+    // identity to be in the frozen priority list, a usable authored
+    // description, a resolved care profile and review evidence.
+    const inPriorityFullDetail = PRIORITY_FULL_DETAIL_IDENTITIES.has(priorityIdentityKey(plant));
+    const fullDetailCare = careStatus === "verified" || careStatus === "not_applicable";
+    const hasUsableDescription = Boolean(localized.description?.trim());
+    // Review evidence requires both the reviewed status and a review timestamp;
+    // a row marked unreviewed with a stray timestamp is not review evidence.
+    const reviewed = plant.reviewStatus === "reviewed" && plant.reviewedAt !== undefined;
+    const contentTier = inPriorityFullDetail && hasUsableDescription && fullDetailCare && reviewed
+      ? "full_detail"
+      : "taxonomy_only";
+
     const searchable = [
       localized.displayName,
       plant.scientificName,
@@ -196,6 +249,11 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       localeUsed: localized.localeUsed,
       careContent: localized.careContent,
       contentVersion: localized.contentVersion ?? plant.contentVersion,
+      contentOrigin: localized.contentOrigin,
+      inheritedFromId: localized.inheritedFromId,
+      contentTier,
+      careStatus,
+      missingViCommonName,
       i18nRows: rows,
       group: plant.group,
       imageUrl: plant.imageUrl ?? null,

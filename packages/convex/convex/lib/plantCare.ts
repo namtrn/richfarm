@@ -1,3 +1,34 @@
+// Phase 3.1 care status contract (plantCare.careStatus / field evidence).
+// The contract and the aggregate recompute rule live in the shared package so
+// the Convex layer and the API/SQLite mirror use exactly one implementation.
+import {
+  CARE_STATUSES,
+  CONTENT_ORIGINS,
+  PROFILE_EVIDENCE_KEY,
+  REQUIRED_CARE_FIELDS,
+  recomputeCareStatus,
+} from "../../../shared/src/plantCareStatus";
+import type {
+  CareStatus,
+  ContentOrigin,
+  CareFieldEvidence,
+  RequiredCareField,
+} from "../../../shared/src/plantCareStatus";
+
+export {
+  CARE_STATUSES,
+  CONTENT_ORIGINS,
+  PROFILE_EVIDENCE_KEY,
+  REQUIRED_CARE_FIELDS,
+  recomputeCareStatus,
+};
+export type {
+  CareStatus,
+  ContentOrigin,
+  CareFieldEvidence,
+  RequiredCareField,
+};
+
 export type PlantCareProfile = {
   plantId: any;
   typicalDaysToHarvest?: number;
@@ -21,6 +52,8 @@ export type PlantCareProfile = {
   contentVersion?: number;
   reviewedAt?: number;
   reviewedBy?: string;
+  careStatus?: CareStatus;
+  careFieldEvidence?: Record<string, CareFieldEvidence>;
 };
 
 export type PlantCareI18nRow = {
@@ -142,10 +175,16 @@ export async function upsertPlantCareProfile(
 
   const doc = Object.fromEntries(providedEntries);
   if (existing) {
+    // Recompute the record-level careStatus from the merged profile whenever
+    // fields or evidence change, so the persisted aggregate never drifts.
+    const merged = { ...existing, ...doc };
+    doc.careStatus = recomputeCareStatus(merged as PlantCareProfile, merged.careFieldEvidence);
     await ctx.db.patch(existing._id, doc);
     return existing._id;
   }
-  return await ctx.db.insert("plantCare", { plantId, ...doc });
+  const inserted: PlantCareProfile = { plantId, ...doc };
+  inserted.careStatus = recomputeCareStatus(inserted, inserted.careFieldEvidence);
+  return await ctx.db.insert("plantCare", inserted);
 }
 
 export async function upsertPlantCareI18n(

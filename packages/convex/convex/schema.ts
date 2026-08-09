@@ -177,6 +177,16 @@ export default defineSchema({
     ),
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.string()),
+    // Phase 3.1 content provenance: authored (written for this row),
+    // inherited (projected from base species), imported (synced/seed with
+    // provenance). `imported` requires source/provenance.
+    contentOrigin: v.optional(
+      v.union(
+        v.literal("authored"),
+        v.literal("inherited"),
+        v.literal("imported"),
+      ),
+    ),
   })
     .index("by_plant_locale", ["plantId", "locale"])
     .index("by_locale_common_name", ["locale", "commonName"]),
@@ -211,6 +221,37 @@ export default defineSchema({
     contentVersion: v.optional(v.number()),
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.string()),
+    // Phase 3.1 record-level care status. Persisted aggregate of the per-field
+    // evidence below; recomputed on every field/evidence change.
+    careStatus: v.optional(
+      v.union(
+        v.literal("missing"),
+        v.literal("awaiting_review"),
+        v.literal("verified"),
+        v.literal("not_applicable"),
+      ),
+    ),
+    // Per-field evidence/sourceRefs. Keyed by care field name; the special
+    // "__profile__" key marks the whole profile as not_applicable.
+    careFieldEvidence: v.optional(
+      v.record(
+        v.string(),
+        v.object({
+          status: v.union(
+            v.literal("missing"),
+            v.literal("awaiting_review"),
+            v.literal("verified"),
+            v.literal("not_applicable"),
+          ),
+          sourceSystem: v.optional(v.string()),
+          sourceUrl: v.optional(v.string()),
+          sourceLocator: v.optional(v.string()),
+          fetchedAt: v.optional(v.number()),
+          reviewedAt: v.optional(v.number()),
+          reviewedBy: v.optional(v.string()),
+        }),
+      ),
+    ),
   }).index("by_plant", ["plantId"]),
 
   plantCareI18n: defineTable({

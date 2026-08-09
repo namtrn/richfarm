@@ -410,3 +410,208 @@ describe("Phase 3 canonical plant library", () => {
     expect(rows.activeId).toBeDefined();
   });
 });
+
+describe("Phase 3.1 care-status and tier contract", () => {
+  const previousToken = process.env.CONVEX_ADMIN_FUNCTION_KEY;
+
+  beforeEach(() => {
+    process.env.CONVEX_ADMIN_FUNCTION_KEY = serviceToken;
+  });
+
+  afterEach(() => {
+    if (previousToken === undefined) delete process.env.CONVEX_ADMIN_FUNCTION_KEY;
+    else process.env.CONVEX_ADMIN_FUNCTION_KEY = previousToken;
+  });
+
+  it("derives record-level careStatus with the locked aggregate rule", async () => {
+    const { recomputeCareStatus } = await import("./lib/plantCare");
+    const evidence = (status: "verified" | "not_applicable" | "awaiting_review") => ({
+      status,
+      sourceSystem: "test",
+      sourceUrl: "https://example.com/source",
+      sourceLocator: "table 3",
+      reviewedAt: 123,
+      reviewedBy: "reviewer",
+    });
+
+    // 1. No profile at all -> missing
+    expect(recomputeCareStatus(null, {})).toBe("missing");
+    expect(recomputeCareStatus(undefined, {})).toBe("missing");
+    // 2. Whole profile explicitly not applicable
+    expect(recomputeCareStatus({}, { __profile__: evidence("not_applicable") })).toBe("not_applicable");
+    // 3. Profile exists but no verified evidence -> awaiting_review
+    expect(recomputeCareStatus({ wateringFrequencyDays: 2 }, {})).toBe("awaiting_review");
+    // 4. Partial evidence -> awaiting_review
+    const profile = {
+      wateringFrequencyDays: 2,
+      fertilizingFrequencyDays: 14,
+      lightRequirements: "full_sun",
+      lightHours: 8,
+      soilPhMin: 5.5,
+      soilPhMax: 6.8,
+      moistureTarget: 60,
+      typicalDaysToHarvest: 80,
+      germinationDays: 7,
+    };
+    expect(recomputeCareStatus(profile, {
+      wateringFrequencyDays: evidence("verified"),
+      fertilizingFrequencyDays: evidence("verified"),
+    })).toBe("awaiting_review");
+    // 5. All required fields verified -> verified
+    const fullEvidence = Object.fromEntries(
+      Object.keys(profile).map((field) => [field, evidence("verified")]),
+    );
+    expect(recomputeCareStatus(profile, fullEvidence)).toBe("verified");
+    // 6. Required field n/a while others verified -> verified
+    expect(recomputeCareStatus(profile, {
+      ...fullEvidence,
+      germinationDays: evidence("not_applicable"),
+    })).toBe("verified");
+    // 7. Evidence without a value still waits for review
+    expect(recomputeCareStatus({}, fullEvidence)).toBe("awaiting_review");
+  });
+
+  it("persists careStatus and per-field evidence through the backend sync", async () => {
+    const t = setup();
+    const evidence = (status: string) => ({
+      status,
+      sourceSystem: "test",
+      sourceUrl: "https://example.com/source",
+      sourceLocator: "page 12",
+      reviewedBy: "reviewer",
+      reviewedAt: 1750000000000,
+    });
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        care_status: "awaiting_review",
+        care_field_evidence: {
+          wateringFrequencyDays: evidence("verified"),
+          fertilizingFrequencyDays: evidence("awaiting_review"),
+        },
+      }),
+    } as any);
+
+    const snapshot = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
+    expect(snapshot).toHaveLength(1);
+    expect(snapshot[0].careStatus).toBe("awaiting_review");
+    expect(snapshot[0].careFieldEvidence.wateringFrequencyDays.status).toBe("verified");
+
+    // Recompute fallback: explicit status wins, otherwise derived.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        care_status: undefined,
+        care_field_evidence: undefined,
+      }),
+    } as any);
+    const recomputed = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
+    // Care profile exists with fields but no evidence -> awaiting_review.
+    expect(recomputed[0].careStatus).toBe("awaiting_review");
+  });
+
+  it("computes contentTier, missingViCommonName and contentOrigin in the projection", async () => {
+    const t = setup();
+    const evidence = (status: string) => ({
+      status,
+      sourceSystem: "test",
+      sourceUrl: "https://example.com/source",
+      sourceLocator: "page 12",
+      reviewedBy: "reviewer",
+      reviewedAt: 1750000000000,
+    });
+    const careFields = {
+      typical_days_to_harvest: 80,
+      germination_days: 7,
+      watering_frequency_days: 2,
+      fertilizing_frequency_days: 14,
+      light_requirements: "full_sun",
+      light_hours: 8,
+      soil_ph_min: 5.5,
+      soil_ph_max: 6.8,
+      moisture_target: 60,
+    };
+    const careFieldEvidence = Object.fromEntries(
+      Object.keys(careFields).map((field) => [field, evidence("verified")]),
+    );
+
+    // Tomato is in the frozen priority list (targetCoverage=full_detail).
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        ...careFields,
+        care_status: "verified",
+        care_field_evidence: careFieldEvidence,
+        i18n: {
+          vi: {
+            ...(backendRow() as any).i18n.vi,
+            content_origin: "authored",
+          },
+          en: {
+            ...(backendRow() as any).i18n.en,
+            content_origin: "authored",
+          },
+        },
+      }),
+    } as any);
+
+    const canonical = await t.query(api.plantLibrary.listCanonical, { locale: "vi", limit: 100 });
+    const tomato = canonical.find((plant: any) => String(plant.sourceId) === "101");
+    expect(tomato).toBeDefined();
+    expect(tomato.contentTier).toBe("full_detail");
+    expect(tomato.careStatus).toBe("verified");
+    expect(tomato.missingViCommonName).toBe(false);
+    expect(tomato.contentOrigin).toBe("authored");
+
+    // No review evidence -> taxonomy_only.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        ...careFields,
+        care_status: "verified",
+        care_field_evidence: careFieldEvidence,
+        review_status: "unreviewed" as const,
+      }),
+    } as any);
+    const unreviewed = await t.query(api.plantLibrary.listCanonical, { locale: "vi", limit: 100 });
+    expect(unreviewed.find((plant: any) => String(plant.sourceId) === "101").contentTier).toBe("taxonomy_only");
+
+    // Missing vi translation -> missingViCommonName flag.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        ...careFields,
+        care_status: "verified",
+        care_field_evidence: careFieldEvidence,
+        i18n: {
+          en: (backendRow() as any).i18n.en,
+        },
+      }),
+    } as any);
+    const noVi = await t.query(api.plantLibrary.listCanonical, { locale: "vi", limit: 100 });
+    expect(noVi.find((plant: any) => String(plant.sourceId) === "101").missingViCommonName).toBe(true);
+
+    // A plant outside the priority list never reaches full_detail.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        scientific_name: "Testus nonpriority",
+        common_name: "Not priority",
+        plant_code: "NOT_PRIORITY",
+        source_id: "not-priority-1",
+        ...careFields,
+        care_status: "verified",
+        care_field_evidence: careFieldEvidence,
+      }),
+    } as any);
+    const outside = await t.query(api.plantLibrary.listCanonical, { locale: "vi", limit: 100 });
+    expect(outside.find((plant: any) => String(plant.sourceId) === "not-priority-1").contentTier).toBe("taxonomy_only");
+    expect(outside.find((plant: any) => String(plant.sourceId) === "not-priority-1").careStatus).toBe("verified");
+  });
+});
