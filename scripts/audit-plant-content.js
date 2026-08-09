@@ -23,6 +23,8 @@ const placeholders = [
   /giup mo rong lua chon trong thu vien cay/i,
   /sinh truong on dinh/i,
   /la cay pho bien trong vuon nha va nong trai nho/i,
+  /la giong cay trong bo suu tap/i,
+  /giong cay trong bo suu tap/i,
 ];
 
 const normalize = (value) => value

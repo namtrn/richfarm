@@ -6,6 +6,8 @@ const PLACEHOLDER_PATTERNS = [
   /giúp mở rộng lựa chọn trong thư viện cây/i,
   /sinh trưởng ổn định/i,
   /là cây phổ biến trong vườn nhà và nông trại nhỏ/i,
+  /là giống cây trong bộ sưu tập/i,
+  /giống cây trong bộ sưu tập/i,
 ];
 
 function normalizedWords(value: string, ignored: string[] = []) {
