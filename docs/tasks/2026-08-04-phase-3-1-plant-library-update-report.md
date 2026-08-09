@@ -1,61 +1,57 @@
 # Phase 3.1 — Update Plant Library
 
-Ngày report: 2026-08-04
+Ngày report gốc: 2026-08-04
+
+Cập nhật bằng evidence local: 2026-08-09
+
 Phụ thuộc: Phase 3.0 — Backend Plant Library.
 
-## Trạng thái
+## Trạng thái hiện tại
 
-**Đã xác định phạm vi, chưa đạt Definition of Done.**
+**Technical projection và local gates đã hoàn tất; curation/provenance Definition of Done chưa đạt.** Chưa có staging/production validation và external data gate chưa chạy.
 
-Phase 3.1 là phần cập nhật chất lượng dữ liệu và read experience của Plant Library sau khi backend Phase 3.0 đã có schema, quyền và sync ổn định.
+## Implementation đã xác nhận
 
-Nội dung phase này tương ứng với phần **“Phase 3: Library quality foundation”** trong plan cũ, nay đã đổi thành **“Phase 3.1: Library quality foundation”**.
+- `lib/canonicalPlantLibrary.ts` là policy dùng chung cho canonical list/search/detail/match và image compatibility queries.
+- Projection áp dụng active/content-status filtering, locale fallback (requested locale rồi English), placeholder suppression, và base/cultivar description/care inheritance.
+- Mobile library hooks đọc canonical Convex projection; admin dashboard tiếp tục dùng full snapshot để quản lý inactive/draft/incomplete rows.
+- Projection giữ source, source URL, review status, content version, record version và care metadata để downstream không phải suy luận provenance.
 
-## Kết luận review
+## Historical review (2026-08-04)
 
 ### P1/P2 — Các đường đọc Library chưa dùng cùng policy
 
-Mobile chủ yếu đọc `plantImages.getPlantsWithImages`, trong khi logic lọc placeholder, locale fallback và inheritance nằm ở `plantLibrary`. Vì vậy list/detail/search có thể cho kết quả khác nhau. Riêng `plantLibrary.search` còn bypass helper localization và có thể trả placeholder hoặc không kế thừa description từ base.
+Mobile chủ yếu đọc `plantImages.getPlantsWithImages`, trong khi logic lọc placeholder, locale fallback và inheritance nằm ở `plantLibrary`. Vì vậy list/detail/search có thể cho kết quả khác nhau. `plantLibrary.search` còn có thể bypass helper localization và trả placeholder hoặc không kế thừa description từ base.
 
 ### P2 — Chất lượng dữ liệu chưa đủ để gọi là curated
 
-Kết quả `npm run audit:plant-content`:
-
-- en: 1.550 rows, 198 placeholder descriptions, 244 short descriptions;
-- vi: 1.550 rows, 77 placeholder descriptions, 83 short descriptions, 21 repeated rows;
-- es/fr/pt/zh: chưa có row;
-- duplicate identity: 0 trong dữ liệu vi/en.
-
-Audit đã hữu ích nhưng chưa đủ các gate về care-range, near-duplicate và review/source metadata.
+Audit cũ ghi nhận placeholder/short descriptions và duplicate identity metrics nhưng chưa có đủ gate về care-range, near-duplicate và review/source metadata.
 
 ### P2 — Locale và content metadata còn thiếu
 
-Plan yêu cầu source, review status, content version và inheritance. Schema hiện tại chưa truyền đủ các metadata này end-to-end. Không nên hiển thị locale hoặc nội dung được coi là “đã review” khi chưa có bằng chứng tương ứng.
+Plan yêu cầu source, review status, content version và inheritance. Schema cũ chưa truyền đủ metadata end-to-end; không nên hiển thị locale hoặc nội dung là “đã review” khi chưa có bằng chứng tương ứng.
 
-## Việc cần làm trong Phase 3.1
+Các đường đọc hiện đã delegate về canonical projection, nhưng chất lượng nguồn và external provenance vẫn là gate riêng.
 
-- [ ] Tạo một canonical Library projection dùng chung cho list, search, detail, scanner và Add Plant.
-- [ ] Áp dụng thống nhất active-only, locale fallback, placeholder filtering và base/cultivar description inheritance.
-- [ ] Cập nhật mobile Library để đọc canonical projection thay vì mỗi màn dùng một query policy khác nhau.
-- [ ] Hoàn thiện structured care/content model theo schema Phase 3.0.
-- [ ] Thêm quality gate cho duplicate identity, missing base, placeholder, near-duplicate, care-range bất hợp lý và conflict giữa base/variant.
-- [ ] Ưu tiên hoàn thiện khoảng 200–300 base species có nhu cầu cao trước khi mở rộng catalog.
-- [ ] Hoàn thiện vi/en trước; chỉ bật es/fr/pt/zh khi đã có dữ liệu thật và được kiểm tra.
-- [ ] Hiển thị/ẩn nội dung theo `contentStatus`, `contentVersion`, source và review metadata.
-- [ ] Không tạo watering/fertilizer/harvest default nếu Library chưa có dữ liệu đáng tin cậy.
+## Audit evidence
 
-## Definition of Done
+`npm run audit:plant-content` **PASS** về identity/care-range gate. Repository data hiện có 1,550 rows ở `en` và 1,550 rows ở `vi`; `es`, `fr`, `pt`, `zh` không có rows. Duplicate identity và invalid care range đều bằng 0. Audit ghi nhận placeholder descriptions: `en` 198, `vi` 77; short descriptions: `en` 244, `vi` 83; repeated description rows ở `vi` là 21.
 
-- [ ] List, search và detail trả cùng plant identity, locale fallback và content quality.
-- [ ] Plant inactive hoặc placeholder không xuất hiện trong production response.
-- [ ] Cultivar chưa có nội dung riêng kế thừa đúng từ base; cultivar có override thì không bị ghi đè.
-- [ ] Locale không có dữ liệu fallback đúng và không tạo màn hình rỗng khó hiểu.
-- [ ] Các cây được đánh dấu hoàn thiện có care data đủ tin cậy để tạo suggested care plan.
-- [ ] Audit report có số liệu reproducible và không còn P1/P2 quality gate mở.
-- [ ] Có regression tests cho Library list/search/detail, scanner match và Add Plant.
+`npm run audit:plant-content -- --strict` **FAIL** với 475 placeholder/near-duplicate findings (near-duplicate output bị giới hạn tối đa 100 pair mỗi locale trong script). Audit trả về `externalDataGate.status: "not_run"` và yêu cầu external source/curation trước bulk curation.
+
+Các row hiện có chưa cung cấp bằng chứng external curation/provenance đầy đủ; không được coi là đã review chỉ vì có trong SQLite mirror.
+
+## Definition of Done và gate còn lại
+
+- [x] List/search/detail/match dùng cùng canonical active, locale fallback, placeholder và inheritance policy ở local tests.
+- [x] Inactive/draft/placeholder rows bị loại khỏi canonical production response; admin snapshot vẫn giữ để quản trị.
+- [ ] Strict quality gate không còn placeholder/near-duplicate findings.
+- [ ] External source/provenance review và content/review metadata được xác nhận cho bulk curation.
+- [ ] Curation khoảng 200–300 base species; es/fr/pt/zh chỉ bật sau khi có dữ liệu thật và kiểm tra.
+- [ ] Staging/production regression validation cho Library list/search/detail, scanner match và Add Plant.
+
+Không tạo watering/fertilizer/harvest defaults từ dữ liệu chưa được external gate xác nhận.
 
 ## Ranh giới với Phase 3.0
 
-Phase 3.0 chịu trách nhiệm **backend, quyền ghi, schema, identity và sync**. Phase 3.1 chịu trách nhiệm **nội dung, quality gate, inheritance và cách Library phục vụ dữ liệu cho app**.
-
-Không bắt đầu curation lớn hoặc sửa UX Library trước khi canonical backend contract của Phase 3.0 ổn định.
+Phase 3.0 chịu trách nhiệm backend, quyền ghi, schema, stable identity và sync. Phase 3.1 chịu trách nhiệm canonical read policy, content quality, inheritance và provenance/curation.
