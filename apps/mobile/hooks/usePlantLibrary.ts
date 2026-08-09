@@ -11,7 +11,7 @@ import {
     buildSpeciesTaxonomyKey,
 } from '../../../packages/convex/convex/lib/plantTaxonomyI18n';
 
-const PLANTS_CACHE_VERSION = 6;
+const PLANTS_CACHE_VERSION = 7;
 const GROUPS_CACHE_VERSION = 1;
 
 function normalizeLocale(locale?: string) {
@@ -174,13 +174,13 @@ export function usePlantLibrary(
 ) {
     const normalizedLocale = normalizeLocale(locale);
     const { isKnown, isOffline } = useNetworkStatus();
-    const remotePlants = useQuery(api.plantImages.getPlantsWithImages, {
+    const remotePlants = useQuery(api.plantLibrary.listCanonical, {
         locale: normalizedLocale,
+        limit: 10000,
     });
-
-    const remotePlantsWithoutImages = useQuery(
-        api.plantImages.getPlantsWithoutImages,
-        { locale: normalizedLocale }
+    const remotePlantsWithoutImages = useMemo(
+        () => remotePlants?.filter((plant: any) => !plant.imageUrl),
+        [remotePlants],
     );
     const seedPlants = useMemo(
         () => buildSeedPlantLibrary(normalizedLocale),

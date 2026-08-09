@@ -12,6 +12,7 @@ import {
     isPlaceholderPlantDescription,
     shouldUseBasePlantDescription,
 } from "./lib/plantContentQuality";
+import { loadCanonicalPlantLibrary } from "./lib/canonicalPlantLibrary";
 
 const normalize = (value: string) =>
     value
@@ -196,80 +197,47 @@ export const matchPlantInLibrary = query({
         locale: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const locale = (args.locale ?? "en").toLowerCase();
+        const locale = (args.locale ?? "en").split("-")[0].toLowerCase();
+        const allPlants = await loadCanonicalPlantLibrary(ctx, {
+            locale,
+            limit: 10000,
+        });
 
-        // 1) Scientific name exact match via index
+        // 1) Scientific name exact/fuzzy match on the canonical active projection.
         if (args.scientificName) {
             const scientificName = args.scientificName.trim();
-            const byScientific = await resolveByScientificName(ctx, scientificName);
-            if (byScientific) {
-                return {
-                    plantId: byScientific.plant._id,
-                    matchType: byScientific.matchType,
-                };
-            }
-
-            // Fallback for case/diacritic differences from AI output.
             const scientificQuery = normalize(scientificName);
-            const allPlants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
             const exactNormalized = allPlants.filter(
                 (p) => normalize(p.scientificName) === scientificQuery
             );
             const fuzzyContains = allPlants.filter((p) =>
                 normalize(p.scientificName).includes(scientificQuery)
             );
-            const fuzzyScientific =
-                pickPreferredPlant(exactNormalized) ??
-                pickPreferredPlant(fuzzyContains);
-            if (fuzzyScientific) return { plantId: fuzzyScientific._id, matchType: "scientific_fuzzy" };
+            const fuzzyScientific = exactNormalized.find((plant: any) => plant.isBaseVariant) ??
+                exactNormalized[0] ??
+                fuzzyContains.find((plant: any) => plant.isBaseVariant) ??
+                fuzzyContains[0];
+            if (fuzzyScientific) {
+                return {
+                    plantId: fuzzyScientific._id,
+                    matchType: exactNormalized.includes(fuzzyScientific) ? "scientific" : "scientific_fuzzy",
+                };
+            }
         }
 
         // 2) Common name exact/fuzzy in active locale, then English fallback.
         if (args.commonNames && args.commonNames.length > 0) {
             const normalizedNames = args.commonNames.map((name) => normalize(name)).filter(Boolean);
-            const locales = locale === "en" ? ["en"] : [locale, "en"];
-
-            for (const targetLocale of locales) {
-                for (const name of args.commonNames) {
-                    const trimmedName = name.trim();
-                    if (!trimmedName) continue;
-                    const exactRows = await ctx.db
-                        .query("plantI18n")
-                        .withIndex("by_locale_common_name", (q) =>
-                            q.eq("locale", targetLocale).eq("commonName", trimmedName),
-                        )
-                        .collect();
-
-                    if (exactRows.length > 0) {
-                        const candidates = await Promise.all(
-                            exactRows.map((row) => ctx.db.get(row.plantId))
-                        );
-                        const preferred = pickPreferredPlant(
-                            candidates.filter(Boolean)
-                        );
-                        if (!preferred) continue;
-                        return {
-                            plantId: preferred._id,
-                            matchType: targetLocale === locale ? "common_name" : "common_name_en",
-                        };
-                    }
-                }
-
-                const rows = await ctx.db
-                    .query("plantI18n")
-                    .withIndex("by_locale_common_name", (q) => q.eq("locale", targetLocale))
-                    .collect();
-
-                const fuzzyMatch =
-                    rows.find((row) => normalizedNames.includes(normalize(row.commonName))) ??
-                    rows.find((row) => normalizedNames.some((name) => normalize(row.commonName).includes(name)));
-
-                if (fuzzyMatch) {
-                    return {
-                        plantId: fuzzyMatch.plantId,
-                        matchType: targetLocale === locale ? "common_name_fuzzy" : "common_name_en_fuzzy",
-                    };
-                }
+            const exact = allPlants.find((plant: any) => normalizedNames.includes(normalize(plant.displayName)));
+            const fuzzy = allPlants.find((plant: any) => normalizedNames.some((name) =>
+                normalize(plant.displayName).includes(name) || name.includes(normalize(plant.displayName)),
+            ));
+            const picked = exact ?? fuzzy;
+            if (picked) {
+                return {
+                    plantId: picked._id,
+                    matchType: exact ? "common_name" : "common_name_fuzzy",
+                };
             }
         }
 
@@ -280,6 +248,66 @@ export const matchPlantInLibrary = query({
 /**
  * Lists plants in the master library with filtering.
  */
+export const listCanonical = query({
+    args: {
+        group: v.optional(v.string()),
+        family: v.optional(v.string()),
+        purpose: v.optional(v.string()),
+        search: v.optional(v.string()),
+        locale: v.optional(v.string()),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => loadCanonicalPlantLibrary(ctx, {
+        group: args.group,
+        family: args.family,
+        purpose: args.purpose,
+        search: args.search,
+        locale: args.locale,
+        limit: args.limit,
+        includeInactive: false,
+    }),
+});
+
+export const getById = query({
+    args: {
+        plantId: v.id("plantsMaster"),
+        locale: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const plants = await loadCanonicalPlantLibrary(ctx, {
+            locale: args.locale,
+            includeInactive: false,
+            limit: 10000,
+        });
+        return plants.find((plant: any) => String(plant._id) === String(args.plantId)) ?? null;
+    },
+});
+
+export const getVariants = query({
+    args: {
+        plantId: v.id("plantsMaster"),
+        locale: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const plants = await loadCanonicalPlantLibrary(ctx, {
+            locale: args.locale,
+            limit: 10000,
+        });
+        const selected = plants.find((plant: any) => String(plant._id) === String(args.plantId));
+        if (!selected) return [];
+        const siblings = plants.filter((plant: any) => {
+            if (selected.basePlantId) {
+                return String(plant.basePlantId ?? plant._id) === String(selected.basePlantId);
+            }
+            return plant.speciesKey === selected.speciesKey;
+        });
+        return siblings.sort((left: any, right: any) => {
+            if (left.isBaseVariant !== right.isBaseVariant) return left.isBaseVariant ? -1 : 1;
+            return String(left.displayName).localeCompare(String(right.displayName));
+        });
+    },
+});
+
 export const list = query({
     args: {
         group: v.optional(v.string()),
@@ -288,28 +316,13 @@ export const list = query({
         locale: v.optional(v.string()),
         limit: v.optional(v.number()),
     },
-    handler: async (ctx, args) => {
-        const locale = args.locale ?? "en";
-        let plants = args.group
-            ? await ctx.db
-                .query("plantsMaster")
-                .withIndex("by_group", (q) => q.eq("group", args.group!))
-                .collect()
-            : await loadPlantsForTaxonomyPath(ctx, {
-                family: args.family,
-            });
-
-        if (args.group && args.family) {
-            const family = normalizeFamily(args.family);
-            plants = plants.filter((plant: any) => normalizeFamily(plant.family) === family);
-        }
-
-        return await Promise.all(
-            plants.slice(0, args.limit ?? 100).map((plant: any) =>
-                localizePlant(ctx, plant, locale)
-            )
-        );
-    },
+    handler: async (ctx, args) => loadCanonicalPlantLibrary(ctx, {
+        group: args.group,
+        family: args.family,
+        purpose: args.purpose,
+        locale: args.locale,
+        limit: args.limit ?? 100,
+    }),
 });
 
 export const listFamilies = query({
@@ -318,7 +331,10 @@ export const listFamilies = query({
         limit: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        const plants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
+        const plants = await loadCanonicalPlantLibrary(ctx, {
+            locale: args.locale,
+            limit: 10000,
+        });
         const families = new Map<string, {
             name: string;
             genusSet: Set<string>;
@@ -360,9 +376,7 @@ export const listFamilies = query({
         const locale = args.locale ?? "en";
         return await Promise.all(
             rows.map(async (row) => {
-                const samplePlant = row.samplePlant
-                    ? await localizePlant(ctx, row.samplePlant, locale)
-                    : null;
+                const samplePlant = row.samplePlant ?? null;
                 return {
                     key: row.name,
                     family: row.name,
@@ -387,7 +401,11 @@ export const listGeneraByFamily = query({
         const family = normalizeFamily(args.family);
         if (!family) return [];
 
-        const plants = await loadPlantsForTaxonomyPath(ctx, { family });
+        const plants = await loadCanonicalPlantLibrary(ctx, {
+            family,
+            locale: args.locale,
+            limit: 10000,
+        });
         const genera = new Map<string, {
             genusNormalized: string;
             genus: string;
@@ -433,9 +451,7 @@ export const listGeneraByFamily = query({
                     genusNormalized: entry.genusNormalized,
                     speciesCount: entry.speciesSet.size,
                     plantCount: entry.plantCount,
-                    samplePlant: entry.samplePlant
-                        ? await localizePlant(ctx, entry.samplePlant, locale)
-                        : null,
+                    samplePlant: entry.samplePlant ?? null,
                 }))
         );
     },
@@ -453,10 +469,14 @@ export const listSpeciesByFamilyGenus = query({
         const genusNormalized = normalizeTaxonomyToken(args.genusNormalized);
         if (!family || !genusNormalized) return [];
 
-        const plants = await loadPlantsForTaxonomyPath(ctx, {
+        const plants = await loadCanonicalPlantLibrary(ctx, {
             family,
-            genusNormalized,
+            locale: args.locale,
+            limit: 10000,
         });
+        const filteredPlants = plants.filter((plant: any) =>
+            String(plant.genusNormalized ?? "") === genusNormalized,
+        );
 
         const speciesMap = new Map<string, {
             speciesNormalized: string;
@@ -467,7 +487,7 @@ export const listSpeciesByFamilyGenus = query({
             basePlant: any | null;
         }>();
 
-        for (const plant of plants) {
+        for (const plant of filteredPlants) {
             const speciesNormalized = String((plant as any).speciesNormalized ?? "").trim();
             if (!speciesNormalized) continue;
             const speciesKey = `${genusNormalized}:${speciesNormalized}`;
@@ -495,9 +515,7 @@ export const listSpeciesByFamilyGenus = query({
                 .sort((a, b) => a.scientificName.localeCompare(b.scientificName))
                 .slice(0, args.limit ?? 200)
                 .map(async (entry) => {
-                    const localizedBase = entry.basePlant
-                        ? await localizePlant(ctx, entry.basePlant, locale)
-                        : null;
+                    const localizedBase = entry.basePlant ?? null;
                     return {
                         key: entry.speciesKey,
                         family,
@@ -531,11 +549,14 @@ export const listPlantsBySpecies = query({
         const speciesNormalized = normalizeTaxonomyToken(args.speciesNormalized);
         if (!genusNormalized || !speciesNormalized) return [];
 
-        const plants = await loadPlantsForTaxonomyPath(ctx, {
+        const plants = (await loadCanonicalPlantLibrary(ctx, {
             family: args.family,
-            genusNormalized,
-            speciesNormalized,
-        });
+            locale: args.locale,
+            limit: 10000,
+        })).filter((plant: any) =>
+            String(plant.genusNormalized ?? "") === genusNormalized &&
+            String(plant.speciesNormalized ?? "") === speciesNormalized,
+        );
 
         const sorted = [...plants].sort((a: any, b: any) => {
             if (isBasePlant(a) !== isBasePlant(b)) {
@@ -547,11 +568,7 @@ export const listPlantsBySpecies = query({
         });
 
         const locale = args.locale ?? "en";
-        return await Promise.all(
-            sorted.slice(0, args.limit ?? 200).map((plant) =>
-                localizePlant(ctx, plant, locale)
-            )
-        );
+        return sorted.slice(0, args.limit ?? 200);
     },
 });
 
@@ -564,41 +581,9 @@ export const search = query({
         locale: v.optional(v.string()),
         limit: v.optional(v.number()),
     },
-    handler: async (ctx, args) => {
-        const locale = args.locale ?? "en";
-        const searchTerm = normalize(args.query);
-        if (!searchTerm) return [];
-
-        // Simple implementation: fetch all localized names for the locale and filter
-        const allI18n = await ctx.db
-            .query("plantI18n")
-            .withIndex("by_locale_common_name", (q) => q.eq("locale", locale))
-            .collect();
-
-        const matches = allI18n
-            .filter((row) => normalize(row.commonName).includes(searchTerm))
-            .slice(0, args.limit ?? 20);
-
-        const results: any[] = [];
-        const seen = new Set<string>();
-        for (const m of matches) {
-            const plant = await ctx.db.get(m.plantId);
-            if (!plant) continue;
-            const key = String(plant._id);
-            if (seen.has(key)) continue;
-            seen.add(key);
-            results.push({
-                ...plant,
-                commonName: m.commonName,
-                description: m.description,
-                commonNameGroupKey: (plant as any).commonNameGroupKey ?? undefined,
-                commonNameGroupVi: (plant as any).commonNameGroupVi ?? undefined,
-                commonNameGroupEn: (plant as any).commonNameGroupEn ?? undefined,
-                speciesKey: speciesKeyOf(plant),
-                isBaseVariant: isBasePlant(plant),
-            });
-        }
-
-        return results;
-    },
+    handler: async (ctx, args) => loadCanonicalPlantLibrary(ctx, {
+        search: args.query,
+        locale: args.locale,
+        limit: args.limit ?? 20,
+    }),
 });
