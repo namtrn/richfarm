@@ -11,6 +11,16 @@ export type PlantCareProfile = {
   yieldKgPerM2?: number;
   wateringFrequencyDays?: number;
   fertilizingFrequencyDays?: number;
+  soilPhMin?: number;
+  soilPhMax?: number;
+  moistureTarget?: number;
+  lightHours?: number;
+  source?: string;
+  sourceUrl?: string;
+  contentStatus?: "draft" | "published" | "needs_review" | "archived";
+  contentVersion?: number;
+  reviewedAt?: number;
+  reviewedBy?: string;
 };
 
 export type PlantCareI18nRow = {
@@ -18,6 +28,11 @@ export type PlantCareI18nRow = {
   locale: string;
   careContent?: string;
   contentVersion?: number;
+  source?: string;
+  sourceUrl?: string;
+  contentStatus?: "draft" | "published" | "needs_review" | "archived";
+  reviewedAt?: number;
+  reviewedBy?: string;
 };
 
 export async function getPlantCareProfileMap(ctx: any) {
@@ -34,12 +49,19 @@ export async function getPlantCareProfileByPlantId(ctx: any, plantId: any) {
 
 export async function getPlantCareI18nMap(ctx: any) {
   const rows = await ctx.db.query("plantCareI18n").collect();
-  const careByPlantLocale = new Map<string, { careContent?: string; contentVersion?: number }>();
+  const careByPlantLocale = new Map<string, PlantCareI18nRow>();
 
   for (const row of rows) {
     careByPlantLocale.set(`${String(row.plantId)}:${row.locale}`, {
+      plantId: row.plantId,
+      locale: row.locale,
       careContent: row.careContent ?? undefined,
       contentVersion: row.contentVersion ?? undefined,
+      source: row.source ?? undefined,
+      sourceUrl: row.sourceUrl ?? undefined,
+      contentStatus: row.contentStatus ?? undefined,
+      reviewedAt: row.reviewedAt ?? undefined,
+      reviewedBy: row.reviewedBy ?? undefined,
     });
   }
 
@@ -58,7 +80,7 @@ export function mergeCareIntoI18nRows<T extends {
   locale: string;
   careContent?: string;
   contentVersion?: number;
-}>(rows: T[], careByPlantLocale: Map<string, { careContent?: string; contentVersion?: number }>) {
+}>(rows: T[], careByPlantLocale: Map<string, PlantCareI18nRow>) {
   return rows.map((row) => {
     const key = row.plantId ? `${String(row.plantId)}:${row.locale}` : "";
     const care = key ? careByPlantLocale.get(key) : undefined;
@@ -87,6 +109,10 @@ export function mergeCareProfileIntoPlant<T extends Record<string, any>>(
     yieldKgPerM2: careProfile?.yieldKgPerM2 ?? plant.yieldKgPerM2,
     wateringFrequencyDays: careProfile?.wateringFrequencyDays ?? plant.wateringFrequencyDays,
     fertilizingFrequencyDays: careProfile?.fertilizingFrequencyDays ?? plant.fertilizingFrequencyDays,
+    soilPhMin: careProfile?.soilPhMin ?? plant.soilPhMin,
+    soilPhMax: careProfile?.soilPhMax ?? plant.soilPhMax,
+    moistureTarget: careProfile?.moistureTarget ?? plant.moistureTarget,
+    lightHours: careProfile?.lightHours ?? plant.lightHours,
   };
 }
 
@@ -105,21 +131,21 @@ export async function upsertPlantCareProfile(
   payload: Omit<PlantCareProfile, "plantId">,
 ) {
   const existing = await getPlantCareProfileByPlantId(ctx, plantId);
-  const hasValue = Object.values(payload).some((value) => value !== undefined);
+  const providedEntries = Object.entries(payload).filter(([, value]) => value !== undefined);
 
-  if (!hasValue) {
-    if (existing) {
-      await ctx.db.delete(existing._id);
-    }
-    return null;
+  // An omitted care patch must be a no-op. This matters for admin edits that
+  // only change taxonomy/content metadata: they must not erase an existing
+  // profile just because the caller did not include every care field.
+  if (providedEntries.length === 0) {
+    return existing?._id ?? null;
   }
 
-  const doc = { plantId, ...payload };
+  const doc = Object.fromEntries(providedEntries);
   if (existing) {
     await ctx.db.patch(existing._id, doc);
     return existing._id;
   }
-  return await ctx.db.insert("plantCare", doc);
+  return await ctx.db.insert("plantCare", { plantId, ...doc });
 }
 
 export async function upsertPlantCareI18n(
@@ -128,6 +154,13 @@ export async function upsertPlantCareI18n(
   locale: string,
   careContent?: string,
   contentVersion?: number,
+  options?: {
+    source?: string;
+    sourceUrl?: string;
+    contentStatus?: "draft" | "published" | "needs_review" | "archived";
+    reviewedAt?: number;
+    reviewedBy?: string;
+  },
 ) {
   const normalizedLocale = String(locale).trim().toLowerCase();
   if (!normalizedLocale) {
@@ -141,7 +174,11 @@ export async function upsertPlantCareI18n(
     )
     .unique();
 
-  if (!careContent) {
+  if (careContent === undefined) {
+    return existing?._id ?? null;
+  }
+
+  if (!careContent.trim()) {
     if (existing) {
       await ctx.db.delete(existing._id);
     }
@@ -152,7 +189,18 @@ export async function upsertPlantCareI18n(
     plantId,
     locale: normalizedLocale,
     careContent,
-    contentVersion,
+    contentVersion: contentVersion ?? existing?.contentVersion,
+    source: options?.source !== undefined
+      ? options.source.trim() || undefined
+      : existing?.source,
+    sourceUrl: options?.sourceUrl !== undefined
+      ? options.sourceUrl.trim() || undefined
+      : existing?.sourceUrl,
+    contentStatus: options?.contentStatus ?? existing?.contentStatus,
+    reviewedAt: options?.reviewedAt ?? existing?.reviewedAt,
+    reviewedBy: options?.reviewedBy !== undefined
+      ? options.reviewedBy.trim() || undefined
+      : existing?.reviewedBy,
   };
 
   if (existing) {

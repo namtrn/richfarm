@@ -13,6 +13,7 @@ import {
 } from "./lib/plantTaxonomy";
 import { plantTaxonomyI18nSeed } from "./data/plantTaxonomyI18nSeed";
 import { getPlantCareI18nRowsByPlantId, upsertPlantCareI18n } from "./lib/plantCare";
+import { requireAdminServiceToken } from "./lib/adminAuth";
 
 const MAX_BATCH = 5000;
 
@@ -132,11 +133,13 @@ export const backfillTaxonomyFields = internalMutation({
 
 export const runTaxonomyBackfill = mutation({
   args: {
+    serviceToken: v.string(),
     dryRun: v.optional(v.boolean()),
     limit: v.optional(v.number()),
     confirm: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const dryRun = args.dryRun ?? true;
     if (!dryRun && args.confirm !== "BACKFILL_TAXONOMY") {
       throw new Error(
@@ -292,11 +295,13 @@ export const backfillInfraspecificCultivar = internalMutation({
 
 export const backfillTaxonomyI18n = mutation({
   args: {
+    serviceToken: v.string(),
     dryRun: v.optional(v.boolean()),
     limit: v.optional(v.number()),
     locale: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const dryRun = args.dryRun ?? true;
     const limit = Math.max(1, Math.min(args.limit ?? 1000, MAX_BATCH));
     const localeFilter = String(args.locale ?? "").trim().toLowerCase();
@@ -595,11 +600,13 @@ export const resolveLegacyInfraspecificDuplicates = internalMutation({
 
 export const resolveDuplicateTaxonomyIdentities = mutation({
   args: {
+    serviceToken: v.string(),
     dryRun: v.optional(v.boolean()),
     limit: v.optional(v.number()),
     confirm: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const dryRun = args.dryRun ?? true;
     if (!dryRun && args.confirm !== "RESOLVE_DUPLICATE_TAXONOMY") {
       throw new Error(

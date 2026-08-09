@@ -1,12 +1,15 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { upsertPlantCareProfile } from "./lib/plantCare";
+import { requireAdminServiceToken } from "./lib/adminAuth";
 
 export const migratePlantMasterCareProfile = mutation({
   args: {
+    serviceToken: v.string(),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const rows = await ctx.db.query("plantsMaster").collect();
     const limit = Math.max(1, Math.min(args.limit ?? rows.length, rows.length || 1));
     let migrated = 0;
@@ -32,23 +35,21 @@ export const migratePlantMasterCareProfile = mutation({
       await upsertPlantCareProfile(ctx, row._id, payload);
       migrated += 1;
 
-      await ctx.db.replace(row._id, {
-        scientificName: row.scientificName,
-        genus: row.genus ?? undefined,
-        species: row.species ?? undefined,
-        cultivar: row.cultivar ?? undefined,
-        taxonomyParseStatus: row.taxonomyParseStatus ?? undefined,
-        group: row.group,
-        basePlantId: row.basePlantId ?? undefined,
-        commonNameGroupKey: row.commonNameGroupKey ?? undefined,
-        commonNameGroupVi: row.commonNameGroupVi ?? undefined,
-        commonNameGroupEn: row.commonNameGroupEn ?? undefined,
-        family: row.family ?? undefined,
-        purposes: row.purposes ?? [],
-        pestsDiseases: row.pestsDiseases ?? undefined,
-        imageUrl: row.imageUrl ?? undefined,
-        source: row.source ?? undefined,
-      });
+      // Remove only the legacy fields. A replace with a hand-written subset
+      // would silently drop Phase 3 source, active, review, and care metadata.
+      await ctx.db.patch(row._id, {
+        typicalDaysToHarvest: undefined,
+        germinationDays: undefined,
+        lightRequirements: undefined,
+        soilPref: undefined,
+        spacingCm: undefined,
+        maxPlantsPerM2: undefined,
+        seedRatePerM2: undefined,
+        waterLitersPerM2: undefined,
+        yieldKgPerM2: undefined,
+        wateringFrequencyDays: undefined,
+        fertilizingFrequencyDays: undefined,
+      } as any);
       cleaned += 1;
     }
 

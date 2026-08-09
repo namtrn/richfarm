@@ -1,12 +1,15 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdminServiceToken } from "./lib/adminAuth";
 
 export const migrateLegacyPlantMasterFields = mutation({
   args: {
+    serviceToken: v.string(),
     dryRun: v.optional(v.boolean()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const dryRun = args.dryRun ?? true;
     const rows = await ctx.db.query("plantsMaster").collect();
     const limit = Math.max(1, Math.min(args.limit ?? rows.length, rows.length || 1));
@@ -33,23 +36,20 @@ export const migrateLegacyPlantMasterFields = mutation({
       }
 
       if (!dryRun) {
-        await ctx.db.replace(row._id, {
-          scientificName: row.scientificName,
-          genus: row.genus ?? undefined,
-          species: row.species ?? undefined,
-          cultivar: row.cultivar ?? undefined,
-          taxonomyParseStatus: row.taxonomyParseStatus ?? undefined,
-          group: row.group,
-          basePlantId: row.basePlantId ?? undefined,
-          commonNameGroupKey: row.commonNameGroupKey ?? undefined,
-          commonNameGroupVi: row.commonNameGroupVi ?? undefined,
-          commonNameGroupEn: row.commonNameGroupEn ?? undefined,
-          family: row.family ?? undefined,
-          purposes: row.purposes ?? [],
-          pestsDiseases: row.pestsDiseases ?? undefined,
-          imageUrl: row.imageUrl ?? undefined,
-          source: row.source ?? undefined,
-        });
+        // Preserve every current canonical field and remove only fields that
+        // this legacy migration owns.
+        await ctx.db.patch(row._id, {
+          companionPlants: undefined,
+          avoidPlants: undefined,
+          description: undefined,
+          groupBasePlantId: undefined,
+          uiGroupKey: undefined,
+          uiGroupLabelVi: undefined,
+          uiGroupLabelEn: undefined,
+          genusNormalized: undefined,
+          speciesNormalized: undefined,
+          cultivarNormalized: undefined,
+        } as any);
       }
 
       migrated += 1;

@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdminServiceToken } from "./lib/adminAuth";
 import {
   buildTaxonomyFields,
   DEFAULT_CULTIVAR_NORMALIZED,
@@ -166,10 +167,12 @@ export const taxonomyInvariantReport = query({
 
 export const assertTaxonomyInvariants = mutation({
   args: {
+    serviceToken: v.string(),
     sampleLimit: v.optional(v.number()),
     failOnMissingI18nLocales: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const sampleLimit = Math.max(1, args.sampleLimit ?? SAMPLE_LIMIT_DEFAULT);
     const failOnMissingI18nLocales = args.failOnMissingI18nLocales ?? false;
     const report = await buildInvariantReport(ctx, sampleLimit);
@@ -343,10 +346,12 @@ export const familyAuditReport = query({
 
 export const normalizeAndBackfillFamilies = mutation({
   args: {
+    serviceToken: v.string(),
     dryRun: v.optional(v.boolean()),
     sampleLimit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
     const dryRun = args.dryRun ?? true;
     const sampleLimit = Math.max(1, args.sampleLimit ?? SAMPLE_LIMIT_DEFAULT);
     const plants = await ctx.db.query("plantsMaster").collect();
