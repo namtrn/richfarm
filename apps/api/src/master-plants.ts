@@ -261,9 +261,11 @@ const SNAKE_TO_CAMEL_CARE_FIELD: Record<string, string> = {
   germination_days: "germinationDays",
 };
 
-// Resolve the persisted record-level careStatus for a master-plant payload:
-// an explicit value wins, otherwise the aggregate is recomputed from the care
-// fields and per-field evidence with the shared rule.
+// Resolve the persisted record-level careStatus for a master-plant payload.
+// Contract (Giai đoạn 0): whenever the payload changes care fields or
+// evidence, the aggregate MUST be recomputed — a stale persisted value carried
+// through a merge (e.g. from normalizeMasterPlant) must never win. An explicit
+// care_status is only honored when the payload touches no care data.
 export function resolveCareStatus(payload: {
   care_status?: string;
   care_field_evidence?: Record<string, unknown>;
@@ -273,8 +275,11 @@ export function resolveCareStatus(payload: {
   for (const [snake, camel] of Object.entries(SNAKE_TO_CAMEL_CARE_FIELD)) {
     careFields[camel] = payload[snake];
   }
-  const evidence = payload.care_field_evidence ?? {};
-  return payload.care_status ?? recomputeCareStatus(careFields, evidence as any);
+  if (carePayloadHasChanges(payload)) {
+    const evidence = payload.care_field_evidence ?? {};
+    return recomputeCareStatus(careFields, evidence as any);
+  }
+  return payload.care_status ?? "missing";
 }
 
 // True when the payload carries any care profile change (fields, evidence or
@@ -765,13 +770,26 @@ export function upsertMasterPlantRow(
 ) {
   const i18nPayload = payload.i18n!;
   const resolvedCommonName = payload.common_name ?? i18nPayload.vi.common_name;
-  const existing = payload.source_id
+  let existing = payload.source_id
     ? db
       .prepare(`SELECT id FROM master_plants WHERE source_system = ? AND source_id = ?`)
       .get(payload.source_system, payload.source_id) as { id: number } | undefined
-    : db
-      .prepare(`SELECT id FROM master_plants WHERE plant_code = ?`)
-      .get(payload.plant_code) as { id: number } | undefined;
+    : undefined;
+
+  // Legacy rows predate the stable source identity and hold NULL source_id.
+  // When a payload adopts a stable identity for such a row (Giai đoạn 1
+  // provenance backfill), the source lookup misses — fall back to plant_code
+  // so the legacy row is updated in place instead of colliding on INSERT.
+  // The fallback only adopts rows that still carry no source identity, so a
+  // genuinely different row with the same plant_code can never be hijacked.
+  if (!existing) {
+    const byCode = db
+      .prepare(`SELECT id, source_id FROM master_plants WHERE plant_code = ?`)
+      .get(payload.plant_code) as { id: number; source_id: string | null } | undefined;
+    if (byCode && (byCode.source_id ?? "").trim() === "") {
+      existing = byCode;
+    }
+  }
 
   if (existing) {
     const existingRow = db.prepare(
