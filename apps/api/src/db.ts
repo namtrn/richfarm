@@ -63,13 +63,75 @@ function ensureColumn(
   db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnSql};`);
 }
 
+/**
+ * Phase 3.1 role contract: only `admin` and `editor` are valid roles.
+ * Existing databases created before this migration may still carry a CHECK
+ * constraint that accepts `viewer`. SQLite cannot alter a CHECK constraint,
+ * so the users table is rebuilt when needed. The rebuild is fail-closed: it
+ * refuses to run while any row still has role='viewer', because silently
+ * rewriting or dropping those accounts would be destructive.
+ */
+function migrateUsersRoleCheck(db: SqliteDatabase): void {
+  const table = db.prepare(
+    `SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'`,
+  ).get() as { sql?: string } | undefined;
+  const sql = table?.sql?.toLowerCase() ?? "";
+  if (!sql.includes("check") || !sql.includes("'viewer'")) {
+    return;
+  }
+
+  const viewerCount = (db.prepare(
+    `SELECT COUNT(*) AS count FROM users WHERE role = 'viewer'`,
+  ).get() as { count: number }).count;
+  if (viewerCount > 0) {
+    throw new Error(
+      `Cannot drop the 'viewer' role: ${viewerCount} user(s) still have role='viewer'. ` +
+        "Reassign or deactivate them before the role-contract migration can run.",
+    );
+  }
+
+  db.transaction(() => {
+    // The updated-at trigger follows the table through RENAME; drop it first
+    // so the fresh table starts with only the recreated trigger.
+    db.exec(`DROP TRIGGER IF EXISTS trg_users_updated_at`);
+    db.exec(`ALTER TABLE users RENAME TO users_legacy`);
+    db.exec(`
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'editor')),
+        is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+    db.exec(`
+      INSERT INTO users (id, email, password_hash, role, is_active, created_at, updated_at)
+      SELECT id, email, password_hash, role, is_active, created_at, updated_at FROM users_legacy;
+    `);
+    db.exec(`DROP TABLE users_legacy`);
+    db.exec(`
+      CREATE TRIGGER trg_users_updated_at
+      AFTER UPDATE ON users
+      FOR EACH ROW
+      WHEN NEW.updated_at = OLD.updated_at
+      BEGIN
+        UPDATE users
+        SET updated_at = datetime('now')
+        WHERE id = OLD.id;
+      END;
+    `);
+  })();
+}
+
 function runMigrations(db: SqliteDatabase): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'editor', 'viewer')),
+      role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'editor')),
       is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -123,6 +185,8 @@ function runMigrations(db: SqliteDatabase): void {
       reviewed_at TEXT,
       reviewed_by TEXT,
       sync_origin TEXT NOT NULL DEFAULT 'local',
+      care_status TEXT NOT NULL DEFAULT 'missing' CHECK (care_status IN ('missing', 'awaiting_review', 'verified', 'not_applicable')),
+      care_field_evidence_json TEXT NOT NULL DEFAULT '{}',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       CHECK (soil_ph_min IS NULL OR soil_ph_max IS NULL OR soil_ph_min <= soil_ph_max)
@@ -152,6 +216,7 @@ function runMigrations(db: SqliteDatabase): void {
       review_status TEXT NOT NULL DEFAULT 'unreviewed',
       reviewed_at TEXT,
       reviewed_by TEXT,
+      content_origin TEXT NOT NULL DEFAULT 'imported' CHECK (content_origin IN ('authored', 'inherited', 'imported')),
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       UNIQUE(master_plant_id, locale),
@@ -253,7 +318,11 @@ function runMigrations(db: SqliteDatabase): void {
   ensureColumn(db, "master_plants", "reviewed_at", `reviewed_at TEXT`);
   ensureColumn(db, "master_plants", "reviewed_by", `reviewed_by TEXT`);
   ensureColumn(db, "master_plants", "sync_origin", `sync_origin TEXT NOT NULL DEFAULT 'local'`);
+  ensureColumn(db, "master_plants", "care_status", `care_status TEXT NOT NULL DEFAULT 'missing' CHECK (care_status IN ('missing', 'awaiting_review', 'verified', 'not_applicable'))`);
+  ensureColumn(db, "master_plants", "care_field_evidence_json", `care_field_evidence_json TEXT NOT NULL DEFAULT '{}'`);
+  ensureColumn(db, "master_plant_i18n", "content_origin", `content_origin TEXT NOT NULL DEFAULT 'imported' CHECK (content_origin IN ('authored', 'inherited', 'imported'))`);
 
+  migrateUsersRoleCheck(db);
   ensureI18nLocaleCompatibility(db);
 
   ensureColumn(db, "master_plant_i18n", "source", `source TEXT`);

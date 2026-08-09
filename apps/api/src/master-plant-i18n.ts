@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import type { ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
+import { requireRole } from "./auth";
 import {
   buildMasterPlantPayload,
   fetchI18n,
@@ -225,7 +226,8 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
     }
   });
 
-  router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  // Translation-row deletion is admin-only under the Phase 3.1 role contract.
+  router.delete("/:id", requireRole(["admin"]), async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = z.coerce.number().int().positive().parse(req.params.id);
       const existing = db.prepare(`SELECT * FROM master_plant_i18n WHERE id = ?`).get(id) as I18nRow | undefined;

@@ -5,6 +5,11 @@ import { ZodError, z } from "zod";
 
 import type { ConvexPlantLibraryItem, ConvexSyncService } from "./convex-sync";
 import type { SqliteDatabase } from "./db";
+import { requireRole } from "./auth";
+import {
+  REQUIRED_CARE_FIELDS,
+  recomputeCareStatus,
+} from "../../../packages/shared/src/plantCareStatus";
 import {
   enqueueSyncOutbox,
   processSyncOutbox,
@@ -14,6 +19,21 @@ import {
 const growthStageSchema = z.enum(["seedling", "vegetative", "flowering", "harvest"]);
 const contentStatusSchema = z.enum(["draft", "published", "needs_review", "archived"]);
 const reviewStatusSchema = z.enum(["unreviewed", "in_review", "reviewed"]);
+const careStatusSchema = z.enum(["missing", "awaiting_review", "verified", "not_applicable"]);
+const contentOriginSchema = z.enum(["authored", "inherited", "imported"]);
+
+const careFieldEvidenceSchema = z.record(
+  z.string(),
+  z.object({
+    status: careStatusSchema,
+    sourceSystem: z.string().trim().max(80).nullish(),
+    sourceUrl: z.string().url().nullish(),
+    sourceLocator: z.string().trim().max(240).nullish(),
+    fetchedAt: z.number().nullish(),
+    reviewedAt: z.number().nullish(),
+    reviewedBy: z.string().trim().max(240).nullish(),
+  }),
+);
 
 const localeContentSchema = z.object({
   common_name: z.string().trim().min(1).max(120),
@@ -26,6 +46,7 @@ const localeContentSchema = z.object({
   review_status: reviewStatusSchema.optional(),
   reviewed_at: z.string().datetime().nullish(),
   reviewed_by: z.string().trim().max(240).nullish(),
+  content_origin: contentOriginSchema.optional(),
 });
 
 const masterPlantObjectSchema = z.object({
@@ -65,6 +86,8 @@ const masterPlantObjectSchema = z.object({
   reviewed_by: z.string().trim().max(240).nullish(),
   sync_origin: z.enum(["local", "convex", "mirror"]).default("local"),
   metadata_json: z.record(z.string(), z.unknown()).default({}),
+  care_status: careStatusSchema.optional(),
+  care_field_evidence: careFieldEvidenceSchema.optional(),
   i18n: z
     .object({
       vi: localeContentSchema,
@@ -190,6 +213,8 @@ interface MasterPlantRow {
   reviewed_at: string | null;
   reviewed_by: string | null;
   sync_origin: string;
+  care_status: string;
+  care_field_evidence_json: string;
   created_at: string;
   updated_at: string;
 }
@@ -208,6 +233,7 @@ interface MasterPlantI18nRow {
   review_status: string;
   reviewed_at: string | null;
   reviewed_by: string | null;
+  content_origin: string;
   created_at: string;
   updated_at: string;
 }
@@ -219,6 +245,49 @@ function parseJson(rawValue: string): any {
   } catch {
     return null;
   }
+}
+
+// SQLite stores the care profile as flat snake_case columns while the shared
+// recompute rule works on camelCase required fields.
+const SNAKE_TO_CAMEL_CARE_FIELD: Record<string, string> = {
+  watering_frequency_days: "wateringFrequencyDays",
+  fertilizing_frequency_days: "fertilizingFrequencyDays",
+  light_requirements: "lightRequirements",
+  light_hours: "lightHours",
+  soil_ph_min: "soilPhMin",
+  soil_ph_max: "soilPhMax",
+  moisture_target: "moistureTarget",
+  typical_days_to_harvest: "typicalDaysToHarvest",
+  germination_days: "germinationDays",
+};
+
+// Resolve the persisted record-level careStatus for a master-plant payload:
+// an explicit value wins, otherwise the aggregate is recomputed from the care
+// fields and per-field evidence with the shared rule.
+export function resolveCareStatus(payload: {
+  care_status?: string;
+  care_field_evidence?: Record<string, unknown>;
+  [field: string]: unknown;
+}): string {
+  const careFields: Record<string, unknown> = {};
+  for (const [snake, camel] of Object.entries(SNAKE_TO_CAMEL_CARE_FIELD)) {
+    careFields[camel] = payload[snake];
+  }
+  const evidence = payload.care_field_evidence ?? {};
+  return payload.care_status ?? recomputeCareStatus(careFields, evidence as any);
+}
+
+// True when the payload carries any care profile change (fields, evidence or
+// an explicit status). I18n-only/taxonomy-only updates must not recompute the
+// aggregate from the partial payload and silently downgrade a verified status.
+export function carePayloadHasChanges(payload: {
+  care_status?: string;
+  care_field_evidence?: Record<string, unknown>;
+  [field: string]: unknown;
+}): boolean {
+  if (payload.care_status !== undefined) return true;
+  if (payload.care_field_evidence !== undefined) return true;
+  return Object.keys(SNAKE_TO_CAMEL_CARE_FIELD).some((snake) => payload[snake] !== undefined);
 }
 
 export function normalizeMasterPlant(row: MasterPlantRow) {
@@ -260,6 +329,8 @@ export function normalizeMasterPlant(row: MasterPlantRow) {
     reviewed_at: row.reviewed_at,
     reviewed_by: row.reviewed_by,
     sync_origin: row.sync_origin,
+    care_status: row.care_status,
+    care_field_evidence: parseJson(row.care_field_evidence_json) || {},
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -277,6 +348,7 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
     review_status?: string;
     reviewed_at?: string;
     reviewed_by?: string;
+    content_origin?: string;
   }> = {
     vi: { common_name: "" },
     en: { common_name: "" },
@@ -294,6 +366,7 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
       review_status: row.review_status,
       ...(row.reviewed_at ? { reviewed_at: row.reviewed_at } : {}),
       ...(row.reviewed_by ? { reviewed_by: row.reviewed_by } : {}),
+      content_origin: row.content_origin,
     };
   }
 
@@ -314,6 +387,7 @@ export function upsertI18n(
     review_status?: string;
     reviewed_at?: string | null;
     reviewed_by?: string | null;
+    content_origin?: string;
   }>,
 ) {
   const locales = new Set(Object.keys(i18n).map((locale) => locale.trim().toLowerCase()));
@@ -332,8 +406,8 @@ export function upsertI18n(
       `INSERT INTO master_plant_i18n (
         master_plant_id, locale, common_name, description, care_content_json,
         content_version, source, source_url, content_status, review_status,
-        reviewed_at, reviewed_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        reviewed_at, reviewed_by, content_origin
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(master_plant_id, locale) DO UPDATE SET
          common_name = excluded.common_name,
          description = excluded.description,
@@ -345,6 +419,7 @@ export function upsertI18n(
          review_status = excluded.review_status,
          reviewed_at = excluded.reviewed_at,
          reviewed_by = excluded.reviewed_by,
+         content_origin = excluded.content_origin,
          updated_at = datetime('now')`,
     ).run(
       masterPlantId,
@@ -359,6 +434,7 @@ export function upsertI18n(
       payload.review_status ?? "unreviewed",
       payload.reviewed_at ?? null,
       payload.reviewed_by ?? null,
+      payload.content_origin ?? "imported",
     );
   }
 }
@@ -537,6 +613,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     review_status?: string;
     reviewed_at?: string;
     reviewed_by?: string;
+    content_origin?: string;
   }> = {};
 
   for (const row of plant.i18nRows ?? []) {
@@ -551,6 +628,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
       ...(row.reviewStatus ? { review_status: row.reviewStatus } : {}),
       ...(row.reviewedAt ? { reviewed_at: new Date(row.reviewedAt).toISOString() } : {}),
       ...(row.reviewedBy ? { reviewed_by: row.reviewedBy } : {}),
+      ...(row.contentOrigin ? { content_origin: row.contentOrigin } : {}),
     };
   }
 
@@ -591,6 +669,8 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     reviewed_at: plant.reviewedAt ? new Date(plant.reviewedAt).toISOString() : null,
     reviewed_by: plant.reviewedBy ?? null,
     sync_origin: "mirror",
+    care_status: plant.careStatus ?? "missing",
+    care_field_evidence: {},
     metadata_json: {
       source: plant.source ?? "convex",
       convexId: plant._id,
@@ -694,6 +774,19 @@ export function upsertMasterPlantRow(
       .get(payload.plant_code) as { id: number } | undefined;
 
   if (existing) {
+    const existingRow = db.prepare(
+      `SELECT care_status, care_field_evidence_json FROM master_plants WHERE id = ?`,
+    ).get(existing.id) as { care_status: string; care_field_evidence_json: string } | undefined;
+    // Recompute only when the payload changes care fields/evidence; otherwise
+    // keep the persisted aggregate and evidence (i18n-only edits must not
+    // downgrade or erase them).
+    const careChanged = carePayloadHasChanges(payload);
+    const resolvedCareStatus = careChanged
+      ? resolveCareStatus(payload)
+      : (existingRow?.care_status ?? "missing");
+    const resolvedEvidence = payload.care_field_evidence !== undefined
+      ? payload.care_field_evidence
+      : (parseJson(existingRow?.care_field_evidence_json ?? "{}") || {});
     db.prepare(
       `UPDATE master_plants SET
         plant_code = ?,
@@ -732,6 +825,8 @@ export function upsertMasterPlantRow(
         reviewed_at = ?,
         reviewed_by = ?,
         sync_origin = ?,
+        care_status = ?,
+        care_field_evidence_json = ?,
         updated_at = datetime('now')
       WHERE id = ?`,
     ).run(
@@ -771,6 +866,8 @@ export function upsertMasterPlantRow(
       payload.reviewed_at ?? null,
       payload.reviewed_by ?? null,
       payload.sync_origin,
+      resolvedCareStatus,
+      JSON.stringify(resolvedEvidence),
       existing.id,
     );
     upsertI18n(db, existing.id, i18nPayload);
@@ -815,14 +912,17 @@ export function upsertMasterPlantRow(
         review_status,
         reviewed_at,
         reviewed_by,
-        sync_origin
+        sync_origin,
+        care_status,
+        care_field_evidence_json
       ) VALUES (
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?,
+        ?, ?
       )`,
     )
     .run(
@@ -862,6 +962,8 @@ export function upsertMasterPlantRow(
       payload.reviewed_at ?? null,
       payload.reviewed_by ?? null,
       payload.sync_origin,
+      resolveCareStatus(payload),
+      JSON.stringify(payload.care_field_evidence ?? {}),
     );
   const id = Number(result.lastInsertRowid);
   upsertI18n(db, id, i18nPayload);
@@ -1161,6 +1263,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         const result = db.prepare(`UPDATE master_plants SET is_active = 0, updated_at = datetime('now') WHERE id IN (${placeholders})`).run(...payload.ids);
         res.json({ affected: result.changes });
       } else if (payload.action === "delete") {
+        if (req.authUser?.role !== "admin") {
+          res.status(403).json({ error: "Forbidden: bulk delete is admin-only" });
+          return;
+        }
         const failures: string[] = [];
         const rejected: Array<{ id: number; error: string }> = [];
         let affected = 0;
@@ -1508,7 +1614,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
     }
   });
 
-  router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  // Deletes are admin-only (Phase 3.1 role contract). `req.authUser` is set by
+  // the auth middleware mounted in app.ts; editors receive 403 on every delete
+  // path, including the bulk `delete` action handled inside POST /bulk.
+  router.delete("/:id", requireRole(["admin"]), async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = z.coerce.number().int().positive().parse(req.params.id);
       const currentRow = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow | undefined;

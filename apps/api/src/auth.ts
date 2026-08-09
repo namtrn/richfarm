@@ -19,14 +19,14 @@ export interface AuthConfig {
 export interface AuthUser {
   id: number;
   email: string;
-  role: "admin" | "editor" | "viewer";
+  role: "admin" | "editor";
 }
 
 interface DbUserRow {
   id: number;
   email: string;
   password_hash: string;
-  role: "admin" | "editor" | "viewer";
+  role: "admin" | "editor";
   is_active: number;
 }
 
@@ -122,7 +122,7 @@ export function requireAuth(config: AuthConfig, db?: SqliteDatabase) {
 
       const email = user?.email ?? String(decoded.email ?? "");
       const role = user?.role ?? decoded.role;
-      if (!email || (role !== "admin" && role !== "editor" && role !== "viewer")) {
+      if (!email || (role !== "admin" && role !== "editor")) {
         res.status(401).json({ error: "Invalid token payload" });
         return;
       }

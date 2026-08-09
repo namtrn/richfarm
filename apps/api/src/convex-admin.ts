@@ -37,6 +37,16 @@ const allowedMutations = new Set([
   "plantAdmin:bulkUpdatePlantI18n",
 ]);
 
+// Delete mutations are admin-only under the Phase 3.1 role contract.
+// Editors may create/update/import/curate/review/publish, but every delete
+// path (single, bulk, hard) resolves to 403 for them at the API layer.
+const adminOnlyMutations = new Set([
+  "plantAdmin:deletePlant",
+  "plantAdmin:deletePlantGroup",
+  "plantAdmin:deletePlantI18n",
+  "plantAdmin:deletePlantPhoto",
+]);
+
 const ADMIN_PROXY_NOT_CONFIGURED = "CONVEX_ADMIN_PROXY_NOT_CONFIGURED";
 const ADMIN_PROXY_CONFIG_ACTION = "Set the listed server environment variables in the API environment and restart the server.";
 
@@ -99,6 +109,10 @@ export function createConvexAdminRouter(syncService?: ConvexSyncService): Router
       const payload = requestSchema.parse(req.body);
       if (!allowedMutations.has(payload.path)) {
         res.status(403).json({ error: `Convex admin mutation '${payload.path}' is not allowed` });
+        return;
+      }
+      if (adminOnlyMutations.has(payload.path) && req.authUser?.role !== "admin") {
+        res.status(403).json({ error: `Forbidden: '${payload.path}' is admin-only` });
         return;
       }
 

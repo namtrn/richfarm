@@ -127,26 +127,129 @@ describe("Phase 3 master-data contract", () => {
     expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE source_id = 'outbox-1' AND sync_origin = 'mirror'`).get() as { count: number }).count).toBe(1);
   });
 
-  it("does not allow viewer tokens to write master plants", async () => {
-    db.prepare(`INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, 'viewer', 1)`).run(
-      "viewer@example.com",
-      bcrypt.hashSync("viewer-password", 10),
+  it("rejects forged viewer-role tokens and persists care_status/content_origin round-trip", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const auth = await login(app);
+
+    // A JWT claiming role=viewer is invalid under the admin|editor contract.
+    // The user does not exist in the DB, so the role claim is the only
+    // evidence and must be rejected.
+    const jwt = (await import("jsonwebtoken")).default;
+    const forged = jwt.sign(
+      { sub: "99999", email: "ghost@example.com", role: "viewer" },
+      "test-secret",
+      { issuer: "richfarm-backend", audience: "richfarm-dashboard", expiresIn: "1h" },
+    );
+    const forgedResponse = await request(app)
+      .get("/api/master-plants")
+      .set("Authorization", `Bearer ${forged}`);
+    expect(forgedResponse.status).toBe(401);
+
+    // care_status aggregate is computed on write (care fields without verified
+    // evidence stay awaiting_review) and content_origin round-trips.
+    const create = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "CARE_STATUS_1",
+      common_name: "Care status plant",
+      scientific_name: "Testus carestatus",
+      source_system: "sqlite",
+      source_id: "care-status-1",
+      watering_frequency_days: 3,
+      fertilizing_frequency_days: 14,
+      i18n: {
+        vi: { common_name: "Cây trạng thái", content_origin: "authored" },
+        en: { common_name: "Care status plant", content_origin: "imported" },
+      },
+    });
+    expect(create.status).toBe(201);
+    expect(create.body.data.care_status).toBe("awaiting_review");
+    expect(create.body.data.i18n.vi.content_origin).toBe("authored");
+
+    const read = await request(app).get("/api/master-plants").set("Authorization", auth);
+    const row = read.body.data.find((item: { source_id: string }) => item.source_id === "care-status-1");
+    expect(row.care_status).toBe("awaiting_review");
+    expect(row.i18n.en.content_origin).toBe("imported");
+    expect(row.i18n.vi.content_origin).toBe("authored");
+
+    // An i18n-only edit must not recompute/downgrade the persisted aggregate.
+    const i18nOnly = await request(app)
+      .patch(`/api/master-plants/${create.body.data.id}`)
+      .set("Authorization", auth)
+      .send({
+        i18n: {
+          vi: { common_name: "Cây trạng thái mới", content_origin: "authored" },
+          en: { common_name: "Care status plant renamed", content_origin: "imported" },
+        },
+      });
+    expect(i18nOnly.status).toBe(200);
+    expect(i18nOnly.body.data.care_status).toBe("awaiting_review");
+  });
+
+  it("enforces admin-only delete paths for editors", async () => {
+    db.prepare(`INSERT INTO users (email, password_hash, role, is_active) VALUES (?, ?, 'editor', 1)`).run(
+      "editor@example.com",
+      bcrypt.hashSync("editor-password", 10),
     );
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
-    const viewerAuth = await loginAs(app, "viewer@example.com", "viewer-password");
-    const response = await request(app)
-      .post("/api/master-plants")
-      .set("Authorization", viewerAuth)
-      .send({
-        plant_code: "VIEWER_WRITE",
-        common_name: "Viewer write",
-        i18n: { vi: { common_name: "Viewer write VI" }, en: { common_name: "Viewer write EN" } },
-      });
-    expect(response.status).toBe(403);
-    const readResponse = await request(app)
-      .get("/api/master-plants")
-      .set("Authorization", viewerAuth);
-    expect(readResponse.status).toBe(403);
+    const adminAuth = await login(app);
+    const editorAuth = await loginAs(app, "editor@example.com", "editor-password");
+
+    const plant = await request(app).post("/api/master-plants").set("Authorization", adminAuth).send({
+      plant_code: "DELETE_GUARD_1",
+      common_name: "Delete guard plant",
+      source_system: "sqlite",
+      source_id: "delete-guard-1",
+      i18n: { vi: { common_name: "Cây guard xóa" }, en: { common_name: "Delete guard plant" } },
+    });
+    expect(plant.status).toBe(201);
+    const plantId = plant.body.data.id;
+
+    const syncService = {
+      isEnabled: () => false,
+      isAdminProxyEnabled: () => true,
+      canReadFromConvex: () => false,
+      adminMutation: async () => ({ ok: true }),
+    } as unknown as ConvexSyncService;
+    const proxied = createApp(db, {
+      auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" },
+      syncService,
+    });
+    const proxiedAdminAuth = await loginAs(proxied, "admin@example.com", "password123");
+    const proxiedEditorAuth = await loginAs(proxied, "editor@example.com", "editor-password");
+
+    // Editor: 403 on every delete path.
+    const singleDelete = await request(app).delete(`/api/master-plants/${plantId}`).set("Authorization", editorAuth);
+    expect(singleDelete.status).toBe(403);
+    const bulkDelete = await request(app)
+      .post("/api/master-plants/bulk")
+      .set("Authorization", editorAuth)
+      .send({ action: "delete", ids: [plantId] });
+    expect(bulkDelete.status).toBe(403);
+    const i18nDelete = await request(app).delete("/api/master-plants-i18n/999").set("Authorization", editorAuth);
+    expect(i18nDelete.status).toBe(403);
+    const deleteMutation = await request(proxied)
+      .post("/api/convex-admin/mutation")
+      .set("Authorization", proxiedEditorAuth)
+      .send({ path: "plantAdmin:deletePlant", args: { plantId } });
+    expect(deleteMutation.status).toBe(403);
+
+    // Editor can still create/update/curate.
+    const editorCreate = await request(app).post("/api/master-plants").set("Authorization", editorAuth).send({
+      plant_code: "EDITOR_OK_1",
+      common_name: "Editor plant",
+      source_system: "sqlite",
+      source_id: "editor-ok-1",
+      i18n: { vi: { common_name: "Cây editor" }, en: { common_name: "Editor plant" } },
+    });
+    expect(editorCreate.status).toBe(201);
+
+    // Admin: the same delete paths succeed.
+    const adminDelete = await request(app).delete(`/api/master-plants/${plantId}`).set("Authorization", adminAuth);
+    expect(adminDelete.status).toBe(204);
+    const adminMutation = await request(proxied)
+      .post("/api/convex-admin/mutation")
+      .set("Authorization", proxiedAdminAuth)
+      .send({ path: "plantAdmin:deletePlant", args: { plantId } });
+    expect(adminMutation.status).toBe(200);
   });
 
   it("rejects source identity conflicts during update", async () => {

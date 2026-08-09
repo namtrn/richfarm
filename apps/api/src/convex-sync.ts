@@ -62,12 +62,16 @@ export interface ConvexPlantLibraryItem {
     reviewStatus?: "unreviewed" | "in_review" | "reviewed";
     reviewedAt?: number;
     reviewedBy?: string;
+    contentOrigin?: "authored" | "inherited" | "imported";
   }>;
   group?: string;
   family?: string;
   cultivar?: string | null;
   cultivarNormalized?: string;
   imageUrl?: string | null;
+  contentTier?: "taxonomy_only" | "full_detail";
+  careStatus?: "missing" | "awaiting_review" | "verified" | "not_applicable";
+  missingViCommonName?: boolean;
   typicalDaysToHarvest?: number;
   germinationDays?: number;
   spacingCm?: number;
