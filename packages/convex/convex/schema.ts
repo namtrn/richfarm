@@ -89,6 +89,13 @@ export default defineSchema({
   plantsMaster: defineTable({
     scientificName: v.string(),
 
+    // Stable synchronization identity. Legacy rows may omit these fields until
+    // the additive backfill migration runs; projection code treats the legacy
+    // source field as a compatibility fallback.
+    sourceSystem: v.optional(v.string()),
+    sourceId: v.optional(v.string()),
+    recordVersion: v.optional(v.number()),
+
     // Taxonomy identity (Phase 1 additive; required will be enforced later).
     genus: v.optional(v.string()),
     species: v.optional(v.string()),
@@ -114,10 +121,37 @@ export default defineSchema({
 
     // Metadata
     source: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+    contentStatus: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("published"),
+        v.literal("needs_review"),
+        v.literal("archived"),
+      ),
+    ),
+    contentVersion: v.optional(v.number()),
+    reviewStatus: v.optional(
+      v.union(v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed")),
+    ),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
+
+    // Backend/admin fields kept on the canonical row instead of being hidden
+    // in an opaque metadata blob.
+    growthStage: v.optional(v.string()),
+    soilPhMin: v.optional(v.number()),
+    soilPhMax: v.optional(v.number()),
+    moistureTarget: v.optional(v.number()),
+    lightHours: v.optional(v.number()),
+    notes: v.optional(v.string()),
   })
     .index("by_scientific_name", ["scientificName"])
     .index("by_group", ["group"])
-    .index("by_family", ["family"]),
+    .index("by_family", ["family"])
+    .index("by_source_identity", ["sourceSystem", "sourceId"])
+    .index("by_active", ["isActive"]),
 
   // ==========================================
   // Master Data: Plant i18n
@@ -127,6 +161,22 @@ export default defineSchema({
     locale: v.string(),
     commonName: v.string(),
     description: v.optional(v.string()),
+    source: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    contentStatus: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("published"),
+        v.literal("needs_review"),
+        v.literal("archived"),
+      ),
+    ),
+    contentVersion: v.optional(v.number()),
+    reviewStatus: v.optional(
+      v.union(v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed")),
+    ),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   })
     .index("by_plant_locale", ["plantId", "locale"])
     .index("by_locale_common_name", ["locale", "commonName"]),
@@ -144,6 +194,23 @@ export default defineSchema({
     yieldKgPerM2: v.optional(v.number()),
     wateringFrequencyDays: v.optional(v.number()),
     fertilizingFrequencyDays: v.optional(v.number()),
+    soilPhMin: v.optional(v.number()),
+    soilPhMax: v.optional(v.number()),
+    moistureTarget: v.optional(v.number()),
+    lightHours: v.optional(v.number()),
+    source: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    contentStatus: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("published"),
+        v.literal("needs_review"),
+        v.literal("archived"),
+      ),
+    ),
+    contentVersion: v.optional(v.number()),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   }).index("by_plant", ["plantId"]),
 
   plantCareI18n: defineTable({
@@ -151,6 +218,18 @@ export default defineSchema({
     locale: v.string(),
     careContent: v.string(),
     contentVersion: v.optional(v.number()),
+    source: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    contentStatus: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("published"),
+        v.literal("needs_review"),
+        v.literal("archived"),
+      ),
+    ),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
   }).index("by_plant_locale", ["plantId", "locale"]),
 
   plantRelations: defineTable({
