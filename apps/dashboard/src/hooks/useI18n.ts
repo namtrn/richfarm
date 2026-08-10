@@ -1,6 +1,66 @@
 import { useState, useMemo, useCallback } from "react";
 import type { PlantI18nRow, I18nFormState, Mode, Plant } from "../types";
-import { convexAdminMutation, convexAdminQuery, emptyI18nForm, type AuthedFetch } from "../constants";
+import { emptyI18nForm, type AuthedFetch } from "../constants";
+
+type BackendI18nRow = {
+    id: number | string;
+    master_plant_id: number | string;
+    locale: string;
+    common_name: string;
+    description?: string | null;
+    care_content_json?: Record<string, unknown> | null;
+    content_version?: number;
+    source?: string | null;
+    source_url?: string | null;
+    content_status?: string;
+    review_status?: string;
+    reviewed_at?: string | null;
+    reviewed_by?: string | null;
+    content_origin?: "authored" | "inherited" | "imported";
+    plant_scientific_name?: string | null;
+    plant_group?: string | null;
+};
+
+function mapBackendI18n(row: BackendI18nRow): PlantI18nRow {
+    return {
+        _id: String(row.id),
+        plantId: String(row.master_plant_id),
+        locale: row.locale,
+        commonName: row.common_name,
+        description: row.description ?? undefined,
+        careContent: JSON.stringify(row.care_content_json ?? {}),
+        contentVersion: row.content_version,
+        source: row.source ?? undefined,
+        sourceUrl: row.source_url ?? undefined,
+        contentStatus: row.content_status,
+        reviewStatus: row.review_status,
+        reviewedAt: row.reviewed_at ?? undefined,
+        reviewedBy: row.reviewed_by ?? undefined,
+        contentOrigin: row.content_origin ?? "imported",
+        plantScientificName: row.plant_scientific_name ?? undefined,
+        plantGroup: row.plant_group ?? undefined,
+    };
+}
+
+function normalizeSearch(value: unknown): string {
+    return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+function parseCareContent(value: string): Record<string, unknown> {
+    if (!value.trim()) return {};
+    try {
+        const parsed = JSON.parse(value);
+        return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+        // Keep authored free-form care text lossless while the API persists a
+        // JSON object. Structured callers still round-trip their original map.
+        return { text: value };
+    }
+}
 
 function toFormState(row: PlantI18nRow): I18nFormState {
     return {
@@ -33,8 +93,10 @@ export function useI18n(authedFetch: AuthedFetch) {
         setLoading(true);
         setError("");
         try {
-            const data = await convexAdminQuery<PlantI18nRow[]>(authedFetch, "plantAdmin:listPlantI18n");
-            setRows(data);
+            const response = await authedFetch("/api/master-plants-i18n?source=sqlite");
+            const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow[]; error?: string };
+            if (!response.ok || !body.data) throw new Error(body.error ?? "Cannot load plant i18n");
+            setRows(body.data.map(mapBackendI18n));
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot load plant i18n");
         } finally {
@@ -48,7 +110,7 @@ export function useI18n(authedFetch: AuthedFetch) {
     );
 
     const filtered = useMemo(() => {
-        const normalized = search.trim().toLowerCase();
+        const normalized = normalizeSearch(search);
         let result = rows.slice();
         if (normalized) {
             result = result.filter((row) => {
@@ -59,9 +121,8 @@ export function useI18n(authedFetch: AuthedFetch) {
                     row.commonName,
                     row.description ?? "",
                 ]
-                    .join(" ")
-                    .toLowerCase();
-                return haystack.includes(normalized);
+                    .join(" ");
+                return normalizeSearch(haystack).includes(normalized);
             });
         }
         return result.sort((a, b) => a.commonName.localeCompare(b.commonName));
@@ -122,37 +183,45 @@ export function useI18n(authedFetch: AuthedFetch) {
         setError("");
         try {
             const payload = {
-                plantId: form.plantId as any,
+                master_plant_id: Number(form.plantId),
                 locale: form.locale.trim(),
-                commonName: form.commonName.trim(),
+                common_name: form.commonName.trim(),
                 description: form.description.trim() || undefined,
-                careContent: form.careContent.trim() || undefined,
-                contentVersion,
+                care_content_json: parseCareContent(form.careContent),
+                content_version: contentVersion,
                 source: form.source.trim() || undefined,
-                sourceUrl: form.sourceUrl.trim() || undefined,
-                contentStatus: form.contentStatus,
-                reviewStatus: form.reviewStatus,
-                reviewedBy: form.reviewedBy.trim() || undefined,
+                source_url: form.sourceUrl.trim() || undefined,
+                content_status: form.contentStatus,
+                review_status: form.reviewStatus,
+                reviewed_by: form.reviewedBy.trim() || undefined,
+                content_origin: form.contentOrigin,
             };
+            if (!Number.isInteger(payload.master_plant_id) || payload.master_plant_id <= 0) {
+                throw new Error("Plant must have a numeric SQLite id.");
+            }
 
             if (mode === "create") {
-                const result = await convexAdminMutation<{ rowId: string }>(
-                    authedFetch,
-                    "plantAdmin:createPlantI18n",
-                    payload,
-                );
-                await load();
-                setSelectedId(result.rowId);
-                setMode("view");
-                return "Translation created successfully";
-            } else if (mode === "edit" && selected) {
-                await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlantI18n", {
-                    rowId: selected._id,
-                    ...payload,
+                const response = await authedFetch("/api/master-plants-i18n", {
+                    method: "POST",
+                    body: JSON.stringify(payload),
                 });
-                await load();
+                const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow; error?: string };
+                if (!response.ok || !body.data) throw new Error(body.error ?? "Cannot save i18n");
+                setSelectedId(String(body.data.id));
                 setMode("view");
-                return "Translation updated successfully";
+                void load();
+                return "Translation created locally";
+            } else if (mode === "edit" && selected) {
+                if (!/^\d+$/.test(selected._id)) throw new Error("Translation does not have a numeric SQLite id.");
+                const response = await authedFetch(`/api/master-plants-i18n/${selected._id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(payload),
+                });
+                const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow; error?: string };
+                if (!response.ok || !body.data) throw new Error(body.error ?? "Cannot save i18n");
+                setMode("view");
+                void load();
+                return "Translation updated locally";
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot save i18n");
@@ -169,12 +238,17 @@ export function useI18n(authedFetch: AuthedFetch) {
         setSaving(true);
         setError("");
         try {
-            await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlantI18n", {
-                rowId: selected._id,
+            if (!/^\d+$/.test(selected._id)) throw new Error("Translation does not have a numeric SQLite id.");
+            const response = await authedFetch(`/api/master-plants-i18n/${selected._id}`, {
+                method: "DELETE",
             });
+            if (!response.ok) {
+                const body = await response.json().catch(() => ({})) as { error?: string };
+                throw new Error(body.error ?? "Cannot delete i18n");
+            }
             setSelectedId(null);
-            await load();
-            return "Translation deleted";
+            void load();
+            return "Translation deleted locally";
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot delete i18n");
         } finally {
@@ -196,7 +270,26 @@ export function useI18n(authedFetch: AuthedFetch) {
         reviewStatus?: I18nFormState["reviewStatus"];
         reviewedBy?: string;
     }) {
-        return convexAdminMutation<{ rowId: string }>(authedFetch, "plantAdmin:createPlantI18n", input);
+        const response = await authedFetch("/api/master-plants-i18n", {
+            method: "POST",
+            body: JSON.stringify({
+                master_plant_id: Number(input.plantId),
+                locale: input.locale,
+                common_name: input.commonName,
+                description: input.description,
+                care_content_json: parseCareContent(input.careContent ?? ""),
+                content_version: input.contentVersion,
+                source: input.source,
+                source_url: input.sourceUrl,
+                content_status: input.contentStatus,
+                review_status: input.reviewStatus,
+                reviewed_by: input.reviewedBy,
+                content_origin: "authored",
+            }),
+        });
+        const body = await response.json().catch(() => ({})) as { data?: BackendI18nRow; error?: string };
+        if (!response.ok || !body.data) throw new Error(body.error ?? "Cannot create i18n");
+        return { rowId: String(body.data.id) };
     }
 
     return {

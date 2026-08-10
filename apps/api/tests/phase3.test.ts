@@ -96,14 +96,11 @@ describe("Phase 3 master-data contract", () => {
     expect(exported.body[0].i18n.es.care_content_json).toEqual({});
   });
 
-  it("keeps failed source writes retryable in the outbox", async () => {
-    let shouldFail = true;
+  it("persists locally before publishing and never replays stale outbox payloads over local edits", async () => {
     const syncService = {
       isEnabled: () => true,
       canReadFromConvex: () => false,
-      syncUpsert: async () => {
-        if (shouldFail) throw new Error("Convex unavailable");
-      },
+      syncUpsert: async () => undefined,
       syncDelete: async () => undefined,
     } as unknown as ConvexSyncService;
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
@@ -115,16 +112,170 @@ describe("Phase 3 master-data contract", () => {
       source_id: "outbox-1",
       i18n: { vi: { common_name: "Cây outbox" }, en: { common_name: "Outbox plant" } },
     });
-    expect(response.status).toBe(503);
-    expect(response.body.retryable).toBe(true);
-    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants`).get() as { count: number }).count).toBe(0);
+    expect(response.status).toBe(201);
+    expect(response.body.queued).toBe(true);
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE source_id = 'outbox-1' AND sync_origin = 'local'`).get() as { count: number }).count).toBe(1);
     expect((db.prepare(`SELECT status FROM sync_outbox WHERE source_id = 'outbox-1'`).get() as { status: string }).status).toBe("pending");
 
-    shouldFail = false;
+    const update = await request(app)
+      .patch(`/api/master-plants/${response.body.data.id}`)
+      .set("Authorization", auth)
+      .send({ common_name: "Newer local name" });
+    expect(update.status).toBe(200);
+    expect(update.body.queued).toBe(true);
+
     const process = await request(app).post("/api/master-plants/sync-outbox/process").set("Authorization", auth);
     expect(process.status).toBe(200);
+    // Enqueue coalesces pending upserts by source identity, so only the latest
+    // payload is published.
     expect(process.body.applied).toBe(1);
-    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE source_id = 'outbox-1' AND sync_origin = 'mirror'`).get() as { count: number }).count).toBe(1);
+    const persisted = db.prepare(`SELECT common_name, sync_origin FROM master_plants WHERE source_id = 'outbox-1'`).get() as { common_name: string; sync_origin: string };
+    expect(persisted).toEqual({ common_name: "Newer local name", sync_origin: "local" });
+  });
+
+  it("queues local plant and i18n writes even when Convex sync is disabled", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const auth = await login(app);
+    const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "LOCAL_QUEUE_1",
+      common_name: "Local queue plant",
+      source_system: "sqlite",
+      source_id: "local-queue-1",
+      i18n: { vi: { common_name: "Cây hàng đợi" }, en: { common_name: "Local queue plant" } },
+    });
+    expect(created.status).toBe(201);
+    expect(created.body.queued).toBe(true);
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'local-queue-1' AND operation = 'upsert_plant' AND status = 'pending'`).get() as { n: number }).n).toBe(1);
+
+    const translation = await request(app).post("/api/master-plants-i18n").set("Authorization", auth).send({
+      master_plant_id: created.body.data.id,
+      locale: "ES",
+      common_name: "Planta local",
+      care_content_json: { watering: { days: 2 } },
+      content_origin: "authored",
+    });
+    expect(translation.status).toBe(201);
+    expect(translation.body).toMatchObject({ queued: true, data: { locale: "es", care_content_json: { watering: { days: 2 } }, content_origin: "authored" } });
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'local-queue-1' AND operation = 'upsert_i18n' AND locale = 'es' AND status = 'pending'`).get() as { n: number }).n).toBe(1);
+  });
+
+  it("queue-local assigns stable legacy identities, dedupes, and never publishes", async () => {
+    let publishCalls = 0;
+    const syncService = {
+      isEnabled: () => true,
+      canReadFromConvex: () => false,
+      syncUpsert: async () => { publishCalls += 1; },
+      syncDelete: async () => { publishCalls += 1; },
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const auth = await login(app);
+    const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "LEGACY_LOCAL_1",
+      common_name: "Legacy local",
+      source_system: "sqlite",
+      source_id: "temporary-id",
+      i18n: { vi: { common_name: "Cây cũ" }, en: { common_name: "Legacy local" } },
+    });
+    expect(created.status).toBe(201);
+    db.prepare(`DELETE FROM sync_outbox`).run();
+    db.prepare(`UPDATE master_plants SET source_id = NULL WHERE id = ?`).run(created.body.data.id);
+
+    const first = await request(app).post("/api/master-plants/sync-outbox/queue-local").set("Authorization", auth);
+    expect(first.status).toBe(200);
+    expect(first.body).toEqual({ ok: true, scanned: 1, queued: 1, identitiesAssigned: 1, publishStarted: false });
+    expect(publishCalls).toBe(0);
+    const stableId = `sqlite-local-${created.body.data.id}`;
+    expect((db.prepare(`SELECT source_id FROM master_plants WHERE id = ?`).get(created.body.data.id) as { source_id: string }).source_id).toBe(stableId);
+
+    const second = await request(app).post("/api/master-plants/sync-outbox/queue-local").set("Authorization", auth);
+    expect(second.body).toMatchObject({ scanned: 1, queued: 1, identitiesAssigned: 0, publishStarted: false });
+    expect(publishCalls).toBe(0);
+    const queued = db.prepare(`SELECT source_id, status, payload_json FROM sync_outbox`).all() as Array<{ source_id: string; status: string; payload_json: string }>;
+    expect(queued).toHaveLength(1);
+    expect(queued[0]).toMatchObject({ source_id: stableId, status: "pending" });
+    expect(JSON.parse(queued[0].payload_json).source_id).toBe(stableId);
+  });
+
+  it("maps i18n REST list, create, update, delete, and required-locale guard", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const auth = await login(app);
+    const plant = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "I18N_REST_1",
+      common_name: "Rosemary",
+      scientific_name: "Salvia rosmarinus",
+      group: "herb",
+      i18n: { vi: { common_name: "Hương thảo" }, en: { common_name: "Rosemary" } },
+    });
+    const created = await request(app).post("/api/master-plants-i18n").set("Authorization", auth).send({
+      master_plant_id: plant.body.data.id,
+      locale: "FR",
+      common_name: "Romarin",
+      care_content_json: { light: "sun" },
+      content_origin: "imported",
+    });
+    expect(created.status).toBe(201);
+
+    const listed = await request(app).get("/api/master-plants-i18n?locale=FR").set("Authorization", auth);
+    expect(listed.body.data).toEqual([expect.objectContaining({
+      id: created.body.data.id,
+      master_plant_id: plant.body.data.id,
+      locale: "fr",
+      common_name: "Romarin",
+      care_content_json: { light: "sun" },
+      content_origin: "imported",
+      plant_scientific_name: "Salvia rosmarinus",
+      plant_group: "herb",
+    })]);
+
+    const updated = await request(app).patch(`/api/master-plants-i18n/${created.body.data.id}`).set("Authorization", auth).send({
+      common_name: "Romarin officinal",
+      care_content_json: { light: "full_sun", water: 2 },
+      content_origin: "authored",
+    });
+    expect(updated.body).toMatchObject({ queued: true, data: { common_name: "Romarin officinal", care_content_json: { light: "full_sun", water: 2 }, content_origin: "authored" } });
+
+    const requiredVi = db.prepare(`SELECT id FROM master_plant_i18n WHERE master_plant_id = ? AND locale = 'vi'`).get(plant.body.data.id) as { id: number };
+    const guarded = await request(app).delete(`/api/master-plants-i18n/${requiredVi.id}`).set("Authorization", auth);
+    expect(guarded.status).toBe(400);
+    expect(guarded.body.error).toBe("vi and en translations are required");
+    const removed = await request(app).delete(`/api/master-plants-i18n/${created.body.data.id}`).set("Authorization", auth);
+    expect(removed.status).toBe(204);
+    expect(db.prepare(`SELECT 1 FROM master_plant_i18n WHERE id = ?`).get(created.body.data.id)).toBeUndefined();
+    expect((db.prepare(`SELECT operation, locale FROM sync_outbox WHERE source_id = ? AND operation = 'delete_i18n'`).get(plant.body.data.source_id) as { operation: string; locale: string })).toEqual({ operation: "delete_i18n", locale: "fr" });
+  });
+
+  it("provides deterministic SQLite search, missing-i18n stats, and cluster pagination", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const auth = await login(app);
+    const plants = [
+      { plant_code: "SPINACH_1", common_name: "Malabar spinach", scientific_name: "Basella alba", family: "Basellaceae", group: "leafy", image_url: "https://example.com/a.jpg", i18n: { vi: { common_name: "Mồng tơi" }, en: { common_name: "Malabar spinach" } } },
+      { plant_code: "BASIL_1", common_name: "Basil", scientific_name: "Ocimum basilicum", family: "Lamiaceae", group: "herb", i18n: { vi: { common_name: "Húng quế" }, en: { common_name: "Basil" } } },
+      { plant_code: "MINT_1", common_name: "Mint", scientific_name: "Mentha spicata", family: "Lamiaceae", group: "herb", i18n: { vi: { common_name: "Bạc hà" }, en: { common_name: "Mint" } } },
+      { plant_code: "DILL_1", common_name: "Dill", scientific_name: "Anethum graveolens", family: "Apiaceae", group: "herb", i18n: { vi: { common_name: "Thì là" }, en: { common_name: "Dill" } } },
+    ];
+    for (const plant of plants) {
+      const created = await request(app).post("/api/master-plants").set("Authorization", auth).send(plant);
+      expect(created.status).toBe(201);
+    }
+    db.prepare(`DELETE FROM master_plant_i18n WHERE locale = 'en' AND master_plant_id = (SELECT id FROM master_plants WHERE plant_code = 'MINT_1')`).run();
+    db.prepare(`DELETE FROM master_plant_i18n WHERE locale = 'vi' AND master_plant_id = (SELECT id FROM master_plants WHERE plant_code = 'DILL_1')`).run();
+
+    const accented = await request(app).get("/api/master-plants?source=sqlite&search=m%E1%BB%93ng%20t%C6%A1i").set("Authorization", auth);
+    const plain = await request(app).get("/api/master-plants?source=sqlite&search=mong%20toi").set("Authorization", auth);
+    expect(accented.body.data.map((row: { plant_code: string }) => row.plant_code)).toEqual(["SPINACH_1"]);
+    expect(plain.body.data.map((row: { plant_code: string }) => row.plant_code)).toEqual(["SPINACH_1"]);
+
+    const missing = await request(app).get("/api/master-plants?source=sqlite&missing_i18n=true").set("Authorization", auth);
+    expect(missing.body.data.map((row: { plant_code: string }) => row.plant_code).sort()).toEqual(["DILL_1", "MINT_1"]);
+    const stats = await request(app).get("/api/master-plants/stats?source=sqlite").set("Authorization", auth);
+    expect(stats.body).toMatchObject({ total: 4, missingVi: 1, missingEn: 1, missingI18n: 2, missingImage: 3 });
+
+    const page1 = await request(app).get("/api/master-plants?source=sqlite&view_mode=family&page=1&page_size=2").set("Authorization", auth);
+    const page2 = await request(app).get("/api/master-plants?source=sqlite&view_mode=family&page=2&page_size=2").set("Authorization", auth);
+    expect(page1.body.pagination).toEqual({ page: 1, page_size: 2, total: 4 });
+    expect([...page1.body.data, ...page2.body.data].map((row: { plant_code: string }) => row.plant_code)).toEqual([
+      "DILL_1", "SPINACH_1", "BASIL_1", "MINT_1",
+    ]);
   });
 
   it("rejects forged viewer-role tokens and persists care_status/content_origin round-trip", async () => {

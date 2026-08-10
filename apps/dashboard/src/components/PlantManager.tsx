@@ -29,6 +29,87 @@ const PLANT_LANGUAGE_OPTIONS = [
 ] as const;
 type PlantLanguageOption = (typeof PLANT_LANGUAGE_OPTIONS)[number]["value"];
 
+const CARE_SECTION_LABELS: Record<string, Record<string, string>> = {
+    en: {
+        watering: "Watering",
+        fertilizing: "Fertilizing",
+        location: "Location & light",
+        soil: "Soil",
+        nutrition: "Nutrition",
+        propagation: "Propagation",
+        temperature: "Temperature",
+        toxicity: "Safety",
+    },
+    vi: {
+        watering: "Tưới nước",
+        fertilizing: "Bón phân",
+        location: "Vị trí & ánh sáng",
+        soil: "Đất trồng",
+        nutrition: "Dinh dưỡng",
+        propagation: "Nhân giống",
+        temperature: "Nhiệt độ",
+        toxicity: "An toàn",
+    },
+};
+
+type FriendlyCareSection = {
+    key: string;
+    intro?: string;
+    items: string[];
+};
+
+export function parseFriendlyCare(careContent?: string): FriendlyCareSection[] {
+    if (!careContent?.trim()) return [];
+    try {
+        const parsed = JSON.parse(careContent) as unknown;
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return [];
+        return Object.entries(parsed as Record<string, unknown>).flatMap(([key, value]) => {
+            if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+            const section = value as { intro?: unknown; items?: unknown };
+            const intro = typeof section.intro === "string" ? section.intro.trim() : "";
+            const items = Array.isArray(section.items)
+                ? section.items.filter((item): item is string => typeof item === "string" && Boolean(item.trim()))
+                : [];
+            return intro || items.length ? [{ key, intro: intro || undefined, items }] : [];
+        });
+    } catch {
+        return [];
+    }
+}
+
+export function careContentToMarkdown(careContent: string | undefined, locale: string): string {
+    const labels = CARE_SECTION_LABELS[locale] ?? CARE_SECTION_LABELS.en;
+    return parseFriendlyCare(careContent)
+        .map((section) => [
+            `### ${labels[section.key] ?? section.key.replaceAll("_", " ")}`,
+            section.intro,
+            ...section.items.map((item) => `- ${item}`),
+        ].filter(Boolean).join("\n\n"))
+        .join("\n\n");
+}
+
+function CareContent({ content, locale }: { content?: string; locale: string }) {
+    const markdown = careContentToMarkdown(content, locale);
+    const hasRawContent = Boolean(content?.trim() && content.trim() !== "{}");
+    if (!hasRawContent) return <p className="muted small">No care guide yet.</p>;
+
+    return (
+        <div className="care-content">
+            {markdown ? (
+                <div className="markdown-body care-markdown">
+                    <ReactMarkdown>{markdown}</ReactMarkdown>
+                </div>
+            ) : (
+                <p className="muted small">Care data is available in raw format.</p>
+            )}
+            <details className="care-json-details">
+                <summary>View raw JSON</summary>
+                <pre>{content}</pre>
+            </details>
+        </div>
+    );
+}
+
 function NumericInput({
     label,
     value,
@@ -165,6 +246,10 @@ export function PlantManager({
         setSelectedIds(new Set());
     }, [p.page, p.search, p.groupFilter, p.filterMissingI18n, p.filterNoImage, p.viewMode]);
 
+    useEffect(() => {
+        void i18n.load();
+    }, [i18n.load]);
+
     // toggle single row selection
     function toggleSelect(id: string) {
         setSelectedIds((prev) => {
@@ -238,19 +323,14 @@ export function PlantManager({
         }
     }
 
-    async function handleSyncConvexToJson() {
-        const msg = await backend.syncConvexToJson();
-        if (msg) {
-            onToast("success", msg);
-        }
+    async function handlePublish() {
+        const msg = await backend.publishSyncOutbox();
+        if (msg) onToast("success", msg);
     }
 
-    async function handleSyncConvexToSqlite() {
-        const msg = await backend.syncConvexToSqlite();
-        if (msg) {
-            onToast("success", msg);
-            void p.load();
-        }
+    async function handleQueueLocalAuthoring() {
+        const msg = await backend.queueLocalAuthoring();
+        if (msg) onToast("info", msg);
     }
 
 
@@ -266,11 +346,11 @@ export function PlantManager({
                     <button className="btn secondary" onClick={() => void backend.exportData("json")} disabled={backend.exportLoading}>
                         ⬇ JSON
                     </button>
-                    <button className="btn secondary" onClick={() => void handleSyncConvexToJson()} disabled={backend.syncJsonLoading}>
-                        {backend.syncJsonLoading ? "⟳ Syncing..." : "⇅ Convex → JSON"}
+                    <button className="btn secondary" onClick={() => void handlePublish()}>
+                        ⇧ Publish pending
                     </button>
-                    <button className="btn secondary" onClick={() => void handleSyncConvexToSqlite()} disabled={backend.syncSqliteLoading}>
-                        {backend.syncSqliteLoading ? "⟳ Syncing..." : "⇄ Convex → DB"}
+                    <button className="btn secondary" onClick={() => void handleQueueLocalAuthoring()} disabled={backend.queueLocalLoading}>
+                        {backend.queueLocalLoading ? "⟳ Queueing..." : "＋ Queue local drafts"}
                     </button>
                     <button className="btn secondary" onClick={() => void backend.exportData("csv")} disabled={backend.exportLoading}>
                         ⬇ CSV
@@ -664,7 +744,7 @@ function PlantDetail({
                                     </div>
                                     <p className="i18n-common-name">{row.commonName}</p>
                                     <div className="markdown-body i18n-desc"><ReactMarkdown>{row.description ?? "No description"}</ReactMarkdown></div>
-                                    {row.careContent && <p className="muted small">Care: {row.careContent}</p>}
+                                    <CareContent content={row.careContent} locale={row.locale} />
                                     <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
                                 </div>
                             );

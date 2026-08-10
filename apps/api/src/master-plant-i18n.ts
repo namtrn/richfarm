@@ -26,6 +26,7 @@ const localeContentSchema = z.object({
   review_status: z.enum(["unreviewed", "in_review", "reviewed"]).optional(),
   reviewed_at: z.string().datetime().nullish(),
   reviewed_by: z.string().trim().max(240).nullish(),
+  content_origin: z.enum(["authored", "inherited", "imported"]).optional(),
 });
 
 const createI18nSchema = z.object({
@@ -53,6 +54,7 @@ interface I18nRow {
   review_status: string;
   reviewed_at: string | null;
   reviewed_by: string | null;
+  content_origin: string;
   created_at: string;
   updated_at: string;
 }
@@ -80,6 +82,7 @@ function normalizeI18n(row: I18nRow) {
     review_status: row.review_status,
     reviewed_at: row.reviewed_at,
     reviewed_by: row.reviewed_by,
+    content_origin: row.content_origin,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -99,6 +102,7 @@ function canonicalI18nPayload(db: SqliteDatabase, plantId: number) {
       review_status: row.review_status,
       ...(row.reviewed_at ? { reviewed_at: row.reviewed_at } : {}),
       ...(row.reviewed_by ? { reviewed_by: row.reviewed_by } : {}),
+      content_origin: row.content_origin,
     };
     return result;
   }, {});
@@ -120,6 +124,34 @@ function ensureRequiredLocales(db: SqliteDatabase, plantId: number, i18n: Record
 
 export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: ConvexSyncService): Router {
   const router = Router();
+
+  // Dashboard i18n management is SQLite-local. Keep Convex out of this read
+  // path and expose numeric SQLite ids explicitly so callers never mistake a
+  // Convex document id for a writable row id.
+  router.get("/", (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const locale = typeof req.query.locale === "string" ? req.query.locale.trim().toLowerCase() : "";
+      const rows = db.prepare(`
+        SELECT i.*, mp.scientific_name AS plant_scientific_name, mp."group" AS plant_group
+        FROM master_plant_i18n i
+        JOIN master_plants mp ON mp.id = i.master_plant_id
+        ${locale ? "WHERE i.locale = ?" : ""}
+        ORDER BY i.common_name COLLATE NOCASE ASC, i.id ASC
+      `).all(...(locale ? [locale] : [])) as Array<I18nRow & {
+        plant_scientific_name: string | null;
+        plant_group: string | null;
+      }>;
+      res.json({
+        data: rows.map((row) => ({
+          ...normalizeI18n(row),
+          plant_scientific_name: row.plant_scientific_name,
+          plant_group: row.plant_group,
+        })),
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   router.get("/:plantId", (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -147,10 +179,10 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
       };
       const fullPayload = withSourceIdentity(buildMasterPlantPayload(db, current, i18n));
 
-      if (syncService?.isEnabled()) {
-        try {
-          await syncService.syncUpsert(fullPayload as unknown as Record<string, unknown>);
-        } catch (error) {
+      const queued = true;
+      const rowId = db.transaction(() => {
+        const id = upsertMasterPlantRow(db, { ...fullPayload, sync_origin: "local" });
+        if (queued) {
           enqueueSyncOutbox(db, {
             entityType: "master_plant",
             sourceSystem: fullPayload.source_system,
@@ -159,18 +191,11 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
             locale: payload.locale,
             payload: fullPayload as unknown as Record<string, unknown>,
           });
-          res.status(503).json({ error: "Convex source write failed; translation was queued for retry", retryable: true, outbox: true });
-          return;
         }
-        const rowId = db.transaction(() => upsertMasterPlantRow(db, { ...fullPayload, sync_origin: "mirror" }))();
-        const saved = db.prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ? AND locale = ?`).get(rowId, payload.locale) as I18nRow;
-        res.status(201).json({ data: normalizeI18n(saved) });
-        return;
-      }
-
-      const rowId = db.transaction(() => upsertMasterPlantRow(db, fullPayload))();
+        return id;
+      })();
       const saved = db.prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ? AND locale = ?`).get(rowId, payload.locale) as I18nRow;
-      res.status(201).json({ data: normalizeI18n(saved) });
+      res.status(201).json({ data: normalizeI18n(saved), queued });
     } catch (error) {
       next(error);
     }
@@ -198,10 +223,13 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
       };
       const fullPayload = withSourceIdentity(buildMasterPlantPayload(db, current, i18n));
 
-      if (syncService?.isEnabled()) {
-        try {
-          await syncService.syncUpsert(fullPayload as unknown as Record<string, unknown>);
-        } catch (error) {
+      const queued = true;
+      const rowId = db.transaction(() => {
+        const id = upsertMasterPlantRow(db, {
+          ...fullPayload,
+          sync_origin: "local",
+        });
+        if (queued) {
           enqueueSyncOutbox(db, {
             entityType: "master_plant",
             sourceSystem: fullPayload.source_system,
@@ -210,17 +238,11 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
             locale: existing.locale,
             payload: fullPayload as unknown as Record<string, unknown>,
           });
-          res.status(503).json({ error: "Convex source write failed; translation was queued for retry", retryable: true, outbox: true });
-          return;
         }
-      }
-
-      const rowId = db.transaction(() => upsertMasterPlantRow(db, {
-        ...fullPayload,
-        sync_origin: syncService?.isEnabled() ? "mirror" : current.sync_origin,
-      }))();
+        return id;
+      })();
       const updated = db.prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ? AND locale = ?`).get(rowId, existing.locale) as I18nRow;
-      res.json({ data: normalizeI18n(updated) });
+      res.json({ data: normalizeI18n(updated), queued });
     } catch (error) {
       next(error);
     }
@@ -244,10 +266,13 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
       delete i18n[existing.locale];
       const fullPayload = withSourceIdentity(buildMasterPlantPayload(db, current, ensureRequiredLocales(db, current.id, i18n, current.common_name)));
 
-      if (syncService?.isEnabled()) {
-        try {
-          await syncService.syncUpsert(fullPayload as unknown as Record<string, unknown>);
-        } catch (error) {
+      const queued = true;
+      db.transaction(() => {
+        upsertMasterPlantRow(db, {
+          ...fullPayload,
+          sync_origin: "local",
+        });
+        if (queued) {
           enqueueSyncOutbox(db, {
             entityType: "master_plant",
             sourceSystem: fullPayload.source_system,
@@ -256,14 +281,8 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
             locale: existing.locale,
             payload: fullPayload as unknown as Record<string, unknown>,
           });
-          res.status(503).json({ error: "Convex source write failed; translation deletion was queued for retry", retryable: true, outbox: true });
-          return;
         }
-      }
-      db.transaction(() => upsertMasterPlantRow(db, {
-        ...fullPayload,
-        sync_origin: syncService?.isEnabled() ? "mirror" : current.sync_origin,
-      }))();
+      })();
       res.status(204).send();
     } catch (error) {
       next(error);

@@ -715,6 +715,48 @@ tr.selected:hover {
   margin: 0 0 4px;
 }
 
+.care-content {
+  margin: 12px 0;
+}
+
+.care-markdown h3 {
+  border-left: 3px solid var(--color-teal);
+  color: var(--color-slate-800);
+  font-size: 13px;
+  margin: 12px 0 4px;
+  padding-left: 10px;
+}
+
+.care-markdown p,
+.care-markdown ul {
+  color: var(--color-slate-600);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.care-json-details {
+  margin-top: 10px;
+  color: var(--color-slate-500);
+  font-size: 12px;
+}
+
+.care-json-details summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
+.care-json-details pre {
+  background: var(--color-slate-900);
+  border-radius: var(--radius-sm);
+  color: var(--color-slate-100);
+  margin: 8px 0 0;
+  max-height: 240px;
+  overflow: auto;
+  padding: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .i18n-desc {
   font-size: 13px;
   color: var(--color-slate-500);

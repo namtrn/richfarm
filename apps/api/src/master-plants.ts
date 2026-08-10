@@ -162,6 +162,25 @@ const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   page_size: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().trim().max(120).optional(),
+  group: z.string().trim().max(80).optional(),
+  group_filter: z.string().trim().max(80).optional(),
+  missing_i18n: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((value) => value === "true" || value === "1"),
+  filter_missing_i18n: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((value) => value === "true" || value === "1"),
+  no_image: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((value) => value === "true" || value === "1"),
+  filter_no_image: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((value) => value === "true" || value === "1"),
+  view_mode: z.enum(["common", "family"]).default("common"),
   source: z.enum(["auto", "convex", "sqlite"]).default("auto"),
   is_active: z
     .enum(["true", "false", "1", "0"])
@@ -174,6 +193,15 @@ const listQuerySchema = z.object({
       return value === "true" || value === "1";
     }),
 });
+
+/** Normalize user-entered search text for local, accent-insensitive matching. */
+export function normalizePlantSearchText(value: unknown): string {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
 interface MasterPlantRow {
   id: number;
@@ -475,14 +503,6 @@ export function buildMasterPlantPayload(
   }));
 }
 
-function syncIdentity(row: MasterPlantRow) {
-  return {
-    id: row.id,
-    sourceSystem: row.source_system,
-    sourceId: row.source_id,
-  };
-}
-
 const SQLITE_INFRASPECIFIC_PATTERN = /^(subsp|ssp|var|f)\.?$/i;
 
 function normalizeSqliteTaxonomyToken(value: unknown) {
@@ -584,6 +604,47 @@ function queuePlantSync(
     operation,
     payload: payload as unknown as Record<string, unknown>,
   });
+}
+
+/**
+ * Queue every local-authoring plant for the explicit publish action.
+ *
+ * Existing seed rows predate stable source identity and have NULL source_id.
+ * Assign a deterministic SQLite identity from the row id while queueing so a
+ * repeated request updates the same dedupe key instead of creating duplicate
+ * publish work. This function only writes local provenance/outbox state; it
+ * never invokes Convex.
+ */
+export function queueLocalAuthoringPlantsForPublish(
+  db: SqliteDatabase,
+  limit = 5000,
+): { scanned: number; queued: number; identitiesAssigned: number } {
+  return db.transaction(() => {
+    const rows = db.prepare(`
+      SELECT * FROM master_plants
+      WHERE sync_origin = 'local'
+      ORDER BY id ASC
+      LIMIT ?
+    `).all(Math.max(1, Math.min(5000, limit))) as MasterPlantRow[];
+    let identitiesAssigned = 0;
+    for (const row of rows) {
+      const sourceId = row.source_id?.trim() || `sqlite-local-${row.id}`;
+      if (!row.source_id?.trim()) {
+        db.prepare(`UPDATE master_plants SET source_id = ?, updated_at = updated_at WHERE id = ?`)
+          .run(sourceId, row.id);
+        identitiesAssigned++;
+      }
+      const payload = withSourceIdentity(createMasterPlantSchema.parse({
+        ...normalizeMasterPlant(row),
+        source_system: row.source_system?.trim() || "sqlite",
+        source_id: sourceId,
+        i18n: fetchI18n(db, row.id),
+        sync_origin: "local",
+      }));
+      queuePlantSync(db, payload);
+    }
+    return { scanned: rows.length, queued: rows.length, identitiesAssigned };
+  })();
 }
 
 function slugifyPlantCode(value: string) {
@@ -722,9 +783,18 @@ function getSqlitePlantStats(db: SqliteDatabase) {
       SELECT 1 FROM master_plant_i18n i
       WHERE i.master_plant_id = mp.id AND i.locale = 'en' AND i.common_name != ''
     )`).get() as { n: number }).n;
+  const missingI18n = (db.prepare(`
+    SELECT COUNT(*) AS n FROM master_plants mp
+    WHERE NOT EXISTS (
+      SELECT 1 FROM master_plant_i18n i
+      WHERE i.master_plant_id = mp.id AND i.locale = 'vi' AND i.common_name != ''
+    ) OR NOT EXISTS (
+      SELECT 1 FROM master_plant_i18n i
+      WHERE i.master_plant_id = mp.id AND i.locale = 'en' AND i.common_name != ''
+    )`).get() as { n: number }).n;
   const missingImage = (db.prepare(`SELECT COUNT(*) AS n FROM master_plants WHERE image_url IS NULL OR image_url = ''`).get() as { n: number }).n;
 
-  return { total, active, inactive, missingVi, missingEn, missingImage, source: "sqlite" as const };
+  return { total, active, inactive, missingVi, missingEn, missingI18n, missingImage, source: "sqlite" as const };
 }
 
 /**
@@ -1199,19 +1269,13 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
   router.post("/sync-outbox/process", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const limit = z.coerce.number().int().min(1).max(100).default(25).parse(req.query.limit);
-      const result = await processSyncOutbox(db, syncService, limit, {
-        applyUpsert: (rawPayload) => {
-          const payload = createMasterPlantSchema.parse({
-            ...rawPayload,
-            sync_origin: "mirror",
-          });
-          db.transaction(() => upsertMasterPlantRow(db, payload))();
-        },
-        applyDelete: ({ sourceSystem, sourceId }) => {
-          db.prepare(`DELETE FROM master_plants WHERE source_system = ? AND source_id = ?`)
-            .run(sourceSystem, sourceId);
-        },
-      });
+      // Local authoring already committed the SQLite row before it entered
+      // the outbox. Publishing must never hydrate the (possibly stale)
+      // payload back over newer local edits; the processor only marks the
+      // outbox item applied. Delete publication is also write-once here; the
+      // local row is already gone and must not be removed if a new row with
+      // the same source identity was authored before retry.
+      const result = await processSyncOutbox(db, syncService, limit);
       res.json({ ok: true, ...result });
     } catch (error) {
       next(error);
@@ -1226,6 +1290,19 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
     }
   });
 
+  // Explicit queue-only boundary for legacy/local authored rows. This does
+  // not call Convex or process pending work; the separate publish action does
+  // that only after an operator requests it and credentials are configured.
+  router.post("/sync-outbox/queue-local", (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const limit = z.coerce.number().int().min(1).max(5000).default(5000).parse(req.query.limit);
+      const result = queueLocalAuthoringPlantsForPublish(db, limit);
+      res.json({ ok: true, ...result, publishStarted: false });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // ── POST /bulk ────────────────────────────────────────
   router.post("/bulk", async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -1233,75 +1310,56 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       const placeholders = payload.ids.map(() => "?").join(",");
 
       if (payload.action === "activate") {
-        if (syncService?.isEnabled()) {
-          const failures: string[] = [];
-          for (const id of payload.ids) {
-            const row = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow | undefined;
-            if (!row) continue;
+        const changed = db.transaction(() => {
+          const rows = db.prepare(`SELECT * FROM master_plants WHERE id IN (${placeholders})`).all(...payload.ids) as MasterPlantRow[];
+          for (const row of rows) {
             const merged = withSourceIdentity(createMasterPlantSchema.parse({
               ...normalizeMasterPlant(row),
               i18n: fetchI18n(db, row.id),
               is_active: true,
             }));
-            try {
-              await syncService.syncUpsert(merged as unknown as Record<string, unknown>);
-              db.transaction(() => upsertMasterPlantRow(db, { ...merged, sync_origin: "mirror" }))();
-            } catch (error) {
-              queuePlantSync(db, merged);
-              failures.push(String(id));
-            }
+            upsertMasterPlantRow(db, { ...merged, sync_origin: "local" });
+            queuePlantSync(db, merged);
           }
-          res.status(failures.length ? 503 : 200).json({ affected: payload.ids.length - failures.length, failures, retryable: failures.length > 0 });
-          return;
-        }
-        const result = db.prepare(`UPDATE master_plants SET is_active = 1, updated_at = datetime('now') WHERE id IN (${placeholders})`).run(...payload.ids);
-        res.json({ affected: result.changes });
+          return rows.length;
+        })();
+        res.json({ affected: changed, queued: true });
       } else if (payload.action === "deactivate") {
-        if (syncService?.isEnabled()) {
-          const failures: string[] = [];
-          for (const id of payload.ids) {
-            const row = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow | undefined;
-            if (!row) continue;
+        const changed = db.transaction(() => {
+          const rows = db.prepare(`SELECT * FROM master_plants WHERE id IN (${placeholders})`).all(...payload.ids) as MasterPlantRow[];
+          for (const row of rows) {
             const merged = withSourceIdentity(createMasterPlantSchema.parse({
               ...normalizeMasterPlant(row),
               i18n: fetchI18n(db, row.id),
               is_active: false,
             }));
-            try {
-              await syncService.syncUpsert(merged as unknown as Record<string, unknown>);
-              db.transaction(() => upsertMasterPlantRow(db, { ...merged, sync_origin: "mirror" }))();
-            } catch {
-              queuePlantSync(db, merged);
-              failures.push(String(id));
-            }
+            upsertMasterPlantRow(db, { ...merged, sync_origin: "local" });
+            queuePlantSync(db, merged);
           }
-          res.status(failures.length ? 503 : 200).json({ affected: payload.ids.length - failures.length, failures, retryable: failures.length > 0 });
-          return;
-        }
-        const result = db.prepare(`UPDATE master_plants SET is_active = 0, updated_at = datetime('now') WHERE id IN (${placeholders})`).run(...payload.ids);
-        res.json({ affected: result.changes });
+          return rows.length;
+        })();
+        res.json({ affected: changed, queued: true });
       } else if (payload.action === "delete") {
         if (req.authUser?.role !== "admin") {
           res.status(403).json({ error: "Forbidden: bulk delete is admin-only" });
           return;
         }
-        const failures: string[] = [];
         const rejected: Array<{ id: number; error: string }> = [];
         let affected = 0;
-        for (const id of payload.ids) {
-          const row = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow | undefined;
-          if (!row) continue;
+        const queued = true;
+        db.transaction(() => {
+          for (const id of payload.ids) {
+            const row = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(id) as MasterPlantRow | undefined;
+            if (!row) continue;
 
-          const guardError = sqliteDeleteGuard(db, row);
-          if (guardError) {
-            rejected.push({ id, error: guardError });
-            continue;
-          }
+            const guardError = sqliteDeleteGuard(db, row);
+            if (guardError) {
+              rejected.push({ id, error: guardError });
+              continue;
+            }
 
-          if (syncService?.isEnabled()) {
-            try {
-              await syncService.syncDelete(syncIdentity(row));
-            } catch {
+            db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(id);
+            if (queued) {
               enqueueSyncOutbox(db, {
                 entityType: "master_plant",
                 sourceSystem: row.source_system,
@@ -1309,19 +1367,17 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
                 operation: "delete_plant",
                 payload: { id: row.id },
               });
-              failures.push(String(id));
-              continue;
             }
+            affected += 1;
           }
-          db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(id);
-          affected += 1;
-        }
-        const status = rejected.length > 0 ? 409 : failures.length > 0 ? 503 : 200;
+        })();
+        const status = rejected.length > 0 ? 409 : 200;
         res.status(status).json({
           affected,
-          failures: [...failures, ...rejected.map(({ id }) => String(id))],
+          failures: rejected.map(({ id }) => String(id)),
           rejected,
-          retryable: failures.length > 0,
+          retryable: false,
+          queued,
           ...(rejected.length > 0 ? { error: "One or more master plants cannot be deleted; deactivate them instead" } : {}),
         });
       }
@@ -1441,50 +1497,102 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      const offset = (query.page - 1) * query.page_size;
-
-      const conditions: string[] = [];
-      const conditionParams: unknown[] = [];
-
-      if (query.search) {
-        conditions.push("(plant_code LIKE ? OR common_name LIKE ? OR scientific_name LIKE ?)");
-        const value = `%${query.search}%`;
-        conditionParams.push(value, value, value);
-      }
-
-      if (typeof query.is_active === "boolean") {
-        conditions.push("is_active = ?");
-        conditionParams.push(toSqliteBoolean(query.is_active));
-      }
-
-      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-
-      const totalRow = db
-        .prepare(`SELECT COUNT(*) AS total FROM master_plants ${whereClause}`)
-        .get(...conditionParams) as { total: number };
-      const groupRows = db
-        .prepare(`SELECT DISTINCT "group" AS groupName FROM master_plants WHERE "group" IS NOT NULL AND "group" != '' ORDER BY "group" ASC`)
-        .all() as Array<{ groupName: string }>;
-
+      // The local authoring boundary deliberately resolves the complete
+      // SQLite snapshot before filtering. SQL LIKE is not accent-insensitive
+      // across all SQLite builds, while the dashboard contract requires
+      // `mồng tơi` and `mong toi` to produce the same result set.
       const rows = db
-        .prepare(
-          `SELECT * FROM master_plants ${whereClause} ORDER BY updated_at DESC, id DESC LIMIT ? OFFSET ?`,
-        )
-        .all(...conditionParams, query.page_size, offset) as MasterPlantRow[];
-
-      const normalized = rows.map((row) => ({
-        ...normalizeMasterPlant(row),
-        i18n: fetchI18n(db, row.id),
+        .prepare(`SELECT * FROM master_plants ORDER BY updated_at DESC, id DESC`)
+        .all() as MasterPlantRow[];
+      const i18nByPlant = new Map<number, ReturnType<typeof normalizeI18n>>();
+      const allI18nRows = db.prepare(`SELECT * FROM master_plant_i18n`).all() as MasterPlantI18nRow[];
+      const groupedI18n = new Map<number, MasterPlantI18nRow[]>();
+      for (const i18nRow of allI18nRows) {
+        const grouped = groupedI18n.get(i18nRow.master_plant_id);
+        if (grouped) grouped.push(i18nRow);
+        else groupedI18n.set(i18nRow.master_plant_id, [i18nRow]);
+      }
+      for (const [plantId, plantI18nRows] of groupedI18n) {
+        i18nByPlant.set(plantId, normalizeI18n(plantI18nRows));
+      }
+      const groupOptions = Array.from(new Set(
+        rows.map((row) => row.group).filter((group) => Boolean(group?.trim())),
+      )).sort((a, b) => a.localeCompare(b, "vi"));
+      const needle = normalizePlantSearchText(query.search);
+      const requestedGroupValue = normalizePlantSearchText(query.group ?? query.group_filter);
+      const requestedGroup = requestedGroupValue === "all" ? "" : requestedGroupValue;
+      const missingI18n = Boolean(query.missing_i18n || query.filter_missing_i18n);
+      const noImage = Boolean(query.no_image || query.filter_no_image);
+      const filtered = rows
+        .map((row) => {
+          const i18n = i18nByPlant.get(row.id) ?? { vi: { common_name: "" }, en: { common_name: "" } };
+          const normalized = normalizeMasterPlant(row);
+          return { row, normalized, i18n };
+        })
+        .filter(({ row, normalized, i18n }) => {
+          if (typeof query.is_active === "boolean" && Boolean(row.is_active) !== query.is_active) {
+            return false;
+          }
+          if (requestedGroup && normalizePlantSearchText(row.group) !== requestedGroup) {
+            return false;
+          }
+          if (missingI18n && i18n.vi?.common_name?.trim() && i18n.en?.common_name?.trim()) {
+            return false;
+          }
+          if (noImage && normalized.image_url) {
+            return false;
+          }
+          if (!needle) {
+            return true;
+          }
+          const haystack = [
+            normalized.plant_code,
+            normalized.common_name,
+            normalized.scientific_name,
+            normalized.family,
+            normalized.group,
+            normalized.category,
+            ...Object.values(i18n).flatMap((locale) => [locale?.common_name, locale?.description]),
+          ]
+            .map(normalizePlantSearchText)
+            .filter(Boolean)
+            .join(" ");
+          return haystack.includes(needle);
+        });
+      // Keep cluster order stable across pages. The dashboard can therefore
+      // render a family/common header without rows jumping between requests.
+      filtered.sort((left, right) => {
+        const leftMetadata = left.normalized.metadata_json as Record<string, unknown>;
+        const rightMetadata = right.normalized.metadata_json as Record<string, unknown>;
+        const leftCluster = query.view_mode === "family"
+          ? left.normalized.family ?? ""
+          : (typeof leftMetadata.commonNameGroupKey === "string" && leftMetadata.commonNameGroupKey)
+            || String(left.normalized.scientific_name ?? "").split(/\s+/, 1)[0]
+            || left.normalized.group;
+        const rightCluster = query.view_mode === "family"
+          ? right.normalized.family ?? ""
+          : (typeof rightMetadata.commonNameGroupKey === "string" && rightMetadata.commonNameGroupKey)
+            || String(right.normalized.scientific_name ?? "").split(/\s+/, 1)[0]
+            || right.normalized.group;
+        return normalizePlantSearchText(leftCluster).localeCompare(normalizePlantSearchText(rightCluster), "vi")
+          || normalizePlantSearchText(left.normalized.common_name).localeCompare(normalizePlantSearchText(right.normalized.common_name), "vi")
+          || left.row.id - right.row.id;
+      });
+      const offset = (query.page - 1) * query.page_size;
+      const data = filtered.slice(offset, offset + query.page_size).map(({ normalized, i18n }) => ({
+        ...normalized,
+        i18n,
       }));
 
       res.json({
-        data: normalized,
+        data,
         pagination: {
           page: query.page,
           page_size: query.page_size,
-          total: totalRow.total,
+          total: filtered.length,
         },
-        groupOptions: groupRows.map((row) => row.groupName),
+        groupOptions,
+        stats: getSqlitePlantStats(db),
       });
     } catch (error) {
       next(error);
@@ -1547,30 +1655,18 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      if (syncService?.isEnabled()) {
-        try {
-          await syncService.syncUpsert(payload as unknown as Record<string, unknown>);
-        } catch (error) {
-          queuePlantSync(db, payload);
-          res.status(503).json({
-            error: "Convex source write failed; the change was queued for retry",
-            retryable: true,
-            outbox: true,
-            detail: error instanceof Error ? error.message : String(error),
-          });
-          return;
-        }
-      }
-
-      const localPayload = {
-        ...payload,
-        sync_origin: syncService?.isEnabled() ? "mirror" as const : "local" as const,
-      };
-      const rowId = db.transaction(() => upsertMasterPlantRow(db, localPayload))();
+      const queued = true;
+      const rowId = db.transaction(() => {
+        const localPayload = { ...payload, sync_origin: "local" as const };
+        const id = upsertMasterPlantRow(db, localPayload);
+        if (queued) queuePlantSync(db, payload);
+        return id;
+      })();
       const row = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(rowId) as MasterPlantRow;
 
       res.status(201).json({
         data: { ...normalizeMasterPlant(row), i18n: fetchI18n(db, row.id) },
+        queued,
       });
     } catch (error) {
       next(error);
@@ -1606,27 +1702,17 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      if (syncService?.isEnabled()) {
-        try {
-          await syncService.syncUpsert(mergedPayload as unknown as Record<string, unknown>);
-        } catch (error) {
-          queuePlantSync(db, mergedPayload);
-          res.status(503).json({
-            error: "Convex source write failed; the change was queued for retry",
-            retryable: true,
-            outbox: true,
-            detail: error instanceof Error ? error.message : String(error),
-          });
-          return;
-        }
-      }
-
-      const rowId = db.transaction(() => upsertMasterPlantRow(db, {
-        ...mergedPayload,
-        sync_origin: syncService?.isEnabled() ? "mirror" as const : currentRow.sync_origin as "local" | "convex" | "mirror",
-      }))();
+      const queued = true;
+      const rowId = db.transaction(() => {
+        const id = upsertMasterPlantRow(db, {
+          ...mergedPayload,
+          sync_origin: "local",
+        });
+        if (queued) queuePlantSync(db, mergedPayload);
+        return id;
+      })();
       const updatedRow = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(rowId) as MasterPlantRow;
-      res.json({ data: { ...normalizeMasterPlant(updatedRow), i18n: fetchI18n(db, rowId) } });
+      res.json({ data: { ...normalizeMasterPlant(updatedRow), i18n: fetchI18n(db, rowId) }, queued });
     } catch (error) {
       next(error);
     }
@@ -1650,10 +1736,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      if (syncService?.isEnabled()) {
-        try {
-          await syncService.syncDelete(syncIdentity(currentRow));
-        } catch (error) {
+      const queued = true;
+      db.transaction(() => {
+        db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(id);
+        if (queued) {
           enqueueSyncOutbox(db, {
             entityType: "master_plant",
             sourceSystem: currentRow.source_system,
@@ -1661,17 +1747,8 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
             operation: "delete_plant",
             payload: { id: currentRow.id },
           });
-          res.status(503).json({
-            error: "Convex source delete failed; the deletion was queued for retry",
-            retryable: true,
-            outbox: true,
-            detail: error instanceof Error ? error.message : String(error),
-          });
-          return;
         }
-      }
-
-      db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(id);
+      })();
 
       res.status(204).send();
     } catch (error) {

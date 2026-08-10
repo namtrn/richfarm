@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import type { Plant, PlantFormState, Mode, PlantListPage } from "../types";
 import {
-    convexAdminMutation,
-    convexAdminQuery,
     emptyPlantForm,
     getLocaleRow,
     parsePurposes,
@@ -75,6 +73,13 @@ type BackendPlantListResponse = {
         total: number;
     };
     groupOptions?: string[];
+    stats?: {
+        total: number;
+        missingVi: number;
+        missingEn: number;
+        missingI18n?: number;
+        missingImage: number;
+    };
 };
 
 function parseTaxonomy(scientificName: string) {
@@ -85,6 +90,7 @@ function parseTaxonomy(scientificName: string) {
 function mapBackendPlant(row: BackendPlantRow): Plant {
     const scientificName = row.scientific_name || row.plant_code || row.common_name || "";
     const taxonomy = parseTaxonomy(scientificName);
+    const metadata = row.metadata_json ?? {};
     const i18nRows = Object.entries(row.i18n ?? {}).map(([locale, localeRow]) => {
         return {
             locale,
@@ -112,6 +118,14 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         recordVersion: row.record_version,
         group: row.group || row.category || "other",
         family: row.family ?? undefined,
+        basePlantId: typeof metadata.basePlantId === "string" ? metadata.basePlantId : undefined,
+        commonNameGroupKey: typeof metadata.commonNameGroupKey === "string" ? metadata.commonNameGroupKey : undefined,
+        commonNameGroupVi: typeof metadata.commonNameGroupVi === "string" ? metadata.commonNameGroupVi : undefined,
+        commonNameGroupEn: typeof metadata.commonNameGroupEn === "string" ? metadata.commonNameGroupEn : undefined,
+        commonGenusNameVi: typeof metadata.commonGenusNameVi === "string" ? metadata.commonGenusNameVi : undefined,
+        commonGenusNameEn: typeof metadata.commonGenusNameEn === "string" ? metadata.commonGenusNameEn : undefined,
+        commonSpeciesNameVi: typeof metadata.commonSpeciesNameVi === "string" ? metadata.commonSpeciesNameVi : undefined,
+        commonSpeciesNameEn: typeof metadata.commonSpeciesNameEn === "string" ? metadata.commonSpeciesNameEn : undefined,
         description: row.notes ?? undefined,
         imageUrl: row.image_url ?? null,
         purposes: row.purposes ?? [],
@@ -125,10 +139,11 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         lightHours: row.light_hours ?? undefined,
         lightRequirements: row.light_requirements ?? undefined,
         spacingCm: row.spacing_cm ?? undefined,
+        maxPlantsPerM2: row.max_plants_per_m2 ?? undefined,
         waterLitersPerM2: row.water_liters_per_m2 ?? undefined,
         yieldKgPerM2: row.yield_kg_per_m2 ?? undefined,
         growthStage: row.growth_stage ?? undefined,
-        source: typeof row.metadata_json?.source === "string" ? row.metadata_json.source : row.source_system ?? "backend",
+        source: typeof metadata.source === "string" ? metadata.source : row.source_system ?? "backend",
         sourceUrl: row.source_url ?? undefined,
         isActive: row.is_active ?? true,
         contentStatus: row.content_status,
@@ -137,7 +152,7 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         reviewedAt: row.reviewed_at ?? undefined,
         reviewedBy: row.reviewed_by ?? undefined,
         notes: row.notes ?? undefined,
-        cultivar: typeof row.metadata_json?.cultivar === "string" ? row.metadata_json.cultivar : undefined,
+        cultivar: typeof metadata.cultivar === "string" ? metadata.cultivar : undefined,
         i18nRows,
     };
 }
@@ -147,14 +162,28 @@ async function loadBackendPlantPage(
     page: number,
     pageSize: number,
     search: string,
+    groupFilter: string,
+    filterMissingI18n: boolean,
+    filterNoImage: boolean,
+    viewMode: "common" | "family",
 ): Promise<PlantListPage> {
     const params = new URLSearchParams({
         page: String(page),
         page_size: String(Math.min(pageSize, 100)),
         source: "sqlite",
+        view_mode: viewMode,
     });
     if (search.trim()) {
         params.set("search", search.trim());
+    }
+    if (groupFilter !== "all") {
+        params.set("group", groupFilter);
+    }
+    if (filterMissingI18n) {
+        params.set("missing_i18n", "true");
+    }
+    if (filterNoImage) {
+        params.set("no_image", "true");
     }
 
     const response = await authedFetch(`/api/master-plants?${params.toString()}`);
@@ -164,6 +193,7 @@ async function loadBackendPlantPage(
     }
 
     const items = body.data.map(mapBackendPlant);
+    const backendStats = body.stats;
     return {
         items,
         page: body.pagination.page,
@@ -172,9 +202,12 @@ async function loadBackendPlantPage(
         totalPages: Math.max(1, Math.ceil(body.pagination.total / body.pagination.page_size)),
         groupOptions: body.groupOptions ?? Array.from(new Set(items.map((plant) => plant.group).filter(Boolean))).sort(),
         stats: {
-            total: body.pagination.total,
-            missingI18n: items.filter((plant) => !getLocaleRow(plant.i18nRows, "vi")?.commonName || !getLocaleRow(plant.i18nRows, "en")?.commonName).length,
-            missingImages: items.filter((plant) => !plant.imageUrl).length,
+            total: backendStats?.total ?? body.pagination.total,
+            // A row is missing i18n when either required locale is absent.
+            missingI18n: backendStats
+                ? (backendStats.missingI18n ?? Math.max(backendStats.missingVi, backendStats.missingEn))
+                : items.filter((plant) => !getLocaleRow(plant.i18nRows, "vi")?.commonName || !getLocaleRow(plant.i18nRows, "en")?.commonName).length,
+            missingImages: backendStats?.missingImage ?? items.filter((plant) => !plant.imageUrl).length,
         },
     };
 }
@@ -192,7 +225,8 @@ function slugifyPlantCode(value: string) {
 
 export function usePlants(authedFetch: AuthedFetch, enabled = true) {
     const pageSize = 30;
-    const adminProxyUnavailable = useRef(false);
+    const requestSequence = useRef(0);
+    const modeRef = useRef<Mode>("view");
     const [viewMode, setViewMode] = useState<"common" | "family">("common");
     const [plants, setPlants] = useState<Plant[]>([]);
     const [loading, setLoading] = useState(false);
@@ -202,6 +236,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
     const [mode, setMode] = useState<Mode>("view");
     const [form, setForm] = useState<PlantFormState>(emptyPlantForm);
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [groupFilter, setGroupFilter] = useState("all");
     const [filterMissingI18n, setFilterMissingI18n] = useState(false);
     const [filterNoImage, setFilterNoImage] = useState(false);
@@ -211,8 +246,19 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
     const [groupOptions, setGroupOptions] = useState<string[]>([]);
     const [stats, setStats] = useState({ total: 0, missingI18n: 0, missingImages: 0 });
 
+    useEffect(() => {
+        modeRef.current = mode;
+    }, [mode]);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => setDebouncedSearch(search), 250);
+        return () => window.clearTimeout(timer);
+    }, [search]);
+
     const load = useCallback(async () => {
+        const requestId = ++requestSequence.current;
         if (!enabled) {
+            setLoading(false);
             setPlants([]);
             setTotalItems(0);
             setTotalPages(1);
@@ -224,49 +270,44 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setLoading(true);
         setError("");
         try {
-            let data: PlantListPage;
-            try {
-                if (adminProxyUnavailable.current) {
-                    data = await loadBackendPlantPage(authedFetch, page, pageSize, search);
-                    setError("");
-                } else {
-                data = await convexAdminQuery<PlantListPage>(authedFetch, "plantAdmin:listPlants", {
-                    page,
-                    pageSize,
-                    viewMode,
-                    search: search.trim() || undefined,
-                    groupFilter,
-                    filterMissingI18n,
-                    filterNoImage,
-                });
-                }
-            } catch (err) {
-                const message = err instanceof Error ? err.message : "";
-                if (!message.includes("Convex admin proxy is not configured")) {
-                    throw err;
-                }
-                adminProxyUnavailable.current = true;
-                data = await loadBackendPlantPage(authedFetch, page, pageSize, search);
-            }
+            const data = await loadBackendPlantPage(
+                authedFetch,
+                page,
+                pageSize,
+                debouncedSearch,
+                groupFilter,
+                filterMissingI18n,
+                filterNoImage,
+                viewMode,
+            );
+            // Search/page/filter requests can resolve out of order. Only the
+            // newest request may publish state into the dashboard.
+            if (requestId !== requestSequence.current) return;
             setPlants(data.items);
             setTotalItems(data.totalItems);
             setTotalPages(data.totalPages);
             setGroupOptions(data.groupOptions);
             setStats(data.stats);
-            if (selectedId && !data.items.some((item) => item._id === selectedId)) {
-                setSelectedId(data.items[0]?._id ?? null);
-            } else if (!selectedId && data.items.length > 0 && mode !== "create") {
-                setSelectedId(data.items[0]._id);
-            }
+            setSelectedId((currentSelectedId) => {
+                if (currentSelectedId && !data.items.some((item) => item._id === currentSelectedId)) {
+                    return data.items[0]?._id ?? null;
+                }
+                if (!currentSelectedId && data.items.length > 0 && modeRef.current !== "create") {
+                    return data.items[0]._id;
+                }
+                return currentSelectedId;
+            });
             if (data.page !== page) {
                 setPage(data.page);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Cannot load plants");
+            if (requestId === requestSequence.current) {
+                setError(err instanceof Error ? err.message : "Cannot load plants");
+            }
         } finally {
-            setLoading(false);
+            if (requestId === requestSequence.current) setLoading(false);
         }
-    }, [authedFetch, enabled, filterMissingI18n, filterNoImage, groupFilter, mode, page, search, selectedId, viewMode]);
+    }, [authedFetch, debouncedSearch, enabled, filterMissingI18n, filterNoImage, groupFilter, page, viewMode]);
 
     const selected = useMemo(
         () => plants.find((p) => p._id === selectedId) ?? null,
@@ -426,53 +467,6 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             }
         }
 
-        const parsedPayload = {
-            scientificName,
-            cultivar,
-            family: form.family.trim() || undefined,
-            group: form.group.trim() || "other",
-            basePlantId: form.basePlantId.trim() || undefined,
-            commonNameGroupKey: form.commonNameGroupKey.trim() || undefined,
-            commonNameGroupVi: form.commonNameGroupVi.trim() || undefined,
-            commonNameGroupEn: form.commonNameGroupEn.trim() || undefined,
-            commonGenusNameVi: form.commonGenusNameVi.trim() || undefined,
-            commonGenusNameEn: form.commonGenusNameEn.trim() || undefined,
-            commonSpeciesNameVi: form.commonSpeciesNameVi.trim() || undefined,
-            commonSpeciesNameEn: form.commonSpeciesNameEn.trim() || undefined,
-            imageUrl: form.imageUrl.trim() ? form.imageUrl.trim() : null,
-            purposes: parsePurposes(form.purposes),
-            viCommonName: form.viCommonName.trim(),
-            viDescription: form.viDescription.trim() || undefined,
-            enCommonName: form.enCommonName.trim(),
-            enDescription: form.enDescription.trim() || undefined,
-            // Growing params: parse string → number | undefined
-            typicalDaysToHarvest: parseOptionalNumber(form.typicalDaysToHarvest),
-            wateringFrequencyDays: parseOptionalNumber(form.wateringFrequencyDays),
-            fertilizingFrequencyDays: parseOptionalNumber(form.fertilizingFrequencyDays),
-            germinationDays: parseOptionalNumber(form.germinationDays),
-            spacingCm: parseOptionalNumber(form.spacingCm),
-            lightRequirements: form.lightRequirements.trim() || undefined,
-            soilPhMin: parseOptionalNumber(form.soilPhMin),
-            soilPhMax: parseOptionalNumber(form.soilPhMax),
-            moistureTarget: parseOptionalNumber(form.moistureTarget),
-            lightHours: parseOptionalNumber(form.lightHours),
-            maxPlantsPerM2: parseOptionalNumber(form.maxPlantsPerM2),
-            seedRatePerM2: parseOptionalNumber(form.seedRatePerM2),
-            waterLitersPerM2: parseOptionalNumber(form.waterLitersPerM2),
-            yieldKgPerM2: parseOptionalNumber(form.yieldKgPerM2),
-            notes: form.notes.trim() || undefined,
-            isActive: form.isActive,
-            growthStage: form.growthStage.trim() || "seedling",
-            source: form.source.trim(),
-            sourceSystem: form.sourceSystem.trim() || "sqlite",
-            sourceId: form.sourceId.trim() || undefined,
-            sourceUrl: form.sourceUrl.trim(),
-            recordVersion: parseOptionalNumber(form.recordVersion),
-            contentStatus: form.contentStatus,
-            contentVersion: parseOptionalNumber(form.contentVersion),
-            reviewStatus: form.reviewStatus,
-            reviewedBy: form.reviewedBy.trim(),
-        };
         const backendPayload = {
             plant_code: [
                 slugifyPlantCode(scientificName),
@@ -514,6 +508,14 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             metadata_json: {
                 ...(form.source.trim() ? { source: form.source.trim() } : {}),
                 ...(cultivar ? { cultivar } : {}),
+                ...(form.basePlantId.trim() ? { basePlantId: form.basePlantId.trim() } : {}),
+                ...(form.commonNameGroupKey.trim() ? { commonNameGroupKey: form.commonNameGroupKey.trim() } : {}),
+                ...(form.commonNameGroupVi.trim() ? { commonNameGroupVi: form.commonNameGroupVi.trim() } : {}),
+                ...(form.commonNameGroupEn.trim() ? { commonNameGroupEn: form.commonNameGroupEn.trim() } : {}),
+                ...(form.commonGenusNameVi.trim() ? { commonGenusNameVi: form.commonGenusNameVi.trim() } : {}),
+                ...(form.commonGenusNameEn.trim() ? { commonGenusNameEn: form.commonGenusNameEn.trim() } : {}),
+                ...(form.commonSpeciesNameVi.trim() ? { commonSpeciesNameVi: form.commonSpeciesNameVi.trim() } : {}),
+                ...(form.commonSpeciesNameEn.trim() ? { commonSpeciesNameEn: form.commonSpeciesNameEn.trim() } : {}),
             },
             i18n: {
                 vi: {
@@ -544,46 +546,26 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setSaving(true);
         setError("");
         try {
-            if (adminProxyUnavailable.current) {
-                if (mode === "edit" && selected && !/^\d+$/.test(selected._id)) {
-                    throw new Error("Sync Convex to backend DB before editing this plant.");
-                }
-                const endpoint = mode === "edit" && selected
-                    ? `/api/master-plants/${selected._id}`
-                    : "/api/master-plants";
-                const response = await authedFetch(endpoint, {
-                    method: mode === "edit" && selected ? "PATCH" : "POST",
-                    body: JSON.stringify(backendPayload),
-                });
-                const body = await response.json().catch(() => ({}));
-                if (!response.ok) {
-                    throw new Error(body.error ?? "Cannot save plant");
-                }
-                await load();
-                setSelectedId(body.data?.id ? String(body.data.id) : null);
-                setMode("view");
-                return mode === "create" ? "Plant created successfully" : "Plant updated successfully";
+            const isEdit = mode === "edit" && selected;
+            if (isEdit && !/^\d+$/.test(selected._id)) {
+                throw new Error("Selected plant does not have a numeric SQLite id.");
             }
-
-            if (mode === "create") {
-                const result = await convexAdminMutation<{ plantId: string }>(
-                    authedFetch,
-                    "plantAdmin:createPlant",
-                    parsedPayload,
-                );
-                await load();
-                setSelectedId(result.plantId);
-                setMode("view");
-                return "Plant created successfully";
-            } else if (mode === "edit" && selected) {
-                await convexAdminMutation<void>(authedFetch, "plantAdmin:updatePlant", {
-                    plantId: selected._id,
-                    ...parsedPayload,
-                });
-                await load();
-                setMode("view");
-                return "Plant updated successfully";
+            const endpoint = isEdit ? `/api/master-plants/${selected._id}` : "/api/master-plants";
+            const response = await authedFetch(endpoint, {
+                method: isEdit ? "PATCH" : "POST",
+                body: JSON.stringify(backendPayload),
+            });
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(body.error ?? "Cannot save plant");
             }
+            const savedId = body.data?.id !== undefined ? String(body.data.id) : null;
+            setSelectedId(savedId);
+            setMode("view");
+            // Refresh after the local commit. Convex publication is explicit
+            // and does not delay the editor's save acknowledgement.
+            void load();
+            return isEdit ? "Plant updated locally" : "Plant created locally";
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot save plant");
         } finally {
@@ -602,23 +584,19 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setSaving(true);
         setError("");
         try {
-            if (adminProxyUnavailable.current) {
-                if (!/^\d+$/.test(selected._id)) {
-                    throw new Error("Sync Convex to backend DB before deleting this plant.");
-                }
-                const response = await authedFetch(`/api/master-plants/${selected._id}`, {
-                    method: "DELETE",
-                });
-                if (!response.ok) {
-                    const body = await response.json().catch(() => ({}));
-                    throw new Error(body.error ?? "Cannot delete plant");
-                }
-            } else {
-                await convexAdminMutation<void>(authedFetch, "plantAdmin:deletePlant", { plantId: selected._id });
+            if (!/^\d+$/.test(selected._id)) {
+                throw new Error("Selected plant does not have a numeric SQLite id.");
+            }
+            const response = await authedFetch(`/api/master-plants/${selected._id}`, {
+                method: "DELETE",
+            });
+            if (!response.ok) {
+                const body = await response.json().catch(() => ({}));
+                throw new Error(body.error ?? "Cannot delete plant");
             }
             setSelectedId(null);
-            await load();
-            return "Plant deleted";
+            void load();
+            return "Plant deleted locally";
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot delete plant");
         } finally {

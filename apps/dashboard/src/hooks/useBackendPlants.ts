@@ -12,6 +12,7 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
     const [importLoading, setImportLoading] = useState(false);
     const [syncJsonLoading, setSyncJsonLoading] = useState(false);
     const [syncSqliteLoading, setSyncSqliteLoading] = useState(false);
+    const [queueLocalLoading, setQueueLocalLoading] = useState(false);
     const [error, setError] = useState("");
 
     const loadStats = useCallback(async () => {
@@ -21,7 +22,7 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         }
         setStatsLoading(true);
         try {
-            const res = await authedFetch("/api/master-plants/stats");
+            const res = await authedFetch("/api/master-plants/stats?source=sqlite");
             if (res.ok) {
                 setStats(await res.json());
             }
@@ -60,7 +61,7 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
             setExportLoading(true);
             setError("");
             try {
-                const res = await authedFetch(`/api/master-plants/export?format=${format}`);
+                const res = await authedFetch(`/api/master-plants/export?format=${format}&source=sqlite`);
                 if (!res.ok) throw new Error("Export failed");
                 const blob = await res.blob();
                 const ext = format === "csv" ? "csv" : "json";
@@ -150,7 +151,7 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         }
     }, [authedFetch, loadStats]);
 
-    const retrySyncOutbox = useCallback(async (): Promise<string | null> => {
+    const publishSyncOutbox = useCallback(async (): Promise<string | null> => {
         setError("");
         try {
             const retryResponse = await authedFetch("/api/master-plants/sync-outbox/retry-failed", {
@@ -171,6 +172,28 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         }
     }, [authedFetch, loadStats]);
 
+    const queueLocalAuthoring = useCallback(async (): Promise<string | null> => {
+        setQueueLocalLoading(true);
+        setError("");
+        try {
+            const response = await authedFetch("/api/master-plants/sync-outbox/queue-local", {
+                method: "POST",
+            });
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(body.error ?? "Cannot queue local authoring rows");
+            return `Queued ${body.queued ?? 0} local rows for publish (not published)`;
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Cannot queue local authoring rows");
+            return null;
+        } finally {
+            setQueueLocalLoading(false);
+        }
+    }, [authedFetch]);
+
+    // Backwards-compatible label used by the existing retry banner. Both
+    // actions execute the same explicit outbox publication path.
+    const retrySyncOutbox = publishSyncOutbox;
+
     return {
         stats, statsLoading, loadStats,
         bulkLoading, bulkAction,
@@ -178,7 +201,8 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         importLoading, importPlants,
         syncJsonLoading, syncConvexToJson,
         syncSqliteLoading, syncConvexToSqlite,
-        retrySyncOutbox,
+        queueLocalLoading, queueLocalAuthoring,
+        publishSyncOutbox, retrySyncOutbox,
         error, setError,
     };
 }
