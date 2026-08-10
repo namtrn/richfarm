@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import type { usePlants } from "../hooks/usePlants";
 import type { useI18n } from "../hooks/useI18n";
 import type { useBackendPlants } from "../hooks/useBackendPlants";
@@ -610,7 +611,7 @@ function PlantDetail({
                 <div>
                     <h4>Overview</h4>
                     <p className="muted">Category: {plant.group}</p>
-                    <p>{plant.description || "No description"}</p>
+                    <div className="markdown-body"><ReactMarkdown>{plant.description || "No description"}</ReactMarkdown></div>
                     <p className="muted">Purposes: {(plant.purposes ?? []).join(", ") || "—"}</p>
                     <p className="muted">Source: {plant.source ?? "—"} · {plant.sourceSystem ?? "—"}/{plant.sourceId ?? "—"}</p>
                     <p className="muted">Content: {plant.contentStatus ?? "published"} · review {plant.reviewStatus ?? "unreviewed"} · version {plant.contentVersion ?? 1}</p>
@@ -662,7 +663,7 @@ function PlantDetail({
                                         <span className="badge ok small">{row.locale.toUpperCase()}</span>
                                     </div>
                                     <p className="i18n-common-name">{row.commonName}</p>
-                                    <p className="i18n-desc">{row.description ?? "No description"}</p>
+                                    <div className="markdown-body i18n-desc"><ReactMarkdown>{row.description ?? "No description"}</ReactMarkdown></div>
                                     {row.careContent && <p className="muted small">Care: {row.careContent}</p>}
                                     <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
                                 </div>

@@ -13,6 +13,7 @@ import {
   PanResponder,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { MarkdownText } from '../../../components/MarkdownText';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from '../../../lib/icons';
 import { usePlants, type PlantStatus } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
@@ -869,7 +870,7 @@ export default function PlantDetailScreen() {
             </View>
 
             {!!masterPlant.description && (
-              <Text style={{ fontSize: 14, color: theme.textSecondary, lineHeight: 20, marginBottom: 16 }}>{masterPlant.description}</Text>
+              <MarkdownText style={{ marginBottom: 16 }}>{masterPlant.description}</MarkdownText>
             )}
 
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

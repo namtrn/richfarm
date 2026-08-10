@@ -15,6 +15,7 @@ import {
     StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { MarkdownText } from '../../../components/MarkdownText';
 import {
     ArrowLeft,
     Heart,
@@ -965,7 +966,7 @@ export default function LibraryPlantDetailScreen() {
                         {/* Description */}
                         {!!currentPlant.description && (
                             <View style={{ marginBottom: 12 }}>
-                                <Text style={{ fontSize: 14, color: theme.textAccent, lineHeight: 22 }}>{currentPlant.description}</Text>
+                                <MarkdownText>{currentPlant.description}</MarkdownText>
                             </View>
                         )}
 
