@@ -22,9 +22,10 @@ Phase 3 technical work is complete and verified locally. Staging and production 
 ## Plant-library architecture
 
 - `apps/api` owns authenticated admin routes, SQLite persistence, Convex server-to-server sync, outbox retry, and reconciliation.
-- `packages/convex` owns the canonical `plantsMaster` data model, localized content (`plantI18n`), structured care (`plantCare`/`plantCareI18n`), admin/sync functions, taxonomy checks, and mobile library queries.
-- `apps/dashboard` uses the full admin snapshot for list, detail, statistics, export, and management of inactive/draft/placeholder rows.
-- `apps/mobile` reads the canonical production projection, which applies active/content-status filtering, locale fallback, placeholder suppression, and base-to-cultivar inheritance.
+- `packages/convex` owns the canonical mobile `plantsMaster` data model/projection, localized content (`plantI18n`), structured care (`plantCare`/`plantCareI18n`), admin/sync functions, taxonomy checks, and mobile library queries.
+- `apps/dashboard` uses the authenticated API and SQLite for Plant, localized i18n/care authoring, search/filtering, and review metadata. Groups and Photos remain Convex-owned through the authenticated Convex admin proxy.
+- Local dashboard authoring commits SQLite first and enqueues an outbox item unconditionally. Queueing existing local drafts is a queue-only action; explicit publication is a separate action that processes the outbox toward Convex. Queueing does not publish.
+- `apps/mobile` reads the Convex canonical production projection, which applies active/content-status filtering, locale fallback, placeholder suppression, and base-to-cultivar inheritance. The mobile client caches the Convex snapshot locally and searches the resolved local array with normalized, accent-insensitive matching.
 
 Admin writes are protected twice: the API requires an authenticated admin/editor role, and Convex admin/sync functions require the server-only `CONVEX_ADMIN_FUNCTION_KEY` service token. Plant identity is keyed by `(sourceSystem, sourceId)` and reconciled with normalized taxonomy identity. SQLite sync failures are represented by retryable `sync_outbox` rows; Convex-to-SQLite reconciliation removes stale mirror rows and records drift.
 

@@ -176,7 +176,7 @@ npm run check:taxonomy
 
 `npm run check:taxonomy` chỉ có giá trị khi `CONVEX_ADMIN_FUNCTION_KEY` đã được set và Convex dev/deployment (URL/deployment context tương ứng) reachable; nếu không, gate là **blocked**, không được coi là pass. `externalDataGate` phải được wired và `status=pass` trước bulk import/curation vì `requiredBeforeBulkCuration=true`; `not_run` hoặc `fail` là blocker.
 
-Plant Detail/list/search/match phải dùng cùng canonical projection; dashboard vẫn phải giữ được rows `draft`/`inactive` để quản trị. Không publish row có placeholder, duplicate identity, care range không hợp lệ, care evidence thiếu nhưng bị gắn `contentTier=full_detail`, locale rỗng hoặc provenance/review không đủ. `taxonomy_only` được publish độc lập với `full_detail` theo computed classification; UI/API phải hiển thị `contentTier`, persisted `careStatus` và fallback rõ ràng.
+Mobile Plant Detail/list/search/match phải dùng cùng canonical Convex projection. Dashboard là workspace authoring riêng: Plant/i18n/care đọc và ghi SQLite local qua authenticated API để vẫn quản trị được rows `draft`/`inactive`; chỉ thao tác publish tường minh mới đẩy outbox lên Convex. Không publish row có placeholder, duplicate identity, care range không hợp lệ, care evidence thiếu nhưng bị gắn `contentTier=full_detail`, locale rỗng hoặc provenance/review không đủ. `taxonomy_only` được publish độc lập với `full_detail` theo computed classification; UI/API phải hiển thị `contentTier`, persisted `careStatus` và fallback rõ ràng.
 
 ## Acceptance criteria / Definition of Done
 
@@ -194,7 +194,7 @@ Plant Detail/list/search/match phải dùng cùng canonical projection; dashboar
 - [ ] Strict audit phân biệt authored duplicate với inherited projection; inherited count được báo riêng và không tự tạo lỗi duplicate.
 - [ ] Không có locale `published` nhưng thiếu nội dung; fallback được hiển thị rõ ràng.
 - [ ] Plant Detail có structured care khi có evidence và date/version/review metadata trung thực, không có ngày giả hoặc care default suy diễn.
-- [ ] List/search/detail/match nhất quán qua canonical projection trên backend, dashboard và mobile.
+- [x] Ranh giới dữ liệu đã tách rõ: dashboard Plant/i18n/care dùng SQLite authoring snapshot; mobile list/search/detail/match dùng canonical Convex projection và cache local. Hai phía hội tụ qua publish outbox tường minh, không trộn snapshot trong một request flow.
 - [ ] Có staging regression cho Library, Plant Detail, scanner match và Add Plant; ghi lại command/output trong report.
 - [ ] `externalDataGate` wired và pass trước bulk import/curation; `check:taxonomy` pass với Convex reachable và `CONVEX_ADMIN_FUNCTION_KEY` hợp lệ.
 - [ ] Go 10.000 chỉ khi đạt đầy đủ review-capacity thresholds trong 4 tuần/3 batch liên tiếp; nếu không thì giữ mốc hiện tại và no-go.
@@ -235,6 +235,10 @@ Plant Detail/list/search/match phải dùng cùng canonical projection; dashboar
 - **Curation ví dụ (5 cây, en+vi authored)**: Basella alba base + 3 cây niche (Valeriana locusta, Laurus nobilis, Rubus idaeus) + cultivar hiếm **Basella alba 'Ceylon'** — overview markdown viết chính xác (không dùng cụm "kế thừa"/"chưa xác minh"), care content thật viết riêng cho base (8 section) và **copy chính xác** vào Ceylon, tên vi có dấu, provenance `richfarm-seed`, trạng thái `needs_review`/`in_review`.
 - **Sync Convex**: 28/28 rows qua API pipeline (`PATCH /api/master-plants` → `upsertPlantFromBackend`); code mới đã push lên **dev deployment** `fantastic-beagle-190` (không đụng prod `whimsical-dove-537`); verified qua `masterSync:listAll` (1550 rows).
 - **Fix 2 bug contract** phát hiện khi curation: legacy row (source_id NULL) adopt được identity ổn định qua plant_code fallback (không hijack row khác); careStatus **recompute thắng** khi payload đổi care fields/evidence (không kẹt giá trị cũ carry từ normalize).
+- **Dashboard SQLite-local authoring boundary**: Plant list/detail/stats/search, localized content và care/review state đều đọc/ghi `apps/api/data/richfarm.db`; không còn Convex fetch trên critical dashboard search/edit flow. Search normalize dấu (`mồng tơi` và `mong toi` cùng trả 10 kết quả), debounce 250 ms và chặn stale response.
+- **Publish tách khỏi save**: plant/bulk/delete và i18n CRUD commit local trước rồi luôn enqueue outbox, kể cả khi Convex chưa cấu hình. `Queue local drafts` chỉ xếp hàng idempotent các row local cũ; `Publish pending` là thao tác riêng mới gọi Convex. Convex→SQLite recovery không còn nằm trong UI vận hành thường ngày.
+- **Mobile boundary đã đúng, không cần sửa**: active library hook lấy canonical projection từ Convex, persist snapshot local và search trên resolved local array.
+- **Verification cho increment SQLite-local**: manual test trong browser sidebar pass; focused API 13/13, full API 42/42, API build, dashboard build và mobile typecheck đều pass.
 
 ### ⏳ Chưa hoàn tất (ghi rõ)
 
@@ -247,3 +251,4 @@ Plant Detail/list/search/match phải dùng cùng canonical projection; dashboar
 - **Mốc 3.000 canonical plants (Giai đoạn 2) chưa bắt đầu** — `externalDataGate` pass nhưng bulk import phải chờ nguồn care có license xác minh.
 - **Priority list assignees = TBD** (owner/reviewers chưa gán người thật).
 - **Review capacity metrics** (Giai đoạn 4) chưa có dữ liệu để đo.
+- **Search SQLite chưa dùng FTS5**: hiện normalize và filter full snapshot trong memory; chấp nhận ở quy mô 1.550 rows, cần benchmark/indexing trước khi tăng dataset đáng kể.

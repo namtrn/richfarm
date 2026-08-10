@@ -18,8 +18,8 @@ agent_docs/   durable project context and handoff documentation
 
 ## Plant-library ownership boundaries
 
-- `apps/api/src/master-plants.ts`: authenticated CRUD, admin snapshot reads, SQLite mirror operations, reconciliation endpoints, and delete guards.
-- `apps/api/src/master-plant-i18n.ts`: localized content writes and outbox integration.
+- `apps/api/src/master-plants.ts`: authenticated plant CRUD/search, SQLite authoring persistence, outbox queue/publication endpoints, reconciliation, and delete guards.
+- `apps/api/src/master-plant-i18n.ts`: localized i18n/care/review reads and writes with outbox integration.
 - `apps/api/src/convex-sync.ts`: server-to-server Convex calls using deployment credentials and the service token.
 - `apps/api/src/sync-outbox.ts`: deduplicated retryable sync work and exponential backoff.
 - `packages/convex/convex/masterSync.ts`: service-token-protected backend upsert/delete and complete `listAll` snapshot.
@@ -29,8 +29,9 @@ agent_docs/   durable project context and handoff documentation
 - `packages/convex/convex/plantImages.ts`: compatibility image/detail/variant queries delegated to the canonical projection.
 - `packages/convex/convex/plantLibraryQuality.ts`: authenticated quality-gate reports.
 - `packages/convex/convex/schema.ts`: `plantsMaster`, i18n, care, relation, and synchronization data contracts.
-- `apps/dashboard/src`: admin list/detail/forms, stats, import/export, and sync controls.
+- `apps/dashboard/src`: SQLite-backed Plant/i18n/care authoring, normalized accent-insensitive search and review controls through authenticated API routes; Groups and Photos through the authenticated Convex admin proxy; stats, import/export, and sync controls.
 - `apps/mobile/hooks/usePlantLibrary.ts` and `apps/mobile/features/garden/hooks/usePlantLibrary.ts`: mobile consumption of canonical library data.
+- `apps/mobile/lib/search.ts` and `apps/mobile/app/(tabs)/library/index.tsx`: normalized, accent-insensitive matching over the resolved locally cached/loaded mobile library array.
 - `apps/api/tests/phase3.test.ts` and `packages/convex/convex/plantLibraryPhase3.test.ts`: Phase 3 contract, authorization, projection, sync, identity, and delete-guard coverage.
 
-The dashboard/admin surface must retain access to the full snapshot; mobile and other production readers must use the canonical projection. This is an intentional ownership boundary, not two competing data sources.
+Local dashboard writes commit SQLite and enqueue sync work unconditionally. The queue-only action for existing local drafts and the explicit publish action are separate; publication targets Convex. Mobile treats Convex as canonical, caches its projection locally, and resolves/searches that local array. Groups and Photos remain Convex-owned.
