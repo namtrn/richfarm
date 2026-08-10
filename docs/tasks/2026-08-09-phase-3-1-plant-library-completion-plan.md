@@ -225,3 +225,25 @@ Plant Detail/list/search/match phải dùng cùng canonical projection; dashboar
 - Không coi seed/mirror hiện tại là bằng chứng curation đã hoàn tất.
 - Không bật thêm locale chỉ để tăng số lượng rows.
 - Không deploy production trong task curation này; staging/production là gate xác nhận riêng sau khi local DoD đạt.
+
+## Trạng thái triển khai — cập nhật 2026-08-10
+
+### ✅ Đã hoàn tất
+
+- **Giai đoạn 0 (contract)** đầy đủ: persisted `careStatus`/`contentOrigin` end-to-end (Convex → SQLite → API → dashboard → audit), computed `contentTier`/`missingViCommonName`, role `admin|editor` (viewer loại khỏi schema/auth/DTO/tests), delete admin-only (403 cho editor ở mọi delete path), `externalDataGate` wired (**status=pass**), priority list v1 (97 entries validated với seed), source manifest, audit đo theo tier/vi-name/care/origin/source/review.
+- **Markdown chuẩn cho description**: mobile dùng `@ronradtke/react-native-markdown-display` (`MarkdownText` ở Library detail + Plant detail), dashboard dùng `react-markdown` — format contract: đoạn (`\n\n`), bullet, bold, italic, heading.
+- **Curation ví dụ (5 cây, en+vi authored)**: Basella alba base + 3 cây niche (Valeriana locusta, Laurus nobilis, Rubus idaeus) + cultivar hiếm **Basella alba 'Ceylon'** — overview markdown viết chính xác (không dùng cụm "kế thừa"/"chưa xác minh"), care content thật viết riêng cho base (8 section) và **copy chính xác** vào Ceylon, tên vi có dấu, provenance `richfarm-seed`, trạng thái `needs_review`/`in_review`.
+- **Sync Convex**: 28/28 rows qua API pipeline (`PATCH /api/master-plants` → `upsertPlantFromBackend`); code mới đã push lên **dev deployment** `fantastic-beagle-190` (không đụng prod `whimsical-dove-537`); verified qua `masterSync:listAll` (1550 rows).
+- **Fix 2 bug contract** phát hiện khi curation: legacy row (source_id NULL) adopt được identity ổn định qua plant_code fallback (không hijack row khác); careStatus **recompute thắng** khi payload đổi care fields/evidence (không kẹt giá trị cũ carry từ normalize).
+
+### ⏳ Chưa hoàn tất (ghi rõ)
+
+- **Strict audit còn 558 findings** (placeholder/near-duplicate): ~90 rows priority + ~470 rows khác trong seed chưa viết lại mô tả; 90 rows vi mới được flag bởi pattern "là giống cây trong bộ sưu tập" chưa xử lý.
+- **Care evidence chưa có nguồn xác minh license**: toàn bộ care authored (kể cả 5 cây ví dụ) đang ở trạng thái draft `awaiting_review`; `fullDetailTier` vẫn = 0; cần verify license care source theo thứ tự ưu tiên của plan rồi mới đạt `verified`.
+- **`check:taxonomy` chưa chạy được (blocked)**: cần Convex dev/deployment context + `CONVEX_ADMIN_FUNCTION_KEY` khi verify; chưa tính là pass.
+- **Tên vi thiếu dấu** còn ở các loài khác ngoài 4 loài đã xử lý (pattern phổ biến toàn seed).
+- **Markdown renderer chưa test trên thiết bị thật** (mới typecheck/build); chưa có web app render.
+- **Badge `contentTier`/inherited trên mobile/API** chưa hiển thị (Giai đoạn 3); dashboard đã hiển thị care status + origin.
+- **Mốc 3.000 canonical plants (Giai đoạn 2) chưa bắt đầu** — `externalDataGate` pass nhưng bulk import phải chờ nguồn care có license xác minh.
+- **Priority list assignees = TBD** (owner/reviewers chưa gán người thật).
+- **Review capacity metrics** (Giai đoạn 4) chưa có dữ liệu để đo.
