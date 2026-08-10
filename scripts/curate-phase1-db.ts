@@ -16,6 +16,8 @@ import {
 } from "../apps/api/src/master-plants";
 
 const EN_DESCRIPTIONS: Record<string, string> = {
+  "Basella alba":
+    "Malabar spinach is a tropical vining plant grown for its tender young leaves and shoot tips, which cook down with a mild, slightly mucilaginous texture. It is one of the few leafy greens that stays productive through hot, humid summers, when true spinach bolts. Plant it at the base of a trellis, fence, or teepee in fertile, moisture-retentive soil and keep the canopy well watered. Harvest tips regularly to force dense, soft regrowth; the red-stemmed forms are equally edible and add color to the garden.",
   "Valeriana locusta":
     "Corn salad is a low-growing cool-season green with small, spoon-shaped leaves in loose rosettes. It is prized for a mild, nutty flavor and for germinating and growing well in the short, chilly days of late autumn and early spring, when other salad leaves slow down. Sow in shallow drills in moist, cool soil and harvest whole rosettes or individual leaves; in mild regions it can be overwintered under a light mulch or cold frame. Plants bolt quickly once days lengthen and warm, so succession-sow in short intervals.",
   "Laurus nobilis":
@@ -25,6 +27,8 @@ const EN_DESCRIPTIONS: Record<string, string> = {
 };
 
 const VI_DESCRIPTIONS: Record<string, string> = {
+  "Basella alba":
+    "Mồng tơi là cây dây leo nhiệt đới trồng lấy lá non và ngọn, khi nấu chín có vị ngọt nhẹ và hơi nhớt tự nhiên, thường dùng nấu canh với cua, tôm hoặc thịt. Đây là một trong số ít rau ăn lá vẫn xanh tốt trong mùa hè nóng ẩm, thời điểm các loại rau ôn đới dễ lên ngồng. Nên gieo dưới chân giàn, hàng rào hoặc tháp leo trong đất tơi xốp, giàu mùn và giữ ẩm đều. Thường xuyên thu ngọn non để cây ra nhánh mềm đều; dạng thân đỏ cũng ăn ngon và tạo màu cho vườn.",
   "Valeriana locusta":
     "Xà lách cúc (còn gọi là rau mầm trụ, corn salad) là loại rau ăn lá mọc thấp, lá nhỏ hình thìa xếp thành hoa thị lỏng lẻo, có vị ngọt bùi nhẹ. Điểm đáng giá của cây là nảy mầm và sinh trưởng tốt trong những ngày ngắn, se lạnh cuối thu và đầu xuân, khi các loại rau trộn khác chậm phát triển. Gieo theo hàng nông trong đất mát và ẩm; có thể thu cả hoa thị hoặc hái lá dần. Ở vùng khí hậu ôn hòa, cây sống qua đông dưới lớp phủ nhẹ. Cây nhanh ra ngồng khi ngày dài và ấm lên, nên gieo rải vụ theo từng đợt ngắn.",
   "Laurus nobilis":
@@ -98,17 +102,19 @@ try {
 
       const i18n = fetchI18n(db, row.id);
       if (isBase) {
+        const enDescription = EN_DESCRIPTIONS[scientificName];
+        const viDescription = VI_DESCRIPTIONS[scientificName];
+        // Defensive: only overwrite descriptions that this curation owns.
+        // Species without an entry in the maps keep their existing content.
         i18n.en = {
           ...i18n.en,
           common_name: target.enName,
-          description: EN_DESCRIPTIONS[scientificName],
-          content_origin: "authored",
+          ...(enDescription ? { description: enDescription, content_origin: "authored" } : {}),
         };
         i18n.vi = {
           ...i18n.vi,
           common_name: target.viName,
-          description: VI_DESCRIPTIONS[scientificName],
-          content_origin: "authored",
+          ...(viDescription ? { description: viDescription, content_origin: "authored" } : {}),
         };
       } else {
         const prefix = VI_PREFIX[scientificName] ?? "";
