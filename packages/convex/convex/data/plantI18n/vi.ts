@@ -1217,7 +1217,10 @@ export const plantI18nViSeedData: PlantI18nLocaleRow[] = [
     "commonName": "Mồng tơi Ceylon",
     "cultivar": "Ceylon",
     "locale": "vi",
-    "scientificName": "Basella alba"
+    "scientificName": "Basella alba",
+    "description": "**Mồng tơi Ceylon** là giống được chọn lọc của cây dây leo nhiệt đới *Basella alba* (mồng tơi). Tên giống gắn với Sri Lanka — hòn đảo từng được gọi là Ceylon — nơi các giống basella liên quan được trồng lâu đời.\nNhư loài gốc, giống này là dây leo sinh trưởng nhanh, trồng lấy lá non và ngọn mềm hơi nhớt, và vẫn xanh tốt trong mùa hè nóng ẩm khi các loại rau ôn đới dễ lên ngồng.\n**Trồng trong nháy mắt**\n- **Giàn đỡ:** cần giàn, hàng rào hoặc tháp leo — dây leo rất nhanh\n- **Nắng:** đầy đủ đến bóng nhẹ\n- **Nước:** giữ đất ẩm đều, ngày nóng tưới hằng ngày\n- **Thu hoạch:** hái lá non và ngọn thường xuyên\n- **Mùa vụ:** vụ ấm; dưới 15°C cây chậm phát triển, sương giá làm chết dây",
+    "sourceSystem": "richfarm-seed",
+    "content_origin": "authored"
   },
   {
     "commonName": "Mồng tơi Green Stem",
