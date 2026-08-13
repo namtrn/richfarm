@@ -186,6 +186,82 @@ function evaluateExternalDataGate(rowsByLocale) {
   };
 }
 
+/**
+ * Resolve the persisted origin for a localized description. Unknown/missing
+ * origins remain independent content for quality-gate purposes: only an
+ * explicit inherited marker is allowed to suppress an authored duplicate.
+ */
+function descriptionOrigin(row) {
+  const origin = String(row.content_origin ?? row.contentOrigin ?? "").trim().toLowerCase();
+  if (origin === "inherited") return "inherited";
+  if (origin === "authored") return "authored";
+  if (origin === "imported") return "imported";
+  if (row.inheritedFromId != null || row.inherited_from_id != null) return "inherited";
+  return "unknown";
+}
+
+function repeatedDescriptionRows(descriptionRows) {
+  const counts = new Map();
+  for (const { description } of descriptionRows) {
+    const key = normalize(description);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  return {
+    counts,
+    repeatedRows: [...counts.values()]
+      .filter((count) => count > 1)
+      .reduce((sum, count) => sum + count, 0),
+  };
+}
+
+function nearDuplicatePairs(descriptionRows, includePair = () => true) {
+  const pairs = [];
+  for (let index = 0; index < descriptionRows.length; index += 1) {
+    for (let otherIndex = index + 1; otherIndex < descriptionRows.length; otherIndex += 1) {
+      const left = descriptionRows[index];
+      const right = descriptionRows[otherIndex];
+      if (identity(left.row) === identity(right.row) || !includePair(left, right)) continue;
+      const score = similarity(left.description, right.description);
+      if (score >= 0.82) {
+        pairs.push({ left: identity(left.row), right: identity(right.row), similarity: Number(score.toFixed(3)) });
+      }
+      if (pairs.length >= 100) break;
+    }
+    if (pairs.length >= 100) break;
+  }
+  return pairs;
+}
+
+/**
+ * Audit duplicate quality independently from the locale/metadata scan.
+ * Inherited projections are reported as coverage metrics, never as authored
+ * duplicate failures. Authored, imported, unknown, and mixed-origin rows are
+ * intentionally conservative: only an explicit inherited origin is exempt.
+ */
+function auditDescriptionQuality(descriptionRows) {
+  const inheritedRows = descriptionRows.filter(({ row }) => descriptionOrigin(row) === "inherited");
+  const independentRows = descriptionRows.filter(({ row }) => descriptionOrigin(row) !== "inherited");
+  const allDescriptions = repeatedDescriptionRows(descriptionRows);
+  const independentDescriptions = repeatedDescriptionRows(independentRows);
+  const inheritedDescriptions = repeatedDescriptionRows(inheritedRows);
+  const authoredNearDuplicates = nearDuplicatePairs(independentRows);
+  const inheritedNearDuplicates = nearDuplicatePairs(
+    descriptionRows,
+    (left, right) => descriptionOrigin(left.row) === "inherited" || descriptionOrigin(right.row) === "inherited",
+  );
+  return {
+    inheritedDescriptionRows: inheritedRows.length,
+    repeatedDescriptionRows: independentDescriptions.repeatedRows,
+    inheritedRepeatedDescriptionRows: inheritedDescriptions.repeatedRows,
+    uniqueDescriptions: allDescriptions.counts.size,
+    independentUniqueDescriptions: independentDescriptions.counts.size,
+    inheritedUniqueDescriptions: inheritedDescriptions.counts.size,
+    nearDuplicateDescriptionPairs: authoredNearDuplicates.length,
+    inheritedNearDuplicateDescriptionPairs: inheritedNearDuplicates.length,
+  };
+}
+
+function runAudit() {
 const allRowsByLocale = {};
 const reports = [];
 for (const locale of locales) {
@@ -193,7 +269,6 @@ for (const locale of locales) {
   const rows = JSON.parse(fs.readFileSync(file, "utf8"));
   allRowsByLocale[locale] = rows;
   const identities = new Map();
-  const descriptions = new Map();
   const descriptionRows = [];
   const invalidCareRanges = [];
   let missingBase = 0;
@@ -214,13 +289,12 @@ for (const locale of locales) {
     if (!description && !row.cultivar) missingBase += 1;
     if (description.length > 0 && description.length < 120) short += 1;
     if (placeholders.some((pattern) => pattern.test(normalize(description)))) placeholder += 1;
-    if (description) descriptions.set(normalize(description), (descriptions.get(normalize(description)) || 0) + 1);
     if (description) descriptionRows.push({ row, description });
 
     if (String(row.source ?? row.sourceSystem ?? "").trim()) withSource += 1;
     if (String(row.review_status ?? "").trim() === "reviewed") reviewed += 1;
 
-    const origin = String(row.content_origin ?? "").trim();
+    const origin = String(row.content_origin ?? row.contentOrigin ?? "").trim().toLowerCase();
     if (["authored", "inherited", "imported"].includes(origin)) originCounts[origin] += 1;
     else originCounts.none += 1;
 
@@ -250,20 +324,7 @@ for (const locale of locales) {
     }
     if (String(row.commonName ?? "").trim()) usableName += 1;
   }
-  const nearDuplicatePairs = [];
-  for (let index = 0; index < descriptionRows.length; index += 1) {
-    for (let otherIndex = index + 1; otherIndex < descriptionRows.length; otherIndex += 1) {
-      const left = descriptionRows[index];
-      const right = descriptionRows[otherIndex];
-      if (identity(left.row) === identity(right.row)) continue;
-      const score = similarity(left.description, right.description);
-      if (score >= 0.82) {
-        nearDuplicatePairs.push({ left: identity(left.row), right: identity(right.row), similarity: Number(score.toFixed(3)) });
-      }
-      if (nearDuplicatePairs.length >= 100) break;
-    }
-    if (nearDuplicatePairs.length >= 100) break;
-  }
+  const descriptionQuality = auditDescriptionQuality(descriptionRows);
   reports.push({
     locale,
     rows: rows.length,
@@ -272,9 +333,7 @@ for (const locale of locales) {
     inheritedCultivarDescriptions: inheritedCultivar,
     shortDescriptions: short,
     placeholderDescriptions: placeholder,
-    repeatedDescriptionRows: [...descriptions.values()].filter((count) => count > 1).reduce((sum, count) => sum + count, 0),
-    uniqueDescriptions: descriptions.size,
-    nearDuplicateDescriptionPairs: nearDuplicatePairs.length,
+    ...descriptionQuality,
     invalidCareRanges: invalidCareRanges.length,
     usableCommonNames: usableName,
     withSource: withSource,
@@ -341,3 +400,12 @@ console.log(JSON.stringify({
     note: "Numerator requires review evidence; seed source rows are unreviewed by design.",
   },
 }, null, 2));
+return { reports, externalDataGate, identityFailures, careFailures, contentDebtFailures };
+}
+
+if (require.main === module) runAudit();
+
+module.exports = {
+  auditDescriptionQuality,
+  descriptionOrigin,
+};

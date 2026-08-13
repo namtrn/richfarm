@@ -1,5 +1,37 @@
 # Kế hoạch hoàn thiện Plant Library — Phase 3.1
 
+Status: **PARTIALLY IMPLEMENTED — LOCAL SOURCE BASELINE PASS; CONTENT, STAGING, DEVICE, AND SCALE GATES OPEN**
+
+Kết luận trạng thái (2026-08-13): plan này chưa hoàn tất và không được xem là
+release-ready. Giai đoạn 0 cùng boundary SQLite-authoring/Convex-publish đã
+được triển khai và kiểm chứng cục bộ; các acceptance item chưa đánh dấu trong
+file vẫn là gate mở. Mục “Trạng thái triển khai” ở cuối file là nguồn chi tiết
+cho phần đã xong và phần còn thiếu.
+
+Fresh verification (2026-08-13): normal content audit PASS; strict audit vẫn
+FAIL đúng 558 placeholder/near-duplicate findings đã biết, với 0 invalid care
+ranges và 0 duplicate identities. Priority coverage vẫn 0/97. `check:taxonomy`
+không được chạy vì shell hiện tại không có authorized admin key; đây là gate
+bị chặn, không phải PASS.
+
+Audit-contract correction (2026-08-13): near-duplicate/repeated-description
+logic now excludes explicitly inherited projections from authored/imported
+failure counts and reports inherited involvement separately. Deterministic
+tests pass independently. The real strict count remains 558 because the current
+source contains zero explicitly inherited non-empty descriptions: 358 are
+placeholder findings and 200 are capped authored/independent near-duplicate
+pairs. These are real curation debt and cannot be cleared by relabeling or
+inventing unsupported content.
+
+Content handoff — 2026-08-13: the project owner will complete the Plant Library
+content curation. The 558 findings are classified as non-critical content-
+quality debt, not a source-code, schema, identity, care-range, or database-
+integrity defect. They do not block continued feature development or simulator
+testing, but strict content audit remains an intentional publication-quality
+gate. Work in reviewed batches, preserve provenance, keep unsupported care
+claims empty/`awaiting_review`, and rerun normal + strict audits after each
+batch until the strict finding count reaches zero.
+
 Ngày: 2026-08-09
 Phụ thuộc: Phase 3.0 — Backend Plant Library
 

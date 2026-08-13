@@ -290,3 +290,134 @@ Open gates:
 - Decide whether the migration-only `apps/api/data/richfarm.db` binary change belongs in the eventual commit.
 
 Next action: obtain trusted curation/source data or authorize a staging validation pass; perform final commit-scope review before landing.
+# Active package: PRE-12-AUG-TEST-FIX — Local verification and defect closure
+
+Status: complete for locally executable gates; external rollout gates remain
+open (Heavy route, 2026-08-13)
+
+Goal: rerun the locally executable verification gates for Care Markdown,
+Propagation, Geo Release 1, Phase 1.5–2.5, and Phase 3.1; fix reproducible source
+or deterministic-test defects without claiming external rollout evidence.
+
+Scope and constraints:
+
+- Preserve all pre-existing user changes, especially the SQLite database,
+  profile/language work, iOS project files, artifacts, and the new 2026-08-13
+  propagation-content plan.
+- No staging/production mutation, provider calls, physical-device claims,
+  compatibility removal, commit, push, or deployment without separate scope.
+- A local gate passes only from a fresh command result after the current tree;
+  external gates remain OPEN unless their required artifact already exists.
+- Fix only failures attributable to the plan-owned source/tests; environment
+  failures must be reported separately with exact reproduction evidence.
+
+Acceptance and verification:
+
+1. Care/Propagation focused shared, API, Convex, dashboard, and mobile checks
+   pass after any scoped repairs.
+2. Broader API/Convex/dashboard/mobile regression gates pass, or every failure
+   is classified with a reproducible blocker and unaffected results retained.
+3. Geo and Phase 1.5–3.1 local boundaries are checked against the current tree;
+   no staging/device/provider/rollout gate is silently promoted.
+4. Production fixes have deterministic regression coverage and `git diff
+   --check` passes.
+5. Final plan statuses distinguish source-complete, locally verified, and
+   externally open work using verified facts only.
+
+Ordered work:
+
+1. Map commands, ownership, dirty-tree exclusions, and locally executable gates.
+2. Execute the Care/Propagation package and repair scoped defects.
+3. Independently verify the repaired package and broader local regressions.
+4. Reconcile Geo, Phase 1.5–2.5, and Phase 3.1 local evidence and documentation.
+
+Verified result:
+
+- Care/Propagation focused checks pass; full API 64/64 and Convex 97/97 pass;
+  affected shared/API/Convex/dashboard/mobile typechecks and builds pass.
+- Independent verification found and closed one dashboard contract defect:
+  `PlantI18nRow` now declares the already-mapped optional `contentUpdatedAt`.
+  Dashboard TypeScript, PlantManager 7/7, and production build independently
+  pass after the repair.
+- Geo shared checks 26/26, dashboard 12/12, canonical Convex 12/12, mobile
+  110/110 plus typecheck, and a fresh iOS export pass.
+- Phase 3.1 normal audit passes. Strict audit remains an expected open content
+  gate with 558 findings and priority coverage 0/97; taxonomy check remains
+  blocked without an authorized admin key.
+- No staging, physical-device, Android, push-provider, migration mutation,
+  compatibility cleanup, or rollout approval gate was claimed or executed.
+
+# Active package: PRE12-EXTERNAL-CLOSE — Content and rollout gate execution
+
+Status: local audit contract corrected; content curation handed to project
+owner; external execution blocked on target, restore, device, provider,
+identity, and credential prerequisites (Heavy route, 2026-08-13)
+
+Goal: close the remaining Phase 3.1 content/taxonomy gates and execute the
+authorized staging migration, rollback, physical-device, provider, data
+migration, compatibility-cleanup, and rollout evidence gates where exact safe
+targets and disposable test identities can be verified.
+
+Constraints and stop conditions:
+
+- Resolve the exact deployment, backup, account, reminder, and device targets
+  before any mutation or provider send; never print credentials or raw tokens.
+- Production mutation is not inferred when only a dev/staging gate is required.
+- Preserve the user-owned SQLite database and all unrelated dirty worktree
+  changes. Create recoverable backups before target data mutation.
+- Compatibility removal requires verified `remaining: 0`, successful readback
+  and restore rehearsal, and proof that deployed clients no longer depend on it.
+- Physical-device/provider gates cannot be promoted from simulator, export,
+  unit tests, or missing-device evidence.
+
+Acceptance gates:
+
+1. Strict content audit reaches PASS or every unresolved content row has a
+   truthful evidence-backed disposition and explicit owner; no invented data.
+2. Taxonomy checks run against an explicitly resolved authorized target and
+   pass without exposing the admin key.
+3. Migration dry-run, backup/readback, bounded mutation, idempotency, and
+   restore rehearsal produce reconciled artifacts for the authorized target.
+4. iOS/Android physical-device and Expo/APNs/FCM checks record exact disposable
+   device/build/dispatch/receipt evidence, or remain blocked with exact missing
+   hardware/credential/identity prerequisites.
+5. Compatibility cleanup and rollout approval occur only after their upstream
+   gates pass; documentation records verified facts and remaining blockers.
+
+Ordered work:
+
+1. Resolve targets, credentials, devices, audit categories, and safe commands.
+2. Remediate bounded strict-audit source/content defects with provenance gates.
+3. Run taxonomy and staged data-migration/rollback rehearsals.
+4. Execute physical-device/provider matrices on disposable identities.
+5. Remove proven-unused compatibility paths, regress, and reconcile rollout.
+
+Verified progress and blockers:
+
+- Corrected the Phase 3.1 audit contract so explicitly inherited descriptions
+  are reported separately and cannot create authored/imported duplicate
+  failures. Focused tests 2/2, normal audit, syntax, and diff-check pass; an
+  independent verifier confirmed the gate was not weakened.
+- Strict audit remains honestly open at 558 real findings: 358 placeholders
+  plus 200 capped near-duplicate pairs; current content has zero explicitly
+  inherited non-empty rows. Priority coverage remains 0/97, source owners are
+  TBD, and approved licensed care evidence is unavailable.
+- The project owner accepted ownership of content completion. The 558 findings
+  are non-critical publication-quality debt rather than code/schema/database
+  integrity defects. Next content action is reviewed, provenance-preserving
+  curation in small batches followed by normal and strict audit runs; do not
+  invent care claims or mark unsupported evidence as verified.
+- Only dev `fantastic-beagle-190` is configured. No disposable staging target,
+  Care/Propagation/Phase1.5 target snapshot, or tested restore destination is
+  available. Care has no dry-run; migration mutation is therefore stopped.
+- Taxonomy execution was attempted against dev but the local Convex CLI rejects
+  the configured deploy credential format before invoking the function. No
+  taxonomy function or data mutation ran; authorized controlled credential
+  injection is required.
+- No physical iOS/Android device is connected (`devicectl` has none; `adb` is
+  unavailable). No Expo project ID/EAS login/APNs/FCM credentials or disposable
+  account/reminder/dispatch identity exists locally, so provider sends remain
+  blocked.
+- Compatibility cleanup and rollout approval remain downstream-blocked; no
+  schema/reader removal is allowed without zero-remaining migration/readback,
+  restore rehearsal, and deployed-client compatibility evidence.
