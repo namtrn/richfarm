@@ -644,6 +644,7 @@ export const listPlants = query({
       commonName: string;
       description?: string;
       careContent?: string;
+      contentUpdatedAt?: number;
       contentVersion?: number;
       source?: string;
       sourceUrl?: string;
@@ -661,6 +662,7 @@ export const listPlants = query({
         commonName: row.commonName,
         description: row.description ?? undefined,
         careContent: row.careContent ?? undefined,
+        contentUpdatedAt: row.contentUpdatedAt ?? undefined,
         contentVersion: row.contentVersion ?? undefined,
         source: row.source ?? undefined,
         sourceUrl: row.sourceUrl ?? undefined,
@@ -1342,6 +1344,7 @@ export const listPlantI18n = query({
         commonName: row.commonName,
         description: row.description ?? undefined,
         careContent: row.careContent ?? undefined,
+        contentUpdatedAt: row.contentUpdatedAt ?? undefined,
         source: row.source ?? undefined,
         sourceUrl: row.sourceUrl ?? undefined,
         contentStatus: row.contentStatus ?? undefined,
@@ -1382,6 +1385,7 @@ export const exportPlantI18nSource = query({
           commonName: row.commonName,
           description: row.description ?? undefined,
           careContent: row.careContent ?? undefined,
+          contentUpdatedAt: row.contentUpdatedAt ?? undefined,
           source: row.source ?? undefined,
           sourceUrl: row.sourceUrl ?? undefined,
           contentStatus: row.contentStatus ?? undefined,

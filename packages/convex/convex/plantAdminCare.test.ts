@@ -96,6 +96,40 @@ describe("plantAdmin localized care Markdown contract", () => {
     expect(rows.find((row: any) => row.locale === "fr")?.careContent).toBeUndefined();
   });
 
+  it("advances the display timestamp only when published care changes", async () => {
+    const t = setup();
+    const plantId = await insertPlant(t);
+    const created = await t.mutation(api.plantAdmin.createPlantI18n, i18nArgs(plantId as any, {
+      careContent: "## Guide\n\nPublished.",
+      contentStatus: "published",
+    }));
+    let rows = await t.query(api.plantAdmin.listPlantI18n, { serviceToken });
+    expect(rows.find((row: any) => row.locale === "fr")?.contentUpdatedAt).toEqual(expect.any(Number));
+    await t.run(async (ctx) => {
+      const care = await ctx.db.query("plantCareI18n").withIndex("by_plant_locale", (q) =>
+        q.eq("plantId", plantId as any).eq("locale", "fr"),
+      ).unique();
+      await ctx.db.patch(care!._id, { contentUpdatedAt: 100 });
+    });
+    const initial = 100;
+
+    await t.mutation(api.plantAdmin.updatePlantI18n, updateArgs({
+      rowId: created.rowId,
+      careContent: "## Guide\n\nDraft edit.",
+      contentStatus: "draft",
+    }));
+    rows = await t.query(api.plantAdmin.listPlantI18n, { serviceToken });
+    expect(rows.find((row: any) => row.locale === "fr")?.contentUpdatedAt).toBe(initial);
+
+    await t.mutation(api.plantAdmin.updatePlantI18n, updateArgs({
+      rowId: created.rowId,
+      careContent: "## Guide\n\nPublished revision.",
+      contentStatus: "published",
+    }));
+    rows = await t.query(api.plantAdmin.listPlantI18n, { serviceToken });
+    expect(rows.find((row: any) => row.locale === "fr")?.contentUpdatedAt).toBeGreaterThan(initial);
+  });
+
   it("moves localized care with a locale rename instead of deleting it", async () => {
     const t = setup();
     const plantId = await insertPlant(t);

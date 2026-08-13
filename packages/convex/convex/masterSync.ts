@@ -72,6 +72,7 @@ const localizedRowValidator = v.object({
   // rejected (they were only accepted by the temporary compatibility
   // validator during the Phase 4 rollout window).
   care_content: v.optional(v.union(v.string(), v.null())),
+  content_updated_at: nullableString,
   content_version: v.optional(v.number()),
   source: nullableString,
   source_url: nullableString,
@@ -259,6 +260,7 @@ async function upsertPlantI18n(ctx: any, plantId: any, locale: string, row: any)
     contentStatus: row.content_status ?? "published",
     reviewedAt: normalizeReviewedAt(row.reviewed_at),
     reviewedBy: row.reviewed_by?.trim() || undefined,
+    contentUpdatedAt: row.content_updated_at ? Date.parse(row.content_updated_at) : undefined,
   });
 }
 
@@ -674,6 +676,7 @@ export const listAll = query({
           commonName: row.commonName,
           description: row.description ?? undefined,
           careContent: care?.careContent,
+          contentUpdatedAt: care?.contentUpdatedAt,
           contentVersion: row.contentVersion ?? care?.contentVersion,
           source: row.source,
           sourceUrl: row.sourceUrl,

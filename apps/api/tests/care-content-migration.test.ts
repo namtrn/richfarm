@@ -65,6 +65,24 @@ describe("Phase 2 care content migration", () => {
     expect(columns.some((col) => col.name === "care_content")).toBe(true);
   });
 
+  it("backfills deterministic display dates by stable plant code", () => {
+    const dbPath = path.join(dir, "care-dates.db");
+    const seeded = createDatabase(dbPath);
+    seeded.prepare(`INSERT INTO master_plants (plant_code, common_name) VALUES (?, ?)`).run("BASELLA_ALBA_09A582HJFJ", "mutable");
+    seeded.prepare(`INSERT INTO master_plants (plant_code, common_name) VALUES (?, ?)`).run("OTHER_STABLE_CODE", "other");
+    seeded.prepare(`INSERT INTO master_plant_i18n (master_plant_id, locale, common_name, care_content, content_status) VALUES (1, 'vi', 'x', '# Guide', 'published')`).run();
+    seeded.prepare(`INSERT INTO master_plant_i18n (master_plant_id, locale, common_name, care_content, content_status) VALUES (2, 'en', 'y', '# Guide', 'published')`).run();
+    seeded.close();
+
+    const migrated = createDatabase(dbPath);
+    const rows = migrated.prepare(`SELECT content_updated_at FROM master_plant_i18n ORDER BY master_plant_id`).all() as Array<{ content_updated_at: string }>;
+    expect(rows.map((row) => row.content_updated_at)).toEqual([
+      '2026-08-13T00:00:00.000Z',
+      '2026-07-13T00:00:00.000Z',
+    ]);
+    migrated.close();
+  });
+
   it("converts legacy section objects and { text } shapes and reports failures", () => {
     const legacyPath = path.join(dir, "legacy.db");
     const legacy = buildLegacyDatabase(legacyPath);

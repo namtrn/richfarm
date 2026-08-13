@@ -156,6 +156,7 @@ function mergeLocaleContent(plant: any, rows: any[], base: any | null, baseRows:
     description: isPlaceholderPlantDescription(description) ? undefined : description,
     localeUsed: pickedContent?.locale ?? picked?.locale ?? "latin",
     careContent: care?.careContent,
+    contentUpdatedAt: care?.contentUpdatedAt,
     careSource: care?.careSource,
     careSourceUrl: care?.careSourceUrl,
     careSourceRefs: care?.careSourceRefs,
@@ -223,6 +224,7 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       const care = careI18nByPlantLocale.get(`${plantId}:${row.locale}`);
       if (care && (includeInactive || care.contentStatus === undefined || care.contentStatus === "published")) {
       row.careContent = care.careContent;
+      row.contentUpdatedAt = care.contentUpdatedAt;
       row.contentVersion = row.contentVersion ?? care.contentVersion;
       row.careSource = care.source;
       row.careSourceUrl = care.sourceUrl;
@@ -344,6 +346,7 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       description: localized.description,
       localeUsed: localized.localeUsed,
       careContent: localized.careContent,
+      contentUpdatedAt: localized.contentUpdatedAt,
       contentVersion: localized.contentVersion ?? plant.contentVersion,
       contentOrigin: localized.contentOrigin,
       inheritedFromId: localized.inheritedFromId,

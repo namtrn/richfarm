@@ -55,6 +55,7 @@ export interface ConvexPlantLibraryItem {
     commonName: string;
     description?: string;
     careContent?: string;
+    contentUpdatedAt?: number;
     contentVersion?: number;
     source?: string;
     sourceUrl?: string;

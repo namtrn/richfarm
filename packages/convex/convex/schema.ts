@@ -292,6 +292,9 @@ export default defineSchema({
     plantId: v.id("plantsMaster"),
     locale: v.string(),
     careContent: v.string(),
+    // Timestamp of the published care guide currently visible to users.
+    // Draft-only edits must not advance this value.
+    contentUpdatedAt: v.optional(v.number()),
     contentVersion: v.optional(v.number()),
     source: v.optional(v.string()),
     sourceUrl: v.optional(v.string()),

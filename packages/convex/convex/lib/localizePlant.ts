@@ -3,6 +3,7 @@ export type PlantI18nRow = {
     commonName: string;
     description?: string;
     careContent?: string;
+    contentUpdatedAt?: number;
     contentVersion?: number;
 };
 
@@ -12,6 +13,7 @@ export type PlantLocalized = {
     description?: string;
     localeUsed: string;
     careContent?: string;
+    contentUpdatedAt?: number;
     contentVersion?: number;
 };
 
@@ -53,6 +55,7 @@ export function localizePlantRows(
         description: pickedDescription ?? safeFallbackDescription,
         localeUsed: picked?.locale ?? "latin",
         careContent: picked?.careContent,
+        contentUpdatedAt: picked?.contentUpdatedAt,
         contentVersion: picked?.contentVersion,
     };
 }

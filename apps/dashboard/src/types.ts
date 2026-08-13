@@ -9,6 +9,7 @@ export type I18nRow = {
   commonName: string;
   description?: string;
   careContent?: string;
+  contentUpdatedAt?: number | string;
   contentVersion?: number;
   source?: string;
   sourceUrl?: string;

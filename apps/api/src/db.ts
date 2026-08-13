@@ -212,6 +212,7 @@ function runMigrations(db: SqliteDatabase): void {
       common_name TEXT NOT NULL,
       description TEXT,
       care_content TEXT,
+      content_updated_at TEXT,
       content_version INTEGER NOT NULL DEFAULT 1,
       source TEXT,
       source_url TEXT,
@@ -391,6 +392,7 @@ function runMigrations(db: SqliteDatabase): void {
   // content_origin, source, review/provenance fields) losslessly.
   ensureColumn(db, "master_plant_i18n", "content_origin", `content_origin TEXT NOT NULL DEFAULT 'imported' CHECK (content_origin IN ('authored', 'inherited', 'imported'))`);
   ensureColumn(db, "master_plant_i18n", "care_content", `care_content TEXT`);
+  ensureColumn(db, "master_plant_i18n", "content_updated_at", `content_updated_at TEXT`);
   ensureColumn(db, "master_plant_i18n", "source", `source TEXT`);
   ensureColumn(db, "master_plant_i18n", "source_url", `source_url TEXT`);
   ensureColumn(db, "master_plant_i18n", "content_status", `content_status TEXT NOT NULL DEFAULT 'published'`);
@@ -398,10 +400,26 @@ function runMigrations(db: SqliteDatabase): void {
   ensureColumn(db, "master_plant_i18n", "reviewed_at", `reviewed_at TEXT`);
   ensureColumn(db, "master_plant_i18n", "reviewed_by", `reviewed_by TEXT`);
   ensureColumn(db, "master_plant_i18n", "source_refs_json", `source_refs_json TEXT NOT NULL DEFAULT '[]'`);
-
   migrateUsersRoleCheck(db);
   migrateCareContentJsonToMarkdown(db);
   ensureI18nLocaleCompatibility(db);
+
+  // Deterministic release backfill runs after legacy care conversion. The two
+  // Basella identities are stable plant codes, not mutable names.
+  db.exec(`
+    UPDATE master_plant_i18n
+    SET content_updated_at = CASE
+      WHEN master_plant_id IN (
+        SELECT id FROM master_plants
+        WHERE plant_code IN ('BASELLA_ALBA_09A582HJFJ', 'BASELLA_ALBA_CEYLON_GZJ982GQJ3')
+      ) THEN '2026-08-13T00:00:00.000Z'
+      ELSE '2026-07-13T00:00:00.000Z'
+    END
+    WHERE content_updated_at IS NULL
+      AND care_content IS NOT NULL
+      AND trim(care_content) <> ''
+      AND content_status = 'published';
+  `);
 
   db.exec(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_master_plants_source_identity
@@ -480,6 +498,7 @@ function rebuildMasterPlantI18nTable(db: SqliteDatabase): void {
       common_name TEXT NOT NULL,
       description TEXT,
       care_content TEXT,
+      content_updated_at TEXT,
       content_version INTEGER NOT NULL DEFAULT 1,
       source TEXT,
       source_url TEXT,
@@ -496,12 +515,12 @@ function rebuildMasterPlantI18nTable(db: SqliteDatabase): void {
     );
     INSERT INTO master_plant_i18n (
       id, master_plant_id, locale, common_name, description,
-      care_content, content_version, source, source_url,
+      care_content, content_updated_at, content_version, source, source_url,
       content_status, review_status, reviewed_at, reviewed_by,
       content_origin, source_refs_json, created_at, updated_at
     )
     SELECT id, master_plant_id, locale, common_name, description,
-      care_content, content_version, source, source_url,
+      care_content, ${legacyColumns.some((column) => column.name === "content_updated_at") ? "content_updated_at" : "NULL"}, content_version, source, source_url,
       content_status, review_status, reviewed_at, reviewed_by,
       content_origin, ${sourceRefsProjection}, created_at, updated_at
     FROM master_plant_i18n_legacy;

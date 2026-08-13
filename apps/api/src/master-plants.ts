@@ -63,6 +63,7 @@ const localeContentSchema = z.object({
   common_name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(5000).nullish(),
   care_content: z.string().max(50000).nullish(),
+  content_updated_at: z.string().datetime().nullish(),
   content_version: z.number().int().positive().optional(),
   source: z.string().trim().max(240).nullish(),
   source_url: z.string().url().nullish(),
@@ -304,6 +305,7 @@ interface MasterPlantI18nRow {
   common_name: string;
   description: string | null;
   care_content: string | null;
+  content_updated_at: string | null;
   content_version: number;
   source: string | null;
   source_url: string | null;
@@ -804,6 +806,7 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
     common_name: string;
     description?: string;
     care_content?: string;
+    content_updated_at?: string;
     content_version?: number;
     source?: string;
     source_url?: string;
@@ -835,6 +838,7 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
       common_name: row.common_name,
       ...(row.description ? { description: row.description } : {}),
       ...(row.care_content ? { care_content: row.care_content } : {}),
+      ...(row.content_updated_at ? { content_updated_at: row.content_updated_at } : {}),
       content_version: row.content_version,
       ...(row.source ? { source: row.source } : {}),
       ...(row.source_url ? { source_url: row.source_url } : {}),
@@ -859,6 +863,7 @@ export function upsertI18n(
     common_name: string;
     description?: string | null;
     care_content?: string | null;
+    content_updated_at?: string | null;
     content_version?: number;
     source?: string | null;
     source_url?: string | null;
@@ -877,8 +882,15 @@ export function upsertI18n(
 ) {
   const locales = new Set(Object.keys(i18n).map((locale) => locale.trim().toLowerCase()));
   const existingRows = db
-    .prepare(`SELECT id, locale FROM master_plant_i18n WHERE master_plant_id = ?`)
-    .all(masterPlantId) as Array<{ id: number; locale: string }>;
+    .prepare(`SELECT id, locale, care_content, content_status, content_updated_at FROM master_plant_i18n WHERE master_plant_id = ?`)
+    .all(masterPlantId) as Array<{
+      id: number;
+      locale: string;
+      care_content: string | null;
+      content_status: string;
+      content_updated_at: string | null;
+    }>;
+  const existingByLocale = new Map(existingRows.map((row) => [row.locale, row]));
   for (const row of existingRows) {
     if (!locales.has(row.locale)) {
       db.prepare(`DELETE FROM master_plant_i18n WHERE id = ?`).run(row.id);
@@ -895,16 +907,32 @@ export function upsertI18n(
       payload.care_content.trim() !== ""
         ? payload.care_content
         : null;
+    const normalizedLocale = locale.trim().toLowerCase();
+    const existing = existingByLocale.get(normalizedLocale);
+    const effectiveStatus = payload.content_status ?? "published";
+    const contentUpdatedAt = payload.content_updated_at ?? (
+      effectiveStatus === "published" && careContent &&
+      (!existing || existing.content_status !== "published" || existing.care_content !== careContent)
+        ? new Date().toISOString()
+        : existing?.content_updated_at ?? null
+    );
     db.prepare(
       `INSERT INTO master_plant_i18n (
-        master_plant_id, locale, common_name, description, care_content,
+        master_plant_id, locale, common_name, description, care_content, content_updated_at,
         content_version, source, source_url, content_status, review_status,
         reviewed_at, reviewed_by, content_origin, source_refs_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(master_plant_id, locale) DO UPDATE SET
          common_name = excluded.common_name,
          description = excluded.description,
          care_content = excluded.care_content,
+         content_updated_at = CASE
+           WHEN excluded.content_updated_at IS NOT NULL THEN excluded.content_updated_at
+           WHEN excluded.content_status = 'published'
+             AND (master_plant_i18n.content_status <> 'published' OR master_plant_i18n.care_content IS NOT excluded.care_content)
+             THEN strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+           ELSE master_plant_i18n.content_updated_at
+         END,
          content_version = excluded.content_version,
          source = excluded.source,
          source_url = excluded.source_url,
@@ -921,6 +949,7 @@ export function upsertI18n(
       payload.common_name,
       payload.description ?? null,
       careContent,
+      contentUpdatedAt,
       payload.content_version ?? 1,
       payload.source ?? null,
       payload.source_url ?? null,
@@ -1220,6 +1249,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     common_name: string;
     description?: string;
     care_content?: string;
+    content_updated_at?: string;
     content_version?: number;
     source?: string;
     source_url?: string;
@@ -1235,6 +1265,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
       common_name: row.commonName,
       ...(row.description ? { description: row.description } : {}),
       ...(row.careContent ? { care_content: row.careContent } : {}),
+      ...(row.contentUpdatedAt ? { content_updated_at: new Date(row.contentUpdatedAt).toISOString() } : {}),
       ...(row.contentVersion !== undefined ? { content_version: row.contentVersion } : {}),
       ...(row.source ? { source: row.source } : {}),
       ...(row.sourceUrl ? { source_url: row.sourceUrl } : {}),

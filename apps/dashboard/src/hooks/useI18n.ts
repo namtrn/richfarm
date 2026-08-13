@@ -9,6 +9,7 @@ type BackendI18nRow = {
     common_name: string;
     description?: string | null;
     care_content?: string | null;
+    content_updated_at?: string | null;
     content_version?: number;
     source?: string | null;
     source_url?: string | null;
@@ -29,6 +30,7 @@ function mapBackendI18n(row: BackendI18nRow): PlantI18nRow {
         commonName: row.common_name,
         description: row.description ?? undefined,
         careContent: row.care_content ?? undefined,
+        contentUpdatedAt: row.content_updated_at ?? undefined,
         contentVersion: row.content_version,
         source: row.source ?? undefined,
         sourceUrl: row.source_url ?? undefined,

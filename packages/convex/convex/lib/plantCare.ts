@@ -64,6 +64,7 @@ export type PlantCareI18nRow = {
   plantId: any;
   locale: string;
   careContent?: string;
+  contentUpdatedAt?: number;
   contentVersion?: number;
   source?: string;
   sourceUrl?: string;
@@ -111,6 +112,7 @@ export async function getPlantCareI18nMap(ctx: any) {
       plantId: row.plantId,
       locale: row.locale,
       careContent: row.careContent ?? undefined,
+      contentUpdatedAt: row.contentUpdatedAt ?? undefined,
       contentVersion: row.contentVersion ?? undefined,
       source: row.source ?? undefined,
       sourceUrl: row.sourceUrl ?? undefined,
@@ -136,6 +138,7 @@ export function mergeCareIntoI18nRows<T extends {
   locale: string;
   careContent?: string;
   contentVersion?: number;
+  contentUpdatedAt?: number;
 }>(rows: T[], careByPlantLocale: Map<string, PlantCareI18nRow>) {
   return rows.map((row) => {
     const key = row.plantId ? `${String(row.plantId)}:${row.locale}` : "";
@@ -144,6 +147,7 @@ export function mergeCareIntoI18nRows<T extends {
       ...row,
       careContent: care?.careContent ?? row.careContent,
       contentVersion: care?.contentVersion ?? row.contentVersion,
+      contentUpdatedAt: care?.contentUpdatedAt ?? row.contentUpdatedAt,
     };
   });
 }
@@ -233,6 +237,8 @@ export async function upsertPlantCareI18n(
     contentStatus?: "draft" | "published" | "needs_review" | "archived";
     reviewedAt?: number;
     reviewedBy?: string;
+    /** Explicit value is reserved for deterministic sync/backfill. */
+    contentUpdatedAt?: number;
   },
 ) {
   const normalizedLocale = String(locale).trim().toLowerCase();
@@ -250,6 +256,13 @@ export async function upsertPlantCareI18n(
   // Three-state contract shared by the API, outbox, and masterSync:
   // absent/undefined preserves, null or empty deletes, non-empty string upserts.
   if (careContent === undefined) {
+    if (existing && options?.contentStatus !== undefined) {
+      const publishing = options.contentStatus === "published" && existing.contentStatus !== "published";
+      await ctx.db.patch(existing._id, {
+        contentStatus: options.contentStatus,
+        ...(publishing ? { contentUpdatedAt: options.contentUpdatedAt ?? Date.now() } : {}),
+      });
+    }
     return existing?._id ?? null;
   }
 
@@ -264,6 +277,12 @@ export async function upsertPlantCareI18n(
     plantId,
     locale: normalizedLocale,
     careContent,
+    contentUpdatedAt: options?.contentUpdatedAt ?? (
+      (options?.contentStatus ?? existing?.contentStatus ?? "published") === "published" &&
+      (!existing || existing.careContent !== careContent || existing.contentStatus !== "published")
+        ? Date.now()
+        : existing?.contentUpdatedAt
+    ),
     contentVersion: contentVersion ?? existing?.contentVersion,
     source: options?.source !== undefined
       ? options.source.trim() || undefined
