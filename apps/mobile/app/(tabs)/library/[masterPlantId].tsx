@@ -16,13 +16,13 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MarkdownText } from '../../../components/MarkdownText';
+import { formatCareContentUpdatedAt } from '../../../lib/careContentUpdatedAt';
 import {
     ArrowLeft,
     Heart,
     ChevronDown,
     Droplets,
     Sun,
-    Clock,
     Leaf,
     Dna,
 } from '../../../lib/icons';
@@ -57,12 +57,12 @@ import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
 import { InputSheet } from '../../../components/ui/InputSheet';
 import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
 import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
+import { PlantMetadataRows } from '../../../components/plant/PlantMetadataRows';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
 }
 
-const GREEN = '#1a4731';
 const BLUE = '#2563eb';
 
 function humanizePropagationMethod(method: string) {
@@ -752,41 +752,9 @@ export default function LibraryPlantDetailScreen() {
                                     <Text style={{ fontSize: 12, fontWeight: '700', color: lightInfo.color }}>{lightInfo.label}</Text>
                                 </View>
                             )}
-                            {!!currentPlant.wateringFrequencyDays && (
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: isDark ? '#1e3a8a' : '#dbeafe', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 }}>
-                                    <Droplets size={14} stroke={BLUE} />
-                                    <Text style={{ fontSize: 12, fontWeight: '700', color: BLUE }}>
-                                        {t('library.watering_every', { days: currentPlant.wateringFrequencyDays, defaultValue: `Every ${currentPlant.wateringFrequencyDays}d` })}
-                                    </Text>
-                                </View>
-                            )}
-                            {!!currentPlant.typicalDaysToHarvest && (
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: isDark ? '#14532d' : '#dcfce7', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 }}>
-                                    <Clock size={14} stroke={GREEN} />
-                                    <Text style={{ fontSize: 12, fontWeight: '700', color: GREEN }}>
-                                        {currentPlant.typicalDaysToHarvest}{t('library.days_suffix', { defaultValue: 'd' })}
-                                    </Text>
-                                </View>
-                            )}
                         </View>
 
-                        {/* Purposes / uses */}
-                        {currentPlant.purposes?.length > 0 && (
-                            <View style={{ marginTop: 0, marginBottom: 16 }}>
-                                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
-                                    {t('library.detail_uses', { defaultValue: 'Uses' })}
-                                </Text>
-                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                                    {currentPlant.purposes.map((p: string) => (
-                                        <View key={p} style={{ backgroundColor: theme.accent, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
-                                            <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '700', textTransform: 'capitalize' }}>
-                                                {t(`purposes.${p}`, { defaultValue: p.replace(/_/g, ' ') })}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
+                        <PlantMetadataRows plant={currentPlant} propagationLabels={propagationMethodLabels} />
 
                         {/* Description */}
                         {!!currentPlant.description && (
@@ -860,7 +828,14 @@ export default function LibraryPlantDetailScreen() {
                             {t('library.section_care', { defaultValue: 'Care Guide' })}
                         </Text>
                         {careContent ? (
-                            <MarkdownText style={{ marginBottom: 16 }}>{careContent}</MarkdownText>
+                            <>
+                                <MarkdownText style={{ marginBottom: 8 }}>{careContent}</MarkdownText>
+                                {formatCareContentUpdatedAt(currentPlant.contentUpdatedAt, locale) ? (
+                                    <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 16 }}>
+                                        {t('library.care_last_updated', { date: formatCareContentUpdatedAt(currentPlant.contentUpdatedAt, locale) })}
+                                    </Text>
+                                ) : null}
+                            </>
                         ) : (
                             <Text style={{ color: theme.textMuted, fontSize: 13, marginVertical: 20 }}>
                                 {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
@@ -869,33 +844,25 @@ export default function LibraryPlantDetailScreen() {
 
                         {/* Detailed stats */}
                         {Boolean(
+                            currentPlant.typicalDaysToHarvest ??
                             currentPlant.germinationDays ??
                             currentPlant.spacingCm ??
+                            currentPlant.wateringFrequencyDays ??
                             currentPlant.maxPlantsPerM2 ??
                             currentPlant.seedRatePerM2 ??
                             currentPlant.waterLitersPerM2 ??
                             currentPlant.yieldKgPerM2 ??
-                            propagationMethodLabels.length > 0
+                            false
                         ) && (
                             <View style={{ paddingHorizontal: 2, marginTop: 2, marginBottom: 4 }}>
-                                {!!currentPlant.germinationDays && <StatRow label={t('library.detail_germination')} value={`${currentPlant.germinationDays} days`} />}
+                                {!!currentPlant.typicalDaysToHarvest && <StatRow label={t('library.stat_harvest')} value={t('library.days_value', { count: currentPlant.typicalDaysToHarvest })} />}
+                                {!!currentPlant.germinationDays && <StatRow label={t('library.detail_germination')} value={t('library.days_value', { count: currentPlant.germinationDays })} />}
                                 {!!currentPlant.spacingCm && <StatRow label={t('library.detail_spacing')} value={formatLengthCm(currentPlant.spacingCm, unitSystem)} />}
+                                {!!currentPlant.wateringFrequencyDays && <StatRow label={t('library.stat_watering')} value={t('library.watering_every', { days: currentPlant.wateringFrequencyDays })} />}
                                 {!!currentPlant.maxPlantsPerM2 && <StatRow label={t('library.detail_max_plants')} value={formatPlantsPerArea(currentPlant.maxPlantsPerM2, unitSystem)} />}
                                 {!!currentPlant.seedRatePerM2 && <StatRow label={t('library.detail_seed_rate')} value={formatSeedsPerArea(currentPlant.seedRatePerM2, unitSystem)} />}
                                 {!!currentPlant.waterLitersPerM2 && <StatRow label={t('library.detail_water_per_area')} value={formatWaterPerArea(currentPlant.waterLitersPerM2, unitSystem)} />}
                                 {!!currentPlant.yieldKgPerM2 && <StatRow label={t('library.detail_yield_per_area')} value={formatYieldPerArea(currentPlant.yieldKgPerM2, unitSystem)} />}
-                                {propagationMethodLabels.length > 0 && (
-                                    <View style={{ paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
-                                        <Text style={{ fontSize: 14, color: theme.textSecondary, marginBottom: 8 }}>{t('library.propagation_methods', { defaultValue: t('library.detail_propagation') })}</Text>
-                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                                            {propagationMethodLabels.map((label, index) => (
-                                                <View key={`${label}-${index}`} style={{ backgroundColor: theme.accent, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 }}>
-                                                    <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '600' }}>{label}</Text>
-                                                </View>
-                                            ))}
-                                        </View>
-                                    </View>
-                                )}
                             </View>
                         )}
 

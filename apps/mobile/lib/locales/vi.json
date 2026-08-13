@@ -349,6 +349,7 @@
     "feedback_checked": "Đã ghi nhận kiểm tra."
   },
   "library": {
+    "care_last_updated": "Cập nhật lần cuối: {{date}}",
     "title": "Thư viện",
     "tab_plants": "Cây trồng",
     "tab_pests": "Sâu bệnh",
@@ -397,6 +398,8 @@
     "propagation_method_tissue_culture": "Nuôi cấy mô",
     "detail_spacing": "Khoảng cách",
     "detail_uses": "Công dụng",
+    "detail_origin": "Nguồn gốc",
+    "detail_growing_conditions": "Điều kiện trồng",
     "light_full_sun": "Nắng đầy đủ",
     "light_partial_shade": "Bán râm",
     "light_shade": "Bóng râm",

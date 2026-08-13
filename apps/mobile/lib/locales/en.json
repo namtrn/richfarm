@@ -350,6 +350,7 @@
     "feedback_checked": "Check recorded."
   },
   "library": {
+    "care_last_updated": "Last updated: {{date}}",
     "title": "Library",
     "tab_plants": "Plants",
     "tab_pests": "Pests & Diseases",
@@ -401,6 +402,8 @@
     "propagation_method_spore": "Spore",
     "propagation_method_tissue_culture": "Tissue culture",
     "detail_uses": "Uses",
+    "detail_origin": "Origin",
+    "detail_growing_conditions": "Growing conditions",
     "light_full_sun": "Full Sun",
     "light_partial_shade": "Part Shade",
     "light_shade": "Shade",

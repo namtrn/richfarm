@@ -1,10 +1,14 @@
 import { ConvexReactClient } from 'convex/react';
 
-const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
-
-if (!convexUrl) {
-  throw new Error('EXPO_PUBLIC_CONVEX_URL is not set');
+function requireConvexUrl(): string {
+  const value = process.env.EXPO_PUBLIC_CONVEX_URL;
+  if (!value) {
+    throw new Error('EXPO_PUBLIC_CONVEX_URL is not set');
+  }
+  return value;
 }
+
+const convexUrl = requireConvexUrl();
 
 export function createConvexClient() {
   return new ConvexReactClient(convexUrl, { logger: false });

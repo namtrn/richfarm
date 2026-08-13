@@ -16,7 +16,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Search, X, Droplets, Sun, Clock, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from '../../../lib/icons';
+import { Search, X, Droplets, Sun, Bug, Heart, ShieldAlert, BookOpen, ScanSearch, Dna, Tags, SlidersHorizontal } from '../../../lib/icons';
 import { useTranslation } from 'react-i18next';
 import { usePlantLibrary, usePlantGroups } from '../../../hooks/usePlantLibrary';
 import { PlantImage } from '../../../components/ui/PlantImage';
@@ -30,13 +30,17 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { usePlantScanner } from '../../../hooks/usePlantScanner';
 import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { matchesSearch } from '../../../lib/search';
-import { matchesPlantLibrarySearch } from '../../../lib/plantLibrarySearch';
+import {
+    matchesPlantLibrarySearch,
+    shouldRestrictCommonBrowseToBasePlants,
+} from '../../../lib/plantLibrarySearch';
 import { formatPlantFamilyDisplayName } from '../../../../../packages/shared/src/plantFamily';
 import { isDisplayBasePlant } from '../../../../../packages/shared/src/plantBase';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePestsDiseases, PestDiseaseType } from '../../../hooks/usePestsDiseases';
 import { loadCachedCareContent, saveCareContent } from '../../../lib/plantCareCache';
 import { MarkdownText } from '../../../components/MarkdownText';
+import { formatCareContentUpdatedAt } from '../../../lib/careContentUpdatedAt';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
 import { compareGroupsForOnboarding, getGroupPersonalizationScore, getOnboardingFocusItems, scorePlantForOnboarding } from '../../../lib/personalization';
@@ -46,6 +50,7 @@ import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../component
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
 import { useUserSettings } from '../../../hooks/useUserSettings';
+import { PlantMetadataRows } from '../../../components/plant/PlantMetadataRows';
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
 type PlantBrowseMode = 'common' | 'families';
@@ -204,7 +209,8 @@ function PlantDetailModal({
     onToggleFavorite: () => void;
     canFavorite: boolean;
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const theme = useTheme();
     const { displayName, scientificName, description } = usePlantDisplayName(plant);
     const lightMeta = LIGHT_META[plant.lightRequirements ?? ''];
@@ -300,27 +306,35 @@ function PlantDetailModal({
                         )}
 
                         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-                            {plant.typicalDaysToHarvest && (
-                                <StatCard icon={<Clock size={18} stroke={theme.primary} />} label={t('library.stat_harvest')} value={t('library.days_value', { count: plant.typicalDaysToHarvest })} />
-                            )}
-                            {plant.wateringFrequencyDays && (
-                                <StatCard icon={<Droplets size={18} stroke={theme.primary} />} label={t('library.stat_watering')} value={t('library.watering_every', { days: plant.wateringFrequencyDays })} />
-                            )}
                             {plant.lightRequirements && (
                                 <StatCard icon={<Sun size={18} stroke={theme.warning} />} label={t('library.stat_light')} value={lightLabel ?? plant.lightRequirements} />
                             )}
                         </View>
 
-                        {plant.germinationDays > 0 && (
+                        <PlantMetadataRows plant={plant} propagationLabels={propagationMethodLabels} />
+
+                        {!!plant.typicalDaysToHarvest && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.stat_harvest')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t('library.days_value', { count: plant.typicalDaysToHarvest })}</Text>
+                            </View>
+                        )}
+                        {!!plant.germinationDays && (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
                                 <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.detail_germination')}</Text>
                                 <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t('library.days_value', { count: plant.germinationDays })}</Text>
                             </View>
                         )}
-                        {plant.spacingCm && (
+                        {!!plant.spacingCm && (
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
                                 <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.detail_spacing')}</Text>
                                 <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{formatLengthCm(plant.spacingCm, unitSystem)}</Text>
+                            </View>
+                        )}
+                        {!!plant.wateringFrequencyDays && (
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.stat_watering')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t('library.watering_every', { days: plant.wateringFrequencyDays })}</Text>
                             </View>
                         )}
                         {plant.maxPlantsPerM2 && (
@@ -347,34 +361,6 @@ function PlantDetailModal({
                                 <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{formatYieldPerArea(plant.yieldKgPerM2, unitSystem)}</Text>
                             </View>
                         )}
-                        {propagationMethodLabels.length > 0 && (
-                            <View style={{ paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
-                                <Text style={{ fontSize: 14, color: theme.textSecondary, marginBottom: 8 }}>{t('library.propagation_methods', { defaultValue: t('library.detail_propagation') })}</Text>
-                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                                    {propagationMethodLabels.map((label, index) => (
-                                        <View key={`${label}-${index}`} style={{ backgroundColor: theme.accent, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 }}>
-                                            <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '500' }}>{label}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
-
-                        {plant.purposes?.length > 0 && (
-                            <View style={{ marginTop: 16 }}>
-                                <Text style={{ fontSize: 13, fontWeight: '500', color: theme.textAccent, marginBottom: 8 }}>{t('library.detail_uses')}</Text>
-                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                                    {plant.purposes.map((p: string) => (
-                                        <View key={p} style={{ backgroundColor: theme.accent, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-                                            <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '500', textTransform: 'capitalize' }}>
-                                                {t(`purposes.${p}`)}
-                                            </Text>
-                                        </View>
-                                    ))}
-                                </View>
-                            </View>
-                        )}
-
                         <View style={{ marginTop: 20, gap: 12 }}>
                             <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
                                 {t('library.section_care', { defaultValue: 'Care Guide' })}
@@ -390,6 +376,11 @@ function PlantDetailModal({
                                     }}
                                 >
                                     <MarkdownText>{careContent}</MarkdownText>
+                                    {formatCareContentUpdatedAt(plant.contentUpdatedAt, locale) ? (
+                                        <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 8 }}>
+                                            {t('library.care_last_updated', { date: formatCareContentUpdatedAt(plant.contentUpdatedAt, locale) })}
+                                        </Text>
+                                    ) : null}
                                 </View>
                             ) : (
                                 <Text style={{ color: theme.textMuted, fontSize: 13 }}>
@@ -1595,7 +1586,10 @@ export default function LibraryScreen() {
 
     const filteredPlants = useMemo(() => {
         let result = plants;
-        if (plantBrowseMode === 'common') {
+        if (
+            plantBrowseMode === 'common' &&
+            shouldRestrictCommonBrowseToBasePlants(normalizedSearch)
+        ) {
             result = result.filter((plant) => isSelfBasePlant(plant));
         }
         const shouldApplyPrioritizedFilter =

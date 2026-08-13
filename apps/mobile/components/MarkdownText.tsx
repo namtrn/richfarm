@@ -1,17 +1,19 @@
 import React from "react";
-import { View } from "react-native";
+import { Linking, View } from "react-native";
 import Markdown from "@ronradtke/react-native-markdown-display";
 import { useTheme } from "../lib/theme";
+import { propagationMethodCodeFromUrl } from "../lib/plantDetailMetadata";
 
 type Props = {
     children: string;
     style?: object;
+    onPropagationLinkPress?: (methodCode: string) => void;
 };
 
 // Standard markdown renderer for plant descriptions. Kept in one place so the
 // description format contract (paragraphs, bullets, bold, emphasis) renders
 // consistently across Library detail, Plant detail and future surfaces.
-export function MarkdownText({ children, style }: Props) {
+export function MarkdownText({ children, style, onPropagationLinkPress }: Props) {
     const theme = useTheme();
     const markdownStyle = {
         body: {
@@ -35,7 +37,23 @@ export function MarkdownText({ children, style }: Props) {
 
     return (
         <View style={{ marginBottom: 4 }}>
-            <Markdown style={markdownStyle}>{children}</Markdown>
+            <Markdown
+                style={markdownStyle}
+                onLinkPress={(url) => {
+                    const methodCode = propagationMethodCodeFromUrl(url);
+                    if (methodCode) {
+                        // A canonical method page does not exist yet. Consumers may
+                        // opt into navigation once that route is available; until
+                        // then, prevent the OS from opening an unsupported scheme.
+                        onPropagationLinkPress?.(methodCode);
+                        return false;
+                    }
+                    void Linking.openURL(url);
+                    return false;
+                }}
+            >
+                {children}
+            </Markdown>
         </View>
     );
 }

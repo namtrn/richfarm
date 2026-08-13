@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MarkdownText } from '../../../components/MarkdownText';
+import { formatCareContentUpdatedAt } from '../../../lib/careContentUpdatedAt';
 import { ArrowLeft, Check, Trash2, Sprout, Leaf, CalendarDays, Heart, GitBranch } from '../../../lib/icons';
 import { usePlants, type PlantStatus } from '../../../hooks/usePlants';
 import { useBeds } from '../../../hooks/useBeds';
@@ -44,6 +45,7 @@ import { useSyncProjection } from '../../../hooks/useSyncProjection';
 import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
 import { migratePlantLocalData } from '../../../lib/commands/migratePlantLocalData';
 import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
+import { PlantMetadataRows } from '../../../components/plant/PlantMetadataRows';
 
 function humanizePropagationMethod(method: string) {
   return method
@@ -897,6 +899,11 @@ export default function PlantDetailScreen() {
                   {t('library.section_care', { defaultValue: 'Care Guide' })}
                 </Text>
                 <MarkdownText>{matchingMasterPlant.careContent}</MarkdownText>
+                {formatCareContentUpdatedAt(matchingMasterPlant.contentUpdatedAt, locale) ? (
+                  <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 8 }}>
+                    {t('library.care_last_updated', { date: formatCareContentUpdatedAt(matchingMasterPlant.contentUpdatedAt, locale) })}
+                  </Text>
+                ) : null}
               </View>
             )}
 
@@ -906,42 +913,33 @@ export default function PlantDetailScreen() {
                   <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.light_label')}: {lightLabel}</Text>
                 </View>
               )}
-              {matchingMasterPlant.wateringFrequencyDays && (
-                <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.watering_label')}: {matchingMasterPlant.wateringFrequencyDays}d</Text>
-                </View>
-              )}
-              {matchingMasterPlant.typicalDaysToHarvest && (
-                <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.harvest_label')}: {matchingMasterPlant.typicalDaysToHarvest}d</Text>
-                </View>
-              )}
-              {matchingMasterPlant.spacingCm && (
-                <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('library.detail_spacing')}: {formatLengthCm(matchingMasterPlant.spacingCm, unitSystem)}</Text>
-                </View>
-              )}
-              {propagationMethodLabels.length > 0 && (
-                <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('library.propagation_methods', { defaultValue: t('library.detail_propagation') })}: {propagationMethodLabels.join(', ')}</Text>
-                </View>
-              )}
             </View>
 
-            {matchingMasterPlant.purposes?.length > 0 && (
-              <View style={{ marginTop: 12 }}>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-                  {t('library.detail_uses', { defaultValue: 'Uses' })}
-                </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                  {matchingMasterPlant.purposes.map((p: string) => (
-                    <View key={p} style={{ backgroundColor: theme.successBg, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
-                      <Text style={{ fontSize: 12, color: theme.success, fontWeight: '700', textTransform: 'capitalize' }}>
-                        {t(`purposes.${p}`, { defaultValue: p.replace(/_/g, ' ') })}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
+            <View style={{ marginTop: 12 }}>
+              <PlantMetadataRows plant={matchingMasterPlant} propagationLabels={propagationMethodLabels} />
+            </View>
+            {!!matchingMasterPlant.typicalDaysToHarvest && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.stat_harvest')}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t('library.days_value', { count: matchingMasterPlant.typicalDaysToHarvest })}</Text>
+              </View>
+            )}
+            {!!matchingMasterPlant.germinationDays && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.detail_germination')}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t('library.days_value', { count: matchingMasterPlant.germinationDays })}</Text>
+              </View>
+            )}
+            {!!matchingMasterPlant.spacingCm && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.detail_spacing')}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{formatLengthCm(matchingMasterPlant.spacingCm, unitSystem)}</Text>
+              </View>
+            )}
+            {!!matchingMasterPlant.wateringFrequencyDays && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.stat_watering')}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t('library.watering_every', { days: matchingMasterPlant.wateringFrequencyDays })}</Text>
               </View>
             )}
           </View>
