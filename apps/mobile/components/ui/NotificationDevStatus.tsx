@@ -9,12 +9,13 @@ export function NotificationDevStatus({
 }: {
   registration: NotificationRegistrationState;
 }) {
+  const isVisible = __DEV__ && process.env.EXPO_PUBLIC_SHOW_NOTIFICATION_DEV_STATUS === 'true';
   const tokenRows = useQuery(
     api.notifications.getDeviceTokenStatus,
-    __DEV__ ? {} : 'skip',
+    isVisible ? {} : 'skip',
   );
 
-  if (!__DEV__) return null;
+  if (!isVisible) return null;
 
   const lines = buildNotificationDevStatusLines(registration, tokenRows ?? []);
 

@@ -30,6 +30,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useLocalSyncIdentity } from '../../lib/sync/identity';
 import { notifyNotificationPermissionChanged } from '../../lib/notifications';
 import { toast } from '../../lib/toast';
+import { changeLanguageAndSyncProfile } from '../../lib/profileLanguage';
 
 const CLOUD_BACKUP_PROVIDER = process.env.EXPO_PUBLIC_CLOUD_BACKUP_PROVIDER;
 
@@ -206,9 +207,31 @@ export default function ProfileScreen() {
   }, [settings?.unitSystem, settings?.temperatureUnit, settings?.theme, currentLang]);
 
   const handleLanguageChange = async (code: string) => {
-    if (code === currentLang) return;
-    i18n.changeLanguage(code);
-    await updateProfile({ locale: code });
+    try {
+      const result = await changeLanguageAndSyncProfile({
+        code,
+        currentLanguage: currentLang,
+        isAuthenticated,
+        changeLanguage: (language) => i18n.changeLanguage(language),
+        updateProfile,
+      });
+      if (result.status === 'requires-auth') {
+        toast.warning(t('profile.auth_sign_in'), {
+          message: t('profile.auth_sign_in_subtitle'),
+          actionLabel: t('profile.auth_sign_in'),
+          onAction: () => {
+            router.push({ pathname: '/auth', params: { returnTo: pathname } });
+          },
+          testID: 'e2e-profile-language-auth-required',
+        });
+      } else if (result.status === 'failed') {
+        toast.error(t('profile.save_failed_generic'));
+      }
+    } catch {
+      // Keep the native press handler rejection-free even if an integration
+      // boundary changes outside the helper's contained failure paths.
+      toast.error(t('profile.save_failed_generic'));
+    }
   };
 
   const handlePickAvatar = async () => {
@@ -582,9 +605,9 @@ export default function ProfileScreen() {
                     return (
                       <TouchableOpacity
                         key={lang.code}
-                        onPress={async () => {
+                        onPress={() => {
                           setLanguageMenuOpen(false);
-                          await handleLanguageChange(lang.code);
+                          void handleLanguageChange(lang.code);
                         }}
                         style={{ paddingHorizontal: 14, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: index === LANGUAGES.length - 1 ? 0 : 1, borderColor: theme.accent }}
                       >
