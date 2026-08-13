@@ -115,6 +115,7 @@ Mỗi bản ngôn ngữ phải:
 3. Không dịch từng chữ hoặc giữ cấu trúc câu của bản nguồn nếu cách viết đó thiếu tự nhiên.
 4. Dùng tên phổ thông đúng locale; tên khoa học không dịch.
    Tên hiển thị phải là common name được người dùng của locale đó sử dụng tự nhiên, không phải bản dịch từng chữ từ tiếng Anh. Tên khoa học và các tên gọi thực sự khác được lưu riêng để hỗ trợ tìm kiếm và phân biệt. Không tạo alias bằng cách bỏ dấu, đảo thứ tự từ, đổi số ít/số nhiều hoặc thêm bớt các từ chung như `cây`, `rau`, `hoa`. Chỉ dùng tên khoa học làm fallback khi chưa xác minh được common name, đồng thời giữ locale ở trạng thái `needs_review`.
+   Nội dung của một locale không được chèn common name của locale khác chỉ để giải thích tên cây, ví dụ bản tiếng Anh không viết “known in Vietnam as mồng tơi”. Tên địa phương chỉ được nhắc khi chính tên gọi đó là chủ đề cần giải thích và có giá trị nội dung rõ ràng; không dùng nó như câu giới thiệu trang trí. Alias đa ngôn ngữ thuộc metadata tìm kiếm, không thuộc `description` hoặc `careContent` mặc định.
 5. Không tự thêm mẹo, cảnh báo hoặc con số vào một locale mà các locale khác chưa có bằng chứng tương ứng.
 6. Được phép rút gọn hoặc đổi nhịp câu để giọng văn tự nhiên, miễn không làm mất ý nghĩa chăm sóc.
 
@@ -409,6 +410,7 @@ Bản refine giống người viết hơn vì nội dung đi từ việc cần l
 - [ ] Nội dung đã được một người đọc lại và chỉnh giọng văn.
 - [ ] Các locale truyền đạt cùng sự thật, con số và cảnh báo.
 - [ ] Tên hiển thị là common name tự nhiên của từng locale; tên khoa học và alias không bị ghép vào tên hiển thị.
+- [ ] Nội dung không chèn common name của locale khác để trang trí hoặc giải thích tên cây; alias đa ngôn ngữ chỉ nằm trong metadata tìm kiếm, trừ khi tên địa phương là chủ đề thực sự của bài.
 - [ ] Alias mở rộng khả năng tìm kiếm bằng một cách gọi thực sự khác, không lặp lại common name dưới dạng biến thể hình thức.
 - [ ] Bản dịch đã được biên tập tự nhiên, không phải bản dịch từng chữ.
 - [ ] Mỗi locale có trạng thái review riêng; chưa duyệt thì giữ `needs_review`.

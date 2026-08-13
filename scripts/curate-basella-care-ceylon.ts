@@ -147,7 +147,7 @@ const CARE = {
 // ── Ceylon cultivar overview (standard markdown, precise content) ───────
 const CEYLON_OVERVIEW = {
   en: [
-    "**Ceylon Malabar Spinach** is a selected cultivar of *Basella alba*, the tropical vine known in Vietnam as mồng tơi. Its name traces to Sri Lanka — the island once called Ceylon — where related basella types have long been grown.",
+    "**Ceylon Malabar Spinach** is a selected cultivar of *Basella alba*, a tropical climbing vegetable grown for its tender leaves and shoot tips. Its name traces to Sri Lanka — the island once called Ceylon — where related basella types have long been grown.",
     "Like the species, it is a fast-climbing vine grown for its tender, slightly mucilaginous leaves and shoot tips, and it stays productive through hot, humid summers when true spinach bolts.",
     "**Growing at a glance**",
     "- **Support:** trellis, fence or teepee — it climbs quickly",
