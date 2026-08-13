@@ -14,7 +14,7 @@ physical-device feature QA, and compatibility-removal gates remain open.
 
 Source document:
 
-- `docs/tasks/2026-08-10-care-content-markdown-storage-plan.md`
+- `content/plans/2026-08-10-care-content-markdown-storage-plan.md`
 
 ## Objective
 
