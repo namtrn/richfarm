@@ -4,6 +4,14 @@ Date: 2026-08-12
 
 Status: **SOURCE IMPLEMENTED — MIGRATION AND FEATURE QA GATES OPEN**
 
+Fresh local verification — 2026-08-13: care migration 8/8, mobile care cache
+3/3, dashboard PlantManager 7/7, full API 64/64, full Convex 97/97, shared/API/
+Convex/dashboard/mobile typechecks and builds, and `git diff --check` all pass.
+Independent dashboard verification exposed a missing `PlantI18nRow.contentUpdatedAt`
+type field; the contract was corrected and independently reverified with
+dashboard TypeScript, focused tests, and production build passing. Migration,
+physical-device feature QA, and compatibility-removal gates remain open.
+
 Source document:
 
 - `docs/tasks/2026-08-10-care-content-markdown-storage-plan.md`

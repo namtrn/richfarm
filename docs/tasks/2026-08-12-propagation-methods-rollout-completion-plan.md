@@ -4,6 +4,13 @@ Date: 2026-08-12
 
 Status: **SOURCE IMPLEMENTED — DATA MIGRATION AND FEATURE QA GATES OPEN**
 
+Fresh local verification — 2026-08-13: shared propagation 3/3, Convex
+propagation migration 7/7, mobile propagation display 5/5, dashboard
+PlantManager 7/7, full API 64/64, full Convex 97/97, all affected typechecks/
+builds, and `git diff --check` pass. No propagation source defect was found.
+Target migration/readback, physical-device feature QA, and compatibility
+cleanup remain open.
+
 Source document:
 
 - `docs/tasks/2026-08-10-propagation-methods-plan.md`
