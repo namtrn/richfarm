@@ -1,0 +1,9 @@
+appId: com.richfarm.app
+---
+- assertVisible: "Tomato VN Cherry"
+- assertVisible: "Viet Nam"
+- assertVisible: "Hot"
+- assertVisible: "Humid"
+- assertVisible: "Tropical"
+- assertVisible: "Frost-free"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-vn-cherry-geo-final

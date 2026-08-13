@@ -1,0 +1,11 @@
+appId: com.richfarm.app
+---
+- extendedWaitUntil:
+    visible: "Tomato Tommy Toe"
+    timeout: 10000
+- assertVisible: "Australia"
+- assertVisible: "Warm"
+- assertVisible: "Moderate"
+- assertVisible: "Temperate"
+- assertVisible: "Frost-free"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-tommy-toe-geo-final

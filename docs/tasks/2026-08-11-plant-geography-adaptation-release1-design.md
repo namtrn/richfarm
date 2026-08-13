@@ -4,7 +4,14 @@ Date: 2026-08-11
 
 Source plan: `docs/tasks/2026-08-11-plant-geography-adaptation-localization-plan.md` (§18 "Immediate next implementation stage")
 
-Status: Technical design for review. No code changes have been made.
+Status: **SUPERSEDED BY VERIFIED RELEASE 1 IMPLEMENTATION RESULT (2026-08-12)**
+
+Implementation and dev-release authority: [Plant Geography and Adaptation
+Release 1 — Completion Plan](2026-08-12-plant-geography-adaptation-release1-completion-plan.md).
+The stale pre-implementation statement below is retained only as historical
+design context. Stage A–C and the Stage D pilot taxonomy review are complete on
+the authorized dev target; production deployment/data mutation remain pending
+separate authorization.
 
 Scope: Release 1 only (taxonomy, Vietnamese/English translations, existing-dashboard management, plant assignments). Release 2 dual-unit measurement validation and all later releases are out of scope. This document does not change the approved product decisions in §17 of the source plan.
 
@@ -429,14 +436,14 @@ Before code changes begin, these must hold (each maps to a source-plan acceptanc
 
 ---
 
-## 9. Open approval points (require product confirmation before implementation)
+## 9. Historical approval points (resolved for Release 1 implementation)
 
 1. **Dashboard placement**: no settings/content area exists (evidence §1.3); the recommendation is a new top-level `Taxonomy` nav item, rendered exactly like Groups. Alternative: embed term management inside the Plants page — not recommended (mixes reference-data management with per-plant authoring).
 2. **Country-name data volume**: bundling all 249 ISO 3166-1 alpha-2 codes with vi + en names is a bounded but real content task (≈500 strings). Confirm CLDR-derived public-domain names are acceptable and that Vietnamese editorial normalization (e.g. "Hoa Kỳ" vs "Mỹ", "Việt Nam") is centralized in the shared module.
 3. **Subdivision catalog**: deferred by default (§4.2); confirm format-only validation is acceptable for Release 1.
 4. **Term mirror policy**: SQLite mirror is hydrated on taxonomy saves + manual refresh; plant saves are fail-closed only when the mirror is populated (§2.4). Confirm the fail-open-when-empty behavior is acceptable for the offline authoring boundary.
 
-## 10. Immediate next implementation order (after approval)
+## 10. Historical implementation order (completed; see completion plan)
 
 1. Add shared `countries` module + data + tests (no new dependencies).
 2. Extend `schema.ts` (Convex) and `db.ts` (SQLite) with the five tables each; seed `adaptationTermsSeed`.

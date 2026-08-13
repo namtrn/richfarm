@@ -1,0 +1,6 @@
+appId: com.richfarm.app
+---
+- tapOn: "Tomato"
+- waitForAnimationToEnd
+- assertVisible: "Solanum lycopersicum"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-tomato-detail

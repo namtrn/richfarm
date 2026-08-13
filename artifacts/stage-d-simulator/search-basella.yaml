@@ -1,0 +1,14 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    point: "8%,10%"
+- waitForAnimationToEnd
+- tapOn: "Tomato"
+- eraseText
+- inputText: "Basella alba"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "Malabar Spinach"
+    timeout: 20000
+- assertVisible: "Ceylon Malabar Spinach"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-basella-search

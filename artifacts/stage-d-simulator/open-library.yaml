@@ -1,0 +1,7 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    id: e2e-tab-library
+- waitForAnimationToEnd
+- assertVisible: "Library"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-library

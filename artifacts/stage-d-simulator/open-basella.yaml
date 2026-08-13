@@ -1,0 +1,11 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    point: "50%,30%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Malabar Spinach"
+    timeout: 20000
+- assertVisible: "CARE GUIDE"
+- assertVisible: "Light & Location"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-basella-detail

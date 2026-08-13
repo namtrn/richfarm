@@ -1,0 +1,7 @@
+appId: com.richfarm.app
+---
+- assertVisible: "Temperature"
+- assertVisible: "Safety"
+- assertVisible: "Germination"
+- assertVisible: "6 days"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-basella-ceylon-bottom

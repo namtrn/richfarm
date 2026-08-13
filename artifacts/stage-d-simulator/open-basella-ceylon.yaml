@@ -1,0 +1,10 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    point: "55%,52%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Ceylon Malabar Spinach"
+    timeout: 10000
+- assertVisible: "Watering"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-basella-ceylon-care

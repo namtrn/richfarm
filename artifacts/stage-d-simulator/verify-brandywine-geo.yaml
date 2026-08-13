@@ -1,0 +1,24 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    point: "8%,10%"
+- waitForAnimationToEnd
+- tapOn: "Basella alba"
+- eraseText
+- inputText: "Brandywine"
+- extendedWaitUntil:
+    visible: "Brandywine Tomato"
+    timeout: 30000
+- tapOn:
+    point: "50%,30%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "ORIGIN"
+    timeout: 20000
+- assertVisible: "United States of America"
+- assertVisible: "ADAPTED TO"
+- assertVisible: "Warm"
+- assertVisible: "Moderate"
+- assertVisible: "Temperate"
+- assertVisible: "Frost-free"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-brandywine-geo-final

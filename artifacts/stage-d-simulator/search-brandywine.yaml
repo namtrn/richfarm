@@ -1,0 +1,7 @@
+appId: com.richfarm.app
+---
+- tapOn: "Search plants..."
+- inputText: "Brandywine"
+- waitForAnimationToEnd
+- assertVisible: "Brandywine Tomato"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-brandywine-search

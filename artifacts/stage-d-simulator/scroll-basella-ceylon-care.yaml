@@ -1,0 +1,27 @@
+appId: com.richfarm.app
+---
+- swipe:
+    start: "50%,70%"
+    end: "50%,25%"
+    duration: 600
+- swipe:
+    start: "50%,70%"
+    end: "50%,25%"
+    duration: 600
+- swipe:
+    start: "50%,70%"
+    end: "50%,25%"
+    duration: 600
+- swipe:
+    start: "50%,70%"
+    end: "50%,25%"
+    duration: 600
+- swipe:
+    start: "50%,70%"
+    end: "50%,25%"
+    duration: 600
+- extendedWaitUntil:
+    visible: "Watering"
+    timeout: 10000
+- assertVisible: "Keep the soil consistently moist; this tropical vine dislikes drying out."
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-basella-ceylon-care

@@ -1,0 +1,11 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    id: e2e-tab-library
+- waitForAnimationToEnd
+- tapOn: "Search plants..."
+- inputText: "Brandywine"
+- extendedWaitUntil:
+    visible: "Brandywine Tomato"
+    timeout: 30000
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-brandywine-direct-search-final

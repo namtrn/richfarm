@@ -2,7 +2,13 @@
 
 Date: 2026-08-11
 
-Status: Approved for implementation
+Status: **SUPERSEDED FOR RELEASE 1 EXECUTION — DEV COMPLETION RECORDED 2026-08-12; RELEASE 2 SCOPE REMAINS OPEN**
+
+Release 1 closeout authority: [Plant Geography and Adaptation Release 1 — Completion Plan](2026-08-12-plant-geography-adaptation-release1-completion-plan.md).
+The completion plan records Stage A–C completion and the Stage D pilot taxonomy
+review on the authorized dev target. Production deployment and production data
+mutation remain separate, unapproved gates; measurement localization and the
+other Release 2 items in this document are not closed by the Release 1 result.
 
 ## 1. Purpose
 

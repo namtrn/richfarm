@@ -1,0 +1,14 @@
+appId: com.richfarm.app
+---
+- tapOn:
+    point: "50%,30%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "PROPAGATION"
+    timeout: 20000
+- assertVisible: "USES"
+- assertVisible: "Seed"
+- assertVisible: "Stem cutting"
+- assertVisible: "HARVEST"
+- assertVisible: "45 days"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-basella-metadata-final

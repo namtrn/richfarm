@@ -1,0 +1,10 @@
+appId: com.richfarm.app
+---
+- hideKeyboard
+- tapOn:
+    point: "50%,30%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Solanum lycopersicum"
+    timeout: 20000
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-tomato-detail

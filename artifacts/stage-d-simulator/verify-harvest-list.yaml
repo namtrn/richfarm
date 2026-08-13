@@ -1,0 +1,13 @@
+appId: com.richfarm.app
+---
+- swipe:
+    direction: UP
+    duration: 500
+- swipe:
+    direction: UP
+    duration: 500
+- extendedWaitUntil:
+    visible: "Harvest"
+    timeout: 10000
+- assertVisible: "Harvest"
+- takeScreenshot: /Users/n/Documents/GitHub/richfarm/artifacts/stage-d-simulator/iphone17-harvest-list-final
