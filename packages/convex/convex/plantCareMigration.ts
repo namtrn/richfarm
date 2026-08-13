@@ -1,58 +1,146 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { upsertPlantCareProfile } from "./lib/plantCare";
+import { getPlantCareProfileByPlantId, upsertPlantCareProfile } from "./lib/plantCare";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+
+// These fields existed on plantsMaster before care became its own canonical
+// document. Keep the list explicit so a future schema edit cannot silently
+// drop another legacy field during the cutover.
+const LEGACY_CARE_FIELDS = [
+  "typicalDaysToHarvest",
+  "germinationDays",
+  "lightRequirements",
+  "soilPref",
+  "spacingCm",
+  "maxPlantsPerM2",
+  "seedRatePerM2",
+  "waterLitersPerM2",
+  "yieldKgPerM2",
+  "wateringFrequencyDays",
+  "fertilizingFrequencyDays",
+  "soilPhMin",
+  "soilPhMax",
+  "moistureTarget",
+  "lightHours",
+] as const;
+
+function hasLegacyValue(value: unknown): boolean {
+  // Numeric zero is valid for these fields; only absent/null values are
+  // treated as missing during the migration.
+  return value !== undefined && value !== null;
+}
 
 export const migratePlantMasterCareProfile = mutation({
   args: {
     serviceToken: v.string(),
     limit: v.optional(v.number()),
+    cursor: v.optional(v.string()),
+    dryRun: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     requireAdminServiceToken(args.serviceToken);
-    const rows = await ctx.db.query("plantsMaster").collect();
-    const limit = Math.max(1, Math.min(args.limit ?? rows.length, rows.length || 1));
+    // Safe default: production operators must pass dryRun: false explicitly.
+    const dryRun = args.dryRun ?? true;
+    const allRows = (await ctx.db.query("plantsMaster").collect()) as any[];
+    const requestedLimit = args.limit === undefined
+      ? allRows.length || 1
+      : Math.floor(args.limit);
+    const limit = Math.max(1, Math.min(requestedLimit, allRows.length || 1));
+    const candidates = allRows
+      .sort((left: any, right: any) => String(left._id).localeCompare(String(right._id)))
+      .filter((row: any) => !args.cursor || String(row._id) > args.cursor);
+    const rows = candidates.slice(0, limit);
     let migrated = 0;
     let cleaned = 0;
+    let alreadyMigrated = 0;
+    let remaining = 0;
+    const conflicts: Array<{ id: string; fields: string[] }> = [];
+    const failures: Array<{ id: string; reason: string }> = [];
 
-    for (const row of (rows as any[]).slice(0, limit)) {
-      const payload = {
-        typicalDaysToHarvest: row.typicalDaysToHarvest,
-        germinationDays: row.germinationDays,
-        lightRequirements: row.lightRequirements,
-        soilPref: row.soilPref,
-        spacingCm: row.spacingCm,
-        maxPlantsPerM2: row.maxPlantsPerM2,
-        seedRatePerM2: row.seedRatePerM2,
-        waterLitersPerM2: row.waterLitersPerM2,
-        yieldKgPerM2: row.yieldKgPerM2,
-        wateringFrequencyDays: row.wateringFrequencyDays,
-        fertilizingFrequencyDays: row.fertilizingFrequencyDays,
-      };
-      const hasLegacyCare = Object.values(payload).some((value) => value !== undefined);
+    for (const row of rows) {
+      const legacyValues: Record<string, unknown> = {};
+      for (const field of LEGACY_CARE_FIELDS) {
+        if (hasLegacyValue(row[field])) legacyValues[field] = row[field];
+      }
+      const hasLegacyCare = Object.keys(legacyValues).length > 0;
       if (!hasLegacyCare) continue;
+      // In dry-run mode every candidate remains on plantsMaster by design;
+      // the count is a page-level rollout gate for the eventual schema cutover.
+      if (dryRun) remaining += 1;
 
-      await upsertPlantCareProfile(ctx, row._id, payload);
-      migrated += 1;
+      const existing = await getPlantCareProfileByPlantId(ctx, row._id);
+      const payload: Record<string, unknown> = {};
+      const conflictingFields: string[] = [];
+      for (const [field, value] of Object.entries(legacyValues)) {
+        if (existing?.[field] === undefined) payload[field] = value;
+        else if (existing[field] !== value) conflictingFields.push(field);
+      }
+      if (conflictingFields.length > 0) {
+        conflicts.push({ id: String(row._id), fields: conflictingFields });
+      }
 
-      // Remove only the legacy fields. A replace with a hand-written subset
-      // would silently drop Phase 3 source, active, review, and care metadata.
-      await ctx.db.patch(row._id, {
-        typicalDaysToHarvest: undefined,
-        germinationDays: undefined,
-        lightRequirements: undefined,
-        soilPref: undefined,
-        spacingCm: undefined,
-        maxPlantsPerM2: undefined,
-        seedRatePerM2: undefined,
-        waterLitersPerM2: undefined,
-        yieldKgPerM2: undefined,
-        wateringFrequencyDays: undefined,
-        fertilizingFrequencyDays: undefined,
-      } as any);
-      cleaned += 1;
+      // A previously completed migration can be safely re-run. Do not
+      // overwrite a curated care value with a stale copy from plantsMaster.
+      if (Object.keys(payload).length === 0 && conflictingFields.length === 0) {
+        alreadyMigrated += 1;
+      }
+
+      if (!dryRun && Object.keys(payload).length > 0) {
+        try {
+          await upsertPlantCareProfile(ctx, row._id, payload as any);
+          const after = await getPlantCareProfileByPlantId(ctx, row._id);
+          for (const [field, value] of Object.entries(payload)) {
+            if (after?.[field] !== value) {
+              throw new Error(`care profile read-back mismatch for ${field}`);
+            }
+          }
+          migrated += 1;
+        } catch (error) {
+          failures.push({
+            id: String(row._id),
+            reason: error instanceof Error ? error.message : String(error),
+          });
+          remaining += 1;
+          continue;
+        }
+      }
+
+      if (!dryRun) {
+        // Remove only fields that are now represented in plantCare. Conflicts
+        // stay on the legacy row for manual review instead of losing data.
+        const clearPatch: Record<string, undefined> = {};
+        for (const field of Object.keys(legacyValues)) {
+          if (!conflictingFields.includes(field)) clearPatch[field] = undefined;
+        }
+        if (Object.keys(clearPatch).length > 0) {
+          try {
+            await ctx.db.patch(row._id, clearPatch as any);
+            cleaned += 1;
+          } catch (error) {
+            failures.push({
+              id: String(row._id),
+              reason: error instanceof Error ? error.message : String(error),
+            });
+            remaining += 1;
+            continue;
+          }
+        }
+        if (conflictingFields.length > 0) remaining += 1;
+      }
     }
 
-    return { migrated, cleaned, scanned: Math.min(limit, rows.length) };
+    const hasMore = candidates.length > rows.length;
+    return {
+      dryRun,
+      migrated,
+      cleaned,
+      alreadyMigrated,
+      remaining,
+      conflicts,
+      failures,
+      scanned: rows.length,
+      hasMore,
+      nextCursor: hasMore ? String(rows[rows.length - 1]?._id ?? "") : null,
+    };
   },
 });

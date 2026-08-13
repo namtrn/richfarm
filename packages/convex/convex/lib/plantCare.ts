@@ -14,6 +14,9 @@ import type {
   CareFieldEvidence,
   RequiredCareField,
 } from "../../../shared/src/plantCareStatus";
+import { normalizePropagationMethods } from "../../../shared/src/plantPropagation";
+import type { PropagationMethod } from "../../../shared/src/plantPropagation";
+import type { CareSourceRef } from "../../../shared/src/plantCareStatus";
 
 export {
   CARE_STATUSES,
@@ -46,6 +49,7 @@ export type PlantCareProfile = {
   soilPhMax?: number;
   moistureTarget?: number;
   lightHours?: number;
+  propagationMethods?: PropagationMethod[];
   source?: string;
   sourceUrl?: string;
   contentStatus?: "draft" | "published" | "needs_review" | "archived";
@@ -66,7 +70,25 @@ export type PlantCareI18nRow = {
   contentStatus?: "draft" | "published" | "needs_review" | "archived";
   reviewedAt?: number;
   reviewedBy?: string;
+  sourceRefs?: CareSourceRef[];
 };
+
+function normalizeI18nSourceRefs(
+  sourceRefs: unknown,
+  source?: unknown,
+  sourceUrl?: unknown,
+): CareSourceRef[] | undefined {
+  const refs = Array.isArray(sourceRefs)
+    ? sourceRefs.filter((ref): ref is CareSourceRef => Boolean(ref && typeof ref === "object" && !Array.isArray(ref)))
+    : [];
+  if (refs.length > 0) return refs;
+  if (typeof source !== "string" && typeof sourceUrl !== "string") return undefined;
+  const legacy: CareSourceRef = {
+    ...(typeof source === "string" && source.trim() ? { sourceName: source.trim() } : {}),
+    ...(typeof sourceUrl === "string" && sourceUrl.trim() ? { sourceUrl: sourceUrl.trim() } : {}),
+  };
+  return Object.keys(legacy).length > 0 ? [legacy] : undefined;
+}
 
 export async function getPlantCareProfileMap(ctx: any) {
   const rows = await ctx.db.query("plantCare").collect();
@@ -95,6 +117,7 @@ export async function getPlantCareI18nMap(ctx: any) {
       contentStatus: row.contentStatus ?? undefined,
       reviewedAt: row.reviewedAt ?? undefined,
       reviewedBy: row.reviewedBy ?? undefined,
+      sourceRefs: normalizeI18nSourceRefs(row.sourceRefs, row.source, row.sourceUrl),
     });
   }
 
@@ -146,6 +169,7 @@ export function mergeCareProfileIntoPlant<T extends Record<string, any>>(
     soilPhMax: careProfile?.soilPhMax ?? plant.soilPhMax,
     moistureTarget: careProfile?.moistureTarget ?? plant.moistureTarget,
     lightHours: careProfile?.lightHours ?? plant.lightHours,
+    propagationMethods: normalizePropagationMethods(careProfile?.propagationMethods),
   };
 }
 
@@ -164,7 +188,10 @@ export async function upsertPlantCareProfile(
   payload: Omit<PlantCareProfile, "plantId">,
 ) {
   const existing = await getPlantCareProfileByPlantId(ctx, plantId);
-  const providedEntries = Object.entries(payload).filter(([, value]) => value !== undefined);
+  const hasPropagationMethods = Object.prototype.hasOwnProperty.call(payload, "propagationMethods");
+  const providedEntries = Object.entries(payload).filter(([key, value]) =>
+    value !== undefined || (key === "propagationMethods" && hasPropagationMethods),
+  );
 
   // An omitted care patch must be a no-op. This matters for admin edits that
   // only change taxonomy/content metadata: they must not erase an existing
@@ -173,7 +200,12 @@ export async function upsertPlantCareProfile(
     return existing?._id ?? null;
   }
 
-  const doc = Object.fromEntries(providedEntries);
+  const doc: Record<string, any> = Object.fromEntries(providedEntries);
+  // An explicit [] is a clear operation. An omitted field remains a no-op so
+  // taxonomy/i18n patches cannot erase an existing propagation list.
+  if (hasPropagationMethods && Array.isArray((payload as any).propagationMethods)) {
+    doc.propagationMethods = normalizePropagationMethods((payload as any).propagationMethods);
+  }
   if (existing) {
     // Recompute the record-level careStatus from the merged profile whenever
     // fields or evidence change, so the persisted aggregate never drifts.
@@ -183,6 +215,7 @@ export async function upsertPlantCareProfile(
     return existing._id;
   }
   const inserted: PlantCareProfile = { plantId, ...doc };
+  if (inserted.propagationMethods === undefined) delete inserted.propagationMethods;
   inserted.careStatus = recomputeCareStatus(inserted, inserted.careFieldEvidence);
   return await ctx.db.insert("plantCare", inserted);
 }
@@ -191,11 +224,12 @@ export async function upsertPlantCareI18n(
   ctx: any,
   plantId: any,
   locale: string,
-  careContent?: string,
+  careContent?: string | null,
   contentVersion?: number,
   options?: {
     source?: string;
     sourceUrl?: string;
+    sourceRefs?: CareSourceRef[];
     contentStatus?: "draft" | "published" | "needs_review" | "archived";
     reviewedAt?: number;
     reviewedBy?: string;
@@ -213,11 +247,13 @@ export async function upsertPlantCareI18n(
     )
     .unique();
 
+  // Three-state contract shared by the API, outbox, and masterSync:
+  // absent/undefined preserves, null or empty deletes, non-empty string upserts.
   if (careContent === undefined) {
     return existing?._id ?? null;
   }
 
-  if (!careContent.trim()) {
+  if (!careContent || !careContent.trim()) {
     if (existing) {
       await ctx.db.delete(existing._id);
     }
@@ -235,6 +271,9 @@ export async function upsertPlantCareI18n(
     sourceUrl: options?.sourceUrl !== undefined
       ? options.sourceUrl.trim() || undefined
       : existing?.sourceUrl,
+    sourceRefs: options?.sourceRefs !== undefined
+      ? options.sourceRefs
+      : existing?.sourceRefs,
     contentStatus: options?.contentStatus ?? existing?.contentStatus,
     reviewedAt: options?.reviewedAt ?? existing?.reviewedAt,
     reviewedBy: options?.reviewedBy !== undefined

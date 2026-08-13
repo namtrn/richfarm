@@ -9,6 +9,13 @@ export const CARE_STATUSES = [
 ] as const;
 export type CareStatus = (typeof CARE_STATUSES)[number];
 
+export type CareSourceRef = {
+  sourceSystem?: string;
+  sourceName?: string;
+  sourceUrl?: string;
+  sourceLocator?: string;
+};
+
 export const CONTENT_ORIGINS = ["authored", "inherited", "imported"] as const;
 export type ContentOrigin = (typeof CONTENT_ORIGINS)[number];
 
@@ -34,12 +41,83 @@ export type RequiredCareField = (typeof REQUIRED_CARE_FIELDS)[number];
 export type CareFieldEvidence = {
   status: CareStatus;
   sourceSystem?: string;
+  sourceName?: string;
   sourceUrl?: string;
   sourceLocator?: string;
+  sourceRefs?: CareSourceRef[];
   fetchedAt?: number;
   reviewedAt?: number;
   reviewedBy?: string;
 };
+
+/**
+ * Read both the current multi-source shape and the legacy single-source
+ * fields. Legacy fields are retained on the returned object for compatibility,
+ * while `sourceRefs` is always the canonical projection when any source data
+ * exists.
+ */
+export function normalizeCareFieldEvidence(value: unknown): CareFieldEvidence | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const input = value as Record<string, unknown>;
+  const status = input.status;
+  if (typeof status !== "string" || !CARE_STATUSES.includes(status as CareStatus)) return undefined;
+
+  const refs: CareSourceRef[] = [];
+  if (Array.isArray(input.sourceRefs)) {
+    for (const candidate of input.sourceRefs) {
+      if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) continue;
+      const source = candidate as Record<string, unknown>;
+      const ref: CareSourceRef = {
+        ...(typeof source.sourceSystem === "string" && source.sourceSystem.trim()
+          ? { sourceSystem: source.sourceSystem.trim() }
+          : {}),
+        ...(typeof source.sourceName === "string" && source.sourceName.trim()
+          ? { sourceName: source.sourceName.trim() }
+          : {}),
+        ...(typeof source.sourceUrl === "string" && source.sourceUrl.trim()
+          ? { sourceUrl: source.sourceUrl.trim() }
+          : {}),
+        ...(typeof source.sourceLocator === "string" && source.sourceLocator.trim()
+          ? { sourceLocator: source.sourceLocator.trim() }
+          : {}),
+      };
+      if (Object.keys(ref).length > 0) refs.push(ref);
+    }
+  }
+  const legacyRef: CareSourceRef = {
+    ...(typeof input.sourceSystem === "string" && input.sourceSystem.trim()
+      ? { sourceSystem: input.sourceSystem.trim() }
+      : {}),
+    ...(typeof input.sourceName === "string" && input.sourceName.trim()
+      ? { sourceName: input.sourceName.trim() }
+      : {}),
+    ...(typeof input.sourceUrl === "string" && input.sourceUrl.trim()
+      ? { sourceUrl: input.sourceUrl.trim() }
+      : {}),
+    ...(typeof input.sourceLocator === "string" && input.sourceLocator.trim()
+      ? { sourceLocator: input.sourceLocator.trim() }
+      : {}),
+  };
+  if (Object.keys(legacyRef).length > 0 && refs.length === 0) refs.push(legacyRef);
+
+  const normalized: CareFieldEvidence = {
+    status: status as CareStatus,
+    ...(typeof input.sourceSystem === "string" ? { sourceSystem: input.sourceSystem } : {}),
+    ...(typeof input.sourceName === "string" ? { sourceName: input.sourceName } : {}),
+    ...(typeof input.sourceUrl === "string" ? { sourceUrl: input.sourceUrl } : {}),
+    ...(typeof input.sourceLocator === "string" ? { sourceLocator: input.sourceLocator } : {}),
+    ...(refs.length > 0 ? { sourceRefs: refs } : {}),
+    ...(typeof input.fetchedAt === "number" ? { fetchedAt: input.fetchedAt } : {}),
+    ...(typeof input.reviewedAt === "number" ? { reviewedAt: input.reviewedAt } : {}),
+    ...(typeof input.reviewedBy === "string" ? { reviewedBy: input.reviewedBy } : {}),
+  };
+  return normalized;
+}
+
+/** Project a single-source legacy evidence shape into canonical source refs. */
+export function careFieldEvidenceSourceRefs(value: unknown): CareSourceRef[] | undefined {
+  return normalizeCareFieldEvidence(value)?.sourceRefs;
+}
 
 /**
  * Derive the record-level careStatus from a care profile and its per-field

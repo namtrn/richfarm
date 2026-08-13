@@ -1,7 +1,12 @@
 # Implementation Plan — Store Care Content as Markdown
 
 Date: 2026-08-10
-Status: planned
+Status: **SOURCE IMPLEMENTED — ROLLOUT GATES OPEN**
+
+Current execution source: `docs/tasks/2026-08-12-care-content-markdown-rollout-completion-plan.md`.
+The unchecked acceptance list below remains a rollout checklist; the
+implementation result at the end records source-level completion, while target
+migration, feature-screen/device QA, and compatibility cleanup remain open.
 Scope: SQLite API, Convex sync/schema, dashboard, mobile, migration, tests
 
 ## Goal
@@ -44,6 +49,11 @@ Contract rules:
 4. Raw HTML is not required and must not be enabled by the renderers.
 5. Locale rows own their Markdown independently; Vietnamese and English are not assumed to be literal translations of one another.
 6. Structured care fields remain authoritative for calculations, filters, reminders, and validation. Markdown is authoritative only for reader-facing guidance.
+
+Contract clarifications (recorded during the 2026-08-10 plan review):
+
+- Rule 1 describes the end-state contract: canonical care is Markdown and is never a JSON object or JSON-encoded string. During the Phase 4 transition window, readers may still encounter legacy values that were preserved byte-for-byte (including JSON-looking prose); writers must emit only Markdown from the moment the Convex → SQLite mirror fix is deployed (rollout step 5). Rule 1 is the destination contract, not the pre-migration state.
+- `syncV2.ts` and `carePlans.ts` query `plantCareI18n` but consume only `contentVersion`; they never project `careContent`. They remain in the Phase 4.3 audit surface for row-ownership completeness, but they require no care-content codec change and no "string unchanged" regression test.
 
 ## Ownership and data flow
 
@@ -269,3 +279,43 @@ Use `Mồng tơi / Basella alba` as the first end-to-end migrated record.
 - Do not change dashboard SQLite-local ownership or mobile Convex-cache ownership.
 - Do not preserve the old icon/color-per-section mobile presentation once Markdown becomes the canonical free-form contract.
 - Do not expand Plant Detail beyond adding the same localized care guide and rendering policy already required for Library Detail parity.
+
+## Implementation result — 2026-08-11
+
+Status: **implementation complete, locally verified, Convex production functions/schema deployed; data migration/feature-screen QA gates pending**.
+
+Completed and verified:
+
+- SQLite owns nullable `care_content TEXT`; transactional/idempotent migration converts supported legacy JSON, recovers `{ "text": string }` byte-for-byte, reports unsupported rows, preserves provenance/review/origin/identity/timestamps, and supports old clones without `source_refs_json`.
+- API, outbox and Convex master sync use Markdown strings with absent=preserve, null/empty=clear, and non-empty=byte-preserving semantics; structured object payloads are rejected.
+- `plantCareI18n.careContent` remains the Convex canonical owner. Convex admin writers preserve bytes and locale rename moves the care row without data loss.
+- Dashboard has an active Markdown editor/preview and no raw JSON UI. The save-state race was fixed and covered by focused tests.
+- Mobile Library Detail, Library modal and Plant Detail render through `MarkdownText`; v2 cache stores exact strings, evicts malformed/legacy entries, does not resurrect explicitly cleared server content, and has explicit missing-care states.
+- Structured operational care remains authoritative in `plantCare`. Four legacy `plantsMaster` fields are retained temporarily as additive-rollout fallbacks; a paginated, zero-safe, conflict-preserving, readback-verified migration copies them before cleanup.
+
+Verification:
+
+- API full suite: 51/51 PASS; API build PASS; care migration tests 7/7 PASS.
+- Convex full suite: 82/82 PASS; typecheck PASS; focused admin-care tests 2/2 PASS.
+- Dashboard Markdown tests: 3/3 PASS; production build PASS.
+- Mobile cache tests: 3/3 PASS; typecheck PASS.
+- `git diff --check` PASS.
+
+Deployment and simulator evidence (2026-08-11):
+
+- Convex functions/schema deployed successfully to production deployment `whimsical-dove-537` (`https://whimsical-dove-537.convex.cloud`). No care-content or structured-care migration mutation was executed.
+- Deployment exposed a Node-only `crypto` import in `plantCareContentMigration.ts`; it now uses Web Crypto SHA-256, and focused Convex tests 14/14 plus typecheck passed before redeploy.
+- The native app built and installed on iPhone 17 Simulator (iOS 26.2). Metro initially exposed a missing `@react-native-vector-icons/common` runtime dependency from the Markdown renderer; the dependency was added, Metro cache was rebuilt, and the app bundled/rendered successfully. App-visible icons remain on the project's Tabler icon registry.
+
+Remaining rollout gates:
+
+- Target migration rehearsal must be recorded separately; no data migration should run without reviewing dry-run reports.
+- Basella vi/en SQLite → outbox → Convex target → mobile pilot is not complete until the deployed target is verified.
+- The clean simulator stopped at onboarding, so Library/Plant Detail Markdown was not directly exercised. Real-device QA remains required for Markdown links, long/nested lists, dark mode, small screens, locale fallback and cache invalidation.
+- Remove compatibility fields/readers only after all target reports show zero legacy/remaining values.
+
+Dev publication follow-up (2026-08-11):
+
+- Dev functions/schema were brought to parity on `fantastic-beagle-190`, then all 28 rows/56 locale rows belonging to the four curated species groups were marked reviewed/published through the API authoring boundary and drained through the outbox.
+- Final outbox evidence: 84/84 operations applied. Canonical queries return 10 Basella, 6 Laurus, 6 Rubus, and 6 Valeriana rows. Care aggregates remain `awaiting_review`; publication did not falsely upgrade them to `verified`.
+- The mobile Convex subscription was verified by inspecting the live Simulator v8 cache after publication; it automatically contained all 10 Basella rows. Cross-locale search now includes canonical `i18nRows` names instead of only the active-locale display name.
