@@ -1,8 +1,13 @@
 # Kế hoạch bổ sung `propagationMethods`
 
 Ngày: 2026-08-10
-Trạng thái: Draft
+Trạng thái: **SOURCE IMPLEMENTED — ROLLOUT GATES OPEN**
 Phạm vi: master plant, care profile, sync, API, dashboard, mobile và nội dung đa ngôn ngữ
+
+Nguồn closeout: [Propagation Methods — Rollout Completion Plan](2026-08-12-propagation-methods-rollout-completion-plan.md).
+Plan nguồn này đã hoàn tất ở mức implementation nhưng chưa hoàn tất rollout;
+target migration, readback/rollback, feature QA trên thiết bị thật và dọn
+compatibility path vẫn do completion plan quản lý.
 
 Đã rà soát code-vs-plan: 2026-08-10 (xem §13 Nhật ký rà soát cuối tài liệu).
 

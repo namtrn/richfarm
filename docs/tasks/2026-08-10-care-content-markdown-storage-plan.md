@@ -3,6 +3,11 @@
 Date: 2026-08-10
 Status: **SOURCE IMPLEMENTED — ROLLOUT GATES OPEN**
 
+Closeout authority: [Care Content Markdown — Rollout Completion Plan](2026-08-12-care-content-markdown-rollout-completion-plan.md).
+This source plan is implementation-complete but not rollout-complete; target
+migration, byte-exact readback/rollback, feature-screen and physical-device QA,
+and compatibility cleanup remain governed by that completion plan.
+
 Current execution source: `docs/tasks/2026-08-12-care-content-markdown-rollout-completion-plan.md`.
 The unchecked acceptance list below remains a rollout checklist; the
 implementation result at the end records source-level completion, while target
