@@ -1,5 +1,186 @@
 # Project Progress
 
+## Active package: GEOGRAPHY-R1-2026-08-12 — Plant geography/adaptation Release 1
+
+Status: Stages A + B + C complete and verified (dev `fantastic-beagle-190`);
+Stage D pilot taxonomy review delivered — production deployment and data
+authorization pending (Medium route, 2026-08-12)
+
+Goal: complete Release 1 of plant origin, proven regions, and climate
+adaptation per `docs/tasks/2026-08-12-plant-geography-adaptation-release1-completion-plan.md`,
+reusing the pre-existing SQLite/API/shared partial implementation.
+
+Scope and constraints:
+
+- No production-data mutation; no catalog-wide backfill; pilot remains
+  test-fixtures only (`tomato-brandywine`, `tomato-vn-cherry-01`,
+  `tomato-tommy-toe`).
+- Geography changes kept separate from unrelated in-flight work
+  (propagation methods, care Markdown rollout).
+- Mobile is boundary typecheck only (detail display is Release 2).
+
+Verified completion:
+
+- Convex: five new tables (`adaptationTerms`, `adaptationTermI18n`,
+  `plantOriginCountries`, `plantProvenRegions`, `plantAdaptationTerms`) with
+  designed indexes; idempotent 13-term vi/en seed wired into `seedAll`;
+  six `plantAdmin:*` taxonomy functions behind `requireAdminServiceToken`;
+  `backendRowValidator` + `upsertPlantFromBackend` persist/replace the three
+  join tables with the resolved archived rule (archived code rejected only
+  when not already assigned; re-save with an existing archived assignment
+  succeeds); canonical projection emits `originCountries`, `provenRegions`,
+  `adaptation` (grouped by dimension), `geographySource`, and
+  `geographyInheritedFromId` with category-level own ≥ base fallback and the
+  requested → en → code label chain; `plantLibraryQuality` gained
+  `missingMandatoryAdaptationTranslationCount` in report + gate.
+- API: `/api/adaptation-terms` GET + admin-only POST `/refresh` hydrate the
+  SQLite mirror from `plantAdmin:listAdaptationTerms` (with a never-wipe-on-
+  empty guard); `adaptationTermsHealth(db)` mirror/join/orphan report;
+  distinct 400 errors for unknown country, malformed subdivision, unknown
+  term, and archived term; proxy allowlist extended (3 admin-only taxonomy
+  mutations).
+- Dashboard: new `Taxonomy` page (grouped by dimension, vi/en cards with
+  translation-status badges, usage counts, admin-only create/reorder/archive,
+  mirror-sync control) and a Geography section in the plant editor
+  (searchable country multi-select, proven-region rows with subdivision,
+  dimension-grouped active-term selectors, cultivar inheritance chips with
+  an explicit override action). Save rides the existing SQLite-first
+  endpoint and outbox flow.
+
+Verification evidence:
+
+- Convex tests 93/93 PASS (8 new geography tests) + typecheck PASS.
+- API tests 62/62 PASS (11 geography tests) + `npm run api:build` PASS.
+- Dashboard tests 8/8 PASS (5 new geography/taxonomy tests) + `npm run
+  dashboard:build` PASS.
+- Shared tests 26/26 PASS; mobile typecheck PASS (boundary); `git diff
+  --check` PASS.
+- `npx convex codegen` PASS and uploaded the additive functions to the
+  connected dev deployment; no schema deploy or data mutation was run.
+
+Integration gaps closed after the initial Stage A review (both now covered
+by tests): (1) the SQLite API applies the same archived-term rule as Convex —
+an archived code is rejected only when it is not already assigned to the
+plant, so unrelated dashboard edits on plants holding archived assignments
+succeed; (2) origin and adaptation assignments now carry `source_refs` end
+to end via `origin_country_source_refs` / `adaptation_term_source_refs`
+payload maps, SQLite/Convex join rows, `normalizeMasterPlant`, `listAll`,
+and the dashboard form/save round-trip (also fixed a pre-existing zod bug
+where `proven_regions[].source_refs` was a single object instead of an
+array).
+
+Open rollout gates (Stage D):
+
+- Production deployment, production taxonomy seeding, and production
+  pilot-data publication are separate approvals (not authorized by the
+  Stage D review).
+- At production time: verify `plantAdmin:listAdaptationTerms` = exactly 13
+  terms (qa_test exclusion), publish only the three tomato pilot records
+  with §4 sets (brandywine via the existing production Brandywine seed row),
+  and treat `assertQualityGate` as a bounded/batched audit tool (it exceeds
+  the 1 s function limit at full catalog scale).
+
+Stage D review verdict (read-only, dev `fantastic-beagle-190`): pilot
+taxonomy quality PASS — 13 terms / 4 dimensions per design §5, all with vi +
+en labels and definitions (`missingViOrEnActive: []`, `orphanI18n: []`);
+pilot assignment accuracy PASS (three tomatoes match §4 with own sources);
+QA fixtures to exclude from production: archived `qa_test` term (production
+seed is only the 13-term `seedAdaptationTerms`), base tomato QA edits (rows
+1554/6), and the vn-cherry `HCM` subdivision (production uses §4 exactly).
+Acceptance checklist M (§14.1–14.4) mapped to evidence — PASS. Full review in
+the completion plan's "Stage D result" section.
+
+Stage C evidence (headless-browser feature QA on the real dashboard + dev
+data): taxonomy page grouping/labels/badges/usage counts, term create +
+archive (qa_test archived, blocked from new assignments), mirror sync, plant
+geography editing with save→reload persistence, subdivision validation error
+("Invalid subdivision code"), country search multi-select, cultivar
+inheritance chips + Override (Beefsteak inheriting US/warm+moderate from the
+base, Override copies into own), responsive 375×812 renders. Defects found
+and fixed: P0 `authedFetch is not defined` in PlantForm (dashboard had no tsc
+gate; `npx tsc --noEmit` now part of the evidence and clean), P2 CareSourceRef
+import, P3 SQLite inherited-with-empty-category aligned to Convex, and the
+external-review P1 mobile overflow (906 px at 375 px viewport: `.layout`
+media rule now `minmax(0,1fr)`, `.card`/`.page-header`/`.actions` get
+`min-width: 0` and wrap; re-verified scrollWidth 375 on Plants/Taxonomy/
+geography editor, desktop 1280 unaffected). Screenshots:
+`artifacts/stage-c/`. Automated gates after fixes: dashboard 12/12 + tsc +
+build, API 62/62, Convex 93/93 + typecheck. Dev outbox 91 applied / 0
+failed.
+
+Stage B evidence (dev `fantastic-beagle-190`): schema + functions pushed via
+`npx convex dev` (deploy CLI targets prod and was deliberately not used);
+taxonomy seeded idempotently (13 terms, 26 i18n); SQLite mirror refreshed
+(13/26, 0 orphans); three tomato pilots published — brandywine merged into the
+existing seed row 227 (legacy identity preserved) with the duplicate row
+deleted, vn-cherry-01 and tommy-toe as new rows (1552/1553); outbox 89
+applied / 0 failed; canonical readback matches own sets for all three, base
+tomato unchanged (none/none/none); usage counts correct (frost_free 3, warm/
+moderate/temperate 2, hot/humid/tropical 1, dry 0); master_plants
+1550 → 1552, no catalog-wide mutation. Pre-pilot DB backup:
+`artifacts/stage-b/richfarm.db.backup-20260812-171744`.
+
+Next action: create and review a clean PR from the task-scoped commits, then
+resume the authorized production rollout with target backup/preflight before
+deploying code, seeding taxonomy, or publishing the three pilots.
+
+## Active package: PLANT-CONTENT-2026-08-11 — Propagation + Markdown completion
+
+Status: implementation complete, locally verified, and Convex code/schema deployed; data-migration and feature-screen QA gates remain open (Heavy route, 2026-08-11)
+
+Goal: complete the two approved plans for structured propagation methods and localized Markdown care storage, including the defects found in the implementation review.
+
+Scope and constraints:
+
+- Preserve the existing uncommitted implementation and user-owned SQLite database.
+- `propagationMethods` must use one shared enum/normalizer and flow through SQLite/API/outbox, Convex care/profile/projection, dashboard, mobile, seed/migration, provenance, and tests.
+- Markdown care must preserve bytes for non-empty strings and use absent=preserve, null/empty=clear across every writer; fix mobile stale state/cache eviction and locale-rename data loss.
+- Production Convex code/schema deployment is authorized for this session; production data migration, commit, push, or other publish remains out of scope without separate authorization.
+- Two implementation workers own separate packages; overlapping UI files are serialized before ownership transfers.
+
+Acceptance gates:
+
+- Both task-plan acceptance criteria are mapped to verified code or explicitly documented external rollout gates.
+- Focused regression tests cover shared enum/normalization, API/SQLite round-trip and migration, Convex projection/writers, dashboard editor, mobile rendering/cache/state, and legacy source migration.
+- API tests/build, Convex tests/typecheck, dashboard tests/build, and mobile tests/typecheck pass after integration.
+- Basella fixtures contain reviewed `seed` + `stem_cutting`; no production data is mutated.
+
+Ordered work:
+
+1. CARE-1 finishes Markdown contract defects and missing automated coverage on its owned files.
+2. PROP-1 implements shared/backend propagation contracts while CARE-1 owns overlapping UI files.
+3. Transfer overlapping dashboard/mobile UI ownership to PROP-1 after CARE-1 handoff and finish propagation presentation.
+4. Main agent reviews critical integration boundaries, runs full gates, and reconciles status.
+
+Verified completion:
+
+- A single 18-value shared propagation enum/normalizer now flows through SQLite/API/outbox, Convex `plantCare`, canonical projections, dashboard authoring, mobile cards/details, seed fixtures, source-reference compatibility, and guarded legacy migrations.
+- Markdown care now uses the absent/preserve, null-or-empty/clear, non-empty-byte-preserving contract across API and Convex writers. Locale rename, stale mobile state, malformed cache eviction, explicit empty states, and dashboard save races have regression fixes.
+- Legacy structured care remains readable from `plantsMaster` during the additive rollout. A paginated migration copies/read-verifies values into `plantCare`, preserves conflicts and zero values, and reports `remaining`; schema cleanup is intentionally deferred until an authorized migration reports zero remaining rows.
+- Legacy propagation migration is paginated and deterministic, protects source identity before migration, applies the discriminator from the plan, verifies care readback before clearing legacy source, and reports manual-review/failure buckets.
+- Basella seed data includes `seed` and `stem_cutting`; all six shipped mobile locales contain labels for all 18 methods; care-plan source labels use `library:plantCare`.
+
+Verification evidence:
+
+- API tests 51/51 PASS outside the socket-restricted sandbox; API build PASS.
+- Convex tests 82/82 PASS; Convex typecheck PASS.
+- Dashboard Markdown tests 3/3 PASS; dashboard production build PASS.
+- Mobile care-cache tests 3/3 PASS; mobile typecheck PASS.
+- Shared propagation tests 3/3 PASS; locale validation passed for 6 locales × 18 labels; `git diff --check` PASS.
+- Convex production functions/schema deploy PASS on `whimsical-dove-537`; no migration mutation was run.
+- iPhone 17 Simulator native build/install and Metro runtime smoke PASS after adding the Markdown renderer's missing `@react-native-vector-icons/common` runtime dependency. The clean simulator rendered onboarding; app-visible icons continue to use the Tabler registry.
+- Dev deployment `fantastic-beagle-190` is now on the same functions/schema. The four curated species groups (28 master rows, 56 locale rows) were reviewed/published through SQLite/API/outbox; all 84 operations are applied. Canonical search verifies Basella by accented, unaccented, and scientific names, with `seed` + `stem_cutting` on the base row.
+
+Open rollout gates:
+
+- Convex code/schema is deployed to production; no production data migration or other data mutation was performed.
+- Run dry-run and paginated Convex propagation/structured-care migrations on the authorized target; resolve manual-review/conflict/failure rows and require `remaining: 0` before removing legacy fields/fallbacks.
+- Rehearse/approve the SQLite migration against the target database backup and review its evidence report before production use.
+- Complete authenticated/onboarded simulator and real-device Markdown/propagation QA for links, long/nested lists, dark mode, small screens, cache invalidation, and localized tag layout.
+- Care aggregates for the four published groups remain `awaiting_review`; complete evidence review before changing them to `verified`.
+
+Next action: authorize a staged migration rehearsal and complete onboarded/authenticated feature-screen QA; only after zero-remaining evidence should the compatibility schema fields and fallbacks be removed.
+
 ## Active package: P3.1-LOCAL-AUTHORING — Dashboard SQLite boundary
 
 Status: complete and independently verified (Heavy route, 2026-08-10)

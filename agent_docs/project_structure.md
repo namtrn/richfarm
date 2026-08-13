@@ -11,10 +11,13 @@ packages/
   convex/      Convex schema, queries, mutations, migrations, tests
 scripts/       data build, content audit, and maintenance scripts
 docs/
+  architecture/ durable cross-app architecture, trust-boundary, and engineering rules
   specs/       product and data contracts
   tasks/       dated implementation and review reports
 agent_docs/   durable project context and handoff documentation
 ```
+
+`docs/architecture/README.md` indexes the durable application rules. Authentication and identity behavior is defined in `docs/architecture/authentication-and-identity.md`; dated bug reports and implementation history must not replace that contract.
 
 ## Plant-library ownership boundaries
 
