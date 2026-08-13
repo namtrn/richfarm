@@ -18,7 +18,7 @@ import { enqueueSyncOutbox } from "./sync-outbox";
 const localeContentSchema = z.object({
   common_name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(5000).nullish(),
-  care_content_json: z.record(z.string(), z.unknown()).default({}),
+  care_content: z.string().max(50000).nullish(),
   content_version: z.number().int().positive().optional(),
   source: z.string().trim().max(240).nullish(),
   source_url: z.string().url().nullish(),
@@ -27,6 +27,12 @@ const localeContentSchema = z.object({
   reviewed_at: z.string().datetime().nullish(),
   reviewed_by: z.string().trim().max(240).nullish(),
   content_origin: z.enum(["authored", "inherited", "imported"]).optional(),
+  source_refs: z.array(z.object({
+    sourceSystem: z.string().trim().max(80).nullish(),
+    sourceName: z.string().trim().max(240).nullish(),
+    sourceUrl: z.string().url().nullish(),
+    sourceLocator: z.string().trim().max(240).nullish(),
+  })).max(50).optional(),
 });
 
 const createI18nSchema = z.object({
@@ -46,7 +52,7 @@ interface I18nRow {
   locale: string;
   common_name: string;
   description: string | null;
-  care_content_json: string;
+  care_content: string | null;
   content_version: number;
   source: string | null;
   source_url: string | null;
@@ -55,16 +61,9 @@ interface I18nRow {
   reviewed_at: string | null;
   reviewed_by: string | null;
   content_origin: string;
+  source_refs_json: string;
   created_at: string;
   updated_at: string;
-}
-
-function parseJson(value: string) {
-  try {
-    return JSON.parse(value || "{}");
-  } catch {
-    return {};
-  }
 }
 
 function normalizeI18n(row: I18nRow) {
@@ -74,7 +73,7 @@ function normalizeI18n(row: I18nRow) {
     locale: row.locale,
     common_name: row.common_name,
     description: row.description,
-    care_content_json: parseJson(row.care_content_json),
+    care_content: row.care_content,
     content_version: row.content_version,
     source: row.source,
     source_url: row.source_url,
@@ -83,6 +82,14 @@ function normalizeI18n(row: I18nRow) {
     reviewed_at: row.reviewed_at,
     reviewed_by: row.reviewed_by,
     content_origin: row.content_origin,
+    source_refs: (() => {
+      try {
+        const parsed = JSON.parse(row.source_refs_json || "[]");
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
+      } catch {
+        return undefined;
+      }
+    })(),
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -94,7 +101,7 @@ function canonicalI18nPayload(db: SqliteDatabase, plantId: number) {
     result[row.locale] = {
       common_name: row.common_name,
       ...(row.description ? { description: row.description } : {}),
-      care_content_json: parseJson(row.care_content_json),
+      ...(row.care_content ? { care_content: row.care_content } : {}),
       content_version: row.content_version,
       ...(row.source ? { source: row.source } : {}),
       ...(row.source_url ? { source_url: row.source_url } : {}),
@@ -103,6 +110,14 @@ function canonicalI18nPayload(db: SqliteDatabase, plantId: number) {
       ...(row.reviewed_at ? { reviewed_at: row.reviewed_at } : {}),
       ...(row.reviewed_by ? { reviewed_by: row.reviewed_by } : {}),
       content_origin: row.content_origin,
+      ...(row.source_refs_json ? { source_refs: (() => {
+        try {
+          const parsed = JSON.parse(row.source_refs_json);
+          return Array.isArray(parsed) ? parsed : undefined;
+        } catch {
+          return undefined;
+        }
+      })() } : {}),
     };
     return result;
   }, {});
@@ -113,7 +128,7 @@ function ensureRequiredLocales(db: SqliteDatabase, plantId: number, i18n: Record
     if (i18n[locale]?.common_name?.trim()) continue;
     i18n[locale] = {
       common_name: commonName,
-      care_content_json: {},
+      care_content: null,
       content_version: 1,
       content_status: "published",
       review_status: "unreviewed",

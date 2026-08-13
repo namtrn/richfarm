@@ -23,12 +23,7 @@ import {
     Droplets,
     Sun,
     Clock,
-    Sprout,
     Leaf,
-    Thermometer,
-    AlertTriangle,
-    FlaskConical,
-    MapPin,
     Dna,
 } from '../../../lib/icons';
 import { useTranslation } from 'react-i18next';
@@ -52,9 +47,6 @@ import {
 import {
     loadCachedCareContent,
     saveCareContent,
-    parseCareContent,
-    PlantCareContent,
-    CareSectionContent,
 } from '../../../lib/plantCareCache';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
@@ -64,104 +56,29 @@ import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
 import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
 import { InputSheet } from '../../../components/ui/InputSheet';
 import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
+import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
 }
 
-// ─── Lorem ipsum care content (placeholder until DB is populated) ─────────────
-const LOREM_CARE: PlantCareContent = {
-    watering: {
-        intro:
-            'Consistent moisture is key to healthy growth. Allow the top inch of soil to dry slightly between sessions to prevent root rot.',
-        items: [
-            'General: Water deeply 2–3 times per week during the growing season, reducing to once a week in cooler months.',
-            'Frequency: During hot summers, daily watering may be needed. Check soil moisture before each session.',
-            'Seasonal: Reduce watering significantly in autumn and winter when growth slows down.',
-        ],
-    },
-    fertilizing: {
-        intro:
-            'Regular fertilization promotes healthy growth and abundant yield. Choose a balanced formula suited to the growth stage.',
-        items: [
-            'Type: Use a balanced, water-soluble fertilizer with an N-P-K ratio of 10-10-10 or 14-14-14.',
-            'Frequency: Feed every 4–6 weeks during the active growing season. Cease in winter.',
-            'Application: Always follow manufacturer instructions. Over-fertilizing can cause weak, leafy growth with fewer flowers or fruits.',
-        ],
-    },
-    location: {
-        intro:
-            'Selecting the right location is critical for thriving plants. Assess sunlight, wind exposure, and proximity to other plants.',
-        items: [
-            'Sunlight: Thrives in full sunlight and requires at least 6–8 hours of direct sun per day for best results.',
-            'Wind: Sheltered spots are preferred. Strong wind can damage stems and dry out soil rapidly.',
-            'Companion planting: Grows well near nitrogen-fixing plants; avoid planting near fennel or brassicas.',
-        ],
-    },
-    soil: {
-        intro:
-            'Well-draining, fertile soil with the right pH ensures optimal nutrient availability and root health.',
-        items: [
-            'Type: Prefers well-draining soil with a slightly acidic to neutral pH (6.0–7.0).',
-            'Amendments: Amend heavy clay soils with perlite or coarse sand to improve drainage.',
-            'Preparation: Incorporate generous amounts of compost before planting to boost organic matter.',
-        ],
-    },
-    nutrition: {
-        intro:
-            'Adequate nutrition throughout the growing cycle ensures vigorous growth, good flowering, and bountiful harvest.',
-        items: [
-            'Seedling stage: Apply a diluted liquid fertilizer at half strength every two weeks.',
-            'Vegetative stage: Switch to a higher-nitrogen formula to support leaf and stem development.',
-            'Fruiting/flowering: Use a low-nitrogen, high-phosphorus and potassium feed to support blooms and fruit set.',
-        ],
-    },
-    propagation: {
-        intro: 'This plant can be propagated through seeds, cuttings, or division, depending on the time of year.',
-        items: [
-            'Seeds: Sow indoors 6–8 weeks before the last expected frost. Keep soil moist and provide plenty of light.',
-            'Cuttings: Take 3–4 inch cuttings from healthy plants in late spring or early summer. Dip in rooting hormone and plant in a mix of perlite and peat.',
-            'Division: Divide mature plants in early spring or late fall. Gently separate root clumps and replant immediately.',
-        ],
-    },
-    temperature: {
-        intro:
-            'This plant grows best within a moderate temperature range and may need protection in extreme weather.',
-        items: [
-            'Optimal: Grows best in temperatures between 15 °C and 25 °C (59 °F–77 °F).',
-            'Frost tolerance: It can tolerate light frosts, but prolonged exposure to freezing temperatures can cause severe damage.',
-            'Heat: Provide afternoon shade when temperatures consistently exceed 35 °C (95 °F) to prevent heat stress.',
-        ],
-    },
-    toxicity: {
-        intro:
-            'This plant is generally considered non-toxic to humans and pets, but individual sensitivities can vary.',
-        items: [
-            'Humans: No significant toxic compounds identified. Contact with sap may cause mild skin irritation in sensitive individuals.',
-            'Pets: As with all plants, keep this out of reach of children and animals that may chew on leaves or stems.',
-            'Warning: If symptoms such as vomiting, lethargy, or skin irritation occur after contact, seek medical or veterinary advice.',
-        ],
-    },
-};
+const GREEN = '#1a4731';
+const BLUE = '#2563eb';
 
-// ─── Section config ───────────────────────────────────────────────────────────
-interface SectionConfig {
-    key: keyof PlantCareContent;
-    icon: React.ReactNode;
-    color: string;
-    bg: string;
-    i18nTitle: string;
-    edibleOnly?: boolean;
+function humanizePropagationMethod(method: string) {
+    return method
+        .split('_')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
 }
 
-const GREEN = '#1a4731';
-const AMBER = '#d97706';
-const BLUE = '#2563eb';
-const ROSE = '#e11d48';
-const TEAL = '#0d9488';
-const PURPLE = '#7c3aed';
-const ORANGE = '#ea580c';
-const GRAY = '#64748b';
+function propagationLabels(plant: any, translate: (key: string, options?: any) => string) {
+    return (normalizePropagationMethods(plant?.propagationMethods) ?? []).map((method) =>
+        translate(`library.propagation_method_${method}`, {
+            defaultValue: humanizePropagationMethod(method),
+        })
+    );
+}
 
 function normalizeScientificName(value: string) {
     return value
@@ -278,106 +195,6 @@ function buildSeedMasterPlant(seedKeyOrScientificName: string, locale: string) {
     };
 }
 
-// ─── Care Section (expandable) ────────────────────────────────────────────────
-function CareSection({
-    icon,
-    title,
-    config,
-    content,
-}: {
-    icon: React.ReactNode;
-    title: string;
-    config: { color: string; bg: string };
-    content: CareSectionContent;
-}) {
-    const theme = useTheme();
-    const [open, setOpen] = useState(false);
-
-    const toggle = useCallback(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setOpen((v) => !v);
-    }, []);
-
-    return (
-        <View
-            style={{
-                overflow: 'hidden',
-                marginBottom: 6,
-            }}
-        >
-            <TouchableOpacity
-                onPress={toggle}
-                activeOpacity={0.7}
-                style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    padding: 16,
-                    gap: 12,
-                }}
-            >
-                <View
-                    style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 12,
-                        backgroundColor: config.bg,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    {icon}
-                </View>
-                <Text style={{ flex: 1, fontSize: 15, fontWeight: '700', color: theme.text, letterSpacing: -0.2 }}>
-                    {title}
-                </Text>
-                <ChevronDown
-                    size={18}
-                    stroke={theme.textMuted}
-                    style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }}
-                />
-            </TouchableOpacity>
-
-            {open && (
-                <View style={{ paddingHorizontal: 16, paddingBottom: 16, gap: 10 }}>
-                    {!!content.intro && (
-                        <Text style={{ fontSize: 13, color: theme.textAccent, lineHeight: 20 }}>{content.intro}</Text>
-                    )}
-                    {content.items?.map((item, idx) => {
-                        const colonIdx = item.indexOf(':');
-                        const label = colonIdx > -1 ? item.slice(0, colonIdx) : null;
-                        const body = colonIdx > -1 ? item.slice(colonIdx + 1).trim() : item;
-                        return (
-                            <View key={idx} style={{ flexDirection: 'row', gap: 8 }}>
-                                <View
-                                    style={{
-                                        width: 6,
-                                        height: 6,
-                                        borderRadius: 3,
-                                        backgroundColor: config.color,
-                                        marginTop: 7,
-                                        flexShrink: 0,
-                                    }}
-                                />
-                                <Text style={{ flex: 1, fontSize: 13, color: theme.textSecondary, lineHeight: 20 }}>
-                                    {label ? (
-                                        <>
-                                            <Text style={{ fontWeight: '700', color: theme.text }}>{label}: </Text>
-                                            {body}
-                                        </>
-                                    ) : (
-                                        body
-                                    )}
-                                </Text>
-                            </View>
-                        );
-                    })}
-                </View>
-            )}
-        </View>
-    );
-}
-
-// ─── Stat row ─────────────────────────────────────────────────────────────────
 function StatRow({ label, value }: { label: string; value: string }) {
     const theme = useTheme();
     return (
@@ -467,6 +284,7 @@ export default function LibraryPlantDetailScreen() {
         [seedPlantKey, locale]
     );
     const currentPlant = masterPlant ?? seedMasterPlant;
+    const propagationMethodLabels = propagationLabels(currentPlant, t);
     const variantOptions = useMemo(
         () => (Array.isArray(plantVariants) ? plantVariants : []),
         [plantVariants]
@@ -478,7 +296,8 @@ export default function LibraryPlantDetailScreen() {
         : false;
 
     // ── Care content: offline-first cache ──────────────────────────────────────
-    const [care, setCare] = useState<PlantCareContent | null>(null);
+    // Canonical Markdown string; never the legacy structured-object shape.
+    const [careContent, setCareContent] = useState<string | null>(null);
     const scrollRef = useRef<ScrollView>(null);
     const [variantsSectionY, setVariantsSectionY] = useState(0);
     const [targetModalOpen, setTargetModalOpen] = useState(false);
@@ -573,47 +392,53 @@ export default function LibraryPlantDetailScreen() {
         waterOptions.find((option) => option.key === waterPreset)?.label ?? waterOptions[0]?.label ?? '';
 
     useEffect(() => {
+        // Reset synchronously whenever the route key changes so a detail
+        // screen never carries one plant's Markdown into another plant.
+        setCareContent(null);
         if (!resolvedId) return;
 
-        // 1) Load from cache immediately
-        loadCachedCareContent(resolvedId, locale).then((cached) => {
-            if (cached) setCare(cached.care);
-        });
-    }, [resolvedId, locale]);
-
-    useEffect(() => {
-        if (!currentPlant || !resolvedId) return;
-        const serverVersion = currentPlant.contentVersion ?? 0;
+        let cancelled = false;
+        const plantMatchesRoute =
+            currentPlant && String(currentPlant._id) === String(resolvedId);
 
         loadCachedCareContent(resolvedId, locale).then((cached) => {
+            if (cancelled) return;
+
+            // Until the matching server row is available, cache is the only
+            // safe value to display. Once it arrives, the version check below
+            // decides whether the server or cache is authoritative.
+            if (!plantMatchesRoute) {
+                setCareContent(cached?.careContent ?? null);
+                return;
+            }
+
+            const serverVersion = currentPlant.contentVersion ?? 0;
+            // A matching canonical row with no careContent represents an
+            // explicit server-side clear/missing guide. It must win over an
+            // equal or newer local cache instead of resurrecting old prose.
+            if (typeof currentPlant.careContent !== 'string') {
+                setCareContent(null);
+                return;
+            }
             const localVersion = cached?.contentVersion ?? -1;
-
-            if (serverVersion > localVersion) {
-                // Server is newer → parse and cache
-                const parsed = parseCareContent(currentPlant.careContent);
-                const content = parsed ?? LOREM_CARE; // fall back to lorem ipsum
-                setCare(content);
-                saveCareContent(resolvedId, locale, serverVersion, content).catch(() => undefined);
-            } else if (!cached) {
-                // No cache at all → use lorem ipsum
-                setCare(LOREM_CARE);
+            if (serverVersion > localVersion || !cached) {
+                // Server is newer (or there is no cache): cache canonical
+                // Markdown directly. Missing content is an explicit empty
+                // state; never invent care instructions.
+                const content = currentPlant.careContent;
+                setCareContent(content);
+                if (content !== null) {
+                    saveCareContent(resolvedId, locale, serverVersion, content).catch(() => undefined);
+                }
+            } else {
+                setCareContent(cached.careContent);
             }
         });
+
+        return () => {
+            cancelled = true;
+        };
     }, [currentPlant, resolvedId, locale]);
-
-    const isEdible =
-        currentPlant?.purposes?.some((p: string) => ['edible', 'cooking', 'vegetable', 'herb', 'fruit', 'food'].includes(p)) ?? true;
-
-    const sections: SectionConfig[] = [
-        { key: 'watering', icon: <Droplets size={20} stroke={BLUE} />, color: BLUE, bg: '#dbeafe', i18nTitle: t('library.care_watering', { defaultValue: 'Watering Care' }) },
-        { key: 'fertilizing', icon: <FlaskConical size={20} stroke={TEAL} />, color: TEAL, bg: '#ccfbf1', i18nTitle: t('library.care_fertilizing', { defaultValue: 'Fertilizing Care' }) },
-        { key: 'location', icon: <MapPin size={20} stroke={AMBER} />, color: AMBER, bg: '#fef3c7', i18nTitle: t('library.care_location', { defaultValue: 'Suitable Location' }) },
-        { key: 'soil', icon: <Leaf size={20} stroke={GREEN} />, color: GREEN, bg: '#dcfce7', i18nTitle: t('library.care_soil', { defaultValue: 'Soil Preparation' }) },
-        { key: 'nutrition', icon: <Sprout size={20} stroke={ORANGE} />, color: ORANGE, bg: '#ffedd5', i18nTitle: t('library.care_nutrition', { defaultValue: 'Nutrition' }), edibleOnly: true },
-        { key: 'propagation', icon: <Leaf size={20} stroke={PURPLE} />, color: PURPLE, bg: '#ede9fe', i18nTitle: t('library.care_propagation', { defaultValue: 'Propagation' }) },
-        { key: 'temperature', icon: <Thermometer size={20} stroke={ROSE} />, color: ROSE, bg: '#ffe4e6', i18nTitle: t('library.care_temperature', { defaultValue: 'Temperature' }) },
-        { key: 'toxicity', icon: <AlertTriangle size={20} stroke={GRAY} />, color: GRAY, bg: '#f1f5f9', i18nTitle: t('library.care_toxicity', { defaultValue: 'Plant Toxicity' }) },
-    ];
 
     const showAdd = canMutateMaster;
     const isAttachMode = modeParam === 'attach';
@@ -1030,30 +855,16 @@ export default function LibraryPlantDetailScreen() {
                             </View>
                         )}
 
-                        {/* Care section header */}
+                        {/* Care guide — canonical Markdown rendered directly */}
                         <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
                             {t('library.section_care', { defaultValue: 'Care Guide' })}
                         </Text>
-
-                        {/* Care sections */}
-                        {care ? (
-                            sections
-                                .filter((s) => !s.edibleOnly || isEdible)
-                                .map((s) => {
-                                    const content = care[s.key];
-                                    if (!content) return null;
-                                    return (
-                                        <CareSection
-                                            key={s.key}
-                                            icon={s.icon}
-                                            title={s.i18nTitle}
-                                            config={{ color: s.color, bg: s.bg }}
-                                            content={content}
-                                        />
-                                    );
-                                })
+                        {careContent ? (
+                            <MarkdownText style={{ marginBottom: 16 }}>{careContent}</MarkdownText>
                         ) : (
-                            <ActivityIndicator size="small" color={theme.textMuted} style={{ marginVertical: 20 }} />
+                            <Text style={{ color: theme.textMuted, fontSize: 13, marginVertical: 20 }}>
+                                {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
+                            </Text>
                         )}
 
                         {/* Detailed stats */}
@@ -1064,7 +875,7 @@ export default function LibraryPlantDetailScreen() {
                             currentPlant.seedRatePerM2 ??
                             currentPlant.waterLitersPerM2 ??
                             currentPlant.yieldKgPerM2 ??
-                            currentPlant.source
+                            propagationMethodLabels.length > 0
                         ) && (
                             <View style={{ paddingHorizontal: 2, marginTop: 2, marginBottom: 4 }}>
                                 {!!currentPlant.germinationDays && <StatRow label={t('library.detail_germination')} value={`${currentPlant.germinationDays} days`} />}
@@ -1073,7 +884,18 @@ export default function LibraryPlantDetailScreen() {
                                 {!!currentPlant.seedRatePerM2 && <StatRow label={t('library.detail_seed_rate')} value={formatSeedsPerArea(currentPlant.seedRatePerM2, unitSystem)} />}
                                 {!!currentPlant.waterLitersPerM2 && <StatRow label={t('library.detail_water_per_area')} value={formatWaterPerArea(currentPlant.waterLitersPerM2, unitSystem)} />}
                                 {!!currentPlant.yieldKgPerM2 && <StatRow label={t('library.detail_yield_per_area')} value={formatYieldPerArea(currentPlant.yieldKgPerM2, unitSystem)} />}
-                                {!!currentPlant.source && <StatRow label={t('library.detail_propagation')} value={currentPlant.source} />}
+                                {propagationMethodLabels.length > 0 && (
+                                    <View style={{ paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                                        <Text style={{ fontSize: 14, color: theme.textSecondary, marginBottom: 8 }}>{t('library.propagation_methods', { defaultValue: t('library.detail_propagation') })}</Text>
+                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                                            {propagationMethodLabels.map((label, index) => (
+                                                <View key={`${label}-${index}`} style={{ backgroundColor: theme.accent, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 }}>
+                                                    <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '600' }}>{label}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                )}
                             </View>
                         )}
 

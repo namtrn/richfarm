@@ -2,6 +2,8 @@
 // Data models (match Convex schema + SQLite backend)
 // ──────────────────────────────────────────────
 
+import type { PropagationMethod, CareSourceRef } from "../../../packages/shared/src";
+
 export type I18nRow = {
   locale: string;
   commonName: string;
@@ -15,6 +17,7 @@ export type I18nRow = {
   reviewedAt?: number | string;
   reviewedBy?: string;
   contentOrigin?: "authored" | "inherited" | "imported";
+  sourceRefs?: CareSourceRef[];
 };
 
 export type Plant = {
@@ -71,6 +74,14 @@ export type Plant = {
   moistureTarget?: number;
   lightHours?: number;
   notes?: string;
+  propagationMethods?: PropagationMethod[];
+  careFieldEvidence?: Record<string, unknown>;
+  originCountries?: string[];
+  originCountrySourceRefs?: Record<string, CareSourceRef[]>;
+  provenRegions?: Array<{ country_code: string; subdivision_code?: string }>;
+  adaptationTermCodes?: string[];
+  adaptationTermSourceRefs?: Record<string, CareSourceRef[]>;
+  resolvedGeography?: ResolvedGeography;
   i18nRows: I18nRow[];
 };
 
@@ -113,6 +124,7 @@ export type PlantI18nRow = {
   reviewedAt?: number | string;
   reviewedBy?: string;
   contentOrigin?: "authored" | "inherited" | "imported";
+  sourceRefs?: CareSourceRef[];
   plantScientificName?: string;
   plantGroup?: string;
 };
@@ -164,6 +176,14 @@ export type PlantFormState = {
   commonSpeciesNameEn: string;
   imageUrl: string;
   purposes: string; // comma-separated
+  // Geography (design doc §6.3): own editing values, separate from the
+  // resolved/inherited view served in `resolved_geography`. Provenance maps
+  // keep source references alive end to end (design doc §1.5).
+  originCountries: string[];
+  originCountrySourceRefs: Record<string, CareSourceRef[]>;
+  provenRegions: Array<{ country_code: string; subdivision_code?: string }>;
+  adaptationTermCodes: string[];
+  adaptationTermSourceRefs: Record<string, CareSourceRef[]>;
   // I18n
   viCommonName: string;
   viDescription: string;
@@ -199,6 +219,10 @@ export type PlantFormState = {
   reviewStatus: "unreviewed" | "in_review" | "reviewed";
   reviewedBy: string;
   careStatus: "missing" | "awaiting_review" | "verified" | "not_applicable";
+  careFieldEvidence?: Record<string, unknown>;
+  propagationMethods: PropagationMethod[];
+  propagationSourceRefs: CareSourceRef[];
+  propagationSourceRefsDirty: boolean;
 };
 
 export type GroupFormState = {
@@ -248,7 +272,7 @@ export type PhotoFormState = {
 
 export type Mode = "view" | "edit" | "create";
 
-export type PageKey = "plants" | "groups" | "photos" | "import";
+export type PageKey = "plants" | "groups" | "photos" | "import" | "taxonomy";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
@@ -256,4 +280,35 @@ export type Toast = {
   id: number;
   type: ToastType;
   message: string;
+};
+
+// ──────────────────────────────────────────────
+// Adaptation taxonomy types (design doc §6.1)
+// ──────────────────────────────────────────────
+
+export type AdaptationTermTranslation = {
+  locale: string;
+  label: string;
+  description?: string;
+  translationStatus: "missing" | "machine_translated" | "qa_passed" | "human_reviewed" | "approved";
+};
+
+export type AdaptationTerm = {
+  _id: string;
+  code: string;
+  dimension: string;
+  status: "active" | "archived";
+  sortOrder: number;
+  usageCount: number;
+  translations: AdaptationTermTranslation[];
+};
+
+export type ResolvedGeography = {
+  origin_country_codes: string[];
+  origin_country_source: "own" | "inherited" | "none";
+  proven_regions: Array<{ country_code: string; subdivision_code?: string }>;
+  proven_region_source: "own" | "inherited" | "none";
+  adaptation_term_codes: string[];
+  adaptation_term_source: "own" | "inherited" | "none";
+  inherited_from_id: number | null;
 };

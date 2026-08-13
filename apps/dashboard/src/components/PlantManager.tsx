@@ -5,6 +5,9 @@ import type { useI18n } from "../hooks/useI18n";
 import type { useBackendPlants } from "../hooks/useBackendPlants";
 import { buildSortedPlantUiClusters } from "../../../../packages/shared/src/plantUiClusters";
 import { isDisplayBasePlant } from "../../../../packages/shared/src/plantBase";
+import { PROPAGATION_METHODS, type PropagationMethod } from "../../../../packages/shared/src/plantPropagation";
+import { GeographyEditor } from "./GeographyEditor";
+import { CareGuideModal } from "./CareGuideModal";
 import {
     getDisplayName,
     getLocaleRow,
@@ -29,83 +32,24 @@ const PLANT_LANGUAGE_OPTIONS = [
 ] as const;
 type PlantLanguageOption = (typeof PLANT_LANGUAGE_OPTIONS)[number]["value"];
 
-const CARE_SECTION_LABELS: Record<string, Record<string, string>> = {
-    en: {
-        watering: "Watering",
-        fertilizing: "Fertilizing",
-        location: "Location & light",
-        soil: "Soil",
-        nutrition: "Nutrition",
-        propagation: "Propagation",
-        temperature: "Temperature",
-        toxicity: "Safety",
-    },
-    vi: {
-        watering: "Tưới nước",
-        fertilizing: "Bón phân",
-        location: "Vị trí & ánh sáng",
-        soil: "Đất trồng",
-        nutrition: "Dinh dưỡng",
-        propagation: "Nhân giống",
-        temperature: "Nhiệt độ",
-        toxicity: "An toàn",
-    },
-};
-
-type FriendlyCareSection = {
-    key: string;
-    intro?: string;
-    items: string[];
-};
-
-export function parseFriendlyCare(careContent?: string): FriendlyCareSection[] {
-    if (!careContent?.trim()) return [];
-    try {
-        const parsed = JSON.parse(careContent) as unknown;
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return [];
-        return Object.entries(parsed as Record<string, unknown>).flatMap(([key, value]) => {
-            if (!value || typeof value !== "object" || Array.isArray(value)) return [];
-            const section = value as { intro?: unknown; items?: unknown };
-            const intro = typeof section.intro === "string" ? section.intro.trim() : "";
-            const items = Array.isArray(section.items)
-                ? section.items.filter((item): item is string => typeof item === "string" && Boolean(item.trim()))
-                : [];
-            return intro || items.length ? [{ key, intro: intro || undefined, items }] : [];
-        });
-    } catch {
-        return [];
-    }
+function propagationLabel(method: PropagationMethod) {
+    return method
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
 }
 
-export function careContentToMarkdown(careContent: string | undefined, locale: string): string {
-    const labels = CARE_SECTION_LABELS[locale] ?? CARE_SECTION_LABELS.en;
-    return parseFriendlyCare(careContent)
-        .map((section) => [
-            `### ${labels[section.key] ?? section.key.replaceAll("_", " ")}`,
-            section.intro,
-            ...section.items.map((item) => `- ${item}`),
-        ].filter(Boolean).join("\n\n"))
-        .join("\n\n");
-}
+export function CareContent({ content }: { content?: string }) {
+    const hasContent = Boolean(content?.trim());
+    if (!hasContent) return <p className="muted small">No care guide yet.</p>;
 
-function CareContent({ content, locale }: { content?: string; locale: string }) {
-    const markdown = careContentToMarkdown(content, locale);
-    const hasRawContent = Boolean(content?.trim() && content.trim() !== "{}");
-    if (!hasRawContent) return <p className="muted small">No care guide yet.</p>;
-
+    // Canonical Markdown is rendered directly; it is never reconstructed from
+    // JSON at render time (plan Phase 5.4).
     return (
         <div className="care-content">
-            {markdown ? (
-                <div className="markdown-body care-markdown">
-                    <ReactMarkdown>{markdown}</ReactMarkdown>
-                </div>
-            ) : (
-                <p className="muted small">Care data is available in raw format.</p>
-            )}
-            <details className="care-json-details">
-                <summary>View raw JSON</summary>
-                <pre>{content}</pre>
-            </details>
+            <div className="markdown-body care-markdown">
+                <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
         </div>
     );
 }
@@ -232,12 +176,14 @@ export function PlantManager({
     backend,
     isAdmin,
     onToast,
+    authedFetch,
 }: {
     p: PlantHook;
     i18n: I18nHook;
     backend: BackendHook;
     isAdmin: boolean;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+    authedFetch: (path: string, options?: RequestInit) => Promise<Response>;
 }) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [showImport, setShowImport] = useState(false);
@@ -608,13 +554,13 @@ export function PlantManager({
                                 plant={p.selected}
                                 reload={p.load}
                                 onToast={onToast}
-                                createTranslation={i18n.createTranslation}
+                                i18n={i18n}
                             />
                         ) : (
                             <p className="empty">Select a plant to see details.</p>
                         )
                     ) : (
-                        <PlantForm p={p} onSave={handleSave} />
+                        <PlantForm p={p} onSave={handleSave} authedFetch={authedFetch} />
                     )}
                 </section>
             </div>
@@ -628,14 +574,15 @@ function PlantDetail({
     plant,
     reload,
     onToast,
-    createTranslation,
+    i18n,
 }: {
     plant: ReturnType<typeof usePlants>["selected"] & {};
     reload: () => Promise<void>;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
-    createTranslation: I18nHook["createTranslation"];
+    i18n: I18nHook;
 }) {
     if (!plant) return null;
+    const [careModalLocale, setCareModalLocale] = useState<string | null>(null);
     const vi = getLocaleRow(plant.i18nRows, "vi");
     const en = getLocaleRow(plant.i18nRows, "en");
     const variant = isVariantRow(plant.cultivarNormalized);
@@ -716,6 +663,7 @@ function PlantDetail({
                         <li>Seed rate/m²: {plant.seedRatePerM2 ?? "—"}</li>
                         <li>Water liters/m²: {plant.waterLitersPerM2 ?? "—"}</li>
                         <li>Yield kg/m²: {plant.yieldKgPerM2 ?? "—"}</li>
+                        <li>Propagation: {(plant.propagationMethods ?? []).map(propagationLabel).join(", ") || "—"}</li>
                     </ul>
                 </div>
             </div>
@@ -727,7 +675,7 @@ function PlantDetail({
                         plant={plant}
                         reload={reload}
                         onToast={onToast}
-                        createTranslation={createTranslation}
+                        createTranslation={i18n.createTranslation}
                     />
                 </div>
                 <div className="i18n-grid">
@@ -744,13 +692,63 @@ function PlantDetail({
                                     </div>
                                     <p className="i18n-common-name">{row.commonName}</p>
                                     <div className="markdown-body i18n-desc"><ReactMarkdown>{row.description ?? "No description"}</ReactMarkdown></div>
-                                    <CareContent content={row.careContent} locale={row.locale} />
+                                    <CareContent content={row.careContent} />
+                                    <div className="care-editor-actions">
+                                        <button
+                                            className="btn secondary small"
+                                            onClick={() => setCareModalLocale(row.locale)}
+                                            type="button"
+                                        >
+                                            Edit care guide
+                                        </button>
+                                    </div>
                                     <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
                                 </div>
                             );
                         })}
                 </div>
             </div>
+
+            {careModalLocale && (
+                <CareGuideModal
+                    locales={plant.i18nRows.map((row) => ({
+                        locale: row.locale,
+                        label: PLANT_LANGUAGE_OPTIONS.find((option) => option.value === row.locale)?.label
+                            ?? row.locale.toUpperCase(),
+                        // Prefer the i18n store (reloaded after every save) so
+                        // the modal always opens with the latest saved content,
+                        // not a stale plant snapshot.
+                        careContent: i18n.rows.find((r) => r.plantId === plant._id && r.locale === row.locale)
+                            ?.careContent
+                            ?? row.careContent,
+                    }))}
+                    initialLocale={careModalLocale}
+                    onClose={() => setCareModalLocale(null)}
+                    onSave={async (locale, careContent) => {
+                        // The care editor needs the full SQLite-backed i18n row
+                        // (with a numeric id) so the save can PATCH it.
+                        const editableRow = i18n.rows.find(
+                            (r) => r.plantId === plant._id && r.locale === locale,
+                        );
+                        if (!editableRow) {
+                            onToast("error", "Could not save care guide — language row not loaded");
+                            return null;
+                        }
+                        i18n.startEdit(editableRow);
+                        // Pass the editor value directly so the save cannot race the
+                        // asynchronous setForm state update in this click handler.
+                        const message = await i18n.save({ careContent });
+                        if (message) {
+                            // Plant detail rows are owned by usePlants; refresh that
+                            // snapshot so the just-saved Markdown is immediately
+                            // visible after closing the modal.
+                            await reload();
+                            onToast("success", message);
+                        } else onToast("error", i18n.error || "Could not save care guide");
+                        return message;
+                    }}
+                />
+            )}
         </div>
     );
 }
@@ -866,9 +864,11 @@ function AddLanguageButton({
 function PlantForm({
     p,
     onSave,
+    authedFetch,
 }: {
     p: PlantHook;
     onSave: () => void;
+    authedFetch: (path: string, options?: RequestInit) => Promise<Response>;
 }) {
     const f = p.form;
     const set = (patch: Partial<PlantHook["form"]>) => p.setForm({ ...f, ...patch });
@@ -1051,6 +1051,106 @@ function PlantForm({
                     <NumericInput label="Water liters/m²" value={f.waterLitersPerM2} onChange={(v) => set({ waterLitersPerM2: v })} />
                     <NumericInput label="Yield kg/m²" value={f.yieldKgPerM2} onChange={(v) => set({ yieldKgPerM2: v })} />
                 </div>
+                <div className="propagation-editor">
+                    <div className="field-label">Propagation methods</div>
+                    <p className="form-preview muted">Select confirmed methods only. Values are stored as language-neutral tags.</p>
+                    <div className="propagation-method-grid">
+                        {PROPAGATION_METHODS.map((method) => {
+                            const selected = f.propagationMethods.includes(method);
+                            return (
+                                <label className="checkbox propagation-method-option" key={method}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selected}
+                                        onChange={(event) => {
+                                            const next = event.target.checked
+                                                ? [...f.propagationMethods, method]
+                                                : f.propagationMethods.filter((item) => item !== method);
+                                            set({ propagationMethods: next });
+                                        }}
+                                    />
+                                    {propagationLabel(method)}
+                                </label>
+                            );
+                        })}
+                    </div>
+                    <div className="propagation-source-editor">
+                        <div className="field-label">Propagation sources (optional)</div>
+                        <p className="form-preview muted">Attach one or more references that verify these methods.</p>
+                        {f.propagationSourceRefs.map((ref, index) => (
+                            <div className="propagation-source-row" key={`propagation-source-${index}`}>
+                                <input
+                                    aria-label={`Propagation source system ${index + 1}`}
+                                    placeholder="System"
+                                    value={ref.sourceSystem ?? ""}
+                                    onChange={(event) => set({
+                                        propagationSourceRefs: f.propagationSourceRefs.map((item, itemIndex) => itemIndex === index ? { ...item, sourceSystem: event.target.value } : item),
+                                        propagationSourceRefsDirty: true,
+                                    })}
+                                />
+                                <input
+                                    aria-label={`Propagation source name ${index + 1}`}
+                                    placeholder="Name"
+                                    value={ref.sourceName ?? ""}
+                                    onChange={(event) => set({
+                                        propagationSourceRefs: f.propagationSourceRefs.map((item, itemIndex) => itemIndex === index ? { ...item, sourceName: event.target.value } : item),
+                                        propagationSourceRefsDirty: true,
+                                    })}
+                                />
+                                <input
+                                    aria-label={`Propagation source URL ${index + 1}`}
+                                    placeholder="https://…"
+                                    value={ref.sourceUrl ?? ""}
+                                    onChange={(event) => set({
+                                        propagationSourceRefs: f.propagationSourceRefs.map((item, itemIndex) => itemIndex === index ? { ...item, sourceUrl: event.target.value } : item),
+                                        propagationSourceRefsDirty: true,
+                                    })}
+                                />
+                                <input
+                                    aria-label={`Propagation source locator ${index + 1}`}
+                                    placeholder="Page / section"
+                                    value={ref.sourceLocator ?? ""}
+                                    onChange={(event) => set({
+                                        propagationSourceRefs: f.propagationSourceRefs.map((item, itemIndex) => itemIndex === index ? { ...item, sourceLocator: event.target.value } : item),
+                                        propagationSourceRefsDirty: true,
+                                    })}
+                                />
+                                <button
+                                    className="btn secondary small"
+                                    type="button"
+                                    onClick={() => set({
+                                        propagationSourceRefs: f.propagationSourceRefs.filter((_, itemIndex) => itemIndex !== index),
+                                        propagationSourceRefsDirty: true,
+                                    })}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            className="btn secondary small"
+                            type="button"
+                            onClick={() => set({
+                                propagationSourceRefs: [...f.propagationSourceRefs, {}],
+                                propagationSourceRefsDirty: true,
+                            })}
+                        >
+                            Add source reference
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Geography ── */}
+            <div className="form-section">
+                <div className="section-header-compact">🌍 Geography</div>
+                <GeographyEditor
+                    form={f}
+                    onChange={set}
+                    authedFetch={authedFetch}
+                    resolved={p.selected?.resolvedGeography}
+                    isCultivar={Boolean(f.cultivar.trim())}
+                />
             </div>
 
             {/* ── Advanced ── */}

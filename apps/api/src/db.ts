@@ -3,7 +3,9 @@ import path from "path";
 
 import bcrypt from "bcryptjs";
 import Database from "better-sqlite3";
+import crypto from "crypto";
 
+import { isLegacyTextShape, legacyCareJsonToMarkdown } from "../../../packages/shared/src/careContentLegacy";
 import { isSafeIdentifier } from "./sql-utils";
 
 export type SqliteDatabase = Database.Database;
@@ -187,6 +189,7 @@ function runMigrations(db: SqliteDatabase): void {
       sync_origin TEXT NOT NULL DEFAULT 'local',
       care_status TEXT NOT NULL DEFAULT 'missing' CHECK (care_status IN ('missing', 'awaiting_review', 'verified', 'not_applicable')),
       care_field_evidence_json TEXT NOT NULL DEFAULT '{}',
+      propagation_methods_json TEXT NOT NULL DEFAULT '[]',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       CHECK (soil_ph_min IS NULL OR soil_ph_max IS NULL OR soil_ph_min <= soil_ph_max)
@@ -208,7 +211,7 @@ function runMigrations(db: SqliteDatabase): void {
       locale TEXT NOT NULL,
       common_name TEXT NOT NULL,
       description TEXT,
-      care_content_json TEXT NOT NULL DEFAULT '{}',
+      care_content TEXT,
       content_version INTEGER NOT NULL DEFAULT 1,
       source TEXT,
       source_url TEXT,
@@ -217,6 +220,7 @@ function runMigrations(db: SqliteDatabase): void {
       reviewed_at TEXT,
       reviewed_by TEXT,
       content_origin TEXT NOT NULL DEFAULT 'imported' CHECK (content_origin IN ('authored', 'inherited', 'imported')),
+      source_refs_json TEXT NOT NULL DEFAULT '[]',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
       UNIQUE(master_plant_id, locale),
@@ -291,6 +295,66 @@ function runMigrations(db: SqliteDatabase): void {
       status TEXT NOT NULL DEFAULT 'running',
       error TEXT
     );
+
+    -- Plant geography adaptation (Release 1, design doc §2.2).
+    -- adaptation_terms / adaptation_term_i18n are a read-only mirror of the
+    -- Convex term catalog (Convex is authoritative, like plantGroups), used by
+    -- the SQLite API for assignment validation and the editor for option lists.
+    -- The three plant_* join tables are the authoring source of truth and ride
+    -- inside the existing upsert_plant outbox payload (no sync schema change).
+    CREATE TABLE IF NOT EXISTS adaptation_terms (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE,
+      dimension TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'archived')),
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS adaptation_term_i18n (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      term_code TEXT NOT NULL,
+      locale TEXT NOT NULL,
+      label TEXT NOT NULL,
+      description TEXT,
+      translation_status TEXT NOT NULL DEFAULT 'missing'
+        CHECK (translation_status IN ('missing','machine_translated','qa_passed','human_reviewed','approved')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(term_code, locale),
+      FOREIGN KEY(term_code) REFERENCES adaptation_terms(code) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS plant_origin_countries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      master_plant_id INTEGER NOT NULL,
+      country_code TEXT NOT NULL,
+      source_refs_json TEXT NOT NULL DEFAULT '[]',
+      UNIQUE(master_plant_id, country_code),
+      FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_plant_origin_countries_plant ON plant_origin_countries(master_plant_id);
+
+    CREATE TABLE IF NOT EXISTS plant_proven_regions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      master_plant_id INTEGER NOT NULL,
+      country_code TEXT NOT NULL,
+      subdivision_code TEXT,
+      source_refs_json TEXT NOT NULL DEFAULT '[]',
+      UNIQUE(master_plant_id, country_code, subdivision_code),
+      FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_plant_proven_regions_plant ON plant_proven_regions(master_plant_id);
+
+    CREATE TABLE IF NOT EXISTS plant_adaptation_terms (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      master_plant_id INTEGER NOT NULL,
+      term_code TEXT NOT NULL,
+      source_refs_json TEXT NOT NULL DEFAULT '[]',
+      UNIQUE(master_plant_id, term_code),
+      FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_plant_adaptation_terms_plant ON plant_adaptation_terms(master_plant_id);
   `);
 
   // Keep older local SQLite files compatible as new plant metadata fields are introduced.
@@ -318,24 +382,47 @@ function runMigrations(db: SqliteDatabase): void {
   ensureColumn(db, "master_plants", "reviewed_at", `reviewed_at TEXT`);
   ensureColumn(db, "master_plants", "reviewed_by", `reviewed_by TEXT`);
   ensureColumn(db, "master_plants", "sync_origin", `sync_origin TEXT NOT NULL DEFAULT 'local'`);
+  ensureColumn(db, "master_plants", "is_active", `is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1))`);
   ensureColumn(db, "master_plants", "care_status", `care_status TEXT NOT NULL DEFAULT 'missing' CHECK (care_status IN ('missing', 'awaiting_review', 'verified', 'not_applicable'))`);
   ensureColumn(db, "master_plants", "care_field_evidence_json", `care_field_evidence_json TEXT NOT NULL DEFAULT '{}'`);
+  ensureColumn(db, "master_plants", "propagation_methods_json", `propagation_methods_json TEXT NOT NULL DEFAULT '[]'`);
+  // All master_plant_i18n columns are ensured BEFORE any table rebuild so the
+  // copy-then-swap INSERT ... SELECT can preserve every column (including
+  // content_origin, source, review/provenance fields) losslessly.
   ensureColumn(db, "master_plant_i18n", "content_origin", `content_origin TEXT NOT NULL DEFAULT 'imported' CHECK (content_origin IN ('authored', 'inherited', 'imported'))`);
-
-  migrateUsersRoleCheck(db);
-  ensureI18nLocaleCompatibility(db);
-
+  ensureColumn(db, "master_plant_i18n", "care_content", `care_content TEXT`);
   ensureColumn(db, "master_plant_i18n", "source", `source TEXT`);
   ensureColumn(db, "master_plant_i18n", "source_url", `source_url TEXT`);
   ensureColumn(db, "master_plant_i18n", "content_status", `content_status TEXT NOT NULL DEFAULT 'published'`);
   ensureColumn(db, "master_plant_i18n", "review_status", `review_status TEXT NOT NULL DEFAULT 'unreviewed'`);
   ensureColumn(db, "master_plant_i18n", "reviewed_at", `reviewed_at TEXT`);
   ensureColumn(db, "master_plant_i18n", "reviewed_by", `reviewed_by TEXT`);
+  ensureColumn(db, "master_plant_i18n", "source_refs_json", `source_refs_json TEXT NOT NULL DEFAULT '[]'`);
+
+  migrateUsersRoleCheck(db);
+  migrateCareContentJsonToMarkdown(db);
+  ensureI18nLocaleCompatibility(db);
 
   db.exec(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_master_plants_source_identity
     ON master_plants(source_system, source_id)
     WHERE source_id IS NOT NULL;
+  `);
+
+  // Dashboard list ordering and stats hot paths. Created after ensureColumn
+  // so older SQLite files that are missing newer columns (e.g. is_active,
+  // image_url) get them before the index is built. The list route orders by
+  // updated_at and the stats endpoint counts by is_active / image_url, so
+  // these indexes keep those queries off the full scan.
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_master_plants_updated_at
+    ON master_plants(updated_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_master_plants_is_active
+    ON master_plants(is_active);
+
+    CREATE INDEX IF NOT EXISTS idx_master_plants_image_url
+    ON master_plants(image_url);
   `);
 }
 
@@ -355,55 +442,256 @@ function ensureI18nLocaleCompatibility(db: SqliteDatabase): void {
   }
 
   const migrate = db.transaction(() => {
-    // ALTER TABLE RENAME keeps object names, so remove the old table's index
-    // and trigger before creating their replacements on the new table.
-    db.exec(`
-      DROP INDEX IF EXISTS idx_master_plant_i18n_master_plant_id;
-      DROP TRIGGER IF EXISTS trg_master_plant_i18n_updated_at;
-    `);
-    db.exec(`ALTER TABLE master_plant_i18n RENAME TO master_plant_i18n_legacy;`);
-    db.exec(`
-      CREATE TABLE master_plant_i18n (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        master_plant_id INTEGER NOT NULL,
-        locale TEXT NOT NULL,
-        common_name TEXT NOT NULL,
-        description TEXT,
-        care_content_json TEXT NOT NULL DEFAULT '{}',
-        content_version INTEGER NOT NULL DEFAULT 1,
-        source TEXT,
-        source_url TEXT,
-        content_status TEXT NOT NULL DEFAULT 'published',
-        review_status TEXT NOT NULL DEFAULT 'unreviewed',
-        reviewed_at TEXT,
-        reviewed_by TEXT,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-        UNIQUE(master_plant_id, locale),
-        FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
-      );
-      INSERT INTO master_plant_i18n (
-        id, master_plant_id, locale, common_name, description,
-        care_content_json, content_version, created_at, updated_at
-      )
-      SELECT id, master_plant_id, locale, common_name, description,
-        care_content_json, content_version, created_at, updated_at
-      FROM master_plant_i18n_legacy;
-      DROP TABLE master_plant_i18n_legacy;
-      CREATE INDEX idx_master_plant_i18n_master_plant_id
-        ON master_plant_i18n(master_plant_id);
-      CREATE TRIGGER trg_master_plant_i18n_updated_at
-      AFTER UPDATE ON master_plant_i18n
-      FOR EACH ROW
-      WHEN NEW.updated_at = OLD.updated_at
-      BEGIN
-        UPDATE master_plant_i18n
-        SET updated_at = datetime('now')
-        WHERE id = OLD.id;
-      END;
-    `);
+    rebuildMasterPlantI18nTable(db);
   });
   migrate();
+}
+
+/**
+ * Copy-then-swap rebuild of `master_plant_i18n` into the final schema.
+ *
+ * Used by both the vi/en-CHECK compatibility migration and the Phase 2 care
+ * migration that drops `care_content_json`. Copies every column losslessly
+ * (previously source, source_url, content_status, review_status, reviewed_at,
+ * reviewed_by, and content_origin were silently dropped).
+ */
+function rebuildMasterPlantI18nTable(db: SqliteDatabase): void {
+  // ALTER TABLE RENAME keeps object names, so remove the old table's index
+  // and trigger before creating their replacements on the new table.
+  db.exec(`
+    DROP INDEX IF EXISTS idx_master_plant_i18n_master_plant_id;
+    DROP TRIGGER IF EXISTS trg_master_plant_i18n_updated_at;
+  `);
+  db.exec(`ALTER TABLE master_plant_i18n RENAME TO master_plant_i18n_legacy;`);
+  // Some disposable/older clones predate source_refs_json entirely. The
+  // rebuilt schema owns the column, so project a deterministic empty array
+  // for those rows instead of making the copy fail with "no such column".
+  const legacyColumns = db
+    .prepare(`PRAGMA table_info(master_plant_i18n_legacy)`)
+    .all() as PragmaRow[];
+  const sourceRefsProjection = legacyColumns.some((column) => column.name === "source_refs_json")
+    ? "COALESCE(source_refs_json, '[]')"
+    : "'[]'";
+  db.exec(`
+    CREATE TABLE master_plant_i18n (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      master_plant_id INTEGER NOT NULL,
+      locale TEXT NOT NULL,
+      common_name TEXT NOT NULL,
+      description TEXT,
+      care_content TEXT,
+      content_version INTEGER NOT NULL DEFAULT 1,
+      source TEXT,
+      source_url TEXT,
+      content_status TEXT NOT NULL DEFAULT 'published',
+      review_status TEXT NOT NULL DEFAULT 'unreviewed',
+      reviewed_at TEXT,
+      reviewed_by TEXT,
+      content_origin TEXT NOT NULL DEFAULT 'imported' CHECK (content_origin IN ('authored', 'inherited', 'imported')),
+      source_refs_json TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(master_plant_id, locale),
+      FOREIGN KEY(master_plant_id) REFERENCES master_plants(id) ON DELETE CASCADE
+    );
+    INSERT INTO master_plant_i18n (
+      id, master_plant_id, locale, common_name, description,
+      care_content, content_version, source, source_url,
+      content_status, review_status, reviewed_at, reviewed_by,
+      content_origin, source_refs_json, created_at, updated_at
+    )
+    SELECT id, master_plant_id, locale, common_name, description,
+      care_content, content_version, source, source_url,
+      content_status, review_status, reviewed_at, reviewed_by,
+      content_origin, ${sourceRefsProjection}, created_at, updated_at
+    FROM master_plant_i18n_legacy;
+    DROP TABLE master_plant_i18n_legacy;
+    CREATE INDEX idx_master_plant_i18n_master_plant_id
+      ON master_plant_i18n(master_plant_id);
+    CREATE TRIGGER trg_master_plant_i18n_updated_at
+    AFTER UPDATE ON master_plant_i18n
+    FOR EACH ROW
+    WHEN NEW.updated_at = OLD.updated_at
+    BEGIN
+      UPDATE master_plant_i18n
+      SET updated_at = datetime('now')
+      WHERE id = OLD.id;
+    END;
+  `);
+}
+
+export interface CareContentMigrationReport {
+  migrated: boolean;
+  totalRowsBefore: number;
+  totalRowsAfter: number;
+  legacyNonEmpty: number;
+  converted: number;
+  authoredTextCount: number;
+  failures: Array<{ id: number; locale: string; reason: string }>;
+  textHashBefore: string;
+  textHashAfter: string;
+  provenanceHashesBefore: Record<string, string>;
+  provenanceHashesAfter: Record<string, string>;
+  viBefore: number;
+  enBefore: number;
+  viAfter: number;
+  enAfter: number;
+  foreignKeyIssues: number;
+}
+
+const PROVENANCE_COLUMNS = [
+  "content_version",
+  "source",
+  "source_url",
+  "content_status",
+  "review_status",
+  "reviewed_at",
+  "reviewed_by",
+  "content_origin",
+  "created_at",
+  "updated_at",
+] as const;
+
+function columnHash(db: SqliteDatabase, column: string): string {
+  const rows = db
+    .prepare(`SELECT ${column} AS value FROM master_plant_i18n ORDER BY id ASC`)
+    .all() as Array<{ value: unknown }>;
+  const joined = rows.map((row) => String(row.value ?? "")).join("\u0000");
+  return crypto.createHash("sha256").update(joined).digest("hex");
+}
+
+/**
+ * Phase 2 migration: convert legacy `care_content_json` values into canonical
+ * `care_content` Markdown, then rebuild `master_plant_i18n` without the legacy
+ * column. Transactional and idempotent (no-op when the legacy column is absent).
+ */
+export function migrateCareContentJsonToMarkdown(db: SqliteDatabase): CareContentMigrationReport {
+  const columns = db.prepare(`PRAGMA table_info(master_plant_i18n)`).all() as PragmaRow[];
+  const hasLegacy = columns.some((col) => col.name === "care_content_json");
+  const hasCare = columns.some((col) => col.name === "care_content");
+  if (!hasLegacy) {
+    return {
+      migrated: false,
+      totalRowsBefore: 0,
+      totalRowsAfter: 0,
+      legacyNonEmpty: 0,
+      converted: 0,
+      authoredTextCount: 0,
+      failures: [],
+      textHashBefore: "",
+      textHashAfter: "",
+      provenanceHashesBefore: {},
+      provenanceHashesAfter: {},
+      viBefore: 0,
+      enBefore: 0,
+      viAfter: 0,
+      enAfter: 0,
+      foreignKeyIssues: 0,
+    };
+  }
+  if (!hasCare) {
+    ensureColumn(db, "master_plant_i18n", "care_content", `care_content TEXT`);
+  }
+
+  const report: CareContentMigrationReport = {
+    migrated: true,
+    totalRowsBefore: 0,
+    totalRowsAfter: 0,
+    legacyNonEmpty: 0,
+    converted: 0,
+    authoredTextCount: 0,
+    failures: [],
+    textHashBefore: "",
+    textHashAfter: "",
+    provenanceHashesBefore: {},
+    provenanceHashesAfter: {},
+    viBefore: 0,
+    enBefore: 0,
+    viAfter: 0,
+    enAfter: 0,
+    foreignKeyIssues: 0,
+  };
+
+  const authoredTextsBefore: string[] = [];
+  const authoredRowIds: number[] = [];
+
+  db.transaction(() => {
+    const rows = db
+      .prepare(`SELECT id, locale, care_content_json FROM master_plant_i18n ORDER BY id ASC`)
+      .all() as Array<{ id: number; locale: string; care_content_json: string }>;
+    report.totalRowsBefore = rows.length;
+    report.viBefore = rows.filter((row) => row.locale === "vi").length;
+    report.enBefore = rows.filter((row) => row.locale === "en").length;
+    for (const column of PROVENANCE_COLUMNS) {
+      report.provenanceHashesBefore[column] = columnHash(db, column);
+    }
+
+    const update = db.prepare(`UPDATE master_plant_i18n SET care_content = ? WHERE id = ?`);
+    for (const row of rows) {
+      const raw = row.care_content_json;
+      if (raw === null || raw === undefined || raw.trim() === "" || raw.trim() === "{}") {
+        continue;
+      }
+      report.legacyNonEmpty++;
+      const conversion = legacyCareJsonToMarkdown(raw, row.locale);
+      if (conversion.kind === "markdown") {
+        update.run(conversion.markdown, row.id);
+        report.converted++;
+        let parsed: unknown = null;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          parsed = null;
+        }
+        if (isLegacyTextShape(parsed)) {
+          report.authoredTextCount++;
+          authoredTextsBefore.push(conversion.markdown);
+          authoredRowIds.push(row.id);
+        }
+      } else if (conversion.kind === "unsupported") {
+        report.failures.push({ id: row.id, locale: row.locale, reason: conversion.reason });
+      }
+    }
+    report.textHashBefore = crypto
+      .createHash("sha256")
+      .update(authoredTextsBefore.join("\u0000"))
+      .digest("hex");
+
+    rebuildMasterPlantI18nTable(db);
+
+    report.totalRowsAfter = (
+      db.prepare(`SELECT COUNT(*) AS count FROM master_plant_i18n`).get() as { count: number }
+    ).count;
+    report.viAfter = (
+      db.prepare(`SELECT COUNT(*) AS count FROM master_plant_i18n WHERE locale = 'vi'`).get() as {
+        count: number;
+      }
+    ).count;
+    report.enAfter = (
+      db.prepare(`SELECT COUNT(*) AS count FROM master_plant_i18n WHERE locale = 'en'`).get() as {
+        count: number;
+      }
+    ).count;
+    for (const column of PROVENANCE_COLUMNS) {
+      report.provenanceHashesAfter[column] = columnHash(db, column);
+    }
+    const authoredTextsAfter: string[] = [];
+    for (const id of authoredRowIds) {
+      const row = db.prepare(`SELECT care_content FROM master_plant_i18n WHERE id = ?`).get(id) as
+        | { care_content: string | null }
+        | undefined;
+      authoredTextsAfter.push(row?.care_content ?? "");
+    }
+    report.textHashAfter = crypto
+      .createHash("sha256")
+      .update(authoredTextsAfter.join("\u0000"))
+      .digest("hex");
+    report.foreignKeyIssues = (
+      db.prepare(`PRAGMA foreign_key_check`).all() as unknown[]
+    ).length;
+  })();
+
+  return report;
 }
 
 export function ensureBootstrapAdmin(db: SqliteDatabase, email?: string, password?: string): void {

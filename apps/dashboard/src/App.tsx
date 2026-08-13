@@ -5,12 +5,14 @@ import { Sidebar } from "./components/Sidebar";
 import { StatsBar } from "./components/StatsBar";
 import { PlantManager } from "./components/PlantManager";
 import { GroupManager } from "./components/GroupManager";
+import { TaxonomyManager } from "./components/TaxonomyManager";
 import { PhotoManager } from "./components/PhotoManager";
 import { LoginPage } from "./components/LoginPage";
 import { ToastContainer, useToast } from "./components/Toast";
 
 import { usePlants } from "./hooks/usePlants";
 import { useGroups } from "./hooks/useGroups";
+import { useAdaptationTerms } from "./hooks/useAdaptationTerms";
 import { usePhotos } from "./hooks/usePhotos";
 import { useI18n } from "./hooks/useI18n";
 import { useAuth } from "./hooks/useAuth";
@@ -23,6 +25,7 @@ export default function App() {
   const auth = useAuth();
   const plants = usePlants(auth.authedFetch, auth.isLoggedIn);
   const groups = useGroups(auth.authedFetch);
+  const taxonomy = useAdaptationTerms(auth.authedFetch);
   const photos = usePhotos(auth.authedFetch);
   const i18n = useI18n(auth.authedFetch);
   const backend = useBackendPlants(auth.authedFetch, auth.isLoggedIn);
@@ -37,6 +40,9 @@ export default function App() {
   useEffect(() => {
     if (activePage === "groups" && groups.groups.length === 0) {
       void groups.load();
+    }
+    if (activePage === "taxonomy" && taxonomy.terms.length === 0) {
+      void taxonomy.load();
     }
     if (activePage === "photos" && photos.photos.length === 0) {
       void photos.load();
@@ -91,10 +97,13 @@ export default function App() {
         />
 
         {activePage === "plants" && (
-          <PlantManager p={plants} i18n={i18n} backend={backend} isAdmin={auth.isAdmin} onToast={addToast} />
+          <PlantManager p={plants} i18n={i18n} backend={backend} isAdmin={auth.isAdmin} onToast={addToast} authedFetch={auth.authedFetch} />
         )}
         {activePage === "groups" && (
           <GroupManager g={groups} isAdmin={auth.isAdmin} onToast={addToast} />
+        )}
+        {activePage === "taxonomy" && (
+          <TaxonomyManager t={taxonomy} isAdmin={auth.isAdmin} onToast={addToast} />
         )}
         {activePage === "photos" && (
           <PhotoManager ph={photos} onToast={addToast} />

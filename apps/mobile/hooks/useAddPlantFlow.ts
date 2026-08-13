@@ -165,7 +165,7 @@ export function useAddPlantFlow({ addPlant, updatePlant }: UseAddPlantFlowOption
       parentRefs: { plantUuid },
       payload: {
         sourceContentVersion: positive(libraryPlant.contentVersion),
-        sourceLabel: libraryPlant.source ?? 'library:plantCare',
+        sourceLabel: 'library:plantCare',
         sourceValues: {
           wateringFrequencyDays: watering,
           fertilizingFrequencyDays: fertilizing,

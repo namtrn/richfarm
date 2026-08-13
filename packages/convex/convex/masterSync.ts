@@ -10,8 +10,21 @@ import {
   withComputedPlantTaxonomy,
 } from "./lib/plantTaxonomy";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { upsertPlantCareI18n } from "./lib/plantCare";
 import { isDisplayBasePlant } from "../../shared/src/plantBase";
-import { recomputeCareStatus } from "../../shared/src/plantCareStatus";
+import { normalizeCareFieldEvidence, recomputeCareStatus } from "../../shared/src/plantCareStatus";
+import type { CareFieldEvidence } from "../../shared/src/plantCareStatus";
+import { normalizePropagationMethods } from "../../shared/src/plantPropagation";
+import { isValidCountryCode, SUBDIVISION_CODE_PATTERN } from "../../shared/src/countries";
+
+type LegacyPropagationSource = "seed" | "cutting" | "bulb";
+
+function normalizeLegacyPropagationSource(value: unknown): LegacyPropagationSource | undefined {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return normalized === "seed" || normalized === "cutting" || normalized === "bulb"
+    ? normalized
+    : undefined;
+}
 
 const nullableString = v.optional(v.union(v.string(), v.null()));
 const nullableNumber = v.optional(v.union(v.number(), v.null()));
@@ -26,11 +39,39 @@ const reviewStatus = v.optional(v.union(
   v.literal("in_review"),
   v.literal("reviewed"),
 ));
+const propagationMethod = v.union(
+  v.literal("seed"), v.literal("stem_cutting"), v.literal("leaf_cutting"),
+  v.literal("root_cutting"), v.literal("division"), v.literal("air_layering"),
+  v.literal("ground_layering"), v.literal("grafting"), v.literal("budding"),
+  v.literal("bulb"), v.literal("corm"), v.literal("tuber"), v.literal("rhizome"),
+  v.literal("runner"), v.literal("offset"), v.literal("sucker"), v.literal("spore"),
+  v.literal("tissue_culture"),
+);
+const sourceRefValidator = v.object({
+  sourceSystem: v.optional(v.string()),
+  sourceName: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
+  sourceLocator: v.optional(v.string()),
+});
+
+function normalizeCareFieldEvidenceMap(value: unknown): Record<string, CareFieldEvidence> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const output: Record<string, CareFieldEvidence> = {};
+  for (const [field, raw] of Object.entries(value as Record<string, unknown>)) {
+    const normalized = normalizeCareFieldEvidence(raw);
+    if (normalized) output[field] = normalized;
+  }
+  return Object.keys(output).length > 0 ? output : undefined;
+}
 
 const localizedRowValidator = v.object({
   common_name: v.string(),
   description: nullableString,
-  care_content_json: v.optional(v.any()),
+  // Final contract: canonical Markdown. Null/absent preserves or clears via
+  // the shared three-state normalization in upsertPlantCareI18n; objects are
+  // rejected (they were only accepted by the temporary compatibility
+  // validator during the Phase 4 rollout window).
+  care_content: v.optional(v.union(v.string(), v.null())),
   content_version: v.optional(v.number()),
   source: nullableString,
   source_url: nullableString,
@@ -38,6 +79,7 @@ const localizedRowValidator = v.object({
   review_status: reviewStatus,
   reviewed_at: nullableString,
   reviewed_by: nullableString,
+  source_refs: v.optional(v.array(sourceRefValidator)),
   content_origin: v.optional(v.union(
     v.literal("authored"),
     v.literal("inherited"),
@@ -103,6 +145,20 @@ const backendRowValidator = v.object({
     v.literal("not_applicable"),
   )),
   care_field_evidence: careFieldEvidenceValidator,
+  propagation_methods: v.optional(v.array(propagationMethod)),
+  // Geography assignments (design doc §2.3): arrays ride inside the existing
+  // upsert_plant payload; present = full-set replace, omitted = preserve.
+  // Provenance maps are keyed by code and applied with the same replace
+  // semantics so source references survive end to end for every category.
+  origin_countries: v.optional(v.array(v.string())),
+  origin_country_source_refs: v.optional(v.record(v.string(), v.array(sourceRefValidator))),
+  proven_regions: v.optional(v.array(v.object({
+    country_code: v.string(),
+    subdivision_code: v.optional(v.string()),
+    source_refs: v.optional(v.array(sourceRefValidator)),
+  }))),
+  adaptation_term_codes: v.optional(v.array(v.string())),
+  adaptation_term_source_refs: v.optional(v.record(v.string(), v.array(sourceRefValidator))),
   i18n: v.record(v.string(), localizedRowValidator),
   created_at: nullableString,
   updated_at: nullableString,
@@ -193,41 +249,17 @@ async function upsertPlantI18n(ctx: any, plantId: any, locale: string, row: any)
   if (existing) await ctx.db.patch(existing._id, payload);
   else await ctx.db.insert("plantI18n", payload);
 
-  const careContent = row.care_content_json && typeof row.care_content_json === "object"
-    ? JSON.stringify(row.care_content_json)
-    : typeof row.care_content_json === "string"
-      ? row.care_content_json
-      : "";
-  if (!careContent || careContent === "{}") {
-    const existingCare = await ctx.db
-      .query("plantCareI18n")
-      .withIndex("by_plant_locale", (q: any) =>
-        q.eq("plantId", plantId).eq("locale", normalizedLocale),
-      )
-      .first();
-    if (existingCare) await ctx.db.delete(existingCare._id);
-    return;
-  }
-
-  const existingCare = await ctx.db
-    .query("plantCareI18n")
-    .withIndex("by_plant_locale", (q: any) =>
-      q.eq("plantId", plantId).eq("locale", normalizedLocale),
-    )
-    .first();
-  const carePayload = {
-    plantId,
-    locale: normalizedLocale,
-    careContent,
-    contentVersion: row.content_version ?? 1,
+  // Care is canonical Markdown and is normalized through the shared
+  // three-state helper: undefined preserves, null/empty deletes, non-empty
+  // string upserts. A valid Markdown string never deletes an existing row.
+  await upsertPlantCareI18n(ctx, plantId, normalizedLocale, row.care_content, row.content_version, {
     source: row.source?.trim() || undefined,
     sourceUrl: row.source_url?.trim() || undefined,
+    sourceRefs: row.source_refs,
     contentStatus: row.content_status ?? "published",
     reviewedAt: normalizeReviewedAt(row.reviewed_at),
     reviewedBy: row.reviewed_by?.trim() || undefined,
-  };
-  if (existingCare) await ctx.db.patch(existingCare._id, carePayload);
-  else await ctx.db.insert("plantCareI18n", carePayload);
+  });
 }
 
 async function deletePlantRelations(ctx: any, plantId: any) {
@@ -244,6 +276,128 @@ async function deletePlantRelations(ctx: any, plantId: any) {
     await ctx.db.delete(row._id);
   }
   if (careProfile) await ctx.db.delete(careProfile._id);
+}
+
+/**
+ * Replace-semantics geography sync (design doc §2.3, resolved archived rule):
+ * present fields replace the plant's own join rows; omitted fields leave them
+ * untouched. Unknown country codes and unknown term codes always throw.
+ * Archived term codes are rejected only when they are NOT already assigned to
+ * the plant — codes already present are preserved and never re-added, so a
+ * re-save of a plant that holds an archived term succeeds while a new
+ * assignment to it fails. All validation happens before any write.
+ */
+async function applyPlantGeographyFromBackend(ctx: any, plantId: any, row: any) {
+  const originPresent = row.origin_countries !== undefined;
+  const provenPresent = row.proven_regions !== undefined;
+  const termsPresent = row.adaptation_term_codes !== undefined;
+  if (!originPresent && !provenPresent && !termsPresent) return;
+
+  // Convex indexes are not uniqueness constraints. Reject duplicate payload
+  // assignments before deleting/replacing any existing rows so the API/SQLite
+  // boundary and the authoritative Convex boundary have identical semantics.
+  const seenOriginCodes = new Set<string>();
+  for (const code of row.origin_countries ?? []) {
+    if (seenOriginCodes.has(code)) {
+      throw new Error(`Duplicate origin country assignment: ${code}`);
+    }
+    seenOriginCodes.add(code);
+  }
+  const seenProvenRegions = new Set<string>();
+  for (const region of row.proven_regions ?? []) {
+    const key = `${region.country_code}\u0000${region.subdivision_code ?? ""}`;
+    if (seenProvenRegions.has(key)) {
+      const suffix = region.subdivision_code ? `/${region.subdivision_code}` : "";
+      throw new Error(`Duplicate proven region assignment: ${region.country_code}${suffix}`);
+    }
+    seenProvenRegions.add(key);
+  }
+  const seenTermCodes = new Set<string>();
+  for (const code of row.adaptation_term_codes ?? []) {
+    if (seenTermCodes.has(code)) {
+      throw new Error(`Duplicate adaptation term assignment: ${code}`);
+    }
+    seenTermCodes.add(code);
+  }
+
+  const existingTermCodes = new Set(
+    (await ctx.db
+      .query("plantAdaptationTerms")
+      .withIndex("by_plant", (q: any) => q.eq("plantId", plantId))
+      .collect())
+      .map((assignment: any) => assignment.termCode),
+  );
+  const termByCode = new Map<string, any>(
+    (await ctx.db.query("adaptationTerms").collect()).map((term: any) => [term.code, term]),
+  );
+
+  for (const code of row.origin_countries ?? []) {
+    if (!isValidCountryCode(code)) throw new Error(`Unknown country code: ${code}`);
+  }
+  for (const region of row.proven_regions ?? []) {
+    if (!isValidCountryCode(region.country_code)) {
+      throw new Error(`Unknown country code: ${region.country_code}`);
+    }
+    if (region.subdivision_code !== undefined && !SUBDIVISION_CODE_PATTERN.test(region.subdivision_code)) {
+      throw new Error(`Invalid subdivision code: ${region.subdivision_code}`);
+    }
+  }
+  for (const code of row.adaptation_term_codes ?? []) {
+    const term = termByCode.get(code);
+    if (!term) throw new Error(`Unknown adaptation term code: ${code}`);
+    if (term.status === "archived" && !existingTermCodes.has(code)) {
+      throw new Error(`Adaptation term code is archived and cannot be newly assigned: ${code}`);
+    }
+  }
+
+  if (originPresent) {
+    const originRefs = row.origin_country_source_refs ?? {};
+    for (const existing of await ctx.db
+      .query("plantOriginCountries")
+      .withIndex("by_plant", (q: any) => q.eq("plantId", plantId))
+      .collect()) {
+      await ctx.db.delete(existing._id);
+    }
+    for (const code of row.origin_countries ?? []) {
+      await ctx.db.insert("plantOriginCountries", {
+        plantId,
+        countryCode: code,
+        ...(originRefs[code] !== undefined ? { sourceRefs: originRefs[code] } : {}),
+      });
+    }
+  }
+  if (provenPresent) {
+    for (const existing of await ctx.db
+      .query("plantProvenRegions")
+      .withIndex("by_plant", (q: any) => q.eq("plantId", plantId))
+      .collect()) {
+      await ctx.db.delete(existing._id);
+    }
+    for (const region of row.proven_regions ?? []) {
+      await ctx.db.insert("plantProvenRegions", {
+        plantId,
+        countryCode: region.country_code,
+        ...(region.subdivision_code ? { subdivisionCode: region.subdivision_code } : {}),
+        ...(region.source_refs !== undefined ? { sourceRefs: region.source_refs } : {}),
+      });
+    }
+  }
+  if (termsPresent) {
+    const termRefs = row.adaptation_term_source_refs ?? {};
+    for (const existing of await ctx.db
+      .query("plantAdaptationTerms")
+      .withIndex("by_plant", (q: any) => q.eq("plantId", plantId))
+      .collect()) {
+      await ctx.db.delete(existing._id);
+    }
+    for (const code of row.adaptation_term_codes ?? []) {
+      await ctx.db.insert("plantAdaptationTerms", {
+        plantId,
+        termCode: code,
+        ...(termRefs[code] !== undefined ? { sourceRefs: termRefs[code] } : {}),
+      });
+    }
+  }
 }
 
 export const upsertPlantFromBackend = mutation({
@@ -279,6 +433,26 @@ export const upsertPlantFromBackend = mutation({
     }
     const existing = bySource ?? byTaxonomy;
 
+    const legacyPropagationSource = existing
+      ? normalizeLegacyPropagationSource(existing.source)
+      : undefined;
+    // Legacy rows are intentionally eligible for the source discriminator
+    // migration only while both identity fields are absent (or carry the
+    // canonical Convex signature). A backend retry that finds such a row by
+    // taxonomy must not stamp its incoming identity onto the row before that
+    // migration runs, otherwise the row becomes ineligible and the only copy
+    // of its propagation discriminator can be lost.
+    const preserveLegacyIdentity = Boolean(legacyPropagationSource);
+    const persistedSourceSystem = preserveLegacyIdentity
+      ? (typeof existing?.sourceSystem === "string" && existing.sourceSystem.trim()
+        ? existing.sourceSystem.trim()
+        : undefined)
+      : sourceSystem;
+    const persistedSourceId = preserveLegacyIdentity
+      ? (typeof existing?.sourceId === "string" && existing.sourceId.trim()
+        ? existing.sourceId.trim()
+        : undefined)
+      : sourceId;
     const patch = {
       scientificName,
       group: args.row.group || "other",
@@ -288,20 +462,18 @@ export const upsertPlantFromBackend = mutation({
       imageUrl: args.row.image_url?.trim() || undefined,
       isActive: args.row.is_active,
       notes: args.row.notes?.trim() || undefined,
-      sourceSystem,
-      sourceId,
+      sourceSystem: persistedSourceSystem,
+      sourceId: persistedSourceId,
       recordVersion: args.row.record_version ?? 1,
-      source: `backend:${sourceSystem}:id_${sourceId}`,
+      // Keep the only copy of a legacy propagation discriminator until the
+      // dedicated migration writes plantCare.propagationMethods.
+      source: legacyPropagationSource ?? `backend:${sourceSystem}:id_${sourceId}`,
       sourceUrl: args.row.source_url?.trim() || undefined,
       contentStatus: args.row.content_status ?? "published",
       contentVersion: args.row.content_version ?? 1,
       reviewStatus: args.row.review_status ?? "unreviewed",
       reviewedAt: normalizeReviewedAt(args.row.reviewed_at),
       reviewedBy: args.row.reviewed_by?.trim() || undefined,
-      soilPhMin: args.row.soil_ph_min ?? undefined,
-      soilPhMax: args.row.soil_ph_max ?? undefined,
-      moistureTarget: args.row.moisture_target ?? undefined,
-      lightHours: args.row.light_hours ?? undefined,
       ...taxonomyFieldsForStorage(taxonomy),
     };
 
@@ -333,6 +505,9 @@ export const upsertPlantFromBackend = mutation({
       seedRatePerM2: args.row.seed_rate_per_m2 ?? undefined,
       waterLitersPerM2: args.row.water_liters_per_m2 ?? undefined,
       yieldKgPerM2: args.row.yield_kg_per_m2 ?? undefined,
+      ...(args.row.propagation_methods !== undefined
+        ? { propagationMethods: normalizePropagationMethods(args.row.propagation_methods) }
+        : {}),
       source: args.source,
       sourceUrl: args.row.source_url?.trim() || undefined,
       contentStatus: args.row.content_status ?? "published",
@@ -342,7 +517,7 @@ export const upsertPlantFromBackend = mutation({
     };
     const careStatusPatch = {
       careStatus: args.row.care_status ?? recomputeCareStatus(carePayload, args.row.care_field_evidence as any),
-      careFieldEvidence: args.row.care_field_evidence,
+      careFieldEvidence: normalizeCareFieldEvidenceMap(args.row.care_field_evidence),
     };
     if (careExisting) await ctx.db.patch(careExisting._id, { ...carePayload, ...careStatusPatch });
     else await ctx.db.insert("plantCare", { ...carePayload, ...careStatusPatch });
@@ -366,7 +541,14 @@ export const upsertPlantFromBackend = mutation({
       await upsertPlantI18n(ctx, plantId, locale, localized);
     }
 
-    return { action: existing ? "updated" : "inserted", id: plantId, sourceSystem, sourceId };
+    await applyPlantGeographyFromBackend(ctx, plantId, args.row);
+
+    return {
+      action: existing ? "updated" : "inserted",
+      id: plantId,
+      sourceSystem: persistedSourceSystem,
+      sourceId: persistedSourceId,
+    };
   },
 });
 
@@ -442,11 +624,43 @@ export const listAll = query({
     const i18nRows = await ctx.db.query("plantI18n").collect();
     const careRows = await ctx.db.query("plantCare").collect();
     const careI18nRows = await ctx.db.query("plantCareI18n").collect();
+    const originRows = await ctx.db.query("plantOriginCountries").collect();
+    const provenRows = await ctx.db.query("plantProvenRegions").collect();
+    const termAssignmentRows = await ctx.db.query("plantAdaptationTerms").collect();
     const i18nByPlant = new Map<string, any[]>();
     for (const row of i18nRows) {
       const list = i18nByPlant.get(String(row.plantId)) ?? [];
       list.push(row);
       i18nByPlant.set(String(row.plantId), list);
+    }
+    const originByPlant = new Map<string, string[]>();
+    const originRefsByPlant = new Map<string, Record<string, any[]>>();
+    for (const row of originRows) {
+      const list = originByPlant.get(String(row.plantId)) ?? [];
+      list.push(row.countryCode);
+      originByPlant.set(String(row.plantId), list);
+      const refs = originRefsByPlant.get(String(row.plantId)) ?? {};
+      if (row.sourceRefs !== undefined) refs[row.countryCode] = row.sourceRefs;
+      originRefsByPlant.set(String(row.plantId), refs);
+    }
+    const provenByPlant = new Map<string, Array<{ countryCode: string; subdivisionCode?: string }>>();
+    for (const row of provenRows) {
+      const list = provenByPlant.get(String(row.plantId)) ?? [];
+      list.push({
+        countryCode: row.countryCode,
+        ...(row.subdivisionCode ? { subdivisionCode: row.subdivisionCode } : {}),
+      });
+      provenByPlant.set(String(row.plantId), list);
+    }
+    const termsByPlant = new Map<string, string[]>();
+    const termRefsByPlant = new Map<string, Record<string, any[]>>();
+    for (const row of termAssignmentRows) {
+      const list = termsByPlant.get(String(row.plantId)) ?? [];
+      list.push(row.termCode);
+      termsByPlant.set(String(row.plantId), list);
+      const refs = termRefsByPlant.get(String(row.plantId)) ?? {};
+      if (row.sourceRefs !== undefined) refs[row.termCode] = row.sourceRefs;
+      termRefsByPlant.set(String(row.plantId), refs);
     }
     const careI18nByKey = new Map<string, any>();
     for (const row of careI18nRows) careI18nByKey.set(`${row.plantId}:${row.locale}`, row);
@@ -463,6 +677,7 @@ export const listAll = query({
           contentVersion: row.contentVersion ?? care?.contentVersion,
           source: row.source,
           sourceUrl: row.sourceUrl,
+          sourceRefs: care?.sourceRefs,
           contentStatus: row.contentStatus,
           reviewStatus: row.reviewStatus,
           reviewedAt: row.reviewedAt,
@@ -514,8 +729,15 @@ export const listAll = query({
         seedRatePerM2: care?.seedRatePerM2,
         waterLitersPerM2: care?.waterLitersPerM2,
         yieldKgPerM2: care?.yieldKgPerM2,
+        propagationMethods: normalizePropagationMethods(care?.propagationMethods),
         careStatus: care?.careStatus ?? recomputeCareStatus(care, care?.careFieldEvidence as any),
         careFieldEvidence: care?.careFieldEvidence,
+        // Own geography rows (the reconciler mirrors them back to SQLite).
+        originCountries: originByPlant.get(String(plant._id)) ?? [],
+        originCountrySourceRefs: originRefsByPlant.get(String(plant._id)) ?? {},
+        provenRegions: provenByPlant.get(String(plant._id)) ?? [],
+        adaptationTermCodes: termsByPlant.get(String(plant._id)) ?? [],
+        adaptationTermSourceRefs: termRefsByPlant.get(String(plant._id)) ?? {},
       };
     });
   },

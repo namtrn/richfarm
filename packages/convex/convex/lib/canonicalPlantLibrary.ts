@@ -5,6 +5,7 @@ import {
 } from "./plantContentQuality";
 import { withComputedPlantTaxonomy } from "./plantTaxonomy";
 import { recomputeCareStatus } from "./plantCare";
+import { countryName } from "../../../shared/src/countries";
 import priorityListV1 from "../data/plantPriorityList.v1.json";
 
 type CanonicalOptions = {
@@ -100,6 +101,33 @@ function baseCandidate(plant: any, plants: any[]) {
   ) ?? null;
 }
 
+/**
+ * Category-level geography resolution (design doc §3.1): own rows win per
+ * category; a cultivar with no own rows in a category inherits the base
+ * plant's resolved rows. Missing geography stays absent from the arrays —
+ * never a negative/unsuitable marker.
+ */
+function resolveGeographyCategory<T>(
+  own: T[],
+  inherited: T[] | undefined,
+): { items: T[]; source: "own" | "inherited" | "none" } {
+  if (own.length > 0) return { items: own, source: "own" };
+  if (inherited && inherited.length > 0) return { items: inherited, source: "inherited" };
+  return { items: [], source: "none" };
+}
+
+function resolveAdaptationLabel(
+  labelByCodeLocale: Map<string, string>,
+  code: string,
+  locale: string,
+): string {
+  const requested = labelByCodeLocale.get(`${code}:${locale}`);
+  if (requested?.trim()) return requested.trim();
+  const english = labelByCodeLocale.get(`${code}:en`);
+  if (english?.trim()) return english.trim();
+  return code;
+}
+
 function mergeLocaleContent(plant: any, rows: any[], base: any | null, baseRows: any[], locale: string) {
   const picked = chooseRow(rows, locale);
   const pickedContent = chooseRow(rows, locale, true);
@@ -128,6 +156,9 @@ function mergeLocaleContent(plant: any, rows: any[], base: any | null, baseRows:
     description: isPlaceholderPlantDescription(description) ? undefined : description,
     localeUsed: pickedContent?.locale ?? picked?.locale ?? "latin",
     careContent: care?.careContent,
+    careSource: care?.careSource,
+    careSourceUrl: care?.careSourceUrl,
+    careSourceRefs: care?.careSourceRefs,
     contentVersion: care?.contentVersion,
     contentOrigin: picked?.contentOrigin ?? "imported",
     inheritedFromId: base?._id,
@@ -141,9 +172,17 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
   const allI18n = await ctx.db.query("plantI18n").collect();
   const allCare = await ctx.db.query("plantCare").collect();
   const allCareI18n = await ctx.db.query("plantCareI18n").collect();
+  const allOrigins = await ctx.db.query("plantOriginCountries").collect();
+  const allProvenRegions = await ctx.db.query("plantProvenRegions").collect();
+  const allAdaptationTerms = await ctx.db.query("plantAdaptationTerms").collect();
+  const adaptationTermDocs = await ctx.db.query("adaptationTerms").collect();
+  const adaptationTermI18n = await ctx.db.query("adaptationTermI18n").collect();
   const i18nByPlant = new Map<string, any[]>();
   const careI18nByPlantLocale = new Map<string, any>();
   const careByPlant = new Map<string, any>();
+  const originByPlant = new Map<string, string[]>();
+  const provenByPlant = new Map<string, Array<{ countryCode: string; subdivisionCode?: string }>>();
+  const termsByPlant = new Map<string, string[]>();
   for (const row of allI18n) {
     const rows = i18nByPlant.get(String(row.plantId)) ?? [];
     rows.push({ ...row, locale: localeOf(row.locale) });
@@ -153,14 +192,41 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
     careI18nByPlantLocale.set(`${row.plantId}:${localeOf(row.locale)}`, row);
   }
   for (const row of allCare) careByPlant.set(String(row.plantId), row);
+  for (const row of allOrigins) {
+    const list = originByPlant.get(String(row.plantId)) ?? [];
+    list.push(row.countryCode);
+    originByPlant.set(String(row.plantId), list);
+  }
+  for (const row of allProvenRegions) {
+    const list = provenByPlant.get(String(row.plantId)) ?? [];
+    list.push({
+      countryCode: row.countryCode,
+      ...(row.subdivisionCode ? { subdivisionCode: row.subdivisionCode } : {}),
+    });
+    provenByPlant.set(String(row.plantId), list);
+  }
+  for (const row of allAdaptationTerms) {
+    const list = termsByPlant.get(String(row.plantId)) ?? [];
+    list.push(row.termCode);
+    termsByPlant.set(String(row.plantId), list);
+  }
+  const adaptationTermByCode = new Map<string, any>(adaptationTermDocs.map((term: any) => [term.code, term]));
+  const adaptationLabelByCodeLocale = new Map<string, string>();
+  for (const row of adaptationTermI18n as any[]) {
+    const existing = adaptationLabelByCodeLocale.get(`${row.termCode}:${row.locale}`);
+    if (!existing || (row.locale === locale && row.translationStatus !== "missing")) {
+      adaptationLabelByCodeLocale.set(`${row.termCode}:${row.locale}`, row.label);
+    }
+  }
   for (const [plantId, rows] of i18nByPlant) {
     for (const row of rows) {
       const care = careI18nByPlantLocale.get(`${plantId}:${row.locale}`);
       if (care && (includeInactive || care.contentStatus === undefined || care.contentStatus === "published")) {
-        row.careContent = care.careContent;
-        row.contentVersion = row.contentVersion ?? care.contentVersion;
-        row.careSource = care.source;
-        row.careSourceUrl = care.sourceUrl;
+      row.careContent = care.careContent;
+      row.contentVersion = row.contentVersion ?? care.contentVersion;
+      row.careSource = care.source;
+      row.careSourceUrl = care.sourceUrl;
+      row.careSourceRefs = care.sourceRefs;
       }
     }
   }
@@ -229,6 +295,36 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       ...rows.map((row) => row.commonName),
     ].map(normalize).join(" ");
 
+    // Geography (additive, design doc §3.1): own rows win per category;
+    // cultivars inherit a category only when they have no own rows in it.
+    const ownOrigins = originByPlant.get(String(plant._id)) ?? [];
+    const ownProven = provenByPlant.get(String(plant._id)) ?? [];
+    const ownTerms = termsByPlant.get(String(plant._id)) ?? [];
+    const baseOrigins = base ? originByPlant.get(String(base._id)) : undefined;
+    const baseProven = base ? provenByPlant.get(String(base._id)) : undefined;
+    const baseTerms = base ? termsByPlant.get(String(base._id)) : undefined;
+    const origin = resolveGeographyCategory(ownOrigins, baseOrigins);
+    const proven = resolveGeographyCategory(ownProven, baseProven);
+    const adaptation = resolveGeographyCategory(ownTerms, baseTerms);
+    const geographyInherited =
+      origin.source === "inherited" || proven.source === "inherited" || adaptation.source === "inherited";
+    const geographySource = {
+      origin: origin.source,
+      provenRegions: proven.source,
+      adaptation: adaptation.source,
+    };
+    const adaptationGrouped = { temperature: [], moisture: [], climate: [], season: [] } as Record<
+      string,
+      Array<{ code: string; label: string }>
+    >;
+    for (const code of adaptation.items) {
+      const term = adaptationTermByCode.get(code);
+      if (!term) continue;
+      const group = adaptationGrouped[term.dimension];
+      if (!group) continue;
+      group.push({ code, label: resolveAdaptationLabel(adaptationLabelByCodeLocale, code, locale) });
+    }
+
     return {
       _id: plant._id,
       scientificName: plant.scientificName,
@@ -279,6 +375,8 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       fertilizingFrequencyDays: care?.fertilizingFrequencyDays,
       lightRequirements: care?.lightRequirements,
       lightHours: care?.lightHours ?? plant.lightHours,
+      propagationMethods: care?.propagationMethods,
+      careSourceRefs: localized.careSourceRefs,
       soilPhMin: care?.soilPhMin ?? plant.soilPhMin,
       soilPhMax: care?.soilPhMax ?? plant.soilPhMax,
       moistureTarget: care?.moistureTarget ?? plant.moistureTarget,
@@ -287,6 +385,15 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       seedRatePerM2: care?.seedRatePerM2,
       waterLitersPerM2: care?.waterLitersPerM2,
       yieldKgPerM2: care?.yieldKgPerM2,
+      originCountries: origin.items.map((code) => ({ code, name: countryName(code, locale) })),
+      provenRegions: proven.items.map((region) => ({
+        code: region.countryCode,
+        ...(region.subdivisionCode ? { subdivisionCode: region.subdivisionCode } : {}),
+        name: countryName(region.countryCode, locale),
+      })),
+      adaptation: adaptationGrouped,
+      geographySource,
+      geographyInheritedFromId: geographyInherited ? base?._id : undefined,
       _searchText: searchable,
     };
   }).filter((plant: any) => Boolean(plant.description?.trim()));

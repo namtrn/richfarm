@@ -28,8 +28,18 @@ import {
   upsertPlantCareProfile,
 } from "./lib/plantCare";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { normalizePropagationMethods, PROPAGATION_METHODS } from "../../shared/src/plantPropagation";
+import {
+  ADAPTATION_DIMENSIONS,
+  ADAPTATION_TERMS,
+  isAdaptationDimension,
+} from "../../shared/src/adaptationTerms";
+import { TERM_CODE_PATTERN } from "../../shared/src/countries";
 
 const adminTokenArg = { serviceToken: v.string() };
+const propagationMethodValidator = v.union(
+  ...(PROPAGATION_METHODS.map((method) => v.literal(method)) as any),
+);
 
 function validatePlantMetadata(args: {
   soilPhMin?: number;
@@ -493,6 +503,7 @@ export const updatePlant = mutation({
     )),
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.string()),
+    propagationMethods: v.optional(v.array(propagationMethodValidator)),
   },
   handler: async (ctx, args) => {
     requireAdminServiceToken(args.serviceToken);
@@ -555,10 +566,6 @@ export const updatePlant = mutation({
       ...(args.reviewedAt !== undefined && { reviewedAt: args.reviewedAt }),
       ...(args.reviewedBy !== undefined && { reviewedBy: args.reviewedBy.trim() || undefined }),
       ...(args.growthStage !== undefined && { growthStage: args.growthStage.trim() || undefined }),
-      ...(args.soilPhMin !== undefined && { soilPhMin: args.soilPhMin }),
-      ...(args.soilPhMax !== undefined && { soilPhMax: args.soilPhMax }),
-      ...(args.moistureTarget !== undefined && { moistureTarget: args.moistureTarget }),
-      ...(args.lightHours !== undefined && { lightHours: args.lightHours }),
       ...(args.notes !== undefined && { notes: args.notes.trim() || undefined }),
       ...taxonomyFieldsForStorage(taxonomy),
       ...(args.purposes !== undefined && {
@@ -580,6 +587,9 @@ export const updatePlant = mutation({
       soilPhMax: args.soilPhMax,
       moistureTarget: args.moistureTarget,
       lightHours: args.lightHours,
+      ...(args.propagationMethods !== undefined
+        ? { propagationMethods: normalizePropagationMethods(args.propagationMethods) }
+        : {}),
     });
 
     const i18nMetadata = {
@@ -967,6 +977,7 @@ export const createPlant = mutation({
     )),
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.string()),
+    propagationMethods: v.optional(v.array(propagationMethodValidator)),
   },
   handler: async (ctx, args) => {
     requireAdminServiceToken(args.serviceToken);
@@ -1025,10 +1036,6 @@ export const createPlant = mutation({
       ...(args.reviewedAt !== undefined && { reviewedAt: args.reviewedAt }),
       ...(args.reviewedBy !== undefined && { reviewedBy: args.reviewedBy.trim() || undefined }),
       ...(args.growthStage !== undefined && { growthStage: args.growthStage.trim() || undefined }),
-      ...(args.soilPhMin !== undefined && { soilPhMin: args.soilPhMin }),
-      ...(args.soilPhMax !== undefined && { soilPhMax: args.soilPhMax }),
-      ...(args.moistureTarget !== undefined && { moistureTarget: args.moistureTarget }),
-      ...(args.lightHours !== undefined && { lightHours: args.lightHours }),
       ...(args.notes !== undefined && { notes: args.notes.trim() || undefined }),
       ...taxonomyFieldsForStorage(taxonomy),
     });
@@ -1047,6 +1054,9 @@ export const createPlant = mutation({
       soilPhMax: args.soilPhMax,
       moistureTarget: args.moistureTarget,
       lightHours: args.lightHours,
+      ...(args.propagationMethods !== undefined
+        ? { propagationMethods: normalizePropagationMethods(args.propagationMethods) }
+        : {}),
     });
 
     if (isDisplayBasePlant({ cultivarNormalized: taxonomyIdentity.cultivarNormalized })) {
@@ -1409,7 +1419,9 @@ export const createPlantI18n = mutation({
     locale: v.string(),
     commonName: v.string(),
     description: v.optional(v.string()),
-    careContent: v.optional(v.string()),
+    // Absent preserves an existing care row, while null/empty clears it.
+    // Keep non-empty Markdown byte-for-byte; do not normalize or trim it here.
+    careContent: v.optional(v.union(v.string(), v.null())),
     contentVersion: v.optional(v.number()),
     source: v.optional(v.string()),
     sourceUrl: v.optional(v.string()),
@@ -1459,7 +1471,7 @@ export const createPlantI18n = mutation({
       ctx,
       args.plantId,
       locale,
-      args.careContent?.trim() || undefined,
+      args.careContent,
       args.contentVersion ?? undefined,
       {
         source: args.source,
@@ -1481,7 +1493,9 @@ export const updatePlantI18n = mutation({
     locale: v.string(),
     commonName: v.string(),
     description: v.optional(v.string()),
-    careContent: v.optional(v.string()),
+    // Absent preserves an existing care row, while null/empty clears it.
+    // Keep non-empty Markdown byte-for-byte; do not normalize or trim it here.
+    careContent: v.optional(v.union(v.string(), v.null())),
     contentVersion: v.optional(v.number()),
     source: v.optional(v.string()),
     sourceUrl: v.optional(v.string()),
@@ -1524,7 +1538,12 @@ export const updatePlantI18n = mutation({
         )
         .unique();
       if (previousCare) {
-        await ctx.db.delete(previousCare._id);
+        // Locale rows own care independently. Move the existing care row
+        // instead of deleting it so an omitted careContent patch preserves
+        // the exact Markdown and all care metadata. An explicit null/empty
+        // value is applied by upsertPlantCareI18n after this move and clears
+        // the renamed row as requested.
+        await ctx.db.patch(previousCare._id, { locale });
       }
     }
 
@@ -1544,7 +1563,7 @@ export const updatePlantI18n = mutation({
       ctx,
       row.plantId,
       locale,
-      args.careContent?.trim() || undefined,
+      args.careContent,
       args.contentVersion ?? undefined,
       {
         source: args.source,
@@ -1739,5 +1758,412 @@ export const bulkUpdatePlantI18n = mutation({
       }
     }
     return { updatedCount };
+  },
+});
+
+// ==========================================
+// Adaptation taxonomy administration (design doc §6.1–6.2)
+// ==========================================
+// Editor/editor+admin split is enforced at the API proxy allowlist layer:
+// create/reorder/archive are admin-only; list/update (labels and per-locale
+// translations) are available to editors as well. Every function re-validates
+// the server service token.
+const translationStatusValidator = v.union(
+  v.literal("missing"),
+  v.literal("machine_translated"),
+  v.literal("qa_passed"),
+  v.literal("human_reviewed"),
+  v.literal("approved"),
+);
+
+const DIMENSION_ORDER = new Map<string, number>(
+  ADAPTATION_DIMENSIONS.map((dimension, index) => [dimension, index]),
+);
+
+export const listAdaptationTerms = query({
+  args: { ...adminTokenArg },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    const terms = await ctx.db.query("adaptationTerms").collect();
+    const i18nRows = await ctx.db.query("adaptationTermI18n").collect();
+    const assignments = await ctx.db.query("plantAdaptationTerms").collect();
+
+    const usageByCode = new Map<string, number>();
+    for (const row of assignments) {
+      usageByCode.set(row.termCode, (usageByCode.get(row.termCode) ?? 0) + 1);
+    }
+    const translationsByCode = new Map<string, Array<{
+      locale: string;
+      label: string;
+      description?: string;
+      translationStatus: string;
+    }>>();
+    for (const row of i18nRows) {
+      const list = translationsByCode.get(row.termCode) ?? [];
+      list.push({
+        locale: row.locale,
+        label: row.label,
+        description: row.description ?? undefined,
+        translationStatus: row.translationStatus,
+      });
+      translationsByCode.set(row.termCode, list);
+    }
+
+    return terms
+      .sort((left, right) => {
+        const leftDimension = DIMENSION_ORDER.get(left.dimension) ?? 999;
+        const rightDimension = DIMENSION_ORDER.get(right.dimension) ?? 999;
+        if (leftDimension !== rightDimension) return leftDimension - rightDimension;
+        return left.sortOrder - right.sortOrder;
+      })
+      .map((term) => ({
+        _id: term._id,
+        code: term.code,
+        dimension: term.dimension,
+        status: term.status,
+        sortOrder: term.sortOrder,
+        usageCount: usageByCode.get(term.code) ?? 0,
+        translations: translationsByCode.get(term.code) ?? [],
+      }));
+  },
+});
+
+/**
+ * Read-only release gate for the approved Release 1 taxonomy. This deliberately
+ * reads the raw Convex rows (rather than the grouped editor projection) so it
+ * can detect orphan translations/assignments and duplicate join rows that
+ * Convex indexes alone do not prevent. Production scripts should fail closed
+ * on `clean: false` and must never call a mutation as part of this check.
+ */
+export const adaptationReleasePreflight = query({
+  args: { ...adminTokenArg },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+
+    const expectedCodes = new Set<string>(ADAPTATION_TERMS.map((term) => term.code));
+    const expectedDimensionByCode = new Map<string, string>(
+      ADAPTATION_TERMS.map((term) => [term.code, term.dimension]),
+    );
+    const [terms, translations, plants, origins, provenRegions, assignments] = await Promise.all([
+      ctx.db.query("adaptationTerms").collect(),
+      ctx.db.query("adaptationTermI18n").collect(),
+      ctx.db.query("plantsMaster").collect(),
+      ctx.db.query("plantOriginCountries").collect(),
+      ctx.db.query("plantProvenRegions").collect(),
+      ctx.db.query("plantAdaptationTerms").collect(),
+    ]);
+
+    const actualCodes = new Set(terms.map((term) => term.code));
+    const extraTermCodes = terms
+      .map((term) => term.code)
+      .filter((code) => !expectedCodes.has(code));
+    const missingTermCodes = ADAPTATION_TERMS
+      .map((term) => term.code)
+      .filter((code) => !actualCodes.has(code));
+    const inactiveTermCodes = terms
+      .filter((term) => term.status !== "active")
+      .map((term) => term.code);
+    const invalidDimensions = terms
+      .filter((term) => expectedDimensionByCode.get(term.code) !== term.dimension)
+      .map((term) => term.code);
+
+    const translationKeys = new Set<string>();
+    const duplicateTranslationKeys: string[] = [];
+    const orphanTranslations = translations.filter((row) => !actualCodes.has(row.termCode));
+    const extraTranslationLocales = translations
+      .filter((row) => row.locale !== "vi" && row.locale !== "en")
+      .map((row) => `${row.termCode}:${row.locale}`);
+    for (const row of translations) {
+      const key = `${row.termCode}:${row.locale}`;
+      if (translationKeys.has(key)) duplicateTranslationKeys.push(key);
+      translationKeys.add(key);
+    }
+    const missingRequiredTranslations = ADAPTATION_TERMS.flatMap((term) =>
+      (["vi", "en"] as const)
+        .filter((locale) => {
+          const row = translations.find((candidate) =>
+            candidate.termCode === term.code && candidate.locale === locale,
+          );
+          return !row?.label?.trim();
+        })
+        .map((locale) => `${term.code}:${locale}`),
+    );
+
+    const plantIds = new Set(plants.map((plant) => String(plant._id)));
+    const orphanOriginAssignments = origins.filter((row) => !plantIds.has(String(row.plantId))).length;
+    const orphanProvenRegionAssignments = provenRegions.filter((row) => !plantIds.has(String(row.plantId))).length;
+    const orphanAdaptationAssignments = assignments.filter((row) => !plantIds.has(String(row.plantId))).length;
+    const orphanAdaptationTermCodes = assignments.filter((row) => !actualCodes.has(row.termCode)).length;
+
+    const duplicateKeys = (rows: Array<{ key: string }>) => {
+      const counts = new Map<string, number>();
+      for (const row of rows) counts.set(row.key, (counts.get(row.key) ?? 0) + 1);
+      return [...counts.entries()].filter(([, count]) => count > 1).map(([key]) => key);
+    };
+    const duplicateOriginAssignments = duplicateKeys(origins.map((row) => ({
+      key: `${row.plantId}:${row.countryCode}`,
+    })));
+    const duplicateProvenRegionAssignments = duplicateKeys(provenRegions.map((row) => ({
+      key: `${row.plantId}:${row.countryCode}\u0000${row.subdivisionCode ?? ""}`,
+    })));
+    const duplicateAdaptationAssignments = duplicateKeys(assignments.map((row) => ({
+      key: `${row.plantId}:${row.termCode}`,
+    })));
+
+    const clean = terms.length === ADAPTATION_TERMS.length &&
+      extraTermCodes.length === 0 &&
+      missingTermCodes.length === 0 &&
+      inactiveTermCodes.length === 0 &&
+      invalidDimensions.length === 0 &&
+      translations.length === ADAPTATION_TERMS.length * 2 &&
+      extraTranslationLocales.length === 0 &&
+      duplicateTranslationKeys.length === 0 &&
+      missingRequiredTranslations.length === 0 &&
+      orphanTranslations.length === 0 &&
+      orphanOriginAssignments === 0 &&
+      orphanProvenRegionAssignments === 0 &&
+      orphanAdaptationAssignments === 0 &&
+      orphanAdaptationTermCodes === 0 &&
+      duplicateOriginAssignments.length === 0 &&
+      duplicateProvenRegionAssignments.length === 0 &&
+      duplicateAdaptationAssignments.length === 0;
+
+    return {
+      clean,
+      expected: {
+        termCount: ADAPTATION_TERMS.length,
+        translationCount: ADAPTATION_TERMS.length * 2,
+        codes: [...expectedCodes],
+      },
+      taxonomy: {
+        termCount: terms.length,
+        activeTermCount: terms.filter((term) => term.status === "active").length,
+        translationCount: translations.length,
+        extraTermCodes,
+        missingTermCodes,
+        inactiveTermCodes,
+        invalidDimensions,
+        extraTranslationLocales,
+        missingRequiredTranslations,
+      },
+      orphans: {
+        i18n: orphanTranslations.length,
+        origin: orphanOriginAssignments,
+        provenRegions: orphanProvenRegionAssignments,
+        adaptationTerms: orphanAdaptationAssignments,
+        adaptationTermCodes: orphanAdaptationTermCodes,
+      },
+      duplicates: {
+        translations: duplicateTranslationKeys,
+        origin: duplicateOriginAssignments,
+        provenRegions: duplicateProvenRegionAssignments,
+        adaptationTerms: duplicateAdaptationAssignments,
+      },
+    };
+  },
+});
+
+export const createAdaptationTerm = mutation({
+  args: {
+    ...adminTokenArg,
+    code: v.string(),
+    dimension: v.string(),
+    sortOrder: v.number(),
+    labelVi: v.string(),
+    labelEn: v.string(),
+    descriptionVi: v.optional(v.string()),
+    descriptionEn: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    const code = args.code.trim();
+    if (!TERM_CODE_PATTERN.test(code)) {
+      throw new Error("Invalid adaptation term code");
+    }
+    if (!isAdaptationDimension(args.dimension)) {
+      throw new Error("Invalid adaptation dimension");
+    }
+    if (!args.labelVi.trim() || !args.labelEn.trim()) {
+      throw new Error("Both Vietnamese and English labels are required before a term can be active");
+    }
+    const existing = await ctx.db
+      .query("adaptationTerms")
+      .withIndex("by_code", (q: any) => q.eq("code", code))
+      .unique();
+    if (existing) {
+      throw new Error("Adaptation term code already exists");
+    }
+
+    const now = Date.now();
+    const termId = await ctx.db.insert("adaptationTerms", {
+      code,
+      dimension: args.dimension,
+      status: "active",
+      sortOrder: args.sortOrder,
+      createdAt: now,
+      updatedAt: now,
+    });
+    for (const [locale, label, description] of [
+      ["vi", args.labelVi, args.descriptionVi],
+      ["en", args.labelEn, args.descriptionEn],
+    ] as const) {
+      await ctx.db.insert("adaptationTermI18n", {
+        termCode: code,
+        locale,
+        label: label.trim(),
+        description: description?.trim() || undefined,
+        translationStatus: "human_reviewed",
+        updatedAt: now,
+      });
+    }
+    return { termId };
+  },
+});
+
+export const updateAdaptationTerm = mutation({
+  args: {
+    ...adminTokenArg,
+    termId: v.id("adaptationTerms"),
+    labelVi: v.string(),
+    labelEn: v.string(),
+    descriptionVi: v.optional(v.string()),
+    descriptionEn: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    const term = await ctx.db.get(args.termId);
+    if (!term) {
+      throw new Error("Adaptation term not found");
+    }
+    if (!args.labelVi.trim() || !args.labelEn.trim()) {
+      throw new Error("Both Vietnamese and English labels are required before a term can be active");
+    }
+    const now = Date.now();
+    for (const [locale, label, description] of [
+      ["vi", args.labelVi, args.descriptionVi],
+      ["en", args.labelEn, args.descriptionEn],
+    ] as const) {
+      const existing = await ctx.db
+        .query("adaptationTermI18n")
+        .withIndex("by_term_locale", (q: any) =>
+          q.eq("termCode", term.code).eq("locale", locale),
+        )
+        .unique();
+      const payload = {
+        label: label.trim(),
+        description: description?.trim() || undefined,
+        translationStatus: "human_reviewed",
+        updatedAt: now,
+      };
+      if (existing) await ctx.db.patch(existing._id, payload);
+      else await ctx.db.insert("adaptationTermI18n", { termCode: term.code, locale, ...payload });
+    }
+    await ctx.db.patch(args.termId, { updatedAt: now });
+    return { ok: true };
+  },
+});
+
+export const updateAdaptationTermTranslation = mutation({
+  args: {
+    ...adminTokenArg,
+    termId: v.id("adaptationTerms"),
+    locale: v.string(),
+    label: v.string(),
+    description: v.optional(v.string()),
+    translationStatus: v.optional(translationStatusValidator),
+  },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    const term = await ctx.db.get(args.termId);
+    if (!term) {
+      throw new Error("Adaptation term not found");
+    }
+    const locale = args.locale.trim().toLowerCase();
+    if (locale !== "vi" && locale !== "en") {
+      throw new Error("Only vi and en translations are supported in Release 1");
+    }
+    if (!args.label.trim() && (args.translationStatus ?? "human_reviewed") !== "missing") {
+      throw new Error("Translation label is required");
+    }
+    const now = Date.now();
+    const payload = {
+      label: args.label.trim(),
+      description: args.description?.trim() || undefined,
+      translationStatus: args.translationStatus ?? "human_reviewed",
+      updatedAt: now,
+    };
+    const existing = await ctx.db
+      .query("adaptationTermI18n")
+      .withIndex("by_term_locale", (q: any) =>
+        q.eq("termCode", term.code).eq("locale", locale),
+      )
+      .unique();
+    if (existing) await ctx.db.patch(existing._id, payload);
+    else await ctx.db.insert("adaptationTermI18n", { termCode: term.code, locale, ...payload });
+    return { ok: true };
+  },
+});
+
+export const reorderAdaptationTerms = mutation({
+  args: {
+    ...adminTokenArg,
+    dimension: v.string(),
+    termIds: v.array(v.id("adaptationTerms")),
+  },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    if (!isAdaptationDimension(args.dimension)) {
+      throw new Error("Invalid adaptation dimension");
+    }
+    const now = Date.now();
+    for (let index = 0; index < args.termIds.length; index += 1) {
+      const term = await ctx.db.get(args.termIds[index]);
+      if (!term) {
+        throw new Error("Adaptation term not found");
+      }
+      if (term.dimension !== args.dimension) {
+        throw new Error("Cannot reorder a term across dimensions");
+      }
+      await ctx.db.patch(args.termIds[index], { sortOrder: index + 1, updatedAt: now });
+    }
+    return { ok: true };
+  },
+});
+
+export const archiveAdaptationTerm = mutation({
+  args: {
+    ...adminTokenArg,
+    termId: v.id("adaptationTerms"),
+    archived: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    requireAdminServiceToken(args.serviceToken);
+    const term = await ctx.db.get(args.termId);
+    if (!term) {
+      throw new Error("Adaptation term not found");
+    }
+    if (!args.archived) {
+      // Publication gate: a term may only return to active with both labels.
+      const vi = await ctx.db
+        .query("adaptationTermI18n")
+        .withIndex("by_term_locale", (q: any) =>
+          q.eq("termCode", term.code).eq("locale", "vi"),
+        )
+        .unique();
+      const en = await ctx.db
+        .query("adaptationTermI18n")
+        .withIndex("by_term_locale", (q: any) =>
+          q.eq("termCode", term.code).eq("locale", "en"),
+        )
+        .unique();
+      if (!vi?.label?.trim() || !en?.label?.trim()) {
+        throw new Error("Both Vietnamese and English labels are required before a term can be active");
+      }
+    }
+    await ctx.db.patch(args.termId, {
+      status: args.archived ? "archived" : "active",
+      updatedAt: Date.now(),
+    });
+    return { ok: true };
   },
 });

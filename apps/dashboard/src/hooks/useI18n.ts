@@ -8,7 +8,7 @@ type BackendI18nRow = {
     locale: string;
     common_name: string;
     description?: string | null;
-    care_content_json?: Record<string, unknown> | null;
+    care_content?: string | null;
     content_version?: number;
     source?: string | null;
     source_url?: string | null;
@@ -28,7 +28,7 @@ function mapBackendI18n(row: BackendI18nRow): PlantI18nRow {
         locale: row.locale,
         commonName: row.common_name,
         description: row.description ?? undefined,
-        careContent: JSON.stringify(row.care_content_json ?? {}),
+        careContent: row.care_content ?? undefined,
         contentVersion: row.content_version,
         source: row.source ?? undefined,
         sourceUrl: row.source_url ?? undefined,
@@ -50,18 +50,6 @@ function normalizeSearch(value: unknown): string {
         .trim();
 }
 
-function parseCareContent(value: string): Record<string, unknown> {
-    if (!value.trim()) return {};
-    try {
-        const parsed = JSON.parse(value);
-        return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-    } catch {
-        // Keep authored free-form care text lossless while the API persists a
-        // JSON object. Structured callers still round-trip their original map.
-        return { text: value };
-    }
-}
-
 function toFormState(row: PlantI18nRow): I18nFormState {
     return {
         plantId: row.plantId,
@@ -77,6 +65,16 @@ function toFormState(row: PlantI18nRow): I18nFormState {
         reviewedBy: row.reviewedBy ?? "",
         contentOrigin: (row.contentOrigin as I18nFormState["contentOrigin"]) ?? "imported",
     };
+}
+
+/**
+ * Build the REST care field without changing authored Markdown bytes.
+ * Whitespace-only input is the explicit clear state; non-empty content is
+ * passed through unchanged so headings, indentation, and trailing newlines
+ * survive the local-first write.
+ */
+export function buildCareContentPayload(careContent: string): string | null {
+    return careContent.trim() === "" ? null : careContent;
 }
 
 export function useI18n(authedFetch: AuthedFetch) {
@@ -156,25 +154,29 @@ export function useI18n(authedFetch: AuthedFetch) {
         setMode("view");
     }
 
-    async function save(): Promise<string | null> {
+    async function save(overrides: Partial<I18nFormState> = {}): Promise<string | null> {
         if (saving) return null;
-        if (!form.plantId) {
+        // Callers such as the Markdown editor may update one field and save in
+        // the same event turn. Merge that field into the request draft rather
+        // than relying on React state having committed before save() runs.
+        const draft = { ...form, ...overrides };
+        if (!draft.plantId) {
             setError("Plant is required.");
             return null;
         }
-        if (!form.locale.trim()) {
+        if (!draft.locale.trim()) {
             setError("Locale is required.");
             return null;
         }
-        if (!form.commonName.trim()) {
+        if (!draft.commonName.trim()) {
             setError("Common name is required.");
             return null;
         }
 
-        const contentVersion = form.contentVersion.trim()
-            ? Number(form.contentVersion)
+        const contentVersion = draft.contentVersion.trim()
+            ? Number(draft.contentVersion)
             : undefined;
-        if (form.contentVersion.trim() && !Number.isFinite(contentVersion)) {
+        if (draft.contentVersion.trim() && !Number.isFinite(contentVersion)) {
             setError("Content version must be a number.");
             return null;
         }
@@ -183,18 +185,21 @@ export function useI18n(authedFetch: AuthedFetch) {
         setError("");
         try {
             const payload = {
-                master_plant_id: Number(form.plantId),
-                locale: form.locale.trim(),
-                common_name: form.commonName.trim(),
-                description: form.description.trim() || undefined,
-                care_content_json: parseCareContent(form.careContent),
+                master_plant_id: Number(draft.plantId),
+                locale: draft.locale.trim(),
+                common_name: draft.commonName.trim(),
+                description: draft.description.trim() || undefined,
+                // Three-state: absent (key omitted by JSON.stringify) is not
+                // possible here, so explicitly send null when empty so PATCH
+                // clears instead of preserving; non-empty stays byte-for-byte.
+                care_content: buildCareContentPayload(draft.careContent),
                 content_version: contentVersion,
-                source: form.source.trim() || undefined,
-                source_url: form.sourceUrl.trim() || undefined,
-                content_status: form.contentStatus,
-                review_status: form.reviewStatus,
-                reviewed_by: form.reviewedBy.trim() || undefined,
-                content_origin: form.contentOrigin,
+                source: draft.source.trim() || undefined,
+                source_url: draft.sourceUrl.trim() || undefined,
+                content_status: draft.contentStatus,
+                review_status: draft.reviewStatus,
+                reviewed_by: draft.reviewedBy.trim() || undefined,
+                content_origin: draft.contentOrigin,
             };
             if (!Number.isInteger(payload.master_plant_id) || payload.master_plant_id <= 0) {
                 throw new Error("Plant must have a numeric SQLite id.");
@@ -277,7 +282,9 @@ export function useI18n(authedFetch: AuthedFetch) {
                 locale: input.locale,
                 common_name: input.commonName,
                 description: input.description,
-                care_content_json: parseCareContent(input.careContent ?? ""),
+                care_content: input.careContent === undefined
+                    ? undefined
+                    : buildCareContentPayload(input.careContent),
                 content_version: input.contentVersion,
                 source: input.source,
                 source_url: input.sourceUrl,

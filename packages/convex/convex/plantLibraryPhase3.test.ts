@@ -54,7 +54,7 @@ function backendRow(overrides: Record<string, unknown> = {}) {
       vi: {
         common_name: "Cà chua",
         description: "Quả đỏ dùng trong món ăn.",
-        care_content_json: { soil: { phMin: 5.5, phMax: 6.8 } },
+        care_content: "## Đất trồng\n\npH 5.5–6.8.",
         content_version: 1,
         source: "test",
         source_url: "https://example.com/tomato",
@@ -66,7 +66,7 @@ function backendRow(overrides: Record<string, unknown> = {}) {
       en: {
         common_name: "Tomato",
         description: "A red fruit used in cooking.",
-        care_content_json: { soil: { phMin: 5.5, phMax: 6.8 } },
+        care_content: "## Soil\n\npH 5.5–6.8.",
         content_version: 1,
         source: "test",
         source_url: "https://example.com/tomato",
@@ -161,6 +161,105 @@ describe("Phase 3 canonical plant library", () => {
     } as any);
     const afterLocaleDelete = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
     expect(afterLocaleDelete[0].i18nRows).toHaveLength(1);
+  });
+
+  it("enforces the three-state care contract (absent preserves, null/empty deletes, string upserts)", async () => {
+    const t = setup();
+    // Seed with a non-empty Markdown care value.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        i18n: {
+          vi: {
+            ...(backendRow() as any).i18n.vi,
+            care_content: "## Chăm sóc\n\nNội dung.",
+          },
+          en: (backendRow() as any).i18n.en,
+        },
+      }),
+    } as any);
+
+    // null deletes the plantCareI18n row (must not throw on null).
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        i18n: {
+          vi: {
+            ...(backendRow() as any).i18n.vi,
+            care_content: null,
+          },
+          en: (backendRow() as any).i18n.en,
+        },
+      }),
+    } as any);
+    let rows = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
+    let vi = rows[0].i18nRows.find((r: any) => r.locale === "vi");
+    expect(vi!.careContent).toBeUndefined();
+
+    // Empty string also deletes.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        i18n: {
+          vi: {
+            ...(backendRow() as any).i18n.vi,
+            care_content: "   ",
+          },
+          en: (backendRow() as any).i18n.en,
+        },
+      }),
+    } as any);
+    rows = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
+    vi = rows[0].i18nRows.find((r: any) => r.locale === "vi");
+    expect(vi!.careContent).toBeUndefined();
+
+    // Non-empty string upserts and never deletes.
+    const markdown = "## Chăm sóc\n\nGiữ ẩm đều.";
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        i18n: {
+          vi: {
+            ...(backendRow() as any).i18n.vi,
+            care_content: markdown,
+          },
+          en: (backendRow() as any).i18n.en,
+        },
+      }),
+    } as any);
+    rows = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
+    vi = rows[0].i18nRows.find((r: any) => r.locale === "vi");
+    expect(vi!.careContent).toBe(markdown);
+
+    // Absent (no care_content key) preserves the existing value.
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({
+        common_name: "Tomato preserved",
+        i18n: {
+          vi: {
+            common_name: "Cà chua",
+            description: "Quả đỏ.",
+            content_version: 1,
+            source: "test",
+            source_url: "https://example.com/tomato",
+            content_status: "published" as const,
+            review_status: "reviewed" as const,
+            reviewed_at: "2026-08-05T00:00:00.000Z",
+            reviewed_by: "test",
+          },
+          en: (backendRow() as any).i18n.en,
+        },
+      }),
+    } as any);
+    rows = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
+    vi = rows[0].i18nRows.find((r: any) => r.locale === "vi");
+    expect(vi!.careContent).toBe(markdown);
   });
 
   it("accepts a new API DTO before SQLite has assigned local id/timestamps", async () => {
@@ -613,5 +712,41 @@ describe("Phase 3.1 care-status and tier contract", () => {
     const outside = await t.query(api.plantLibrary.listCanonical, { locale: "vi", limit: 100 });
     expect(outside.find((plant: any) => String(plant.sourceId) === "not-priority-1").contentTier).toBe("taxonomy_only");
     expect(outside.find((plant: any) => String(plant.sourceId) === "not-priority-1").careStatus).toBe("verified");
+  });
+});
+
+describe("propagation method contract", () => {
+  beforeEach(() => {
+    process.env.CONVEX_ADMIN_FUNCTION_KEY = serviceToken;
+  });
+
+  it("projects methods, preserves omitted patches, and clears explicit empty lists", async () => {
+    const t = setup();
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({ propagation_methods: ["stem_cutting", "seed", "stem_cutting"] }),
+    } as any);
+
+    let snapshot = await t.query(api.masterSync.listAll, { serviceToken, locale: "en" });
+    expect(snapshot[0].propagationMethods).toEqual(["stem_cutting", "seed"]);
+
+    const withoutMethods = backendRow();
+    delete (withoutMethods as any).propagation_methods;
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: withoutMethods,
+    } as any);
+    snapshot = await t.query(api.masterSync.listAll, { serviceToken, locale: "en" });
+    expect(snapshot[0].propagationMethods).toEqual(["stem_cutting", "seed"]);
+
+    await t.mutation(api.masterSync.upsertPlantFromBackend, {
+      serviceToken,
+      source: "sqlite",
+      row: backendRow({ propagation_methods: [] }),
+    } as any);
+    snapshot = await t.query(api.masterSync.listAll, { serviceToken, locale: "en" });
+    expect(snapshot[0].propagationMethods).toBeUndefined();
   });
 });

@@ -10,8 +10,9 @@ import {
     buildGenusTaxonomyKey,
     buildSpeciesTaxonomyKey,
 } from '../../../packages/convex/convex/lib/plantTaxonomyI18n';
+import { normalizePropagationMethods } from '../../../packages/shared/src/plantPropagation';
 
-const PLANTS_CACHE_VERSION = 7;
+const PLANTS_CACHE_VERSION = 8;
 const GROUPS_CACHE_VERSION = 1;
 
 function normalizeLocale(locale?: string) {
@@ -91,6 +92,7 @@ function decoratePlantWithTaxonomy(plant: any) {
 
     return {
         ...plant,
+        propagationMethods: normalizePropagationMethods(plant?.propagationMethods),
         genus,
         species,
         genusNormalized,
@@ -157,7 +159,7 @@ function buildSeedPlantLibrary(locale: string) {
             lightRequirements: plant.lightRequirements,
             germinationDays: plant.germinationDays,
             spacingCm: plant.spacingCm,
-            source: plant.source,
+            propagationMethods: plant.propagationMethods,
             purposes: plant.purposes,
             maxPlantsPerM2: plant.maxPlantsPerM2,
             seedRatePerM2: plant.seedRatePerM2,

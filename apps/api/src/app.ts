@@ -12,6 +12,8 @@ import { createContentSyncRouter } from "./content-sync";
 import { createMasterPlantsRouter, handleMasterPlantsError } from "./master-plants";
 import { createMasterPlantI18nRouter } from "./master-plant-i18n";
 import { createConvexAdminRouter } from "./convex-admin";
+import { createAdaptationTermsRouter } from "./adaptation-terms";
+import { adaptationTermsHealth } from "./master-plants";
 
 interface CreateAppOptions {
   auth: AuthConfig;
@@ -103,6 +105,7 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
       status: "ok",
       timestamp: new Date().toISOString(),
       convex: getHealthConvexReadiness(options.syncService),
+      geography: adaptationTermsHealth(db),
     });
   });
 
@@ -119,6 +122,12 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
     authMiddleware,
     requireRole(["admin", "editor"]),
     createMasterPlantI18nRouter(db, options.syncService),
+  );
+  app.use(
+    "/api/adaptation-terms",
+    authMiddleware,
+    requireRole(["admin", "editor"]),
+    createAdaptationTermsRouter(db, options.syncService),
   );
   app.use("/api/content-sync", authMiddleware, requireRole(["admin"]), createContentSyncRouter());
   app.use("/api/convex-admin", authMiddleware, requireRole(["admin", "editor"]), createConvexAdminRouter(options.syncService));

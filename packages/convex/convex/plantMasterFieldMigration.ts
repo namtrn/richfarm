@@ -16,7 +16,6 @@ export const migrateLegacyPlantMasterFields = mutation({
 
     let migrated = 0;
     let skipped = 0;
-
     for (const row of (rows as any[]).slice(0, limit)) {
       const needsCleanup =
         row.companionPlants !== undefined ||

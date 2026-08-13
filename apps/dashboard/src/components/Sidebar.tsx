@@ -4,6 +4,7 @@ import type { PageKey } from "../types";
 const NAV_ITEMS: { key: PageKey; label: string; icon: string }[] = [
     { key: "plants", label: "Plants", icon: "🌱" },
     { key: "groups", label: "Groups", icon: "📂" },
+    { key: "taxonomy", label: "Taxonomy", icon: "🏷️" },
     { key: "photos", label: "Photos", icon: "📸" },
 ];
 

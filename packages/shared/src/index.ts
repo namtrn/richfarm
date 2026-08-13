@@ -4,3 +4,8 @@ export * from "./plantUiClusters";
 export * from "./plantUiGrouping";
 export * from "./onboardingProfile";
 export * from "./authProfile";
+export * from "./careContentLegacy";
+export * from "./plantCareStatus";
+export * from "./plantPropagation";
+export * from "./countries";
+export * from "./adaptationTerms";

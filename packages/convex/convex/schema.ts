@@ -4,6 +4,34 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+const propagationMethod = v.union(
+  v.literal("seed"),
+  v.literal("stem_cutting"),
+  v.literal("leaf_cutting"),
+  v.literal("root_cutting"),
+  v.literal("division"),
+  v.literal("air_layering"),
+  v.literal("ground_layering"),
+  v.literal("grafting"),
+  v.literal("budding"),
+  v.literal("bulb"),
+  v.literal("corm"),
+  v.literal("tuber"),
+  v.literal("rhizome"),
+  v.literal("runner"),
+  v.literal("offset"),
+  v.literal("sucker"),
+  v.literal("spore"),
+  v.literal("tissue_culture"),
+);
+
+const careSourceRef = v.object({
+  sourceSystem: v.optional(v.string()),
+  sourceName: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
+  sourceLocator: v.optional(v.string()),
+});
+
 export default defineSchema({
   // ==========================================
   // Users (đồng bộ với Convex Auth)
@@ -141,6 +169,9 @@ export default defineSchema({
     // Backend/admin fields kept on the canonical row instead of being hidden
     // in an opaque metadata blob.
     growthStage: v.optional(v.string()),
+    // Rollout-only compatibility fields. Existing plantsMaster documents may
+    // still carry these values until migratePlantMasterCareProfile has
+    // copied them into plantCare and its report is verified at zero.
     soilPhMin: v.optional(v.number()),
     soilPhMax: v.optional(v.number()),
     moistureTarget: v.optional(v.number()),
@@ -208,6 +239,7 @@ export default defineSchema({
     soilPhMax: v.optional(v.number()),
     moistureTarget: v.optional(v.number()),
     lightHours: v.optional(v.number()),
+    propagationMethods: v.optional(v.array(propagationMethod)),
     source: v.optional(v.string()),
     sourceUrl: v.optional(v.string()),
     contentStatus: v.optional(
@@ -244,8 +276,10 @@ export default defineSchema({
             v.literal("not_applicable"),
           ),
           sourceSystem: v.optional(v.string()),
+          sourceName: v.optional(v.string()),
           sourceUrl: v.optional(v.string()),
           sourceLocator: v.optional(v.string()),
+          sourceRefs: v.optional(v.array(careSourceRef)),
           fetchedAt: v.optional(v.number()),
           reviewedAt: v.optional(v.number()),
           reviewedBy: v.optional(v.string()),
@@ -271,6 +305,7 @@ export default defineSchema({
     ),
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.string()),
+    sourceRefs: v.optional(v.array(careSourceRef)),
   }).index("by_plant_locale", ["plantId", "locale"]),
 
   plantRelations: defineTable({
@@ -659,6 +694,57 @@ export default defineSchema({
   })
     .index("by_key", ["key"])
     .index("by_sort_order", ["sortOrder"]),
+
+  // ==========================================
+  // Adaptation taxonomy (canonical reference data, design doc §2.1)
+  // ==========================================
+  adaptationTerms: defineTable({
+    code: v.string(), // stable machine identifier, e.g. "hot", "frost_free"
+    dimension: v.string(), // "temperature" | "moisture" | "climate" | "season"
+    status: v.string(), // "active" | "archived"
+    sortOrder: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_dimension_status_sort", ["dimension", "status", "sortOrder"])
+    .index("by_code", ["code"]),
+
+  adaptationTermI18n: defineTable({
+    termCode: v.string(),
+    locale: v.string(), // "vi" | "en" required for the publication gate; others later
+    label: v.string(),
+    description: v.optional(v.string()),
+    translationStatus: v.string(), // "missing" | "machine_translated" | "qa_passed" | "human_reviewed" | "approved"
+    updatedAt: v.number(),
+  })
+    .index("by_term_locale", ["termCode", "locale"])
+    .index("by_locale", ["locale"]),
+
+  // Plant geography — assignment join tables
+  plantOriginCountries: defineTable({
+    plantId: v.id("plantsMaster"),
+    countryCode: v.string(), // ISO 3166-1 alpha-2, e.g. "US"
+    sourceRefs: v.optional(v.array(careSourceRef)),
+  })
+    .index("by_plant", ["plantId"])
+    .index("by_country", ["countryCode"]),
+
+  plantProvenRegions: defineTable({
+    plantId: v.id("plantsMaster"),
+    countryCode: v.string(),
+    subdivisionCode: v.optional(v.string()), // ISO 3166-2, deferred catalog, format-validated only
+    sourceRefs: v.optional(v.array(careSourceRef)),
+  })
+    .index("by_plant", ["plantId"])
+    .index("by_country", ["countryCode"]),
+
+  plantAdaptationTerms: defineTable({
+    plantId: v.id("plantsMaster"),
+    termCode: v.string(),
+    sourceRefs: v.optional(v.array(careSourceRef)),
+  })
+    .index("by_plant", ["plantId"])
+    .index("by_term", ["termCode"]),
 
   // ==========================================
   // Recipe i18n

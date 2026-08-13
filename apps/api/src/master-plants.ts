@@ -11,6 +11,16 @@ import {
   recomputeCareStatus,
 } from "../../../packages/shared/src/plantCareStatus";
 import {
+  PROPAGATION_METHODS,
+  normalizePropagationMethods,
+} from "../../../packages/shared/src/plantPropagation";
+import {
+  SUBDIVISION_CODE_PATTERN,
+  TERM_CODE_PATTERN,
+  isValidCountryCode,
+} from "../../../packages/shared/src/countries";
+import { ADAPTATION_TERMS } from "../../../packages/shared/src/adaptationTerms";
+import {
   enqueueSyncOutbox,
   processSyncOutbox,
   retryFailedSyncOutbox,
@@ -22,13 +32,27 @@ const reviewStatusSchema = z.enum(["unreviewed", "in_review", "reviewed"]);
 const careStatusSchema = z.enum(["missing", "awaiting_review", "verified", "not_applicable"]);
 const contentOriginSchema = z.enum(["authored", "inherited", "imported"]);
 
+const sourceRefSchema = z.object({
+  sourceSystem: z.string().trim().max(80).nullish(),
+  sourceName: z.string().trim().max(240).nullish(),
+  sourceUrl: z.string().url().nullish(),
+  sourceLocator: z.string().trim().max(240).nullish(),
+});
+
 const careFieldEvidenceSchema = z.record(
   z.string(),
   z.object({
     status: careStatusSchema,
     sourceSystem: z.string().trim().max(80).nullish(),
+    sourceName: z.string().trim().max(240).nullish(),
     sourceUrl: z.string().url().nullish(),
     sourceLocator: z.string().trim().max(240).nullish(),
+    sourceRefs: z.array(z.object({
+      sourceSystem: z.string().trim().max(80).nullish(),
+      sourceName: z.string().trim().max(240).nullish(),
+      sourceUrl: z.string().url().nullish(),
+      sourceLocator: z.string().trim().max(240).nullish(),
+    })).max(50).optional(),
     fetchedAt: z.number().nullish(),
     reviewedAt: z.number().nullish(),
     reviewedBy: z.string().trim().max(240).nullish(),
@@ -38,7 +62,7 @@ const careFieldEvidenceSchema = z.record(
 const localeContentSchema = z.object({
   common_name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(5000).nullish(),
-  care_content_json: z.record(z.string(), z.unknown()).default({}),
+  care_content: z.string().max(50000).nullish(),
   content_version: z.number().int().positive().optional(),
   source: z.string().trim().max(240).nullish(),
   source_url: z.string().url().nullish(),
@@ -47,6 +71,12 @@ const localeContentSchema = z.object({
   reviewed_at: z.string().datetime().nullish(),
   reviewed_by: z.string().trim().max(240).nullish(),
   content_origin: contentOriginSchema.optional(),
+  source_refs: z.array(z.object({
+    sourceSystem: z.string().trim().max(80).nullish(),
+    sourceName: z.string().trim().max(240).nullish(),
+    sourceUrl: z.string().url().nullish(),
+    sourceLocator: z.string().trim().max(240).nullish(),
+  })).max(50).optional(),
 });
 
 const masterPlantObjectSchema = z.object({
@@ -88,6 +118,25 @@ const masterPlantObjectSchema = z.object({
   metadata_json: z.record(z.string(), z.unknown()).default({}),
   care_status: careStatusSchema.optional(),
   care_field_evidence: careFieldEvidenceSchema.optional(),
+  // [] must remain distinguishable from an omitted PATCH field: [] clears,
+  // while omission preserves the current list during merge.
+  propagation_methods: z.array(z.enum(PROPAGATION_METHODS)).max(PROPAGATION_METHODS.length).optional(),
+  // Plant geography adaptation (design doc §2.3). Same []-clears / omission-
+  // preserves convention; Convex remains the authoritative term catalog, so
+  // term codes are structurally validated here and catalog-validated on save.
+  origin_countries: z.array(z.string().regex(/^[A-Z]{2}$/)).max(64).optional(),
+  // Provenance for origin/adaptation assignments (design doc §1.5): keyed by
+  // code, applied together with the category's replace semantics.
+  origin_country_source_refs: z.record(z.string(), z.array(sourceRefSchema)).optional(),
+  proven_regions: z.array(z.object({
+    country_code: z.string().regex(/^[A-Z]{2}$/),
+    // Shape-only here so malformed subdivision codes reach the geography
+    // validator and return a distinct error message (design doc §6.4).
+    subdivision_code: z.string().max(6).optional(),
+    source_refs: z.array(sourceRefSchema).optional(),
+  })).max(128).optional(),
+  adaptation_term_codes: z.array(z.string().regex(TERM_CODE_PATTERN)).max(64).optional(),
+  adaptation_term_source_refs: z.record(z.string(), z.array(sourceRefSchema)).optional(),
   i18n: z
     .object({
       vi: localeContentSchema,
@@ -243,6 +292,7 @@ interface MasterPlantRow {
   sync_origin: string;
   care_status: string;
   care_field_evidence_json: string;
+  propagation_methods_json: string;
   created_at: string;
   updated_at: string;
 }
@@ -253,7 +303,7 @@ interface MasterPlantI18nRow {
   locale: string;
   common_name: string;
   description: string | null;
-  care_content_json: string;
+  care_content: string | null;
   content_version: number;
   source: string | null;
   source_url: string | null;
@@ -262,6 +312,7 @@ interface MasterPlantI18nRow {
   reviewed_at: string | null;
   reviewed_by: string | null;
   content_origin: string;
+  source_refs_json: string;
   created_at: string;
   updated_at: string;
 }
@@ -288,6 +339,47 @@ const SNAKE_TO_CAMEL_CARE_FIELD: Record<string, string> = {
   typical_days_to_harvest: "typicalDaysToHarvest",
   germination_days: "germinationDays",
 };
+
+/** Preserve legacy single-source evidence while exposing canonical refs. */
+function normalizeCareFieldEvidenceMap(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const output: Record<string, unknown> = {};
+  for (const [field, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      output[field] = raw;
+      continue;
+    }
+    const entry = raw as Record<string, unknown>;
+    const refs = Array.isArray(entry.sourceRefs)
+      ? entry.sourceRefs.filter((ref) => ref && typeof ref === "object" && !Array.isArray(ref))
+      : [];
+    if (refs.length === 0 && (entry.sourceSystem || entry.sourceName || entry.sourceUrl || entry.sourceLocator)) {
+      refs.push({
+        ...(entry.sourceSystem ? { sourceSystem: entry.sourceSystem } : {}),
+        ...(entry.sourceName ? { sourceName: entry.sourceName } : {}),
+        ...(entry.sourceUrl ? { sourceUrl: entry.sourceUrl } : {}),
+        ...(entry.sourceLocator ? { sourceLocator: entry.sourceLocator } : {}),
+      });
+    }
+    output[field] = { ...entry, ...(refs.length > 0 ? { sourceRefs: refs } : {}) };
+  }
+  return output;
+}
+
+function normalizePropagationSourceRefs(value: unknown): Array<Record<string, string>> {
+  let parsed = value;
+  if (typeof value === "string") parsed = parseJson(value);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.flatMap((ref) => {
+    if (!ref || typeof ref !== "object" || Array.isArray(ref)) return [];
+    const normalized: Record<string, string> = {};
+    for (const key of ["sourceSystem", "sourceName", "sourceUrl", "sourceLocator"]) {
+      const value = (ref as Record<string, unknown>)[key];
+      if (typeof value === "string" && value.trim()) normalized[key] = value.trim();
+    }
+    return Object.keys(normalized).length > 0 ? [normalized] : [];
+  });
+}
 
 // Resolve the persisted record-level careStatus for a master-plant payload.
 // Contract (Giai đoạn 0): whenever the payload changes care fields or
@@ -323,7 +415,328 @@ export function carePayloadHasChanges(payload: {
   return Object.keys(SNAKE_TO_CAMEL_CARE_FIELD).some((snake) => payload[snake] !== undefined);
 }
 
-export function normalizeMasterPlant(row: MasterPlantRow) {
+// --- Plant geography adaptation (design doc §2.2, §3) -----------------------
+
+interface OriginCountryJoinRow {
+  country_code: string;
+  source_refs_json: string;
+}
+
+interface ProvenRegionJoinRow {
+  country_code: string;
+  subdivision_code: string | null;
+  source_refs_json: string;
+}
+
+interface AdaptationTermJoinRow {
+  term_code: string;
+  source_refs_json: string;
+}
+
+type GeographySource = "own" | "inherited" | "none";
+
+export interface ResolvedGeography {
+  origin_country_codes: string[];
+  origin_country_source: GeographySource;
+  proven_regions: Array<{ country_code: string; subdivision_code?: string }>;
+  proven_region_source: GeographySource;
+  adaptation_term_codes: string[];
+  adaptation_term_source: GeographySource;
+  inherited_from_id: number | null;
+}
+
+function readPlantOriginCountries(db: SqliteDatabase, plantId: number) {
+  return db.prepare(
+    `SELECT country_code, source_refs_json FROM plant_origin_countries WHERE master_plant_id = ? ORDER BY id`,
+  ).all(plantId) as OriginCountryJoinRow[];
+}
+
+function readPlantProvenRegions(db: SqliteDatabase, plantId: number) {
+  return db.prepare(
+    `SELECT country_code, subdivision_code, source_refs_json FROM plant_proven_regions WHERE master_plant_id = ? ORDER BY id`,
+  ).all(plantId) as ProvenRegionJoinRow[];
+}
+
+function readPlantAdaptationTerms(db: SqliteDatabase, plantId: number) {
+  return db.prepare(
+    `SELECT term_code, source_refs_json FROM plant_adaptation_terms WHERE master_plant_id = ? ORDER BY id`,
+  ).all(plantId) as AdaptationTermJoinRow[];
+}
+
+/**
+ * Base-plant lookup for inheritance: same species key, display base, not self.
+ * The optional baseLookup (species key -> base row) lets bulk callers that
+ * already loaded every row resolve inheritance without one full-table scan
+ * per normalized plant; when absent, the legacy per-row query is used.
+ */
+function findSqliteBasePlant(
+  db: SqliteDatabase,
+  row: MasterPlantRow,
+  baseLookup?: Map<string, MasterPlantRow>,
+): MasterPlantRow | undefined {
+  const speciesKey = sqliteSpeciesKey(row);
+  if (!speciesKey) return undefined;
+  if (baseLookup) return baseLookup.get(speciesKey);
+  const siblings = db.prepare(`SELECT * FROM master_plants WHERE id != ?`).all(row.id) as MasterPlantRow[];
+  return siblings.find((candidate) =>
+    sqliteSpeciesKey(candidate) === speciesKey && isSqliteDisplayBasePlant(candidate),
+  );
+}
+
+/**
+ * Category-level fallback (design doc §3.2): own rows win; a cultivar with no
+ * own rows in a category inherits the base plant's rows with `source:
+ * "inherited"`. Base rows are never modified by cultivar edits — resolution is
+ * read-time, so base edits propagate to cultivars automatically.
+ */
+export function resolvePlantGeography(
+  db: SqliteDatabase,
+  row: MasterPlantRow,
+  baseLookup?: Map<string, MasterPlantRow>,
+): ResolvedGeography {
+  const ownOrigins = readPlantOriginCountries(db, row.id);
+  const ownProven = readPlantProvenRegions(db, row.id);
+  const ownTerms = readPlantAdaptationTerms(db, row.id);
+  const base = !isSqliteDisplayBasePlant(row) ? findSqliteBasePlant(db, row, baseLookup) : undefined;
+
+  const origins = ownOrigins.length > 0
+    ? { items: ownOrigins, source: "own" as GeographySource, fromId: row.id }
+    : base
+      ? readPlantOriginCountries(db, base.id).length > 0
+        ? { items: readPlantOriginCountries(db, base.id), source: "inherited" as GeographySource, fromId: base.id }
+        : { items: [] as OriginCountryJoinRow[], source: "none" as GeographySource, fromId: null }
+      : { items: [] as OriginCountryJoinRow[], source: "none" as GeographySource, fromId: null };
+  const proven = ownProven.length > 0
+    ? { items: ownProven, source: "own" as GeographySource, fromId: row.id }
+    : base
+      ? readPlantProvenRegions(db, base.id).length > 0
+        ? { items: readPlantProvenRegions(db, base.id), source: "inherited" as GeographySource, fromId: base.id }
+        : { items: [] as ProvenRegionJoinRow[], source: "none" as GeographySource, fromId: null }
+      : { items: [] as ProvenRegionJoinRow[], source: "none" as GeographySource, fromId: null };
+  const terms = ownTerms.length > 0
+    ? { items: ownTerms, source: "own" as GeographySource, fromId: row.id }
+    : base
+      ? readPlantAdaptationTerms(db, base.id).length > 0
+        ? { items: readPlantAdaptationTerms(db, base.id), source: "inherited" as GeographySource, fromId: base.id }
+        : { items: [] as AdaptationTermJoinRow[], source: "none" as GeographySource, fromId: null }
+      : { items: [] as AdaptationTermJoinRow[], source: "none" as GeographySource, fromId: null };
+
+  const anyInherited = origins.source === "inherited" || proven.source === "inherited" || terms.source === "inherited";
+
+  return {
+    origin_country_codes: origins.items.map((item) => item.country_code),
+    origin_country_source: origins.source,
+    proven_regions: proven.items.map((item) => ({
+      country_code: item.country_code,
+      ...(item.subdivision_code ? { subdivision_code: item.subdivision_code } : {}),
+    })),
+    proven_region_source: proven.source,
+    adaptation_term_codes: terms.items.map((item) => item.term_code),
+    adaptation_term_source: terms.source,
+    inherited_from_id: anyInherited ? base?.id ?? null : null,
+  };
+}
+
+/** Validation error mapped to HTTP 400 by `handleMasterPlantsError`. */
+export class PlantGeographyValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PlantGeographyValidationError";
+  }
+}
+
+/**
+ * Fail-closed assignment validation (design doc §2.4, resolved archived
+ * rule): unknown country codes and malformed subdivision codes are always
+ * rejected; unknown term codes are rejected when the mirror is populated
+ * (never hydrated → Convex remains the authoritative gate and structurally
+ * valid codes pass). An archived term code is rejected only when it is not
+ * already assigned to the plant — matching Convex, so re-saving a plant that
+ * holds an archived assignment (e.g. an unrelated field edit from the
+ * dashboard) succeeds while a new assignment to it fails.
+ * Errors distinguish invalid country, malformed subdivision, unknown term,
+ * and archived term.
+ */
+export function validatePlantGeography(
+  db: SqliteDatabase,
+  plantId: number | null,
+  payload: { origin_countries?: string[]; proven_regions?: Array<{ country_code: string; subdivision_code?: string }>; adaptation_term_codes?: string[] },
+): void {
+  const originCodes = payload.origin_countries ?? [];
+  const seenOriginCodes = new Set<string>();
+  for (const code of originCodes) {
+    if (seenOriginCodes.has(code)) {
+      throw new PlantGeographyValidationError(`Duplicate origin country assignment: ${code}`);
+    }
+    seenOriginCodes.add(code);
+  }
+
+  const seenProvenRegions = new Set<string>();
+  for (const region of payload.proven_regions ?? []) {
+    const key = `${region.country_code}\u0000${region.subdivision_code ?? ""}`;
+    if (seenProvenRegions.has(key)) {
+      const suffix = region.subdivision_code ? `/${region.subdivision_code}` : "";
+      throw new PlantGeographyValidationError(
+        `Duplicate proven region assignment: ${region.country_code}${suffix}`,
+      );
+    }
+    seenProvenRegions.add(key);
+  }
+
+  const seenTermCodes = new Set<string>();
+  for (const code of payload.adaptation_term_codes ?? []) {
+    if (seenTermCodes.has(code)) {
+      throw new PlantGeographyValidationError(`Duplicate adaptation term assignment: ${code}`);
+    }
+    seenTermCodes.add(code);
+  }
+
+  for (const code of originCodes) {
+    if (!isValidCountryCode(code)) {
+      throw new PlantGeographyValidationError(`Unknown country code: ${code}`);
+    }
+  }
+  for (const region of payload.proven_regions ?? []) {
+    if (!isValidCountryCode(region.country_code)) {
+      throw new PlantGeographyValidationError(`Unknown country code: ${region.country_code}`);
+    }
+    if (region.subdivision_code !== undefined && !SUBDIVISION_CODE_PATTERN.test(region.subdivision_code)) {
+      throw new PlantGeographyValidationError(`Invalid subdivision code: ${region.subdivision_code}`);
+    }
+  }
+  if (payload.adaptation_term_codes === undefined) return;
+  const mirror = db.prepare(`SELECT code, status FROM adaptation_terms`).all() as Array<{ code: string; status: string }>;
+  if (mirror.length === 0) return;
+  const known = new Set(mirror.map((row) => row.code));
+  const active = new Set(mirror.filter((row) => row.status === "active").map((row) => row.code));
+  const alreadyAssigned = new Set(
+    plantId === null ? [] : readPlantAdaptationTerms(db, plantId).map((row) => row.term_code),
+  );
+  for (const code of payload.adaptation_term_codes) {
+    if (!known.has(code)) {
+      throw new PlantGeographyValidationError(`Unknown adaptation term code: ${code}`);
+    }
+    if (!active.has(code) && !alreadyAssigned.has(code)) {
+      throw new PlantGeographyValidationError(`Archived adaptation term code: ${code}`);
+    }
+  }
+}
+
+/**
+ * Health report for the taxonomy mirror and geography join tables (design
+ * doc §7.1): mirror row counts, join-row counts, and orphan detection.
+ */
+export function adaptationTermsHealth(db: SqliteDatabase) {
+  const count = (sql: string): number => (db.prepare(sql).get() as { n: number }).n;
+  const termRows = db.prepare(`SELECT code, status FROM adaptation_terms ORDER BY code`).all() as Array<{
+    code: string;
+    status: string;
+  }>;
+  const approvedCodes = new Set<string>(ADAPTATION_TERMS.map((term) => term.code));
+  const actualCodes = new Set(termRows.map((term) => term.code));
+  const extraTermCodes = termRows
+    .map((term) => term.code)
+    .filter((code) => !approvedCodes.has(code));
+  const missingTermCodes = ADAPTATION_TERMS
+    .map((term) => term.code)
+    .filter((code) => !actualCodes.has(code));
+  return {
+    mirror: {
+      terms: count(`SELECT COUNT(*) AS n FROM adaptation_terms`),
+      i18n: count(`SELECT COUNT(*) AS n FROM adaptation_term_i18n`),
+    },
+    taxonomy: {
+      expectedTerms: ADAPTATION_TERMS.length,
+      expectedTranslations: ADAPTATION_TERMS.length * 2,
+      activeTerms: termRows.filter((term) => term.status === "active").length,
+      activeTranslations: count(`
+        SELECT COUNT(*) AS n
+        FROM adaptation_term_i18n i
+        INNER JOIN adaptation_terms t ON t.code = i.term_code
+        WHERE t.status = 'active' AND i.locale IN ('vi', 'en')
+      `),
+      extraTermCodes,
+      missingTermCodes,
+    },
+    joins: {
+      origin: count(`SELECT COUNT(*) AS n FROM plant_origin_countries`),
+      provenRegions: count(`SELECT COUNT(*) AS n FROM plant_proven_regions`),
+      adaptationTerms: count(`SELECT COUNT(*) AS n FROM plant_adaptation_terms`),
+    },
+    orphans: {
+      origin: count(`SELECT COUNT(*) AS n FROM plant_origin_countries o LEFT JOIN master_plants p ON p.id = o.master_plant_id WHERE p.id IS NULL`),
+      provenRegions: count(`SELECT COUNT(*) AS n FROM plant_proven_regions o LEFT JOIN master_plants p ON p.id = o.master_plant_id WHERE p.id IS NULL`),
+      adaptationTerms: count(`SELECT COUNT(*) AS n FROM plant_adaptation_terms o LEFT JOIN master_plants p ON p.id = o.master_plant_id WHERE p.id IS NULL`),
+      adaptationTermCodes: count(`SELECT COUNT(*) AS n FROM plant_adaptation_terms o LEFT JOIN adaptation_terms t ON t.code = o.term_code WHERE t.code IS NULL`),
+      i18n: count(`SELECT COUNT(*) AS n FROM adaptation_term_i18n t LEFT JOIN adaptation_terms m ON m.code = t.term_code WHERE m.code IS NULL`),
+    },
+  };
+}
+
+/** Replace-semantics writes: present field replaces the plant's own rows; omitted field leaves them untouched. */
+function replacePlantOriginCountries(db: SqliteDatabase, plantId: number, entries: Array<{ country_code: string; source_refs?: unknown }>): void {
+  db.prepare(`DELETE FROM plant_origin_countries WHERE master_plant_id = ?`).run(plantId);
+  const insert = db.prepare(
+    `INSERT INTO plant_origin_countries (master_plant_id, country_code, source_refs_json) VALUES (?, ?, ?)`,
+  );
+  for (const entry of entries) {
+    insert.run(plantId, entry.country_code, JSON.stringify(entry.source_refs ?? []));
+  }
+}
+
+function replacePlantProvenRegions(db: SqliteDatabase, plantId: number, entries: Array<{ country_code: string; subdivision_code?: string; source_refs?: unknown }>): void {
+  db.prepare(`DELETE FROM plant_proven_regions WHERE master_plant_id = ?`).run(plantId);
+  const insert = db.prepare(
+    `INSERT INTO plant_proven_regions (master_plant_id, country_code, subdivision_code, source_refs_json) VALUES (?, ?, ?, ?)`,
+  );
+  for (const entry of entries) {
+    insert.run(plantId, entry.country_code, entry.subdivision_code ?? null, JSON.stringify(entry.source_refs ?? []));
+  }
+}
+
+function replacePlantAdaptationTerms(db: SqliteDatabase, plantId: number, entries: Array<{ term_code: string; source_refs?: unknown }>): void {
+  db.prepare(`DELETE FROM plant_adaptation_terms WHERE master_plant_id = ?`).run(plantId);
+  const insert = db.prepare(
+    `INSERT INTO plant_adaptation_terms (master_plant_id, term_code, source_refs_json) VALUES (?, ?, ?)`,
+  );
+  for (const entry of entries) {
+    insert.run(plantId, entry.term_code, JSON.stringify(entry.source_refs ?? []));
+  }
+}
+
+function applyPlantGeographyPayload(
+  db: SqliteDatabase,
+  plantId: number,
+  payload: z.infer<typeof createMasterPlantSchema>,
+): void {
+  if (payload.origin_countries !== undefined) {
+    const refs = payload.origin_country_source_refs ?? {};
+    replacePlantOriginCountries(db, plantId, payload.origin_countries.map((country_code) => ({
+      country_code,
+      source_refs: refs[country_code],
+    })));
+  }
+  if (payload.proven_regions !== undefined) {
+    replacePlantProvenRegions(db, plantId, payload.proven_regions.map((region) => ({
+      country_code: region.country_code,
+      ...(region.subdivision_code ? { subdivision_code: region.subdivision_code } : {}),
+      source_refs: region.source_refs,
+    })));
+  }
+  if (payload.adaptation_term_codes !== undefined) {
+    const refs = payload.adaptation_term_source_refs ?? {};
+    replacePlantAdaptationTerms(db, plantId, payload.adaptation_term_codes.map((term_code) => ({
+      term_code,
+      source_refs: refs[term_code],
+    })));
+  }
+}
+
+export function normalizeMasterPlant(
+  db: SqliteDatabase,
+  row: MasterPlantRow,
+  baseLookup?: Map<string, MasterPlantRow>,
+) {
   return {
     id: row.id,
     plant_code: row.plant_code,
@@ -363,7 +776,24 @@ export function normalizeMasterPlant(row: MasterPlantRow) {
     reviewed_by: row.reviewed_by,
     sync_origin: row.sync_origin,
     care_status: row.care_status,
-    care_field_evidence: parseJson(row.care_field_evidence_json) || {},
+    care_field_evidence: normalizeCareFieldEvidenceMap(parseJson(row.care_field_evidence_json)),
+    propagation_methods: normalizePropagationMethods(parseJson(row.propagation_methods_json)),
+    propagationMethods: normalizePropagationMethods(parseJson(row.propagation_methods_json)),
+    // Own rows (for editing) plus the read-time resolved view (for display).
+    // Provenance is preserved end to end for every assignment category.
+    origin_countries: readPlantOriginCountries(db, row.id).map((item) => item.country_code),
+    origin_country_source_refs: Object.fromEntries(
+      readPlantOriginCountries(db, row.id).map((item) => [item.country_code, parseJson(item.source_refs_json) ?? []]),
+    ),
+    proven_regions: readPlantProvenRegions(db, row.id).map((item) => ({
+      country_code: item.country_code,
+      ...(item.subdivision_code ? { subdivision_code: item.subdivision_code } : {}),
+    })),
+    adaptation_term_codes: readPlantAdaptationTerms(db, row.id).map((item) => item.term_code),
+    adaptation_term_source_refs: Object.fromEntries(
+      readPlantAdaptationTerms(db, row.id).map((item) => [item.term_code, parseJson(item.source_refs_json) ?? []]),
+    ),
+    resolved_geography: resolvePlantGeography(db, row, baseLookup),
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -373,7 +803,7 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
   const result: Record<string, {
     common_name: string;
     description?: string;
-    care_content_json?: Record<string, unknown>;
+    care_content?: string;
     content_version?: number;
     source?: string;
     source_url?: string;
@@ -382,16 +812,29 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
     reviewed_at?: string;
     reviewed_by?: string;
     content_origin?: string;
+    source_refs?: Array<{
+      sourceSystem?: string | null;
+      sourceName?: string | null;
+      sourceUrl?: string | null;
+      sourceLocator?: string | null;
+    }>;
   }> = {
     vi: { common_name: "" },
     en: { common_name: "" },
   };
 
   for (const row of rows) {
+    const sourceRefs = normalizePropagationSourceRefs(row.source_refs_json);
+    if (sourceRefs.length === 0 && (row.source || row.source_url)) {
+      sourceRefs.push({
+        ...(row.source ? { sourceName: row.source } : {}),
+        ...(row.source_url ? { sourceUrl: row.source_url } : {}),
+      });
+    }
     result[row.locale] = {
       common_name: row.common_name,
       ...(row.description ? { description: row.description } : {}),
-      care_content_json: parseJson(row.care_content_json) || {},
+      ...(row.care_content ? { care_content: row.care_content } : {}),
       content_version: row.content_version,
       ...(row.source ? { source: row.source } : {}),
       ...(row.source_url ? { source_url: row.source_url } : {}),
@@ -400,6 +843,9 @@ export function normalizeI18n(rows: MasterPlantI18nRow[]) {
       ...(row.reviewed_at ? { reviewed_at: row.reviewed_at } : {}),
       ...(row.reviewed_by ? { reviewed_by: row.reviewed_by } : {}),
       content_origin: row.content_origin,
+      ...(sourceRefs.length > 0
+        ? { source_refs: sourceRefs }
+        : {}),
     };
   }
 
@@ -412,7 +858,7 @@ export function upsertI18n(
   i18n: Record<string, {
     common_name: string;
     description?: string | null;
-    care_content_json?: Record<string, unknown>;
+    care_content?: string | null;
     content_version?: number;
     source?: string | null;
     source_url?: string | null;
@@ -421,6 +867,12 @@ export function upsertI18n(
     reviewed_at?: string | null;
     reviewed_by?: string | null;
     content_origin?: string;
+    source_refs?: Array<{
+      sourceSystem?: string | null;
+      sourceName?: string | null;
+      sourceUrl?: string | null;
+      sourceLocator?: string | null;
+    }>;
   }>,
 ) {
   const locales = new Set(Object.keys(i18n).map((locale) => locale.trim().toLowerCase()));
@@ -435,16 +887,24 @@ export function upsertI18n(
 
   for (const [locale, payload] of Object.entries(i18n)) {
     if (!payload || !payload.common_name) continue;
+    // Three-state contract: absent/undefined preserves, null or empty clears
+    // (SQLite NULL), non-empty string upserts byte-for-byte.
+    const careContent =
+      payload.care_content !== undefined &&
+      payload.care_content !== null &&
+      payload.care_content.trim() !== ""
+        ? payload.care_content
+        : null;
     db.prepare(
       `INSERT INTO master_plant_i18n (
-        master_plant_id, locale, common_name, description, care_content_json,
+        master_plant_id, locale, common_name, description, care_content,
         content_version, source, source_url, content_status, review_status,
-        reviewed_at, reviewed_by, content_origin
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        reviewed_at, reviewed_by, content_origin, source_refs_json
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT(master_plant_id, locale) DO UPDATE SET
          common_name = excluded.common_name,
          description = excluded.description,
-         care_content_json = excluded.care_content_json,
+         care_content = excluded.care_content,
          content_version = excluded.content_version,
          source = excluded.source,
          source_url = excluded.source_url,
@@ -453,13 +913,14 @@ export function upsertI18n(
          reviewed_at = excluded.reviewed_at,
          reviewed_by = excluded.reviewed_by,
          content_origin = excluded.content_origin,
+         source_refs_json = excluded.source_refs_json,
          updated_at = datetime('now')`,
     ).run(
       masterPlantId,
       locale,
       payload.common_name,
       payload.description ?? null,
-      JSON.stringify(payload.care_content_json ?? {}),
+      careContent,
       payload.content_version ?? 1,
       payload.source ?? null,
       payload.source_url ?? null,
@@ -468,6 +929,7 @@ export function upsertI18n(
       payload.reviewed_at ?? null,
       payload.reviewed_by ?? null,
       payload.content_origin ?? "imported",
+      JSON.stringify(normalizePropagationSourceRefs(payload.source_refs ?? [])),
     );
   }
 }
@@ -498,7 +960,7 @@ export function buildMasterPlantPayload(
   i18n = fetchI18n(db, row.id),
 ) {
   return withSourceIdentity(createMasterPlantSchema.parse({
-    ...normalizeMasterPlant(row),
+    ...normalizeMasterPlant(db, row),
     i18n,
   }));
 }
@@ -635,7 +1097,7 @@ export function queueLocalAuthoringPlantsForPublish(
         identitiesAssigned++;
       }
       const payload = withSourceIdentity(createMasterPlantSchema.parse({
-        ...normalizeMasterPlant(row),
+        ...normalizeMasterPlant(db, row),
         source_system: row.source_system?.trim() || "sqlite",
         source_id: sourceId,
         i18n: fetchI18n(db, row.id),
@@ -645,6 +1107,92 @@ export function queueLocalAuthoringPlantsForPublish(
     }
     return { scanned: rows.length, queued: rows.length, identitiesAssigned };
   })();
+}
+
+export interface LegacyPropagationMigrationReport {
+  dryRun: boolean;
+  scanned: number;
+  eligible: number;
+  migrated: number;
+  manualReview: number;
+  failures: Array<{ id: number; source: string; reason: string }>;
+  bySource: Record<string, { eligible: number; migrated: number; manualReview: number }>;
+  mustRunBeforeCanonicalMetadataBackfill: true;
+}
+
+/** SQLite mirror equivalent of the Convex legacy propagation migration. */
+export function migrateLegacyPropagationMethods(
+  db: SqliteDatabase,
+  options: { dryRun?: boolean; limit?: number } = {},
+): LegacyPropagationMigrationReport {
+  const dryRun = options.dryRun ?? true;
+  const rows = db.prepare(`SELECT * FROM master_plants ORDER BY id ASC LIMIT ?`)
+    .all(Math.max(1, Math.min(options.limit ?? 5000, 5000))) as MasterPlantRow[];
+  const bySource: LegacyPropagationMigrationReport["bySource"] = {
+    seed: { eligible: 0, migrated: 0, manualReview: 0 },
+    cutting: { eligible: 0, migrated: 0, manualReview: 0 },
+    bulb: { eligible: 0, migrated: 0, manualReview: 0 },
+  };
+  const report: LegacyPropagationMigrationReport = {
+    dryRun,
+    scanned: rows.length,
+    eligible: 0,
+    migrated: 0,
+    manualReview: 0,
+    failures: [],
+    bySource,
+    mustRunBeforeCanonicalMetadataBackfill: true,
+  };
+  const mapping: Record<string, string> = { seed: "seed", cutting: "stem_cutting", bulb: "bulb" };
+
+  const sourceBucket = (source: string) => {
+    if (!bySource[source]) bySource[source] = { eligible: 0, migrated: 0, manualReview: 0 };
+    return bySource[source];
+  };
+
+  for (const row of rows) {
+    const metadata = parseJson(row.metadata_json);
+    const source = typeof metadata?.source === "string" ? metadata.source.trim().toLowerCase() : "";
+    if (!source) continue;
+    const bucket = sourceBucket(source);
+    if (!(source in mapping)) {
+      report.manualReview += 1;
+      bucket.manualReview += 1;
+      continue;
+    }
+    const sourceSystem = row.source_system?.trim() ?? "";
+    const sourceId = row.source_id?.trim() ?? "";
+    const signatureBackfill = sourceSystem === "convex" && sourceId === String(row.id);
+    if ((sourceSystem || sourceId) && !signatureBackfill) {
+      report.manualReview += 1;
+      bucket.manualReview += 1;
+      continue;
+    }
+    report.eligible += 1;
+    bucket.eligible += 1;
+    const current = normalizePropagationMethods(parseJson(row.propagation_methods_json)) ?? [];
+    const next = normalizePropagationMethods([...current, mapping[source]]);
+    if (!next) {
+      report.failures.push({ id: row.id, source, reason: "normalization produced no method" });
+      continue;
+    }
+    if (dryRun) continue;
+    try {
+      const nextMetadata = { ...(metadata && typeof metadata === "object" ? metadata : {}) } as Record<string, unknown>;
+      delete nextMetadata.source;
+      db.prepare(`UPDATE master_plants SET propagation_methods_json = ?, metadata_json = ?, updated_at = datetime('now') WHERE id = ?`)
+        .run(JSON.stringify(next), JSON.stringify(nextMetadata), row.id);
+      const check = db.prepare(`SELECT propagation_methods_json FROM master_plants WHERE id = ?`).get(row.id) as { propagation_methods_json: string } | undefined;
+      if (!normalizePropagationMethods(parseJson(check?.propagation_methods_json ?? "[]"))?.includes(mapping[source] as any)) {
+        throw new Error("propagation read-back did not contain mapped method");
+      }
+      report.migrated += 1;
+      bucket.migrated += 1;
+    } catch (error) {
+      report.failures.push({ id: row.id, source, reason: error instanceof Error ? error.message : String(error) });
+    }
+  }
+  return report;
 }
 
 function slugifyPlantCode(value: string) {
@@ -671,7 +1219,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
   const i18n: Record<string, {
     common_name: string;
     description?: string;
-    care_content_json?: Record<string, unknown>;
+    care_content?: string;
     content_version?: number;
     source?: string;
     source_url?: string;
@@ -686,7 +1234,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     i18n[row.locale] = {
       common_name: row.commonName,
       ...(row.description ? { description: row.description } : {}),
-      ...(row.careContent ? { care_content_json: parseJson(row.careContent) || {} } : {}),
+      ...(row.careContent ? { care_content: row.careContent } : {}),
       ...(row.contentVersion !== undefined ? { content_version: row.contentVersion } : {}),
       ...(row.source ? { source: row.source } : {}),
       ...(row.sourceUrl ? { source_url: row.sourceUrl } : {}),
@@ -695,6 +1243,7 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
       ...(row.reviewedAt ? { reviewed_at: new Date(row.reviewedAt).toISOString() } : {}),
       ...(row.reviewedBy ? { reviewed_by: row.reviewedBy } : {}),
       ...(row.contentOrigin ? { content_origin: row.contentOrigin } : {}),
+      ...(row.sourceRefs ? { source_refs: row.sourceRefs } : {}),
     };
   }
 
@@ -736,7 +1285,9 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     reviewed_by: plant.reviewedBy ?? null,
     sync_origin: "mirror",
     care_status: plant.careStatus ?? "missing",
-    care_field_evidence: {},
+    care_field_evidence: plant.careFieldEvidence ?? {},
+    propagation_methods: normalizePropagationMethods(plant.propagationMethods),
+    propagationMethods: normalizePropagationMethods(plant.propagationMethods),
     metadata_json: {
       source: plant.source ?? "convex",
       convexId: plant._id,
@@ -861,6 +1412,10 @@ export function upsertMasterPlantRow(
     }
   }
 
+  // The archived-term rule needs the resolved plant identity so an
+  // already-assigned archived code can be re-saved (unrelated edits).
+  validatePlantGeography(db, existing?.id ?? null, payload);
+
   if (existing) {
     const existingRow = db.prepare(
       `SELECT care_status, care_field_evidence_json FROM master_plants WHERE id = ?`,
@@ -915,6 +1470,7 @@ export function upsertMasterPlantRow(
         sync_origin = ?,
         care_status = ?,
         care_field_evidence_json = ?,
+        propagation_methods_json = ?,
         updated_at = datetime('now')
       WHERE id = ?`,
     ).run(
@@ -956,8 +1512,10 @@ export function upsertMasterPlantRow(
       payload.sync_origin,
       resolvedCareStatus,
       JSON.stringify(resolvedEvidence),
+      JSON.stringify(normalizePropagationMethods(payload.propagation_methods) ?? []),
       existing.id,
     );
+    applyPlantGeographyPayload(db, existing.id, payload);
     upsertI18n(db, existing.id, i18nPayload);
     return existing.id;
   }
@@ -1002,7 +1560,8 @@ export function upsertMasterPlantRow(
         reviewed_by,
         sync_origin,
         care_status,
-        care_field_evidence_json
+        care_field_evidence_json,
+        propagation_methods_json
       ) VALUES (
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
@@ -1010,7 +1569,7 @@ export function upsertMasterPlantRow(
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?, ?,
-        ?, ?
+        ?, ?, ?
       )`,
     )
     .run(
@@ -1052,8 +1611,10 @@ export function upsertMasterPlantRow(
       payload.sync_origin,
       resolveCareStatus(payload),
       JSON.stringify(payload.care_field_evidence ?? {}),
+      JSON.stringify(normalizePropagationMethods(payload.propagation_methods) ?? []),
     );
   const id = Number(result.lastInsertRowid);
+  applyPlantGeographyPayload(db, id, payload);
   upsertI18n(db, id, i18nPayload);
   return id;
 }
@@ -1107,6 +1668,7 @@ function convexPlantToCreatePayload(plant: ReturnType<typeof normalizeConvexPlan
     reviewed_by: plant.reviewed_by,
     sync_origin: plant.sync_origin,
     metadata_json: plant.metadata_json,
+    propagation_methods: plant.propagation_methods,
     i18n,
   });
 }
@@ -1125,7 +1687,17 @@ const exportQuerySchema = z.object({
     .transform((v) => (v === undefined ? undefined : v === "true" || v === "1")),
 });
 
-function toCsv(rows: ReturnType<typeof normalizeMasterPlant>[], i18nMap: Map<number, ReturnType<typeof normalizeI18n>>): string {
+type MasterPlantCsvRow = Omit<
+  ReturnType<typeof normalizeMasterPlant>,
+  | "origin_countries"
+  | "origin_country_source_refs"
+  | "proven_regions"
+  | "adaptation_term_codes"
+  | "adaptation_term_source_refs"
+  | "resolved_geography"
+>;
+
+function toCsv(rows: MasterPlantCsvRow[], i18nMap: Map<number, ReturnType<typeof normalizeI18n>>): string {
   const headers = [
     "id", "plant_code", "common_name", "scientific_name", "source_system", "source_id", "record_version",
     "category", "group", "family", "growth_stage", "typical_days_to_harvest", "germination_days",
@@ -1134,12 +1706,12 @@ function toCsv(rows: ReturnType<typeof normalizeMasterPlant>[], i18nMap: Map<num
     "light_requirements", "spacing_cm", "max_plants_per_m2", "seed_rate_per_m2",
     "water_liters_per_m2", "yield_kg_per_m2", "image_url", "is_active", "notes",
     "source_url", "content_status", "content_version", "review_status", "reviewed_at", "reviewed_by",
-    "metadata_json", "vi_common_name", "vi_description", "vi_care_content_json",
-    "en_common_name", "en_description", "en_care_content_json",
-    "es_common_name", "es_description", "es_care_content_json",
-    "fr_common_name", "fr_description", "fr_care_content_json",
-    "pt_common_name", "pt_description", "pt_care_content_json",
-    "zh_common_name", "zh_description", "zh_care_content_json",
+    "metadata_json", "propagation_methods", "vi_common_name", "vi_description", "vi_care_content",
+    "en_common_name", "en_description", "en_care_content",
+    "es_common_name", "es_description", "es_care_content",
+    "fr_common_name", "fr_description", "fr_care_content",
+    "pt_common_name", "pt_description", "pt_care_content",
+    "zh_common_name", "zh_description", "zh_care_content",
     "created_at", "updated_at",
   ];
   const escape = (v: unknown) => {
@@ -1158,7 +1730,7 @@ function toCsv(rows: ReturnType<typeof normalizeMasterPlant>[], i18nMap: Map<num
       return [
         value?.common_name ?? "",
         value?.description ?? "",
-        JSON.stringify(value?.care_content_json ?? {}),
+        value?.care_content ?? "",
       ];
     });
     lines.push([
@@ -1170,7 +1742,7 @@ function toCsv(rows: ReturnType<typeof normalizeMasterPlant>[], i18nMap: Map<num
       row.light_requirements, row.spacing_cm, row.max_plants_per_m2, row.seed_rate_per_m2,
       row.water_liters_per_m2, row.yield_kg_per_m2, row.image_url, row.is_active, row.notes,
       row.source_url, row.content_status, row.content_version, row.review_status, row.reviewed_at, row.reviewed_by,
-      JSON.stringify(row.metadata_json),
+      JSON.stringify(row.metadata_json), JSON.stringify(row.propagation_methods ?? []),
       ...localeCells,
       row.created_at, row.updated_at,
     ].map(escape).join(","));
@@ -1314,7 +1886,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           const rows = db.prepare(`SELECT * FROM master_plants WHERE id IN (${placeholders})`).all(...payload.ids) as MasterPlantRow[];
           for (const row of rows) {
             const merged = withSourceIdentity(createMasterPlantSchema.parse({
-              ...normalizeMasterPlant(row),
+              ...normalizeMasterPlant(db, row),
               i18n: fetchI18n(db, row.id),
               is_active: true,
             }));
@@ -1329,7 +1901,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           const rows = db.prepare(`SELECT * FROM master_plants WHERE id IN (${placeholders})`).all(...payload.ids) as MasterPlantRow[];
           for (const row of rows) {
             const merged = withSourceIdentity(createMasterPlantSchema.parse({
-              ...normalizeMasterPlant(row),
+              ...normalizeMasterPlant(db, row),
               i18n: fetchI18n(db, row.id),
               is_active: false,
             }));
@@ -1440,7 +2012,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         .prepare(`SELECT * FROM master_plants ${where} ORDER BY id ASC`)
         .all(...params) as MasterPlantRow[];
 
-      const normalized = rows.map(normalizeMasterPlant);
+      const normalized = rows.map((row) => normalizeMasterPlant(db, row));
 
       if (query.format === "csv") {
         const i18nMap = new Map<number, ReturnType<typeof normalizeI18n>>();
@@ -1523,13 +2095,16 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       const requestedGroup = requestedGroupValue === "all" ? "" : requestedGroupValue;
       const missingI18n = Boolean(query.missing_i18n || query.filter_missing_i18n);
       const noImage = Boolean(query.no_image || query.filter_no_image);
+      // Filter and sort on raw row/i18n fields first: normalizeMasterPlant
+      // resolves geography (origin countries, proven regions, adaptation
+      // terms, inheritance) with several queries per plant, so it must only
+      // run for the page slice actually returned to the dashboard.
       const filtered = rows
-        .map((row) => {
-          const i18n = i18nByPlant.get(row.id) ?? { vi: { common_name: "" }, en: { common_name: "" } };
-          const normalized = normalizeMasterPlant(row);
-          return { row, normalized, i18n };
-        })
-        .filter(({ row, normalized, i18n }) => {
+        .map((row) => ({
+          row,
+          i18n: i18nByPlant.get(row.id) ?? { vi: { common_name: "" }, en: { common_name: "" } },
+        }))
+        .filter(({ row, i18n }) => {
           if (typeof query.is_active === "boolean" && Boolean(row.is_active) !== query.is_active) {
             return false;
           }
@@ -1539,19 +2114,19 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           if (missingI18n && i18n.vi?.common_name?.trim() && i18n.en?.common_name?.trim()) {
             return false;
           }
-          if (noImage && normalized.image_url) {
+          if (noImage && row.image_url) {
             return false;
           }
           if (!needle) {
             return true;
           }
           const haystack = [
-            normalized.plant_code,
-            normalized.common_name,
-            normalized.scientific_name,
-            normalized.family,
-            normalized.group,
-            normalized.category,
+            row.plant_code,
+            row.common_name,
+            row.scientific_name,
+            row.family,
+            row.group,
+            row.category,
             ...Object.values(i18n).flatMap((locale) => [locale?.common_name, locale?.description]),
           ]
             .map(normalizePlantSearchText)
@@ -1562,25 +2137,34 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       // Keep cluster order stable across pages. The dashboard can therefore
       // render a family/common header without rows jumping between requests.
       filtered.sort((left, right) => {
-        const leftMetadata = left.normalized.metadata_json as Record<string, unknown>;
-        const rightMetadata = right.normalized.metadata_json as Record<string, unknown>;
+        const leftMetadata = (parseJson(left.row.metadata_json) || {}) as Record<string, unknown>;
+        const rightMetadata = (parseJson(right.row.metadata_json) || {}) as Record<string, unknown>;
         const leftCluster = query.view_mode === "family"
-          ? left.normalized.family ?? ""
+          ? left.row.family ?? ""
           : (typeof leftMetadata.commonNameGroupKey === "string" && leftMetadata.commonNameGroupKey)
-            || String(left.normalized.scientific_name ?? "").split(/\s+/, 1)[0]
-            || left.normalized.group;
+            || String(left.row.scientific_name ?? "").split(/\s+/, 1)[0]
+            || left.row.group;
         const rightCluster = query.view_mode === "family"
-          ? right.normalized.family ?? ""
+          ? right.row.family ?? ""
           : (typeof rightMetadata.commonNameGroupKey === "string" && rightMetadata.commonNameGroupKey)
-            || String(right.normalized.scientific_name ?? "").split(/\s+/, 1)[0]
-            || right.normalized.group;
+            || String(right.row.scientific_name ?? "").split(/\s+/, 1)[0]
+            || right.row.group;
         return normalizePlantSearchText(leftCluster).localeCompare(normalizePlantSearchText(rightCluster), "vi")
-          || normalizePlantSearchText(left.normalized.common_name).localeCompare(normalizePlantSearchText(right.normalized.common_name), "vi")
+          || normalizePlantSearchText(left.row.common_name).localeCompare(normalizePlantSearchText(right.row.common_name), "vi")
           || left.row.id - right.row.id;
       });
       const offset = (query.page - 1) * query.page_size;
-      const data = filtered.slice(offset, offset + query.page_size).map(({ normalized, i18n }) => ({
-        ...normalized,
+      // Inheritance resolution needs the display base plant per species key.
+      // The full row set is already loaded for filtering, so resolve it once
+      // instead of scanning the whole table again for every page row.
+      const baseBySpeciesKey = new Map<string, MasterPlantRow>();
+      for (const candidate of rows) {
+        if (!isSqliteDisplayBasePlant(candidate)) continue;
+        const key = sqliteSpeciesKey(candidate);
+        if (key && !baseBySpeciesKey.has(key)) baseBySpeciesKey.set(key, candidate);
+      }
+      const data = filtered.slice(offset, offset + query.page_size).map(({ row, i18n }) => ({
+        ...normalizeMasterPlant(db, row, baseBySpeciesKey),
         i18n,
       }));
 
@@ -1640,7 +2224,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      res.json({ data: { ...normalizeMasterPlant(row), i18n: fetchI18n(db, row.id) } });
+      res.json({ data: { ...normalizeMasterPlant(db, row), i18n: fetchI18n(db, row.id) } });
     } catch (error) {
       next(error);
     }
@@ -1665,7 +2249,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       const row = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(rowId) as MasterPlantRow;
 
       res.status(201).json({
-        data: { ...normalizeMasterPlant(row), i18n: fetchI18n(db, row.id) },
+        data: { ...normalizeMasterPlant(db, row), i18n: fetchI18n(db, row.id) },
         queued,
       });
     } catch (error) {
@@ -1689,7 +2273,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
 
       const currentI18n = fetchI18n(db, currentRow.id);
       const mergedPayload = withSourceIdentity(createMasterPlantSchema.parse({
-        ...normalizeMasterPlant(currentRow),
+        ...normalizeMasterPlant(db, currentRow),
         i18n: currentI18n,
         ...payload,
         // Clearing the UI field must not silently rotate the stable upstream
@@ -1712,7 +2296,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return id;
       })();
       const updatedRow = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(rowId) as MasterPlantRow;
-      res.json({ data: { ...normalizeMasterPlant(updatedRow), i18n: fetchI18n(db, rowId) }, queued });
+      res.json({ data: { ...normalizeMasterPlant(db, updatedRow), i18n: fetchI18n(db, rowId) }, queued });
     } catch (error) {
       next(error);
     }
@@ -1760,6 +2344,11 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
 }
 
 export function handleMasterPlantsError(error: unknown, res: Response): boolean {
+  if (error instanceof PlantGeographyValidationError) {
+    res.status(400).json({ error: error.message });
+    return true;
+  }
+
   if (error instanceof ZodError) {
     res.status(400).json({
       error: "Validation failed",

@@ -30,15 +30,18 @@ import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { usePlantScanner } from '../../../hooks/usePlantScanner';
 import { formatLengthCm, formatSeedsPerArea, formatPlantsPerArea, formatWaterPerArea, formatYieldPerArea } from '../../../lib/units';
 import { matchesSearch } from '../../../lib/search';
+import { matchesPlantLibrarySearch } from '../../../lib/plantLibrarySearch';
 import { formatPlantFamilyDisplayName } from '../../../../../packages/shared/src/plantFamily';
 import { isDisplayBasePlant } from '../../../../../packages/shared/src/plantBase';
 import { useFavorites } from '../../../hooks/useFavorites';
 import { usePestsDiseases, PestDiseaseType } from '../../../hooks/usePestsDiseases';
-import { loadCachedCareContent, parseCareContent, saveCareContent, type PlantCareContent } from '../../../lib/plantCareCache';
+import { loadCachedCareContent, saveCareContent } from '../../../lib/plantCareCache';
+import { MarkdownText } from '../../../components/MarkdownText';
 import { useTheme } from '../../../lib/theme';
 import { useThemeContext } from '../../../lib/ThemeContext';
 import { compareGroupsForOnboarding, getGroupPersonalizationScore, getOnboardingFocusItems, scorePlantForOnboarding } from '../../../lib/personalization';
 import { buildSortedPlantUiClusters } from '../../../../../packages/shared/src/plantUiClusters';
+import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
 import { AddPlantTargetModal, type AddPlantTargetMode } from '../../../components/ui/AddPlantTargetModal';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
@@ -126,16 +129,46 @@ const LIGHT_META: Record<string, { key: string; color: string }> = {
     shade: { key: 'library.light_shade', color: '#78716c' },
 };
 
-const CARE_SECTION_META: Array<{ key: keyof PlantCareContent; titleKey: string }> = [
-    { key: 'watering', titleKey: 'library.care_watering' },
-    { key: 'fertilizing', titleKey: 'library.care_fertilizing' },
-    { key: 'location', titleKey: 'library.care_location' },
-    { key: 'soil', titleKey: 'library.care_soil' },
-    { key: 'nutrition', titleKey: 'library.care_nutrition' },
-    { key: 'propagation', titleKey: 'library.care_propagation' },
-    { key: 'temperature', titleKey: 'library.care_temperature' },
-    { key: 'toxicity', titleKey: 'library.care_toxicity' },
-];
+function humanizePropagationMethod(method: string) {
+    return method
+        .split('_')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+
+function propagationLabels(plant: any, translate: (key: string, options?: any) => string) {
+    return (normalizePropagationMethods(plant?.propagationMethods) ?? []).map((method) =>
+        translate(`library.propagation_method_${method}`, {
+            defaultValue: humanizePropagationMethod(method),
+        })
+    );
+}
+
+const EDIBLE_PURPOSES = new Set([
+    'cooking',
+    'cooking_spices',
+    'dessert',
+    'fresh_eating',
+    'juice',
+    'salad',
+]);
+
+function libraryCardLabels(plant: any, translate: (key: string, options?: any) => string) {
+    const labels: string[] = [];
+    const group = typeof plant?.group === 'string' ? plant.group.trim() : '';
+
+    if (group) {
+        labels.push(translate(`plantGroups.${group}`, { defaultValue: group.replace(/_/g, ' ') }));
+    }
+
+    if ((plant?.purposes ?? []).some((purpose: unknown) =>
+        typeof purpose === 'string' && EDIBLE_PURPOSES.has(purpose)
+    )) {
+        labels.push(translate('library.trait_edible', { defaultValue: 'Edible' }));
+    }
+
+    return labels.slice(0, 2);
+}
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -152,7 +185,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 // ─── Plant Detail Modal ───────────────────────────────────────────────────────
 function PlantDetailModal({
     plant,
-    care,
+    careContent,
     onClose,
     showAdd,
     addLabel,
@@ -162,7 +195,7 @@ function PlantDetailModal({
     canFavorite,
 }: {
     plant: any;
-    care: PlantCareContent | null;
+    careContent: string | null;
     onClose: () => void;
     showAdd: boolean;
     addLabel?: string;
@@ -177,9 +210,7 @@ function PlantDetailModal({
     const lightMeta = LIGHT_META[plant.lightRequirements ?? ''];
     const lightLabel = lightMeta ? t(lightMeta.key) : plant.lightRequirements;
     const unitSystem = useUnitSystem();
-    const careSections = CARE_SECTION_META
-        .map(({ key, titleKey }) => ({ key, title: t(titleKey), content: care?.[key] }))
-        .filter((section) => section.content && ((section.content.items?.length ?? 0) > 0 || !!section.content.intro));
+    const propagationMethodLabels = propagationLabels(plant, t);
 
     const pan = useRef(new Animated.ValueXY()).current;
     const panResponder = useRef(
@@ -316,10 +347,16 @@ function PlantDetailModal({
                                 <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{formatYieldPerArea(plant.yieldKgPerM2, unitSystem)}</Text>
                             </View>
                         )}
-                        {plant.source && (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
-                                <Text style={{ fontSize: 14, color: theme.textSecondary }}>{t('library.detail_propagation')}</Text>
-                                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{t(`library.source_${plant.source}`)}</Text>
+                        {propagationMethodLabels.length > 0 && (
+                            <View style={{ paddingVertical: 12, borderTopWidth: 1, borderTopColor: theme.border }}>
+                                <Text style={{ fontSize: 14, color: theme.textSecondary, marginBottom: 8 }}>{t('library.propagation_methods', { defaultValue: t('library.detail_propagation') })}</Text>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                                    {propagationMethodLabels.map((label, index) => (
+                                        <View key={`${label}-${index}`} style={{ backgroundColor: theme.accent, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 }}>
+                                            <Text style={{ fontSize: 12, color: theme.primary, fontWeight: '500' }}>{label}</Text>
+                                        </View>
+                                    ))}
+                                </View>
                             </View>
                         )}
 
@@ -338,39 +375,28 @@ function PlantDetailModal({
                             </View>
                         )}
 
-                        {careSections.length > 0 && (
-                            <View style={{ marginTop: 20, gap: 12 }}>
-                                <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
-                                    {t('library.section_care')}
+                        <View style={{ marginTop: 20, gap: 12 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
+                                {t('library.section_care', { defaultValue: 'Care Guide' })}
+                            </Text>
+                            {careContent ? (
+                                <View
+                                    style={{
+                                        backgroundColor: theme.background,
+                                        borderRadius: 10,
+                                        padding: 12,
+                                        borderWidth: 1,
+                                        borderColor: theme.border,
+                                    }}
+                                >
+                                    <MarkdownText>{careContent}</MarkdownText>
+                                </View>
+                            ) : (
+                                <Text style={{ color: theme.textMuted, fontSize: 13 }}>
+                                    {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
                                 </Text>
-                                {careSections.map((section) => (
-                                    <View
-                                        key={section.key}
-                                        style={{
-                                            backgroundColor: theme.background,
-                                            borderRadius: 10,
-                                            padding: 12,
-                                            borderWidth: 1,
-                                            borderColor: theme.border,
-                                        }}
-                                    >
-                                        <Text style={{ fontSize: 13, fontWeight: '500', color: theme.text, marginBottom: 6 }}>
-                                            {section.title}
-                                        </Text>
-                                        {!!section.content?.intro && (
-                                            <Text style={{ fontSize: 12, color: theme.textAccent, lineHeight: 18, marginBottom: section.content.items?.length ? 6 : 0 }}>
-                                                {section.content.intro}
-                                            </Text>
-                                        )}
-                                        {section.content?.items?.map((item, idx) => (
-                                            <Text key={`${section.key}-${idx}`} style={{ fontSize: 12, color: theme.textAccent, lineHeight: 18 }}>
-                                                - {item}
-                                            </Text>
-                                        ))}
-                                    </View>
-                                ))}
-                            </View>
-                        )}
+                            )}
+                        </View>
                     </ScrollView>
                 </Animated.View>
             </View>
@@ -393,8 +419,10 @@ function PlantCard({
 }) {
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const { t } = useTranslation();
     const { displayName } = usePlantDisplayName(plant);
     const scientificLabel = formatScientificLabel(plant);
+    const cardLabels = libraryCardLabels(plant, t);
 
     return (
         <TouchableOpacity
@@ -422,6 +450,15 @@ function PlantCard({
                 <Text style={{ fontSize: 12, color: theme.textMuted, fontStyle: 'italic' }} numberOfLines={1}>
                     {scientificLabel}
                 </Text>
+                {cardLabels.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
+                        {cardLabels.map((label, index) => (
+                            <View key={`${label}-${index}`} style={{ backgroundColor: theme.accent, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+                                <Text style={{ fontSize: 10, color: theme.primary, fontWeight: '500' }} numberOfLines={1}>{label}</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
             </View>
             <Pressable
                 onPress={(event) => {
@@ -456,7 +493,9 @@ function PlantGridCard({
 }) {
     const theme = useTheme();
     const { isDark } = useThemeContext();
+    const { t } = useTranslation();
     const { displayName } = usePlantDisplayName(plant);
+    const cardLabels = libraryCardLabels(plant, t);
 
     return (
         <TouchableOpacity
@@ -507,6 +546,15 @@ function PlantGridCard({
                 <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }} numberOfLines={2}>
                     {displayName}
                 </Text>
+                {cardLabels.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+                        {cardLabels.map((label, index) => (
+                            <View key={`${label}-${index}`} style={{ backgroundColor: theme.accent, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+                                <Text style={{ fontSize: 10, color: theme.primary, fontWeight: '500' }} numberOfLines={1}>{label}</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -1338,7 +1386,7 @@ export default function LibraryScreen() {
     const [showAllPlants, setShowAllPlants] = useState(false);
     const [selectedPest, setSelectedPest] = useState<any>(null);
     const [selectedPlant, setSelectedPlant] = useState<any>(null);
-    const [selectedPlantCare, setSelectedPlantCare] = useState<PlantCareContent | null>(null);
+    const [selectedPlantCareContent, setSelectedPlantCareContent] = useState<string | null>(null);
     const [targetModalOpen, setTargetModalOpen] = useState(false);
     const [addSaving, setAddSaving] = useState(false);
     const aiRouteHandledRef = useRef<string | null>(null);
@@ -1459,7 +1507,7 @@ export default function LibraryScreen() {
 
     useEffect(() => {
         if (!selectedPlant) {
-            setSelectedPlantCare(null);
+            setSelectedPlantCareContent(null);
             return;
         }
 
@@ -1469,24 +1517,45 @@ export default function LibraryScreen() {
             typeof selectedPlant.contentVersion === 'number'
                 ? selectedPlant.contentVersion
                 : 0;
-        const parsedCare = parseCareContent(selectedPlant.careContent);
+        const canonicalCare = typeof selectedPlant.careContent === 'string'
+            ? selectedPlant.careContent
+            : null;
+        const hasAuthoritativeRemote =
+            !selectedPlantIsSeed &&
+            selectedPlantRemote &&
+            String(selectedPlantRemote._id) === plantId;
 
-        if (parsedCare) {
-            setSelectedPlantCare(parsedCare);
+        // Clear immediately on every plant/locale key change. Without this,
+        // a plant with missing care could briefly (or permanently, after a
+        // cache miss) render the previous plant's Markdown.
+        setSelectedPlantCareContent(null);
+        if (canonicalCare !== null) {
+            setSelectedPlantCareContent(canonicalCare);
             if (!selectedPlantIsSeed) {
-                saveCareContent(plantId, locale, serverVersion, parsedCare).catch(() => undefined);
+                saveCareContent(plantId, locale, serverVersion, canonicalCare).catch(() => undefined);
             }
         }
 
         loadCachedCareContent(plantId, locale).then((cached) => {
-            if (cancelled || !cached?.care) return;
-            setSelectedPlantCare((current) => current ?? cached.care);
+            if (cancelled) return;
+            // Canonical content wins over cache. Once the matching Convex row
+            // is available, an omitted care row is an explicit empty state;
+            // never resurrect stale Markdown from an equal/newer cache. Before
+            // that remote row arrives, an offline/local cache may still serve
+            // a version that is at least as new as the local projection.
+            if (canonicalCare === null) {
+                setSelectedPlantCareContent(
+                    !hasAuthoritativeRemote && cached && cached.contentVersion >= serverVersion
+                        ? cached.careContent
+                        : null,
+                );
+            }
         });
 
         return () => {
             cancelled = true;
         };
-    }, [selectedPlant, selectedPlantIsSeed, locale]);
+    }, [selectedPlant, selectedPlantIsSeed, selectedPlantRemote, locale]);
 
     const completeAdd = useCallback(async (plant: any, selectionMode: AddPlantTargetMode, selectedBedId?: string) => {
         if (!plant || isSeedPlant(plant)) return;
@@ -1542,9 +1611,9 @@ export default function LibraryScreen() {
         if (selectedGroup) {
             result = result.filter((p) => p.group === selectedGroup);
         }
-        if (normalizedSearch) result = result.filter((p) =>
-            matchesSearch(normalizedSearch, [p.displayName, p.scientificName, p.group, p.group?.replace(/_/g, ' ')])
-        );
+        if (normalizedSearch) {
+            result = result.filter((plant) => matchesPlantLibrarySearch(normalizedSearch, plant));
+        }
         return [...result].sort((a, b) => {
             const scoreDiff = scorePlantForOnboarding(b, settings?.onboarding) - scorePlantForOnboarding(a, settings?.onboarding);
             if (shouldApplyPrioritizedFilter && scoreDiff !== 0 && !normalizedSearch) return scoreDiff;
@@ -1976,7 +2045,7 @@ export default function LibraryScreen() {
             {selectedPlant && (
                 <PlantDetailModal
                     plant={selectedPlant}
-                    care={selectedPlantCare}
+                    careContent={selectedPlantCareContent}
                     onClose={() => setSelectedPlant(null)}
                     showAdd={(selectMode || attachMode) && !selectedPlantIsSeed}
                     addLabel={!isGardener && fromParam === 'bed' ? t('bed.add_plant') : undefined}

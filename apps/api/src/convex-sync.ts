@@ -63,6 +63,12 @@ export interface ConvexPlantLibraryItem {
     reviewedAt?: number;
     reviewedBy?: string;
     contentOrigin?: "authored" | "inherited" | "imported";
+    sourceRefs?: Array<{
+      sourceSystem?: string;
+      sourceName?: string;
+      sourceUrl?: string;
+      sourceLocator?: string;
+    }>;
   }>;
   group?: string;
   family?: string;
@@ -88,6 +94,14 @@ export interface ConvexPlantLibraryItem {
   lightRequirements?: string;
   maxPlantsPerM2?: number;
   seedRatePerM2?: number;
+  propagationMethods?: string[];
+  careSourceRefs?: Array<{
+    sourceSystem?: string;
+    sourceName?: string;
+    sourceUrl?: string;
+    sourceLocator?: string;
+  }>;
+  careFieldEvidence?: Record<string, unknown>;
 }
 
 export interface ConvexSyncConfig {

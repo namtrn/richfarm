@@ -14,6 +14,10 @@ import {
 import { plantTaxonomyI18nSeed } from "./data/plantTaxonomyI18nSeed";
 import { pestsDiseasesSeed } from "./data/pestsDiseasesSeed";
 import {
+    adaptationTermsSeed,
+    adaptationTermI18nSeed,
+} from "./data/adaptationTermsSeed";
+import {
     buildTaxonomyFields,
     DEFAULT_CULTIVAR_NORMALIZED,
     isInfraspecificCultivar,
@@ -111,6 +115,7 @@ async function seedPlantsAndI18n(
                 yieldKgPerM2,
                 wateringFrequencyDays,
                 fertilizingFrequencyDays,
+                propagationMethods,
                 ...plantBaseWithoutCare
             } = plant as any;
             const basePlant: InsertDoc<"plantsMaster"> = {
@@ -135,6 +140,7 @@ async function seedPlantsAndI18n(
                 yieldKgPerM2,
                 wateringFrequencyDays,
                 fertilizingFrequencyDays,
+                propagationMethods,
             });
             idByPlantKey.set(plantKey, insertedId);
             plantsInserted++;
@@ -144,6 +150,24 @@ async function seedPlantsAndI18n(
                     family: (plant as any).family,
                 });
             }
+            // Re-seeding is also a care-profile update. Keep it partial so a
+            // fixture that omits a field cannot erase curated values.
+            await upsertPlantCareProfile(ctx, existing._id, {
+                typicalDaysToHarvest: (plant as any).typicalDaysToHarvest,
+                germinationDays: (plant as any).germinationDays,
+                lightRequirements: (plant as any).lightRequirements,
+                soilPref: (plant as any).soilPref,
+                spacingCm: (plant as any).spacingCm,
+                maxPlantsPerM2: (plant as any).maxPlantsPerM2,
+                seedRatePerM2: (plant as any).seedRatePerM2,
+                waterLitersPerM2: (plant as any).waterLitersPerM2,
+                yieldKgPerM2: (plant as any).yieldKgPerM2,
+                wateringFrequencyDays: (plant as any).wateringFrequencyDays,
+                fertilizingFrequencyDays: (plant as any).fertilizingFrequencyDays,
+                ...(Object.prototype.hasOwnProperty.call(plant, "propagationMethods")
+                    ? { propagationMethods: (plant as any).propagationMethods }
+                    : {}),
+            });
             idByPlantKey.set(plantKey, existing._id);
         }
     }
@@ -373,6 +397,75 @@ export const seedPestsDiseases = internalMutation({
     },
 });
 
+// ==========================================
+// Seed Adaptation Terms (idempotent by code)
+// ==========================================
+async function seedAdaptationTermsAll(ctx: any) {
+    let termsInserted = 0;
+    let termsUpdated = 0;
+    for (const entry of adaptationTermsSeed) {
+        const existing = await ctx.db
+            .query("adaptationTerms")
+            .withIndex("by_code", (q: any) => q.eq("code", entry.code))
+            .unique();
+        if (!existing) {
+            await ctx.db.insert("adaptationTerms", entry);
+            termsInserted++;
+        } else if (
+            existing.dimension !== entry.dimension ||
+            existing.status !== entry.status ||
+            existing.sortOrder !== entry.sortOrder
+        ) {
+            await ctx.db.patch(existing._id, {
+                dimension: entry.dimension,
+                status: entry.status,
+                sortOrder: entry.sortOrder,
+                updatedAt: entry.updatedAt,
+            });
+            termsUpdated++;
+        }
+    }
+
+    let i18nInserted = 0;
+    let i18nUpdated = 0;
+    for (const entry of adaptationTermI18nSeed) {
+        const existing = await ctx.db
+            .query("adaptationTermI18n")
+            .withIndex("by_term_locale", (q: any) =>
+                q.eq("termCode", entry.termCode).eq("locale", entry.locale),
+            )
+            .unique();
+        if (!existing) {
+            await ctx.db.insert("adaptationTermI18n", entry);
+            i18nInserted++;
+        } else if (
+            existing.label !== entry.label ||
+            existing.description !== entry.description ||
+            existing.translationStatus !== entry.translationStatus
+        ) {
+            await ctx.db.patch(existing._id, {
+                label: entry.label,
+                description: entry.description,
+                translationStatus: entry.translationStatus,
+                updatedAt: entry.updatedAt,
+            });
+            i18nUpdated++;
+        }
+    }
+
+    return {
+        terms: { inserted: termsInserted, updated: termsUpdated, total: adaptationTermsSeed.length },
+        i18n: { inserted: i18nInserted, updated: i18nUpdated, total: adaptationTermI18nSeed.length },
+    };
+}
+
+export const seedAdaptationTerms = internalMutation({
+    args: {},
+    handler: async (ctx) => {
+        return await seedAdaptationTermsAll(ctx);
+    },
+});
+
 // Chạy tất cả seed functions — gọi: npx convex run seed:seedAll
 export const seedAll = internalMutation({
     args: {},
@@ -413,6 +506,9 @@ export const seedAll = internalMutation({
             }
         }
 
+        // --- Seed Adaptation Terms (idempotent by code) ---
+        const adaptationStats = await seedAdaptationTermsAll(ctx);
+
         return {
             groups: { inserted: groupsInserted, total: groupDefs.length },
             ...plantsStats,
@@ -421,7 +517,8 @@ export const seedAll = internalMutation({
                 updated: pestsDiseasesUpdated,
                 total: pestsDiseasesDefs.length,
             },
-            message: "Seed completed: groups, plants, plantI18n, pestsDiseases.",
+            adaptationTerms: adaptationStats,
+            message: "Seed completed: groups, plants, plantI18n, pestsDiseases, adaptationTerms.",
         };
     },
 });

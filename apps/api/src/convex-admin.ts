@@ -18,6 +18,8 @@ const allowedQueries = new Set([
   "plantAdmin:listPlantGroups",
   "plantAdmin:listPlantI18n",
   "plantAdmin:listPlantPhotos",
+  "plantAdmin:listAdaptationTerms",
+  "plantAdmin:adaptationReleasePreflight",
 ]);
 
 const allowedMutations = new Set([
@@ -35,16 +37,26 @@ const allowedMutations = new Set([
   "plantAdmin:updatePlantPhoto",
   "plantAdmin:deletePlantPhoto",
   "plantAdmin:bulkUpdatePlantI18n",
+  "plantAdmin:createAdaptationTerm",
+  "plantAdmin:updateAdaptationTerm",
+  "plantAdmin:updateAdaptationTermTranslation",
+  "plantAdmin:reorderAdaptationTerms",
+  "plantAdmin:archiveAdaptationTerm",
 ]);
 
 // Delete mutations are admin-only under the Phase 3.1 role contract.
 // Editors may create/update/import/curate/review/publish, but every delete
 // path (single, bulk, hard) resolves to 403 for them at the API layer.
+// Taxonomy creation, reordering, and archiving are also admin-only; editors
+// may maintain translations and plant assignments (design doc §6.2).
 const adminOnlyMutations = new Set([
   "plantAdmin:deletePlant",
   "plantAdmin:deletePlantGroup",
   "plantAdmin:deletePlantI18n",
   "plantAdmin:deletePlantPhoto",
+  "plantAdmin:createAdaptationTerm",
+  "plantAdmin:reorderAdaptationTerms",
+  "plantAdmin:archiveAdaptationTerm",
 ]);
 
 const ADMIN_PROXY_NOT_CONFIGURED = "CONVEX_ADMIN_PROXY_NOT_CONFIGURED";

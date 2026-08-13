@@ -25,6 +25,8 @@ async function buildQualityReport(ctx: any, sampleLimit: number) {
   const plants = await ctx.db.query("plantsMaster").collect();
   const i18nRows = await ctx.db.query("plantI18n").collect();
   const careRows = await ctx.db.query("plantCare").collect();
+  const adaptationTermRows = await ctx.db.query("adaptationTerms").collect();
+  const adaptationI18nRows = await ctx.db.query("adaptationTermI18n").collect();
   const sourceIds = new Map<string, string[]>();
   const taxonomyIds = new Map<string, string[]>();
   const plantById = new Map<string, any>(plants.map((plant: any) => [String(plant._id), plant]));
@@ -106,6 +108,24 @@ async function buildQualityReport(ctx: any, sampleLimit: number) {
     (plant.contentStatus ?? "published") === "published" && (!plant.source || !plant.sourceUrl),
   );
 
+  // vi/en publication gate for the adaptation taxonomy: every active term must
+  // have both a Vietnamese and an English label (design doc §5, §6.4).
+  const termI18nByCodeLocale = new Map<string, any>();
+  for (const row of adaptationI18nRows) {
+    termI18nByCodeLocale.set(`${row.termCode}:${row.locale}`, row);
+  }
+  const missingAdaptationTranslation: Array<{ termCode: string; missing: string[] }> = [];
+  for (const term of adaptationTermRows) {
+    if (term.status !== "active") continue;
+    const vi = termI18nByCodeLocale.get(`${term.code}:vi`);
+    const en = termI18nByCodeLocale.get(`${term.code}:en`);
+    const missing = [
+      ...(!vi?.label?.trim() ? ["vi"] : []),
+      ...(!en?.label?.trim() ? ["en"] : []),
+    ];
+    if (missing.length) missingAdaptationTranslation.push({ termCode: term.code, missing });
+  }
+
   return {
     totals: { plants: plants.length, i18n: i18nRows.length, care: careRows.length },
     issues: {
@@ -117,6 +137,7 @@ async function buildQualityReport(ctx: any, sampleLimit: number) {
       invalidCareRangeCount: invalidCare.length,
       variantsWithoutBaseCount: variantsWithoutBase.length,
       missingSourceMetadataCount: missingSourceMetadata.length,
+      missingMandatoryAdaptationTranslationCount: missingAdaptationTranslation.length,
     },
     samples: {
       duplicateSourceIdentity: duplicateSources.slice(0, sampleLimit),
@@ -127,6 +148,7 @@ async function buildQualityReport(ctx: any, sampleLimit: number) {
       invalidCareRanges: invalidCare.slice(0, sampleLimit),
       variantsWithoutBase: variantsWithoutBase.slice(0, sampleLimit).map((plant: any) => plant._id),
       missingSourceMetadata: missingSourceMetadata.slice(0, sampleLimit).map((plant: any) => plant._id),
+      missingMandatoryAdaptationTranslation: missingAdaptationTranslation.slice(0, sampleLimit),
     },
   };
 }
@@ -157,6 +179,7 @@ export const assertQualityGate = mutation({
       critical.push(
         report.issues.placeholderDescriptionCount,
         report.issues.nearDuplicateDescriptionCount,
+        report.issues.missingMandatoryAdaptationTranslationCount,
       );
     }
     if (critical.some((count) => count > 0)) {

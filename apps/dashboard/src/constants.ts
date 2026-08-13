@@ -110,6 +110,15 @@ export const emptyPlantForm: PlantFormState = {
     reviewStatus: "unreviewed",
     reviewedBy: "",
     careStatus: "missing",
+    careFieldEvidence: undefined,
+    propagationMethods: [],
+    propagationSourceRefs: [],
+    propagationSourceRefsDirty: false,
+    originCountries: [],
+    originCountrySourceRefs: {},
+    provenRegions: [],
+    adaptationTermCodes: [],
+    adaptationTermSourceRefs: {},
 };
 
 export const emptyGroupForm: GroupFormState = {

@@ -43,6 +43,14 @@ import { useDeviceId } from '../../../lib/deviceId';
 import { useSyncProjection } from '../../../hooks/useSyncProjection';
 import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
 import { migratePlantLocalData } from '../../../lib/commands/migratePlantLocalData';
+import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
+
+function humanizePropagationMethod(method: string) {
+  return method
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
 
 function formatDateInput(value?: number) {
   if (!value) return '';
@@ -184,10 +192,20 @@ export default function PlantDetailScreen() {
       ? { plantId: plant.plantMasterId, locale }
       : 'skip'
   );
-  const lightLabel = masterPlant?.lightRequirements
-    ? t(`library.light_${masterPlant.lightRequirements}`)
+  // Convex may briefly retain the previous subscription result while the
+  // route/user-plant key changes. Do not render that row's care or metadata
+  // for the newly selected plant until the IDs match.
+  const matchingMasterPlant = masterPlant && plant?.plantMasterId
+    && String(masterPlant._id) === String(plant.plantMasterId)
+    ? masterPlant
     : undefined;
-  const latinName = masterPlant?.scientificName;
+  const lightLabel = matchingMasterPlant?.lightRequirements
+    ? t(`library.light_${matchingMasterPlant.lightRequirements}`)
+    : undefined;
+  const propagationMethodLabels = (normalizePropagationMethods(matchingMasterPlant?.propagationMethods) ?? []).map((method) =>
+    t(`library.propagation_method_${method}`, { defaultValue: humanizePropagationMethod(method) })
+  );
+  const latinName = matchingMasterPlant?.scientificName;
   const statusLabel = plant ? t(`plant.status_${plant.status}`) : '';
   const isPlanning = plant?.status === 'planning' || plant?.status === 'planting';
   const isGrowing = plant?.status === 'growing';
@@ -854,55 +872,69 @@ export default function PlantDetailScreen() {
         <Image
           source={{
             uri:
-              masterPlant?.imageUrl ??
+              matchingMasterPlant?.imageUrl ??
               'https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=1600&q=80',
           }}
           style={{ width: screenWidth, height: 220, marginLeft: -16 }}
           resizeMode="cover"
         />
 
-        {masterPlant && (
+        {matchingMasterPlant && (
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
             <View style={{ gap: 4, marginBottom: 12 }}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1 }}>{t('plant.master_title')}</Text>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>{masterPlant.displayName ?? masterPlant.scientificName}</Text>
-              <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>{masterPlant.scientificName}</Text>
+              <Text style={{ fontSize: 18, fontWeight: '800', color: theme.text }}>{matchingMasterPlant.displayName ?? matchingMasterPlant.scientificName}</Text>
+              <Text style={{ fontSize: 13, color: theme.textSecondary, fontStyle: 'italic' }}>{matchingMasterPlant.scientificName}</Text>
             </View>
 
-            {!!masterPlant.description && (
-              <MarkdownText style={{ marginBottom: 16 }}>{masterPlant.description}</MarkdownText>
+            {!!matchingMasterPlant.description && (
+              <MarkdownText style={{ marginBottom: 16 }}>{matchingMasterPlant.description}</MarkdownText>
+            )}
+
+            {typeof matchingMasterPlant.careContent === 'string' && matchingMasterPlant.careContent.trim() !== '' && (
+              <View style={{ marginTop: 8 }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                  {t('library.section_care', { defaultValue: 'Care Guide' })}
+                </Text>
+                <MarkdownText>{matchingMasterPlant.careContent}</MarkdownText>
+              </View>
             )}
 
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {masterPlant.lightRequirements && (
+              {matchingMasterPlant.lightRequirements && (
                 <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
                   <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.light_label')}: {lightLabel}</Text>
                 </View>
               )}
-              {masterPlant.wateringFrequencyDays && (
+              {matchingMasterPlant.wateringFrequencyDays && (
                 <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.watering_label')}: {masterPlant.wateringFrequencyDays}d</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.watering_label')}: {matchingMasterPlant.wateringFrequencyDays}d</Text>
                 </View>
               )}
-              {masterPlant.typicalDaysToHarvest && (
+              {matchingMasterPlant.typicalDaysToHarvest && (
                 <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.harvest_label')}: {masterPlant.typicalDaysToHarvest}d</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('plant.harvest_label')}: {matchingMasterPlant.typicalDaysToHarvest}d</Text>
                 </View>
               )}
-              {masterPlant.spacingCm && (
+              {matchingMasterPlant.spacingCm && (
                 <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
-                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('library.detail_spacing')}: {formatLengthCm(masterPlant.spacingCm, unitSystem)}</Text>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('library.detail_spacing')}: {formatLengthCm(matchingMasterPlant.spacingCm, unitSystem)}</Text>
+                </View>
+              )}
+              {propagationMethodLabels.length > 0 && (
+                <View style={{ backgroundColor: theme.accent, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, borderWidth: 1, borderColor: theme.border }}>
+                  <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: '600' }}>{t('library.propagation_methods', { defaultValue: t('library.detail_propagation') })}: {propagationMethodLabels.join(', ')}</Text>
                 </View>
               )}
             </View>
 
-            {masterPlant.purposes?.length > 0 && (
+            {matchingMasterPlant.purposes?.length > 0 && (
               <View style={{ marginTop: 12 }}>
                 <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
                   {t('library.detail_uses', { defaultValue: 'Uses' })}
                 </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                  {masterPlant.purposes.map((p: string) => (
+                  {matchingMasterPlant.purposes.map((p: string) => (
                     <View key={p} style={{ backgroundColor: theme.successBg, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
                       <Text style={{ fontSize: 12, color: theme.success, fontWeight: '700', textTransform: 'capitalize' }}>
                         {t(`purposes.${p}`, { defaultValue: p.replace(/_/g, ' ') })}
@@ -951,7 +983,7 @@ export default function PlantDetailScreen() {
           </View>
         )}
 
-        {!masterPlant && (
+        {!matchingMasterPlant && (
           <View style={{ backgroundColor: theme.card, borderRadius: 20, padding: 20, borderWidth: 1, borderColor: theme.border, shadowColor: '#1a1a18', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
             <Text style={{ fontSize: 11, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{t('plant.master_title')}</Text>
             <Text style={{ fontSize: 14, color: theme.textSecondary, marginBottom: 16 }}>{t('plant.no_master')}</Text>

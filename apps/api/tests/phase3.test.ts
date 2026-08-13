@@ -61,8 +61,8 @@ describe("Phase 3 master-data contract", () => {
       reviewed_at: "2026-08-05T00:00:00.000Z",
       reviewed_by: "qa",
       i18n: {
-        vi: { common_name: "Húng quế", description: "Rau thơm", care_content_json: { ph: [5.5, 6.8] }, content_version: 3 },
-        en: { common_name: "Basil", description: "Herb", care_content_json: { ph: [5.5, 6.8] }, content_version: 3 },
+        vi: { common_name: "Húng quế", description: "Rau thơm", care_content: "## Tưới nước\n\nGiữ ẩm đều.", content_version: 3 },
+        en: { common_name: "Basil", description: "Herb", care_content: "## Watering\n\nKeep evenly moist.", content_version: 3 },
         es: { common_name: "Albahaca", description: "Hierba", content_version: 3 },
       },
     });
@@ -93,7 +93,8 @@ describe("Phase 3 master-data contract", () => {
       .get("/api/master-plants/export?format=json&source=sqlite")
       .set("Authorization", auth);
     expect(exported.status).toBe(200);
-    expect(exported.body[0].i18n.es.care_content_json).toEqual({});
+    expect(exported.body[0].i18n.es.care_content).toBeUndefined();
+    expect(exported.body[0].i18n.vi.care_content).toBe("## Tưới nước\n\nGiữ ẩm đều.");
   });
 
   it("persists locally before publishing and never replays stale outbox payloads over local edits", async () => {
@@ -151,11 +152,11 @@ describe("Phase 3 master-data contract", () => {
       master_plant_id: created.body.data.id,
       locale: "ES",
       common_name: "Planta local",
-      care_content_json: { watering: { days: 2 } },
+      care_content: "## Riego\n\nRegar por la mañana.",
       content_origin: "authored",
     });
     expect(translation.status).toBe(201);
-    expect(translation.body).toMatchObject({ queued: true, data: { locale: "es", care_content_json: { watering: { days: 2 } }, content_origin: "authored" } });
+    expect(translation.body).toMatchObject({ queued: true, data: { locale: "es", care_content: "## Riego\n\nRegar por la mañana.", content_origin: "authored" } });
     expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'local-queue-1' AND operation = 'upsert_i18n' AND locale = 'es' AND status = 'pending'`).get() as { n: number }).n).toBe(1);
   });
 
@@ -210,7 +211,7 @@ describe("Phase 3 master-data contract", () => {
       master_plant_id: plant.body.data.id,
       locale: "FR",
       common_name: "Romarin",
-      care_content_json: { light: "sun" },
+      care_content: "## Soleil\n\nPlein soleil.",
       content_origin: "imported",
     });
     expect(created.status).toBe(201);
@@ -221,7 +222,7 @@ describe("Phase 3 master-data contract", () => {
       master_plant_id: plant.body.data.id,
       locale: "fr",
       common_name: "Romarin",
-      care_content_json: { light: "sun" },
+      care_content: "## Soleil\n\nPlein soleil.",
       content_origin: "imported",
       plant_scientific_name: "Salvia rosmarinus",
       plant_group: "herb",
@@ -229,10 +230,10 @@ describe("Phase 3 master-data contract", () => {
 
     const updated = await request(app).patch(`/api/master-plants-i18n/${created.body.data.id}`).set("Authorization", auth).send({
       common_name: "Romarin officinal",
-      care_content_json: { light: "full_sun", water: 2 },
+      care_content: "## Lumière\n\nPlein soleil, arroser 2×.",
       content_origin: "authored",
     });
-    expect(updated.body).toMatchObject({ queued: true, data: { common_name: "Romarin officinal", care_content_json: { light: "full_sun", water: 2 }, content_origin: "authored" } });
+    expect(updated.body).toMatchObject({ queued: true, data: { common_name: "Romarin officinal", care_content: "## Lumière\n\nPlein soleil, arroser 2×.", content_origin: "authored" } });
 
     const requiredVi = db.prepare(`SELECT id FROM master_plant_i18n WHERE master_plant_id = ? AND locale = 'vi'`).get(plant.body.data.id) as { id: number };
     const guarded = await request(app).delete(`/api/master-plants-i18n/${requiredVi.id}`).set("Authorization", auth);
@@ -543,6 +544,114 @@ describe("Phase 3 master-data contract", () => {
     expect(response.body.removed).toBe(1);
     expect(response.body.drift).toBe(0);
     expect((db.prepare(`SELECT status, drift_after FROM sync_reconciliation_runs ORDER BY id DESC LIMIT 1`).get() as { status: string; drift_after: number })).toMatchObject({ status: "completed", drift_after: 0 });
+  });
+
+  it("mirrors Convex Markdown care byte-for-byte into SQLite (no JSON envelope)", async () => {
+    // Plan L128 regression: Markdown starting with a heading, containing
+    // Unicode, quotes, and newlines must reach SQLite unchanged; never
+    // produce `{}`, `{ text: ... }`, a JSON envelope, or a missing field.
+    const markdown = "## Chăm sóc\n\nGiữ ẩm đều — câu \"trích dẫn\" và dòng mới.\n\n- Tưới buổi sáng\n- Kiểm tra lá";
+    const syncService = {
+      isEnabled: () => true,
+      canReadFromConvex: () => true,
+      fetchAdminMasterPlants: async () => [{
+        _id: "md-1",
+        scientificName: "Ocimum basilicum",
+        displayName: "Húng quế",
+        sourceSystem: "convex",
+        sourceId: "md-1",
+        group: "herbs",
+        family: "Lamiaceae",
+        imageUrl: null,
+        isActive: true,
+        i18nRows: [
+          { locale: "vi", commonName: "Húng quế", careContent: markdown },
+          { locale: "en", commonName: "Basil" },
+        ],
+      }],
+      fetchMasterPlants: async () => [],
+      syncUpsert: async () => undefined,
+      syncDelete: async () => undefined,
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const auth = await login(app);
+    const response = await request(app).post("/api/master-plants/sync-convex-to-sqlite").set("Authorization", auth);
+    expect(response.status).toBe(200);
+    expect(response.body.upserted).toBe(1);
+
+    const row = db.prepare(`SELECT care_content FROM master_plant_i18n WHERE master_plant_id = (SELECT id FROM master_plants WHERE source_id = 'md-1') AND locale = 'vi'`).get() as { care_content: string | null };
+    expect(row.care_content).toBe(markdown);
+    // No JSON envelope, no {text} wrapper, no "{}" fallback, no missing field.
+    expect(row.care_content).not.toBe("{}");
+    expect(row.care_content).not.toMatch(/^\{ "text":/);
+    expect(row.care_content).not.toContain('"format"');
+    expect(row.care_content).toContain("## Chăm sóc");
+    expect(row.care_content).toContain("câu \"trích dẫn\"");
+    expect(row.care_content).toContain("dòng mới");
+    // en row without care stays NULL (absent, not invented).
+    const enRow = db.prepare(`SELECT care_content FROM master_plant_i18n WHERE master_plant_id = (SELECT id FROM master_plants WHERE source_id = 'md-1') AND locale = 'en'`).get() as { care_content: string | null };
+    expect(enRow.care_content).toBeNull();
+  });
+
+  it("drains outbox to the newest full-i18n Markdown payload (upsert_i18n newest-wins)", async () => {
+    // Plan L196: upsert_plant and upsert_i18n have different dedupe keys and
+    // may transiently publish different full-i18n snapshots; assert the final
+    // published state after the queue drains.
+    const published: Array<Record<string, unknown>> = [];
+    const syncService = {
+      isEnabled: () => true,
+      canReadFromConvex: () => false,
+      syncUpsert: async (payload: Record<string, unknown>) => { published.push(payload); },
+      syncDelete: async () => undefined,
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const auth = await login(app);
+
+    const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "OUTBOX_MD_1",
+      common_name: "Markdown plant",
+      source_system: "sqlite",
+      source_id: "outbox-md-1",
+      i18n: {
+        vi: { common_name: "Cây markdown", care_content: "## V1\n\nNội dung cũ." },
+        en: { common_name: "Markdown plant" },
+      },
+    });
+    expect(created.status).toBe(201);
+    expect(created.body.queued).toBe(true);
+
+    // PATCH overwrites the i18n payload with a newer Markdown snapshot.
+    const patched = await request(app)
+      .patch(`/api/master-plants/${created.body.data.id}`)
+      .set("Authorization", auth)
+      .send({
+        i18n: {
+          vi: { common_name: "Cây markdown", care_content: "## V2\n\nNội dung mới \"quoted\"." },
+          en: { common_name: "Markdown plant" },
+        },
+      });
+    expect(patched.status).toBe(200);
+    expect(patched.body.queued).toBe(true);
+
+    const drain = await request(app).post("/api/master-plants/sync-outbox/process?limit=100").set("Authorization", auth);
+    expect(drain.status).toBe(200);
+
+    // Every published payload must carry Markdown strings, never JSON objects.
+    for (const payload of published) {
+      const i18n = payload.i18n as Record<string, Record<string, unknown>> | undefined;
+      if (i18n?.vi) {
+        expect(typeof i18n.vi.care_content).toBe("string");
+        expect(i18n.vi.care_content).not.toMatch(/^\{/);
+      }
+    }
+
+    // After the queue drains, the newest i18n snapshot wins: the final
+    // published vi care content is V2, and no outbox item stays pending.
+    const lastPublished = published[published.length - 1];
+    const vi = (lastPublished?.i18n as Record<string, { care_content: string }>)?.vi;
+    expect(vi?.care_content).toBe("## V2\n\nNội dung mới \"quoted\".");
+    const pending = db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'outbox-md-1' AND status IN ('pending', 'failed')`).get() as { n: number };
+    expect(pending.n).toBe(0);
   });
 
   it("migrates legacy vi/en SQLite rows without losing data and allows new locales", () => {

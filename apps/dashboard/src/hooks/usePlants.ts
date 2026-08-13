@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import type { Plant, PlantFormState, Mode, PlantListPage } from "../types";
+import type { CareSourceRef } from "../../../../packages/shared/src";
+import { normalizePropagationMethods } from "../../../../packages/shared/src/plantPropagation";
 import {
     emptyPlantForm,
     getLocaleRow,
@@ -49,11 +51,27 @@ type BackendPlantRow = {
     sync_origin?: string;
     care_status?: string;
     care_field_evidence?: Record<string, unknown>;
+    propagation_methods?: string[];
+    propagationMethods?: string[];
+    origin_countries?: string[];
+    origin_country_source_refs?: Record<string, CareSourceRef[]>;
+    proven_regions?: Array<{ country_code: string; subdivision_code?: string }>;
+    adaptation_term_codes?: string[];
+    adaptation_term_source_refs?: Record<string, CareSourceRef[]>;
+    resolved_geography?: {
+        origin_country_codes: string[];
+        origin_country_source: "own" | "inherited" | "none";
+        proven_regions: Array<{ country_code: string; subdivision_code?: string }>;
+        proven_region_source: "own" | "inherited" | "none";
+        adaptation_term_codes: string[];
+        adaptation_term_source: "own" | "inherited" | "none";
+        inherited_from_id: number | null;
+    };
     metadata_json?: Record<string, unknown>;
     i18n?: Record<string, {
         common_name?: string;
         description?: string;
-        care_content_json?: Record<string, unknown>;
+        care_content?: string;
         content_version?: number;
         source?: string;
         source_url?: string;
@@ -62,6 +80,18 @@ type BackendPlantRow = {
         reviewed_at?: string;
         reviewed_by?: string;
         content_origin?: string;
+        source_refs?: Array<{
+            sourceSystem?: string;
+            sourceName?: string;
+            sourceUrl?: string;
+            sourceLocator?: string;
+        }>;
+        sourceRefs?: Array<{
+            sourceSystem?: string;
+            sourceName?: string;
+            sourceUrl?: string;
+            sourceLocator?: string;
+        }>;
     }>;
 };
 
@@ -96,7 +126,7 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
             locale,
             commonName: localeRow?.common_name || (locale === "vi" ? row.common_name : scientificName) || "",
             description: localeRow?.description,
-            careContent: localeRow?.care_content_json ? JSON.stringify(localeRow.care_content_json) : undefined,
+            careContent: localeRow?.care_content ?? undefined,
             contentVersion: localeRow?.content_version,
             source: localeRow?.source,
             sourceUrl: localeRow?.source_url,
@@ -105,6 +135,7 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
             reviewedAt: localeRow?.reviewed_at,
             reviewedBy: localeRow?.reviewed_by,
             contentOrigin: localeRow?.content_origin as "authored" | "inherited" | "imported" | undefined,
+            sourceRefs: localeRow?.source_refs ?? localeRow?.sourceRefs,
         };
     });
 
@@ -151,7 +182,16 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         reviewStatus: row.review_status,
         reviewedAt: row.reviewed_at ?? undefined,
         reviewedBy: row.reviewed_by ?? undefined,
+        careStatus: row.care_status as Plant["careStatus"],
+        careFieldEvidence: row.care_field_evidence,
         notes: row.notes ?? undefined,
+        propagationMethods: normalizePropagationMethods(row.propagation_methods ?? row.propagationMethods),
+        originCountries: row.origin_countries ?? [],
+        originCountrySourceRefs: row.origin_country_source_refs ?? {},
+        provenRegions: row.proven_regions ?? [],
+        adaptationTermCodes: row.adaptation_term_codes ?? [],
+        adaptationTermSourceRefs: row.adaptation_term_source_refs ?? {},
+        resolvedGeography: row.resolved_geography,
         cultivar: typeof metadata.cultivar === "string" ? metadata.cultivar : undefined,
         i18nRows,
     };
@@ -379,6 +419,20 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             reviewStatus: plant.reviewStatus ?? "unreviewed",
             reviewedBy: plant.reviewedBy ?? "",
             careStatus: plant.careStatus ?? "missing",
+            careFieldEvidence: plant.careFieldEvidence,
+            propagationMethods: normalizePropagationMethods(plant.propagationMethods) ?? [],
+            propagationSourceRefs: (() => {
+                const evidence = plant.careFieldEvidence?.propagationMethods;
+                return evidence && typeof evidence === "object" && !Array.isArray(evidence) && Array.isArray((evidence as any).sourceRefs)
+                    ? (evidence as any).sourceRefs
+                    : [];
+            })(),
+            propagationSourceRefsDirty: false,
+            originCountries: plant.originCountries ?? [],
+            originCountrySourceRefs: plant.originCountrySourceRefs ?? {},
+            provenRegions: plant.provenRegions ?? [],
+            adaptationTermCodes: plant.adaptationTermCodes ?? [],
+            adaptationTermSourceRefs: plant.adaptationTermSourceRefs ?? {},
         };
     }
 
@@ -505,6 +559,25 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             review_status: form.reviewStatus,
             reviewed_by: form.reviewedBy.trim() || null,
             care_status: form.careStatus,
+            propagation_methods: form.propagationMethods,
+            origin_countries: form.originCountries,
+            origin_country_source_refs: form.originCountrySourceRefs,
+            proven_regions: form.provenRegions,
+            adaptation_term_codes: form.adaptationTermCodes,
+            adaptation_term_source_refs: form.adaptationTermSourceRefs,
+            ...(form.propagationSourceRefsDirty
+                ? {
+                    care_field_evidence: {
+                        ...(form.careFieldEvidence ?? {}),
+                        propagationMethods: {
+                            ...((form.careFieldEvidence?.propagationMethods as Record<string, unknown> | undefined) ?? {}),
+                            status: ((form.careFieldEvidence?.propagationMethods as Record<string, unknown> | undefined)?.status as string)
+                                ?? (form.careStatus === "verified" || form.careStatus === "not_applicable" ? form.careStatus : "awaiting_review"),
+                            sourceRefs: form.propagationSourceRefs,
+                        },
+                    },
+                }
+                : {}),
             metadata_json: {
                 ...(form.source.trim() ? { source: form.source.trim() } : {}),
                 ...(cultivar ? { cultivar } : {}),
