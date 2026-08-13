@@ -4,6 +4,8 @@ Ngày: 2026-08-10
 Trạng thái: Draft
 Phạm vi: master plant, care profile, sync, API, dashboard, mobile và nội dung đa ngôn ngữ
 
+Đã rà soát code-vs-plan: 2026-08-10 (xem §13 Nhật ký rà soát cuối tài liệu).
+
 ## 1. Mục tiêu
 
 Bổ sung trường có cấu trúc `propagationMethods` để mô tả các phương pháp có thể dùng để tạo cây mới, ví dụ gieo hạt, giâm cành, chiết cành hoặc ghép cây.
@@ -344,6 +346,7 @@ Seed source phải được migration cùng runtime database để fresh databas
 - Cập nhật `packages/convex/convex/seed.ts` để destructure `propagationMethods` khỏi master payload và truyền vào `upsertPlantCareProfile`.
 - Re-seed row đã tồn tại phải có khả năng cập nhật care profile, không chỉ patch `family`.
 - Fresh seed và re-seed phải tạo cùng canonical projection, không tái sinh `plantsMaster.source` legacy.
+- Annotate fixture test: `packages/convex/convex/plantLibraryPhase3.test.ts` line 256-258 dùng `source_system: "seed"` + `source: "seed"` làm identity argument cho `deletePlantFromBackend` (test xóa base plant có variants) — đây là giá trị `source_system`, KHÔNG phải fixture `plantsMaster.source` legacy. Giữ nguyên nếu chỉ là identity sync; test mới cho `propagationMethods` không được lấy nguồn dữ liệu từ `source` legacy, mà phải ghi enum mới trực tiếp vào care profile fixture.
 
 ## 7. Migration và backfill
 
@@ -380,8 +383,16 @@ Legacy propagation nằm ở `plantsMaster.source`, không nằm ở `plantCare.
 Discriminator dùng cặp `(source, sourceSystem/sourceId)`, không chỉ dùng giá trị `source`:
 
 - Chỉ auto-map khi `plantsMaster.source` thuộc tập legacy đã khóa và cả `sourceSystem`, `sourceId` đều bị thiếu.
-- Nếu có `sourceSystem` hoặc `sourceId`, coi row là provenance hoặc dữ liệu nhập nhằng và đưa vào manual review, kể cả khi `source` có giá trị `seed`, `cutting` hoặc `bulb`.
+- Nếu có `sourceSystem` hoặc `sourceId` (ngoại trừ đúng chữ ký backfill bên dưới), coi row là provenance hoặc dữ liệu nhập nhằng và đưa vào manual review, kể cả khi `source` có giá trị `seed`, `cutting` hoặc `bulb`.
+- Ngoại lệ chữ ký backfill: row có `sourceSystem === "convex"` và `sourceId === String(_id)` (đúng cặp giá trị mà `backfillCanonicalMetadata` ghi khi thiếu identity — masterSync.ts:542-543) vẫn được coi là legacy-eligible để auto-map, vì cặp identity này không phải provenance thật.
 - Tên tổ chức, catalog, URL hoặc giá trị khác không được tự chuyển thành propagation tag.
+
+Ràng buộc thứ tự và chống mất dữ liệu trước khi migration chạy:
+
+- Chạy migration propagation TRƯỚC khi chạy `backfillCanonicalMetadata` (masterSync.ts:524) và trước bất kỳ backend write/sync nào chạm vào row legacy. Lý do: mutation này gán `sourceSystem="convex"` + `sourceId=String(_id)` cho MỌI row `plantsMaster` thiếu chúng; nếu chạy trước migration, toàn bộ row legacy bị đẩy sang nhóm manual review và tập auto-map trở thành rỗng, dù `sourceSystem="convex"` chỉ là giá trị backfill giả.
+- `upsertPlantFromBackend` ghi đè `source = "backend:${sourceSystem}:id_${sourceId}"` cho mọi row sync từ SQLite (masterSync.ts:294). Nếu một row legacy từng được sửa từ dashboard và sync ngược trước khi migration chạy, giá trị `source:"seed"/"cutting"/"bulb"` bị hủy vĩnh viễn và không thể auto-map. Vì vậy migration phải chạy trong cửa sổ không có write; nếu không thể đóng write, snapshot danh sách row legacy (id + source) trước khi deploy bất kỳ thứ gì có thể rewrite `source`.
+- Trong quá trình triển khai, backend write path không được phép xóa giá trị `plantsMaster.source` legacy khi row chưa được migrate (thêm guard trong `upsertPlantFromBackend` hoặc ghi rõ ràng trong runbook trước khi mở write lại).
+- Không chạm `plantCare.source`/`plantCareI18n.source` (theo bảng xử lý bên dưới).
 
 Bảng xử lý:
 
@@ -482,7 +493,8 @@ Tên field ở API phải tuân theo convention hiện tại. Nếu API canonica
 - [ ] Tất cả locale được phát hành có label cho toàn bộ enum.
 - [ ] SQLite `[]` được canonicalize thành `undefined` giống các projection còn lại.
 - [ ] `propagationMethods` không được thêm vào `REQUIRED_CARE_FIELDS` ở v1.
-- [ ] Migration chỉ auto-map `plantsMaster.source` legacy khi thiếu cả `sourceSystem` và `sourceId`.
+- [ ] Migration chỉ auto-map `plantsMaster.source` legacy khi thiếu cả `sourceSystem` và `sourceId`, hoặc mang đúng chữ ký backfill `sourceSystem === "convex"` với `sourceId === String(_id)`.
+- [ ] Migration propagation chạy trước `backfillCanonicalMetadata` và trước bất kỳ backend write/sync chạm row legacy; giá trị `plantsMaster.source` legacy không bị ghi đè trước khi migrate.
 - [ ] `plantsMasterSeed.ts` và `seed.ts` không tái tạo legacy source trên fresh seed hoặc re-seed.
 - [ ] Mobile cutover chỉ diễn ra sau khi backfill legacy pass verification.
 - [ ] Dashboard quản lý được nhiều `sourceRefs`; mobile không hiển thị URL/citation trong care guide.
@@ -513,3 +525,75 @@ Khuyến nghị cho phiên bản đầu:
 - mỗi evidence hỗ trợ nhiều `sourceRefs`; nguồn đơn legacy được đọc qua compatibility adapter;
 - giữ `tuber` là một giá trị chung;
 - hiển thị tag ngay trước phần hướng dẫn nhân giống trong Plant Detail.
+
+## 13. Nhật ký rà soát
+
+### 13.1. Rà soát 2026-08-10 — xác nhận các điểm còn thiếu đã được bổ sung
+
+Ba mục từng bị báo thiếu nay đã được xử lý trong plan:
+
+- **Seed data** — đã phủ ở §6.7: cập nhật `plantsMasterSeed.ts`, xóa legacy `source` mang nghĩa propagation, gắn `propagationMethods` vào care fields, seed Mồng tơi có `["seed", "stem_cutting"]`, `seed.ts` truyền enum vào `upsertPlantCareProfile` (chỉ chạy khi insert, không phá row đã tồn tại).
+- **`careSource` vs `careSourceLabel`** — KHÔNG thêm `careSourceLabel`; giữ `careSource`/`careSourceUrl` cho tương thích. `canonicalPlantLibrary.ts` đã project `careSource`; plan §6.2/§8 không đổi contract này.
+- **Thứ tự deploy** — mobile cutover dời sang Giai đoạn 3 (sau khi Giai đoạn 2 pass checks); transition thêm `library.source_bulb` cho MỌI locale.
+
+### 13.2. Gap §7 phát hiện trong rà soát và cách vá
+
+Rà soát code phát hiện discriminator §7 có thể match 0 rows vì hai code path phá legacy trước khi migration chạy:
+
+- `masterSync.ts:294` ghi đè `source = "backend:${sourceSystem}:id_${sourceId}"` trên mọi backend re-sync → hủy `source:"seed"` legacy trước khi migration kịp chạy.
+- `masterSync.ts:542-543` (`backfillCanonicalMetadata`) backfill `sourceSystem:"convex"` + `sourceId:String(_id)` cho mọi row thiếu → làm ~50 row legacy không còn đủ điều kiện theo discriminator cũ.
+
+Đã vá trong plan:
+
+- §7 thêm ràng buộc thứ tự: migration propagation chạy TRƯỚC `backfillCanonicalMetadata` và trước mọi backend write/sync chạm row legacy; nếu không đóng write được thì snapshot danh sách row legacy trước deploy; thêm guard trong `upsertPlantFromBackend`.
+- §7 thêm ngoại lệ chữ ký backfill: row có `sourceSystem === "convex"` và `sourceId === String(_id)` (đúng cặp `backfillCanonicalMetadata` ghi) vẫn được coi là legacy-eligible để auto-map.
+- §6.7 thêm annotation: fixture `plantLibraryPhase3.test.ts:256-258` dùng `source_system:"seed"` + `source:"seed"` làm identity argument cho `deletePlantFromBackend` — là giá trị `source_system`, KHÔNG phải fixture legacy `plantsMaster.source`.
+- §10 thêm acceptance criteria tương ứng (discriminator + thứ tự migration).
+
+### 13.3. Trạng thái sau rà soát
+
+- Toàn bộ nội dung đã cập nhật nằm trong plan; chưa có code thay đổi cho plan này ở phiên này.
+- Câu hỏi mở §12 vẫn còn: tách `tuber` thành `stem_tuber`/`root_tuber`?; vị trí tag trong Plant Detail (khuyến nghị: ngay trước hướng dẫn nhân giống).
+
+### 13.4. Kết quả triển khai 2026-08-11
+
+Trạng thái: **implementation complete, locally verified, Convex production functions/schema deployed; data migration/feature-screen QA gates pending**.
+
+Đã hoàn thành và xác minh:
+
+- Một shared contract gồm đủ 18 enum, type, label key, strict validation và normalize/dedupe; mảng rỗng canonicalize thành field bị thiếu.
+- SQLite/API/outbox, Convex `plantCare`, admin writers, master sync và canonical library projection đều round-trip `propagationMethods`; partial update giữ dữ liệu khi field vắng mặt và explicit `[]` xóa danh sách.
+- `CareFieldEvidence` và localized care provenance hỗ trợ `sourceRefs[]` cùng legacy single-source adapters; không thêm `careSourceLabel`.
+- Dashboard dùng multi-select và editor nhiều source refs; mobile dùng label i18n, tối đa 2 tag +N trên card và đầy đủ ở detail; không dùng enum raw hoặc citation trong care guide.
+- `useAddPlantFlow` luôn ghi `sourceLabel="library:plantCare"`.
+- Basella seed fixture có `seed` và `stem_cutting`; fresh seed/re-seed cập nhật care profile mà không tái tạo legacy propagation source.
+- Migration legacy source có dry-run, cursor pagination, discriminator, manual-review/failure buckets, readback trước cleanup và sync guard chống ghi đè source identity trước migration.
+- Tất cả 6 locale phát hành có đủ 18 label.
+
+Verification:
+
+- Shared propagation tests: 3/3 PASS.
+- API full suite: 51/51 PASS; API build PASS.
+- Convex full suite: 82/82 PASS; Convex typecheck PASS.
+- Dashboard focused tests: 3/3 PASS; production build PASS.
+- Mobile focused cache tests: 3/3 PASS; mobile typecheck PASS.
+- Locale validation: 6 locale × 18 labels PASS; `git diff --check` PASS.
+
+Rollout/deployment evidence 2026-08-11:
+
+- Convex functions/schema deployed successfully to production deployment `whimsical-dove-537` (`https://whimsical-dove-537.convex.cloud`). Deployment required replacing a Node-only `crypto` import in `plantCareContentMigration.ts` with Web Crypto so the function bundles in the default Convex runtime; focused Convex tests 14/14 and typecheck passed after the fix.
+- No propagation or structured-care data migration mutation was run. Compatibility fields/readers and migration review gates remain active.
+- Native iOS build succeeded, installed, bundled and rendered on an iPhone 17 Simulator (iOS 26.2). The smoke test found and fixed the Markdown renderer's missing runtime dependency `@react-native-vector-icons/common`; app-visible icons remain sourced from the existing Tabler registry.
+
+Chưa được đánh dấu hoàn tất ở rollout:
+
+- Chưa chạy migration trên Convex target hoặc production data. Phải dry-run/paginate, review manual/conflict/failure rows và đạt `remaining: 0` trước mobile production cutover hoặc xóa compatibility fields/fallbacks.
+- Simulator sạch dừng ở onboarding, nên chưa xác nhận trực tiếp Library propagation tags, locale fallback và cached/offline behavior; real-device QA vẫn bắt buộc.
+- Convex code/schema đã publish theo ủy quyền; không có production data mutation.
+
+Dev publication follow-up 2026-08-11:
+
+- Deployed the same functions/schema to dev deployment `fantastic-beagle-190` after the dev target rejected the new Markdown/source-reference payload shape.
+- Published the four curated species groups from SQLite through the API outbox: `Basella alba` (10 rows), `Laurus nobilis` (6), `Rubus idaeus` (6), and `Valeriana locusta` (6). All 84 final master/i18n outbox operations are `applied` with no remaining failures.
+- Canonical dev search now returns Mồng tơi for `mồng tơi`, `mong toi`, and `Basella alba`; the base row exposes `seed` + `stem_cutting`.
+- Simulator cache verification confirmed the Convex subscription automatically persisted all 10 Basella rows into `plant_library_plants_v8_en`. A mobile search defect was fixed so an English-active UI also searches every localized `i18nRows[].commonName`; focused regression tests cover accented, unaccented, scientific, and English names.

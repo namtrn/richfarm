@@ -154,6 +154,7 @@ type PlantSeed = {
     pestsDiseases?: string[];
     imageUrl?: string;
     source?: string;
+    propagationMethods?: string[];
     maxPlantsPerM2?: number;
     seedRatePerM2?: number;
     waterLitersPerM2?: number;
@@ -2198,6 +2199,20 @@ const globalYieldFallback = (() => {
 })();
 
 export const plantsMasterSeed = expandedRawPlantsMasterSeed.map((plant) => {
+    // Legacy seed fixtures used `source` for how a plant was started. Keep
+    // that input only long enough to translate it, then never expose it from
+    // the canonical seed payload (provenance belongs to sourceSystem/sourceId).
+    const { source: legacySource, ...plantWithoutLegacySource } = plant;
+    const legacyPropagation = legacySource === "seed"
+        ? ["seed"]
+        : legacySource === "cutting"
+            ? ["stem_cutting"]
+            : legacySource === "bulb"
+                ? ["bulb"]
+                : undefined;
+    const reviewedPropagation = plant.scientificName === "Basella alba" && !plant.cultivar
+        ? ["seed", "stem_cutting"]
+        : undefined;
     const commonName =
         commonNameByPlantKey.get(
             buildPlantSeedKey({
@@ -2221,7 +2236,10 @@ export const plantsMasterSeed = expandedRawPlantsMasterSeed.map((plant) => {
     const yieldKgPerM2 = plant.yieldKgPerM2 ?? toYieldKgPerM2(commonName, groupFallback);
 
     return {
-        ...plant,
+        ...plantWithoutLegacySource,
+        ...(plant.propagationMethods ?? reviewedPropagation ?? legacyPropagation
+            ? { propagationMethods: plant.propagationMethods ?? reviewedPropagation ?? legacyPropagation }
+            : {}),
         family: plant.family ?? inferFamilyFromScientificName(plant.scientificName),
         ...(maxPlantsPerM2 !== undefined ? { maxPlantsPerM2 } : {}),
         ...(seedRatePerM2 !== undefined ? { seedRatePerM2 } : {}),
