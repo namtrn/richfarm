@@ -181,6 +181,23 @@ Open rollout gates:
 
 Next action: authorize a staged migration rehearsal and complete onboarded/authenticated feature-screen QA; only after zero-remaining evidence should the compatibility schema fields and fallbacks be removed.
 
+## Plant geography adaptation Release 1 — dev closed (2026-08-13)
+
+Status: **RELEASE 1 DEV COMPLETE**; production rollout remains separate.
+
+- Native Plant Detail now displays canonical `ORIGIN` and `GROWING CONDITIONS` only
+  when geography exists, alongside compact wrapping `USES`, structured
+  `PROPAGATION`, while harvest, germination, spacing, and watering remain regular value rows in the lower stats list.
+- iPhone 17 Simulator (iOS 26.2) passed Basella metadata/care rendering and all
+  three geo pilots: Brandywine/US, VN Cherry/VN, Tommy Toe/AU, including their
+  approved adaptation sets.
+- A native QA finding where direct `Brandywine` search excluded cultivars was
+  fixed: empty common browse remains base-only, active search covers all
+  canonical plants. Direct simulator re-test passes.
+- Focused mobile tests 13/13, mobile typecheck, and `git diff --check` pass.
+- Evidence: `artifacts/stage-d-simulator/`. No production deployment or data
+  mutation occurred during closeout.
+
 ## Active package: P3.1-LOCAL-AUTHORING — Dashboard SQLite boundary
 
 Status: complete and independently verified (Heavy route, 2026-08-10)

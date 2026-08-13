@@ -392,6 +392,37 @@ this review does not authorize them.
 Production backup/restore evidence and the three separate production
 authorizations remain open release gates.
 
+### 8. Dev closeout — native mobile verification (2026-08-13)
+
+Release 1 is **complete on dev**. The canonical geography projection is now
+rendered on the native Plant Detail screen as optional `ORIGIN` and
+`GROWING CONDITIONS` metadata rows; missing geography remains absent rather than
+inventing suitability. The same compact summary also renders `USES`,
+structured `PROPAGATION`; harvest, germination, spacing, and watering are regular values in the lower stats list without the previous
+standalone clock badge.
+
+Native QA ran on an iPhone 17 Simulator (iOS 26.2) against dev
+`fantastic-beagle-190` and passed:
+
+- Basella base: `USES` Cooking/Salad and `PROPAGATION` Seed/Stem cutting;
+  harvest, germination, spacing, and watering render in the lower stats list,
+  while care Markdown remains readable.
+- Brandywine: `ORIGIN` United States of America and `GROWING CONDITIONS`
+  Warm/Moderate/Temperate/Frost-free.
+- VN Cherry: Viet Nam and Hot/Humid/Tropical/Frost-free.
+- Tommy Toe: Australia and Warm/Moderate/Temperate/Frost-free.
+- Direct cultivar search `Brandywine` initially exposed a discoverability bug:
+  common browse removed cultivars before applying search. Search now evaluates
+  all canonical plants while the empty-query browse remains base-only; native
+  re-test passes.
+
+Evidence is under `artifacts/stage-d-simulator/`. Focused mobile tests pass
+13/13, mobile typecheck passes, and `git diff --check` passes. No production
+deployment or production data mutation was performed as part of this closeout.
+
+**Final status: RELEASE 1 DEV COMPLETE.** Production rollout remains a
+separate operation requiring its own target evidence and authorization.
+
 ## Stage C result — 2026-08-12
 
 Feature-screen QA was executed in the actual dashboard (local API on dev
@@ -656,5 +687,6 @@ restriction or skipped feature-screen check is not a PASS.
 - Country-based hard exclusion or automatic suitability claims.
 - Soft ranking before pilot review.
 - Catalog-wide geography backfill during Release 1 completion.
-- Mobile detail-screen display and filtering of geography (Release 2);
-  Release 1 mobile scope is the boundary typecheck only.
+- Mobile geography filtering/ranking and location-driven recommendations
+  (Release 2). Release 1 includes read-only Plant Detail display of canonical
+  origin and adaptation labels, verified on iPhone 17 Simulator.

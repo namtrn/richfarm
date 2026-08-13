@@ -109,3 +109,11 @@
   terms, qa_test absent), publish the three tomato pilots per §4 via the
   production SQLite/API/outbox (brandywine via the existing seed row), then
   close the completion plan.
+- Closed Plant Geography Adaptation Release 1 on dev after native iPhone 17
+  Simulator QA. Plant Detail now shows optional localized origin/adaptation
+  metadata plus compact Uses/Propagation rows; harvest, germination, spacing,
+  and watering remain in the lower stats list. Basella and all three
+  tomato pilots passed; direct cultivar search exposed and then closed the
+  base-only prefilter bug. Focused mobile tests 13/13, mobile typecheck, and
+  diff-check pass. Completion plan status is `RELEASE 1 DEV COMPLETE`;
+  production remains a separate rollout.
