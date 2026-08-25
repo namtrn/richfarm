@@ -17,6 +17,7 @@ import type {
 import { normalizePropagationMethods } from "../../../shared/src/plantPropagation";
 import type { PropagationMethod } from "../../../shared/src/plantPropagation";
 import type { CareSourceRef } from "../../../shared/src/plantCareStatus";
+import { bumpReconciliationCatalog } from "./reconciliationCatalog";
 
 export {
   CARE_STATUSES,
@@ -216,12 +217,21 @@ export async function upsertPlantCareProfile(
     const merged = { ...existing, ...doc };
     doc.careStatus = recomputeCareStatus(merged as PlantCareProfile, merged.careFieldEvidence);
     await ctx.db.patch(existing._id, doc);
+    await bumpReconciliationCatalog(ctx, {
+      propagation: (Array.isArray(merged.propagationMethods) && merged.propagationMethods.length > 0 ? 1 : 0) -
+        (Array.isArray(existing.propagationMethods) && existing.propagationMethods.length > 0 ? 1 : 0),
+    });
     return existing._id;
   }
   const inserted: PlantCareProfile = { plantId, ...doc };
   if (inserted.propagationMethods === undefined) delete inserted.propagationMethods;
   inserted.careStatus = recomputeCareStatus(inserted, inserted.careFieldEvidence);
-  return await ctx.db.insert("plantCare", inserted);
+  const insertedId = await ctx.db.insert("plantCare", inserted);
+  await bumpReconciliationCatalog(ctx, {
+    care: 1,
+    propagation: Array.isArray(inserted.propagationMethods) && inserted.propagationMethods.length > 0 ? 1 : 0,
+  });
+  return insertedId;
 }
 
 export async function upsertPlantCareI18n(
@@ -262,6 +272,7 @@ export async function upsertPlantCareI18n(
         contentStatus: options.contentStatus,
         ...(publishing ? { contentUpdatedAt: options.contentUpdatedAt ?? Date.now() } : {}),
       });
+      await bumpReconciliationCatalog(ctx);
     }
     return existing?._id ?? null;
   }
@@ -269,6 +280,7 @@ export async function upsertPlantCareI18n(
   if (!careContent || !careContent.trim()) {
     if (existing) {
       await ctx.db.delete(existing._id);
+      await bumpReconciliationCatalog(ctx, { care: 0, i18n: -1 });
     }
     return null;
   }
@@ -302,8 +314,11 @@ export async function upsertPlantCareI18n(
 
   if (existing) {
     await ctx.db.patch(existing._id, payload);
+    await bumpReconciliationCatalog(ctx);
     return existing._id;
   }
 
-  return await ctx.db.insert("plantCareI18n", payload);
+  const insertedId = await ctx.db.insert("plantCareI18n", payload);
+  await bumpReconciliationCatalog(ctx, { i18n: 1 });
+  return insertedId;
 }

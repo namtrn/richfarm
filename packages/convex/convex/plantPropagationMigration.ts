@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { requireAdminServiceToken } from "./lib/adminAuth";
 import { normalizePropagationMethods } from "../../shared/src/plantPropagation";
 import { upsertPlantCareProfile } from "./lib/plantCare";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 const LEGACY_SOURCE_TO_METHOD = {
   seed: "seed",
@@ -137,6 +138,7 @@ export const migrateLegacyPropagationMethods = mutation({
           throw new Error("care profile read-back did not contain mapped method");
         }
         await ctx.db.patch(row._id, { source: undefined });
+        await bumpReconciliationCatalog(ctx);
         report.cleaned += 1;
         if (!alreadyHadMethod) {
           report.migrated += 1;

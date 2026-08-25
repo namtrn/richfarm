@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"psidium\",\"guajava\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "psidium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3933,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "ff03f7634622de82fab0033eb6b70a5a27f2f2fc229e75fb29d6edb37ea823c5",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4207,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "b2b615b605eae42da62b0657c80c65771c33b6d80f0c1746be7fa925fb4bc508",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "PSIDIUM_GUAJAVA_CMMX82FYHG",
+  "schema_version": 1,
+  "scientific_name": "Psidium guajava",
+  "scope": "base",
+  "species": "guajava",
+  "target_status": "active"
+}

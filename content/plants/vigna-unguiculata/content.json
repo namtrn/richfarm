@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"vigna\",\"unguiculata\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "vigna",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4257,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "f76f9f39f6cd725844b7a10ab7abfb288479f6b2ac892ad94c7041ade1a8edac",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4041,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "7e5a46876d03f7ab9d92d516e03abe18909829f7deb295b6beee32a32cb1d2e0",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "VIGNA_UNGUICULATA_GREX81D230",
+  "schema_version": 1,
+  "scientific_name": "Vigna unguiculata",
+  "scope": "base",
+  "species": "unguiculata",
+  "target_status": "active"
+}

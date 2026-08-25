@@ -1,0 +1,28 @@
+{
+  "key": "caterpillars",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 988,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "38988903a44e9132a728992b5b6837ff8a5ae17c76c4ee89bde4cb6542a841d1",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1189,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "f643144ede71fcc4e3e18287eb365b1813ad1eb81709f805b7b1cea835f7417b",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

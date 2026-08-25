@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"carica\",\"papaya\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "carica",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4147,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "7038d5268a9f984b741a20d5171203dc2df04599b65679bcedae797901c10d79",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4264,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "bb526af7aca00108ca9ea5dd58af858f634aad432004c0f2bed26b7ac75985dc",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CARICA_PAPAYA_Q27X81CTRN",
+  "schema_version": 1,
+  "scientific_name": "Carica papaya",
+  "scope": "base",
+  "species": "papaya",
+  "target_status": "active"
+}

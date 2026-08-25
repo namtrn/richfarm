@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "solanum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4710,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "f978d3610f28588d66e0fcd0d3f212329effdf12c5a757b48a2d617130f521b9",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 5305,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "9f827f414e6dabecaf50cdfb96239835e070bccc2e76505d387ccb99c3ecc9b9",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SOLANUM_LYCOPERSICUM",
+  "schema_version": 1,
+  "scientific_name": "Solanum lycopersicum",
+  "scope": "base",
+  "species": "lycopersicum",
+  "target_status": "active"
+}

@@ -1,0 +1,28 @@
+{
+  "key": "aphids",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 1105,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "87d009a18b209cd693cb46e00df9979993d78187fd607c7e5f40c1c143eb2b4b",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1284,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "2114898bc4e5462e204f1e8e9231480f0d2f7e265c5d3dd95b72e3d4974345f2",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

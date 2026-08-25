@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"cymbopogon\",\"citratus\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "cymbopogon",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3867,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "c7defc2e7f1531f88f9bc6b345f0d22c6f9d594d9ddbb92f6978d213d12e6b1d",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4039,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d3b31ca23964111be09f2b5a8a2838530faba196b460b2c40af049bbf4cc233e",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CYMBOPOGON_CITRATUS_CK8H82FF24",
+  "schema_version": 1,
+  "scientific_name": "Cymbopogon citratus",
+  "scope": "base",
+  "species": "citratus",
+  "target_status": "active"
+}

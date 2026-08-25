@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"sansevieria\",\"trifasciata\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "sansevieria",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3430,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "07604c7314a93c353a690b418ddae8edff39077fb12bcf2430d717205838ec71",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3941,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "87f5004b77b8dee7550ca4b6541e2b8e14959e1062fa47292c903df97781da90",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SANSEVIERIA_TRIFASCIATA_KXHD81D90S",
+  "schema_version": 1,
+  "scientific_name": "Sansevieria trifasciata",
+  "scope": "base",
+  "species": "trifasciata",
+  "target_status": "active"
+}

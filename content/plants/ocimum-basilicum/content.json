@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"ocimum\",\"basilicum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "ocimum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 6670,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "8c3a75e5a92e50a7ee829b1fab5f8c7e718fe463384bd41f891c8be8ca77bf5c",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 7734,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "f9e6f75eef6b3788c386d6818daf9c616408520c4f0d08f919e838a1af043233",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "OCIMUM_BASILICUM_8HN181CVDP",
+  "schema_version": 1,
+  "scientific_name": "Ocimum basilicum",
+  "scope": "base",
+  "species": "basilicum",
+  "target_status": "active"
+}

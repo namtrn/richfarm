@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import Purchases, { type PurchasesOffering } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
+import { useTranslation } from 'react-i18next';
 import { REVENUECAT_ENTITLEMENT_ID } from '../lib/revenuecat';
 import { useSubscription } from './useSubscription';
 
@@ -21,12 +22,13 @@ async function getDefaultOffering() {
 }
 
 export function usePaywall() {
+  const { t } = useTranslation();
   const { isConfigured, refresh } = useSubscription();
   const [isPresenting, setIsPresenting] = useState(false);
 
   const presentPaywall = useCallback(async (opts?: { onlyIfNeeded?: boolean }): Promise<PaywallResponse> => {
     if (!isConfigured) {
-      return { status: 'error', errorMessage: 'RevenueCat is not configured.' };
+      return { status: 'error', errorMessage: t('profile.sub_paywall_unavailable') };
     }
 
     setIsPresenting(true);
@@ -68,7 +70,7 @@ export function usePaywall() {
     } finally {
       setIsPresenting(false);
     }
-  }, [isConfigured, refresh]);
+  }, [isConfigured, refresh, t]);
 
   return {
     presentPaywall,

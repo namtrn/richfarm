@@ -3,7 +3,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { convexTest } from "convex-test";
 import schema from "./schema";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 
 const modules = import.meta.glob("./**/*.ts");
 const identity = {
@@ -29,6 +29,53 @@ describe("Phase 1 user plant lifecycle", () => {
 
   beforeEach(() => {
     t = setup();
+  });
+
+  it("requires authentication and atomically enforces the free AI detection quota", async () => {
+    await expect(
+      t.mutation(internal.plantScan.consumeAiDetectionQuota, {})
+    ).rejects.toMatchObject({ data: { code: "UNAUTHORIZED" } });
+
+    await seedUser(t);
+    const user = t.withIdentity(identity);
+    await expect(
+      user.mutation(internal.plantScan.consumeAiDetectionQuota, {})
+    ).resolves.toEqual({ allowed: true, remaining: 0 });
+    await expect(
+      user.mutation(internal.plantScan.consumeAiDetectionQuota, {})
+    ).resolves.toEqual({ allowed: false, remaining: 0 });
+
+    await t.run(async (ctx) => {
+      const current = await ctx.db
+        .query("users")
+        .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+        .unique();
+      if (!current) throw new Error("missing test user");
+      await ctx.db.patch(current._id, {
+        subscription: { tier: "premium", source: "revenuecat" },
+      });
+    });
+    await expect(
+      user.mutation(internal.plantScan.consumeAiDetectionQuota, {})
+    ).resolves.toEqual({ allowed: true, remaining: null });
+  });
+
+  it("rejects anonymous identities before they can consume paid AI detection", async () => {
+    const anonymousIdentity = {
+      subject: "anonymous-detector-user",
+      tokenIdentifier: "test:anonymous-detector-user",
+    };
+    await t.run(async (ctx) => {
+      await ctx.db.insert("users", {
+        tokenIdentifier: anonymousIdentity.tokenIdentifier,
+        isAnonymous: true,
+        isActive: true,
+      });
+    });
+
+    await expect(
+      t.withIdentity(anonymousIdentity).mutation(internal.plantScan.consumeAiDetectionQuota, {})
+    ).rejects.toMatchObject({ data: { code: "UNAUTHORIZED" } });
   });
 
   it("keeps one user plant across Planning and Growing and records automatic events", async () => {

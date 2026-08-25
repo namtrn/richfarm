@@ -1,6 +1,7 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 export const migrateLegacyPlantMasterFields = mutation({
   args: {
@@ -49,6 +50,7 @@ export const migrateLegacyPlantMasterFields = mutation({
           speciesNormalized: undefined,
           cultivarNormalized: undefined,
         } as any);
+        await bumpReconciliationCatalog(ctx);
       }
 
       migrated += 1;

@@ -1,0 +1,91 @@
+{
+  "repairRunId": "cid3-tomato-1554-20260825-r2-backup-metadata-repair",
+  "migrationRunId": "cid3-tomato-1554-20260825-r2",
+  "databasePath": "/Users/n/Documents/GitHub/richfarm/apps/api/data/richfarm.db",
+  "applyReportPath": "/Users/n/Documents/GitHub/richfarm/artifacts/cid3/cid3-tomato-1554-20260825-r2.apply.json",
+  "backupPath": "/Users/n/Documents/GitHub/richfarm/artifacts/cid3/richfarm.db.before-cid3-tomato-1554-20260825-r2.sqlite",
+  "applyReportBeforeHash": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b",
+  "applyReportAfterHash": "8438106b3ca37b98e0e9b3f6b788c5196a50d2250b546f53cdafd577541ff58d",
+  "backupSha256": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b",
+  "preRepair": {
+    "fileHash": "8438106b3ca37b98e0e9b3f6b788c5196a50d2250b546f53cdafd577541ff58d",
+    "run": {
+      "run_id": "cid3-tomato-1554-20260825-r2",
+      "status": "applied",
+      "before_hash": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b",
+      "after_hash": "ef1d19f9c88cff9928de53808cda4bc71add586f477217d09a862e8ab85eb818",
+      "backup_path": "/Users/n/Documents/GitHub/richfarm/artifacts/cid3/richfarm.db.before-cid3-tomato-1554-20260825-r2.sqlite",
+      "backup_sha256": null
+    },
+    "plantDigest": "cb5d0b85dad264e14a8dc804bca0b270c281189e925459c2961b258ee6c5bc80",
+    "plantCount": 1553,
+    "outboxDigest": "5aba2559df72cd01eee090ef4fc70c3dc3bde746aa6881a7f07c73029c7097f3",
+    "outboxCount": 92,
+    "outboxMaxId": 157,
+    "journal": []
+  },
+  "repair": {
+    "runId": "cid3-tomato-1554-20260825-r2",
+    "status": "repaired",
+    "databasePath": "/Users/n/Documents/GitHub/richfarm/apps/api/data/richfarm.db",
+    "backupPath": "/Users/n/Documents/GitHub/richfarm/artifacts/cid3/richfarm.db.before-cid3-tomato-1554-20260825-r2.sqlite",
+    "backupSha256": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b",
+    "expectedBeforeHash": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b",
+    "filledFields": [
+      "backup_sha256"
+    ],
+    "journalSequence": 3143,
+    "beforeDatabaseHash": "8438106b3ca37b98e0e9b3f6b788c5196a50d2250b546f53cdafd577541ff58d",
+    "afterDatabaseHash": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0"
+  },
+  "postRepair": {
+    "fileHash": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "run": {
+      "run_id": "cid3-tomato-1554-20260825-r2",
+      "status": "applied",
+      "before_hash": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b",
+      "after_hash": "ef1d19f9c88cff9928de53808cda4bc71add586f477217d09a862e8ab85eb818",
+      "backup_path": "/Users/n/Documents/GitHub/richfarm/artifacts/cid3/richfarm.db.before-cid3-tomato-1554-20260825-r2.sqlite",
+      "backup_sha256": "5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b"
+    },
+    "plantDigest": "cb5d0b85dad264e14a8dc804bca0b270c281189e925459c2961b258ee6c5bc80",
+    "plantCount": 1553,
+    "outboxDigest": "5aba2559df72cd01eee090ef4fc70c3dc3bde746aa6881a7f07c73029c7097f3",
+    "outboxCount": 92,
+    "outboxMaxId": 157,
+    "journal": [
+      {
+        "sequence_no": 3143,
+        "entity_type": "migration_run",
+        "entity_table": "canonical_identity_migration_runs",
+        "entity_id": "cid3-tomato-1554-20260825-r2",
+        "action": "backup_metadata_repair"
+      }
+    ]
+  },
+  "audit": {
+    "status": "healthy",
+    "summary": {
+      "totalFindings": 1,
+      "info": 1,
+      "warning": 0,
+      "blocked": 0,
+      "sqliteRows": 1553,
+      "convexRows": null,
+      "duplicateCanonicalKeys": 0,
+      "unresolvedIdentityRows": 0,
+      "legacyParentlessCultivars": 0
+    },
+    "findingCodes": [
+      {
+        "code": "ARCHIVED_CANONICAL_ALIAS_SQLITE",
+        "severity": "info"
+      }
+    ],
+    "databaseHashBefore": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "databaseHashAfter": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0"
+  },
+  "noPlantChanges": true,
+  "noOutboxChanges": true,
+  "noNetworkOrConvex": true
+}

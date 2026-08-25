@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"hibiscus\",\"rosa-sinensis\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "hibiscus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4090,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "bfd3ae5050a063020cb2b857cb7d6ae75f0b1bfc4505e755b27311a198af2e55",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4245,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "dc2c39fdace5360640b7b251cec6f159bdbd36dd7ecc06f8bf9db5201a5cda4e",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "HIBISCUS_ROSA_SINENSIS_9Z2981CXAN",
+  "schema_version": 1,
+  "scientific_name": "Hibiscus rosa-sinensis",
+  "scope": "base",
+  "species": "rosa-sinensis",
+  "target_status": "active"
+}

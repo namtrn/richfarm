@@ -1,5 +1,7 @@
 type UnknownRecord = Record<string, unknown>;
 
+import type { ConvexSnapshotPage } from "./sync-reconciliation";
+
 /** Environment variables used by the server-side Convex integration.
  *
  * These names are intentionally the only configuration details exposed by
@@ -37,6 +39,12 @@ export interface ConvexPlantLibraryItem {
   _id: string;
   scientificName: string;
   displayName: string;
+  /** Structured taxonomy fields forwarded by trusted Convex snapshots when present. */
+  genus?: string;
+  species?: string;
+  genusNormalized?: string;
+  speciesNormalized?: string;
+  taxonomyParseStatus?: "ok" | "manual_review";
   description?: string;
   sourceSystem?: string;
   sourceId?: string;
@@ -231,7 +239,127 @@ export class ConvexSyncService {
       return null;
     }
 
-    return this.adminQuery<ConvexPlantLibraryItem[]>("masterSync:listAll", { locale });
+    const rows: ConvexPlantLibraryItem[] = [];
+    const seenCursors = new Set<string>();
+    let cursor: string | null = null;
+    let revision: string | null = null;
+    let expectedCount: number | null = null;
+    let terminal = false;
+    for (let pageNumber = 0; pageNumber < 1000; pageNumber += 1) {
+      const page = await this.fetchAdminMasterPlantsPage(locale, cursor, 500);
+      if (page.snapshotRevision === null || page.expectedCount === null) return null;
+      if (revision === null) {
+        revision = page.snapshotRevision;
+        expectedCount = page.expectedCount;
+      } else if (page.snapshotRevision !== revision || page.expectedCount !== expectedCount) {
+        return null;
+      }
+      if (page.sourceDataChanged) return null;
+      rows.push(...(page.rows as ConvexPlantLibraryItem[]));
+      if (expectedCount !== null && rows.length > expectedCount) return null;
+      if (page.nextCursor === null) {
+        terminal = true;
+        break;
+      }
+      const nextCursor = page.nextCursor.trim();
+      if (!nextCursor || seenCursors.has(nextCursor) || nextCursor === cursor) return null;
+      seenCursors.add(nextCursor);
+      cursor = nextCursor;
+    }
+    if (!terminal || expectedCount === null || rows.length !== expectedCount) return null;
+    const end = await this.fetchAdminMasterPlantsMetadata();
+    if (!end || end.snapshotRevision !== revision || end.expectedCount !== expectedCount) return null;
+    return rows;
+  }
+
+  /**
+   * Bounded admin snapshot page used by reconciliation.  The Convex query is
+   * expected to return `{ rows, nextCursor, revision, expectedCount }` from
+   * the bounded `masterSync:listPage` query. Legacy arrays are treated as
+   * incomplete evidence and are never accepted by reconciliation.
+   */
+  async fetchAdminMasterPlantsPage(
+    locale = "vi",
+    cursor: string | null = null,
+    limit = 500,
+  ): Promise<ConvexSnapshotPage> {
+    if (!this.isAdminProxyEnabled()) {
+      throw new Error("Convex admin proxy is not configured");
+    }
+    const result = await this.adminQuery<unknown>("masterSync:listPage", {
+      locale,
+      cursor,
+      limit: Math.max(1, Math.min(5000, limit)),
+    });
+    if (Array.isArray(result)) {
+      return {
+        rows: result,
+        nextCursor: null,
+        snapshotRevision: null,
+        expectedCount: null,
+        sourceDataChanged: false,
+      };
+    }
+    const record = result && typeof result === "object" && !Array.isArray(result)
+      ? result as Record<string, unknown>
+      : {};
+    const rows = Array.isArray(record.rows)
+      ? record.rows
+      : Array.isArray(record.items)
+        ? record.items
+        : Array.isArray(record.data)
+          ? record.data
+          : [];
+    const rawCursor = record.nextCursor ?? record.next_cursor ?? record.cursor;
+    const rawRevision = record.revision ?? record.snapshotRevision ?? record.dataRevision ?? record.catalogRevision;
+    const rawExpectedCount = record.expectedCount ?? record.totalCount ?? record.total ??
+      (record.expectedCounts && typeof record.expectedCounts === "object"
+        ? (record.expectedCounts as Record<string, unknown>).plants
+        : undefined);
+    return {
+      rows,
+      nextCursor: rawCursor === null || rawCursor === undefined ? null : String(rawCursor),
+      snapshotRevision: typeof rawRevision === "string"
+        || typeof rawRevision === "number"
+        ? String(rawRevision)
+        : null,
+      expectedCount: typeof rawExpectedCount === "number"
+        ? Number(rawExpectedCount)
+        : null,
+      sourceDataChanged: record.sourceDataChanged === true || record.source_data_changed === true,
+    };
+  }
+
+  /** Re-read the singleton catalog watermark after a terminal page. */
+  async fetchAdminMasterPlantsMetadata(): Promise<{
+    snapshotRevision: string | null;
+    expectedCount: number | null;
+    initialized: boolean;
+  }> {
+    if (!this.isAdminProxyEnabled()) {
+      throw new Error("Convex admin proxy is not configured");
+    }
+    // Catalog metadata is deployment-wide, not locale-scoped. Sending a
+    // locale here violates the Convex query validator and can fail every
+    // reconciliation boundary check even when the catalog is healthy.
+    const result = await this.adminQuery<unknown>("masterSync:getCatalogMetadata", {});
+    if (!result || typeof result !== "object" || Array.isArray(result)) {
+      return { snapshotRevision: null, expectedCount: null, initialized: false };
+    }
+    const record = result as Record<string, unknown>;
+    const rawRevision = record.revision ?? record.snapshotRevision;
+    const expectedCounts = record.expectedCounts;
+    const rawExpectedCount = record.expectedCount ??
+      (expectedCounts && typeof expectedCounts === "object"
+        ? (expectedCounts as Record<string, unknown>).plants
+        : undefined);
+    return {
+      snapshotRevision: typeof rawRevision === "string" || typeof rawRevision === "number"
+        ? String(rawRevision)
+        : null,
+      expectedCount: typeof rawExpectedCount === "number" ? rawExpectedCount : null,
+      initialized: record.initialized === true,
+    };
   }
 
   async adminQuery<T>(path: string, args: Record<string, unknown>): Promise<T> {

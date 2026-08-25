@@ -1,0 +1,28 @@
+{
+  "key": "downy_mildew",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 948,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "5f0c12e962a8f63c302004a7427bc387bbd8fcf6a32105792112e9d98ddf39c6",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1111,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "6b2825f8869cc3aaa36e0d2fb2c22edccb3f89f27ee7e14928e69ced9e21023d",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

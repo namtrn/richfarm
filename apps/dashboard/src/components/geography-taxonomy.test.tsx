@@ -3,10 +3,11 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { GeographyEditor } from "./GeographyEditor";
 import { TaxonomyManager } from "./TaxonomyManager";
-import type { PlantFormState, ResolvedGeography } from "../types";
+import type { ResolvedGeography } from "../types";
+import { withPlantFormDefaults } from "../constants";
 import type { useAdaptationTerms } from "../hooks/useAdaptationTerms";
 
-const emptyForm: PlantFormState = {
+const emptyForm = withPlantFormDefaults({
     genus: "",
     species: "",
     cultivar: "",
@@ -62,7 +63,7 @@ const emptyForm: PlantFormState = {
     propagationMethods: [],
     propagationSourceRefs: [],
     propagationSourceRefsDirty: false,
-};
+});
 
 const authedFetch = async () => new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
 

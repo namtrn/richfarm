@@ -174,6 +174,8 @@ export default function ExplorerScreen() {
             .filter((item: any) => {
                 return matchesSearch(normalizedDeferredQuery, [
                     item.name,
+                    item.commonNameVi,
+                    Array.isArray(item.scientificNames) ? item.scientificNames.join(' ') : '',
                     item.key,
                     item.type,
                     Array.isArray(item.plantsAffected) ? item.plantsAffected.join(' ') : '',
@@ -393,7 +395,9 @@ export default function ExplorerScreen() {
                                                 <Bug size={20} stroke={badgeColor} />
                                             </View>
                                         }
-                                        title={item.name}
+                                        title={i18n.language?.split('-')[0].toLowerCase() === 'vi' && item.commonNameVi
+                                            ? item.commonNameVi
+                                            : item.name}
                                         subtitle={badgeLabel}
                                         onPress={() => openHealth(isDisease ? 'diseases' : 'pests')}
                                         testID="e2e-explorer-health-result"

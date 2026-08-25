@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"aloe\",\"vera\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "aloe",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3579,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "8d917981f9aca2aea1571c52f91d625f2cac11e055dc6bcb88563a4d087b849f",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3975,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "e21bfcea6c99f4669690fa862b6de61ecbdbf8bc8e64d516f1beb9903eaabe21",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ALOE_VERA_5K3181C5PP",
+  "schema_version": 1,
+  "scientific_name": "Aloe vera",
+  "scope": "base",
+  "species": "vera",
+  "target_status": "active"
+}

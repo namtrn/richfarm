@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"perilla\",\"frutescens\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "perilla",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3922,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "60121f5cc39731e6d455737733d64a33e28a293833af924dc2b67fb183a2b33f",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4092,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "415ebd8dba13e20daa642770c358f83f3307de382985688fd0328c3c336773ff",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "PERILLA_FRUTESCENS_FYSX81CF7F",
+  "schema_version": 1,
+  "scientific_name": "Perilla frutescens",
+  "scope": "base",
+  "species": "frutescens",
+  "target_status": "active"
+}

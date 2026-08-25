@@ -1,0 +1,28 @@
+{
+  "key": "whiteflies",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 969,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "bb8011275e1f621b4b6e5eaa19d1bf51f6ed6bdf1aaa8288e5d82ebc69a6058f",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1146,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "4f7a74a4264c0f616cd11df9eab98d3402a6dfec400dfaaee3cdd0af34abee51",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

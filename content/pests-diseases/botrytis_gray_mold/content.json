@@ -1,0 +1,28 @@
+{
+  "key": "botrytis_gray_mold",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 826,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "39e10798a1798644c560103837b8bd49e8e980293962737e419eea29ecf89961",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 974,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "63e4a69f6e283ba5664d69aebc32a9ca9349d402797a94a10dc5216efeef21de",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

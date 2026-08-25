@@ -1,6 +1,7 @@
 import { mutation } from './_generated/server';
 import { v } from 'convex/values';
 import { requireAdminServiceToken } from './lib/adminAuth';
+import { bumpReconciliationCatalog } from './lib/reconciliationCatalog';
 
 const DEFAULT_CONTENT_UPDATED_AT = Date.parse('2026-07-13T00:00:00.000Z');
 const RECENT_CONTENT_UPDATED_AT = Date.parse('2026-08-13T00:00:00.000Z');
@@ -51,7 +52,10 @@ export const backfill = mutation({
       const contentUpdatedAt = isRecent ? RECENT_CONTENT_UPDATED_AT : DEFAULT_CONTENT_UPDATED_AT;
       if (row.contentUpdatedAt === contentUpdatedAt) continue;
       changed += 1;
-      if (!dryRun) await ctx.db.patch(row._id, { contentUpdatedAt });
+      if (!dryRun) {
+        await ctx.db.patch(row._id, { contentUpdatedAt });
+        await bumpReconciliationCatalog(ctx);
+      }
     }
 
     return {

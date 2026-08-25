@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "auditVersion": "canonical_identity_audit_v1",
+  "auditId": "cid1-post-cid3-tomato-1554-20260825-r2",
+  "status": "blocked",
+  "summary": {
+    "totalFindings": 1,
+    "info": 0,
+    "warning": 0,
+    "blocked": 1,
+    "sqliteRows": 1553,
+    "convexRows": null,
+    "duplicateCanonicalKeys": 1,
+    "unresolvedIdentityRows": 0,
+    "legacyParentlessCultivars": 0
+  },
+  "freshnessBoundary": {
+    "sqliteDataRevision": "51875928a4b91d5bc88dcca68d5be158df0e8fd5ea788203af252874cd3738b8",
+    "sqliteOutboxWatermark": 157,
+    "convexSnapshotRevision": null,
+    "convexExpectedCount": null,
+    "convexReceivedCount": null,
+    "convexPageCount": 0,
+    "convexTerminalCursor": null,
+    "sourceDataChangedDuringRead": false,
+    "snapshotComplete": true
+  },
+  "sources": {
+    "sqlite": {
+      "status": "read",
+      "rowCount": 1553,
+      "canonicalKeyCount": 1552,
+      "duplicateCanonicalKeyCount": 1,
+      "identityIncompleteCount": 0,
+      "dataRevision": "51875928a4b91d5bc88dcca68d5be158df0e8fd5ea788203af252874cd3738b8",
+      "expectedCount": 1553,
+      "receivedCount": 1553,
+      "pageCount": 1,
+      "terminalCursor": null
+    },
+    "convex": {
+      "status": "unavailable",
+      "rowCount": 0,
+      "canonicalKeyCount": 0,
+      "duplicateCanonicalKeyCount": 0,
+      "identityIncompleteCount": 0,
+      "dataRevision": "da138a16f06a8054a5d9798895d0f2d24f9c4d603467a0204df7af25fe97388b",
+      "expectedCount": null,
+      "receivedCount": 0,
+      "pageCount": 0,
+      "terminalCursor": null
+    }
+  },
+  "findings": [
+    {
+      "id": "ca310d608aa855bf387f",
+      "severity": "blocked",
+      "code": "DUPLICATE_CANONICAL_KEY_SQLITE",
+      "category": "identity",
+      "canonicalKey": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+      "sqliteIdentities": [
+        {
+          "side": "sqlite",
+          "id": 6,
+          "plantCode": "SOLANUM_LYCOPERSICUM_D50D81CYHR",
+          "sourceSystem": "sqlite",
+          "sourceId": null,
+          "canonicalKey": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+          "computedCanonicalKey": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+          "identitySource": "structured",
+          "genus": "solanum",
+          "species": "lycopersicum",
+          "rank": "",
+          "infraspecificName": "",
+          "cultivar": "",
+          "scope": "base",
+          "parentMasterPlantId": null
+        },
+        {
+          "side": "sqlite",
+          "id": 1554,
+          "plantCode": "SOLANUM_LYCOPERSICUM",
+          "sourceSystem": "sqlite",
+          "sourceId": "ec879cdc-bbed-47e1-8d90-719fd5a3df53",
+          "canonicalKey": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+          "computedCanonicalKey": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+          "identitySource": "structured",
+          "genus": "solanum",
+          "species": "lycopersicum",
+          "rank": "",
+          "infraspecificName": "",
+          "cultivar": "",
+          "scope": "base",
+          "parentMasterPlantId": null
+        }
+      ],
+      "convexIdentities": [],
+      "evidence": {
+        "classification": "exact_duplicate",
+        "rowIds": [
+          6,
+          1554
+        ],
+        "plantCodes": [
+          "SOLANUM_LYCOPERSICUM",
+          "SOLANUM_LYCOPERSICUM_D50D81CYHR"
+        ]
+      }
+    }
+  ]
+}

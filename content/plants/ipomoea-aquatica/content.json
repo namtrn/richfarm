@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"ipomoea\",\"aquatica\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "ipomoea",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4463,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "c1dd7d5db49e70ee1de09a52084b36c19fce91755d5f9d28325dd312bf51cd6b",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3988,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "fa2104661909b92aec15da3304fa03fe998a5653553c62ae3e0d698bfced2150",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "IPOMOEA_AQUATICA_K0DX81DZ8C",
+  "schema_version": 1,
+  "scientific_name": "Ipomoea aquatica",
+  "scope": "base",
+  "species": "aquatica",
+  "target_status": "active"
+}

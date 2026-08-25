@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"lactuca\",\"sativa\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "lactuca",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3682,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "0d8ecc545cb5c4462d6595ca8e16a2ea8dc8f43e3697c6c9e04adfabf6b79e37",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4243,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d4bb931a3a561a3df94da7cee595ee957d104d55e05d6f9f00162fc6aa66f99d",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "LACTUCA_SATIVA_DE3581DDX0",
+  "schema_version": 1,
+  "scientific_name": "Lactuca sativa",
+  "scope": "base",
+  "species": "sativa",
+  "target_status": "active"
+}

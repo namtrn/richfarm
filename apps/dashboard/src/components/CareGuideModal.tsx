@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 export type CareGuideLocale = {
@@ -41,6 +41,7 @@ export function CareGuideModal({
     const [mode, setMode] = useState<EditorMode>(initialMode);
     const [drafts, setDrafts] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
+    const markdownFileInputRef = useRef<HTMLInputElement>(null);
 
     const activeRow = locales.find((row) => row.locale === activeLocale);
     const activeValue = drafts[activeLocale] ?? activeRow?.careContent ?? "";
@@ -73,6 +74,31 @@ export function CareGuideModal({
     function handleClose() {
         if (anyDirty && !window.confirm(DISCARDS_CONFIRM)) return;
         onClose();
+    }
+
+    function importMarkdownFile(event: React.ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0];
+        // Reset the input so selecting the same file again still triggers an
+        // import after the editor has been changed or saved.
+        event.target.value = "";
+        if (!file || !activeRow) return;
+        if (!file.name.toLowerCase().endsWith(".md")) {
+            window.alert("Choose a Markdown (.md) file.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onerror = () => window.alert("Could not read the Markdown file.");
+        reader.onload = () => {
+            if (typeof reader.result !== "string") {
+                window.alert("Could not read the Markdown file.");
+                return;
+            }
+            const markdown = reader.result;
+            setDrafts((prev) => ({ ...prev, [activeRow.locale]: markdown }));
+            setMode("edit");
+        };
+        reader.readAsText(file);
     }
 
     async function handleSave() {
@@ -147,6 +173,25 @@ export function CareGuideModal({
                                 >
                                     Preview
                                 </button>
+                            </div>
+                            <div className="care-guide-import">
+                                <input
+                                    ref={markdownFileInputRef}
+                                    type="file"
+                                    accept="text/markdown,.md"
+                                    aria-label={`Import Markdown care guide (${activeRow.locale})`}
+                                    hidden
+                                    onChange={importMarkdownFile}
+                                />
+                                <button
+                                    className="btn secondary small"
+                                    type="button"
+                                    onClick={() => markdownFileInputRef.current?.click()}
+                                    disabled={saving}
+                                >
+                                    Import Markdown
+                                </button>
+                                <span className="muted small">Loads into this {activeRow.locale.toUpperCase()} draft; save to apply.</span>
                             </div>
                             {mode === "edit" ? (
                                 <textarea

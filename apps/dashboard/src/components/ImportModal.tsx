@@ -7,6 +7,14 @@ interface ParsedRow {
     plant_code: string;
     i18n: { vi: { common_name: string; description?: string }; en: { common_name: string; description?: string } };
     scientific_name?: string;
+    genus?: string;
+    species?: string;
+    infraspecific_rank?: string | null;
+    infraspecific_name?: string | null;
+    cultivar?: string | null;
+    identity_scope?: "base" | "cultivar";
+    parent_master_plant_id?: number | null;
+    parent_canonical_key?: string | null;
     category?: string;
     group?: string;
     family?: string;
@@ -35,17 +43,30 @@ function parseCsvLine(line: string): string[] {
     return result;
 }
 
-function csvToRows(text: string): ParsedRow[] {
+export function csvToRows(text: string): ParsedRow[] {
     const lines = text.split(/\r?\n/).filter((l) => l.trim());
     if (lines.length < 2) return [];
     const headers = parseCsvLine(lines[0]);
+    const hasHeader = (name: string) => headers.includes(name);
+    const optionalCell = (obj: Record<string, unknown>, name: string) =>
+        hasHeader(name) ? String(obj[name] ?? "").trim() : undefined;
     return lines.slice(1).map((line) => {
         const cells = parseCsvLine(line);
         const obj: Record<string, unknown> = {};
         headers.forEach((h, i) => { obj[h] = cells[i] ?? ""; });
+        const scope = optionalCell(obj, "identity_scope");
+        const parentId = optionalCell(obj, "parent_master_plant_id");
         return {
             plant_code: String(obj["plant_code"] ?? ""),
             scientific_name: String(obj["scientific_name"] ?? "") || undefined,
+            genus: optionalCell(obj, "genus"),
+            species: optionalCell(obj, "species"),
+            infraspecific_rank: hasHeader("infraspecific_rank") ? (optionalCell(obj, "infraspecific_rank") || null) : undefined,
+            infraspecific_name: hasHeader("infraspecific_name") ? (optionalCell(obj, "infraspecific_name") || null) : undefined,
+            cultivar: hasHeader("cultivar") ? (optionalCell(obj, "cultivar") || null) : undefined,
+            identity_scope: hasHeader("identity_scope") ? (scope === "cultivar" ? "cultivar" : "base") : undefined,
+            parent_master_plant_id: hasHeader("parent_master_plant_id") ? (parentId ? Number(parentId) : null) : undefined,
+            parent_canonical_key: hasHeader("parent_canonical_key") ? (optionalCell(obj, "parent_canonical_key") || null) : undefined,
             category: String(obj["category"] ?? "") || undefined,
             group: String(obj["group"] ?? "") || undefined,
             family: String(obj["family"] ?? "") || undefined,
@@ -126,7 +147,7 @@ export function ImportModal({
                 <div className="modal-body">
                     <p className="muted">
                         Accepts <strong>JSON</strong> (array of plant objects) or <strong>CSV</strong> with headers:<br />
-                        <code>plant_code, scientific_name, category, group, family, vi_common_name, vi_description, en_common_name, en_description, typical_days_to_harvest, germination_days, spacing_cm …</code>
+                        <code>plant_code, genus, species, infraspecific_rank, infraspecific_name, cultivar, identity_scope, parent_master_plant_id, parent_canonical_key, vi_common_name, en_common_name, …</code>
                     </p>
 
                     <div
@@ -170,6 +191,7 @@ export function ImportModal({
                                             <th>plant_code</th>
                                             <th>VI Name</th>
                                             <th>EN Name</th>
+                                            <th>Canonical identity</th>
                                             <th>Group</th>
                                         </tr>
                                     </thead>
@@ -180,12 +202,13 @@ export function ImportModal({
                                                 <td>{row.plant_code}</td>
                                                 <td>{row.i18n?.vi?.common_name}</td>
                                                 <td>{row.i18n?.en?.common_name}</td>
+                                                <td>{row.genus && row.species ? `${row.genus} ${row.species}${row.cultivar ? ` '${row.cultivar}'` : ""}` : "⚠ missing structured fields"}</td>
                                                 <td>{row.group ?? "—"}</td>
                                             </tr>
                                         ))}
                                         {rows.length > 20 && (
                                             <tr>
-                                                <td colSpan={5} className="muted" style={{ textAlign: "center" }}>
+                                                <td colSpan={6} className="muted" style={{ textAlign: "center" }}>
                                                     … and {rows.length - 20} more rows
                                                 </td>
                                             </tr>

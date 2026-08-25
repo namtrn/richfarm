@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"solanum\",\"melongena\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "solanum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3802,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "8f7819b42b5ff440d066e61dcc0d6c0068e2cb767be774a14e334ac0dba6c5e5",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4409,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "c1a160135615862160b601609fb7ff19a64cf09dc7a7dda5640add53cf41f5cc",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SOLANUM_MELONGENA_ZQR581DS56",
+  "schema_version": 1,
+  "scientific_name": "Solanum melongena",
+  "scope": "base",
+  "species": "melongena",
+  "target_status": "active"
+}

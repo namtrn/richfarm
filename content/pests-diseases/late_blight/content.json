@@ -1,0 +1,28 @@
+{
+  "key": "late_blight",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 920,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "f63b1109c7f6866cf60a675e178553adf2645c56dd7eb9cd29b11ffa044dd7d7",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1127,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "8815813daf98c54b722fd16fd64583da70389ff35256cec1b719cb56af7d906f",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

@@ -4,6 +4,9 @@ export type PestDiseaseSeed = {
     key: string;
     type: "pest" | "disease";
     name: string;
+    commonNameVi?: string;
+    scientificNames?: string[];
+    plantKeys?: string[];
     imageUrl?: string;
     identification: string[];
     damage: string[];
@@ -15,6 +18,113 @@ export type PestDiseaseSeed = {
     };
     plantsAffected: string[];
     sortOrder: number;
+};
+
+type PestDiseaseMetadata = Pick<
+    PestDiseaseSeed,
+    "commonNameVi" | "scientificNames" | "plantKeys"
+>;
+
+/**
+ * Compact identity metadata for the lookup extension.
+ *
+ * A common name can represent more than one organism, so scientificNames is
+ * intentionally an array. The values are representative agents for the
+ * broad issue shown in the app, not a claim that every record is one species.
+ * plantKeys use the canonical scientific-name slug of the affected plant
+ * group, which remains stable across localized display names and cultivars.
+ */
+const pestDiseaseMetadata: Record<string, PestDiseaseMetadata> = {
+    aphids: {
+        commonNameVi: "Rệp mềm",
+        scientificNames: ["Aphis gossypii", "Myzus persicae"],
+        plantKeys: ["solanum-lycopersicum", "capsicum-annuum", "lactuca-sativa", "ocimum-basilicum", "cucumis-sativus", "rosa-chinensis"],
+    },
+    spider_mites: {
+        commonNameVi: "Nhện đỏ",
+        scientificNames: ["Tetranychus urticae"],
+        plantKeys: ["solanum-lycopersicum", "phaseolus-vulgaris", "fragaria-x-ananassa", "cucumis-sativus", "epipremnum-aureum", "rosmarinus-officinalis"],
+    },
+    whiteflies: {
+        commonNameVi: "Bọ phấn trắng",
+        scientificNames: ["Bemisia tabaci", "Trialeurodes vaporariorum"],
+        plantKeys: ["solanum-lycopersicum", "capsicum-annuum", "solanum-melongena", "cucumis-sativus"],
+    },
+    caterpillars: {
+        commonNameVi: "Sâu ăn lá",
+        scientificNames: ["Spodoptera litura", "Helicoverpa armigera"],
+        plantKeys: ["brassica-oleracea-var-capitata", "lactuca-sativa", "solanum-lycopersicum"],
+    },
+    thrips: {
+        commonNameVi: "Bọ trĩ",
+        scientificNames: ["Frankliniella occidentalis", "Thrips tabaci"],
+        plantKeys: ["allium-cepa", "capsicum-annuum", "solanum-lycopersicum", "cucumis-sativus"],
+    },
+    mealybugs: {
+        commonNameVi: "Rệp sáp",
+        scientificNames: ["Planococcus citri", "Pseudococcus longispinus"],
+        plantKeys: ["epipremnum-aureum", "citrus-aurantiifolia", "capsicum-annuum", "aloe-vera"],
+    },
+    fungus_gnats: {
+        commonNameVi: "Ruồi nấm",
+        scientificNames: ["Bradysia spp."],
+        plantKeys: ["epipremnum-aureum", "lactuca-sativa", "ocimum-basilicum"],
+    },
+    slugs_snails: {
+        commonNameVi: "Ốc sên và sên trần",
+        scientificNames: ["Lissachatina fulica", "Deroceras reticulatum"],
+        plantKeys: ["lactuca-sativa", "basella-alba", "abelmoschus-esculentus", "cucumis-sativus"],
+    },
+    powdery_mildew: {
+        commonNameVi: "Bệnh phấn trắng",
+        scientificNames: ["Erysiphe spp."],
+        plantKeys: ["cucumis-sativus", "rosa-chinensis", "rosmarinus-officinalis", "cucurbita-pepo"],
+    },
+    downy_mildew: {
+        commonNameVi: "Bệnh sương mai",
+        scientificNames: ["Peronospora spp.", "Pseudoperonospora cubensis"],
+        plantKeys: ["cucumis-sativus", "lactuca-sativa", "brassica-oleracea-var-capitata"],
+    },
+    early_blight: {
+        commonNameVi: "Bệnh đốm nâu sớm",
+        scientificNames: ["Alternaria solani"],
+        plantKeys: ["solanum-lycopersicum", "solanum-melongena", "solanum-tuberosum"],
+    },
+    root_rot: {
+        commonNameVi: "Thối rễ",
+        scientificNames: ["Pythium spp.", "Phytophthora spp.", "Rhizoctonia solani"],
+        plantKeys: ["solanum-lycopersicum", "citrus-aurantiifolia", "epipremnum-aureum", "rosmarinus-officinalis", "aloe-vera"],
+    },
+    leaf_spot: {
+        commonNameVi: "Bệnh đốm lá",
+        scientificNames: ["Alternaria spp.", "Cercospora spp."],
+        plantKeys: ["basella-alba", "capsicum-annuum", "phaseolus-vulgaris", "rosa-chinensis", "solanum-lycopersicum"],
+    },
+    rust: {
+        commonNameVi: "Bệnh gỉ sắt",
+        scientificNames: ["Puccinia spp.", "Uromyces spp."],
+        plantKeys: ["phaseolus-vulgaris", "allium-cepa", "rosa-chinensis"],
+    },
+    late_blight: {
+        commonNameVi: "Bệnh mốc sương",
+        scientificNames: ["Phytophthora infestans"],
+        plantKeys: ["solanum-lycopersicum", "solanum-melongena", "capsicum-annuum"],
+    },
+    botrytis_gray_mold: {
+        commonNameVi: "Bệnh mốc xám",
+        scientificNames: ["Botrytis cinerea"],
+        plantKeys: ["fragaria-x-ananassa", "rosa-chinensis", "lactuca-sativa", "solanum-lycopersicum"],
+    },
+    bacterial_wilt: {
+        commonNameVi: "Bệnh héo xanh do vi khuẩn",
+        scientificNames: ["Ralstonia solanacearum species complex"],
+        plantKeys: ["solanum-lycopersicum", "solanum-melongena", "capsicum-annuum", "cucumis-sativus"],
+    },
+    damping_off: {
+        commonNameVi: "Bệnh chết cây con",
+        scientificNames: ["Pythium spp.", "Rhizoctonia solani", "Fusarium spp."],
+        plantKeys: ["solanum-lycopersicum", "capsicum-annuum", "brassica-oleracea-var-capitata", "ocimum-basilicum"],
+    },
 };
 
 const MOCK_PEST_IMAGE =
@@ -706,6 +816,7 @@ const basePestsDiseasesSeed: PestDiseaseSeed[] = [
 export const pestsDiseasesSeed: PestDiseaseSeed[] = basePestsDiseasesSeed.map(
     (entry) => ({
         ...entry,
+        ...pestDiseaseMetadata[entry.key],
         imageUrl:
             entry.imageUrl ??
             (entry.type === "pest" ? MOCK_PEST_IMAGE : MOCK_DISEASE_IMAGE),

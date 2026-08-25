@@ -66,7 +66,13 @@ export async function convexAdminMutation<T>(
 export const emptyPlantForm: PlantFormState = {
     genus: "",
     species: "",
+    infraspecificRank: "",
+    infraspecificName: "",
     cultivar: "",
+    identityScope: "base",
+    parentMasterPlantId: "",
+    parentCanonicalKey: "",
+    canonicalIdentityComplete: false,
     group: "other",
     basePlantId: "",
     commonNameGroupKey: "",
@@ -120,6 +126,15 @@ export const emptyPlantForm: PlantFormState = {
     adaptationTermCodes: [],
     adaptationTermSourceRefs: {},
 };
+
+/**
+ * State-construction boundary for older dashboard fixtures/import adapters.
+ * The public form state remains fully typed; callers that predate CID-4 get
+ * explicit canonical defaults instead of weakening PlantFormState itself.
+ */
+export function withPlantFormDefaults(value: Partial<PlantFormState>): PlantFormState {
+    return { ...emptyPlantForm, ...value };
+}
 
 export const emptyGroupForm: GroupFormState = {
     key: "",

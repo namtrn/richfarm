@@ -1,0 +1,28 @@
+{
+  "key": "fungus_gnats",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 1002,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "7a0c647ca4e8b7d7743b1e53367ad6ad1f61b1db204c4659956e8525cc109630",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1230,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "bea4a0bd9438c1d8f010986a236f667a5a7b9f6584e9d86045d7fd038ef6d1fc",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"spathiphyllum\",\"wallisii\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "spathiphyllum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3678,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "40406893d990f8688b879cfdb3b75f484ce2768e1576b86fb39ac081c6078641",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3949,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "1532ee9f2ceedb68d4aa721916576f69605a2e3bbd063e66dee3a7b41cfdf725",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SPATHIPHYLLUM_WALLISII_QAKN82EDFY",
+  "schema_version": 1,
+  "scientific_name": "Spathiphyllum wallisii",
+  "scope": "base",
+  "species": "wallisii",
+  "target_status": "active"
+}

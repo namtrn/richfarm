@@ -335,6 +335,7 @@ export async function loadCanonicalPlantLibrary(ctx: any, options: CanonicalOpti
       species: plant.species ?? undefined,
       genusNormalized: plant.genusNormalized ?? undefined,
       speciesNormalized: plant.speciesNormalized ?? undefined,
+      taxonomyParseStatus: plant.taxonomyParseStatus,
       cultivar: plant.cultivar ?? null,
       cultivarNormalized: plant.cultivarNormalized,
       basePlantId: plant.basePlantId ?? (base?._id ?? undefined),

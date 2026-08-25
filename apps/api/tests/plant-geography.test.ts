@@ -32,10 +32,21 @@ describe("Plant geography adaptation (Release 1, design doc §2.3/§3)", () => {
   }
 
   function createPlant(app: ReturnType<typeof createApp>, auth: string, overrides: Record<string, unknown> = {}) {
+    const cultivar = typeof (overrides.metadata_json as Record<string, unknown> | undefined)?.cultivar === "string"
+      ? String((overrides.metadata_json as Record<string, unknown>).cultivar)
+      : null;
     return request(app).post("/api/master-plants").set("Authorization", auth).send({
       plant_code: "GEO_TEST",
       common_name: "Geography test",
       scientific_name: "Solanum lycopersicum",
+      genus: "Solanum",
+      species: "lycopersicum",
+      infraspecific_rank: null,
+      infraspecific_name: null,
+      cultivar,
+      identity_scope: cultivar ? "cultivar" : "base",
+      parent_master_plant_id: null,
+      parent_canonical_key: cultivar ? '["v1","solanum","lycopersicum","","",""]' : null,
       source_system: "sqlite",
       source_id: "geo-test-1",
       i18n: {
@@ -248,6 +259,14 @@ describe("Plant geography adaptation (Release 1, design doc §2.3/§3)", () => {
       plant_code: "TOMATO_BASE",
       common_name: "Tomato",
       scientific_name: "Solanum lycopersicum",
+      genus: "Solanum",
+      species: "lycopersicum",
+      infraspecific_rank: null,
+      infraspecific_name: null,
+      cultivar: null,
+      identity_scope: "base",
+      parent_master_plant_id: null,
+      parent_canonical_key: null,
       source_system: "sqlite",
       source_id: "geo-base",
       origin_countries: ["US", "MX"],
@@ -263,6 +282,14 @@ describe("Plant geography adaptation (Release 1, design doc §2.3/§3)", () => {
       plant_code: "TOMATO_VN",
       common_name: "Cà chua cherry",
       scientific_name: "Solanum lycopersicum",
+      genus: "Solanum",
+      species: "lycopersicum",
+      infraspecific_rank: null,
+      infraspecific_name: null,
+      cultivar: "Cherry",
+      identity_scope: "cultivar",
+      parent_master_plant_id: base.body.data.id,
+      parent_canonical_key: '["v1","solanum","lycopersicum","","",""]',
       source_system: "sqlite",
       source_id: "geo-cultivar",
       metadata_json: { cultivar: "Cherry" },
@@ -430,6 +457,14 @@ describe("Plant geography adaptation (Release 1, design doc §2.3/§3)", () => {
       const response = await request(app).post("/api/master-plants").set("Authorization", auth).send({
         common_name: `Tomato ${fixture.source_id}`,
         scientific_name: "Solanum lycopersicum",
+        genus: "Solanum",
+        species: "lycopersicum",
+        infraspecific_rank: null,
+        infraspecific_name: null,
+        cultivar: null,
+        identity_scope: "base",
+        parent_master_plant_id: null,
+        parent_canonical_key: null,
         source_system: "sqlite",
         i18n: {
           vi: { common_name: `Cà chua ${fixture.source_id}` },

@@ -9,15 +9,13 @@ import { markServerCreatedAccount } from '../lib/sync/accountClaimIntent';
 import { toast } from '../lib/toast';
 
 /**
- * Feature flags — flip to true once the backend is configured.
- * Google OAuth: requires GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET on the server.
- * Reset password: requires emailAndPassword.sendResetPassword in Better Auth config.
+ * Feature flags for sign-in options that may not be available in every build.
  */
 const GOOGLE_OAUTH_ENABLED = false;
 const E2E_AUTH_ENABLED = process.env.EXPO_PUBLIC_E2E_AUTH_MODE === 'mock';
 const RESET_PASSWORD_ENABLED = true;
 
-/** Map common server error messages/codes → friendly i18n key */
+/** Map common sign-in errors → a friendly i18n key. */
 function mapAuthError(raw: string | undefined, fallbackKey: string): string {
   if (!raw) return fallbackKey;
   const lower = raw.toLowerCase();

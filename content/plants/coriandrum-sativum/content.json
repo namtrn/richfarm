@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"coriandrum\",\"sativum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "coriandrum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3392,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "a0ac21853d01b475803aba1e084deb5bf434d99c8050e0dcc44f4c831f90cb23",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3845,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "248548be3360c6bdd6c79a7d6822eca15844defd6f3d56ce0d993a96248e698f",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CORIANDRUM_SATIVUM_CEGS81DMEG",
+  "schema_version": 1,
+  "scientific_name": "Coriandrum sativum",
+  "scope": "base",
+  "species": "sativum",
+  "target_status": "active"
+}

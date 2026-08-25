@@ -22,6 +22,26 @@ async function loginAs(app: ReturnType<typeof createApp>, email: string, passwor
   return `Bearer ${response.body.token}`;
 }
 
+function baseIdentity(genus: string, species: string, cultivar: string | null = null) {
+  return {
+    genus,
+    species,
+    infraspecific_rank: null,
+    infraspecific_name: null,
+    cultivar,
+    identity_scope: cultivar ? "cultivar" as const : "base" as const,
+    parent_master_plant_id: null,
+    parent_canonical_key: cultivar
+      ? JSON.stringify(["v1", genus.toLowerCase(), species.toLowerCase(), "", "", ""])
+      : null,
+  };
+}
+
+function identityForScientific(scientificName: string, cultivar: string | null = null) {
+  const [genus, species] = scientificName.trim().split(/\s+/);
+  return baseIdentity(genus, species, cultivar);
+}
+
 describe("Phase 3 master-data contract", () => {
   let db: SqliteDatabase;
 
@@ -42,6 +62,7 @@ describe("Phase 3 master-data contract", () => {
       plant_code: "BASIL_STABLE",
       common_name: "Basil",
       scientific_name: "Ocimum basilicum",
+      ...identityForScientific("Ocimum basilicum"),
       source_system: "sqlite",
       source_id: "stable-basil-1",
       soil_ph_min: 5.5,
@@ -109,6 +130,8 @@ describe("Phase 3 master-data contract", () => {
     const response = await request(app).post("/api/master-plants").set("Authorization", auth).send({
       plant_code: "OUTBOX_001",
       common_name: "Outbox plant",
+      scientific_name: "Outboxium plantus",
+      ...identityForScientific("Outboxium plantus"),
       source_system: "sqlite",
       source_id: "outbox-1",
       i18n: { vi: { common_name: "Cây outbox" }, en: { common_name: "Outbox plant" } },
@@ -140,6 +163,8 @@ describe("Phase 3 master-data contract", () => {
     const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
       plant_code: "LOCAL_QUEUE_1",
       common_name: "Local queue plant",
+      scientific_name: "Queueus localis",
+      ...identityForScientific("Queueus localis"),
       source_system: "sqlite",
       source_id: "local-queue-1",
       i18n: { vi: { common_name: "Cây hàng đợi" }, en: { common_name: "Local queue plant" } },
@@ -173,6 +198,8 @@ describe("Phase 3 master-data contract", () => {
     const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
       plant_code: "LEGACY_LOCAL_1",
       common_name: "Legacy local",
+      scientific_name: "Legacyus localis",
+      ...identityForScientific("Legacyus localis"),
       source_system: "sqlite",
       source_id: "temporary-id",
       i18n: { vi: { common_name: "Cây cũ" }, en: { common_name: "Legacy local" } },
@@ -204,6 +231,7 @@ describe("Phase 3 master-data contract", () => {
       plant_code: "I18N_REST_1",
       common_name: "Rosemary",
       scientific_name: "Salvia rosmarinus",
+      ...identityForScientific("Salvia rosmarinus"),
       group: "herb",
       i18n: { vi: { common_name: "Hương thảo" }, en: { common_name: "Rosemary" } },
     });
@@ -249,10 +277,10 @@ describe("Phase 3 master-data contract", () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const auth = await login(app);
     const plants = [
-      { plant_code: "SPINACH_1", common_name: "Malabar spinach", scientific_name: "Basella alba", family: "Basellaceae", group: "leafy", image_url: "https://example.com/a.jpg", i18n: { vi: { common_name: "Mồng tơi" }, en: { common_name: "Malabar spinach" } } },
-      { plant_code: "BASIL_1", common_name: "Basil", scientific_name: "Ocimum basilicum", family: "Lamiaceae", group: "herb", i18n: { vi: { common_name: "Húng quế" }, en: { common_name: "Basil" } } },
-      { plant_code: "MINT_1", common_name: "Mint", scientific_name: "Mentha spicata", family: "Lamiaceae", group: "herb", i18n: { vi: { common_name: "Bạc hà" }, en: { common_name: "Mint" } } },
-      { plant_code: "DILL_1", common_name: "Dill", scientific_name: "Anethum graveolens", family: "Apiaceae", group: "herb", i18n: { vi: { common_name: "Thì là" }, en: { common_name: "Dill" } } },
+      { plant_code: "SPINACH_1", common_name: "Malabar spinach", scientific_name: "Basella alba", ...identityForScientific("Basella alba"), family: "Basellaceae", group: "leafy", image_url: "https://example.com/a.jpg", i18n: { vi: { common_name: "Mồng tơi" }, en: { common_name: "Malabar spinach" } } },
+      { plant_code: "BASIL_1", common_name: "Basil", scientific_name: "Ocimum basilicum", ...identityForScientific("Ocimum basilicum"), family: "Lamiaceae", group: "herb", i18n: { vi: { common_name: "Húng quế" }, en: { common_name: "Basil" } } },
+      { plant_code: "MINT_1", common_name: "Mint", scientific_name: "Mentha spicata", ...identityForScientific("Mentha spicata"), family: "Lamiaceae", group: "herb", i18n: { vi: { common_name: "Bạc hà" }, en: { common_name: "Mint" } } },
+      { plant_code: "DILL_1", common_name: "Dill", scientific_name: "Anethum graveolens", ...identityForScientific("Anethum graveolens"), family: "Apiaceae", group: "herb", i18n: { vi: { common_name: "Thì là" }, en: { common_name: "Dill" } } },
     ];
     for (const plant of plants) {
       const created = await request(app).post("/api/master-plants").set("Authorization", auth).send(plant);
@@ -303,6 +331,7 @@ describe("Phase 3 master-data contract", () => {
       plant_code: "CARE_STATUS_1",
       common_name: "Care status plant",
       scientific_name: "Testus carestatus",
+      ...identityForScientific("Testus carestatus"),
       source_system: "sqlite",
       source_id: "care-status-1",
       watering_frequency_days: 3,
@@ -348,6 +377,8 @@ describe("Phase 3 master-data contract", () => {
     const plant = await request(app).post("/api/master-plants").set("Authorization", adminAuth).send({
       plant_code: "DELETE_GUARD_1",
       common_name: "Delete guard plant",
+      scientific_name: "Deleteus guardus",
+      ...identityForScientific("Deleteus guardus"),
       source_system: "sqlite",
       source_id: "delete-guard-1",
       i18n: { vi: { common_name: "Cây guard xóa" }, en: { common_name: "Delete guard plant" } },
@@ -388,6 +419,8 @@ describe("Phase 3 master-data contract", () => {
     const editorCreate = await request(app).post("/api/master-plants").set("Authorization", editorAuth).send({
       plant_code: "EDITOR_OK_1",
       common_name: "Editor plant",
+      scientific_name: "Editorus okus",
+      ...identityForScientific("Editorus okus"),
       source_system: "sqlite",
       source_id: "editor-ok-1",
       i18n: { vi: { common_name: "Cây editor" }, en: { common_name: "Editor plant" } },
@@ -410,6 +443,8 @@ describe("Phase 3 master-data contract", () => {
     const plant = (code: string, sourceId: string) => ({
       plant_code: code,
       common_name: code,
+      scientific_name: `Identityus ${code.toLowerCase()}`,
+      ...identityForScientific(`Identityus ${code.toLowerCase()}`),
       source_system: "sqlite",
       source_id: sourceId,
       i18n: {
@@ -468,11 +503,13 @@ describe("Phase 3 master-data contract", () => {
   it("refuses SQLite base/variant and referenced-row deletes", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const auth = await login(app);
-    const create = async (code: string, sourceId: string, metadata_json: Record<string, unknown> = {}) =>
-      request(app).post("/api/master-plants").set("Authorization", auth).send({
+    const create = async (code: string, sourceId: string, metadata_json: Record<string, unknown> = {}) => {
+      const cultivar = typeof metadata_json.cultivar === "string" ? metadata_json.cultivar : null;
+      return request(app).post("/api/master-plants").set("Authorization", auth).send({
         plant_code: code,
         common_name: code,
         scientific_name: "Ocimum basilicum",
+        ...identityForScientific("Ocimum basilicum", cultivar),
         source_system: "sqlite",
         source_id: sourceId,
         metadata_json,
@@ -481,6 +518,7 @@ describe("Phase 3 master-data contract", () => {
           en: { common_name: `${code} en` },
         },
       });
+    };
 
     const base = await create("BASIL_BASE_GUARD", "basil-base-guard");
     const variant = await create("BASIL_VARIANT_GUARD", "basil-variant-guard", { cultivar: "Genovese" });
@@ -610,6 +648,8 @@ describe("Phase 3 master-data contract", () => {
     const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
       plant_code: "OUTBOX_MD_1",
       common_name: "Markdown plant",
+      scientific_name: "Markdownus plantus",
+      ...identityForScientific("Markdownus plantus"),
       source_system: "sqlite",
       source_id: "outbox-md-1",
       i18n: {

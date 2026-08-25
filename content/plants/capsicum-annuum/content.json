@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"capsicum\",\"annuum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "capsicum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3953,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "441ce1ecd036b7b3629bbae44ba8cbc68e5a9f6c663c648cdf3d36cd30674ff4",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4503,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "49b00917d73bd0f8eaec8a234c34c89ce7d0c92a1450c514293af039ce229454",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CAPSICUM_ANNUUM_DQ8H81D5ZK",
+  "schema_version": 1,
+  "scientific_name": "Capsicum annuum",
+  "scope": "base",
+  "species": "annuum",
+  "target_status": "active"
+}

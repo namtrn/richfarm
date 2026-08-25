@@ -1,0 +1,28 @@
+{
+  "key": "slugs_snails",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 1104,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "4ddb18cd8970a690b0cdd71829750a279237789e18a0bb30c81543a1e8ccebca",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1269,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "0a49acec667eee00c0122ca898a19716e43c0d63ab0b108b25723bad7c9c37a5",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

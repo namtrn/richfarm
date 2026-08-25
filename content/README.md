@@ -8,6 +8,7 @@ Nó không phải coding task: Markdown, guideline và các kế hoạch curatio
 
 - `guidelines/`: quy tắc biên tập chung.
 - `plants/<scientific-name>/`: một file Markdown cho mỗi cây và locale.
+- `pests-diseases/<key>/`: một file Markdown cho mỗi sâu hại hoặc bệnh và locale.
 - `plans/`: kế hoạch, inventory và rollout liên quan đến nội dung.
 
 Mỗi bài mới phải đọc `guidelines/plant-information-guideline.md`, dùng tên

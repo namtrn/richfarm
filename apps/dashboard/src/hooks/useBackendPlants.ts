@@ -1,8 +1,69 @@
 import { useState, useCallback } from "react";
 import type { BackendPlantStats } from "../types";
 import { downloadBlob } from "../constants";
+import { validateCanonicalPlantIdentity } from "../../../../packages/shared/src/canonicalPlantIdentity";
 
 type AuthedFetch = (path: string, options?: RequestInit) => Promise<Response>;
+
+/** Import is create-only: scientific_name/common_name never infer identity. */
+export function validateImportCanonicalIdentity(value: unknown): string | null {
+    const result = validateCanonicalPlantIdentity(value);
+    return result.ok ? null : result.issues.map((issue) => `${issue.path}: ${issue.message}`).join("; ");
+}
+
+type ImportCanonicalPreview = {
+    status?: "exact" | "near_match" | "new";
+    exact?: { id?: number; plantCode?: string } | null;
+    suggestions?: unknown[];
+};
+
+export type ImportCanonicalPreflight =
+    | { ok: true; preview: ImportCanonicalPreview }
+    | { ok: false; reason: "invalid" | "exact" | "preview_error"; error: string };
+
+/**
+ * Validate one import row and ask the API for an exact-match preview before
+ * allowing the create request.  Exact matches are a user-visible failure,
+ * while near matches remain suggestions and may still be imported explicitly.
+ */
+export async function preflightImportCanonicalIdentity(
+    authedFetch: AuthedFetch,
+    value: unknown,
+): Promise<ImportCanonicalPreflight> {
+    const identityError = validateImportCanonicalIdentity(value);
+    if (identityError) return { ok: false, reason: "invalid", error: identityError };
+
+    try {
+        const previewResponse = await authedFetch("/api/master-plants/canonical-match-preview", {
+            method: "POST",
+            body: JSON.stringify(value),
+        });
+        const previewBody = await previewResponse.json().catch(() => ({}));
+        if (!previewResponse.ok) {
+            return {
+                ok: false,
+                reason: "preview_error",
+                error: previewBody.error ?? previewBody.details ?? "Canonical identity preview failed",
+            };
+        }
+        const preview = (previewBody.data ?? previewBody) as ImportCanonicalPreview;
+        if (preview.status === "exact") {
+            const label = preview.exact?.plantCode ? ` (${preview.exact.plantCode})` : "";
+            return {
+                ok: false,
+                reason: "exact",
+                error: `exact canonical match at plant ${preview.exact?.id ?? "unknown"}${label}`,
+            };
+        }
+        return { ok: true, preview };
+    } catch (error) {
+        return {
+            ok: false,
+            reason: "preview_error",
+            error: error instanceof Error ? error.message : "Canonical identity preview failed",
+        };
+    }
+}
 
 export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
     const [stats, setStats] = useState<BackendPlantStats | null>(null);
@@ -91,6 +152,13 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
             const errors: string[] = [];
             for (let i = 0; i < rows.length; i++) {
                 try {
+                    const preflight = await preflightImportCanonicalIdentity(authedFetch, rows[i]);
+                    if (!preflight.ok) {
+                        failed++;
+                        errors.push(`Row ${i + 1}: ${preflight.error}`);
+                        onProgress?.(i + 1, rows.length);
+                        continue;
+                    }
                     const res = await authedFetch("/api/master-plants", {
                         method: "POST",
                         body: JSON.stringify(rows[i]),

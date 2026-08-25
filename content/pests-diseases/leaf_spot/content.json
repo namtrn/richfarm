@@ -1,0 +1,28 @@
+{
+  "key": "leaf_spot",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 773,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "298b7121f363683ddbd37b96712b11d47b0eb3e470e995ebb28349994d4bb5c2",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 954,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d2a1b4b08618825b0deb69a218093f2599fcb10508fab630732d022e3636fc1c",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

@@ -421,3 +421,64 @@ Verified progress and blockers:
 - Compatibility cleanup and rollout approval remain downstream-blocked; no
   schema/reader removal is allowed without zero-remaining migration/readback,
   restore rehearsal, and deployed-client compatibility evidence.
+## Package: CID-1–CID-9 — Canonical identity and content integrity
+
+Status: local implementation and authorized SQLite remediation complete and
+independently verified; production Convex rollout not authorized or run (Heavy
+route, 2026-08-25)
+
+Goal: prevent duplicate canonical plants, bind Git-authored plant and
+pest/disease content to explicit database identities, and make SQLite a
+report-first data-quality control plane for Convex publication/readback.
+
+Scope and constraints:
+
+- Git Markdown is authoritative for long-form content; generated manifests and
+  canonical keys are never manually authored.
+- Preserve existing plant codes and user-owned SQLite data.
+- Local SQLite CID-3 remediation and selected tomato content import were
+  authorized with backup/dry-run/readback. No hard delete, production Convex
+  mutation, deployment, or publication was authorized.
+
+Acceptance gates:
+
+- Canonical identity is shared and deterministic across API, SQLite, content
+  tooling, and Convex; every normal create/import writer is guarded.
+- SQLite migration/remediation is backed up, dry-runnable, journaled,
+  reversible, and independently readback-verified.
+- Content manifests are deterministic and import through exact-byte hash,
+  version, provenance, identity, approval, and outbox gates.
+- Reconciliation proves complete revisioned snapshots and persists actionable
+  findings/proposals before any affected publication can proceed.
+
+Verified completion:
+
+- Tomato row 1554 is active; row 6 is reversibly archived and redirected after
+  verified backup, dry-run, reference/alias preservation, and readback. The
+  active canonical-key uniqueness constraint passes; no hard delete occurred.
+- Original pre-CID-3 SQLite backup SHA-256 is
+  `5b9932e7a15ffc97b8564b6e4ffcd9c667ce3f91cb073ea8a2675d1f16c70a9b`;
+  current local SQLite SHA-256 is
+  `b57d6dba7a347e11d5e50d729bec2a616ca4fee2987db8340c59b84d6fa978e9`.
+- API/dashboard exact duplicate create/import is blocked and opens the existing
+  row; near matches remain suggestions. Convex has one indexed canonical
+  upsert boundary plus bounded, resumable, journaled migration/rollback code.
+- Generated manifests: 38 plant + 18 pest/disease. Tomato row 1554 received the
+  selected vi/en Markdown locally; two plant directories lack English content,
+  and Basella Ceylon remains quarantined for invalid parent/identity data.
+- Smart reconciliation includes complete cursor/count/revision validation,
+  durable findings/proposals, stale-evidence rejection, outbox blocking and
+  supersession, role-separated approval/apply, and the dashboard Data Health
+  view. Pending outbox rows were not sent.
+- Pest/disease content now has localized/versioned Convex projection and
+  bounded migration code; mobile internal Markdown links route safely to an
+  in-app detail screen with locale fallback.
+- Focused suites, affected builds/typechecks, independent package verification,
+  final local audit/readback, and `git diff --check` passed. Convex production
+  was not deployed or mutated.
+
+Next action: after separate production authorization, deploy additive Convex
+code/schema, initialize catalog metadata, capture a complete snapshot, run both
+migrations dry, review proposals, rehearse rollback/readback, and publish only
+through a fresh healthy gate. Resolve the two missing-English plant directories
+and quarantined Basella Ceylon before including them.

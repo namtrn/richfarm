@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"petroselinum\",\"crispum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "petroselinum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3493,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "e88e831129eefba8a7c04878e30bd7fda294e74bd53a4eb2641f6b59aff8b1cf",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4104,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d96ea4579871631e28042c396cf8d4c813537d2173eb9f500a6f07e8bf1c7052",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "PETROSELINUM_CRISPUM_7F3H81CG9P",
+  "schema_version": 1,
+  "scientific_name": "Petroselinum crispum",
+  "scope": "base",
+  "species": "crispum",
+  "target_status": "active"
+}

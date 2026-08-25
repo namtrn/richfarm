@@ -1,0 +1,28 @@
+{
+  "key": "early_blight",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 836,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "6cb9c10afbc52206ec31bed9c89564f022c968c4e80e63bb9880a783d75204dd",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1003,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "3fcc6cfaa06dd9ec1f7f144d0f65fcbebc947772dd177109f8d45c29bd4a5ca4",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

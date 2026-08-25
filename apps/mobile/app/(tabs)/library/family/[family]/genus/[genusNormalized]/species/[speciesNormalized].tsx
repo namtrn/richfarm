@@ -24,7 +24,7 @@ function buildPassthrough(params: Record<string, string | string[] | undefined>)
 }
 
 export default function SpeciesScreen() {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const router = useRouter();
@@ -46,7 +46,7 @@ export default function SpeciesScreen() {
     );
     const passthrough = useMemo(() => buildPassthrough(params), [params]);
     const fallbackTitle = `${genusNormalized ?? ''} ${speciesNormalized ?? ''}`.trim();
-    const title = plants?.[0]?.scientificName ?? (fallbackTitle || 'Species');
+    const title = plants?.[0]?.scientificName ?? (fallbackTitle || t('library.species_fallback'));
 
     const filtered = useMemo(() => {
         const rows = plants ?? [];
@@ -66,7 +66,7 @@ export default function SpeciesScreen() {
                     </TouchableOpacity>
                     <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 20, fontWeight: '800', color: theme.text }}>{title}</Text>
-                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{familyDisplayName || family || 'Family'} • Plant entries</Text>
+                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{familyDisplayName || family || t('library.family_fallback')} · {t('library.plant_entries', { count: plants?.length ?? 0 })}</Text>
                     </View>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.background, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}>
@@ -75,7 +75,7 @@ export default function SpeciesScreen() {
                         testID="e2e-library-species-search"
                         value={search}
                         onChangeText={setSearch}
-                        placeholder="Search plants"
+                        placeholder={t('library.search_plants')}
                         placeholderTextColor={theme.textMuted}
                         style={{ flex: 1, fontSize: 14, color: theme.text }}
                     />
@@ -95,11 +95,11 @@ export default function SpeciesScreen() {
                     ListHeaderComponent={
                         <View style={{ paddingHorizontal: layoutMode === 'grid' ? 8 : 0, paddingBottom: 12 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, paddingHorizontal: 12 }}>
-                                <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 }}>Families</Text>
+                                <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 }}>{t('library.family_label')}</Text>
                                 <Text style={{ fontSize: 11, color: theme.textMuted }}>›</Text>
-                                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary }}>{familyDisplayName || family || 'Family'}</Text>
+                                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary }}>{familyDisplayName || family || t('library.family_fallback')}</Text>
                                 <Text style={{ fontSize: 11, color: theme.textMuted }}>›</Text>
-                                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary }}>{plants?.[0]?.genus ?? genusNormalized ?? 'Genus'}</Text>
+                                <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary }}>{plants?.[0]?.genus ?? genusNormalized ?? t('library.genus_fallback')}</Text>
                                 <Text style={{ fontSize: 11, color: theme.textMuted }}>›</Text>
                                 <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{title}</Text>
                             </View>
@@ -144,7 +144,7 @@ export default function SpeciesScreen() {
                                             {item.scientificName}
                                         </Text>
                                         <Text style={{ fontSize: 10, color: theme.textMuted, fontWeight: '500' }} numberOfLines={1}>
-                                            {item.cultivar ? `Cultivar: ${item.cultivar}` : 'Base species'}
+                                            {item.cultivar ? t('library.cultivar_label', { name: item.cultivar }) : t('library.base_species')}
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
@@ -173,13 +173,18 @@ export default function SpeciesScreen() {
                                         {item.scientificName}
                                     </Text>
                                     <Text style={{ fontSize: 11, color: theme.textMuted }}>
-                                        {item.cultivar ? `Cultivar: ${item.cultivar}` : 'Base species'}
+                                        {item.cultivar ? t('library.cultivar_label', { name: item.cultivar }) : t('library.base_species')}
                                     </Text>
                                 </View>
                             </TouchableOpacity>
                         );
                     }}
                     ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    ListEmptyComponent={(
+                        <View style={{ alignItems: 'center', gap: 8, padding: 32 }}>
+                            <Text style={{ fontSize: 15, color: theme.textMuted }}>{search ? t('library.no_results') : t('library.no_species_data')}</Text>
+                        </View>
+                    )}
                     contentContainerStyle={{ paddingVertical: 12, paddingBottom: 100, paddingHorizontal: layoutMode === 'grid' ? 4 : 12 }}
                 />
             )}

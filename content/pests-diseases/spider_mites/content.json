@@ -1,0 +1,28 @@
+{
+  "key": "spider_mites",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 1085,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "38c38958da8c155068230d51581495f199a5e7beda32f5f35c52112cc00fcaaa",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1342,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "8b887acf7718da8b09b9349e8d49032032bf6e7e6ca27a52ad8c7d74a8aa303f",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

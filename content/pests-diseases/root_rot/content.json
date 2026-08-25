@@ -1,0 +1,28 @@
+{
+  "key": "root_rot",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 959,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "92f251f6b47224925a92b9096ba3d7ae71cfdc2918ea6c436627e5af4748845a",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1172,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "8f29ff1728b68ab37ed43f0d6afec22b0d61abb1fb439cff8cf876e73e9ddee9",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

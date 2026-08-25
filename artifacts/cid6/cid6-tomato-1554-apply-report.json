@@ -1,0 +1,356 @@
+{
+  "apply": {
+    "database_sha256_after": "b57d6dba7a347e11d5e50d729bec2a616ca4fee2987db8340c59b84d6fa978e9",
+    "database_sha256_before": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "mode": "apply",
+    "queuedOutbox": 2,
+    "runId": "cid6-tomato-1554-20260825-content-import",
+    "status": "applied",
+    "updatedLocales": 2
+  },
+  "backup": {
+    "bytes": 11673600,
+    "path": "/Users/n/Documents/GitHub/richfarm/artifacts/cid6/cid6-tomato-1554-20260825.sqlite.bak",
+    "sha256": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "verified": true
+  },
+  "dry_run": {
+    "catalog_provided": true,
+    "catalog_sha256": "250f4fa7daf5322a41836bce863be3505615533c6b565ccc1a5118c6e7615e2a",
+    "catalog_snapshot": [
+      {
+        "key": "aphids",
+        "type": "pest"
+      },
+      {
+        "key": "bacterial_wilt",
+        "type": "disease"
+      },
+      {
+        "key": "botrytis_gray_mold",
+        "type": "disease"
+      },
+      {
+        "key": "caterpillars",
+        "type": "pest"
+      },
+      {
+        "key": "damping_off",
+        "type": "disease"
+      },
+      {
+        "key": "downy_mildew",
+        "type": "disease"
+      },
+      {
+        "key": "early_blight",
+        "type": "disease"
+      },
+      {
+        "key": "fungus_gnats",
+        "type": "pest"
+      },
+      {
+        "key": "late_blight",
+        "type": "disease"
+      },
+      {
+        "key": "leaf_spot",
+        "type": "disease"
+      },
+      {
+        "key": "mealybugs",
+        "type": "pest"
+      },
+      {
+        "key": "powdery_mildew",
+        "type": "disease"
+      },
+      {
+        "key": "root_rot",
+        "type": "disease"
+      },
+      {
+        "key": "rust",
+        "type": "disease"
+      },
+      {
+        "key": "slugs_snails",
+        "type": "pest"
+      },
+      {
+        "key": "spider_mites",
+        "type": "pest"
+      },
+      {
+        "key": "thrips",
+        "type": "pest"
+      },
+      {
+        "key": "whiteflies",
+        "type": "pest"
+      }
+    ],
+    "database_sha256": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "findings": [],
+    "manifest_paths": [
+      "/Users/n/Documents/GitHub/richfarm/content/plants/solanum-lycopersicum/content.json"
+    ],
+    "manifests": [
+      {
+        "kind": "plant",
+        "locales": 2,
+        "path": "content/plants/solanum-lycopersicum/content.json",
+        "status": "proposed",
+        "targetId": 1554
+      }
+    ],
+    "mode": "dry_run",
+    "proposal_fingerprint": "e06dea3c35aa2edf6b8937b9d5adca1bc5562f86453b912e74b6a98aa643074e",
+    "schema_version": 1,
+    "status": "ready",
+    "summary": {
+      "blocked": 0,
+      "conflicts": 0,
+      "locales": 2,
+      "manifests": 1,
+      "proposed": 2,
+      "unchanged": 0
+    },
+    "target_db_revision": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0"
+  },
+  "hashes": {
+    "after_file_sha256": "b57d6dba7a347e11d5e50d729bec2a616ca4fee2987db8340c59b84d6fa978e9",
+    "after_serialize_sha256": "b57d6dba7a347e11d5e50d729bec2a616ca4fee2987db8340c59b84d6fa978e9",
+    "before_file_sha256": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "dry_run_database_sha256": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "dry_run_target_db_revision": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "proposal_fingerprint": "e06dea3c35aa2edf6b8937b9d5adca1bc5562f86453b912e74b6a98aa643074e"
+  },
+  "outbox": {
+    "after_count": 94,
+    "before_count": 92,
+    "changed_rows_pending_only": true,
+    "delta": [
+      {
+        "entity_type": "master_plant",
+        "id": 158,
+        "locale": "en",
+        "operation": "upsert_i18n",
+        "payload_json": "{\"plant_code\":\"SOLANUM_LYCOPERSICUM\",\"common_name\":\"Cà chua\",\"scientific_name\":\"Solanum lycopersicum\",\"source_system\":\"sqlite\",\"source_id\":\"ec879cdc-bbed-47e1-8d90-719fd5a3df53\",\"canonical_identity_version\":\"canonical_identity_v1\",\"canonical_key\":\"[\\\"v1\\\",\\\"solanum\\\",\\\"lycopersicum\\\",\\\"\\\",\\\"\\\",\\\"\\\"]\",\"genus\":\"solanum\",\"species\":\"lycopersicum\",\"infraspecific_rank\":null,\"infraspecific_name\":null,\"cultivar\":null,\"identity_scope\":\"base\",\"parent_master_plant_id\":null,\"parent_canonical_key\":null,\"i18n\":{\"en\":{\"common_name\":\"Tomato\",\"description\":\"Popular fruiting vegetable with many varieties.\",\"care_content\":\"## Light and location\\n\\nTomatoes are sun-loving plants that need at least 6 hours of direct sunlight a day for good flowering and fruit set. A full-sun spot keeps the stems compact and helps fruit color evenly. In too little light, plants grow leafy but set fewer fruit and tend to have more disease problems.\\n\\nUnlike soft-stemmed climbers, tomato stems grow upright but are fairly soft and easily bend under the weight of fruit. Set up stakes, cages, or a simple support at planting time rather than waiting until the plants are tall. As the plant grows, tie the main stem loosely with soft ties and check them regularly so they do not cut into the stem.\\n\\n## Watering\\n\\nGive the plants a thorough drink when the top layer of soil begins to dry, then wait for the soil to drain before the next watering. This encourages roots to grow deeper than frequent light watering does. Check the soil with your hand first, since water needs change with the weather and the plant's stage.\\n\\nKeep soil moisture fairly steady from fruit set to harvest. Soil that swings between very dry and very wet can cause blossom end rot, a fruit disorder linked to uneven calcium uptake. Avoid wetting the foliage, especially late in the day, to limit fungal disease. In containers, soil dries faster than garden beds on hot days and needs more frequent checking.\\n\\n## Soil\\n\\nTomatoes grow best in loose, fertile soil with good drainage. Work mature compost or well-rotted manure into the bed before planting so the plants start with a steady supply of nutrients. Heavy or poorly drained soil weakens the roots and invites disease.\\n\\n## Feeding\\n\\nThis crop is a heavier feeder than short-season leafy greens, so prepare the bed well and side-dress during growth. Once flowering starts, shift to a fertilizer with more potassium relative to nitrogen to support fruiting rather than pushing leafy growth.\\n\\nWatch the leaves and growth rate before adding more. Lower leaves turning pale while the plant has enough water may point to a nutrient shortage; very dark leaves and unusually thick stems suggest too much nitrogen. Never pile concentrated fertilizer against the stem, and do not feed while the soil is dry.\\n\\n## Sowing and propagation\\n\\nIn warm climates, sow seed in late winter or early spring once nights have warmed. In areas with frost, start seed indoors about 6-8 weeks before the last frost date and move seedlings out after the danger has passed. Harden off young plants gradually to sun and wind before planting them in the garden.\\n\\nSet transplants slightly deeper than they grew in the pot, burying part of the stem below the seed leaves, since this section can form extra roots and anchor the plant. Spacing depends on the type: compact bush types can be planted closer together, while vigorous vining types need more room for air to move through the canopy.\\n\\n## Ongoing care and harvest\\n\\nFor types that keep growing tall, pinch out the suckers that form in the leaf axils so the plant channels energy into the main stem and fruit trusses. For compact bush types, simply remove weak shoots or old lower leaves to keep the center open. Do this by hand or with clean scissors, taking care not to scrape the stem.\\n\\nFruit is approaching ripeness when it begins to change color from green to red, or to the color typical of the variety. You can pick fruit as soon as color starts to show and let it finish ripening in a cool, airy spot, or wait for full color on the plant. Harvest regularly, holding the stem or cutting the fruit with a short piece of stalk so you do not break the branch. Before a long cold or rainy spell, pick fruit that has already begun to color to avoid cracking and rot.\\n\\n## Common pests and diseases\\n\\n[Aphids](richfarm://pests-diseases/aphids) gather on young shoots and leaf undersides, curling leaves and slowing growth. Check the tips when you water; a light infestation can be washed off or removed by hand. [Caterpillars](richfarm://pests-diseases/caterpillars) may chew leaves and bore into fruit; ragged leaf damage or droppings on the plant are a sign to search and remove them by hand.\\n\\n[Early blight](richfarm://pests-diseases/early_blight) usually starts on the lower leaves as brown spots with concentric rings and moves upward. Remove affected leaves, keep foliage off the soil, and avoid wetting the leaves when watering. [Late blight](richfarm://pests-diseases/late_blight) spreads quickly in cool, damp weather and turns leaves and fruit soft and rotten; catch it early, cut out the affected parts, and keep plants dry overnight. If the disease keeps spreading or many plants are affected at once, identify the cause before using any product, especially on a crop you harvest continuously.\\n\",\"content_version\":1,\"content_status\":\"needs_review\",\"review_status\":\"unreviewed\",\"content_origin\":\"authored\",\"source\":\"seed\",\"source_refs\":[]},\"vi\":{\"common_name\":\"Cà chua\",\"description\":\"Cà chua là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.\",\"content_version\":1,\"content_status\":\"published\",\"review_status\":\"unreviewed\",\"content_origin\":\"authored\",\"source\":\"seed\",\"source_refs\":[]}}}",
+        "source_id": "ec879cdc-bbed-47e1-8d90-719fd5a3df53",
+        "source_system": "sqlite",
+        "status": "pending"
+      },
+      {
+        "entity_type": "master_plant",
+        "id": 159,
+        "locale": "vi",
+        "operation": "upsert_i18n",
+        "payload_json": "{\"plant_code\":\"SOLANUM_LYCOPERSICUM\",\"common_name\":\"Cà chua\",\"scientific_name\":\"Solanum lycopersicum\",\"source_system\":\"sqlite\",\"source_id\":\"ec879cdc-bbed-47e1-8d90-719fd5a3df53\",\"canonical_identity_version\":\"canonical_identity_v1\",\"canonical_key\":\"[\\\"v1\\\",\\\"solanum\\\",\\\"lycopersicum\\\",\\\"\\\",\\\"\\\",\\\"\\\"]\",\"genus\":\"solanum\",\"species\":\"lycopersicum\",\"infraspecific_rank\":null,\"infraspecific_name\":null,\"cultivar\":null,\"identity_scope\":\"base\",\"parent_master_plant_id\":null,\"parent_canonical_key\":null,\"i18n\":{\"en\":{\"common_name\":\"Tomato\",\"description\":\"Popular fruiting vegetable with many varieties.\",\"care_content\":\"## Light and location\\n\\nTomatoes are sun-loving plants that need at least 6 hours of direct sunlight a day for good flowering and fruit set. A full-sun spot keeps the stems compact and helps fruit color evenly. In too little light, plants grow leafy but set fewer fruit and tend to have more disease problems.\\n\\nUnlike soft-stemmed climbers, tomato stems grow upright but are fairly soft and easily bend under the weight of fruit. Set up stakes, cages, or a simple support at planting time rather than waiting until the plants are tall. As the plant grows, tie the main stem loosely with soft ties and check them regularly so they do not cut into the stem.\\n\\n## Watering\\n\\nGive the plants a thorough drink when the top layer of soil begins to dry, then wait for the soil to drain before the next watering. This encourages roots to grow deeper than frequent light watering does. Check the soil with your hand first, since water needs change with the weather and the plant's stage.\\n\\nKeep soil moisture fairly steady from fruit set to harvest. Soil that swings between very dry and very wet can cause blossom end rot, a fruit disorder linked to uneven calcium uptake. Avoid wetting the foliage, especially late in the day, to limit fungal disease. In containers, soil dries faster than garden beds on hot days and needs more frequent checking.\\n\\n## Soil\\n\\nTomatoes grow best in loose, fertile soil with good drainage. Work mature compost or well-rotted manure into the bed before planting so the plants start with a steady supply of nutrients. Heavy or poorly drained soil weakens the roots and invites disease.\\n\\n## Feeding\\n\\nThis crop is a heavier feeder than short-season leafy greens, so prepare the bed well and side-dress during growth. Once flowering starts, shift to a fertilizer with more potassium relative to nitrogen to support fruiting rather than pushing leafy growth.\\n\\nWatch the leaves and growth rate before adding more. Lower leaves turning pale while the plant has enough water may point to a nutrient shortage; very dark leaves and unusually thick stems suggest too much nitrogen. Never pile concentrated fertilizer against the stem, and do not feed while the soil is dry.\\n\\n## Sowing and propagation\\n\\nIn warm climates, sow seed in late winter or early spring once nights have warmed. In areas with frost, start seed indoors about 6-8 weeks before the last frost date and move seedlings out after the danger has passed. Harden off young plants gradually to sun and wind before planting them in the garden.\\n\\nSet transplants slightly deeper than they grew in the pot, burying part of the stem below the seed leaves, since this section can form extra roots and anchor the plant. Spacing depends on the type: compact bush types can be planted closer together, while vigorous vining types need more room for air to move through the canopy.\\n\\n## Ongoing care and harvest\\n\\nFor types that keep growing tall, pinch out the suckers that form in the leaf axils so the plant channels energy into the main stem and fruit trusses. For compact bush types, simply remove weak shoots or old lower leaves to keep the center open. Do this by hand or with clean scissors, taking care not to scrape the stem.\\n\\nFruit is approaching ripeness when it begins to change color from green to red, or to the color typical of the variety. You can pick fruit as soon as color starts to show and let it finish ripening in a cool, airy spot, or wait for full color on the plant. Harvest regularly, holding the stem or cutting the fruit with a short piece of stalk so you do not break the branch. Before a long cold or rainy spell, pick fruit that has already begun to color to avoid cracking and rot.\\n\\n## Common pests and diseases\\n\\n[Aphids](richfarm://pests-diseases/aphids) gather on young shoots and leaf undersides, curling leaves and slowing growth. Check the tips when you water; a light infestation can be washed off or removed by hand. [Caterpillars](richfarm://pests-diseases/caterpillars) may chew leaves and bore into fruit; ragged leaf damage or droppings on the plant are a sign to search and remove them by hand.\\n\\n[Early blight](richfarm://pests-diseases/early_blight) usually starts on the lower leaves as brown spots with concentric rings and moves upward. Remove affected leaves, keep foliage off the soil, and avoid wetting the leaves when watering. [Late blight](richfarm://pests-diseases/late_blight) spreads quickly in cool, damp weather and turns leaves and fruit soft and rotten; catch it early, cut out the affected parts, and keep plants dry overnight. If the disease keeps spreading or many plants are affected at once, identify the cause before using any product, especially on a crop you harvest continuously.\\n\",\"content_version\":1,\"content_status\":\"needs_review\",\"review_status\":\"unreviewed\",\"content_origin\":\"authored\",\"source\":\"seed\",\"source_refs\":[]},\"vi\":{\"common_name\":\"Cà chua\",\"description\":\"Cà chua là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.\",\"care_content\":\"## Ánh sáng và vị trí\\n\\nCà chua là cây ưa nắng, cần ít nhất 6 giờ nắng trực tiếp mỗi ngày để ra hoa và đậu quả tốt. Nơi có nắng đầy đủ giúp thân không vươn dài quá mức, quả chín đều màu hơn. Nếu trồng ở chỗ ít nắng, cây thường xanh lá nhưng ra ít quả và dễ bị sâu bệnh hơn.\\n\\nKhác với các loại dây leo mềm, thân cà chua đứng nhưng khá mềm và dễ đổ khi mang quả. Nên chuẩn bị cọc, giàn hoặc lồng đỡ ngay khi trồng, không đợi cây cao rồi mới cắm. Khi cây lớn, buộc thân vào cọc bằng dây mềm và nới lỏng theo độ lớn của thân.\\n\\n## Tưới nước\\n\\nTưới đẫm gốc khi lớp đất mặt bắt đầu se khô, sau đó chờ đất ráo bớt trước lần tưới kế tiếp. Cách này khuyến khích rễ ăn sâu hơn so với tưới ít và thường xuyên. Kiểm tra đất bằng tay trước khi quyết định, vì nhu cầu nước thay đổi theo thời tiết và giai đoạn cây.\\n\\nCần giữ độ ẩm đất tương đối ổn định từ lúc quả non đến khi chín. Đất khô rồi ướt đột ngột dễ làm quả bị thối đáy, một dạng hư quả do thiếu canxi khi đất không đủ ẩm đều. Tránh làm ướt lá khi tưới, nhất là vào cuối ngày, để hạn chế bệnh nấm. Nếu trồng chậu, chú ý chậu khô nhanh hơn đất vườn vào ngày nắng nóng.\\n\\n## Đất trồng\\n\\nCà chua phát triển tốt trên đất tơi, giàu hữu cơ và thoát nước tốt. Trộn compost hoặc phân chuồng đã hoai trước khi trồng để cây có nguồn dinh dưỡng từ đầu. Đất chua hoặc quá nặng, dễ đọng nước thường làm rễ yếu và cây dễ bệnh.\\n\\n## Bón phân\\n\\nLoài này ăn nhiều dinh dưỡng hơn các loại rau lá ngắn ngày, vì vậy cần bón lót kỹ và bón thúc theo giai đoạn. Sau khi cây bắt đầu ra hoa, chuyển sang phân có tỷ lệ kali cao hơn đạm để hỗ trợ đậu quả thay vì chỉ thúc thân lá.\\n\\nQuan sát lá và tốc độ lớn trước khi bón thêm. Lá dưới vàng nhạt trong khi cây vẫn đủ nước có thể là dấu hiệu thiếu dinh dưỡng; ngược lại, lá xanh thẫm và thân mập mọng bất thường cho thấy cây nhận quá nhiều đạm. Không rải phân đậm đặc sát gốc và không tưới phân khi đất đang khô.\\n\\n## Gieo trồng và nhân giống\\n\\nỞ vùng khí hậu ấm, gieo hạt vào cuối mùa đông hoặc đầu xuân, khi nhiệt độ ban đêm đã bớt lạnh. Ở vùng có sương giá, gieo hạt trong nhà trước khoảng 6-8 tuần rồi đem cây con ra ngoài sau đợt rét cuối. Cây con cần được làm quen dần với nắng và gió trước khi trồng hẳn ra vườn.\\n\\nTrồng cây sâu hơn độ sâu trong bầu, chôn một phần thân dưới lá mầm vì phần thân này có thể mọc rễ phụ, giúp cây đứng vững hơn. Khoảng cách giữa các cây tùy giống: cây dạng gọn trồng gần hơn, cây dạng leo dài cần chỗ rộng hơn để thông thoáng.\\n\\n## Chăm sóc và thu hoạch\\n\\nVới giống không hạn chế chiều cao, ngắt các chồi nách mọc ở kẽ lá để cây tập trung vào thân chính và chùm quả. Với giống dạng bụi gọn, chỉ cần cắt bỏ chồi yếu hoặc lá già sát gốc để tán thông thoáng. Cắt tỉa bằng tay hoặc kéo sạch, tránh làm trầy thân.\\n\\nQuả bắt đầu chuyển màu từ xanh sang đỏ (hoặc màu đặc trưng của giống) khi sắp đạt độ chín. Có thể hái khi quả vừa chuyển màu và để chín tiếp ở nơi thoáng, hoặc chờ chín hẳn trên cây. Hái quả đều đặn, dùng tay đỡ cuống hoặc kéo cắt sát cuống để không làm gãy cành. Trước đợt rét hoặc mưa kéo dài, thu sớm những quả đã chuyển màu để tránh nứt và thối.\\n\\n## Sâu hại và bệnh thường gặp\\n\\n[Rệp mềm](richfarm://pests-diseases/aphids) thường tụ tập ở ngọn non và mặt dưới lá, làm lá xoăn và chậm phát triển. Kiểm tra ngọn và chồi non khi tưới; nếu chỉ có một ít, có thể dùng tay hoặc tia nước nhẹ. Các loại [sâu ăn lá](richfarm://pests-diseases/caterpillars) có thể gặm lá và đục quả; khi thấy lá bị khuyết lớn hoặc có phân sâu, cần tìm và loại bỏ sâu bằng tay.\\n\\n[Bệnh đốm nâu sớm](richfarm://pests-diseases/early_blight) thường bắt đầu từ lá gốc, tạo các đốm nâu đồng tâm rồi lan dần lên. Loại bỏ lá bệnh, không để lá tiếp xúc đất và tránh làm ướt tán lá khi tưới. [Bệnh mốc sương](richfarm://pests-diseases/late_blight) lan nhanh trong thời tiết mát ẩm, làm lá và quả thối mềm; cần phát hiện sớm, cắt bỏ phần bệnh và không để cây ẩm ướt qua đêm. Nếu bệnh lan rộng hoặc nhiều cây cùng nhiễm, xác định đúng tác nhân trước khi dùng thuốc, đặc biệt với cây ăn quả thu hoạch liên tục.\\n\",\"content_version\":1,\"content_status\":\"needs_review\",\"review_status\":\"unreviewed\",\"content_origin\":\"authored\",\"source\":\"seed\",\"source_refs\":[]}}}",
+        "source_id": "ec879cdc-bbed-47e1-8d90-719fd5a3df53",
+        "source_system": "sqlite",
+        "status": "pending"
+      }
+    ],
+    "delta_count": 2,
+    "processing_invoked": false
+  },
+  "post_audit": {
+    "auditId": "cid6-tomato-1554-20260825-content-import",
+    "freshnessBoundary": {
+      "convexExpectedCount": null,
+      "convexPageCount": 0,
+      "convexReceivedCount": null,
+      "convexSnapshotRevision": null,
+      "convexTerminalCursor": null,
+      "snapshotComplete": true,
+      "sourceDataChangedDuringRead": false,
+      "sqliteDataRevision": "e556cae6380574135f253bc4cde12592f43ed32c601c0b072884020c90fbdeb0",
+      "sqliteOutboxWatermark": 159
+    },
+    "status": "healthy",
+    "summary": {
+      "blocked": 0,
+      "convexRows": null,
+      "duplicateCanonicalKeys": 0,
+      "info": 1,
+      "legacyParentlessCultivars": 0,
+      "sqliteRows": 1553,
+      "totalFindings": 1,
+      "unresolvedIdentityRows": 0,
+      "warning": 0
+    }
+  },
+  "readback": {
+    "locales": [
+      {
+        "bytes": 4710,
+        "care_content": "## Light and location\n\nTomatoes are sun-loving plants that need at least 6 hours of direct sunlight a day for good flowering and fruit set. A full-sun spot keeps the stems compact and helps fruit color evenly. In too little light, plants grow leafy but set fewer fruit and tend to have more disease problems.\n\nUnlike soft-stemmed climbers, tomato stems grow upright but are fairly soft and easily bend under the weight of fruit. Set up stakes, cages, or a simple support at planting time rather than waiting until the plants are tall. As the plant grows, tie the main stem loosely with soft ties and check them regularly so they do not cut into the stem.\n\n## Watering\n\nGive the plants a thorough drink when the top layer of soil begins to dry, then wait for the soil to drain before the next watering. This encourages roots to grow deeper than frequent light watering does. Check the soil with your hand first, since water needs change with the weather and the plant's stage.\n\nKeep soil moisture fairly steady from fruit set to harvest. Soil that swings between very dry and very wet can cause blossom end rot, a fruit disorder linked to uneven calcium uptake. Avoid wetting the foliage, especially late in the day, to limit fungal disease. In containers, soil dries faster than garden beds on hot days and needs more frequent checking.\n\n## Soil\n\nTomatoes grow best in loose, fertile soil with good drainage. Work mature compost or well-rotted manure into the bed before planting so the plants start with a steady supply of nutrients. Heavy or poorly drained soil weakens the roots and invites disease.\n\n## Feeding\n\nThis crop is a heavier feeder than short-season leafy greens, so prepare the bed well and side-dress during growth. Once flowering starts, shift to a fertilizer with more potassium relative to nitrogen to support fruiting rather than pushing leafy growth.\n\nWatch the leaves and growth rate before adding more. Lower leaves turning pale while the plant has enough water may point to a nutrient shortage; very dark leaves and unusually thick stems suggest too much nitrogen. Never pile concentrated fertilizer against the stem, and do not feed while the soil is dry.\n\n## Sowing and propagation\n\nIn warm climates, sow seed in late winter or early spring once nights have warmed. In areas with frost, start seed indoors about 6-8 weeks before the last frost date and move seedlings out after the danger has passed. Harden off young plants gradually to sun and wind before planting them in the garden.\n\nSet transplants slightly deeper than they grew in the pot, burying part of the stem below the seed leaves, since this section can form extra roots and anchor the plant. Spacing depends on the type: compact bush types can be planted closer together, while vigorous vining types need more room for air to move through the canopy.\n\n## Ongoing care and harvest\n\nFor types that keep growing tall, pinch out the suckers that form in the leaf axils so the plant channels energy into the main stem and fruit trusses. For compact bush types, simply remove weak shoots or old lower leaves to keep the center open. Do this by hand or with clean scissors, taking care not to scrape the stem.\n\nFruit is approaching ripeness when it begins to change color from green to red, or to the color typical of the variety. You can pick fruit as soon as color starts to show and let it finish ripening in a cool, airy spot, or wait for full color on the plant. Harvest regularly, holding the stem or cutting the fruit with a short piece of stalk so you do not break the branch. Before a long cold or rainy spell, pick fruit that has already begun to color to avoid cracking and rot.\n\n## Common pests and diseases\n\n[Aphids](richfarm://pests-diseases/aphids) gather on young shoots and leaf undersides, curling leaves and slowing growth. Check the tips when you water; a light infestation can be washed off or removed by hand. [Caterpillars](richfarm://pests-diseases/caterpillars) may chew leaves and bore into fruit; ragged leaf damage or droppings on the plant are a sign to search and remove them by hand.\n\n[Early blight](richfarm://pests-diseases/early_blight) usually starts on the lower leaves as brown spots with concentric rings and moves upward. Remove affected leaves, keep foliage off the soil, and avoid wetting the leaves when watering. [Late blight](richfarm://pests-diseases/late_blight) spreads quickly in cool, damp weather and turns leaves and fruit soft and rotten; catch it early, cut out the affected parts, and keep plants dry overnight. If the disease keeps spreading or many plants are affected at once, identify the cause before using any product, especially on a crop you harvest continuously.\n",
+        "content_origin": "authored",
+        "content_status": "needs_review",
+        "content_version": 1,
+        "exactBytes": true,
+        "exactSha256": true,
+        "expectedBytes": 4710,
+        "expectedContentOrigin": "authored",
+        "expectedContentStatus": "needs_review",
+        "expectedContentVersion": 1,
+        "expectedReviewStatus": "unreviewed",
+        "expectedSha256": "f978d3610f28588d66e0fcd0d3f212329effdf12c5a757b48a2d617130f521b9",
+        "expectedSourceRefsJson": "[]",
+        "locale": "en",
+        "review_status": "unreviewed",
+        "sha256": "f978d3610f28588d66e0fcd0d3f212329effdf12c5a757b48a2d617130f521b9",
+        "source_refs_json": "[]"
+      },
+      {
+        "bytes": 5305,
+        "care_content": "## Ánh sáng và vị trí\n\nCà chua là cây ưa nắng, cần ít nhất 6 giờ nắng trực tiếp mỗi ngày để ra hoa và đậu quả tốt. Nơi có nắng đầy đủ giúp thân không vươn dài quá mức, quả chín đều màu hơn. Nếu trồng ở chỗ ít nắng, cây thường xanh lá nhưng ra ít quả và dễ bị sâu bệnh hơn.\n\nKhác với các loại dây leo mềm, thân cà chua đứng nhưng khá mềm và dễ đổ khi mang quả. Nên chuẩn bị cọc, giàn hoặc lồng đỡ ngay khi trồng, không đợi cây cao rồi mới cắm. Khi cây lớn, buộc thân vào cọc bằng dây mềm và nới lỏng theo độ lớn của thân.\n\n## Tưới nước\n\nTưới đẫm gốc khi lớp đất mặt bắt đầu se khô, sau đó chờ đất ráo bớt trước lần tưới kế tiếp. Cách này khuyến khích rễ ăn sâu hơn so với tưới ít và thường xuyên. Kiểm tra đất bằng tay trước khi quyết định, vì nhu cầu nước thay đổi theo thời tiết và giai đoạn cây.\n\nCần giữ độ ẩm đất tương đối ổn định từ lúc quả non đến khi chín. Đất khô rồi ướt đột ngột dễ làm quả bị thối đáy, một dạng hư quả do thiếu canxi khi đất không đủ ẩm đều. Tránh làm ướt lá khi tưới, nhất là vào cuối ngày, để hạn chế bệnh nấm. Nếu trồng chậu, chú ý chậu khô nhanh hơn đất vườn vào ngày nắng nóng.\n\n## Đất trồng\n\nCà chua phát triển tốt trên đất tơi, giàu hữu cơ và thoát nước tốt. Trộn compost hoặc phân chuồng đã hoai trước khi trồng để cây có nguồn dinh dưỡng từ đầu. Đất chua hoặc quá nặng, dễ đọng nước thường làm rễ yếu và cây dễ bệnh.\n\n## Bón phân\n\nLoài này ăn nhiều dinh dưỡng hơn các loại rau lá ngắn ngày, vì vậy cần bón lót kỹ và bón thúc theo giai đoạn. Sau khi cây bắt đầu ra hoa, chuyển sang phân có tỷ lệ kali cao hơn đạm để hỗ trợ đậu quả thay vì chỉ thúc thân lá.\n\nQuan sát lá và tốc độ lớn trước khi bón thêm. Lá dưới vàng nhạt trong khi cây vẫn đủ nước có thể là dấu hiệu thiếu dinh dưỡng; ngược lại, lá xanh thẫm và thân mập mọng bất thường cho thấy cây nhận quá nhiều đạm. Không rải phân đậm đặc sát gốc và không tưới phân khi đất đang khô.\n\n## Gieo trồng và nhân giống\n\nỞ vùng khí hậu ấm, gieo hạt vào cuối mùa đông hoặc đầu xuân, khi nhiệt độ ban đêm đã bớt lạnh. Ở vùng có sương giá, gieo hạt trong nhà trước khoảng 6-8 tuần rồi đem cây con ra ngoài sau đợt rét cuối. Cây con cần được làm quen dần với nắng và gió trước khi trồng hẳn ra vườn.\n\nTrồng cây sâu hơn độ sâu trong bầu, chôn một phần thân dưới lá mầm vì phần thân này có thể mọc rễ phụ, giúp cây đứng vững hơn. Khoảng cách giữa các cây tùy giống: cây dạng gọn trồng gần hơn, cây dạng leo dài cần chỗ rộng hơn để thông thoáng.\n\n## Chăm sóc và thu hoạch\n\nVới giống không hạn chế chiều cao, ngắt các chồi nách mọc ở kẽ lá để cây tập trung vào thân chính và chùm quả. Với giống dạng bụi gọn, chỉ cần cắt bỏ chồi yếu hoặc lá già sát gốc để tán thông thoáng. Cắt tỉa bằng tay hoặc kéo sạch, tránh làm trầy thân.\n\nQuả bắt đầu chuyển màu từ xanh sang đỏ (hoặc màu đặc trưng của giống) khi sắp đạt độ chín. Có thể hái khi quả vừa chuyển màu và để chín tiếp ở nơi thoáng, hoặc chờ chín hẳn trên cây. Hái quả đều đặn, dùng tay đỡ cuống hoặc kéo cắt sát cuống để không làm gãy cành. Trước đợt rét hoặc mưa kéo dài, thu sớm những quả đã chuyển màu để tránh nứt và thối.\n\n## Sâu hại và bệnh thường gặp\n\n[Rệp mềm](richfarm://pests-diseases/aphids) thường tụ tập ở ngọn non và mặt dưới lá, làm lá xoăn và chậm phát triển. Kiểm tra ngọn và chồi non khi tưới; nếu chỉ có một ít, có thể dùng tay hoặc tia nước nhẹ. Các loại [sâu ăn lá](richfarm://pests-diseases/caterpillars) có thể gặm lá và đục quả; khi thấy lá bị khuyết lớn hoặc có phân sâu, cần tìm và loại bỏ sâu bằng tay.\n\n[Bệnh đốm nâu sớm](richfarm://pests-diseases/early_blight) thường bắt đầu từ lá gốc, tạo các đốm nâu đồng tâm rồi lan dần lên. Loại bỏ lá bệnh, không để lá tiếp xúc đất và tránh làm ướt tán lá khi tưới. [Bệnh mốc sương](richfarm://pests-diseases/late_blight) lan nhanh trong thời tiết mát ẩm, làm lá và quả thối mềm; cần phát hiện sớm, cắt bỏ phần bệnh và không để cây ẩm ướt qua đêm. Nếu bệnh lan rộng hoặc nhiều cây cùng nhiễm, xác định đúng tác nhân trước khi dùng thuốc, đặc biệt với cây ăn quả thu hoạch liên tục.\n",
+        "content_origin": "authored",
+        "content_status": "needs_review",
+        "content_version": 1,
+        "exactBytes": true,
+        "exactSha256": true,
+        "expectedBytes": 5305,
+        "expectedContentOrigin": "authored",
+        "expectedContentStatus": "needs_review",
+        "expectedContentVersion": 1,
+        "expectedReviewStatus": "unreviewed",
+        "expectedSha256": "9f827f414e6dabecaf50cdfb96239835e070bccc2e76505d387ccb99c3ecc9b9",
+        "expectedSourceRefsJson": "[]",
+        "locale": "vi",
+        "review_status": "unreviewed",
+        "sha256": "9f827f414e6dabecaf50cdfb96239835e070bccc2e76505d387ccb99c3ecc9b9",
+        "source_refs_json": "[]"
+      }
+    ],
+    "row1554_identity_unchanged": true,
+    "row6_after": {
+      "canonical_archive_reason": "canonical duplicate archived in favor of row 1554",
+      "canonical_archived_at": "2026-08-24 18:24:27",
+      "canonical_archived_into_id": 1554,
+      "canonical_identity_version": "canonical_identity_v1",
+      "canonical_key": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+      "canonical_status": "archived",
+      "care_field_evidence_json": "{}",
+      "care_status": "awaiting_review",
+      "category": "general",
+      "common_name": "Cà chua",
+      "content_status": "archived",
+      "content_version": 1,
+      "created_at": "2026-05-12 17:48:18",
+      "cultivar": null,
+      "family": "Solanaceae",
+      "fertilizing_frequency_days": null,
+      "genus": "solanum",
+      "germination_days": 7,
+      "group": "nightshades",
+      "growth_stage": "seedling",
+      "id": 6,
+      "identity_scope": "base",
+      "image_url": null,
+      "infraspecific_name": null,
+      "infraspecific_rank": null,
+      "is_active": 0,
+      "light_hours": null,
+      "light_requirements": null,
+      "max_plants_per_m2": null,
+      "metadata_json": "{\"source\":\"seed\",\"convexId\":\"k1706848a9540zratne51xd50d81cyhr\",\"cultivarNormalized\":\"__default__\"}",
+      "moisture_target": null,
+      "notes": "Cà chua là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+      "parent_canonical_key": null,
+      "parent_master_plant_id": null,
+      "plant_code": "SOLANUM_LYCOPERSICUM_D50D81CYHR",
+      "propagation_methods_json": "[]",
+      "purposes_json": "[\"cooking\",\"salad\"]",
+      "record_version": 1,
+      "review_status": "unreviewed",
+      "reviewed_at": null,
+      "reviewed_by": null,
+      "scientific_name": "Solanum lycopersicum",
+      "seed_rate_per_m2": null,
+      "soil_ph_max": null,
+      "soil_ph_min": null,
+      "source_id": null,
+      "source_system": "sqlite",
+      "source_url": null,
+      "spacing_cm": 60,
+      "species": "lycopersicum",
+      "sync_origin": "local",
+      "typical_days_to_harvest": 70,
+      "updated_at": "2026-08-24 18:24:27",
+      "water_liters_per_m2": 38.1,
+      "watering_frequency_days": null,
+      "yield_kg_per_m2": 2.25
+    },
+    "row6_before": {
+      "canonical_archive_reason": "canonical duplicate archived in favor of row 1554",
+      "canonical_archived_at": "2026-08-24 18:24:27",
+      "canonical_archived_into_id": 1554,
+      "canonical_identity_version": "canonical_identity_v1",
+      "canonical_key": "[\"v1\",\"solanum\",\"lycopersicum\",\"\",\"\",\"\"]",
+      "canonical_status": "archived",
+      "care_field_evidence_json": "{}",
+      "care_status": "awaiting_review",
+      "category": "general",
+      "common_name": "Cà chua",
+      "content_status": "archived",
+      "content_version": 1,
+      "created_at": "2026-05-12 17:48:18",
+      "cultivar": null,
+      "family": "Solanaceae",
+      "fertilizing_frequency_days": null,
+      "genus": "solanum",
+      "germination_days": 7,
+      "group": "nightshades",
+      "growth_stage": "seedling",
+      "id": 6,
+      "identity_scope": "base",
+      "image_url": null,
+      "infraspecific_name": null,
+      "infraspecific_rank": null,
+      "is_active": 0,
+      "light_hours": null,
+      "light_requirements": null,
+      "max_plants_per_m2": null,
+      "metadata_json": "{\"source\":\"seed\",\"convexId\":\"k1706848a9540zratne51xd50d81cyhr\",\"cultivarNormalized\":\"__default__\"}",
+      "moisture_target": null,
+      "notes": "Cà chua là giống cây trong bộ sưu tập, dễ trồng trong điều kiện đất phù hợp và ánh sáng vừa phải. Bạn có thể sử dụng sản phẩm thu hoạch được trong nhiều món ăn hoặc trang trí không gian sống.",
+      "parent_canonical_key": null,
+      "parent_master_plant_id": null,
+      "plant_code": "SOLANUM_LYCOPERSICUM_D50D81CYHR",
+      "propagation_methods_json": "[]",
+      "purposes_json": "[\"cooking\",\"salad\"]",
+      "record_version": 1,
+      "review_status": "unreviewed",
+      "reviewed_at": null,
+      "reviewed_by": null,
+      "scientific_name": "Solanum lycopersicum",
+      "seed_rate_per_m2": null,
+      "soil_ph_max": null,
+      "soil_ph_min": null,
+      "source_id": null,
+      "source_system": "sqlite",
+      "source_url": null,
+      "spacing_cm": 60,
+      "species": "lycopersicum",
+      "sync_origin": "local",
+      "typical_days_to_harvest": 70,
+      "updated_at": "2026-08-24 18:24:27",
+      "water_liters_per_m2": 38.1,
+      "watering_frequency_days": null,
+      "yield_kg_per_m2": 2.25
+    },
+    "row6_unchanged": true
+  },
+  "run_id": "cid6-tomato-1554-20260825-content-import",
+  "schema_version": 1,
+  "scope": {
+    "convex": false,
+    "excluded_plant_id": 6,
+    "manifest": "/Users/n/Documents/GitHub/richfarm/content/plants/solanum-lycopersicum/content.json",
+    "network": false,
+    "target_plant_id": 1554
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"epipremnum\",\"aureum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "epipremnum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 5087,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "e51b899b9c2957e7175fd59328c4911bd79202763690fb696a678bcf22695407",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 5724,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "a7b0fcbdc767f2258d9479690ea3c0eba20883b14dbb7a3a73536cfcfa2bfc8f",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "EPIPREMNUM_AUREUM_KVQ181DD4Y",
+  "schema_version": 1,
+  "scientific_name": "Epipremnum aureum",
+  "scope": "base",
+  "species": "aureum",
+  "target_status": "active"
+}

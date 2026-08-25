@@ -14,6 +14,7 @@ import { createMasterPlantI18nRouter } from "./master-plant-i18n";
 import { createConvexAdminRouter } from "./convex-admin";
 import { createAdaptationTermsRouter } from "./adaptation-terms";
 import { adaptationTermsHealth } from "./master-plants";
+import { createSyncReconciliationRouter } from "./sync-reconciliation";
 
 interface CreateAppOptions {
   auth: AuthConfig;
@@ -131,6 +132,12 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
   );
   app.use("/api/content-sync", authMiddleware, requireRole(["admin"]), createContentSyncRouter());
   app.use("/api/convex-admin", authMiddleware, requireRole(["admin", "editor"]), createConvexAdminRouter(options.syncService));
+  app.use(
+    "/api/sync-reconciliation",
+    authMiddleware,
+    requireRole(["admin", "editor"]),
+    createSyncReconciliationRouter(db, options.syncService),
+  );
   app.use(
     "/api",
     authMiddleware,

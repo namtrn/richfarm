@@ -4,7 +4,8 @@
 > Phạm vi: nội dung hướng dẫn chăm sóc hiển thị trong app
 > Định dạng bắt buộc: Markdown thuần
 > Ngôn ngữ tài liệu: tiếng Việt; nội dung cây: đa ngôn ngữ
-> Bài mẫu: Mồng tơi (*Basella alba*)
+> Bài mẫu nền: Mồng tơi (*Basella alba*)
+> Bài mẫu đối trọng: Húng quế (*Ocimum basilicum*)
 
 ## 1. Mục tiêu
 
@@ -58,18 +59,26 @@ Không dùng:
 
 ## 3. Cấu trúc bài viết
 
-Không bắt buộc mọi cây phải có đủ tất cả mục. Chỉ viết mục có thông tin hữu ích và đã được kiểm tra. Thứ tự khuyến nghị:
+Không bắt buộc mọi cây phải có đủ tất cả chủ đề. Danh sách ánh sáng, nước, đất, dinh dưỡng, nhân giống, thu hoạch và sâu bệnh là **checklist nghiên cứu**, không phải dàn ý đầu ra. Chỉ viết mục có thông tin hữu ích, đã được kiểm tra và giúp người đọc đưa ra một quyết định chăm sóc cụ thể.
 
-1. `## Ánh sáng và vị trí`
-2. `## Tưới nước`
-3. `## Đất trồng`
-4. `## Bón phân`
-5. `## Gieo trồng và nhân giống`
-6. `## Chăm sóc và thu hoạch`
-7. `## Sâu hại và bệnh thường gặp`
-8. `## Lưu ý`
+### Đoạn mở bài
 
-Có thể đổi tên mục cho tự nhiên hơn với từng loại cây. Ví dụ cây ăn lá dùng “Chăm sóc và thu hoạch”, cây hoa dùng “Ra hoa”, cây ăn quả dùng “Đậu quả và thu hoạch”.
+Mỗi bài phải bắt đầu bằng một đoạn mở bài không có heading riêng, thường 2-4 câu. Đoạn này cần:
+
+- nêu một đặc điểm thực tế hoặc lợi ích của cây;
+- chỉ ra 1-2 vấn đề dễ gặp ở đúng loài cây đó;
+- nối các vấn đề này với ưu tiên chăm sóc chính.
+
+Không mở bài bằng định nghĩa chung như “X là một loại cây…”. Mở bài phải cho người đọc biết ngay cây này dễ gặp khó khăn gì và bài hướng dẫn sẽ giúp họ xử lý điều đó ra sao.
+
+### Chọn mục và thứ tự
+
+- Chọn khoảng 4-7 mục cấp 2 tùy lượng thông tin thực sự cần; đây là khoảng tham khảo, không phải quota.
+- Có thể gộp, bỏ, đổi tên và sắp xếp lại chủ đề theo vòng đời hoặc rủi ro chính của cây.
+- Heading nên mô tả một hành động, ưu tiên hoặc vấn đề cụ thể, chẳng hạn “Gieo lứa mới khi cây cũ bắt đầu già” hoặc “Kiểm tra sớm để phát hiện sâu bệnh”.
+- Heading nên giúp trả lời câu hỏi “người đọc cần làm gì và làm để đạt mục đích nào?”, không chỉ gắn nhãn một nhóm dữ liệu.
+- Không đưa một câu vào bài chỉ vì bài mẫu có một mục tương ứng. Một thông tin phủ định như “không cần làm giàn” chỉ nên xuất hiện khi người đọc có khả năng mắc đúng sai lầm đó.
+- Độ dài và số đoạn của từng mục phải thay đổi theo độ phức tạp của quyết định; không ép mọi mục có cùng số đoạn hoặc cùng nhịp câu.
 
 ### Sâu hại và bệnh là hai nhóm nội dung riêng
 
@@ -93,8 +102,8 @@ Mọi locale dùng cùng link target và chỉ dịch nhãn hiển thị. Render
 
 ### Độ dài
 
-- Toàn bài: khoảng 350-700 từ tiếng Việt.
-- Mỗi mục: 1-3 đoạn ngắn, thường 2-5 câu.
+- Toàn bài: thường khoảng 350-700 từ tiếng Việt. Có thể dài hơn khi cây có nhiều quyết định chăm sóc liên quan, miễn mỗi đoạn bổ sung thông tin mới và không lặp ý.
+- Mỗi mục: thường 1-4 đoạn ngắn; không có số đoạn cố định.
 - Bullet: tối đa 3-4 bullet trong một mục.
 - Mỗi câu nên truyền đạt một ý chính.
 
@@ -139,6 +148,19 @@ Không fallback sang nội dung của một loài hoặc cultivar khác chỉ v�
 - Thể hiện sự linh hoạt theo điều kiện thực tế: “vào ngày nóng”, “nếu trồng trong chậu”, “khi mưa nhiều”.
 - Xen kẽ đoạn văn và bullet; không biến cả bài thành checklist.
 - Đưa mẹo thực tế có giá trị: kiểm tra đất bằng tay, cắt ngọn để cây phân nhánh, giảm tưới khi mưa.
+- Mở đầu mỗi bài bằng một đoạn ngắn nêu đặc điểm, vấn đề dễ gặp và ưu tiên chăm sóc của chính loài cây đó.
+- Viết theo chuỗi `quan sát → hiểu vấn đề → hành động`, thay vì chỉ đưa mệnh lệnh.
+- Với bón phân, đưa ra ít nhất một cách làm thực tế không phụ thuộc hoàn toàn vào việc người đọc có đúng bao bì sản phẩm hay không.
+- Với khay gieo hoặc cây con, mô tả trạng thái đất và giá thể cần đạt thay vì đưa một lịch tưới cứng dễ áp dụng sai.
+- Khi nói về nhân giống, giải thích mục đích trong vòng đời cây, chẳng hạn gieo lứa mới để thay cây cũ khi cây bắt đầu già và cho ít lá.
+- Đặt heading theo lợi ích hoặc hành động cần thực hiện; heading sâu bệnh nên cho biết kiểm tra để phát hiện hay ngăn chặn điều gì.
+
+### Mức độ khẳng định và câu văn tự nhiên
+
+- Phân biệt sự thật với khuyến nghị. Dùng `nên`, `có thể`, `ưu tiên`, `thường`, `nếu` khi lời khuyên phụ thuộc vào thời tiết, chậu, giai đoạn cây hoặc điều kiện trồng.
+- Không thêm từ làm mềm chỉ để câu nghe thân thiện. Chỉ thêm đại từ, từ chỉ hướng, thời gian hoặc trạng thái khi chúng làm rõ người thực hiện, thời điểm hoặc điều kiện.
+- Với mô tả vị trí, dùng các cụm tự nhiên và cụ thể như `có nắng chiếu vào buổi sáng` và `trong những giờ nắng gắt buổi chiều`, không dùng cách diễn đạt mơ hồ như `ở thời điểm buổi chiều`.
+- Một câu phủ định chỉ nên giữ lại khi nó ngăn một sai lầm có khả năng xảy ra. Không viết “không cần làm giàn” hoặc các phủ định tương tự chỉ vì bài mẫu có một mục đối chiếu.
 
 ### Tránh lặp tên cây
 
@@ -152,7 +174,7 @@ Không fallback sang nội dung của một loài hoặc cultivar khác chỉ v�
 ### Trợ từ, trạng từ và đại từ chỉ người đọc
 
 - Được dùng `bạn` trong tiếng Việt và `you` trong tiếng Anh khi cần làm rõ người thực hiện hoặc giúp câu bớt cứng.
-- Giới hạn khuyến nghị: tối đa một lần trong mỗi mục. Không mở nhiều câu liên tiếp bằng `bạn` hoặc `you`.
+- Không mở nhiều câu liên tiếp bằng `bạn` hoặc `you`, nhưng cũng không áp một hạn ngạch cứng theo mục; tần suất phải phục vụ sự rõ ràng và nhịp câu.
 - Khi câu vẫn rõ nghĩa, ưu tiên viết trực tiếp không có đại từ: “Kiểm tra lớp đất mặt trước khi tưới.”
 - Dùng trạng từ và từ nối để làm rõ thời điểm, trình tự hoặc mức độ: `khi vừa`, `khi bắt đầu`, `trước tiên`, `sau đó`, `đặc biệt`, `tuy nhiên`, `ngược lại`, `thường`, `chỉ`.
 - Chỉ giữ những từ làm thay đổi hoặc làm rõ ý nghĩa. Không thêm từ đệm chỉ để câu có vẻ thân mật.
@@ -201,6 +223,20 @@ Nên:
 6. Không nêu nhiệt độ, pH, lượng nước hoặc lượng phân nếu chưa có nguồn đủ tin cậy.
 7. Thông tin chưa chắc chắn không được “làm mềm” rồi đưa vào bài. Hãy bỏ mục đó và chờ kiểm duyệt.
 8. Không để citation hoặc URL trong `careContent`; provenance thuộc metadata quản trị.
+
+### Biến thông tin thành hành động
+
+Mỗi mục nên giúp người đọc đi từ dấu hiệu hoặc điều kiện thực tế đến một quyết định cụ thể:
+
+1. Nêu điều người đọc có thể quan sát, sờ, kiểm tra hoặc nhận ra.
+2. Giải thích ngắn điều kiện đó thường có ý nghĩa gì đối với loài cây đang viết.
+3. Đưa ra hành động đầu tiên và, khi cần, nói rõ trường hợp nào không nên tiếp tục hành động đó.
+
+Hướng dẫn bón phân phải có cách làm thực tế, chẳng hạn cách dùng một lớp compost mỏng hoặc cách bón lượng nhỏ quanh vùng rễ, thay vì chỉ nói “làm theo hướng dẫn trên bao bì”. Nhãn sản phẩm vẫn là nguồn bắt buộc để kiểm tra liều lượng và thời gian an toàn, nhưng không được thay thế toàn bộ hướng dẫn trong bài.
+
+Với khay gieo, ưu tiên mô tả trạng thái cần đạt như `ẩm khi chạm vào nhưng không nhão, không có nước đọng` thay vì đặt một lịch tưới cố định. Với nhân giống, nói rõ vì sao thời điểm hoặc thao tác đó hữu ích, ví dụ gieo lứa mới trước khi cây cũ già để có cây thay thế khi lượng lá giảm.
+
+Mục sâu bệnh nên trả lời được “kiểm tra để làm gì?” và nêu nơi cần kiểm tra, dấu hiệu sớm cùng hành động an toàn đầu tiên. Không dùng heading nhóm chung nếu một heading theo mục đích giúp người đọc bắt đầu hành động rõ hơn.
 
 ## 7. Bài mẫu — Mồng tơi (*Basella alba*)
 
@@ -373,16 +409,35 @@ The first young shoots are often ready about 6-8 weeks after emergence, dependin
 [Leaf spot](richfarm://pests-diseases/leaf_spot) may cause unusual spots that spread across the foliage. Stop harvesting the affected growth, remove diseased leaves, and avoid wetting the foliage late in the day. Do not apply a pesticide to leafy vegetables until the problem has been identified and you have appropriate safety instructions.
 ```
 
+### 7.4. Bài mẫu đối trọng — Húng quế (*Ocimum basilicum*)
+
+Bài mẫu đầy đủ được lưu ở [bản tiếng Việt](../plants/ocimum-basilicum/vi.md) và [bản tiếng Anh](../plants/ocimum-basilicum/en.md). Đây là mẫu đối trọng với Mồng tơi: giữ cùng contract về Markdown, an toàn, quan sát và liên kết sâu bệnh, nhưng không dùng cùng dàn ý bảy mục.
+
+Bài húng quế minh họa các nguyên tắc sau:
+
+- Có một đoạn mở bài nêu tốc độ lớn, hai vấn đề dễ gặp và ưu tiên chăm sóc chính.
+- Heading mô tả hành động hoặc mục đích: chọn chỗ trồng, gieo lứa thay thế, bấm ngọn, kiểm tra sớm.
+- Câu khuyến nghị được điều chỉnh mức độ bằng `nên`, `có thể`, `ưu tiên` và điều kiện thời tiết hoặc giá thể.
+- Phần bón phân có cách làm bằng compost hoặc phân hữu cơ hoai khi người đọc không có phân nước hoặc không rõ liều.
+- Phần gieo hạt mô tả trạng thái đất cần đạt thay vì áp một lịch tưới cố định.
+- Phần nhân giống giải thích vì sao nên gieo lứa mới trước khi cây cũ già và cho ít lá.
+- Phần sâu bệnh dùng heading trả lời mục đích kiểm tra, sau đó tách dấu hiệu sâu hại, bệnh và hành động an toàn.
+
+Không dùng nguyên chuỗi heading hoặc câu văn của mẫu húng quế cho cây khác. Chỉ dùng các nguyên tắc ra quyết định và mức độ cụ thể làm chuẩn.
+
 ## 8. So sánh trước và sau khi áp dụng rule
 
 | Trước khi áp dụng đầy đủ rule | Sau khi refine |
 |---|---|
+| Không có đoạn mở bài; bài bắt đầu ngay bằng mục ánh sáng. | Mở bằng vài câu nêu đặc điểm, vấn đề dễ gặp và ưu tiên chăm sóc của loài cây. |
 | “Cây trong chậu thường mất ẩm nhanh hơn” khiến chủ thể mất ẩm không rõ ràng. | “Trong những ngày nắng nóng, đất thường mất ẩm nhanh hơn” nói rõ nguyên nhân và đối tượng cần kiểm tra. |
-| “Làm một giàn đơn giản” không cho biết loại giàn và cách sử dụng. | Nêu cụ thể giàn lưới hoặc giàn dây, chiều cao vừa tầm hái và cách hướng ngọn, buộc dây. |
-| Phần bón phân chỉ nhắc làm theo hướng dẫn sản phẩm. | Giải thích vai trò của đạm, cách đọc N-P-K, công thức tham khảo và dấu hiệu cần cân nhắc trước khi bón thêm. |
+| “Không cần làm giàn” được đưa vào chỉ vì bài mẫu có một mục về giàn. | Bỏ thông tin phủ định không tạo ra quyết định chăm sóc; chỉ giữ khi nó ngăn một sai lầm có khả năng xảy ra. |
+| Phần bón phân chỉ nhắc làm theo hướng dẫn sản phẩm. | Đưa cách bón phân nước và cách dùng compost hoặc phân hữu cơ hoai, đồng thời giữ nhãn sản phẩm làm ranh giới an toàn về liều lượng. |
 | Dùng từ ít phổ biến như “hom thân”. | Dùng “giâm cành”, sau đó mô tả cách chọn và cắm cành. |
-| Cảnh báo ngắn: “đừng để khay gieo bị sũng nước”. | Dùng từ nối “tuy nhiên”, nêu rõ điều cần tránh và hậu quả đối với hạt, rễ non. |
-| Hướng dẫn sâu bệnh dừng ở việc kiểm tra và loại bỏ lá. | Bổ sung thời điểm kiểm tra, nơi sâu thường ẩn, trình tự xử lý, vệ sinh dụng cụ và điều kiện an toàn trước khi dùng thuốc. |
+| Cảnh báo ngắn: “đừng để khay gieo bị sũng nước”. | Mô tả trạng thái mục tiêu: đất ẩm khi chạm vào nhưng không nhão, không có nước đọng; nói rõ cách tưới nhẹ để không xói hạt. |
+| Chỉ nói “gieo hoặc giâm cành” mà không giải thích thời điểm. | Nói rõ gieo lứa mới để thay cây cũ khi cây bắt đầu già và cho ít lá hơn. |
+| Heading “Sâu hại và bệnh thường gặp” chỉ đặt tên nhóm nội dung. | Dùng heading “Kiểm tra sớm để phát hiện sâu bệnh”, trả lời được lý do người đọc cần kiểm tra. |
+| Hướng dẫn sâu bệnh dừng ở việc kiểm tra và loại bỏ lá. | Bổ sung nơi cần kiểm tra, dấu hiệu sớm, trình tự xử lý và điều kiện an toàn trước khi dùng thuốc. |
 
 Bản refine giống người viết hơn vì nội dung đi từ việc cần làm, giải thích vừa đủ lý do và luôn đặt hành động trong điều kiện thực tế. Các câu không cố tạo vẻ thân mật bằng trợ từ; `bạn` chỉ xuất hiện khi giúp xác định rõ người thực hiện.
 
@@ -390,15 +445,23 @@ Bản refine giống người viết hơn vì nội dung đi từ việc cần l
 
 - [ ] Giá trị lưu là Markdown thuần, không phải JSON.
 - [ ] Không dùng heading `#`; bắt đầu các mục bằng `##`.
+- [ ] Có đoạn mở bài không có heading riêng, nêu đặc điểm, rủi ro và ưu tiên chăm sóc chính.
 - [ ] Bài viết tự nhiên khi đọc thành tiếng.
 - [ ] Tên cây không bị lặp ở đầu hai câu hoặc hai đoạn gần nhau.
 - [ ] Các từ thay thế như `cây`, `loài này` hoặc cụm mô tả đặc tính được dùng tự nhiên và không làm sai taxonomy.
-- [ ] `Bạn` hoặc `you` xuất hiện tối đa một lần trong mỗi mục và không lặp ở nhiều câu liên tiếp.
+- [ ] `Bạn` hoặc `you` chỉ xuất hiện khi giúp làm rõ người thực hiện hoặc làm câu tự nhiên hơn; không lặp ở nhiều câu liên tiếp.
 - [ ] Không có `nhé`, `ạ`, `vâng` hoặc `đâu` dùng như từ đệm.
 - [ ] `Cứ` và `hãy` đã được bỏ nếu không làm thay đổi ý nghĩa.
 - [ ] Các trạng từ, từ nối đều làm rõ thời điểm, trình tự, mức độ hoặc quan hệ đối lập.
+- [ ] Mức độ khẳng định phù hợp: sự thật được phân biệt với khuyến nghị bằng các từ như `nên`, `có thể`, `ưu tiên`, `thường`, `nếu`.
+- [ ] Không có câu hoặc heading được giữ lại chỉ vì golden example có cấu trúc tương tự.
 - [ ] Không lặp lại phần mô tả chung của cây.
 - [ ] Mỗi mục trả lời một nhu cầu thực tế của người trồng.
+- [ ] Mỗi mục có ít nhất một chuỗi quan sát hoặc điều kiện → diễn giải → hành động.
+- [ ] Hướng dẫn bón phân có cách làm thực tế, không chỉ trỏ người đọc về bao bì sản phẩm.
+- [ ] Khay gieo được mô tả bằng trạng thái đất hoặc giá thể cần đạt, không áp lịch tưới cứng khi chưa có căn cứ.
+- [ ] Nhân giống có giải thích mục đích và thời điểm trong vòng đời cây.
+- [ ] Heading sâu bệnh cho biết mục đích kiểm tra hoặc hành động cần thực hiện.
 - [ ] Mục sâu bệnh đã kiểm tra riêng cả sâu hại và bệnh; không dùng một nhóm để thay cho nhóm còn lại.
 - [ ] Mỗi sâu hại và bệnh đã có trong thư viện được gắn link nội bộ bằng stable `pestsDiseases.key`.
 - [ ] Nhãn link được dịch tự nhiên theo locale nhưng link target giữ nguyên giữa các locale.

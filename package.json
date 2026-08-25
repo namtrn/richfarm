@@ -26,6 +26,8 @@
     "init:app": "node scripts/init-app.js",
     "build:plant-i18n": "node scripts/build-plant-i18n.js",
     "audit:plant-content": "node scripts/audit-plant-content.js",
+    "audit:canonical-identity": "npm --prefix apps/api run audit:canonical-identity --",
+    "content:manifests": "node --import tsx scripts/content-manifests.ts",
     "improve:plant-content": "node scripts/improve-plant-content.js && npm run build:plant-i18n",
     "sync:convex-to-json": "node scripts/sync-convex-plant-i18n-source.js && npm run build:plant-i18n",
     "convex:dev": "cd packages/convex && npx convex dev",

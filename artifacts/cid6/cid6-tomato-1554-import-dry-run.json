@@ -1,0 +1,30 @@
+{
+  "action": "dry-run-import",
+  "database_path": "/Users/n/Documents/GitHub/richfarm/apps/api/data/richfarm.db",
+  "report": {
+    "database_sha256": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "findings": [],
+    "manifests": [
+      {
+        "kind": "plant",
+        "locales": 2,
+        "path": "content/plants/solanum-lycopersicum/content.json",
+        "status": "proposed",
+        "targetId": 1554
+      }
+    ],
+    "mode": "dry_run",
+    "schema_version": 1,
+    "status": "ready",
+    "summary": {
+      "blocked": 0,
+      "conflicts": 0,
+      "locales": 2,
+      "manifests": 1,
+      "proposed": 2,
+      "unchanged": 0
+    }
+  },
+  "schema_version": 1,
+  "tool": "content-manifests"
+}

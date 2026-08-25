@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"daucus\",\"carota\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "daucus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3807,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "dad52f66102722b913ee25fc88f4a8aa81ee198454ec146bdb26b568c8220278",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4519,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "83564f31619b8df55b364cbe0db2d3c1a7fbec6783d3596e9249947293d75780",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "DAUCUS_CAROTA_BS5581D3XQ",
+  "schema_version": 1,
+  "scientific_name": "Daucus carota",
+  "scope": "base",
+  "species": "carota",
+  "target_status": "active"
+}

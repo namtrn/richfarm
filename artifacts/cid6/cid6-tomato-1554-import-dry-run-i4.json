@@ -1,0 +1,111 @@
+{
+  "action": "dry-run-import",
+  "database_path": "/Users/n/Documents/GitHub/richfarm/apps/api/data/richfarm.db",
+  "report": {
+    "catalog_provided": true,
+    "catalog_sha256": "250f4fa7daf5322a41836bce863be3505615533c6b565ccc1a5118c6e7615e2a",
+    "catalog_snapshot": [
+      {
+        "key": "aphids",
+        "type": "pest"
+      },
+      {
+        "key": "bacterial_wilt",
+        "type": "disease"
+      },
+      {
+        "key": "botrytis_gray_mold",
+        "type": "disease"
+      },
+      {
+        "key": "caterpillars",
+        "type": "pest"
+      },
+      {
+        "key": "damping_off",
+        "type": "disease"
+      },
+      {
+        "key": "downy_mildew",
+        "type": "disease"
+      },
+      {
+        "key": "early_blight",
+        "type": "disease"
+      },
+      {
+        "key": "fungus_gnats",
+        "type": "pest"
+      },
+      {
+        "key": "late_blight",
+        "type": "disease"
+      },
+      {
+        "key": "leaf_spot",
+        "type": "disease"
+      },
+      {
+        "key": "mealybugs",
+        "type": "pest"
+      },
+      {
+        "key": "powdery_mildew",
+        "type": "disease"
+      },
+      {
+        "key": "root_rot",
+        "type": "disease"
+      },
+      {
+        "key": "rust",
+        "type": "disease"
+      },
+      {
+        "key": "slugs_snails",
+        "type": "pest"
+      },
+      {
+        "key": "spider_mites",
+        "type": "pest"
+      },
+      {
+        "key": "thrips",
+        "type": "pest"
+      },
+      {
+        "key": "whiteflies",
+        "type": "pest"
+      }
+    ],
+    "database_sha256": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0",
+    "findings": [],
+    "manifest_paths": [
+      "/Users/n/Documents/GitHub/richfarm/content/plants/solanum-lycopersicum/content.json"
+    ],
+    "manifests": [
+      {
+        "kind": "plant",
+        "locales": 2,
+        "path": "content/plants/solanum-lycopersicum/content.json",
+        "status": "proposed",
+        "targetId": 1554
+      }
+    ],
+    "mode": "dry_run",
+    "proposal_fingerprint": "e06dea3c35aa2edf6b8937b9d5adca1bc5562f86453b912e74b6a98aa643074e",
+    "schema_version": 1,
+    "status": "ready",
+    "summary": {
+      "blocked": 0,
+      "conflicts": 0,
+      "locales": 2,
+      "manifests": 1,
+      "proposed": 2,
+      "unchanged": 0
+    },
+    "target_db_revision": "0a3010e9dab10fa7c7fdedfdf61be9b76f5cd1e7f0ef0fd0f4d93b02aee4b7b0"
+  },
+  "schema_version": 1,
+  "tool": "content-manifests"
+}

@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"allium\",\"sativum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "allium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3727,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "0fe6ca46d742e2b2cc4dc06845564efa16346ab6a77e984858b4e360564eb4d0",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4277,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "6fa02ffc0d394ced619039cdd7f7182884e85fe67469bb3ebb077abf03dab45c",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ALLIUM_SATIVUM_XPNS81CRP5",
+  "schema_version": 1,
+  "scientific_name": "Allium sativum",
+  "scope": "base",
+  "species": "sativum",
+  "target_status": "active"
+}

@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"cucumis\",\"sativus\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "cucumis",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3868,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "29841a2add826b8b0dcbb81793ca1ac5c6433a7d65076134be8ea9b35dd0e9fb",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4129,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "dafd4fbcdef5c7870b5e8116dd79ead509f4be039f23f017fa7377357c6b4eb8",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CUCUMIS_SATIVUS_T8Y981CMBN",
+  "schema_version": 1,
+  "scientific_name": "Cucumis sativus",
+  "scope": "base",
+  "species": "sativus",
+  "target_status": "active"
+}

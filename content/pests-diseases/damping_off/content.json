@@ -1,0 +1,28 @@
+{
+  "key": "damping_off",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 946,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "82f206b6e8069b7c86909f1e2792e39fc8d0f919e8f4083995debc9738b18c6d",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1100,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "34790c44d793cf107e931add4ca4509d57b01522da6df93a5d7d032e68e2b5a5",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

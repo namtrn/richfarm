@@ -1,0 +1,28 @@
+{
+  "key": "rust",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 777,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "59d386c751f3d2785ba4ef19aa242d6d1f77e2add620b1ed5cbfe5ed2ce8562c",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 895,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "f5e922600244366fc2606ae25d70134fe7a8b6abbecade23b3717236de055be1",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

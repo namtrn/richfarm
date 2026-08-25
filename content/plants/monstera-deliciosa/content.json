@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"monstera\",\"deliciosa\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "monstera",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3775,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "93a972ae89423344fb3a5835addf5c2f50643e51d11163ec3ec354934e16ce04",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4230,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "3c947fdf82c326118eaa06207285519a9670856eee53dda4e9562999cd7c4012",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "MONSTERA_DELICIOSA_9J5582FMWK",
+  "schema_version": 1,
+  "scientific_name": "Monstera deliciosa",
+  "scope": "base",
+  "species": "deliciosa",
+  "target_status": "active"
+}

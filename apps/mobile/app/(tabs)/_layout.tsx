@@ -117,17 +117,19 @@ function ActionTabButton({
   onOpen,
   color,
   isDark,
+  label,
 }: {
   onOpen: () => void;
   color: string;
   isDark: boolean;
+  label: string;
 }) {
   return (
     <Pressable
       onPress={onOpen}
       testID="e2e-tab-actions"
       accessibilityRole="button"
-      accessibilityLabel="Quick actions"
+      accessibilityLabel={label}
       style={styles.actionTabButton}
     >
       <View
@@ -362,6 +364,7 @@ export default function TabLayout() {
               onOpen={() => setActionsOpen(true)}
               color={theme.primaryDark}
               isDark={isDark}
+              label={t('common.quick_actions')}
             />
           ),
         }}

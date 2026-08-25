@@ -6,6 +6,21 @@ import { createApp } from "../src/app";
 import { createDatabase, type SqliteDatabase } from "../src/db";
 import type { ConvexSyncService } from "../src/convex-sync";
 
+function baseIdentity(genus: string, species: string, cultivar: string | null = null) {
+  return {
+    genus,
+    species,
+    infraspecific_rank: null,
+    infraspecific_name: null,
+    cultivar,
+    identity_scope: cultivar ? "cultivar" as const : "base" as const,
+    parent_master_plant_id: null,
+    parent_canonical_key: cultivar
+      ? JSON.stringify(["v1", genus.toLowerCase(), species.toLowerCase(), "", "", ""])
+      : null,
+  };
+}
+
 describe("master plants API", () => {
   let db: SqliteDatabase;
 
@@ -22,6 +37,112 @@ describe("master plants API", () => {
     db.close();
   });
 
+  async function authHeaderFor(app: ReturnType<typeof createApp>) {
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email: "admin@example.com",
+      password: "password123",
+    });
+    return `Bearer ${loginResponse.body.token}`;
+  }
+
+  it("requires structured identity for new creates and exposes exact/near previews", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const authHeader = await authHeaderFor(app);
+    const incomplete = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
+      plant_code: "LEGACY_CREATE",
+      common_name: "Legacy create",
+      scientific_name: "Solanum lycopersicum",
+      i18n: { vi: { common_name: "Cà chua" }, en: { common_name: "Tomato" } },
+    });
+    expect(incomplete.status).toBe(400);
+    expect(incomplete.body.error).toBe("CANONICAL_IDENTITY_INCOMPLETE");
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants`).get() as { count: number }).count).toBe(0);
+
+    const identity = baseIdentity("Solanum", "lycopersicum");
+    const created = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
+      plant_code: "TOMATO_PREVIEW",
+      common_name: "Tomato",
+      scientific_name: "Solanum lycopersicum",
+      ...identity,
+      i18n: { vi: { common_name: "Cà chua" }, en: { common_name: "Tomato" } },
+    });
+    expect(created.status).toBe(201);
+
+    const exact = await request(app).post("/api/master-plants/canonical-match-preview").set("Authorization", authHeader).send({
+      plant_code: "TOMATO_OTHER_CODE",
+      common_name: "Tomato duplicate",
+      scientific_name: "Solanum lycopersicum",
+      ...identity,
+      i18n: { vi: { common_name: "Cà chua" }, en: { common_name: "Tomato" } },
+    });
+    expect(exact.status).toBe(200);
+    expect(exact.body.data.status).toBe("exact");
+    expect(exact.body.data.exact.id).toBe(created.body.data.id);
+
+    const near = await request(app).post("/api/master-plants/canonical-match-preview").set("Authorization", authHeader).send({
+      plant_code: "TOMATO_VARIANT_PREVIEW",
+      common_name: "Cherry tomato",
+      scientific_name: "Solanum lycopersicum",
+      ...baseIdentity("Solanum", "lycopersicum", "Cherry"),
+      i18n: { vi: { common_name: "Cà chua bi" }, en: { common_name: "Cherry tomato" } },
+    });
+    expect(near.status).toBe(200);
+    expect(near.body.data.status).toBe("near_match");
+    expect(near.body.data.exact).toBeNull();
+    expect(near.body.data.suggestions[0].id).toBe(created.body.data.id);
+
+    const conflict = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
+      plant_code: "TOMATO_DUPLICATE",
+      common_name: "Tomato duplicate",
+      scientific_name: "Solanum lycopersicum",
+      ...identity,
+      i18n: { vi: { common_name: "Cà chua" }, en: { common_name: "Tomato" } },
+    });
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.code).toBe("CANONICAL_PLANT_EXISTS");
+    expect(conflict.body.match.id).toBe(created.body.data.id);
+  });
+
+  it("rejects partial canonical PATCH drift and keeps the row unchanged", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const authHeader = await authHeaderFor(app);
+    const first = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
+      plant_code: "PATCH_TOMATO",
+      common_name: "Tomato",
+      scientific_name: "Solanum lycopersicum",
+      ...baseIdentity("Solanum", "lycopersicum"),
+      i18n: { vi: { common_name: "Cà chua" }, en: { common_name: "Tomato" } },
+    });
+    const second = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
+      plant_code: "PATCH_EGGPLANT",
+      common_name: "Eggplant",
+      scientific_name: "Solanum melongena",
+      ...baseIdentity("Solanum", "melongena"),
+      i18n: { vi: { common_name: "Cà tím" }, en: { common_name: "Eggplant" } },
+    });
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+
+    const partial = await request(app).patch(`/api/master-plants/${second.body.data.id}`).set("Authorization", authHeader).send({ genus: "Solanum" });
+    expect(partial.status).toBe(400);
+    expect(partial.body.error).toBe("Validation failed");
+
+    const duplicate = await request(app).patch(`/api/master-plants/${second.body.data.id}`).set("Authorization", authHeader).send({
+      genus: "Solanum",
+      species: "lycopersicum",
+      infraspecific_rank: null,
+      infraspecific_name: null,
+      cultivar: null,
+      identity_scope: "base",
+      parent_master_plant_id: null,
+      parent_canonical_key: null,
+    });
+    expect(duplicate.status).toBe(409);
+    expect(duplicate.body.error).toBe("CANONICAL_PLANT_EXISTS");
+    expect((db.prepare(`SELECT canonical_key FROM master_plants WHERE id = ?`).get(second.body.data.id) as { canonical_key: string }).canonical_key)
+      .toBe(second.body.data.canonical_key);
+  });
+
   it("creates and lists master plants", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const loginResponse = await request(app).post("/api/auth/login").send({
@@ -34,6 +155,7 @@ describe("master plants API", () => {
       plant_code: "TOMATO_001",
       common_name: "Tomato",
       scientific_name: "Solanum lycopersicum",
+      ...baseIdentity("Solanum", "lycopersicum"),
       soil_ph_min: 5.5,
       soil_ph_max: 6.8,
       moisture_target: 60,
@@ -107,6 +229,8 @@ describe("master plants API", () => {
     const payload = {
       plant_code: "LETTUCE_001",
       common_name: "Lettuce",
+      scientific_name: "Lactuca sativa",
+      ...baseIdentity("Lactuca", "sativa"),
       i18n: {
         vi: { common_name: "Xà lách" },
         en: { common_name: "Lettuce" },

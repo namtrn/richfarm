@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"thymus\",\"vulgaris\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "thymus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3369,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "2e420e67093912e087466244370cbc4ffbb25711a93ddc54ae7e58ac06e43a08",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3949,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "e5507b8afbc0cc3e6f0781201078222ed8d180958e6e7f864e1d3e0a329d31db",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "THYMUS_VULGARIS_5MZX81D5NE",
+  "schema_version": 1,
+  "scientific_name": "Thymus vulgaris",
+  "scope": "base",
+  "species": "vulgaris",
+  "target_status": "active"
+}

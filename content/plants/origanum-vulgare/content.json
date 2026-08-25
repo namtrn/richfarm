@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"origanum\",\"vulgare\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "origanum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3521,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "9283d6812639e748c98f1bd474bfa3efaf5fbdeaf201270b97548f3ac7b7619a",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3976,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "7e74f25925310236ae6ba223d85b7ea6d7ea40495b8a9a3e2ffd58b4c7e18aa2",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ORIGANUM_VULGARE_NS1H81DY0W",
+  "schema_version": 1,
+  "scientific_name": "Origanum vulgare",
+  "scope": "base",
+  "species": "vulgare",
+  "target_status": "active"
+}

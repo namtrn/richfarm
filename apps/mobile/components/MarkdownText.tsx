@@ -1,8 +1,9 @@
 import React from "react";
 import { Linking, View } from "react-native";
 import Markdown from "@ronradtke/react-native-markdown-display";
+import { useRouter } from "expo-router";
 import { useTheme } from "../lib/theme";
-import { propagationMethodCodeFromUrl } from "../lib/plantDetailMetadata";
+import { pestDiseasePath, resolveMarkdownLinkAction } from "../lib/pestDiseaseRouting";
 
 type Props = {
     children: string;
@@ -15,6 +16,7 @@ type Props = {
 // consistently across Library detail, Plant detail and future surfaces.
 export function MarkdownText({ children, style, onPropagationLinkPress }: Props) {
     const theme = useTheme();
+    const router = useRouter();
     const markdownStyle = {
         body: {
             color: theme.textSecondary,
@@ -40,15 +42,21 @@ export function MarkdownText({ children, style, onPropagationLinkPress }: Props)
             <Markdown
                 style={markdownStyle}
                 onLinkPress={(url) => {
-                    const methodCode = propagationMethodCodeFromUrl(url);
-                    if (methodCode) {
+                    const action = resolveMarkdownLinkAction(url);
+                    if (action.type === "pest_disease") {
+                        router.push(pestDiseasePath(action.key, action.locale));
+                        return false;
+                    }
+                    if (action.type === "propagation") {
                         // A canonical method page does not exist yet. Consumers may
                         // opt into navigation once that route is available; until
                         // then, prevent the OS from opening an unsupported scheme.
-                        onPropagationLinkPress?.(methodCode);
+                        onPropagationLinkPress?.(action.methodCode);
                         return false;
                     }
-                    void Linking.openURL(url);
+                    if (action.type === "external") {
+                        void Linking.openURL(action.url).catch(() => undefined);
+                    }
                     return false;
                 }}
             >

@@ -3,7 +3,168 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CareContent } from "./PlantManager";
 import { CareGuideModal } from "./CareGuideModal";
-import { buildCareContentPayload } from "../hooks/useI18n";
+import { buildCareContentPayload, resolveI18nSaveTarget } from "../hooks/useI18n";
+import { fetchBackendPlantById, mergeHydratedPlant, validateDashboardCanonicalIdentity } from "../hooks/usePlants";
+import { preflightImportCanonicalIdentity, validateImportCanonicalIdentity } from "../hooks/useBackendPlants";
+import { csvToRows } from "./ImportModal";
+import type { Plant } from "../types";
+
+describe("dashboard canonical create/import boundary", () => {
+    it("accepts explicit base identity and rejects cultivar without a parent", () => {
+        expect(validateDashboardCanonicalIdentity({
+            genus: "Solanum",
+            species: "lycopersicum",
+            infraspecificRank: "",
+            infraspecificName: "",
+            cultivar: "",
+            identityScope: "base",
+            parentMasterPlantId: "",
+            parentCanonicalKey: "",
+        }).ok).toBe(true);
+        const missingParent = validateDashboardCanonicalIdentity({
+            genus: "Solanum",
+            species: "lycopersicum",
+            infraspecificRank: "",
+            infraspecificName: "",
+            cultivar: "Cherry",
+            identityScope: "cultivar",
+            parentMasterPlantId: "",
+            parentCanonicalKey: "",
+        });
+        expect(missingParent.ok).toBe(false);
+        if (!missingParent.ok) expect(missingParent.code).toBe("CANONICAL_IDENTITY_PARENT_REQUIRED");
+    });
+
+    it("preflights imports without inferring scientific_name", () => {
+        expect(validateImportCanonicalIdentity({ scientific_name: "Solanum lycopersicum" })).toMatch(/genus/);
+        expect(validateImportCanonicalIdentity({
+            genus: "Solanum",
+            species: "lycopersicum",
+            infraspecific_rank: null,
+            infraspecific_name: null,
+            cultivar: null,
+            identity_scope: "base",
+            parent_master_plant_id: null,
+            parent_canonical_key: null,
+        })).toBeNull();
+    });
+
+    it("blocks exact import matches before create and leaves near matches as suggestions", async () => {
+        const calls: string[] = [];
+        const exactFetch = async (path: string): Promise<Response> => {
+            calls.push(path);
+            return {
+                ok: true,
+                json: async () => ({
+                    data: {
+                        status: "exact",
+                        exact: { id: 1554, plantCode: "TOMATO_BASE" },
+                        suggestions: [],
+                    },
+                }),
+            } as Response;
+        };
+        const row = {
+            genus: "Solanum",
+            species: "lycopersicum",
+            infraspecific_rank: null,
+            infraspecific_name: null,
+            cultivar: null,
+            identity_scope: "base",
+            parent_master_plant_id: null,
+            parent_canonical_key: null,
+        };
+
+        await expect(preflightImportCanonicalIdentity(exactFetch, row)).resolves.toEqual({
+            ok: false,
+            reason: "exact",
+            error: "exact canonical match at plant 1554 (TOMATO_BASE)",
+        });
+        expect(calls).toEqual(["/api/master-plants/canonical-match-preview"]);
+
+        const nearFetch = async (path: string): Promise<Response> => {
+            calls.push(path);
+            return {
+                ok: true,
+                json: async () => ({ data: { status: "near_match", exact: null, suggestions: [{ id: 1554 }] } }),
+            } as Response;
+        };
+        await expect(preflightImportCanonicalIdentity(nearFetch, row)).resolves.toMatchObject({
+            ok: true,
+            preview: { status: "near_match", exact: null },
+        });
+        expect(calls).toEqual([
+            "/api/master-plants/canonical-match-preview",
+            "/api/master-plants/canonical-match-preview",
+        ]);
+    });
+
+    it("hydrates an exact match outside the current page before edit", async () => {
+        const calls: string[] = [];
+        const authedFetch = async (path: string): Promise<Response> => {
+            calls.push(path);
+            return {
+                ok: true,
+                json: async () => ({
+                    data: {
+                        id: 1554,
+                        plant_code: "TOMATO_BASE",
+                        common_name: "Tomato",
+                        scientific_name: "Solanum lycopersicum",
+                        canonical_identity_version: "canonical_identity_v1",
+                        canonical_key: '["v1","solanum","lycopersicum","","",""]',
+                        genus: "solanum",
+                        species: "lycopersicum",
+                        infraspecific_rank: null,
+                        infraspecific_name: null,
+                        cultivar: null,
+                        identity_scope: "base",
+                        parent_master_plant_id: null,
+                        parent_canonical_key: null,
+                        i18n: {
+                            vi: { common_name: "Cà chua" },
+                            en: { common_name: "Tomato" },
+                        },
+                    },
+                }),
+            } as Response;
+        };
+        const hydrated = await fetchBackendPlantById(authedFetch, 1554);
+        const currentPage = [{
+            _id: "1",
+            scientificName: "Capsicum annuum",
+            group: "other",
+            i18nRows: [],
+        }] as Plant[];
+        const merged = mergeHydratedPlant(currentPage, hydrated);
+
+        expect(calls).toEqual(["/api/master-plants/1554?source=sqlite"]);
+        expect(hydrated).toMatchObject({
+            _id: "1554",
+            genus: "solanum",
+            species: "lycopersicum",
+            canonicalKey: '["v1","solanum","lycopersicum","","",""]',
+        });
+        expect(merged.map((plant) => plant._id)).toEqual(["1554", "1"]);
+        expect(merged[0]).toBe(hydrated);
+    });
+
+    it("parses canonical CSV columns without inventing missing fields", () => {
+        const rows = csvToRows([
+            "plant_code,genus,species,infraspecific_rank,infraspecific_name,cultivar,identity_scope,parent_master_plant_id,parent_canonical_key,vi_common_name,en_common_name",
+            "TOMATO_1,Solanum,lycopersicum,,,,base,,,Cà chua,Tomato",
+        ].join("\n"));
+        expect(rows[0]).toMatchObject({
+            plant_code: "TOMATO_1",
+            genus: "Solanum",
+            species: "lycopersicum",
+            infraspecific_rank: null,
+            cultivar: null,
+            identity_scope: "base",
+            parent_master_plant_id: null,
+        });
+    });
+});
 
 describe("dashboard Markdown care editor", () => {
     it("shows a deterministic empty state without invented care content", () => {
@@ -18,6 +179,35 @@ describe("dashboard Markdown care editor", () => {
         expect(buildCareContentPayload(markdown)).toBe(markdown);
         expect(buildCareContentPayload("")).toBeNull();
         expect(buildCareContentPayload(" \n\t ")).toBeNull();
+    });
+});
+
+describe("i18n save target resolution", () => {
+    const selectedRow = {
+        _id: "101",
+        plantId: "42",
+        locale: "en",
+        commonName: "Existing translation",
+    };
+    const sourceRow = {
+        _id: "202",
+        plantId: "42",
+        locale: "vi",
+        commonName: "Care guide translation",
+    };
+
+    it("uses the explicit source row for PATCH when React state is still stale", () => {
+        const target = resolveI18nSaveTarget("create", selectedRow, sourceRow);
+
+        expect(target.mode).toBe("edit");
+        expect(target.row).toBe(sourceRow);
+        expect(target.row?._id).toBe("202");
+    });
+
+    it("keeps ordinary create and selected-row edit saves unchanged", () => {
+        expect(resolveI18nSaveTarget("create", null)).toEqual({ mode: "create", row: null });
+        expect(resolveI18nSaveTarget("edit", selectedRow)).toEqual({ mode: "edit", row: selectedRow });
+        expect(resolveI18nSaveTarget("view", null)).toEqual({ mode: "none", row: null });
     });
 });
 
@@ -60,6 +250,9 @@ describe("CareGuideModal", () => {
         // Edit mode renders the raw Markdown source, not the preview.
         expect(html).not.toContain("<strong>ẩm đều</strong>");
         expect(html).not.toContain("evenly moist");
+        expect(html).toContain("Import Markdown");
+        expect(html).toContain('aria-label="Import Markdown care guide (vi)"');
+        expect(html).toContain("Loads into this VI draft; save to apply.");
     });
 
     it("renders the existing care guide in preview mode", () => {

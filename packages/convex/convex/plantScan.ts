@@ -1,10 +1,13 @@
-import { action } from "./_generated/server";
-import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { action, internalMutation } from "./_generated/server";
+import { ConvexError, v } from "convex/values";
+import { api, internal } from "./_generated/api";
+import { requireUser } from "./lib/user";
+import { isPremiumActive } from "./lib/subscription";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const VISION_API_URL = "https://vision.googleapis.com/v1/images:annotate";
+const FREE_DAILY_DETECTION_LIMIT = 1;
 
 type LibraryMatch = { plantId: string; matchType: string } | null;
 type DetectSuggestion = {
@@ -20,6 +23,49 @@ type DetectResult = {
     match: DetectSuggestion | null;
     alternatives: DetectSuggestion[];
 };
+
+export const consumeAiDetectionQuota = internalMutation({
+    args: {},
+    handler: async (ctx) => {
+        const user = await requireUser(ctx);
+        if (user.isAnonymous === true) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "A signed-in account is required for AI plant detection",
+            });
+        }
+        if (isPremiumActive(user)) {
+            return { allowed: true, remaining: null };
+        }
+
+        const date = new Date().toISOString().slice(0, 10);
+        const currentCount = user.aiDetectorUsage?.date === date
+            ? user.aiDetectorUsage.count
+            : 0;
+        if (currentCount >= FREE_DAILY_DETECTION_LIMIT) {
+            return { allowed: false, remaining: 0 };
+        }
+
+        const nextCount = currentCount + 1;
+        await ctx.db.patch(user._id, {
+            aiDetectorUsage: { date, count: nextCount },
+        });
+        return {
+            allowed: true,
+            remaining: Math.max(FREE_DAILY_DETECTION_LIMIT - nextCount, 0),
+        };
+    },
+});
+
+async function requireAiDetectionQuota(ctx: any) {
+    const quota = await ctx.runMutation(internal.plantScan.consumeAiDetectionQuota, {});
+    if (!quota.allowed) {
+        throw new ConvexError({
+            code: "AI_DETECTION_LIMIT_REACHED",
+            message: "Daily AI plant detection limit reached",
+        });
+    }
+}
 
 const normalizeLocale = (locale?: string) => {
     let result = locale ?? "en";
@@ -108,6 +154,7 @@ export const detectPlant = action({
         locale: v.optional(v.string()),
     },
     handler: async (ctx, args): Promise<DetectResult> => {
+        await requireAiDetectionQuota(ctx);
         const apiKey = process.env.GEMINI_API_KEY;
         const locale = normalizeLocale(args.locale);
 
@@ -214,7 +261,8 @@ export const detectPlantVision = action({
         images: v.array(v.string()),
         locale: v.optional(v.string()),
     },
-    handler: async (_ctx, args) => {
+    handler: async (ctx, args) => {
+        await requireAiDetectionQuota(ctx);
         const apiKey = process.env.GOOGLE_CLOUD_VISION_API_KEY;
         const locale = normalizeLocale(args.locale);
         if (!apiKey) {

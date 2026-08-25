@@ -577,8 +577,22 @@ function SpeciesGroupHeader({ basePlant, count }: { basePlant: any; count: numbe
 }
 
 // ─── Pest & Disease Card ──────────────────────────────────────────────────────
+function pestDiseaseDisplayName(item: any, locale: string) {
+    const normalizedLocale = locale.split('-')[0].toLowerCase();
+    if (normalizedLocale === 'vi' && typeof item.commonNameVi === 'string' && item.commonNameVi.trim()) {
+        return item.commonNameVi;
+    }
+    return item.name;
+}
+
+function pestDiseaseScientificNames(item: any) {
+    return Array.isArray(item.scientificNames)
+        ? item.scientificNames.filter((value: unknown): value is string => typeof value === 'string' && Boolean(value.trim()))
+        : [];
+}
+
 function PestDiseaseCard({ item, onPress }: { item: any; onPress: () => void }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const typeColor = item.type === 'disease' ? '#2563eb' : '#b91c1c';
@@ -586,6 +600,8 @@ function PestDiseaseCard({ item, onPress }: { item: any; onPress: () => void }) 
         ? (isDark ? '#1e3a8a' : '#dbeafe')
         : (isDark ? '#7f1d1d' : '#fee2e2');
     const typeLabel = item.type === 'disease' ? t('library.disease_label') : t('library.pest_label');
+    const displayName = pestDiseaseDisplayName(item, i18n.language ?? 'en');
+    const scientificNames = pestDiseaseScientificNames(item);
     const chips = item.plantsAffected?.slice(0, 4) ?? [];
     const extra = (item.plantsAffected?.length ?? 0) - chips.length;
 
@@ -609,7 +625,14 @@ function PestDiseaseCard({ item, onPress }: { item: any; onPress: () => void }) 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <View style={{ flexDirection: 'row', flex: 1, gap: 12 }}>
                     <PlantImage uri={item.imageUrl} size={56} borderRadius={10} />
-                    <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text, flex: 1, letterSpacing: -0.3 }}>{item.name}</Text>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text, letterSpacing: -0.3 }}>{displayName}</Text>
+                        {scientificNames.length > 0 && (
+                            <Text style={{ fontSize: 11, color: theme.textMuted, fontStyle: 'italic', marginTop: 3 }} numberOfLines={2}>
+                                {scientificNames.join(', ')}
+                            </Text>
+                        )}
+                    </View>
                 </View>
                 <View style={{ backgroundColor: typeBg, paddingHorizontal: 9, paddingVertical: 3, borderRadius: 8, marginLeft: 8 }}>
                     <Text style={{ color: typeColor, fontSize: 11, fontWeight: '500' }}>{typeLabel}</Text>
@@ -646,8 +669,10 @@ function InfoSection({ title, items }: { title: string; items?: string[] }) {
 }
 
 function PestDiseaseDetailModal({ item, onClose }: { item: any; onClose: () => void }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const theme = useTheme();
+    const displayName = pestDiseaseDisplayName(item, i18n.language ?? 'en');
+    const scientificNames = pestDiseaseScientificNames(item);
 
     const pan = useRef(new Animated.ValueXY()).current;
     const panResponder = useRef(
@@ -692,7 +717,14 @@ function PestDiseaseDetailModal({ item, onClose }: { item: any; onClose: () => v
                 >
                     <View style={{ width: 40, height: 5, backgroundColor: theme.border, borderRadius: 2.5, alignSelf: 'center', marginBottom: 16 }} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                        <Text style={{ fontSize: 22, fontWeight: '500', color: theme.text, flex: 1 }}>{item.name}</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontSize: 22, fontWeight: '500', color: theme.text }}>{displayName}</Text>
+                            {scientificNames.length > 0 && (
+                                <Text style={{ fontSize: 12, color: theme.textMuted, fontStyle: 'italic', marginTop: 4 }}>
+                                    {scientificNames.join(', ')}
+                                </Text>
+                            )}
+                        </View>
                         <TouchableOpacity onPress={onClose} style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}>
                             <X size={20} stroke={theme.textSecondary} />
                         </TouchableOpacity>
@@ -1021,10 +1053,10 @@ function BrowseModeMenu({
                             }}>
                                 <View>
                                     <Text style={{ fontSize: 11, fontWeight: '500', color: theme.primary, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>
-                                        Library
+                                        {t('library.browse_title')}
                                     </Text>
                                     <Text style={{ fontSize: 22, fontWeight: '500', color: theme.text, letterSpacing: -0.5 }}>
-                                        View Options
+                                        {t('library.view_options')}
                                     </Text>
                                 </View>
                                 <TouchableOpacity
@@ -1045,19 +1077,19 @@ function BrowseModeMenu({
                             {/* Browse By section */}
                             <View style={{ paddingHorizontal: 22, paddingTop: 0, marginTop: -6 }}>
                                 <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14 }}>
-                                    Browse By
+                                    {t('library.browse_by')}
                                 </Text>
 
                                 {[
                                     {
                                         key: 'common' as PlantBrowseMode,
-                                        label: 'Common Names',
-                                        desc: 'Browse plants by everyday names.',
+                                        label: t('library.browse_common_names'),
+                                        desc: t('library.browse_common_names_desc'),
                                     },
                                     {
                                         key: 'families' as PlantBrowseMode,
-                                        label: 'Botanical Families',
-                                        desc: 'Organized by scientific taxonomy.',
+                                        label: t('library.browse_botanical_families'),
+                                        desc: t('library.browse_botanical_families_desc'),
                                     },
                                 ].map((item, idx) => {
                                     const active = value === item.key;
@@ -1105,7 +1137,7 @@ function BrowseModeMenu({
                             {value === 'common' ? (
                                 <View style={{ paddingHorizontal: 22 }}>
                                     <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14 }}>
-                                        Category Filter
+                                        {t('library.category_filter')}
                                     </Text>
                                     {hasPrioritizedOnboarding ? (
                                         <View style={{ marginBottom: 10 }}>
@@ -1181,7 +1213,7 @@ function BrowseModeMenu({
                             {/* Display Mode section */}
                             <View style={{ paddingHorizontal: 22 }}>
                                 <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14 }}>
-                                    Display Mode
+                                    {t('library.display_mode')}
                                 </Text>
 
                                 <View style={{
@@ -1192,8 +1224,8 @@ function BrowseModeMenu({
                                     gap: 4,
                                 }}>
                                     {[
-                                        { key: 'list' as LayoutMode, icon: BookOpen, label: 'List' },
-                                        { key: 'grid' as LayoutMode, icon: ScanSearch, label: 'Grid' },
+                                        { key: 'list' as LayoutMode, icon: BookOpen, label: t('library.layout_list') },
+                                        { key: 'grid' as LayoutMode, icon: ScanSearch, label: t('library.layout_grid') },
                                     ].map((item) => {
                                         const Icon = item.icon;
                                         const active = layoutMode === item.key;
@@ -1649,6 +1681,8 @@ export default function LibraryScreen() {
         return pestItems.filter((item: any) =>
             matchesSearch(normalizedSearch, [
                 item.name,
+                item.commonNameVi,
+                Array.isArray(item.scientificNames) ? item.scientificNames.join(' ') : '',
                 item.key,
                 item.type,
                 Array.isArray(item.plantsAffected) ? item.plantsAffected.join(' ') : '',
@@ -1673,7 +1707,7 @@ export default function LibraryScreen() {
     const searchPlaceholder =
         activeTab === 'plants'
             ? plantBrowseMode === 'families'
-                ? 'Search families'
+                ? t('library.search_families')
                 : t('library.search_plants')
             : activeTab === 'pests'
                 ? t('library.search_pests')
@@ -1802,7 +1836,7 @@ export default function LibraryScreen() {
                     {activeTab === 'plants' && (
                         <TouchableOpacity
                             onPress={() => setBrowseMenuOpen(true)}
-                            accessibilityLabel="Browse mode menu"
+                            accessibilityLabel={t('library.browse_mode_menu')}
                             style={{
                                 width: 36,
                                 height: 36,
@@ -1843,7 +1877,7 @@ export default function LibraryScreen() {
                                 borderColor: theme.border,
                             }}
                         >
-                            <Text style={{ fontSize: 12, color: theme.textMuted }}>Filter:</Text>
+                            <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('library.filter_label')}</Text>
                             <Text style={{ fontSize: 13, fontWeight: '500', color: theme.text }}>
                                 {selectedGroupLabel}
                             </Text>
@@ -1873,7 +1907,7 @@ export default function LibraryScreen() {
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 }}>
                                 <Text style={{ fontSize: 32 }}>🧬</Text>
                                 <Text style={{ fontSize: 16, fontWeight: '500', color: theme.textMuted }}>
-                                    {search ? 'No families found' : 'No family data available'}
+                                    {search ? t('library.no_families_found') : t('library.no_family_data')}
                                 </Text>
                             </View>
                         ) : (
@@ -1894,7 +1928,7 @@ export default function LibraryScreen() {
                                                 letterSpacing: 0.4,
                                             }}
                                         >
-                                            Families
+                                            {t('library.family_label')}
                                         </Text>
                                     </View>
                                 }
@@ -1903,7 +1937,11 @@ export default function LibraryScreen() {
                                         title: item.familyDisplayName ?? formatPlantFamilyDisplayName(item.family, i18n.language),
                                         subtitle: item.samplePlant?.commonName ?? item.samplePlant?.scientificName,
                                         imageUrl: item.samplePlant?.imageUrl,
-                                        meta: `${item.genusCount} genera • ${item.speciesCount} species • ${item.plantCount} plants`,
+                                        meta: [
+                                            t('library.genera_entries', { count: item.genusCount }),
+                                            t('library.species_entries', { count: item.speciesCount }),
+                                            t('library.plant_count', { count: item.plantCount }),
+                                        ].join(' · '),
                                         onPress: () =>
                                             router.push({
                                                 pathname: '/(tabs)/library/family/[family]',
@@ -1933,11 +1971,11 @@ export default function LibraryScreen() {
                                 <View style={{ paddingHorizontal: 16, paddingTop: 6, gap: 8 }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
                                         <Text style={{ fontSize: 12, fontWeight: '500', color: theme.textSecondary, flex: 1 }}>
-                                            {t('library.personalized_label', { defaultValue: 'Plants matching your needs' })}
+                                            {t('library.personalized_label')}
                                         </Text>
                                         <TouchableOpacity onPress={() => setBrowseMenuOpen(true)} hitSlop={8}>
                                             <Text style={{ fontSize: 12, fontWeight: '500', color: theme.primary }}>
-                                                {t('library.adjust_filters', { defaultValue: 'Adjust' })}
+                                                {t('library.adjust_filters')}
                                             </Text>
                                         </TouchableOpacity>
                                     </View>

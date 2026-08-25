@@ -1,5 +1,36 @@
 # Latest Session Work
 
+## 2026-08-25 — Canonical identity and content integrity (CID-1–CID-9)
+
+- Completed and independently verified the local implementation of the full
+  canonical identity/content integrity plan. Production Convex was not
+  deployed or mutated, and pending outbox rows were not sent.
+- Added one versioned canonical identity contract across shared, API, SQLite,
+  content tooling, and Convex. API/dashboard/import writers now block exact
+  duplicates and open the existing row; Convex writers route through one
+  indexed canonical upsert boundary with bounded migration/rollback tooling.
+- Applied the authorized local tomato remediation from a verified backup:
+  row 1554 remains active, row 6 is reversibly archived/redirected, references
+  and aliases are retained, and the active unique canonical-key gate passes.
+- Generated 56 deterministic Git Markdown manifests (38 plant and 18
+  pest/disease) and imported only the selected tomato vi/en content to row
+  1554. Missing English content blocks `abelmoschus-esculentus` and
+  `rubus-idaeus`; Basella Ceylon remains quarantined for invalid parent data.
+- Added complete revisioned Convex snapshot reconciliation, durable findings
+  and repair proposals, fresh-evidence outbox blocking/supersession, audited
+  role-separated controls, and the dashboard Data Health view.
+- Added localized/versioned pest/disease projection and bounded migration code,
+  exact stable-link validation, and safe mobile in-app detail routing with
+  locale fallback.
+- Verification passed across focused tests, affected builds/typechecks,
+  independent package review, migration readback/audit, and `git diff --check`.
+  Current SQLite SHA-256:
+  `b57d6dba7a347e11d5e50d729bec2a616ca4fee2987db8340c59b84d6fa978e9`.
+- Next entry point (requires separate production authorization): deploy the
+  additive Convex code/schema, initialize catalog metadata, fetch a complete
+  authorized snapshot, run both migrations dry, review proposals, rehearse
+  rollback/readback, then publish only through a fresh healthy gate.
+
 ## 2026-08-12 — Plant Geography and Adaptation Release 1 (Stage A)
 
 - Completed Stage A of the Release 1 completion plan

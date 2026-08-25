@@ -24,7 +24,7 @@ function buildPassthrough(params: Record<string, string | string[] | undefined>)
 }
 
 export default function FamilyScreen() {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const theme = useTheme();
     const { isDark } = useThemeContext();
     const router = useRouter();
@@ -59,8 +59,8 @@ export default function FamilyScreen() {
                         <ArrowLeft size={18} stroke={theme.text} />
                     </TouchableOpacity>
                     <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text }}>{familyDisplayName || family || 'Family'}</Text>
-                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>Browse genera</Text>
+                        <Text style={{ fontSize: 22, fontWeight: '800', color: theme.text }}>{familyDisplayName || family || t('library.family_fallback')}</Text>
+                        <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('library.browse_genera')}</Text>
                     </View>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.background, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: theme.border }}>
@@ -69,7 +69,7 @@ export default function FamilyScreen() {
                         testID="e2e-library-family-search"
                         value={search}
                         onChangeText={setSearch}
-                        placeholder="Search genera"
+                        placeholder={t('library.search_genera')}
                         placeholderTextColor={theme.textMuted}
                         style={{ flex: 1, fontSize: 14, color: theme.text }}
                     />
@@ -89,9 +89,9 @@ export default function FamilyScreen() {
                     ListHeaderComponent={
                         <View style={{ paddingHorizontal: layoutMode === 'grid' ? 8 : 0, paddingBottom: 12 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, paddingHorizontal: 12 }}>
-                                <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 }}>Families</Text>
+                                <Text style={{ fontSize: 11, fontWeight: '500', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 0.4 }}>{t('library.family_label')}</Text>
                                 <Text style={{ fontSize: 11, color: theme.textMuted }}>›</Text>
-                                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{familyDisplayName || family || 'Family'}</Text>
+                                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{familyDisplayName || family || t('library.family_fallback')}</Text>
                             </View>
                         </View>
                     }
@@ -136,7 +136,7 @@ export default function FamilyScreen() {
                                             {item.samplePlant?.commonName ?? item.samplePlant?.scientificName}
                                         </Text>
                                         <Text style={{ fontSize: 10, color: theme.textMuted, fontWeight: '500' }} numberOfLines={1}>
-                                            {item.speciesCount} species · {item.plantCount} plants
+                                            {t('library.species_entries', { count: item.speciesCount })} · {t('library.plant_count', { count: item.plantCount })}
                                         </Text>
                                     </View>
                                 </TouchableOpacity>
@@ -165,13 +165,18 @@ export default function FamilyScreen() {
                                         {item.samplePlant?.commonName ?? item.samplePlant?.scientificName ?? ''}
                                     </Text>
                                     <Text style={{ fontSize: 11, color: theme.textMuted }}>
-                                        {item.speciesCount} species • {item.plantCount} plants
+                                        {t('library.species_entries', { count: item.speciesCount })} • {t('library.plant_count', { count: item.plantCount })}
                                     </Text>
                                 </View>
                             </TouchableOpacity>
                         );
                     }}
                     ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    ListEmptyComponent={(
+                        <View style={{ alignItems: 'center', gap: 8, padding: 32 }}>
+                            <Text style={{ fontSize: 15, color: theme.textMuted }}>{search ? t('library.no_genera_found') : t('library.no_genera_data')}</Text>
+                        </View>
+                    )}
                     contentContainerStyle={{ paddingVertical: 12, paddingBottom: 100, paddingHorizontal: layoutMode === 'grid' ? 4 : 12 }}
                 />
             )}

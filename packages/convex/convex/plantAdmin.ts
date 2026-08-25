@@ -35,6 +35,11 @@ import {
   isAdaptationDimension,
 } from "../../shared/src/adaptationTerms";
 import { TERM_CODE_PATTERN } from "../../shared/src/countries";
+import {
+  canonicalIdentityFromTaxonomy,
+  upsertCanonicalPlant,
+} from "./lib/canonicalPlantUpsert";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 const adminTokenArg = { serviceToken: v.string() };
 const propagationMethodValidator = v.union(
@@ -89,12 +94,16 @@ async function ensureSourceIdentityAvailable(
   const normalizedSystem = sourceSystem?.trim();
   const normalizedId = sourceId?.trim();
   if (!normalizedSystem || !normalizedId) return;
-  const existing = await ctx.db
+  const existingRows = await ctx.db
     .query("plantsMaster")
     .withIndex("by_source_identity", (q: any) =>
       q.eq("sourceSystem", normalizedSystem).eq("sourceId", normalizedId),
     )
-    .first();
+    .take(2);
+  if (existingRows.length > 1) {
+    throw new Error("Multiple plants with the same source identity require remediation");
+  }
+  const existing = existingRows[0];
   if (existing && existing._id !== excludedPlantId) {
     throw new Error("A plant with the same source identity already exists");
   }
@@ -139,6 +148,7 @@ async function upsertPlantI18n(
       reviewedAt: options?.reviewedAt,
       reviewedBy: options?.reviewedBy?.trim() || undefined,
     });
+    await bumpReconciliationCatalog(ctx, { i18n: 1 });
     return;
   }
 
@@ -153,6 +163,7 @@ async function upsertPlantI18n(
     ...(options?.reviewedAt !== undefined && { reviewedAt: options.reviewedAt }),
     ...(options?.reviewedBy !== undefined && { reviewedBy: options.reviewedBy.trim() || undefined }),
   });
+  await bumpReconciliationCatalog(ctx);
 }
 
 async function upsertPlantTaxonomyI18n(
@@ -185,6 +196,7 @@ async function upsertPlantTaxonomyI18n(
   if (!commonName) {
     if (existing) {
       await ctx.db.delete(existing._id);
+      await bumpReconciliationCatalog(ctx, { i18n: -1 });
     }
     return;
   }
@@ -204,10 +216,12 @@ async function upsertPlantTaxonomyI18n(
 
   if (!existing) {
     await ctx.db.insert("plantTaxonomyI18n", payload);
+    await bumpReconciliationCatalog(ctx, { i18n: 1 });
     return;
   }
 
   await ctx.db.patch(existing._id, payload);
+  await bumpReconciliationCatalog(ctx);
 }
 
 async function syncPlantTaxonomyCommonNames(
@@ -545,7 +559,7 @@ export const updatePlant = mutation({
       explicitGroupBasePlantId: args.basePlantId ?? (plant as any).basePlantId,
     });
 
-    await ctx.db.patch(args.plantId, {
+    const plantPatch = {
       scientificName,
       family: args.family?.trim() || undefined,
       group: args.group.trim(),
@@ -571,6 +585,20 @@ export const updatePlant = mutation({
       ...(args.purposes !== undefined && {
         purposes: args.purposes.map((item) => item.trim()).filter(Boolean),
       }),
+    };
+    await upsertCanonicalPlant(ctx, {
+      identity: canonicalIdentityFromTaxonomy({
+        scientificName,
+        genus: taxonomy.genus,
+        species: taxonomy.species,
+        cultivar: taxonomy.cultivar,
+        parentMasterPlantId: resolvedGroupBasePlantId ?? null,
+      }),
+      plant: plantPatch,
+      sourceSystem: args.sourceSystem ?? (plant as any).sourceSystem,
+      sourceId: args.sourceId ?? (plant as any).sourceId,
+      existingPlantId: args.plantId,
+      updateFields: plantPatch,
     });
     await upsertPlantCareProfile(ctx, args.plantId, {
       typicalDaysToHarvest: args.typicalDaysToHarvest,
@@ -996,10 +1024,6 @@ export const createPlant = mutation({
       taxonomy,
       `Plant ${scientificName}${args.cultivar ? ` (${args.cultivar})` : ""}`
     );
-    const duplicate = await findDuplicateByTaxonomy(ctx, taxonomyIdentity);
-    if (duplicate) {
-      throw new Error("Plant with the same taxonomy already exists");
-    }
     await assertBaseExistsForVariant(ctx, {
       scientificName,
       cultivarNormalized: taxonomyIdentity.cultivarNormalized,
@@ -1007,7 +1031,6 @@ export const createPlant = mutation({
 
     const group = args.group.trim() || "other";
     const purposes = (args.purposes ?? []).map((item) => item.trim()).filter(Boolean);
-    await ensureSourceIdentityAvailable(ctx, args.sourceSystem, args.sourceId);
     const allPlants = (await ctx.db.query("plantsMaster").collect()).map(withComputedPlantTaxonomy);
     const resolvedGroupBasePlantId = await resolveGroupBasePlantId(ctx, {
       plants: allPlants,
@@ -1016,7 +1039,7 @@ export const createPlant = mutation({
       explicitGroupBasePlantId: args.basePlantId,
     });
 
-    const plantId = await ctx.db.insert("plantsMaster", {
+    const plantPayload = {
       scientificName,
       family: args.family?.trim() || undefined,
       group,
@@ -1040,7 +1063,20 @@ export const createPlant = mutation({
       ...(args.growthStage !== undefined && { growthStage: args.growthStage.trim() || undefined }),
       ...(args.notes !== undefined && { notes: args.notes.trim() || undefined }),
       ...taxonomyFieldsForStorage(taxonomy),
+    };
+    const canonicalResult = await upsertCanonicalPlant(ctx, {
+      identity: canonicalIdentityFromTaxonomy({
+        scientificName,
+        genus: taxonomy.genus,
+        species: taxonomy.species,
+        cultivar: taxonomy.cultivar,
+        parentMasterPlantId: resolvedGroupBasePlantId ?? null,
+      }),
+      plant: plantPayload,
+      sourceSystem: args.sourceSystem,
+      sourceId: args.sourceId,
     });
+    const plantId = canonicalResult.plantId;
     await upsertPlantCareProfile(ctx, plantId, {
       typicalDaysToHarvest: args.typicalDaysToHarvest,
       wateringFrequencyDays: args.wateringFrequencyDays,
@@ -1065,6 +1101,7 @@ export const createPlant = mutation({
       await ctx.db.patch(plantId, {
         basePlantId: plantId,
       });
+      await bumpReconciliationCatalog(ctx);
     }
 
     const i18nMetadata = {
@@ -1160,6 +1197,14 @@ export const deletePlant = mutation({
     }
 
     await ctx.db.delete(args.plantId);
+    const uniqueRelations = new Map(relationRows.map((item: any) => [String(item._id), item]));
+    await bumpReconciliationCatalog(ctx, {
+      plants: -1,
+      i18n: -(i18nRows.length + careRows.length),
+      care: careProfile ? -1 : 0,
+      propagation: careProfile && Array.isArray(careProfile.propagationMethods) && careProfile.propagationMethods.length > 0 ? -1 : 0,
+      relationships: -uniqueRelations.size,
+    });
     return { ok: true };
   },
 });
@@ -1196,6 +1241,7 @@ export const backfillGroupBasePlants = mutation({
       }
     }
 
+    if (updated > 0) await bumpReconciliationCatalog(ctx);
     return { updated, invalidScientificGroups };
   },
 });
@@ -1471,6 +1517,7 @@ export const createPlantI18n = mutation({
       reviewedAt: args.reviewedAt,
       reviewedBy: args.reviewedBy?.trim() || undefined,
     });
+    await bumpReconciliationCatalog(ctx, { i18n: 1 });
     await upsertPlantCareI18n(
       ctx,
       args.plantId,
@@ -1548,6 +1595,7 @@ export const updatePlantI18n = mutation({
         // value is applied by upsertPlantCareI18n after this move and clears
         // the renamed row as requested.
         await ctx.db.patch(previousCare._id, { locale });
+        await bumpReconciliationCatalog(ctx);
       }
     }
 
@@ -1563,6 +1611,7 @@ export const updatePlantI18n = mutation({
       ...(args.reviewedAt !== undefined && { reviewedAt: args.reviewedAt }),
       ...(args.reviewedBy !== undefined && { reviewedBy: args.reviewedBy.trim() || undefined }),
     });
+    await bumpReconciliationCatalog(ctx);
     await upsertPlantCareI18n(
       ctx,
       row.plantId,
@@ -1590,6 +1639,7 @@ export const deletePlantI18n = mutation({
   handler: async (ctx, args) => {
     requireAdminServiceToken(args.serviceToken);
     const row = await ctx.db.get(args.rowId);
+    let removedCare = false;
     if (row) {
       if (row.locale === "vi" || row.locale === "en") {
         throw new Error("Required vi/en locales cannot be deleted");
@@ -1598,9 +1648,11 @@ export const deletePlantI18n = mutation({
       const matchingCare = careRows.find((careRow: any) => careRow.locale === row.locale);
       if (matchingCare) {
         await ctx.db.delete(matchingCare._id);
+        removedCare = true;
       }
     }
     await ctx.db.delete(args.rowId);
+    await bumpReconciliationCatalog(ctx, { i18n: removedCare ? -2 : -1 });
     return { ok: true };
   },
 });
@@ -1750,6 +1802,7 @@ export const bulkUpdatePlantI18n = mutation({
           commonName: update.commonName,
           description: update.description?.trim() || undefined,
         });
+        await bumpReconciliationCatalog(ctx);
         updatedCount++;
       } else {
         await ctx.db.insert("plantI18n", {
@@ -1758,6 +1811,7 @@ export const bulkUpdatePlantI18n = mutation({
           commonName: update.commonName,
           description: update.description?.trim() || undefined,
         });
+        await bumpReconciliationCatalog(ctx, { i18n: 1 });
         updatedCount++;
       }
     }
@@ -2020,6 +2074,7 @@ export const createAdaptationTerm = mutation({
         updatedAt: now,
       });
     }
+    await bumpReconciliationCatalog(ctx, { adaptation: 3 });
     return { termId };
   },
 });
@@ -2043,6 +2098,7 @@ export const updateAdaptationTerm = mutation({
       throw new Error("Both Vietnamese and English labels are required before a term can be active");
     }
     const now = Date.now();
+    let insertedTranslations = 0;
     for (const [locale, label, description] of [
       ["vi", args.labelVi, args.descriptionVi],
       ["en", args.labelEn, args.descriptionEn],
@@ -2060,9 +2116,13 @@ export const updateAdaptationTerm = mutation({
         updatedAt: now,
       };
       if (existing) await ctx.db.patch(existing._id, payload);
-      else await ctx.db.insert("adaptationTermI18n", { termCode: term.code, locale, ...payload });
+      else {
+        await ctx.db.insert("adaptationTermI18n", { termCode: term.code, locale, ...payload });
+        insertedTranslations += 1;
+      }
     }
     await ctx.db.patch(args.termId, { updatedAt: now });
+    await bumpReconciliationCatalog(ctx, { adaptation: insertedTranslations });
     return { ok: true };
   },
 });
@@ -2102,8 +2162,13 @@ export const updateAdaptationTermTranslation = mutation({
         q.eq("termCode", term.code).eq("locale", locale),
       )
       .unique();
-    if (existing) await ctx.db.patch(existing._id, payload);
-    else await ctx.db.insert("adaptationTermI18n", { termCode: term.code, locale, ...payload });
+    if (existing) {
+      await ctx.db.patch(existing._id, payload);
+      await bumpReconciliationCatalog(ctx);
+    } else {
+      await ctx.db.insert("adaptationTermI18n", { termCode: term.code, locale, ...payload });
+      await bumpReconciliationCatalog(ctx, { adaptation: 1 });
+    }
     return { ok: true };
   },
 });
@@ -2130,6 +2195,7 @@ export const reorderAdaptationTerms = mutation({
       }
       await ctx.db.patch(args.termIds[index], { sortOrder: index + 1, updatedAt: now });
     }
+    await bumpReconciliationCatalog(ctx);
     return { ok: true };
   },
 });
@@ -2168,6 +2234,7 @@ export const archiveAdaptationTerm = mutation({
       status: args.archived ? "archived" : "active",
       updatedAt: Date.now(),
     });
+    await bumpReconciliationCatalog(ctx);
     return { ok: true };
   },
 });

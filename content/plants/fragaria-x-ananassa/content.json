@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"fragaria\",\"x ananassa\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "fragaria",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4048,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "c6402674b9280eb12638ea9863deeb72109ea17cbc2fa9227d262c19c4cecd4c",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4505,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "85c19069c7a1dc44aee2a49d5ed17fc75e0bcf98bc07ef6cebfbbc740bd4f7a4",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "FRAGARIA_X_ANANASSA_74T181D475",
+  "schema_version": 1,
+  "scientific_name": "Fragaria x ananassa",
+  "scope": "base",
+  "species": "x ananassa",
+  "target_status": "active"
+}

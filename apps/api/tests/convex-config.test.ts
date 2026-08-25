@@ -170,6 +170,39 @@ describe("Convex app-function transport authentication", () => {
     expect(String(init?.body)).not.toContain("prod-deploy-secret");
   });
 
+  it("requests deployment-wide catalog metadata without a locale argument", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({
+        status: "success",
+        value: {
+          revision: 7,
+          initialized: true,
+          expectedCounts: { plants: 3 },
+        },
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const convex = service({
+      deployUrl: "https://dev.example.convex.cloud",
+      serviceToken: "function-secret",
+    });
+
+    await expect(convex.fetchAdminMasterPlantsMetadata()).resolves.toMatchObject({
+      snapshotRevision: "7",
+      expectedCount: 3,
+      initialized: true,
+    });
+    const [endpoint, init] = fetchMock.mock.calls[0];
+    expect(endpoint).toBe("https://dev.example.convex.cloud/api/query");
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      path: "masterSync:getCatalogMetadata",
+      args: { serviceToken: "function-secret" },
+    });
+    expect(JSON.parse(String(init?.body)).args).not.toHaveProperty("locale");
+  });
+
   it("uses the same service-token boundary for backend mutations", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ status: "success", value: null }), {

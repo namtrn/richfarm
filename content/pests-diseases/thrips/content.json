@@ -1,0 +1,28 @@
+{
+  "key": "thrips",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 978,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "04677cf7bf69359daa818dd680faee554075aa31d01bfa3fe17e2ebccf835aa7",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1102,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "fbbb2ee144e051abcbc980ebe3460904a693d89cc87697b652dd40c36d809e03",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "pest"
+}

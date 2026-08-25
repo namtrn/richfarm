@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"rosa\",\"chinensis\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "rosa",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4038,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "e70cf958606e67d451e6c52f94dc7125806a069064673ac68fb4ff25db874bc7",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4673,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "bfead0993c79f7294a59b3719cb5c77bf8701fb8fd8ad797e661ba3d399f9501",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ROSA_CHINENSIS_E2WH81DYRD",
+  "schema_version": 1,
+  "scientific_name": "Rosa chinensis",
+  "scope": "base",
+  "species": "chinensis",
+  "target_status": "active"
+}

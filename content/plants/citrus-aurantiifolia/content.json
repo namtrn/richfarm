@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"citrus\",\"aurantiifolia\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "citrus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 4069,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "9be39f7e87145f3e46cbc5213fb278cf1dad990025c446ae5d0bc07ba555fc0a",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4781,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "bfdc00eb1c78e31301412666f6c6ec0bdad84192f56401d78349dfbfe2acc1bc",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CITRUS_AURANTIIFOLIA_Z51D86KXE4",
+  "schema_version": 1,
+  "scientific_name": "Citrus aurantiifolia",
+  "scope": "base",
+  "species": "aurantiifolia",
+  "target_status": "active"
+}

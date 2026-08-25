@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 import {
   buildTaxonomyFields,
   DEFAULT_CULTIVAR_NORMALIZED,
@@ -396,6 +397,7 @@ export const normalizeAndBackfillFamilies = mutation({
         });
         if (!dryRun) {
           await ctx.db.patch(plant._id, { family: currentFamilyNormalized });
+          await bumpReconciliationCatalog(ctx);
         }
         continue;
       }
@@ -408,6 +410,7 @@ export const normalizeAndBackfillFamilies = mutation({
         });
         if (!dryRun) {
           await ctx.db.patch(plant._id, { family: consensusFamily });
+          await bumpReconciliationCatalog(ctx);
         }
       }
     }

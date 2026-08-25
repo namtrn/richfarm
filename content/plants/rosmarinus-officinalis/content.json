@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"rosmarinus\",\"officinalis\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "rosmarinus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3634,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "01c6814fbeb96b939aa0f42bd86531f7b46dfac75027fa8e970a4c2158cebf0b",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4191,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "527add6b887522936d39c7ae4ac1f0cbf37e5c39ae90d996cc67842b7f70f382",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ROSMARINUS_OFFICINALIS_JY3D81CNVF",
+  "schema_version": 1,
+  "scientific_name": "Rosmarinus officinalis",
+  "scope": "base",
+  "species": "officinalis",
+  "target_status": "active"
+}

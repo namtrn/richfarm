@@ -2,6 +2,7 @@ import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getPlantCareProfileByPlantId, upsertPlantCareProfile } from "./lib/plantCare";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 // These fields existed on plantsMaster before care became its own canonical
 // document. Keep the list explicit so a future schema edit cannot silently
@@ -115,6 +116,7 @@ export const migratePlantMasterCareProfile = mutation({
         if (Object.keys(clearPatch).length > 0) {
           try {
             await ctx.db.patch(row._id, clearPatch as any);
+            await bumpReconciliationCatalog(ctx);
             cleaned += 1;
           } catch (error) {
             failures.push({

@@ -1,0 +1,28 @@
+{
+  "key": "bacterial_wilt",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 968,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "d66e9d04fedd79bb0608b804c169dca4608d064bc25aa04bb407782174dce894",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1144,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "886b34f614f0a9c9e8da3389e26fd5b5b5307f86c1dd395558d2b54c25dfd5d1",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

@@ -4,6 +4,7 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/user";
 import { loadCanonicalPlantLibrary, getCanonicalPlantById } from "./lib/canonicalPlantLibrary";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 export const getPlantsWithImages = query({
   args: {
@@ -77,6 +78,7 @@ export const updatePlantImage = mutation({
     const url = await ctx.storage.getUrl(args.storageId);
     if (!url) throw new Error("Failed to get storage URL");
     await ctx.db.patch(args.plantId, { imageUrl: url });
+    await bumpReconciliationCatalog(ctx);
     return url;
   },
 });
@@ -88,6 +90,7 @@ export const setPlantImageUrl = internalMutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.plantId, { imageUrl: args.imageUrl });
+    await bumpReconciliationCatalog(ctx);
   },
 });
 
@@ -99,5 +102,6 @@ export const removePlantImage = mutation({
   handler: async (ctx, args) => {
     await requireUser(ctx, args.deviceId);
     await ctx.db.patch(args.plantId, { imageUrl: undefined });
+    await bumpReconciliationCatalog(ctx);
   },
 });

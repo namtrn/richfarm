@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"allium\",\"cepa\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "allium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3714,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "a53d96503d7a7281267bd22c44f324a8a929596bcb4a43de065c48282a0831a7",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4336,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d1872e7a745a9901ff15719a8fda1d698c370bc536919dbe9377918f60f61ff6",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ALLIUM_CEPA_Q5KS82ENRE",
+  "schema_version": 1,
+  "scientific_name": "Allium cepa",
+  "scope": "base",
+  "species": "cepa",
+  "target_status": "active"
+}

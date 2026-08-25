@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"brassica\",\"oleracea\",\"var\",\"capitata\",\"\"]",
+  "cultivar": null,
+  "genus": "brassica",
+  "infraspecific_name": "capitata",
+  "infraspecific_rank": "var",
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3682,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "2165b51c9f6185a65726af05d51da498a3609ec11c36b4476256e0e259d507d7",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4263,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "ee54b1a7fee33ffdc9769d7e612c59c78bbde5de579d2a50a7b6ad908ca9295a",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "BRASSICA_OLERACEA_VAR_CAPITATA_AP7982BPXB",
+  "schema_version": 1,
+  "scientific_name": "Brassica oleracea",
+  "scope": "base",
+  "species": "oleracea",
+  "target_status": "active"
+}

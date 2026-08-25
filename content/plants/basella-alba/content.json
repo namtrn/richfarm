@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"basella\",\"alba\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "basella",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3533,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "ad79909ff8a54ebd93656ceea27a2df9ec26abf42ed7e903f35272400388cd84",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 8436,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "29928b80881fd506d12e509a4f0b75280e0dbce93f94e835b0e899d2be8e78fc",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "BASELLA_ALBA_09A582HJFJ",
+  "schema_version": 1,
+  "scientific_name": "Basella alba",
+  "scope": "base",
+  "species": "alba",
+  "target_status": "active"
+}

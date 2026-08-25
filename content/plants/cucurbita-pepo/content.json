@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"cucurbita\",\"pepo\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "cucurbita",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3796,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "4dda09048de5eb4fabaf47bb3c659225427f9d679a5f39f9bf403ba83e84a0e2",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4097,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "bf9978c6397f7a108563d4dc68b35b578ac0db3a338c12b55cdb973eccf48329",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CUCURBITA_PEPO_513181C83D",
+  "schema_version": 1,
+  "scientific_name": "Cucurbita pepo",
+  "scope": "base",
+  "species": "pepo",
+  "target_status": "active"
+}

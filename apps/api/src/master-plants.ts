@@ -15,6 +15,20 @@ import {
   normalizePropagationMethods,
 } from "../../../packages/shared/src/plantPropagation";
 import {
+  extractLegacyCanonicalIdentityFields,
+  normalizeCanonicalIdentityToken,
+  validateCanonicalPlantIdentity,
+} from "../../../packages/shared/src/canonicalPlantIdentity";
+import {
+  CanonicalIdentityMigrationError,
+  assertStructuredCanonicalIdentity,
+  hasExplicitCanonicalIdentityFields,
+  hasCompleteStructuredCanonicalIdentity,
+  previewCanonicalIdentityMatch,
+  resolveCanonicalIdentityForWrite,
+  type SqliteCanonicalIdentityFields,
+} from "./sqlite-canonical-identity";
+import {
   SUBDIVISION_CODE_PATTERN,
   TERM_CODE_PATTERN,
   isValidCountryCode,
@@ -84,6 +98,25 @@ const masterPlantObjectSchema = z.object({
   plant_code: z.string().trim().min(3).max(120).regex(/^[A-Za-z0-9_-]+$/),
   common_name: z.string().trim().min(1).max(120).optional(),
   scientific_name: z.string().trim().max(160).nullish(),
+  // CID-3 structured identity fields.  They remain additive to preserve the
+  // existing dashboard payload while the compatibility writer derives a
+  // deterministic identity from legacy scientific_name values during rollout.
+  genus: z.string().trim().max(120).nullish(),
+  species: z.string().trim().max(160).nullish(),
+  infraspecific_rank: z.string().trim().max(24).nullish(),
+  infraspecific_name: z.string().trim().max(160).nullish(),
+  cultivar: z.string().trim().max(240).nullish(),
+  identity_scope: z.enum(["base", "cultivar"]).nullish(),
+  // CamelCase aliases are accepted at the API boundary; persisted output is
+  // always the snake_case SQLite shape.
+  infraspecificRank: z.string().trim().max(24).nullish(),
+  infraspecificName: z.string().trim().max(160).nullish(),
+  identityScope: z.enum(["base", "cultivar"]).nullish(),
+  scope: z.enum(["base", "cultivar"]).nullish(),
+  parent_master_plant_id: z.number().int().positive().nullish(),
+  parent_canonical_key: z.string().trim().max(500).nullish(),
+  parentMasterPlantId: z.number().int().positive().nullish(),
+  parentCanonicalKey: z.string().trim().max(500).nullish(),
   source_system: z.string().trim().min(1).max(80).default("sqlite"),
   source_id: z.string().trim().max(240).nullish(),
   record_version: z.number().int().positive().default(1),
@@ -203,6 +236,18 @@ const updateMasterPlantSchema = masterPlantObjectSchema
         path: ["soil_ph_min"],
       });
     }
+
+    // Existing rows may still be edited with scientific_name-only payloads;
+    // that compatibility path is intentionally update-only.  Once a caller
+    // starts supplying structured identity, require the complete tuple so a
+    // PATCH cannot retain a stale canonical key after a partial identity edit.
+    if (hasExplicitCanonicalIdentityFields(data) && !hasCompleteStructuredCanonicalIdentity(data)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "structured identity updates require genus, species, rank, infraspecificName, cultivar, scope, and parent fields",
+        path: ["canonical_identity"],
+      });
+    }
   })
   .refine((input) => Object.keys(input).length > 0, {
     message: "At least one field is required for update",
@@ -258,6 +303,20 @@ interface MasterPlantRow {
   plant_code: string;
   common_name: string;
   scientific_name: string | null;
+  canonical_identity_version?: string | null;
+  canonical_key?: string | null;
+  genus?: string | null;
+  species?: string | null;
+  infraspecific_rank?: string | null;
+  infraspecific_name?: string | null;
+  cultivar?: string | null;
+  identity_scope?: string | null;
+  parent_master_plant_id?: number | null;
+  parent_canonical_key?: string | null;
+  canonical_status?: string | null;
+  canonical_archived_at?: string | null;
+  canonical_archived_into_id?: number | null;
+  canonical_archive_reason?: string | null;
   source_system: string;
   source_id: string | null;
   record_version: number;
@@ -744,6 +803,20 @@ export function normalizeMasterPlant(
     plant_code: row.plant_code,
     common_name: row.common_name,
     scientific_name: row.scientific_name,
+    canonical_identity_version: row.canonical_identity_version ?? null,
+    canonical_key: row.canonical_key ?? null,
+    genus: row.genus ?? null,
+    species: row.species ?? null,
+    infraspecific_rank: row.infraspecific_rank ?? null,
+    infraspecific_name: row.infraspecific_name ?? null,
+    cultivar: row.cultivar ?? null,
+    identity_scope: row.identity_scope ?? null,
+    parent_master_plant_id: row.parent_master_plant_id ?? null,
+    parent_canonical_key: row.parent_canonical_key ?? null,
+    canonical_status: row.canonical_status ?? "active",
+    canonical_archived_at: row.canonical_archived_at ?? null,
+    canonical_archived_into_id: row.canonical_archived_into_id ?? null,
+    canonical_archive_reason: row.canonical_archive_reason ?? null,
     source_system: row.source_system,
     source_id: row.source_id,
     record_version: row.record_version,
@@ -1040,7 +1113,20 @@ function sqliteSpeciesKey(row: MasterPlantRow) {
   return `${tokens[0]}|${tokens[speciesIndex]}`;
 }
 
-function sqliteDeleteGuard(db: SqliteDatabase, row: MasterPlantRow): string | undefined {
+export function sqliteDeleteGuard(db: SqliteDatabase, row: MasterPlantRow): string | undefined {
+  if (row.canonical_identity_version || row.canonical_key) {
+    return "Cannot hard-delete a canonical plant; archive or deactivate it instead";
+  }
+
+  const aliases = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM plant_external_identities
+    WHERE master_plant_id = ?
+  `).get(row.id) as { count: number };
+  if (aliases.count > 0) {
+    return "Cannot hard-delete a plant with external identity aliases; archive or deactivate it instead";
+  }
+
   if (isSqliteDisplayBasePlant(row)) {
     const speciesKey = sqliteSpeciesKey(row);
     if (speciesKey) {
@@ -1063,7 +1149,10 @@ function sqliteDeleteGuard(db: SqliteDatabase, row: MasterPlantRow): string | un
     return "Cannot delete a plant while SQLite measurements still reference it; deactivate it instead";
   }
 
-  return undefined;
+  // CID-3 is fail-closed: hard deletion is never a normal SQLite operation.
+  // Reviewed remediation/archive code is the only path allowed to transfer
+  // references and retain a tombstone for the old row.
+  return "Cannot hard-delete a master plant; use the audited archive/remediation path instead";
 }
 
 function sourceConflict(
@@ -1283,6 +1372,9 @@ function normalizeConvexPlant(plant: ConvexPlantLibraryItem) {
     plant_code: buildConvexPlantCode(plant),
     common_name: plant.displayName,
     scientific_name: plant.scientificName,
+    genus: plant.genus ?? null,
+    species: plant.species ?? null,
+    taxonomy_parse_status: plant.taxonomyParseStatus ?? null,
     source_system: sourceSystem,
     source_id: sourceId,
     record_version: plant.recordVersion ?? 1,
@@ -1346,6 +1438,135 @@ function getRemotePlantStats(plants: ReturnType<typeof normalizeConvexPlant>[]) 
     missingEn,
     missingImage,
     source: "convex" as const,
+  };
+}
+
+type ConvexCanonicalIdentitySource = {
+  scientific_name?: unknown;
+  scientificName?: unknown;
+  genus?: unknown;
+  species?: unknown;
+  cultivar?: unknown;
+  cultivarNormalized?: unknown;
+  metadata_json?: unknown;
+  identity_scope?: unknown;
+  identityScope?: unknown;
+  scope?: unknown;
+  parent_canonical_key?: unknown;
+  parentCanonicalKey?: unknown;
+  taxonomy_parse_status?: unknown;
+  taxonomyParseStatus?: unknown;
+};
+
+function textIdentityValue(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed || null;
+}
+
+function throwConvexIdentityError(message: string): never {
+  throw new CanonicalIdentityMigrationError("CANONICAL_IDENTITY_INCOMPLETE", message);
+}
+
+/**
+ * Project the trusted Convex taxonomy snapshot into the SQLite writer tuple.
+ * The legacy extractor is used only for structured scientific-name/cultivar
+ * fields already present in the snapshot; displayName is deliberately never a
+ * fallback. Ambiguous/manual-review snapshots fail before a mirror write.
+ */
+export function deriveConvexCanonicalIdentity(
+  source: ConvexCanonicalIdentitySource,
+): SqliteCanonicalIdentityFields {
+  const scientificName = textIdentityValue(source.scientific_name ?? source.scientificName);
+  const directGenus = textIdentityValue(source.genus);
+  const directSpecies = textIdentityValue(source.species);
+  const taxonomyStatus = textIdentityValue(source.taxonomy_parse_status ?? source.taxonomyParseStatus);
+  if (Boolean(directGenus) !== Boolean(directSpecies)) {
+    return throwConvexIdentityError("Convex snapshot contains only one structured taxonomy component");
+  }
+  if (taxonomyStatus && taxonomyStatus !== "ok") {
+    return throwConvexIdentityError(`Convex snapshot taxonomy is marked ${taxonomyStatus}`);
+  }
+
+  const legacySource = {
+    scientific_name: scientificName,
+    ...(directGenus && directSpecies ? { genus: directGenus, species: directSpecies } : {}),
+    ...(source.cultivar !== undefined ? { cultivar: source.cultivar } : {}),
+    ...(source.cultivarNormalized !== undefined ? { cultivarNormalized: source.cultivarNormalized } : {}),
+    ...(source.metadata_json !== undefined ? { metadata_json: source.metadata_json } : {}),
+    ...(source.identity_scope !== undefined ? { identity_scope: source.identity_scope } : {}),
+    ...(source.identityScope !== undefined ? { identityScope: source.identityScope } : {}),
+    ...(source.scope !== undefined ? { scope: source.scope } : {}),
+    ...(source.parent_canonical_key !== undefined ? { parent_canonical_key: source.parent_canonical_key } : {}),
+    ...(source.parentCanonicalKey !== undefined ? { parentCanonicalKey: source.parentCanonicalKey } : {}),
+  };
+  const fields = extractLegacyCanonicalIdentityFields(legacySource);
+  const scientificFields = extractLegacyCanonicalIdentityFields({
+    scientific_name: scientificName,
+    ...(source.cultivar !== undefined ? { cultivar: source.cultivar } : {}),
+    ...(source.cultivarNormalized !== undefined ? { cultivarNormalized: source.cultivarNormalized } : {}),
+  });
+  if (!fields.genus || !fields.species || fields.identitySource === "missing") {
+    return throwConvexIdentityError("Convex snapshot lacks an unambiguous structured genus/species identity");
+  }
+
+  if (directGenus && directSpecies && scientificFields.genus && scientificFields.species && (
+    normalizeCanonicalIdentityToken(directGenus) !== normalizeCanonicalIdentityToken(scientificFields.genus) ||
+    normalizeCanonicalIdentityToken(directSpecies) !== normalizeCanonicalIdentityToken(scientificFields.species)
+  )) {
+    return throwConvexIdentityError("Convex snapshot structured taxonomy conflicts with scientificName");
+  }
+  if (fields.rank && scientificFields.rank && normalizeCanonicalIdentityToken(fields.rank) !== normalizeCanonicalIdentityToken(scientificFields.rank)) {
+    return throwConvexIdentityError("Convex snapshot infraspecific rank is ambiguous");
+  }
+  if (fields.infraspecificName && scientificFields.infraspecificName && normalizeCanonicalIdentityToken(fields.infraspecificName) !== normalizeCanonicalIdentityToken(scientificFields.infraspecificName)) {
+    return throwConvexIdentityError("Convex snapshot infraspecific name is ambiguous");
+  }
+
+  const rank = fields.rank ?? scientificFields.rank;
+  const infraspecificName = fields.infraspecificName ?? scientificFields.infraspecificName;
+  const cultivar = fields.cultivar ?? scientificFields.cultivar;
+  const scope = fields.scope;
+  const baseValidation = validateCanonicalPlantIdentity({
+    genus: fields.genus,
+    species: fields.species,
+    rank,
+    infraspecificName,
+    cultivar: null,
+    scope: "base",
+    parentCanonicalKey: null,
+    parentMasterPlantId: null,
+  });
+  if (!baseValidation.ok) {
+    return throwConvexIdentityError(`Convex base identity is invalid: ${baseValidation.issues[0]?.message ?? baseValidation.code}`);
+  }
+  const parentCanonicalKey = scope === "cultivar"
+    ? (fields.parentCanonicalKey ?? baseValidation.canonicalKey)
+    : null;
+  const validation = validateCanonicalPlantIdentity({
+    genus: fields.genus,
+    species: fields.species,
+    rank,
+    infraspecificName,
+    cultivar,
+    scope,
+    parentCanonicalKey,
+    parentMasterPlantId: null,
+  });
+  if (!validation.ok) {
+    return throwConvexIdentityError(`Convex identity is invalid: ${validation.issues[0]?.message ?? validation.code}`);
+  }
+  return {
+    canonical_identity_version: validation.identity.identityVersion,
+    canonical_key: validation.canonicalKey,
+    genus: validation.identity.genus,
+    species: validation.identity.species,
+    infraspecific_rank: validation.identity.rank || null,
+    infraspecific_name: validation.identity.infraspecificName || null,
+    cultivar: validation.identity.cultivar || null,
+    identity_scope: validation.identity.scope,
+    parent_master_plant_id: null,
+    parent_canonical_key: parentCanonicalKey,
   };
 }
 
@@ -1420,6 +1641,10 @@ export function upsertMasterPlantRow(
   db: SqliteDatabase,
   payload: z.infer<typeof createMasterPlantSchema>,
 ) {
+  // Keep the exported compatibility boundary safe for internal callers that
+  // provide a structurally valid payload without first running the route's
+  // withSourceIdentity helper.
+  payload = withSourceIdentity(createMasterPlantSchema.parse(payload));
   const i18nPayload = payload.i18n!;
   const resolvedCommonName = payload.common_name ?? i18nPayload.vi.common_name;
   let existing = payload.source_id
@@ -1442,6 +1667,16 @@ export function upsertMasterPlantRow(
       existing = byCode;
     }
   }
+
+  // Every normal SQLite writer crosses this boundary.  The resolver is
+  // deterministic for legacy scientific_name rows, rejects incomplete new
+  // identities, links an unambiguous cultivar parent, and checks active-key
+  // conflicts before any row is inserted or updated.
+  const canonical = resolveCanonicalIdentityForWrite(
+    db,
+    payload as unknown as Record<string, unknown>,
+    existing?.id,
+  );
 
   // The archived-term rule needs the resolved plant identity so an
   // already-assigned archived code can be re-saved (unrelated edits).
@@ -1466,6 +1701,16 @@ export function upsertMasterPlantRow(
         plant_code = ?,
         common_name = ?,
         scientific_name = ?,
+        canonical_identity_version = ?,
+        canonical_key = ?,
+        genus = ?,
+        species = ?,
+        infraspecific_rank = ?,
+        infraspecific_name = ?,
+        cultivar = ?,
+        identity_scope = ?,
+        parent_master_plant_id = ?,
+        parent_canonical_key = ?,
         source_system = ?,
         source_id = ?,
         record_version = ?,
@@ -1508,6 +1753,16 @@ export function upsertMasterPlantRow(
       payload.plant_code,
       resolvedCommonName,
       payload.scientific_name ?? null,
+      canonical.canonical_identity_version,
+      canonical.canonical_key,
+      canonical.genus,
+      canonical.species,
+      canonical.infraspecific_rank,
+      canonical.infraspecific_name,
+      canonical.cultivar,
+      canonical.identity_scope,
+      canonical.parent_master_plant_id,
+      canonical.parent_canonical_key,
       payload.source_system,
       payload.source_id ?? null,
       payload.record_version,
@@ -1557,6 +1812,16 @@ export function upsertMasterPlantRow(
         plant_code,
         common_name,
         scientific_name,
+        canonical_identity_version,
+        canonical_key,
+        genus,
+        species,
+        infraspecific_rank,
+        infraspecific_name,
+        cultivar,
+        identity_scope,
+        parent_master_plant_id,
+        parent_canonical_key,
         source_system,
         source_id,
         record_version,
@@ -1593,20 +1858,22 @@ export function upsertMasterPlantRow(
         care_status,
         care_field_evidence_json,
         propagation_methods_json
-      ) VALUES (
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?
-      )`,
+      ) VALUES (${Array.from({ length: 49 }, () => "?").join(", ")})`,
     )
     .run(
       payload.plant_code,
       resolvedCommonName,
       payload.scientific_name ?? null,
+      canonical.canonical_identity_version,
+      canonical.canonical_key,
+      canonical.genus,
+      canonical.species,
+      canonical.infraspecific_rank,
+      canonical.infraspecific_name,
+      canonical.cultivar,
+      canonical.identity_scope,
+      canonical.parent_master_plant_id,
+      canonical.parent_canonical_key,
       payload.source_system,
       payload.source_id ?? null,
       payload.record_version,
@@ -1650,7 +1917,7 @@ export function upsertMasterPlantRow(
   return id;
 }
 
-function convexPlantToCreatePayload(plant: ReturnType<typeof normalizeConvexPlant>) {
+export function convexPlantToCreatePayload(plant: ReturnType<typeof normalizeConvexPlant>) {
   // The canonical/admin projection preserves missing translations for stats
   // and export. SQLite's mirror schema still requires the two baseline
   // locales, so only the mirror write gets a deterministic compatibility name;
@@ -1662,10 +1929,19 @@ function convexPlantToCreatePayload(plant: ReturnType<typeof normalizeConvexPlan
   if (!i18n.en?.common_name?.trim()) {
     i18n.en = { common_name: plant.scientific_name };
   }
+  const canonical = deriveConvexCanonicalIdentity(plant);
   return createMasterPlantSchema.parse({
     plant_code: plant.plant_code,
     common_name: plant.common_name,
     scientific_name: plant.scientific_name,
+    genus: canonical.genus,
+    species: canonical.species,
+    infraspecific_rank: canonical.infraspecific_rank,
+    infraspecific_name: canonical.infraspecific_name,
+    cultivar: canonical.cultivar,
+    identity_scope: canonical.identity_scope,
+    parent_master_plant_id: null,
+    parent_canonical_key: canonical.parent_canonical_key,
     source_system: plant.source_system,
     source_id: plant.source_id,
     record_version: plant.record_version,
@@ -1720,6 +1996,20 @@ const exportQuerySchema = z.object({
 
 type MasterPlantCsvRow = Omit<
   ReturnType<typeof normalizeMasterPlant>,
+  | "canonical_identity_version"
+  | "canonical_key"
+  | "genus"
+  | "species"
+  | "infraspecific_rank"
+  | "infraspecific_name"
+  | "cultivar"
+  | "identity_scope"
+  | "parent_master_plant_id"
+  | "parent_canonical_key"
+  | "canonical_status"
+  | "canonical_archived_at"
+  | "canonical_archived_into_id"
+  | "canonical_archive_reason"
   | "origin_countries"
   | "origin_country_source_refs"
   | "proven_regions"
@@ -1830,6 +2120,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           upserted++;
         }
         for (const stale of staleRows) {
+          const guardError = sqliteDeleteGuard(db, stale);
+          if (guardError) {
+            throw new Error(`Cannot remove stale canonical plant ${stale.id}: ${guardError}`);
+          }
           db.prepare(`DELETE FROM master_plants WHERE id = ?`).run(stale.id);
         }
         return { upserted, removed: staleRows.length };
@@ -2261,9 +2555,36 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
     }
   });
 
+  // Read-only create/import guard.  The response is deliberately separate
+  // from POST / so dashboards can show an exact existing row or near-match
+  // suggestions before committing a new record.
+  router.post("/canonical-match-preview", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      assertStructuredCanonicalIdentity(req.body);
+      const payload = createMasterPlantSchema.parse(req.body);
+      const preview = previewCanonicalIdentityMatch(db, payload as unknown as Record<string, unknown>);
+      res.json({ data: preview });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
+      // Never infer a new identity from scientific_name, common_name, or
+      // metadata.  Existing-row PATCH compatibility is handled below.
+      assertStructuredCanonicalIdentity(req.body);
       const payload = withSourceIdentity(createMasterPlantSchema.parse(req.body));
+      const preview = previewCanonicalIdentityMatch(db, payload as unknown as Record<string, unknown>);
+      if (preview.exact) {
+        res.status(409).json({
+          error: "CANONICAL_PLANT_EXISTS",
+          code: "CANONICAL_PLANT_EXISTS",
+          match: preview.exact,
+          suggestions: [],
+        });
+        return;
+      }
       const conflict = sourceConflict(db, payload);
       if (conflict) {
         res.status(409).json({ error: "A master plant with this identity already exists" });
@@ -2375,6 +2696,20 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
 }
 
 export function handleMasterPlantsError(error: unknown, res: Response): boolean {
+  if (error instanceof CanonicalIdentityMigrationError) {
+    if (error.code === "CANONICAL_PLANT_EXISTS") {
+      res.status(409).json({
+        error: "CANONICAL_PLANT_EXISTS",
+        details: error.message,
+      });
+      return true;
+    }
+    if (error.code.startsWith("CANONICAL_IDENTITY") || error.code === "CANONICAL_PARENT_MISMATCH") {
+      res.status(400).json({ error: error.code, details: error.message });
+      return true;
+    }
+  }
+
   if (error instanceof PlantGeographyValidationError) {
     res.status(400).json({ error: error.message });
     return true;

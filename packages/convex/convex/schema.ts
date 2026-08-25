@@ -32,6 +32,54 @@ const careSourceRef = v.object({
   sourceLocator: v.optional(v.string()),
 });
 
+// Only these additive identity fields are owned by the canonical migration.
+// Keeping the snapshot shape explicit makes rollback unable to overwrite
+// content, source aliases, or unrelated plant metadata.
+const canonicalIdentityFieldSnapshot = v.object({
+  genus: v.optional(v.string()),
+  species: v.optional(v.string()),
+  cultivar: v.optional(v.string()),
+  canonicalIdentityVersion: v.optional(v.string()),
+  canonicalKey: v.optional(v.string()),
+  infraspecificRank: v.optional(v.union(
+    v.literal("subsp"),
+    v.literal("var"),
+    v.literal("f"),
+  )),
+  infraspecificName: v.optional(v.string()),
+  identityScope: v.optional(v.union(v.literal("base"), v.literal("cultivar"))),
+  parentCanonicalKey: v.optional(v.string()),
+  parentMasterPlantId: v.optional(v.id("plantsMaster")),
+});
+
+const pestDiseaseContentFieldSnapshot = v.object({
+  pestDiseaseKey: v.string(),
+  locale: v.string(),
+  name: v.string(),
+  description: v.optional(v.string()),
+  detailContent: v.string(),
+  contentVersion: v.number(),
+  contentStatus: v.union(
+    v.literal("draft"),
+    v.literal("published"),
+    v.literal("needs_review"),
+    v.literal("archived"),
+  ),
+  reviewStatus: v.union(
+    v.literal("unreviewed"),
+    v.literal("in_review"),
+    v.literal("reviewed"),
+  ),
+  contentOrigin: v.union(
+    v.literal("authored"),
+    v.literal("inherited"),
+    v.literal("imported"),
+  ),
+  contentHash: v.string(),
+  contentByteLength: v.number(),
+  sourceRefs: v.array(careSourceRef),
+});
+
 export default defineSchema({
   // ==========================================
   // Users (đồng bộ với Convex Auth)
@@ -81,6 +129,13 @@ export default defineSchema({
       source: v.optional(v.string()), // "revenuecat"
     })),
 
+    // Server-authoritative daily AI detector quota. Client storage remains a
+    // UX optimization only and must not be trusted to protect paid API calls.
+    aiDetectorUsage: v.optional(v.object({
+      date: v.string(), // UTC YYYY-MM-DD
+      count: v.number(),
+    })),
+
     // Metadata
     lastSyncAt: v.optional(v.number()),
     isActive: v.boolean(),
@@ -128,6 +183,19 @@ export default defineSchema({
     genus: v.optional(v.string()),
     species: v.optional(v.string()),
     cultivar: v.optional(v.string()), // null/undefined means base species row
+    // Additive canonical identity. Legacy rows may omit these fields until
+    // the bounded backfill has produced and verified its journal.
+    canonicalIdentityVersion: v.optional(v.string()),
+    canonicalKey: v.optional(v.string()),
+    infraspecificRank: v.optional(v.union(
+      v.literal("subsp"),
+      v.literal("var"),
+      v.literal("f"),
+    )),
+    infraspecificName: v.optional(v.string()),
+    identityScope: v.optional(v.union(v.literal("base"), v.literal("cultivar"))),
+    parentCanonicalKey: v.optional(v.string()),
+    parentMasterPlantId: v.optional(v.id("plantsMaster")),
     taxonomyParseStatus: v.optional(
       v.union(v.literal("ok"), v.literal("manual_review"))
     ),
@@ -182,7 +250,140 @@ export default defineSchema({
     .index("by_group", ["group"])
     .index("by_family", ["family"])
     .index("by_source_identity", ["sourceSystem", "sourceId"])
+    .index("by_canonical_key", ["canonicalKey"])
     .index("by_active", ["isActive"]),
+
+  // Source IDs are aliases, not canonical identity. Multiple aliases may
+  // point to one plant, while a live alias is owned by exactly one plant as
+  // enforced by the canonical write boundary.
+  plantExternalIdentities: defineTable({
+    plantId: v.id("plantsMaster"),
+    sourceSystem: v.string(),
+    sourceId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    retiredAt: v.optional(v.number()),
+  })
+    .index("by_source_identity", ["sourceSystem", "sourceId"])
+    .index("by_plant", ["plantId"]),
+
+  // Migration records are intentionally additive interfaces. The first
+  // rollout only exposes bounded dry-run proposals; apply/rollback callers
+  // must use a separately reviewed implementation and journal entries.
+  canonicalIdentityMigrationRuns: defineTable({
+    runId: v.string(),
+    mode: v.union(v.literal("dry_run"), v.literal("apply"), v.literal("rollback")),
+    parentRunId: v.optional(v.string()),
+    status: v.union(v.literal("planned"), v.literal("running"), v.literal("completed"), v.literal("failed")),
+    cursor: v.optional(v.string()),
+    limit: v.number(),
+    scanned: v.number(),
+    changed: v.number(),
+    skipped: v.number(),
+    snapshotCapturedAt: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    error: v.optional(v.string()),
+  })
+    .index("by_run_id", ["runId"])
+    .index("by_status", ["status"])
+    // Keep status and mode in the same indexed range. A status-only take(2)
+    // can return two dry-runs before an active apply/rollback and hide the
+    // migration that must quiesce canonical writers.
+    .index("by_status_mode", ["status", "mode"]),
+
+  canonicalIdentityMigrationJournal: defineTable({
+    runId: v.string(),
+    plantId: v.id("plantsMaster"),
+    action: v.union(v.literal("proposal"), v.literal("apply"), v.literal("rollback")),
+    status: v.union(v.literal("proposed"), v.literal("applied"), v.literal("rolled_back"), v.literal("skipped")),
+    reason: v.string(),
+    beforeRevision: v.number(),
+    afterRevision: v.number(),
+    beforeFields: v.optional(canonicalIdentityFieldSnapshot),
+    afterFields: v.optional(canonicalIdentityFieldSnapshot),
+    beforeCanonicalKey: v.optional(v.string()),
+    afterCanonicalKey: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_run", ["runId"])
+    .index("by_run_plant", ["runId", "plantId"])
+    .index("by_run_after_key", ["runId", "afterCanonicalKey"]),
+
+  // Bounded Git-manifest import journal. Each apply/rollback owns only the
+  // localized rows recorded in its parent dry-run proposal.
+  pestDiseaseContentMigrationRuns: defineTable({
+    runId: v.string(),
+    mode: v.union(v.literal("dry_run"), v.literal("apply"), v.literal("rollback")),
+    parentRunId: v.optional(v.string()),
+    status: v.union(v.literal("planned"), v.literal("running"), v.literal("completed"), v.literal("failed")),
+    cursor: v.optional(v.string()),
+    limit: v.number(),
+    scanned: v.number(),
+    changed: v.number(),
+    skipped: v.number(),
+    snapshotCapturedAt: v.number(),
+    catalogRevision: v.optional(v.number()),
+    proposalFingerprint: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    error: v.optional(v.string()),
+  })
+    .index("by_run_id", ["runId"])
+    .index("by_status_mode", ["status", "mode"]),
+
+  pestDiseaseContentMigrationJournal: defineTable({
+    runId: v.string(),
+    pestDiseaseKey: v.string(),
+    locale: v.string(),
+    action: v.union(v.literal("proposal"), v.literal("apply"), v.literal("rollback")),
+    status: v.union(v.literal("proposed"), v.literal("applied"), v.literal("rolled_back"), v.literal("skipped")),
+    reason: v.string(),
+    beforeFields: v.optional(pestDiseaseContentFieldSnapshot),
+    afterFields: v.optional(pestDiseaseContentFieldSnapshot),
+    createdAt: v.number(),
+  })
+    .index("by_run", ["runId"])
+    .index("by_run_key_locale", ["runId", "pestDiseaseKey", "locale"])
+    .index("by_run_key", ["runId", "pestDiseaseKey"]),
+
+  // One authoritative freshness boundary for the bounded master-data
+  // snapshot.  Counts are category totals (rather than a plant-only count),
+  // so a content/relationship write invalidates an in-flight reconciliation
+  // even when the number of plants is unchanged.
+  syncCatalogMetadata: defineTable({
+    key: v.string(),
+    revision: v.number(),
+    initialized: v.boolean(),
+    expectedCounts: v.object({
+      plants: v.number(),
+      i18n: v.number(),
+      pestDiseaseI18n: v.number(),
+      care: v.number(),
+      geography: v.number(),
+      adaptation: v.number(),
+      propagation: v.number(),
+      externalIdentities: v.number(),
+      relationships: v.number(),
+    }),
+    initialization: v.optional(v.object({
+      tableIndex: v.number(),
+      cursor: v.optional(v.string()),
+      partialCounts: v.object({
+        plants: v.number(),
+        i18n: v.number(),
+        pestDiseaseI18n: v.number(),
+        care: v.number(),
+        geography: v.number(),
+        adaptation: v.number(),
+        propagation: v.number(),
+        externalIdentities: v.number(),
+        relationships: v.number(),
+      }),
+      baseRevision: v.number(),
+    })),
+    updatedAt: v.number(),
+  }).index("by_key", ["key"]),
 
   // ==========================================
   // Master Data: Plant i18n
@@ -358,6 +559,13 @@ export default defineSchema({
     key: v.string(),
     type: v.string(), // "pest" | "disease"
     name: v.string(),
+    // The current library keeps one compact identity record per issue. These
+    // optional fields let the content layer expose Vietnamese labels,
+    // representative scientific agents, and stable plant links without
+    // breaking older seeded documents.
+    commonNameVi: v.optional(v.string()),
+    scientificNames: v.optional(v.array(v.string())),
+    plantKeys: v.optional(v.array(v.string())),
     imageUrl: v.optional(v.string()),
     identification: v.array(v.string()),
     damage: v.array(v.string()),
@@ -373,6 +581,41 @@ export default defineSchema({
     .index("by_key", ["key"])
     .index("by_type", ["type"])
     .index("by_type_sort", ["type", "sortOrder"]),
+
+  /**
+   * Git-authoritative, locale-specific pest/disease Markdown. The legacy
+   * lookup fields above remain intact; this table owns only localized detail
+   * content and its review/provenance evidence.
+   */
+  pestDiseaseI18n: defineTable({
+    pestDiseaseKey: v.string(),
+    locale: v.string(),
+    name: v.string(),
+    description: v.optional(v.string()),
+    detailContent: v.string(),
+    contentVersion: v.optional(v.number()),
+    contentStatus: v.optional(
+      v.union(
+        v.literal("draft"),
+        v.literal("published"),
+        v.literal("needs_review"),
+        v.literal("archived"),
+      ),
+    ),
+    reviewStatus: v.optional(
+      v.union(v.literal("unreviewed"), v.literal("in_review"), v.literal("reviewed")),
+    ),
+    contentOrigin: v.optional(
+      v.union(v.literal("authored"), v.literal("inherited"), v.literal("imported")),
+    ),
+    contentHash: v.optional(v.string()),
+    contentByteLength: v.optional(v.number()),
+    sourceRefs: v.optional(v.array(careSourceRef)),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.string()),
+  })
+    .index("by_key_locale", ["pestDiseaseKey", "locale"])
+    .index("by_locale_key", ["locale", "pestDiseaseKey"]),
 
   // ==========================================
   // Beds (belong to a Garden)

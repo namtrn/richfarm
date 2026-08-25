@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"phaseolus\",\"vulgaris\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "phaseolus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3919,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "189dac3f5dadeeaf1af79045d93428d94c739bd5c613d22ffffe23dff62a1343",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4446,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "9523a4d863b53c253160c779ff1793dcbc5d46b3cb1aad847dd88d76b54a13d5",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "PHASEOLUS_VULGARIS_28NN81CJG2",
+  "schema_version": 1,
+  "scientific_name": "Phaseolus vulgaris",
+  "scope": "base",
+  "species": "vulgaris",
+  "target_status": "active"
+}

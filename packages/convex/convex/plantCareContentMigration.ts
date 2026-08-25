@@ -2,6 +2,7 @@ import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { legacyCareObjectToMarkdown } from "../../shared/src/careContentLegacy";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 /**
  * Phase 4.4 data migration: convert `plantCareI18n.careContent` values that
@@ -120,6 +121,7 @@ export const migratePlantCareI18nJsonToString = mutation({
 
       if (disposition === "converted" && markdown !== null) {
         await ctx.db.patch(row._id, { careContent: markdown } as any);
+        await bumpReconciliationCatalog(ctx);
         report.converted += 1;
         report.convertedHashes.push(`${row._id}:${await sha256(markdown)}`);
       } else if (disposition === "skipped") {

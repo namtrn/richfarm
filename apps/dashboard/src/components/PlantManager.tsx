@@ -737,7 +737,7 @@ function PlantDetail({
                         i18n.startEdit(editableRow);
                         // Pass the editor value directly so the save cannot race the
                         // asynchronous setForm state update in this click handler.
-                        const message = await i18n.save({ careContent });
+                        const message = await i18n.save({ careContent }, editableRow);
                         if (message) {
                             // Plant detail rows are owned by usePlants; refresh that
                             // snapshot so the just-saved Markdown is immediately
@@ -888,15 +888,60 @@ function PlantForm({
                         <input placeholder="e.g. lycopersicum" value={f.species} onChange={(e) => set({ species: e.target.value })} />
                     </label>
                     <label>
+                        Infraspecific rank
+                        <select value={f.infraspecificRank} onChange={(e) => set({ infraspecificRank: e.target.value })}>
+                            <option value="">— none —</option>
+                            <option value="subsp">subsp</option>
+                            <option value="var">var</option>
+                            <option value="f">f</option>
+                        </select>
+                    </label>
+                    <label>
+                        Infraspecific name
+                        <input placeholder="e.g. chinensis" value={f.infraspecificName} onChange={(e) => set({ infraspecificName: e.target.value })} />
+                    </label>
+                    <label>
                         Cultivar
                         <input placeholder="e.g. Cherry — empty = base" value={f.cultivar} onChange={(e) => set({ cultivar: e.target.value })} />
                     </label>
+                    <label>
+                        Identity scope *
+                        <select value={f.identityScope} onChange={(e) => set({ identityScope: e.target.value as "base" | "cultivar" })}>
+                            <option value="base">Base</option>
+                            <option value="cultivar">Cultivar</option>
+                        </select>
+                    </label>
                 </div>
+                <div className="grid-2">
+                    <label>
+                        Parent master plant ID {f.identityScope === "cultivar" ? "*" : ""}
+                        <input
+                            inputMode="numeric"
+                            placeholder="SQLite base row id"
+                            value={f.parentMasterPlantId}
+                            onChange={(e) => set({ parentMasterPlantId: e.target.value })}
+                        />
+                    </label>
+                    <label>
+                        Parent canonical key {f.identityScope === "cultivar" ? "(or ID)" : ""}
+                        <input
+                            placeholder='e.g. ["v1","solanum","lycopersicum","","",""]'
+                            value={f.parentCanonicalKey}
+                            onChange={(e) => set({ parentCanonicalKey: e.target.value })}
+                        />
+                    </label>
+                </div>
+                {p.mode === "edit" && !f.canonicalIdentityComplete && (
+                    <p className="form-preview muted">
+                        This legacy row may be updated with its existing scientific name. Add the structured fields above to migrate its canonical identity.
+                    </p>
+                )}
                 {(f.genus || f.species) && (
                     <p className="form-preview muted">
                         Scientific name:{" "}
                         <em>
                             {computeScientificName(f.genus, f.species)}
+                            {f.infraspecificRank.trim() && f.infraspecificName.trim() ? ` ${f.infraspecificRank.trim()} ${f.infraspecificName.trim()}` : ""}
                             {f.cultivar.trim() ? ` '${f.cultivar.trim()}'` : " (base)"}
                         </em>
                     </p>

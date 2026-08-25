@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as authCleanup from "../authCleanup.js";
 import type * as beds from "../beds.js";
+import type * as careContentUpdatedAtMigration from "../careContentUpdatedAtMigration.js";
 import type * as carePlans from "../carePlans.js";
 import type * as cron from "../cron.js";
 import type * as data_adaptationTermsSeed from "../data/adaptationTermsSeed.js";
@@ -87,6 +88,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authCleanup: typeof authCleanup;
   beds: typeof beds;
+  careContentUpdatedAtMigration: typeof careContentUpdatedAtMigration;
   carePlans: typeof carePlans;
   cron: typeof cron;
   "data/adaptationTermsSeed": typeof data_adaptationTermsSeed;

@@ -27,6 +27,11 @@ import {
     withComputedPlantTaxonomy,
 } from "./lib/plantTaxonomy";
 import { getPlantCareProfileByPlantId, upsertPlantCareProfile } from "./lib/plantCare";
+import {
+    canonicalIdentityFromTaxonomy,
+    upsertCanonicalPlant,
+} from "./lib/canonicalPlantUpsert";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -122,7 +127,16 @@ async function seedPlantsAndI18n(
                 ...plantBaseWithoutCare,
                 ...taxonomyFieldsForStorage(taxonomy),
             };
-            const insertedId = await ctx.db.insert("plantsMaster", basePlant);
+            const canonicalResult = await upsertCanonicalPlant(ctx, {
+                identity: canonicalIdentityFromTaxonomy({
+                    scientificName: plant.scientificName,
+                    genus: taxonomy.genus,
+                    species: taxonomy.species,
+                    cultivar: taxonomy.cultivar,
+                }),
+                plant: basePlant as unknown as Record<string, unknown>,
+            });
+            const insertedId = canonicalResult.plantId;
             existingPlants.push(withComputedPlantTaxonomy({
                 _id: insertedId,
                 _creationTime: Date.now(),
@@ -149,6 +163,7 @@ async function seedPlantsAndI18n(
                 await ctx.db.patch(existing._id, {
                     family: (plant as any).family,
                 });
+                await bumpReconciliationCatalog(ctx);
             }
             // Re-seeding is also a care-profile update. Keep it partial so a
             // fixture that omits a field cannot erase curated values.
@@ -231,6 +246,7 @@ async function seedPlantsAndI18n(
     }
 
     if (!options.includeTaxonomyI18n) {
+        await bumpReconciliationCatalog(ctx, { i18n: i18nInserted });
         return {
             plants: { inserted: plantsInserted, total: plants.length, start, limit },
             plantI18n: {
@@ -300,6 +316,10 @@ async function seedPlantsAndI18n(
             taxonomySkipped++;
         }
     }
+
+    await bumpReconciliationCatalog(ctx, {
+        i18n: i18nInserted + taxonomyInserted,
+    });
 
     return {
         plants: { inserted: plantsInserted, total: plants.length, start, limit },
@@ -452,6 +472,10 @@ async function seedAdaptationTermsAll(ctx: any) {
             i18nUpdated++;
         }
     }
+
+    await bumpReconciliationCatalog(ctx, {
+        adaptation: termsInserted + i18nInserted,
+    });
 
     return {
         terms: { inserted: termsInserted, updated: termsUpdated, total: adaptationTermsSeed.length },

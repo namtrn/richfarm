@@ -9,3 +9,4 @@ export * from "./plantCareStatus";
 export * from "./plantPropagation";
 export * from "./countries";
 export * from "./adaptationTerms";
+export * from "./canonicalPlantIdentity";

@@ -7,6 +7,7 @@ import crypto from "crypto";
 
 import { isLegacyTextShape, legacyCareJsonToMarkdown } from "../../../packages/shared/src/careContentLegacy";
 import { isSafeIdentifier } from "./sql-utils";
+import { ensureSqliteCanonicalIdentitySchema } from "./sqlite-canonical-identity";
 
 export type SqliteDatabase = Database.Database;
 
@@ -266,14 +267,24 @@ function runMigrations(db: SqliteDatabase): void {
       operation TEXT NOT NULL CHECK (operation IN ('upsert_plant', 'delete_plant', 'upsert_i18n', 'delete_i18n')),
       locale TEXT,
       payload_json TEXT NOT NULL DEFAULT '{}',
-      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'applied', 'failed')),
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'applied', 'failed', 'blocked', 'superseded')),
       attempt_count INTEGER NOT NULL DEFAULT 0,
       next_attempt_at TEXT NOT NULL DEFAULT (datetime('now')),
       last_attempt_at TEXT,
       last_error TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-      applied_at TEXT
+      applied_at TEXT,
+      blocked_finding_id INTEGER,
+      blocked_at TEXT,
+      blocked_by TEXT,
+      blocked_reason TEXT,
+      override_id TEXT,
+      override_reason TEXT,
+      override_expires_at TEXT,
+      lease_expires_at TEXT,
+      superseded_by INTEGER,
+      superseded_at TEXT
     );
 
     CREATE INDEX IF NOT EXISTS idx_sync_outbox_status_next_attempt
@@ -358,6 +369,8 @@ function runMigrations(db: SqliteDatabase): void {
     CREATE INDEX IF NOT EXISTS idx_plant_adaptation_terms_plant ON plant_adaptation_terms(master_plant_id);
   `);
 
+  ensureSyncControlPlaneSchema(db);
+
   // Keep older local SQLite files compatible as new plant metadata fields are introduced.
   ensureColumn(db, "master_plants", "source_system", `source_system TEXT NOT NULL DEFAULT 'sqlite'`);
   ensureColumn(db, "master_plants", "source_id", `source_id TEXT`);
@@ -387,6 +400,10 @@ function runMigrations(db: SqliteDatabase): void {
   ensureColumn(db, "master_plants", "care_status", `care_status TEXT NOT NULL DEFAULT 'missing' CHECK (care_status IN ('missing', 'awaiting_review', 'verified', 'not_applicable'))`);
   ensureColumn(db, "master_plants", "care_field_evidence_json", `care_field_evidence_json TEXT NOT NULL DEFAULT '{}'`);
   ensureColumn(db, "master_plants", "propagation_methods_json", `propagation_methods_json TEXT NOT NULL DEFAULT '[]'`);
+  // CID-3 is additive and deliberately does not backfill or merge rows while
+  // the API opens a database.  Backfill/repair is an explicit dry-run-first
+  // operation in sqlite-canonical-identity.ts.
+  ensureSqliteCanonicalIdentitySchema(db);
   // All master_plant_i18n columns are ensured BEFORE any table rebuild so the
   // copy-then-swap INSERT ... SELECT can preserve every column (including
   // content_origin, source, review/provenance fields) losslessly.
@@ -442,6 +459,237 @@ function runMigrations(db: SqliteDatabase): void {
     CREATE INDEX IF NOT EXISTS idx_master_plants_image_url
     ON master_plants(image_url);
   `);
+}
+
+/**
+ * Install the CID-7 reconciliation/control-plane state additively.  The
+ * outbox status constraint predates the blocked state, so older files are
+ * copied into the expanded table without changing ids or payload bytes.
+ * This migration never claims, publishes, or rewrites plant/content rows.
+ */
+function ensureSyncControlPlaneSchema(db: SqliteDatabase): void {
+  const outboxSql = db.prepare(
+    `SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'sync_outbox'`,
+  ).get() as { sql?: string } | undefined;
+  if (outboxSql?.sql && (!outboxSql.sql.toLowerCase().includes("'blocked'") || !outboxSql.sql.toLowerCase().includes("'superseded'"))) {
+    const existingOutboxColumns = new Set(
+      (db.prepare(`PRAGMA table_info(sync_outbox)`).all() as Array<{ name: string }>).map((column) => column.name),
+    );
+    const oldOrNull = (column: string) => existingOutboxColumns.has(column) ? column : "NULL";
+    db.transaction(() => {
+      db.exec(`
+        DROP INDEX IF EXISTS idx_sync_outbox_status_next_attempt;
+        DROP INDEX IF EXISTS idx_sync_outbox_source;
+        ALTER TABLE sync_outbox RENAME TO sync_outbox_legacy;
+        CREATE TABLE sync_outbox (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          dedupe_key TEXT NOT NULL UNIQUE,
+          entity_type TEXT NOT NULL,
+          source_system TEXT NOT NULL,
+          source_id TEXT NOT NULL,
+          operation TEXT NOT NULL CHECK (operation IN ('upsert_plant', 'delete_plant', 'upsert_i18n', 'delete_i18n')),
+          locale TEXT,
+          payload_json TEXT NOT NULL DEFAULT '{}',
+          status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'applied', 'failed', 'blocked', 'superseded')),
+          attempt_count INTEGER NOT NULL DEFAULT 0,
+          next_attempt_at TEXT NOT NULL DEFAULT (datetime('now')),
+          last_attempt_at TEXT,
+          last_error TEXT,
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+          applied_at TEXT,
+          blocked_finding_id INTEGER,
+          blocked_at TEXT,
+          blocked_by TEXT,
+          blocked_reason TEXT,
+          override_id TEXT,
+          override_reason TEXT,
+          override_expires_at TEXT,
+          lease_expires_at TEXT,
+          superseded_by INTEGER,
+          superseded_at TEXT
+        );
+        INSERT INTO sync_outbox (
+          id, dedupe_key, entity_type, source_system, source_id, operation,
+          locale, payload_json, status, attempt_count, next_attempt_at,
+          last_attempt_at, last_error, created_at, updated_at, applied_at,
+          blocked_finding_id, blocked_at, blocked_by, blocked_reason,
+          override_id, override_reason, override_expires_at, lease_expires_at,
+          superseded_by, superseded_at
+        )
+        SELECT id, dedupe_key, entity_type, source_system, source_id, operation,
+          locale, payload_json, status, attempt_count, next_attempt_at,
+          last_attempt_at, last_error, created_at, updated_at, applied_at,
+          ${oldOrNull("blocked_finding_id")}, ${oldOrNull("blocked_at")},
+          ${oldOrNull("blocked_by")}, ${oldOrNull("blocked_reason")},
+          ${oldOrNull("override_id")}, ${oldOrNull("override_reason")},
+          ${oldOrNull("override_expires_at")}, ${oldOrNull("lease_expires_at")},
+          ${oldOrNull("superseded_by")}, ${oldOrNull("superseded_at")}
+        FROM sync_outbox_legacy;
+        DROP TABLE sync_outbox_legacy;
+        CREATE INDEX idx_sync_outbox_status_next_attempt
+          ON sync_outbox(status, next_attempt_at);
+        CREATE INDEX idx_sync_outbox_source
+          ON sync_outbox(source_system, source_id);
+      `);
+    })();
+  } else {
+    ensureColumn(db, "sync_outbox", "blocked_finding_id", "blocked_finding_id INTEGER");
+    ensureColumn(db, "sync_outbox", "blocked_at", "blocked_at TEXT");
+    ensureColumn(db, "sync_outbox", "blocked_by", "blocked_by TEXT");
+    ensureColumn(db, "sync_outbox", "blocked_reason", "blocked_reason TEXT");
+    ensureColumn(db, "sync_outbox", "override_id", "override_id TEXT");
+    ensureColumn(db, "sync_outbox", "override_reason", "override_reason TEXT");
+    ensureColumn(db, "sync_outbox", "override_expires_at", "override_expires_at TEXT");
+    ensureColumn(db, "sync_outbox", "lease_expires_at", "lease_expires_at TEXT");
+    ensureColumn(db, "sync_outbox", "superseded_by", "superseded_by INTEGER");
+    ensureColumn(db, "sync_outbox", "superseded_at", "superseded_at TEXT");
+  }
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sync_catalog_revision (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      revision INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    INSERT OR IGNORE INTO sync_catalog_revision (id, revision) VALUES (1, 0);
+
+    CREATE TABLE IF NOT EXISTS sync_findings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      fingerprint TEXT NOT NULL UNIQUE,
+      run_id TEXT,
+      severity TEXT NOT NULL CHECK (severity IN ('info', 'warning', 'blocked')),
+      code TEXT NOT NULL,
+      category TEXT NOT NULL,
+      canonical_key TEXT,
+      sqlite_identity_json TEXT NOT NULL DEFAULT '[]',
+      convex_identity_json TEXT NOT NULL DEFAULT '[]',
+      evidence_json TEXT NOT NULL DEFAULT '{}',
+      resolution_status TEXT NOT NULL DEFAULT 'open'
+        CHECK (resolution_status IN ('open', 'resolved', 'dismissed')),
+      first_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+      last_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+      occurrence_count INTEGER NOT NULL DEFAULT 1,
+      resolved_at TEXT,
+      resolved_by TEXT,
+      resolution_reason TEXT,
+      sqlite_catalog_revision TEXT,
+      sqlite_data_revision TEXT,
+      outbox_watermark INTEGER,
+      convex_snapshot_revision TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_sync_findings_status_key
+      ON sync_findings(resolution_status, severity, canonical_key);
+    CREATE INDEX IF NOT EXISTS idx_sync_findings_run
+      ON sync_findings(run_id);
+
+    CREATE TABLE IF NOT EXISTS sync_repair_proposals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      proposal_id TEXT NOT NULL UNIQUE,
+      run_id TEXT NOT NULL,
+      action TEXT NOT NULL CHECK (action IN ('merge', 'link', 'republish', 'quarantine', 'archive')),
+      status TEXT NOT NULL DEFAULT 'proposed'
+        CHECK (status IN ('proposed', 'approved', 'applied', 'rejected', 'stale')),
+      payload_json TEXT NOT NULL DEFAULT '{}',
+      evidence_json TEXT NOT NULL DEFAULT '{}',
+      sqlite_catalog_revision TEXT NOT NULL,
+      sqlite_data_revision TEXT NOT NULL,
+      outbox_watermark INTEGER NOT NULL,
+      convex_snapshot_revision TEXT,
+      convex_expected_count INTEGER,
+      convex_received_count INTEGER,
+      convex_page_count INTEGER,
+      convex_terminal_cursor TEXT,
+      source_data_changed INTEGER NOT NULL DEFAULT 0,
+      snapshot_complete INTEGER NOT NULL DEFAULT 0,
+      created_by TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      approved_by TEXT,
+      approved_at TEXT,
+      approval_reason TEXT,
+      applied_by TEXT,
+      applied_at TEXT,
+      rejection_reason TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_sync_repair_proposals_status
+      ON sync_repair_proposals(status, created_at);
+
+    CREATE TABLE IF NOT EXISTS sync_outbox_audit (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      outbox_id INTEGER NOT NULL,
+      finding_id INTEGER,
+      action TEXT NOT NULL CHECK (action IN ('requeue', 'override')),
+      operator_id TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      expires_at TEXT,
+      before_json TEXT NOT NULL DEFAULT '{}',
+      after_json TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY(outbox_id) REFERENCES sync_outbox(id),
+      FOREIGN KEY(finding_id) REFERENCES sync_findings(id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_sync_outbox_audit_outbox
+      ON sync_outbox_audit(outbox_id, created_at);
+  `);
+
+  const reconciliationColumns: Array<[string, string]> = [
+    ["run_id", "run_id TEXT"],
+    ["mode", "mode TEXT NOT NULL DEFAULT 'audit'"],
+    ["sqlite_data_revision", "sqlite_data_revision TEXT"],
+    ["sqlite_catalog_revision", "sqlite_catalog_revision TEXT"],
+    ["sqlite_outbox_watermark", "sqlite_outbox_watermark INTEGER"],
+    ["convex_snapshot_revision", "convex_snapshot_revision TEXT"],
+    ["expected_count", "expected_count INTEGER"],
+    ["received_count", "received_count INTEGER"],
+    ["page_count", "page_count INTEGER NOT NULL DEFAULT 0"],
+    ["terminal_cursor", "terminal_cursor TEXT"],
+    ["source_data_changed", "source_data_changed INTEGER NOT NULL DEFAULT 0"],
+    ["snapshot_complete", "snapshot_complete INTEGER NOT NULL DEFAULT 0"],
+    ["finding_count", "finding_count INTEGER NOT NULL DEFAULT 0"],
+    ["operator_id", "operator_id TEXT"],
+  ];
+  for (const [name, declaration] of reconciliationColumns) {
+    ensureColumn(db, "sync_reconciliation_runs", name, declaration);
+  }
+  ensureColumn(db, "sync_repair_proposals", "approval_reason", "approval_reason TEXT");
+  ensureColumn(db, "sync_repair_proposals", "convex_expected_count", "convex_expected_count INTEGER");
+  ensureColumn(db, "sync_repair_proposals", "convex_received_count", "convex_received_count INTEGER");
+  ensureColumn(db, "sync_repair_proposals", "convex_page_count", "convex_page_count INTEGER");
+  ensureColumn(db, "sync_repair_proposals", "convex_terminal_cursor", "convex_terminal_cursor TEXT");
+  ensureColumn(db, "sync_repair_proposals", "source_data_changed", "source_data_changed INTEGER NOT NULL DEFAULT 0");
+  ensureColumn(db, "sync_repair_proposals", "snapshot_complete", "snapshot_complete INTEGER NOT NULL DEFAULT 0");
+  db.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_sync_reconciliation_runs_run_id
+      ON sync_reconciliation_runs(run_id)
+      WHERE run_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS idx_sync_reconciliation_runs_status_mode
+      ON sync_reconciliation_runs(status, mode, started_at);
+  `);
+}
+
+/** Monotonic SQLite catalog revision used as an audit freshness boundary. */
+export function getSyncCatalogRevision(db: SqliteDatabase): number {
+  const row = db.prepare(
+    `SELECT revision FROM sync_catalog_revision WHERE id = 1`,
+  ).get() as { revision?: number } | undefined;
+  return Number.isSafeInteger(row?.revision) ? Number(row!.revision) : 0;
+}
+
+/**
+ * Increment the catalog revision in the caller's transaction.  All normal
+ * writers reach this through enqueueSyncOutbox, so the revision and outbox
+ * row commit atomically with the source write.
+ */
+export function bumpSyncCatalogRevision(db: SqliteDatabase): number {
+  db.prepare(`
+    UPDATE sync_catalog_revision
+    SET revision = revision + 1, updated_at = datetime('now')
+    WHERE id = 1
+  `).run();
+  return getSyncCatalogRevision(db);
 }
 
 /**

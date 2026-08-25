@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import type { Plant, PlantFormState, Mode, PlantListPage } from "../types";
 import type { CareSourceRef } from "../../../../packages/shared/src";
 import { normalizePropagationMethods } from "../../../../packages/shared/src/plantPropagation";
+import { validateCanonicalPlantIdentity } from "../../../../packages/shared/src/canonicalPlantIdentity";
 import {
     emptyPlantForm,
     getLocaleRow,
@@ -17,6 +18,17 @@ type BackendPlantRow = {
     plant_code?: string;
     common_name?: string;
     scientific_name?: string | null;
+    canonical_identity_version?: string | null;
+    canonical_key?: string | null;
+    genus?: string | null;
+    species?: string | null;
+    infraspecific_rank?: string | null;
+    infraspecific_name?: string | null;
+    cultivar?: string | null;
+    identity_scope?: "base" | "cultivar" | null;
+    parent_master_plant_id?: number | null;
+    parent_canonical_key?: string | null;
+    canonical_status?: string | null;
     source_system?: string;
     source_id?: string | null;
     record_version?: number;
@@ -117,6 +129,30 @@ function parseTaxonomy(scientificName: string) {
     return { genus, species };
 }
 
+export function validateDashboardCanonicalIdentity(input: {
+    genus: string;
+    species: string;
+    infraspecificRank: string;
+    infraspecificName: string;
+    cultivar: string;
+    identityScope: "base" | "cultivar";
+    parentMasterPlantId: string;
+    parentCanonicalKey: string;
+}) {
+    const parentId = input.parentMasterPlantId.trim();
+    const parsedParentId = parentId ? Number(parentId) : null;
+    return validateCanonicalPlantIdentity({
+        genus: input.genus.trim(),
+        species: input.species.trim(),
+        rank: input.infraspecificRank.trim() || null,
+        infraspecificName: input.infraspecificName.trim() || null,
+        cultivar: input.cultivar.trim() || null,
+        scope: input.identityScope,
+        parentMasterPlantId: parsedParentId,
+        parentCanonicalKey: input.parentCanonicalKey.trim() || null,
+    });
+}
+
 function mapBackendPlant(row: BackendPlantRow): Plant {
     const scientificName = row.scientific_name || row.plant_code || row.common_name || "";
     const taxonomy = parseTaxonomy(scientificName);
@@ -141,8 +177,10 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
 
     return {
         _id: String(row.id),
-        genus: taxonomy.genus,
-        species: taxonomy.species,
+        genus: row.genus ?? taxonomy.genus,
+        species: row.species ?? taxonomy.species,
+        infraspecificRank: row.infraspecific_rank ?? undefined,
+        infraspecificName: row.infraspecific_name ?? undefined,
         scientificName,
         sourceSystem: row.source_system,
         sourceId: row.source_id ?? undefined,
@@ -192,9 +230,38 @@ function mapBackendPlant(row: BackendPlantRow): Plant {
         adaptationTermCodes: row.adaptation_term_codes ?? [],
         adaptationTermSourceRefs: row.adaptation_term_source_refs ?? {},
         resolvedGeography: row.resolved_geography,
-        cultivar: typeof metadata.cultivar === "string" ? metadata.cultivar : undefined,
+        cultivar: row.cultivar ?? (typeof metadata.cultivar === "string" ? metadata.cultivar : undefined),
+        identityScope: row.identity_scope ?? undefined,
+        parentMasterPlantId: row.parent_master_plant_id ?? undefined,
+        parentCanonicalKey: row.parent_canonical_key ?? undefined,
+        canonicalKey: row.canonical_key ?? undefined,
+        canonicalIdentityComplete: Boolean(row.canonical_identity_version && row.canonical_key),
         i18nRows,
     };
+}
+
+/** Fetch one SQLite row for exact-match hydration when it is off the current page. */
+export async function fetchBackendPlantById(
+    authedFetch: AuthedFetch,
+    id: string | number,
+): Promise<Plant> {
+    const normalizedId = String(id).trim();
+    if (!/^[1-9]\d*$/.test(normalizedId)) {
+        throw new Error("Canonical match did not return a valid SQLite plant id.");
+    }
+    const response = await authedFetch(`/api/master-plants/${normalizedId}?source=sqlite`);
+    const body = (await response.json().catch(() => ({}))) as { data?: BackendPlantRow; error?: string };
+    if (!response.ok || !body.data) {
+        throw new Error(body.error ?? "Cannot load the exact canonical match");
+    }
+    return mapBackendPlant(body.data);
+}
+
+/** Insert or replace one hydrated row without disturbing the current page order. */
+export function mergeHydratedPlant(plants: Plant[], hydrated: Plant): Plant[] {
+    const index = plants.findIndex((plant) => plant._id === hydrated._id);
+    if (index < 0) return [hydrated, ...plants];
+    return plants.map((plant, currentIndex) => currentIndex === index ? hydrated : plant);
 }
 
 async function loadBackendPlantPage(
@@ -376,7 +443,13 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             family: plant.family ?? "",
             genus,
             species,
+            infraspecificRank: plant.infraspecificRank ?? "",
+            infraspecificName: plant.infraspecificName ?? "",
             cultivar: plant.cultivar ?? "",
+            identityScope: plant.identityScope ?? (plant.cultivar ? "cultivar" : "base"),
+            parentMasterPlantId: plant.parentMasterPlantId !== undefined ? String(plant.parentMasterPlantId) : "",
+            parentCanonicalKey: plant.parentCanonicalKey ?? "",
+            canonicalIdentityComplete: plant.canonicalIdentityComplete === true,
             group: plant.group ?? "other",
             basePlantId: plant.basePlantId ?? "",
             commonNameGroupKey: plant.commonNameGroupKey ?? "",
@@ -438,11 +511,13 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
 
 
     function select(plant: Plant) {
+        requestSequence.current += 1;
         setSelectedId(plant._id);
         if (mode !== "create") setMode("view");
     }
 
     function startCreate() {
+        requestSequence.current += 1;
         setMode("create");
         setForm(emptyPlantForm);
         setSelectedId(null);
@@ -450,6 +525,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
     }
 
     function startEdit(plant: Plant) {
+        requestSequence.current += 1;
         setMode("edit");
         setForm(toFormState(plant));
         setSelectedId(plant._id);
@@ -457,6 +533,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
     }
 
     function cancel() {
+        requestSequence.current += 1;
         if (selected) {
             setForm(toFormState(selected));
         } else {
@@ -465,13 +542,37 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setMode("view");
     }
 
+    async function openExactCanonicalMatch(id: number | string): Promise<boolean> {
+        const requestId = ++requestSequence.current;
+        try {
+            const hydrated = await fetchBackendPlantById(authedFetch, id);
+            if (requestId !== requestSequence.current) return false;
+            setPlants((current) => mergeHydratedPlant(current, hydrated));
+            setSelectedId(hydrated._id);
+            setForm(toFormState(hydrated));
+            setMode("edit");
+            return true;
+        } catch (err) {
+            if (requestId === requestSequence.current) {
+                setError(err instanceof Error ? err.message : "Cannot load the exact canonical match");
+            }
+            return false;
+        }
+    }
+
     async function save(): Promise<string | null> {
         if (saving) return null;
 
+        const isEdit = mode === "edit" && selected !== null;
         const genus = form.genus.trim();
         const species = form.species.trim();
-        const cultivar = form.cultivar.trim() || undefined;
-        const scientificName = computeScientificName(genus, species);
+        const rank = form.infraspecificRank.trim() || null;
+        const infraspecificName = form.infraspecificName.trim() || null;
+        const cultivar = form.cultivar.trim() || null;
+        const scientificName = [
+            computeScientificName(genus, species),
+            rank && infraspecificName ? `${rank} ${infraspecificName}` : "",
+        ].filter(Boolean).join(" ");
 
         if (!genus || !species) {
             setError("Genus and Species are required.");
@@ -480,6 +581,28 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         if (!form.viCommonName.trim() || !form.enCommonName.trim()) {
             setError("Both VI and EN common names are required.");
             return null;
+        }
+
+        const canonicalIdentityInput = {
+            genus,
+            species,
+            infraspecificRank: rank ?? "",
+            infraspecificName: infraspecificName ?? "",
+            cultivar: cultivar ?? "",
+            identityScope: form.identityScope,
+            parentMasterPlantId: form.parentMasterPlantId,
+            parentCanonicalKey: form.parentCanonicalKey,
+        } as const;
+        // New rows and already-canonical rows always send the complete
+        // structured tuple.  A legacy existing row may use the narrowly
+        // scoped scientific_name compatibility path for an unrelated edit.
+        const sendStructuredIdentity = !isEdit || selected?.canonicalIdentityComplete === true;
+        if (sendStructuredIdentity) {
+            const validation = validateDashboardCanonicalIdentity(canonicalIdentityInput);
+            if (!validation.ok) {
+                setError(validation.issues.map((issue) => issue.message).join("; "));
+                return null;
+            }
         }
 
         const numericFields: Array<[string, string]> = [
@@ -528,6 +651,18 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             ].filter(Boolean).join("_").slice(0, 120),
             common_name: form.viCommonName.trim(),
             scientific_name: scientificName,
+            ...(sendStructuredIdentity
+                ? {
+                    genus,
+                    species,
+                    infraspecific_rank: rank,
+                    infraspecific_name: infraspecificName,
+                    cultivar,
+                    identity_scope: form.identityScope,
+                    parent_master_plant_id: form.parentMasterPlantId.trim() ? Number(form.parentMasterPlantId) : null,
+                    parent_canonical_key: form.parentCanonicalKey.trim() || null,
+                }
+                : {}),
             category: form.group.trim() || "other",
             group: form.group.trim() || "other",
             family: form.family.trim() || null,
@@ -619,9 +754,31 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setSaving(true);
         setError("");
         try {
-            const isEdit = mode === "edit" && selected;
             if (isEdit && !/^\d+$/.test(selected._id)) {
                 throw new Error("Selected plant does not have a numeric SQLite id.");
+            }
+            if (!isEdit) {
+                const previewResponse = await authedFetch("/api/master-plants/canonical-match-preview", {
+                    method: "POST",
+                    body: JSON.stringify(backendPayload),
+                });
+                const previewBody = await previewResponse.json().catch(() => ({}));
+                if (!previewResponse.ok) {
+                    throw new Error(previewBody.error ?? previewBody.details ?? "Cannot preview canonical identity");
+                }
+                const preview = previewBody.data ?? previewBody;
+                if (preview.status === "exact" && preview.exact?.id !== undefined) {
+                    const existingId = String(preview.exact.id);
+                    const existing = plants.find((plant) => plant._id === existingId);
+                    if (existing) {
+                        startEdit(existing);
+                    } else {
+                        const opened = await openExactCanonicalMatch(preview.exact.id);
+                        if (!opened) return null;
+                    }
+                    setError("An exact canonical match already exists; the existing plant was opened for editing.");
+                    return null;
+                }
             }
             const endpoint = isEdit ? `/api/master-plants/${selected._id}` : "/api/master-plants";
             const response = await authedFetch(endpoint, {

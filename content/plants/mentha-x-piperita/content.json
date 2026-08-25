@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"mentha\",\"x piperita\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "mentha",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3586,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "cf8345ed1e215fce6d07acfc14fc6344b61aaa5f3954363d98eff22235f6b557",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4188,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d8b42dcfaf46737e332b530c971a7a522e7fea5e01b2f4c4c7c86e112f7d7e60",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "MENTHA_X_PIPERITA_XJ6N81DMC4",
+  "schema_version": 1,
+  "scientific_name": "Mentha × piperita",
+  "scope": "base",
+  "species": "x piperita",
+  "target_status": "active"
+}

@@ -144,7 +144,30 @@ describe("Phase 3 canonical plant library", () => {
     expect(second.action).toBe("updated");
     const rows = await t.query(api.masterSync.listAll, { serviceToken, locale: "vi" });
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ sourceSystem: "sqlite", sourceId: "101", recordVersion: 2 });
+    expect(rows[0]).toMatchObject({
+      sourceSystem: "sqlite",
+      sourceId: "101",
+      recordVersion: 2,
+      genus: "Solanum",
+      species: "lycopersicum",
+      genusNormalized: "solanum",
+      speciesNormalized: "lycopersicum",
+      taxonomyParseStatus: "ok",
+      cultivarNormalized: "__default__",
+    });
+    // The public canonical projection and admin mirror snapshot must expose
+    // the same trusted taxonomy fields; API mirror conversion must not parse a
+    // display/common name to manufacture identity.
+    const canonicalRows = await t.query(api.plantLibrary.listCanonical, { locale: "vi", limit: 100 });
+    expect(canonicalRows).toHaveLength(1);
+    expect(canonicalRows[0]).toMatchObject({
+      genus: "Solanum",
+      species: "lycopersicum",
+      genusNormalized: "solanum",
+      speciesNormalized: "lycopersicum",
+      taxonomyParseStatus: "ok",
+      cultivarNormalized: "__default__",
+    });
     expect(rows[0].i18nRows).toEqual(expect.arrayContaining([
       expect.objectContaining({ locale: "vi", careContent: expect.any(String) }),
       expect.objectContaining({ locale: "en" }),

@@ -1,0 +1,28 @@
+{
+  "key": "powdery_mildew",
+  "kind": "pest_disease",
+  "locales": {
+    "en": {
+      "bytes": 929,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "b1d830bde1daacffff5ab28baee9a50118c984d02d754edff13635b42ee698a4",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 1127,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "6bdf3c30140f6c8a0713411e2481b7f081ad744bca13e033e557217f62efff38",
+      "source_refs": []
+    }
+  },
+  "schema_version": 1,
+  "type": "disease"
+}

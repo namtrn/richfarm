@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"mangifera\",\"indica\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "mangifera",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3964,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "bc2830d328f53aeac28300e82ddbf9120bfc9009364ba15601ac2be39f305c0e",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4108,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "cb0847417c846a6ed0065119528d3818ac22ba9447fe3009e47d7e2b6c077a9c",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "MANGIFERA_INDICA_RSVD82EDD3",
+  "schema_version": 1,
+  "scientific_name": "Mangifera indica",
+  "scope": "base",
+  "species": "indica",
+  "target_status": "active"
+}

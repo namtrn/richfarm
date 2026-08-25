@@ -19,13 +19,13 @@ import type { ScanStatus } from '../../lib/scanHistory';
 
 // ─── Status badge ────────────────────────────────────────────────────────────
 
-function StatusBadge({ status, theme }: { status: ScanStatus; theme: any }) {
+function StatusBadge({ status, theme, t }: { status: ScanStatus; theme: any; t: (key: string) => string }) {
   type Cfg = { label: string; color: string; bg: string; Icon: any };
   const cfg: Cfg = status === 'identified'
-    ? { label: 'Identified', color: theme.success, bg: theme.successBg, Icon: CheckCircle }
+    ? { label: t('scanner.status_identified'), color: theme.success, bg: theme.successBg, Icon: CheckCircle }
     : status === 'saved'
-    ? { label: 'Saved', color: theme.primary, bg: theme.accent, Icon: Leaf }
-    : { label: 'Unknown', color: theme.warning, bg: theme.warningBg, Icon: HelpCircle };
+    ? { label: t('scanner.status_saved'), color: theme.primary, bg: theme.accent, Icon: Leaf }
+    : { label: t('scanner.status_unknown'), color: theme.warning, bg: theme.warningBg, Icon: HelpCircle };
 
   return (
     <View style={[styles.badge, { backgroundColor: cfg.bg }]}>
@@ -37,28 +37,28 @@ function StatusBadge({ status, theme }: { status: ScanStatus; theme: any }) {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function formatRelativeTime(ts: number): string {
+function formatRelativeTime(ts: number, t: (key: string, options?: { count: number }) => string): string {
   const diff = Date.now() - ts;
   const min = Math.floor(diff / 60_000);
   const hr = Math.floor(diff / 3_600_000);
   const day = Math.floor(diff / 86_400_000);
-  if (min < 1) return 'Just now';
-  if (min < 60) return `${min}m ago`;
-  if (hr < 24) return `${hr}h ago`;
-  if (day === 1) return 'Yesterday';
-  return `${day}d ago`;
+  if (min < 1) return t('scanner.time_just_now');
+  if (min < 60) return t('scanner.time_minutes_ago', { count: min });
+  if (hr < 24) return t('scanner.time_hours_ago', { count: hr });
+  if (day === 1) return t('scanner.time_yesterday');
+  return t('scanner.time_days_ago', { count: day });
 }
 
-function groupLabel(ts: number): string {
+function groupLabel(ts: number, t: (key: string, options?: { count: number }) => string): string {
   const day = Math.floor((Date.now() - ts) / 86_400_000);
-  if (day === 0) return 'Today';
-  if (day === 1) return 'Yesterday';
-  return `${day} days ago`;
+  if (day === 0) return t('scanner.group_today');
+  if (day === 1) return t('scanner.group_yesterday');
+  return t('scanner.group_days_ago', { count: day });
 }
 
 // ─── Scan card ───────────────────────────────────────────────────────────────
 
-function ScanCard({ item, theme, onDelete }: { item: any; theme: any; onDelete: () => void }) {
+function ScanCard({ item, theme, onDelete, t }: { item: any; theme: any; onDelete: () => void; t: (key: string, options?: { count: number }) => string }) {
   return (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
@@ -81,9 +81,9 @@ function ScanCard({ item, theme, onDelete }: { item: any; theme: any; onDelete: 
         <View style={styles.cardMeta}>
           <Clock size={11} color={theme.textMuted} />
           <Text style={[styles.cardTime, { color: theme.textMuted }]}>
-            {formatRelativeTime(item.scannedAt)}
+            {formatRelativeTime(item.scannedAt, t)}
           </Text>
-          <StatusBadge status={item.status} theme={theme} />
+          <StatusBadge status={item.status} theme={theme} t={t} />
         </View>
       </View>
 
@@ -99,15 +99,15 @@ function ScanCard({ item, theme, onDelete }: { item: any; theme: any; onDelete: 
 
 // ─── Empty state ─────────────────────────────────────────────────────────────
 
-function EmptyState({ theme, onScan }: { theme: any; onScan: () => void }) {
+function EmptyState({ theme, onScan, t }: { theme: any; onScan: () => void; t: (key: string) => string }) {
   return (
     <View style={styles.emptyWrap}>
       <View style={[styles.emptyIcon, { backgroundColor: theme.accent }]}>
         <ScanSearch size={38} color={theme.primary} />
       </View>
-      <Text style={[styles.emptyTitle, { color: theme.text }]}>No scans yet</Text>
+      <Text style={[styles.emptyTitle, { color: theme.text }]}>{t('scanner.empty_title')}</Text>
       <Text style={[styles.emptyDesc, { color: theme.textSecondary }]}>
-        Tap the button below to identify your first plant with AI
+        {t('scanner.empty_desc')}
       </Text>
     </View>
   );
@@ -116,6 +116,7 @@ function EmptyState({ theme, onScan }: { theme: any; onScan: () => void }) {
 // ─── Screen ──────────────────────────────────────────────────────────────────
 
 export default function ScanScreen() {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { openScanner, scannerModals, onScanSaved } = usePlantScanner();
   const { history, isLoading, refresh, remove } = useScanHistory();
@@ -132,7 +133,7 @@ export default function ScanScreen() {
   // Group by date label, preserving order (newest first)
   const groups: { title: string; data: typeof history }[] = [];
   for (const item of history) {
-    const label = groupLabel(item.scannedAt);
+    const label = groupLabel(item.scannedAt, t);
     const last = groups[groups.length - 1];
     if (last && last.title === label) {
       last.data.push(item);
@@ -150,9 +151,9 @@ export default function ScanScreen() {
       <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={[styles.headerTitle, { color: theme.text }]}>Scan History</Text>
+            <Text style={[styles.headerTitle, { color: theme.text }]}>{t('scanner.title')}</Text>
             <Text style={[styles.headerSub, { color: theme.textSecondary }]}>
-              {isLoading ? '…' : `${history.length} plant${history.length !== 1 ? 's' : ''} scanned`}
+              {isLoading ? '…' : t('scanner.scanned_count', { count: history.length })}
             </Text>
           </View>
         </View>
@@ -164,7 +165,7 @@ export default function ScanScreen() {
           <ActivityIndicator color={theme.primary} size="large" />
         </View>
       ) : history.length === 0 ? (
-        <EmptyState theme={theme} onScan={openScanner} />
+        <EmptyState theme={theme} onScan={openScanner} t={t} />
       ) : (
         <FlatList
           data={groups}
@@ -182,6 +183,7 @@ export default function ScanScreen() {
                   key={scan.id}
                   item={scan}
                   theme={theme}
+                  t={t}
                   onDelete={() => remove(scan.id)}
                 />
               ))}

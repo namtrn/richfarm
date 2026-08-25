@@ -17,6 +17,11 @@ import {
 } from "./lib/plantTaxonomy";
 import { upsertPlantCareI18n, upsertPlantCareProfile } from "./lib/plantCare";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import {
+    canonicalIdentityFromTaxonomy,
+    upsertCanonicalPlant,
+} from "./lib/canonicalPlantUpsert";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 export const upsertPlantI18n = mutation({
     args: {
@@ -55,6 +60,7 @@ export const upsertPlantI18n = mutation({
                 commonName,
                 description: args.description,
             });
+            await bumpReconciliationCatalog(ctx);
             if (args.careContent !== undefined || args.contentVersion !== undefined) {
                 await upsertPlantCareI18n(
                     ctx,
@@ -73,6 +79,7 @@ export const upsertPlantI18n = mutation({
             commonName,
             description: args.description,
         });
+        await bumpReconciliationCatalog(ctx, { i18n: 1 });
         if (args.careContent !== undefined || args.contentVersion !== undefined) {
             await upsertPlantCareI18n(
                 ctx,
@@ -197,7 +204,16 @@ export const syncEnglishSeedContent = internalMutation({
             let plantId = existing?._id;
             if (!existing) {
                 if (!dryRun) {
-                    plantId = await ctx.db.insert("plantsMaster", seedWithTaxonomy as any);
+                    const canonicalResult = await upsertCanonicalPlant(ctx, {
+                        identity: canonicalIdentityFromTaxonomy({
+                            scientificName: seed.scientificName,
+                            genus: taxonomy.genus,
+                            species: taxonomy.species,
+                            cultivar: taxonomy.cultivar,
+                        }),
+                        plant: seedWithTaxonomy as Record<string, unknown>,
+                    });
+                    plantId = canonicalResult.plantId;
                     await upsertPlantCareProfile(ctx, plantId, careProfile);
                 }
                 plantsInserted++;
@@ -213,15 +229,26 @@ export const syncEnglishSeedContent = internalMutation({
                         updates[key] = value;
                     }
                 }
-                if (Object.keys(updates).length > 0) {
-                    if (!dryRun) {
-                        await ctx.db.patch(existing._id, updates);
-                        await upsertPlantCareProfile(ctx, existing._id, careProfile);
-                    }
-                    plantsUpdated++;
-                } else if (!dryRun) {
-                    await upsertPlantCareProfile(ctx, existing._id, careProfile);
-                }
+            if (Object.keys(updates).length > 0) {
+                plantsUpdated++;
+            }
+            if (!dryRun) {
+                await upsertCanonicalPlant(ctx, {
+                    identity: canonicalIdentityFromTaxonomy({
+                        scientificName: seed.scientificName,
+                        genus: taxonomy.genus,
+                        species: taxonomy.species,
+                        cultivar: taxonomy.cultivar,
+                        parentMasterPlantId: (existing as any).basePlantId ?? null,
+                    }),
+                    plant: seedWithTaxonomy as Record<string, unknown>,
+                    sourceSystem: (updates.sourceSystem as string | undefined) ?? (existing as any).sourceSystem,
+                    sourceId: (updates.sourceId as string | undefined) ?? (existing as any).sourceId,
+                    existingPlantId: existing._id,
+                    updateFields: updates,
+                });
+                await upsertPlantCareProfile(ctx, existing._id, careProfile);
+            }
             }
 
             if (!plantId) continue;
@@ -258,6 +285,7 @@ export const syncEnglishSeedContent = internalMutation({
                             commonName: row.commonName,
                             description: row.description,
                         });
+                        await bumpReconciliationCatalog(ctx);
                     }
                     i18nUpdated++;
                 }
@@ -269,6 +297,7 @@ export const syncEnglishSeedContent = internalMutation({
                         commonName: row.commonName,
                         description: row.description,
                     });
+                    await bumpReconciliationCatalog(ctx, { i18n: 1 });
                 }
                 i18nInserted++;
             }
@@ -310,6 +339,7 @@ export const migrateLegacyCareToPlantCareI18n = mutation({
                 // Keep Phase 3 source/review/content metadata on the i18n row;
                 // only the legacy care field is moved out.
                 await ctx.db.patch(row._id, { careContent: undefined } as any);
+                await bumpReconciliationCatalog(ctx);
                 cleaned += 1;
             }
         }

@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"brassica\",\"rapa\",\"subsp\",\"chinensis\",\"\"]",
+  "cultivar": null,
+  "genus": "brassica",
+  "infraspecific_name": "chinensis",
+  "infraspecific_rank": "subsp",
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3971,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "058d161c70fd64734585a98636c93aad685fca7fdd7f50208a00f2853aa8f494",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4100,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "da0838f0b88a74e2505f575e75ef8de39ce1f69765c06f3488731c5186c2bcbc",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "BRASSICA_RAPA_SUBSP_CHINENSIS_YYFS82AC8H",
+  "schema_version": 1,
+  "scientific_name": "Brassica rapa",
+  "scope": "base",
+  "species": "rapa",
+  "target_status": "active"
+}

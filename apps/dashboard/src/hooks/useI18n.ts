@@ -79,6 +79,30 @@ export function buildCareContentPayload(careContent: string): string | null {
     return careContent.trim() === "" ? null : careContent;
 }
 
+type I18nSaveTarget =
+    | { mode: "create"; row: null }
+    | { mode: "edit"; row: PlantI18nRow }
+    | { mode: "none"; row: null };
+
+/**
+ * Resolve the persisted row used by a save request.
+ *
+ * A caller can start editing and save in the same event turn (the care-guide
+ * modal does this), before React has committed the mode/selection updates.
+ * An explicit source row therefore always means PATCH that row; ordinary
+ * create/edit form saves continue to use the hook state.
+ */
+export function resolveI18nSaveTarget(
+    currentMode: Mode,
+    selectedRow: PlantI18nRow | null,
+    sourceRow?: PlantI18nRow,
+): I18nSaveTarget {
+    if (sourceRow) return { mode: "edit", row: sourceRow };
+    if (currentMode === "create") return { mode: "create", row: null };
+    if (currentMode === "edit" && selectedRow) return { mode: "edit", row: selectedRow };
+    return { mode: "none", row: null };
+}
+
 export function useI18n(authedFetch: AuthedFetch) {
     const [rows, setRows] = useState<PlantI18nRow[]>([]);
     const [loading, setLoading] = useState(false);
@@ -156,12 +180,17 @@ export function useI18n(authedFetch: AuthedFetch) {
         setMode("view");
     }
 
-    async function save(overrides: Partial<I18nFormState> = {}): Promise<string | null> {
+    async function save(
+        overrides: Partial<I18nFormState> = {},
+        sourceRow?: PlantI18nRow,
+    ): Promise<string | null> {
         if (saving) return null;
         // Callers such as the Markdown editor may update one field and save in
-        // the same event turn. Merge that field into the request draft rather
-        // than relying on React state having committed before save() runs.
-        const draft = { ...form, ...overrides };
+        // the same event turn. Build from the supplied persisted row when
+        // available rather than relying on startEdit's state update having
+        // committed before save() runs.
+        const saveTarget = resolveI18nSaveTarget(mode, selected, sourceRow);
+        const draft = { ...(saveTarget.row ? toFormState(saveTarget.row) : form), ...overrides };
         if (!draft.plantId) {
             setError("Plant is required.");
             return null;
@@ -207,7 +236,7 @@ export function useI18n(authedFetch: AuthedFetch) {
                 throw new Error("Plant must have a numeric SQLite id.");
             }
 
-            if (mode === "create") {
+            if (saveTarget.mode === "create") {
                 const response = await authedFetch("/api/master-plants-i18n", {
                     method: "POST",
                     body: JSON.stringify(payload),
@@ -218,9 +247,9 @@ export function useI18n(authedFetch: AuthedFetch) {
                 setMode("view");
                 void load();
                 return "Translation created locally";
-            } else if (mode === "edit" && selected) {
-                if (!/^\d+$/.test(selected._id)) throw new Error("Translation does not have a numeric SQLite id.");
-                const response = await authedFetch(`/api/master-plants-i18n/${selected._id}`, {
+            } else if (saveTarget.mode === "edit") {
+                if (!/^\d+$/.test(saveTarget.row._id)) throw new Error("Translation does not have a numeric SQLite id.");
+                const response = await authedFetch(`/api/master-plants-i18n/${saveTarget.row._id}`, {
                     method: "PATCH",
                     body: JSON.stringify(payload),
                 });

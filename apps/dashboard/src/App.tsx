@@ -8,6 +8,7 @@ import { GroupManager } from "./components/GroupManager";
 import { TaxonomyManager } from "./components/TaxonomyManager";
 import { PhotoManager } from "./components/PhotoManager";
 import { LoginPage } from "./components/LoginPage";
+import { DataHealth } from "./components/DataHealth";
 import { ToastContainer, useToast } from "./components/Toast";
 
 import { usePlants } from "./hooks/usePlants";
@@ -17,6 +18,7 @@ import { usePhotos } from "./hooks/usePhotos";
 import { useI18n } from "./hooks/useI18n";
 import { useAuth } from "./hooks/useAuth";
 import { useBackendPlants } from "./hooks/useBackendPlants";
+import { useDataHealth } from "./hooks/useDataHealth";
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageKey>("plants");
@@ -29,6 +31,7 @@ export default function App() {
   const photos = usePhotos(auth.authedFetch);
   const i18n = useI18n(auth.authedFetch);
   const backend = useBackendPlants(auth.authedFetch, auth.isLoggedIn);
+  const dataHealth = useDataHealth(auth.authedFetch, auth.isLoggedIn && activePage === "data-health");
 
   // Load backend stats once auth is available.
   useEffect(() => {
@@ -107,6 +110,9 @@ export default function App() {
         )}
         {activePage === "photos" && (
           <PhotoManager ph={photos} onToast={addToast} />
+        )}
+        {activePage === "data-health" && (
+          <DataHealth health={dataHealth} isAdmin={auth.isAdmin} />
         )}
       </main>
 

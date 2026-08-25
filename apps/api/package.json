@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/apps/api/src/server.js",
     "start:dev": "tsx src/server.ts",
+    "audit:canonical-identity": "tsx ../../scripts/audit-canonical-identity.ts",
     "test": "vitest run"
   },
   "dependencies": {

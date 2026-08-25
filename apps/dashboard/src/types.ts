@@ -27,7 +27,14 @@ export type Plant = {
   family?: string;
   genus?: string;
   species?: string;
+  infraspecificRank?: string;
+  infraspecificName?: string;
   cultivar?: string;
+  identityScope?: "base" | "cultivar";
+  parentMasterPlantId?: number;
+  parentCanonicalKey?: string;
+  canonicalKey?: string;
+  canonicalIdentityComplete?: boolean;
   genusNormalized?: string;
   speciesNormalized?: string;
   cultivarNormalized?: string;
@@ -165,7 +172,14 @@ export type PlantFormState = {
   // Taxonomy (replaces scientificName free-text)
   genus: string;
   species: string;
+  infraspecificRank: string;
+  infraspecificName: string;
   cultivar: string; // empty string = base species
+  identityScope: "base" | "cultivar";
+  parentMasterPlantId: string;
+  parentCanonicalKey: string;
+  /** Existing CID-3 rows may remain legacy until reviewed/backfilled. */
+  canonicalIdentityComplete: boolean;
   // Classification
   group: string;
   basePlantId: string;
@@ -274,7 +288,7 @@ export type PhotoFormState = {
 
 export type Mode = "view" | "edit" | "create";
 
-export type PageKey = "plants" | "groups" | "photos" | "import" | "taxonomy";
+export type PageKey = "plants" | "groups" | "photos" | "import" | "taxonomy" | "data-health";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 

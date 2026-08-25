@@ -231,6 +231,9 @@ export function usePlantScanner(): UsePlantScannerResult {
         finalMasterId = detected?.match?.plantMasterId ? String(detected.match.plantMasterId) : null;
         setDetectedPlantMasterId(finalMasterId);
       } catch (error) {
+        if ((error as any)?.data?.code === 'AI_DETECTION_LIMIT_REACHED') {
+          setAiLimitError(t('planning.detect_limit_free'));
+        }
         console.error('AI detection failed:', error);
       } finally {
         setIsDetecting(false);

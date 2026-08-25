@@ -14,6 +14,7 @@ import {
 import { plantTaxonomyI18nSeed } from "./data/plantTaxonomyI18nSeed";
 import { getPlantCareI18nRowsByPlantId, upsertPlantCareI18n } from "./lib/plantCare";
 import { requireAdminServiceToken } from "./lib/adminAuth";
+import { bumpReconciliationCatalog } from "./lib/reconciliationCatalog";
 
 const MAX_BATCH = 5000;
 
@@ -111,6 +112,8 @@ async function runBackfillTaxonomy(
     }
   }
 
+  if (!dryRun && patched > 0) await bumpReconciliationCatalog(ctx);
+
   return {
     dryRun,
     totalPlants: allPlants.length,
@@ -203,6 +206,7 @@ export const removeLegacyCommonNames = internalMutation({
       if (!dryRun) {
         const { commonNames: _legacy, ...cleaned } = plant as any;
         await ctx.db.replace((plant as any)._id, cleaned);
+        await bumpReconciliationCatalog(ctx);
       }
       removed += 1;
     }
@@ -279,6 +283,7 @@ export const backfillInfraspecificCultivar = internalMutation({
         await ctx.db.patch((plant as any)._id, {
           cultivar: nextCultivar,
         });
+        await bumpReconciliationCatalog(ctx);
       }
       patched += 1;
     }
@@ -366,6 +371,10 @@ export const backfillTaxonomyI18n = mutation({
         });
       }
       updated += 1;
+    }
+
+    if (!dryRun && (inserted > 0 || updated > 0)) {
+      await bumpReconciliationCatalog(ctx, { i18n: inserted });
     }
 
     return {
@@ -493,6 +502,10 @@ async function mergePlantRecords(
 
   if (!args.dryRun) {
     await ctx.db.delete(args.legacyId);
+    await bumpReconciliationCatalog(ctx, {
+      plants: -1,
+      i18n: i18nMerged - legacyI18n.length - legacyCare.length,
+    });
   }
 
   return {

@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { Plus, Sprout, Leaf, Camera, Image as ImageIcon, X, Trash2, ArrowRight, BookOpen, Fence, Calendar, ChevronRight } from '../../../lib/icons';
 import { useQuery, useAction } from 'convex/react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../../../packages/convex/convex/_generated/api';
@@ -516,10 +516,17 @@ function GardenTabContent({
 }
 
 // ─── Planning Tab Content ─────────────────────────────────────────────────────
-function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number }) {
+function PlanningTabContent({
+    openAddSheetSignal,
+    openScannerSignal,
+}: {
+    openAddSheetSignal: number;
+    openScannerSignal: number;
+}) {
     const { t, i18n } = useTranslation();
     const theme = useTheme();
     const router = useRouter();
+    const pathname = usePathname();
     const { plants, isLoading, addPlant } = usePlants();
     const { createUserPlant, openLibrarySelect, openLibraryMatch } = useAddPlantFlow({ addPlant });
     const { beds, isLoading: isBedsLoading } = useBeds();
@@ -577,7 +584,21 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
     };
 
     const canStartAiScan = async () => {
-        if (!canCreatePlant) return false;
+        if (isAuthLoading) return false;
+        if (!isAuthenticated) {
+            Alert.alert(
+                t('profile.auth_sign_in'),
+                t('planning.scanner_signin_required'),
+                [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    {
+                        text: t('profile.auth_sign_in'),
+                        onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }),
+                    },
+                ]
+            );
+            return false;
+        }
         if (!isPremium && !aiSessionActive) {
             if (!aiDetectorKey) {
                 setAiLimitError(t('common.error'));
@@ -657,6 +678,9 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                 setDetectedName(res.match.name);
             }
         } catch (err) {
+            if ((err as any)?.data?.code === 'AI_DETECTION_LIMIT_REACHED') {
+                setAiLimitError(t('planning.detect_limit_free'));
+            }
             console.error('Detection failed:', err);
         } finally {
             setIsDetecting(false);
@@ -723,8 +747,9 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         await applyPickedImage(result);
     };
 
-    const handleCapture = () => {
-        if (!canCreatePlant) return;
+    const handleCapture = async () => {
+        const canStart = await canStartAiScan();
+        if (!canStart) return;
         setAiLimitError('');
         if (photoOpen) closePhotoSheet();
         if (sheetOpen) closeQuickSheet();
@@ -737,7 +762,11 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         const unknown = t('planning.unknown_plant');
         const hasDetectedName = detected.length > 0 && normalize(detected) !== normalize(unknown);
         if (hasDetectedName) {
-            const matchedPlant = findLibraryMatchByName(detected);
+            const detectedMasterId = detectionResults?.match?.plantMasterId;
+            const matchedPlant = detectedMasterId
+                ? libraryPlants.find((plant: any) => String(plant._id) === String(detectedMasterId))
+                    ?? findLibraryMatchByName(detected)
+                : findLibraryMatchByName(detected);
             if (matchedPlant) {
                 closePhotoSheet();
                 openLibraryMatch(String(matchedPlant._id), {
@@ -787,6 +816,13 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
         setAiLimitError('');
         setSheetOpen(true);
     }, [openAddSheetSignal, canCreatePlant]);
+
+    useEffect(() => {
+        if (openScannerSignal <= 0) return;
+        void handleCapture();
+        // The signal is an explicit one-shot request from the parent route.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openScannerSignal, isAuthLoading]);
 
     useFocusEffect(
         useCallback(() => {
@@ -884,7 +920,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                         </TouchableOpacity>
                         <TouchableOpacity
                             disabled={!canCreatePlant}
-                            onPress={handleCapture}
+                            onPress={() => { void handleCapture(); }}
                             testID="e2e-planning-option-camera"
                             style={{ backgroundColor: theme.background, borderRadius: 18, padding: 16, borderWidth: 1, borderColor: theme.border, opacity: !canCreatePlant ? 0.6 : 1 }}
                         >
@@ -999,6 +1035,12 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                         <Text style={{ fontSize: 12, color: theme.textSecondary }}>{t('planning.detect_hint')}</Text>
                     )}
 
+                    {!!aiLimitError && (
+                        <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
+                            <Text style={{ color: theme.danger, fontSize: 12 }}>{aiLimitError}</Text>
+                        </View>
+                    )}
+
                     <TextInput
                         ref={detectedNameInputRef}
                         testID="e2e-garden-planning-detected-name"
@@ -1008,6 +1050,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                         value={detectedName}
                         onChangeText={(value) => {
                             setDetectedName(value);
+                            setDetectionResults(null);
                             if (detectNoMatch) setDetectNoMatch(false);
                         }}
                     />
@@ -1016,7 +1059,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                             <Text style={{ fontSize: 12, color: theme.warning, textAlign: 'center' }}>{t('planning.detect_not_found')}</Text>
                             <TouchableOpacity
                                 style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
-                                onPress={handleCapture}
+                                onPress={() => { void handleCapture(); }}
                             >
                                 <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
                             </TouchableOpacity>
@@ -1045,7 +1088,7 @@ function PlanningTabContent({ openAddSheetSignal }: { openAddSheetSignal: number
                         </View>
                     )}
                     <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <TouchableOpacity disabled={!canCreatePlant || isDetecting} onPress={canCreatePlant ? handleCapture : undefined} style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canCreatePlant || isDetecting) ? 0.5 : 1 }}>
+                        <TouchableOpacity disabled={!canCreatePlant || isDetecting} onPress={canCreatePlant ? () => { void handleCapture(); } : undefined} style={{ flex: 1, backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canCreatePlant || isDetecting) ? 0.5 : 1 }}>
                             <Text style={{ color: theme.textAccent, fontWeight: '600' }}>{t('planning.detect_retake')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity disabled={!canCreatePlant || photoSaving || isDetecting} onPress={handleSavePhotoPlant} style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: (!canCreatePlant || photoSaving || isDetecting) ? 0.5 : 1 }}>
@@ -1217,6 +1260,7 @@ function FarmerGardenScreen() {
     const [activeTab, setActiveTab] = useState<GardenTab>('garden');
     const [showCreate, setShowCreate] = useState(false);
     const [openAddSheetSignal, setOpenAddSheetSignal] = useState(0);
+    const [openScannerSignal, setOpenScannerSignal] = useState(0);
     const [gardenLimitError, setGardenLimitError] = useState('');
     const scannerHandledRef = useRef(false);
     const unitSystem = useUnitSystem();
@@ -1284,7 +1328,7 @@ function FarmerGardenScreen() {
         if (scannerHandledRef.current) return;
         scannerHandledRef.current = true;
         setActiveTab('planning');
-        setOpenAddSheetSignal((v) => v + 1);
+        setOpenScannerSignal((v) => v + 1);
     }, [params.scanner]);
 
     return (
@@ -1335,7 +1379,12 @@ function FarmerGardenScreen() {
                         <GardenTabContent onCreateGarden={handleOpenCreateGarden} canCreateGarden={canCreateGarden} unitSystem={unitSystem} unassignedBy="bed" />
                     </>
                 )}
-                {activeTab === 'planning' && <PlanningTabContent openAddSheetSignal={openAddSheetSignal} />}
+                {activeTab === 'planning' && (
+                    <PlanningTabContent
+                        openAddSheetSignal={openAddSheetSignal}
+                        openScannerSignal={openScannerSignal}
+                    />
+                )}
                 {activeTab === 'growing' && <GrowingTabContent />}
             </ScrollView>
 
