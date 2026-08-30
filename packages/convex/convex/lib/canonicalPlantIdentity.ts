@@ -22,4 +22,3 @@ export function canonicalKeyForConvexPlant(input: ConvexCanonicalPlantIdentityIn
 export function normalizeConvexPlantIdentity(input: ConvexCanonicalPlantIdentityInput): ConvexCanonicalPlantIdentity {
   return normalizeCanonicalPlantIdentity(input);
 }
-

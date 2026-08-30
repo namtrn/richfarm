@@ -15,4 +15,3 @@ describe("canonical identity audit CLI path contract", () => {
     expect(resolveRepositoryPath("/tmp/cid-report.json")).toBe("/tmp/cid-report.json");
   });
 });
-

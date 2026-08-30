@@ -27,4 +27,3 @@ describe("Convex canonical identity adapter", () => {
     expect(JSON.stringify(input)).toBe(before);
   });
 });
-
