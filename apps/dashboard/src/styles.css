@@ -1537,3 +1537,36 @@ tr.row-checked {
 .badge-active { background: #e6f7ee; color: #1a7f4a; }
 .badge-archived { background: #f5e6e6; color: #a33; }
 .badge-translation { background: #eef2f7; color: #4a5b70; border-color: #d5dde6; }
+
+/* Content Inbox (MCD-6) */
+.content-monitor-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
+}
+.pill.ok { background: #dcfce7; color: #166534; }
+.pill.warn { background: #fef3c7; color: #92400e; }
+.pill.passive { background: #e0e7ff; color: #3730a3; }
+.pill.muted { background: #e5e7eb; color: #4b5563; }
+.badge-pending { background: #fef3c7; color: #92400e; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.75rem; }
+.badge-approved { background: #dbeafe; color: #1e40af; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.75rem; }
+.badge-blocked { background: #fee2e2; color: #991b1b; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.75rem; }
+.badge-superseded { background: #f3f4f6; color: #6b7280; border-radius: 999px; padding: 0.1rem 0.55rem; font-size: 0.75rem; }
+.inbox-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; }
+.inbox-reason { min-width: 220px; }
+.inbox-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 0.75rem; }
+@media (max-width: 900px) { .inbox-grid { grid-template-columns: 1fr; } }
+.inbox-list { width: 100%; border-collapse: collapse; }
+.inbox-list th, .inbox-list td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid #eee; font-size: 0.85rem; word-break: break-word; }
+.inbox-list tbody tr { cursor: pointer; }
+.inbox-list tbody tr.selected { background: #f0fdf4; }
+.inbox-preview h3 { word-break: break-all; font-size: 0.95rem; }
+.preview-meta { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.6rem; font-size: 0.8rem; }
+.preview-meta dt { color: #6b7280; }
+.diff-box { max-height: 180px; overflow: auto; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0.5rem; font-size: 0.78rem; white-space: pre-wrap; }
+.identity-json { font-size: 0.75rem; background: #f8fafc; border-radius: 6px; padding: 0.35rem 0.5rem; }
+.preview-findings { list-style: none; padding: 0; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.error-text { color: #b91c1c; }
+.muted-text { color: #6b7280; font-size: 0.82rem; }

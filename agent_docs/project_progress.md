@@ -1,5 +1,152 @@
 # Project Progress
 
+## Active package: MCD-2026-08-25 — Markdown content change detection and review inbox
+
+Status: MCD-1–MCD-7 complete — full plan implemented, measured on the real
+50k fixture, and locally verified (Medium route, no worker subagents,
+2026-08-25)
+
+Goal: implement `content/plans/2026-08-25-markdown-content-change-detection-plan.md`
+— durable Git Markdown change detection into SQLite and a dashboard review
+inbox, with no automatic import or Convex publication.
+
+Constraints:
+
+- Heavy route per plan handoff, but executed by the main agent only (no
+  worker subagents available this session).
+- Detection never writes plant/content rows, findings, or outbox entries.
+- Production Convex remains untouched.
+
+Completed (verified):
+
+- MCD-1: pinned contracts + path rules + contract tests (10) + gitignored
+  50k perf fixture generator (`scripts/generate-content-source-perf-fixture.ts`).
+- MCD-2: additive SQLite schema (8 `content_*` tables) + repository layer
+  (idempotent index, durable journal, checkpoints, quarantine, lease,
+  scoped watermarks, disabled-by-default retention with backup/rebuild proof).
+- MCD-3: `scanner.ts` — bounded per-shard reconciliation with metadata-first
+  fast path, vanished-shard deletion sweep (whole-directory deletes/renames),
+  manifest-neighborhood revalidation (manifest_changed events; digest-drift
+  warnings), atomic one-time legacy baseline without inbox events, blocking
+  post-baseline missing-manifest discoveries, rename pairing on exact digest
+  in either discovery order, shard quarantine isolation (clean shards still
+  commit), and a budgeted/resumable full-hash audit window (per-root cursors,
+  catches mtime+size-preserving edits metadata reconcile provably misses).
+- MCD-4: watcher dependency decision recorded — `chokidar` v4 pinned
+  `4.0.3` exact over `@parcel/watcher` (no native build/deploy cost; queue
+  owns backpressure since chokidar has no native overflow signal). Adapter +
+  bounded debounce queue (overflow flushes, never drops, counts degradation).
+  `monitor.ts` lifecycle: baseline → catch-up → lease-gated watching with
+  single active owner, expiry-based takeover, renewal failure demotion,
+  periodic reconcile + hourly audit ticks, graceful stop releasing handles
+  and leases before SQLite closes, health snapshot with degraded reasons.
+  Wired into `server.ts`; `CONTENT_SOURCE_MONITOR_ENABLED=false` disables;
+  real-chokidar smoke verified event delivery and clean close.
+- Verification: content-source suites 58/58 PASS (contract 10, repository
+  23, retention 5, scanner 13, monitor 7); API build PASS; tsc shows zero
+  non-preexisting errors; `git diff --check` PASS. The 15 pre-existing test
+  failures (care-content-migration/generic-data/master-plants/
+  plant-geography/phase3) were reproduced identically with this package
+  stashed earlier — worktree issue, unrelated.
+
+- Post-review hardening (external MCD-1–4 review, all five findings fixed
+  with regression tests): (1) lease-first startup — baseline/catch-up/
+  reconcile/audit now run only while EVERY root lease is held; a failed
+  acquirer goes straight to passive and writes zero detector state; one-time
+  initialization is deferred until first ownership (also covering takeover).
+  (2) Multi-root acquisition is all-or-nothing with rollback, so a partial
+  failure can never leave half-held leases blocking takeover. (3) Debounce
+  queue always re-arms its timer after an overflow push, so the final
+  candidate can no longer sit unflushed forever. (4) monitor.stop() truly
+  awaits the watcher adapter close before releasing ownership; server
+  shutdown order watcher→SQLite is enforced. (5) Full-hash audit tracks a
+  per-root cycle-error marker: unreadable files make the run incomplete,
+  cycleComplete stays false across windows until a clean wrap; successful
+  re-hash auto-resolves that path's quarantine.
+- Verification after fixes: content-source suites 63/63 PASS (contract 10,
+  repository 23, retention 5, scanner 14, monitor 11); content-manifests
+  regression 13/13 PASS; API build PASS; zero non-preexisting tsc errors;
+  `git diff --check` PASS.
+
+- MCD-5: review service + routes. `content-source/review-service.ts`
+  implements per-item independent batch approval (one scoped proposal per
+  batch; invalid items reported individually), readable preview
+  (incoming Git bytes vs current SQLite staging, manifest identity,
+  findings), dismissal with actor audit, and the full apply gate chain:
+  live event states → scoped index watermark → fresh disk re-hash of every
+  scope path → `dryRunContentImport()` identity/validation → existing
+  transactional `applyContentImport()`; post-apply the detector index is
+  refreshed so reconcile does not re-report the applied change.
+  `content-source/review-routes.ts` mounts
+  `/api/content-review/{events,preview,approve,dismiss,apply,monitor-status}`
+  behind `requireRole(["admin","editor"])`; monitor health is injected from
+  server.ts. Rejection codes: PROPOSAL_NOT_FOUND/NOT_READY,
+  NO_APPROVED_EVENTS, APPROVED_EVENT_SUPERSEDED, SCOPE_EVIDENCE_CHANGED,
+  SCOPE_FILE_MISSING/CHANGED_ON_DISK, DRY_RUN_BLOCKED, IMPORT_REJECTED.
+  Authoring-workflow note encoded in tests: locale edits require manifest
+  regeneration as a reviewed replacement (CID-6 conflict-resolution) before
+  approval can apply — the importer's hash-binding contract is preserved,
+  not bypassed.
+- Verification after MCD-5: focused suites 86/86 PASS (contract 10,
+  repository 23, retention 5, scanner 14, monitor 13, review 8,
+  content-manifests 13); API build PASS; zero non-preexisting tsc errors;
+  `git diff --check` PASS; full API suite failures remain exactly the 15
+  pre-existing ones in care-content-migration/generic-data/master-plants/
+  plant-geography/phase3 (proven pre-existing via stash earlier).
+
+- MCD-6: dashboard Content Inbox + Data Health integration.
+  `contentReview.ts` mirrors the API contract (snake_case events, monitor
+  health) with pure helpers (query builder, badge/phase classes, detector
+  labels) and pins `CONTENT_INBOX_POLL_INTERVAL_MS = 15s` — bounded polling
+  at half the 30-second visibility SLA. `useContentInbox` provides filters,
+  stale-response-guarded polling, selection/preview, approve/dismiss/apply
+  with per-action error surfacing; `useContentMonitorStatus` polls
+  `/monitor-status` at 30s. `ContentInbox.tsx` renders a monitor strip
+  (phase pill incl. explicit "passive" note, degraded-reason chips, audit
+  age, quarantine count), filter toolbar + reason field, event table with
+  state badges and coalesce counts, and a preview panel (incoming Git bytes
+  vs SQLite staging, identity, findings). Admin-only mutation buttons render
+  disabled for non-admins. Data Health page gains
+  `ContentSourceHealthBadge`; nav adds "Content Inbox".
+- Verification after MCD-6: dashboard tests 31/31 PASS (7 new), dashboard
+  tsc + production build PASS; API focused suites 73/73 PASS;
+  `git diff --check` PASS.
+
+- MCD-7: measured on the real 50,000-file fixture via the repeatable harness
+  `scripts/content-source-perf-run.ts` (JSON metrics under
+  `artifacts/perf/metrics-*.json`, structured detector logs on stdout).
+  Measured numbers (before → after fixes found BY these logs):
+  initial index (baseline+catch-up) 114s → **8.7s**; periodic reconcile of
+  50k files 120s → **3.0s**; steady-state single-file edit 123s → **3.1s**
+  with `filesHashed=1` (criterion met); 500-file burst 121s → **3.3s**
+  (500 durable events); full-hash audit cycle 50k in ~14.8s (~3,400
+  files/s), restart-resume cursor drill proven at scale; retention
+  compaction deletes 15,000/20,000 synthetic terminal rows in <0.5s and
+  VACUUM shrinks 38→29 MB; peak RSS ≈ 870 MB during baseline transaction.
+  Root cause the logs exposed: per-shard `LIKE 'prefix%'` cannot use a
+  BINARY index, degenerating into a full table scan PER SHARD (25k shards ×
+  50k rows); replaced with range bounds on the unique path index plus one
+  outer transaction per root with savepoint-per-shard (autocommit fsyncs
+  also removed). `FULL_HASH_AUDIT_DEFAULT_BUDGET.maxFilesPerWindow` tuned
+  from measurement: 20,000 files per 10-minute hourly window (three windows
+  cover a 50k cycle). Regression guards added: EXPLAIN QUERY PLAN must use
+  the path index for shard lookups, and reconcile hashing stays at
+  edited-file minimum.
+- Verification final: API suites — focused content-source 73/73 + review 8/8
+  within 179 passed / 15 pre-existing failures unchanged; dashboard 31/31 +
+  build PASS; API build PASS; zero non-preexisting tsc errors;
+  `git diff --check` PASS.
+
+Remaining operational notes: reconcile floor is now a full-tree walk
+(~3s at 25k entity dirs) which is acceptable for the periodic safety net
+(the live watcher covers real-time changes); directory-mtime pruning is a
+future optimization if trees grow far beyond 10k entities. SQLite freelist
+after compaction is reclaimed by the documented VACUUM step in maintenance.
+
+Next: package the completed MCD-1–MCD-7 implementation into a clean commit/PR.
+Before publishing or deploying, review the scoped diff and keep production
+Convex/data mutation behind a separate explicit authorization.
+
 ## Active package: GEOGRAPHY-R1-2026-08-12 — Plant geography/adaptation Release 1
 
 Status: Stages A + B + C complete and verified (dev `fantastic-beagle-190`);

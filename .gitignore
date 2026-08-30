@@ -46,4 +46,5 @@ ios/Podfile.lock
 # Expo logs
 expo_out*.txt
 artifacts/e2e/
+artifacts/perf/
 .gstack/

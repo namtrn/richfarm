@@ -5,9 +5,11 @@ import path from "path";
 import { ConvexSyncService } from "./convex-sync";
 import { createApp } from "./app";
 import { createDatabase, ensureBootstrapAdmin } from "./db";
+import { createContentSourceMonitor, resolveRepositoryRoot } from "./content-source/monitor";
 
 const port = Number(process.env.PORT ?? 4000);
 const dbPath = process.env.DB_PATH ?? path.resolve(process.cwd(), "data/richfarm.db");
+const repositoryRoot = resolveRepositoryRoot();
 const jwtSecret = process.env.JWT_SECRET?.trim() || (
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
     ? crypto.randomBytes(32).toString("hex")
@@ -21,6 +23,19 @@ if (!jwtSecret) {
 
 const db = createDatabase(dbPath);
 ensureBootstrapAdmin(db, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD);
+
+const contentSourceMonitor = createContentSourceMonitor({
+  db,
+  config: {
+    repositoryRoot,
+    enabled: process.env.CONTENT_SOURCE_MONITOR_ENABLED !== "false",
+    instanceId: process.env.CONTENT_SOURCE_INSTANCE_ID ?? crypto.randomUUID(),
+  },
+});
+void contentSourceMonitor.start().catch((error) => {
+  // eslint-disable-next-line no-console
+  console.error("Content source monitor failed to start:", error);
+});
 
 const syncService = new ConvexSyncService({
   deployUrl: process.env.CONVEX_URL,
@@ -36,6 +51,7 @@ const app = createApp(db, {
     jwtExpiresIn,
   },
   syncService,
+  getMonitorHealth: () => contentSourceMonitor.getStatus(),
 });
 
 const server = app.listen(port, "0.0.0.0", () => {
@@ -74,7 +90,9 @@ const server = app.listen(port, "0.0.0.0", () => {
   console.log(`Convex admin proxy: ${formatReadiness(convexReadiness.adminProxy.enabled, convexReadiness.adminProxy.missing)}`);
 });
 
-function shutdown() {
+async function shutdown() {
+  // Watcher handles and timers must close before SQLite does.
+  await contentSourceMonitor.stop().catch(() => undefined);
   server.close(() => {
     db.close();
     process.exit(0);

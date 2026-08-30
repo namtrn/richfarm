@@ -15,10 +15,13 @@ import { createConvexAdminRouter } from "./convex-admin";
 import { createAdaptationTermsRouter } from "./adaptation-terms";
 import { adaptationTermsHealth } from "./master-plants";
 import { createSyncReconciliationRouter } from "./sync-reconciliation";
+import { createContentReviewRouter } from "./content-source/review-routes";
+import { resolveRepositoryRoot } from "./content-source/monitor";
 
 interface CreateAppOptions {
   auth: AuthConfig;
   syncService?: ConvexSyncService;
+  getMonitorHealth?: () => unknown;
 }
 
 function getHealthConvexReadiness(syncService?: ConvexSyncService): ConvexReadiness {
@@ -137,6 +140,16 @@ export function createApp(db: SqliteDatabase, options: CreateAppOptions) {
     authMiddleware,
     requireRole(["admin", "editor"]),
     createSyncReconciliationRouter(db, options.syncService),
+  );
+  app.use(
+    "/api/content-review",
+    authMiddleware,
+    requireRole(["admin", "editor"]),
+    createContentReviewRouter({
+      db,
+      repositoryRoot: resolveRepositoryRoot(),
+      getMonitorHealth: options.getMonitorHealth,
+    }),
   );
   app.use(
     "/api",

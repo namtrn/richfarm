@@ -7,6 +7,7 @@ const NAV_ITEMS: { key: PageKey; label: string; icon: string }[] = [
     { key: "taxonomy", label: "Taxonomy", icon: "🏷️" },
     { key: "photos", label: "Photos", icon: "📸" },
     { key: "data-health", label: "Data Health", icon: "🩺" },
+    { key: "content-inbox", label: "Content Inbox", icon: "📥" },
 ];
 
 export function Sidebar({

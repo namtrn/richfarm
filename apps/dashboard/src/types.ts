@@ -288,7 +288,7 @@ export type PhotoFormState = {
 
 export type Mode = "view" | "edit" | "create";
 
-export type PageKey = "plants" | "groups" | "photos" | "import" | "taxonomy" | "data-health";
+export type PageKey = "plants" | "groups" | "photos" | "import" | "taxonomy" | "data-health" | "content-inbox";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 

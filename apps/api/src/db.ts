@@ -6,6 +6,7 @@ import Database from "better-sqlite3";
 import crypto from "crypto";
 
 import { isLegacyTextShape, legacyCareJsonToMarkdown } from "../../../packages/shared/src/careContentLegacy";
+import { ensureContentSourceSchema } from "./content-source/schema";
 import { isSafeIdentifier } from "./sql-utils";
 import { ensureSqliteCanonicalIdentitySchema } from "./sqlite-canonical-identity";
 
@@ -370,6 +371,9 @@ function runMigrations(db: SqliteDatabase): void {
   `);
 
   ensureSyncControlPlaneSchema(db);
+  // MCD-2 additive content-source index/journal. Detection state only; it
+  // never writes plant, finding, or outbox rows.
+  ensureContentSourceSchema(db);
 
   // Keep older local SQLite files compatible as new plant metadata fields are introduced.
   ensureColumn(db, "master_plants", "source_system", `source_system TEXT NOT NULL DEFAULT 'sqlite'`);
