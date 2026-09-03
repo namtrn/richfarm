@@ -341,26 +341,100 @@ async function seedPlantsAndI18n(
 // ==========================================
 // Seed Plant Groups
 // ==========================================
-export const seedPlantGroups = internalMutation({
-    args: {},
-    handler: async (ctx) => {
-        const groups = plantGroupsSeed;
+const LEGACY_PLANT_GROUP_VI: Record<string, string> = {
+    herbs: "Cay gia vi",
+    vegetables: "Rau cu",
+    fruits: "Cay an trai",
+    nightshades: "Ho ca",
+    alliums: "Ho hanh toi",
+    leafy_greens: "Rau an la",
+    roots: "Rau cu an re",
+    legumes: "Cay ho dau",
+    indoor: "Cay trong nha",
+    flowers: "Hoa canh",
+};
 
-        let count = 0;
-        for (const group of groups) {
-            const existing = await ctx.db
-                .query("plantGroups")
-                .withIndex("by_key", (q) => q.eq("key", group.key))
-                .unique();
+function sameStringRecord(left: Record<string, string>, right: Record<string, string>) {
+    const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+    return [...keys].every((key) => left[key] === right[key]);
+}
 
-            if (!existing) {
+function nextPlantGroupDisplayName(
+    existing: Record<string, string> | undefined,
+    seed: (typeof plantGroupsSeed)[number],
+) {
+    const current = existing ?? {};
+    const currentVi = current.vi?.trim();
+    const shouldReplaceVi = !currentVi || currentVi === LEGACY_PLANT_GROUP_VI[seed.key];
+
+    return {
+        ...current,
+        ...(shouldReplaceVi ? { vi: seed.displayName.vi } : {}),
+        ...(current.en?.trim() ? {} : { en: seed.displayName.en }),
+    };
+}
+
+async function syncPlantGroups(ctx: any, options: { dryRun?: boolean } = {}) {
+    const dryRun = options.dryRun ?? false;
+    let inserted = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const group of plantGroupsSeed) {
+        const existing = await ctx.db
+            .query("plantGroups")
+            .withIndex("by_key", (q: any) => q.eq("key", group.key))
+            .unique();
+
+        if (!existing) {
+            if (!dryRun) {
                 await ctx.db.insert("plantGroups", group);
-                count++;
+                await bumpReconciliationCatalog(ctx);
             }
+            inserted++;
+            continue;
         }
 
-        return { inserted: count, total: groups.length };
+        const displayName = nextPlantGroupDisplayName(existing.displayName, group);
+        const needsUpdate =
+            !sameStringRecord(existing.displayName ?? {}, displayName) ||
+            existing.sortOrder !== group.sortOrder;
+        if (needsUpdate) {
+            if (!dryRun) {
+                await ctx.db.patch(existing._id, {
+                    displayName,
+                    sortOrder: group.sortOrder,
+                });
+                await bumpReconciliationCatalog(ctx);
+            }
+            updated++;
+            continue;
+        }
+
+        skipped++;
+    }
+
+    return {
+        dryRun,
+        inserted,
+        updated,
+        skipped,
+        total: plantGroupsSeed.length,
+    };
+}
+
+export const seedPlantGroups = internalMutation({
+    args: {},
+    handler: async (ctx) => await syncPlantGroups(ctx),
+});
+
+// Patch displayName/sortOrder cho các plantGroups đã tồn tại theo seed hiện hành
+// Chạy: npx convex run seed:syncPlantGroupNames '{"dryRun":true}'
+export const syncPlantGroupNames = internalMutation({
+    args: {
+        dryRun: v.optional(v.boolean()),
     },
+    handler: async (ctx, args) => await syncPlantGroups(ctx, { dryRun: args.dryRun }),
 });
 
 // ==========================================
@@ -495,19 +569,7 @@ export const seedAll = internalMutation({
     args: {},
     handler: async (ctx) => {
         // --- Seed Plant Groups ---
-        const groupDefs = plantGroupsSeed;
-
-        let groupsInserted = 0;
-        for (const group of groupDefs) {
-            const existing = await ctx.db
-                .query("plantGroups")
-                .withIndex("by_key", (q) => q.eq("key", group.key))
-                .unique();
-            if (!existing) {
-                await ctx.db.insert("plantGroups", group);
-                groupsInserted++;
-            }
-        }
+        const groupStats = await syncPlantGroups(ctx);
 
         // --- Seed Plants + Plant I18n ---
         const plantsStats = await seedPlantsAndI18n(ctx, { includeTaxonomyI18n: true });
@@ -534,7 +596,7 @@ export const seedAll = internalMutation({
         const adaptationStats = await seedAdaptationTermsAll(ctx);
 
         return {
-            groups: { inserted: groupsInserted, total: groupDefs.length },
+            groups: groupStats,
             ...plantsStats,
             pestsDiseases: {
                 inserted: pestsDiseasesInserted,

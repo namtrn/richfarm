@@ -3,16 +3,16 @@
 import { plantI18nLocaleSeed } from "./plantI18n";
 
 export const plantGroupsSeed = [
-    { key: "herbs", displayName: { en: "Herbs", vi: "Cay gia vi" }, sortOrder: 1 },
-    { key: "vegetables", displayName: { en: "Vegetables", vi: "Rau cu" }, sortOrder: 2 },
-    { key: "fruits", displayName: { en: "Fruits", vi: "Cay an trai" }, sortOrder: 3 },
-    { key: "nightshades", displayName: { en: "Nightshades", vi: "Ho ca" }, sortOrder: 4 },
-    { key: "alliums", displayName: { en: "Alliums", vi: "Ho hanh toi" }, sortOrder: 5 },
-    { key: "leafy_greens", displayName: { en: "Leafy Greens", vi: "Rau an la" }, sortOrder: 6 },
-    { key: "roots", displayName: { en: "Root Vegetables", vi: "Rau cu an re" }, sortOrder: 7 },
-    { key: "legumes", displayName: { en: "Legumes", vi: "Cay ho dau" }, sortOrder: 8 },
-    { key: "indoor", displayName: { en: "Indoor Plants", vi: "Cay trong nha" }, sortOrder: 9 },
-    { key: "flowers", displayName: { en: "Flowers", vi: "Hoa canh" }, sortOrder: 10 },
+    { key: "herbs", displayName: { en: "Herbs", vi: "Rau gia vị" }, sortOrder: 1 },
+    { key: "vegetables", displayName: { en: "Vegetables", vi: "Rau củ" }, sortOrder: 2 },
+    { key: "fruits", displayName: { en: "Fruits", vi: "Cây ăn trái" }, sortOrder: 3 },
+    { key: "nightshades", displayName: { en: "Nightshades", vi: "Họ cà" }, sortOrder: 4 },
+    { key: "alliums", displayName: { en: "Alliums", vi: "Họ hành tỏi" }, sortOrder: 5 },
+    { key: "leafy_greens", displayName: { en: "Leafy Greens", vi: "Rau ăn lá" }, sortOrder: 6 },
+    { key: "roots", displayName: { en: "Root Vegetables", vi: "Cây lấy củ" }, sortOrder: 7 },
+    { key: "legumes", displayName: { en: "Legumes", vi: "Cây họ đậu" }, sortOrder: 8 },
+    { key: "indoor", displayName: { en: "Indoor Plants", vi: "Cây trong nhà" }, sortOrder: 9 },
+    { key: "flowers", displayName: { en: "Flowers", vi: "Hoa kiểng" }, sortOrder: 10 },
 ];
 
 const SQ_CM_PER_M2 = 10000;
