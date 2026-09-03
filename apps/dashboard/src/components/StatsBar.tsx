@@ -53,15 +53,15 @@ export function StatsBar({
     ];
 
     return (
-        <div className="stats-bar">
+        <div className="stats-bar" aria-label="Plant summary">
             {cards.map((card) => (
-                <div key={card.label} className="stat-card">
-                    <div className="stat-card-icon" style={{ background: card.color }}>
+                <div key={card.label} className="stat-item">
+                    <div className="stat-item-icon" style={{ background: card.color }}>
                         {card.icon}
                     </div>
-                    <div className="stat-card-body">
-                        <span className="stat-card-value">{card.value}</span>
-                        <span className="stat-card-label">{card.label}</span>
+                    <div className="stat-item-body">
+                        <span className="stat-item-value">{card.value}</span>
+                        <span className="stat-item-label">{card.label}</span>
                     </div>
                 </div>
             ))}

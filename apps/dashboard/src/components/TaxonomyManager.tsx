@@ -18,6 +18,19 @@ const DIMENSION_LABELS: Record<string, string> = {
     season: "Season",
 };
 
+const LOCALE_META: Record<string, { label: string; flag: string }> = {
+    vi: { label: "Vietnamese", flag: "🇻🇳" },
+    en: { label: "English", flag: "🇬🇧" },
+};
+
+function localeLabel(locale: string): string {
+    return LOCALE_META[locale]?.label ?? locale.toUpperCase();
+}
+
+function localeFlag(locale: string): string {
+    return LOCALE_META[locale]?.flag ?? "🌐";
+}
+
 function translationStatusOf(term: AdaptationTerm, locale: string): string {
     return term.translations.find((translation) => translation.locale === locale)?.translationStatus ?? "missing";
 }
@@ -31,6 +44,22 @@ export function TaxonomyManager({
     isAdmin: boolean;
     onToast: (type: "success" | "error", msg: string) => void;
 }) {
+    const translationLocales = Array.from(
+        new Set(t.terms.flatMap((term) => term.translations.map((translation) => translation.locale))),
+    ).sort((a, b) => {
+        const preferredOrder = ["vi", "en"];
+        const aIndex = preferredOrder.indexOf(a);
+        const bIndex = preferredOrder.indexOf(b);
+        if (aIndex !== -1 || bIndex !== -1) {
+            return (aIndex === -1 ? preferredOrder.length : aIndex) - (bIndex === -1 ? preferredOrder.length : bIndex);
+        }
+        return a.localeCompare(b);
+    });
+
+    if (translationLocales.length === 0) {
+        translationLocales.push("vi", "en");
+    }
+
     async function handleSave() {
         const msg = await t.save();
         if (msg) onToast("success", msg);
@@ -48,8 +77,6 @@ export function TaxonomyManager({
     }
 
     function renderTermRow(term: AdaptationTerm) {
-        const vi = term.translations.find((translation) => translation.locale === "vi");
-        const en = term.translations.find((translation) => translation.locale === "en");
         return (
             <tr
                 key={term._id}
@@ -62,18 +89,20 @@ export function TaxonomyManager({
                         {term.status === "archived" ? <span className="badge-archived">archived</span> : <span className="badge-active">active</span>}
                     </div>
                 </td>
-                <td>
-                    <div className="row-title">🇻🇳 {vi?.label ?? "—"}</div>
-                    <div className="row-sub">{TRANSLATION_STATUS_LABELS[translationStatusOf(term, "vi")] ?? "—"}</div>
-                </td>
-                <td>
-                    <div className="row-title">🇬🇧 {en?.label ?? "—"}</div>
-                    <div className="row-sub">{TRANSLATION_STATUS_LABELS[translationStatusOf(term, "en")] ?? "—"}</div>
-                </td>
+                {translationLocales.map((locale) => {
+                    const translation = term.translations.find((item) => item.locale === locale);
+                    return (
+                        <td key={locale}>
+                            <div className="row-title">{localeFlag(locale)} {translation?.label ?? "—"}</div>
+                            <div className="row-sub">{TRANSLATION_STATUS_LABELS[translationStatusOf(term, locale)] ?? "—"}</div>
+                        </td>
+                    );
+                })}
                 <td>{term.usageCount}</td>
                 <td>{term.sortOrder}</td>
-                <td>
+                <td className="taxonomy-action-cell">
                     <button
+                        type="button"
                         className="btn ghost"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -136,12 +165,22 @@ export function TaxonomyManager({
                                     <h4>{DIMENSION_LABELS[group.dimension] ?? group.dimension}</h4>
                                     <span className="muted">{group.terms.length} terms</span>
                                 </div>
-                                <table>
+                                <table className="taxonomy-table">
+                                    <colgroup>
+                                        <col style={{ width: "15%" }} />
+                                        {translationLocales.map((locale) => (
+                                            <col key={locale} style={{ width: `calc((100% - 43%) / ${translationLocales.length})` }} />
+                                        ))}
+                                        <col style={{ width: "9%" }} />
+                                        <col style={{ width: "9%" }} />
+                                        <col style={{ width: "10%" }} />
+                                    </colgroup>
                                     <thead>
                                         <tr>
                                             <th>Code</th>
-                                            <th>Vietnamese</th>
-                                            <th>English</th>
+                                            {translationLocales.map((locale) => (
+                                                <th key={locale}>{localeLabel(locale)}</th>
+                                            ))}
                                             <th>Usage</th>
                                             <th>Order</th>
                                             <th></th>
@@ -202,36 +241,22 @@ export function TaxonomyManager({
                                     </p>
                                 </div>
                                 <div className="i18n-grid">
-                                    <div className="i18n-lang-card">
-                                        <div className="i18n-lang-header">
-                                            <span className="i18n-flag">🇻🇳</span>
-                                            <span className="i18n-lang-name">Vietnamese</span>
-                                            <span className="badge-translation">
-                                                {TRANSLATION_STATUS_LABELS[translationStatusOf(t.selected, "vi")] ?? "—"}
-                                            </span>
-                                        </div>
-                                        <p className="i18n-common-name">
-                                            {t.selected.translations.find((translation) => translation.locale === "vi")?.label ?? "—"}
-                                        </p>
-                                        <p className="i18n-desc">
-                                            {t.selected.translations.find((translation) => translation.locale === "vi")?.description ?? "No description"}
-                                        </p>
-                                    </div>
-                                    <div className="i18n-lang-card">
-                                        <div className="i18n-lang-header">
-                                            <span className="i18n-flag">🇬🇧</span>
-                                            <span className="i18n-lang-name">English</span>
-                                            <span className="badge-translation">
-                                                {TRANSLATION_STATUS_LABELS[translationStatusOf(t.selected, "en")] ?? "—"}
-                                            </span>
-                                        </div>
-                                        <p className="i18n-common-name">
-                                            {t.selected.translations.find((translation) => translation.locale === "en")?.label ?? "—"}
-                                        </p>
-                                        <p className="i18n-desc">
-                                            {t.selected.translations.find((translation) => translation.locale === "en")?.description ?? "No description"}
-                                        </p>
-                                    </div>
+                                    {translationLocales.map((locale) => {
+                                        const translation = t.selected!.translations.find((item) => item.locale === locale);
+                                        return (
+                                            <div className="i18n-lang-card" key={locale}>
+                                                <div className="i18n-lang-header">
+                                                    <span className="i18n-flag">{localeFlag(locale)}</span>
+                                                    <span className="i18n-lang-name">{localeLabel(locale)}</span>
+                                                    <span className="badge-translation">
+                                                        {TRANSLATION_STATUS_LABELS[translationStatusOf(t.selected!, locale)] ?? "—"}
+                                                    </span>
+                                                </div>
+                                                <p className="i18n-common-name">{translation?.label ?? "—"}</p>
+                                                <p className="i18n-desc">{translation?.description ?? "No description"}</p>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         ) : (
