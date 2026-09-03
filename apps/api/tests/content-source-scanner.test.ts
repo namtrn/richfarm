@@ -131,6 +131,54 @@ describe("MCD-3 legacy baseline and post-baseline missing manifests", () => {
       .get() as { owner_status: string; state: string };
     expect(rowState).toEqual({ owner_status: "missing_manifest", state: "invalid" });
   });
+
+  it("revalidates legacy rows when a manifest appears and retires the blocked duplicate", () => {
+    const db = openDatabase();
+    const enV1 = "# okra en v1";
+    const enV2 = "# okra en v2 changed";
+    const vi = "# okra vi";
+    const root = makeTree({
+      "content/plants/okra/en.md": enV1,
+      "content/plants/okra/vi.md": vi,
+    });
+    runLegacyBaseline({ db, repositoryRoot: root }, { sealedAt: "2026-08-25T00:00:00.000Z" });
+
+    fs.writeFileSync(path.join(root, "content", "plants", "okra", "en.md"), enV2, "utf8");
+    runStartupCatchUp({ db, repositoryRoot: root });
+    const blocked = listChangeEvents(db, { reviewStates: ["pending"] }).items;
+    expect(blocked).toHaveLength(1);
+    expect(JSON.parse(blocked[0]!.findings_json)).toHaveProperty("OWNER_STATUS_MISSING_MANIFEST");
+
+    fs.writeFileSync(
+      path.join(root, "content", "plants", "okra", "content.json"),
+      manifestFor({ en: enV2, vi }),
+      "utf8",
+    );
+    processCandidatePath(
+      { db, repositoryRoot: root },
+      path.join(root, "content", "plants", "okra", "content.json"),
+    );
+
+    const pending = listChangeEvents(db, { reviewStates: ["pending"] }).items;
+    expect(pending).toHaveLength(1);
+    expect(pending[0]).toMatchObject({
+      path: "content/plants/okra/content.json",
+      event_type: "created",
+    });
+    expect(listChangeEvents(db, { reviewStates: ["superseded"] }).items).toHaveLength(1);
+    expect(
+      db
+        .prepare(
+          `SELECT path, owner_status, state FROM content_source_files
+           WHERE path IN ('content/plants/okra/en.md', 'content/plants/okra/vi.md')
+           ORDER BY path`,
+        )
+        .all(),
+    ).toEqual([
+      { path: "content/plants/okra/en.md", owner_status: "manifest_ok", state: "clean" },
+      { path: "content/plants/okra/vi.md", owner_status: "manifest_ok", state: "clean" },
+    ]);
+  });
 });
 
 describe("MCD-3 startup catch-up recovery", () => {

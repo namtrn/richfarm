@@ -17,13 +17,10 @@ import {
 import { stableJson } from "../src/content-manifests";
 import { initializePlantManifest } from "../src/content-manifests";
 import { runLegacyBaseline, runStartupCatchUp, scanContentRoot } from "../src/content-source/scanner";
-import {
-  applyProposal,
-  approveEvents,
-  buildEventPreview,
-  dismissEvents,
-} from "../src/content-source/review-service";
+import { applyProposal, approveContentLocales, approveEvents, buildEventPreview, dismissEvents } from "../src/content-source/review-service";
 import { listChangeEvents } from "../src/content-source/repository";
+import { enqueueSyncOutbox, evaluatePayloadApproval, processSyncOutbox } from "../src/sync-outbox";
+import type { ConvexSyncService } from "../src/convex-sync";
 
 const databases: SqliteDatabase[] = [];
 const temporaryDirectories: string[] = [];
@@ -196,7 +193,7 @@ function seedModifiedEvent(options: {
 }
 
 describe("MCD-5 review service: approve → apply happy flow", () => {
-  it("imports through the existing dry-run/apply pipeline with outbox rows", () => {
+  it("imports through the existing dry-run/apply pipeline without outbox rows", () => {
     const seed = seedModifiedEvent({
       plantCode: "SOLANUM_LYCOPERSICUM_MCD5",
       genus: "Solanum",
@@ -232,9 +229,12 @@ describe("MCD-5 review service: approve → apply happy flow", () => {
     if (outcome.status !== "applied") return;
 
     expect(outcome.updatedLocales).toBe(2);
+    expect(outcome.queuedOutbox).toBe(0);
     expect(outcome.appliedEventIds).toEqual(expect.arrayContaining(seed.eventIds));
 
-    // SQLite staging updated + outbox enqueued; Convex is never called here.
+    // CAP-2026-08-31: importing is draft-only. SQLite staging is updated but
+    // no outbox row is created; the locale-level approval action queues the
+    // approved snapshot. Convex is never called here.
     const careContent = (
       seed.db
         .prepare(
@@ -245,12 +245,23 @@ describe("MCD-5 review service: approve → apply happy flow", () => {
         .get("SOLANUM_LYCOPERSICUM_MCD5") as { care_content: string }
     ).care_content;
     expect(careContent).toBe("# tomato v2 imported");
-    const outboxRow = seed.db
+    const staged = seed.db
       .prepare(
-        `SELECT status FROM sync_outbox WHERE operation = 'upsert_i18n' ORDER BY id DESC LIMIT 1`,
+        `SELECT i.content_status, i.review_status, i.reviewed_by, i.reviewed_at
+         FROM master_plant_i18n i
+         JOIN master_plants p ON p.id = i.master_plant_id
+         WHERE p.plant_code = ? ORDER BY i.locale`,
       )
-      .get() as { status: string };
-    expect(outboxRow.status).toBe("pending");
+      .all("SOLANUM_LYCOPERSICUM_MCD5") as Array<Record<string, unknown>>;
+    expect(staged).toHaveLength(2);
+    for (const row of staged) {
+      expect(row).toMatchObject({ content_status: "needs_review", reviewed_by: null, reviewed_at: null });
+    }
+    // vi is bound by the manifest's reviewed replacement; en remains an
+    // unreviewed draft. Neither carries operational audit metadata, so
+    // neither is publishable until the dashboard/SQLite approval action.
+    expect(staged.map((row) => row.review_status).sort()).toEqual(["reviewed", "unreviewed"]);
+    expect((seed.db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox`).get() as { count: number }).count).toBe(0);
 
     expect(listChangeEvents(seed.db, { reviewStates: ["applied"] }).total).toBe(2);
 
@@ -261,6 +272,189 @@ describe("MCD-5 review service: approve → apply happy flow", () => {
       { mode: "periodic_reconcile" },
     );
     expect(reconcile.counts.eventsProduced).toBe(0);
+  });
+});
+
+describe("CAP locale-level approval", () => {
+  it("stamps review metadata and queues exactly one approved snapshot per plant", () => {
+    const seed = seedModifiedEvent({
+      plantCode: "SOLANUM_LYCOPERSICUM_MCD5",
+      genus: "Solanum",
+      species: "lycopersicum",
+      slug: "tomato",
+      initialVi: "# tomato v1",
+      editedVi: "# tomato v2 imported",
+    });
+    const approval = approveEvents(seed.db, seed.root, {
+      eventIds: seed.eventIds,
+      actor: ACTOR,
+      reason: "verified preview diff",
+    });
+    const outcome = applyProposal(seed.db, seed.root, {
+      proposalId: approval.proposalId!,
+      actor: ACTOR,
+      reason: "apply reviewed tomato content",
+    });
+    expect(outcome.status).toBe("applied");
+    const plantId = (seed.db.prepare(`SELECT id FROM master_plants WHERE plant_code = ?`).get("SOLANUM_LYCOPERSICUM_MCD5") as { id: number }).id;
+
+    // The imported en locale carries care content but no provenance yet, so
+    // approval must be refused — the CID provenance rule is not bypassed.
+    const refused = approveContentLocales(seed.db, {
+      plantIds: [plantId],
+      actor: ACTOR,
+      reason: "approve without provenance",
+      now: new Date("2026-08-31T08:00:00.000Z"),
+    });
+    expect(refused.approved).toEqual([]);
+    expect(refused.failures).toEqual([
+      expect.objectContaining({ plantId, ok: false, code: "REVIEWED_WITHOUT_PROVENANCE:en" }),
+    ]);
+    expect((seed.db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox`).get() as { count: number }).count).toBe(0);
+
+    // Author supplies provenance for the care-carrying en locale, then
+    // approval succeeds atomically.
+    seed.db.prepare(`UPDATE master_plant_i18n SET source_refs_json = ? WHERE master_plant_id = ? AND locale = 'en'`)
+      .run(JSON.stringify([{ sourceSystem: "editorial", sourceLocator: "mcd5/tomato-en" }]), plantId);
+
+    const approved = approveContentLocales(seed.db, {
+      plantIds: [plantId],
+      actor: ACTOR,
+      reason: "approve tomato care content",
+      now: new Date("2026-08-31T08:00:00.000Z"),
+    });
+    expect(approved.failures).toEqual([]);
+    expect(approved.approved).toHaveLength(1);
+    expect(approved.approved[0]).toMatchObject({ plantId, plantCode: "SOLANUM_LYCOPERSICUM_MCD5", ok: true, locales: ["en", "vi"] });
+
+    const stamped = seed.db.prepare(`SELECT content_status, review_status, reviewed_by, reviewed_at FROM master_plant_i18n WHERE master_plant_id = ? ORDER BY locale`).all(plantId) as Array<Record<string, unknown>>;
+    expect(stamped).toHaveLength(2);
+    for (const row of stamped) {
+      expect(row).toMatchObject({
+        content_status: "published",
+        review_status: "reviewed",
+        reviewed_by: ACTOR.id,
+        reviewed_at: "2026-08-31T08:00:00.000Z",
+      });
+    }
+    expect(seed.db.prepare(`SELECT content_status, review_status, reviewed_by, reviewed_at FROM master_plants WHERE id = ?`).get(plantId)).toEqual({
+      content_status: "published",
+      review_status: "reviewed",
+      reviewed_by: ACTOR.id,
+      reviewed_at: "2026-08-31T08:00:00.000Z",
+    });
+
+    // Exactly one current snapshot per publication unit, carrying the
+    // approved locale metadata end to end.
+    const outbox = seed.db.prepare(`SELECT operation, status, payload_json FROM sync_outbox ORDER BY id`).all() as Array<{ operation: string; status: string; payload_json: string }>;
+    expect(outbox).toHaveLength(1);
+    expect(outbox[0]).toMatchObject({ operation: "upsert_plant", status: "pending" });
+    const payload = JSON.parse(outbox[0].payload_json) as { i18n: Record<string, { content_status: string; review_status: string; reviewed_by: string; reviewed_at: string }> };
+    expect(payload).toMatchObject({ content_status: "published", review_status: "reviewed", reviewed_by: ACTOR.id, reviewed_at: "2026-08-31T08:00:00.000Z" });
+    for (const locale of ["en", "vi"]) {
+      expect(payload.i18n[locale]).toMatchObject({
+        content_status: "published",
+        review_status: "reviewed",
+        reviewed_by: ACTOR.id,
+        reviewed_at: "2026-08-31T08:00:00.000Z",
+      });
+    }
+  });
+
+  it("rolls back approval and enqueue together on failure", () => {
+    const seed = seedModifiedEvent({
+      plantCode: "SOLANUM_LYCOPERSICUM_MCD5",
+      genus: "Solanum",
+      species: "lycopersicum",
+      slug: "tomato",
+      initialVi: "# tomato v1",
+      editedVi: "# tomato v2 imported",
+    });
+    const approval = approveEvents(seed.db, seed.root, {
+      eventIds: seed.eventIds,
+      actor: ACTOR,
+      reason: "verified preview diff",
+    });
+    const outcome = applyProposal(seed.db, seed.root, {
+      proposalId: approval.proposalId!,
+      actor: ACTOR,
+      reason: "apply reviewed tomato content",
+    });
+    expect(outcome.status).toBe("applied");
+    const plantId = (seed.db.prepare(`SELECT id FROM master_plants WHERE plant_code = ?`).get("SOLANUM_LYCOPERSICUM_MCD5") as { id: number }).id;
+    seed.db.prepare(`UPDATE master_plant_i18n SET source_refs_json = ? WHERE master_plant_id = ?`)
+      .run(JSON.stringify([{ sourceSystem: "editorial", sourceLocator: "mcd5/tomato" }]), plantId);
+
+    // Break the plant row so the snapshot payload cannot be built after the
+    // stamping UPDATE; the whole transaction must roll back.
+    seed.db.prepare(`UPDATE master_plants SET content_status = 'invalid' WHERE id = ?`).run(plantId);
+    const result = approveContentLocales(seed.db, {
+      plantIds: [plantId],
+      actor: ACTOR,
+      reason: "approve broken plant",
+      now: new Date("2026-08-31T08:00:00.000Z"),
+    });
+    expect(result.approved).toEqual([]);
+    expect(result.failures[0]).toMatchObject({ plantId, ok: false });
+    const staged = seed.db.prepare(`SELECT content_status, review_status, reviewed_by FROM master_plant_i18n WHERE master_plant_id = ? ORDER BY locale`).all(plantId) as Array<Record<string, unknown>>;
+    for (const row of staged) {
+      // No locale was promoted: approval rolled back entirely.
+      expect(row).toMatchObject({ content_status: "needs_review", reviewed_by: null });
+    }
+    expect((seed.db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox`).get() as { count: number }).count).toBe(0);
+  });
+
+  it("delivery rechecks approval so a tampered row cannot bypass the gate", async () => {
+    const seed = seedModifiedEvent({
+      plantCode: "SOLANUM_LYCOPERSICUM_MCD5",
+      genus: "Solanum",
+      species: "lycopersicum",
+      slug: "tomato",
+      initialVi: "# tomato v1",
+      editedVi: "# tomato v2 imported",
+    });
+    const approval = approveEvents(seed.db, seed.root, {
+      eventIds: seed.eventIds,
+      actor: ACTOR,
+      reason: "verified preview diff",
+    });
+    const outcome = applyProposal(seed.db, seed.root, {
+      proposalId: approval.proposalId!,
+      actor: ACTOR,
+      reason: "apply reviewed tomato content",
+    });
+    expect(outcome.status).toBe("applied");
+    const plantId = (seed.db.prepare(`SELECT id FROM master_plants WHERE plant_code = ?`).get("SOLANUM_LYCOPERSICUM_MCD5") as { id: number }).id;
+    seed.db.prepare(`UPDATE master_plant_i18n SET source_refs_json = ? WHERE master_plant_id = ?`)
+      .run(JSON.stringify([{ sourceSystem: "editorial", sourceLocator: "mcd5/tomato" }]), plantId);
+    const approved = approveContentLocales(seed.db, {
+      plantIds: [plantId],
+      actor: ACTOR,
+      reason: "approve tomato care content",
+    });
+    expect(approved.approved).toHaveLength(1);
+
+    // Tamper the queued payload back to an unapproved care state; delivery
+    // must block it instead of sending it.
+    const row = seed.db.prepare(`SELECT id, payload_json FROM sync_outbox WHERE operation = 'upsert_plant'`).get() as { id: number; payload_json: string };
+    const payload = JSON.parse(row.payload_json) as { i18n: Record<string, Record<string, unknown>> };
+    payload.i18n.vi.review_status = "unreviewed";
+    payload.i18n.vi.reviewed_by = null;
+    seed.db.prepare(`UPDATE sync_outbox SET payload_json = ? WHERE id = ?`).run(JSON.stringify(payload), row.id);
+
+    let sent = 0;
+    const syncService = {
+      isEnabled: () => true,
+      canReadFromConvex: () => false,
+      syncUpsert: async () => { sent += 1; },
+      syncDelete: async () => { sent += 1; },
+    } as unknown as ConvexSyncService;
+    const result = await processSyncOutbox(seed.db, syncService);
+    expect(sent).toBe(0);
+    expect(result.blocked).toBe(1);
+    expect(result.items).toEqual([expect.objectContaining({ id: row.id, status: "blocked", error: "CONTENT_NOT_APPROVED:vi:review_status=unreviewed" })]);
+    const blocked = seed.db.prepare(`SELECT status, blocked_reason FROM sync_outbox WHERE id = ?`).get(row.id) as { status: string; blocked_reason: string };
+    expect(blocked).toEqual({ status: "blocked", blocked_reason: "CONTENT_NOT_APPROVED:vi:review_status=unreviewed" });
   });
 });
 
@@ -534,5 +728,68 @@ describe("MCD-5 API surface authz", () => {
       .get("/api/content-review/events/does-not-exist/preview")
       .set("Authorization", `Bearer ${token}`)
       .expect(404);
+  });
+});
+
+describe("CAP enqueue approval gate", () => {
+  const approvedLocale = {
+    common_name: "Tomato",
+    care_content: "# Care",
+    content_status: "published",
+    review_status: "reviewed",
+    reviewed_by: "1:reviewer@richfarm.test",
+    reviewed_at: "2026-08-31T08:00:00.000Z",
+  };
+
+  it("allows approved care locales and plain published locales", () => {
+    expect(evaluatePayloadApproval({
+      i18n: {
+        vi: approvedLocale,
+        en: { common_name: "Tomato", content_status: "published", review_status: "unreviewed" },
+      },
+    })).toEqual({ allowed: true });
+  });
+
+  it("treats absent content_status as the published legacy default", () => {
+    expect(evaluatePayloadApproval({
+      i18n: {
+        vi: { common_name: "Tomato" },
+        en: { common_name: "Cà chua" },
+      },
+    })).toEqual({ allowed: true });
+  });
+
+  it("blocks care locales that are not published, reviewed, or audited", () => {
+    const base = { ...approvedLocale };
+    expect(evaluatePayloadApproval({ i18n: { vi: { ...base, content_status: "needs_review" } } }))
+      .toEqual({ allowed: false, reason: "CONTENT_NOT_APPROVED:vi:content_status=needs_review" });
+    expect(evaluatePayloadApproval({ i18n: { vi: { ...base, review_status: "unreviewed" } } }))
+      .toEqual({ allowed: false, reason: "CONTENT_NOT_APPROVED:vi:review_status=unreviewed" });
+    expect(evaluatePayloadApproval({ i18n: { vi: { ...base, reviewed_by: "" } } }))
+      .toEqual({ allowed: false, reason: "CONTENT_NOT_APPROVED:vi:reviewed_by_missing" });
+    expect(evaluatePayloadApproval({ i18n: { vi: { ...base, reviewed_at: "not-a-date" } } }))
+      .toEqual({ allowed: false, reason: "CONTENT_NOT_APPROVED:vi:reviewed_at_invalid" });
+    expect(evaluatePayloadApproval({ i18n: { vi: { ...base, care_content: "" } } })).toEqual({ allowed: true });
+  });
+
+  it("rejects direct enqueue of an unapproved care payload", () => {
+    const db = openDatabase();
+    insertPlant(db, { plantCode: "GATE_UNREVIEWED", genus: "Gateus", species: "plantus" });
+    const plantId = (db.prepare(`SELECT id FROM master_plants WHERE plant_code = ?`).get("GATE_UNREVIEWED") as { id: number }).id;
+    db.prepare(`UPDATE master_plant_i18n SET source_refs_json = ? WHERE master_plant_id = ?`)
+      .run(JSON.stringify([{ sourceSystem: "editorial" }]), plantId);
+    expect(() => enqueueSyncOutbox(db, {
+      entityType: "master_plant",
+      sourceSystem: "sqlite",
+      sourceId: "gate-1",
+      operation: "upsert_plant",
+      payload: {
+        i18n: {
+          vi: { common_name: "Cây gate", care_content: "# Draft", content_status: "needs_review", review_status: "unreviewed" },
+          en: { common_name: "Gate plant" },
+        },
+      },
+    })).toThrow("CONTENT_NOT_APPROVED:vi:content_status=needs_review");
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox`).get() as { count: number }).count).toBe(0);
   });
 });

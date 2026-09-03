@@ -196,6 +196,10 @@ export function PlantManager({
         void i18n.load();
     }, [i18n.load]);
 
+    useEffect(() => {
+        void backend.loadPendingOutbox();
+    }, [backend.loadPendingOutbox]);
+
     // toggle single row selection
     function toggleSelect(id: string) {
         setSelectedIds((prev) => {
@@ -270,8 +274,16 @@ export function PlantManager({
     }
 
     async function handlePublish() {
-        const msg = await backend.publishSyncOutbox();
-        if (msg) onToast("success", msg);
+        const result = await backend.publishSyncOutbox();
+        if (result.ok) {
+            onToast(
+                result.applied > 0 ? "success" : "info",
+                `Published ${result.applied} approved row(s); ${result.failed} failed; ${result.blocked} blocked; ${result.retried} retried`,
+            );
+            void backend.loadPendingOutbox();
+        } else {
+            onToast("error", result.error);
+        }
     }
 
     async function handleQueueLocalAuthoring() {
@@ -283,31 +295,31 @@ export function PlantManager({
     return (
         <div className="page-content">
             {/* Page header */}
-            <div className="page-header">
+            <div className="page-header plants-page-header">
                 <div>
                     <h2 className="page-title">Plants Master</h2>
                     <p className="page-desc">Manage plant database, translations, and metadata</p>
                 </div>
-                <div className="actions">
-                    <button className="btn secondary" onClick={() => void backend.exportData("json")} disabled={backend.exportLoading}>
+                <div className="actions page-header-actions">
+                    <button type="button" className="btn secondary" onClick={() => void backend.exportData("json")} disabled={backend.exportLoading}>
                         ⬇ JSON
                     </button>
-                    <button className="btn secondary" onClick={() => void handlePublish()}>
-                        ⇧ Publish pending
+                    <button type="button" className="btn secondary" onClick={() => void handlePublish()} disabled={backend.publishLoading || (backend.pendingOutbox !== null && backend.pendingOutbox.length === 0)}>
+                        {backend.publishLoading ? "⟳ Publishing..." : "⇧ Publish approved"}
                     </button>
-                    <button className="btn secondary" onClick={() => void handleQueueLocalAuthoring()} disabled={backend.queueLocalLoading}>
+                    <button type="button" className="btn secondary" onClick={() => void handleQueueLocalAuthoring()} disabled={backend.queueLocalLoading}>
                         {backend.queueLocalLoading ? "⟳ Queueing..." : "＋ Queue local drafts"}
                     </button>
-                    <button className="btn secondary" onClick={() => void backend.exportData("csv")} disabled={backend.exportLoading}>
+                    <button type="button" className="btn secondary" onClick={() => void backend.exportData("csv")} disabled={backend.exportLoading}>
                         ⬇ CSV
                     </button>
-                    <button className="btn secondary" onClick={() => setShowImport(true)}>
+                    <button type="button" className="btn secondary" onClick={() => setShowImport(true)}>
                         ⬆ Import
                     </button>
-                    <button className="btn secondary" onClick={() => void p.load()} disabled={p.loading}>
+                    <button type="button" className="btn secondary" onClick={() => void p.load()} disabled={p.loading}>
                         ↻ Refresh
                     </button>
-                    <button className="btn primary" onClick={p.startCreate}>
+                    <button type="button" className="btn primary" onClick={p.startCreate}>
                         + New Plant
                     </button>
                 </div>
@@ -322,6 +334,51 @@ export function PlantManager({
                 <p className="error-message">
                     {backend.error} <button className="btn ghost" onClick={() => void backend.retrySyncOutbox()}>Retry sync</button>
                 </p>
+            )}
+
+            {(backend.pendingOutbox !== null || backend.publishItems) && (
+                <div className="card publish-panel">
+                    <div className="publish-panel-header">
+                        <h4>Publish approved</h4>
+                        <span className="muted small">
+                            {backend.pendingOutbox === null
+                                ? "Outbox state unavailable"
+                                : `${backend.pendingOutbox.length} approved row(s) waiting for publication`}
+                        </span>
+                    </div>
+                    {backend.pendingOutbox !== null && backend.pendingOutbox.length === 0 && !backend.publishItems && (
+                        <p className="muted small">
+                            {backend.pendingCareApprovals && backend.pendingCareApprovals.length > 0
+                                ? `Nothing is ready to publish yet. Markdown has been imported into SQLite, but ${backend.pendingCareApprovals.length} plant${backend.pendingCareApprovals.length === 1 ? "" : "s"} still need${backend.pendingCareApprovals.length === 1 ? "s" : ""} care-content approval in Plant Detail → Translations. Open each plant from the notification above, approve it, then return here and click Publish approved to sync the approved rows to Convex.`
+                                : "Nothing is ready to publish yet. Approve the care content in Plant Detail → Translations first, then return here and click Publish approved to sync the approved rows to Convex."}
+                        </p>
+                    )}
+                    {backend.pendingOutbox !== null && backend.pendingOutbox.length > 0 && (
+                        <ul className="publish-list">
+                            {backend.pendingOutbox.map((row) => (
+                                <li key={row.id}>
+                                    <span className="badge small">{row.operation}</span>{" "}
+                                    <code>{row.sourceId}</code>
+                                    {row.locale ? <span className="muted small"> · {row.locale}</span> : null}
+                                    <span className="muted small"> · queued</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    {backend.publishItems && (
+                        <ul className="publish-list">
+                            {backend.publishItems.map((item) => (
+                                <li key={item.id} className={item.status === "applied" ? "publish-item-ok" : "publish-item-error"}>
+                                    <span className="badge small">{item.operation}</span>{" "}
+                                    <code>{item.sourceId}</code>{" "}
+                                    {item.status === "applied"
+                                        ? "✓ Applied to Convex"
+                                        : `✗ ${item.status}${item.error ? ` — ${item.error}` : ""}`}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             )}
 
             {/* Bulk action toolbar */}
@@ -555,6 +612,7 @@ export function PlantManager({
                                 reload={p.load}
                                 onToast={onToast}
                                 i18n={i18n}
+                                onApprovalChange={backend.loadPendingCareApprovals}
                             />
                         ) : (
                             <p className="empty">Select a plant to see details.</p>
@@ -575,11 +633,13 @@ function PlantDetail({
     reload,
     onToast,
     i18n,
+    onApprovalChange,
 }: {
     plant: ReturnType<typeof usePlants>["selected"] & {};
     reload: () => Promise<void>;
     onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
     i18n: I18nHook;
+    onApprovalChange?: () => Promise<void>;
 }) {
     if (!plant) return null;
     const [careModalLocale, setCareModalLocale] = useState<string | null>(null);
@@ -671,6 +731,13 @@ function PlantDetail({
             <div className="i18n-inline">
                 <div className="i18n-inline-header">
                     <h4>🌐 Translations</h4>
+                    <ApprovePlantPanel
+                        plant={plant}
+                        i18n={i18n}
+                        reload={reload}
+                        onToast={onToast}
+                        onApprovalChange={onApprovalChange}
+                    />
                     <AddLanguageButton
                         plant={plant}
                         reload={reload}
@@ -702,7 +769,7 @@ function PlantDetail({
                                             Edit care guide
                                         </button>
                                     </div>
-                                    <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
+                                    <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · review {row.reviewStatus ?? "unreviewed"}{row.reviewedBy ? ` · by ${row.reviewedBy}` : ""}{row.reviewedAt ? ` · ${formatReviewDate(row.reviewedAt)}` : ""} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
                                 </div>
                             );
                         })}
@@ -743,11 +810,139 @@ function PlantDetail({
                             // snapshot so the just-saved Markdown is immediately
                             // visible after closing the modal.
                             await reload();
+                            await onApprovalChange?.();
                             onToast("success", message);
                         } else onToast("error", i18n.error || "Could not save care guide");
                         return message;
                     }}
                 />
+            )}
+        </div>
+    );
+}
+
+function formatReviewDate(value: number | string | undefined): string {
+    if (!value) return "—";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleString();
+}
+
+export function localeSetIsApproved(
+    rows: Array<{
+        careContent?: string;
+        reviewStatus?: string;
+        contentStatus?: string;
+        reviewedBy?: string;
+        reviewedAt?: number | string;
+    }>,
+): boolean {
+    const careRows = rows.filter((row) => row.careContent?.trim());
+    return careRows.every(
+        (row) =>
+            row.reviewStatus === "reviewed" &&
+            row.contentStatus === "published" &&
+            Boolean(row.reviewedBy) &&
+            Boolean(row.reviewedAt),
+    );
+}
+
+export function localeApprovalDetail(row: {
+    locale: string;
+    careContent?: string;
+    sourceRefs?: Array<{ sourceLocator?: string | null; sourceName?: string | null; sourceSystem?: string | null }>;
+}): string {
+    const care = row.careContent?.trim() ? `care ${row.careContent.length} bytes` : "no care";
+    const refs = row.sourceRefs && row.sourceRefs.length > 0
+        ? `refs: ${row.sourceRefs.map((ref) => ref.sourceLocator ?? ref.sourceName ?? ref.sourceSystem ?? "ref").join(", ")}`
+        : "no source refs";
+    return `${care} · ${refs}`;
+}
+
+export function ApprovePlantPanel({
+    plant,
+    i18n,
+    reload,
+    onToast,
+    onApprovalChange,
+}: {
+    plant: NonNullable<ReturnType<typeof usePlants>["selected"]>;
+    i18n: I18nHook;
+    reload: () => Promise<void>;
+    onToast: (type: "success" | "error" | "info" | "warning", msg: string) => void;
+    onApprovalChange?: () => Promise<void>;
+}) {
+    const [open, setOpen] = useState(false);
+    const [reason, setReason] = useState("");
+    const [busy, setBusy] = useState(false);
+
+    const allApproved = localeSetIsApproved(plant.i18nRows);
+    const careMissingProvenance = plant.i18nRows.filter(
+        (row) => row.careContent?.trim() && (!row.sourceRefs || row.sourceRefs.length === 0),
+    );
+
+    async function run() {
+        if (!reason.trim() || busy) return;
+        setBusy(true);
+        const result = await i18n.approvePlant(plant._id, reason.trim());
+        setBusy(false);
+        if (result.ok) {
+            setOpen(false);
+            setReason("");
+            onToast("success", result.message);
+            await reload();
+            await onApprovalChange?.();
+        } else {
+            onToast("error", result.message);
+        }
+    }
+
+    if (allApproved) {
+        return <span className="badge ok small">Approved ✓</span>;
+    }
+
+    return (
+        <div className="approve-panel">
+            {careMissingProvenance.length > 0 && (
+                <p className="error-message small">
+                    Care locales without source references cannot be approved:{" "}
+                    {careMissingProvenance.map((row) => row.locale).join(", ")}
+                </p>
+            )}
+            <button type="button" className="btn secondary small" onClick={() => setOpen(!open)}>
+                ✓ Approve & queue
+            </button>
+            {open && (
+                <div className="approve-panel-body">
+                    <p className="muted small">
+                        Approves every locale of this plant to published/reviewed with your identity and queues one approved
+                        snapshot for publication.
+                    </p>
+                    <ul className="approve-locale-list">
+                        {plant.i18nRows.map((row) => (
+                            <li key={row.locale}>
+                                <span className="badge small">{row.locale.toUpperCase()}</span>{" "}
+                                {row.contentStatus ?? "published"} · {row.reviewStatus ?? "unreviewed"}
+                                {row.reviewedBy ? ` · by ${row.reviewedBy}` : ""}
+                                {row.reviewedAt ? ` · ${formatReviewDate(row.reviewedAt)}` : ""}
+                                {" · "}{localeApprovalDetail(row)}
+                            </li>
+                        ))}
+                    </ul>
+                    <input
+                        type="text"
+                        value={reason}
+                        onChange={(event) => setReason(event.target.value)}
+                        placeholder="Approval reason (required)"
+                    />
+                    <button
+                        type="button"
+                        className="btn primary small"
+                        disabled={!reason.trim() || busy || careMissingProvenance.length > 0}
+                        onClick={() => void run()}
+                    >
+                        {busy ? "Approving…" : "Confirm approval"}
+                    </button>
+                </div>
             )}
         </div>
     );

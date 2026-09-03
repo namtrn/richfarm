@@ -57,6 +57,79 @@ function overrideIsActive(row: OutboxGateRow): boolean {
 }
 
 /**
+ * Care-content approval gate (CAP-2026-08-31).
+ *
+ * A locale is publishable when:
+ * - it carries no care content → only `content_status` must be `published`;
+ * - it carries non-empty care content → additionally `review_status` must be
+ *   `reviewed`, with a non-empty `reviewed_by` and a valid `reviewed_at`.
+ *
+ * The payload is the complete plant snapshot, so the check walks every locale
+ * it carries. The dashboard/SQLite approval action is the only writer that
+ * stamps the audit metadata, which keeps the gate server-side and
+ * unbypassable by direct API calls.
+ */
+export function evaluatePayloadApproval(payload: Record<string, unknown>): SyncOutboxGateResult {
+  const i18n = payload.i18n;
+  if (!i18n || typeof i18n !== "object" || Array.isArray(i18n)) return { allowed: true };
+  for (const [locale, row] of Object.entries(i18n as Record<string, unknown>)) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) continue;
+    const result = evaluateCareLocaleApproval(row as Record<string, unknown>, locale);
+    if (!result.allowed) return result;
+  }
+  return { allowed: true };
+}
+
+/**
+ * Evaluate one locale using the same rule as the enqueue/send gate.  The
+ * dashboard uses this for pending-care notifications, so the notification
+ * cannot claim a locale is ready while publication would still reject it.
+ */
+export function evaluateCareLocaleApproval(
+  localeRow: Record<string, unknown>,
+  locale = "locale",
+): SyncOutboxGateResult {
+  const careContent =
+    typeof localeRow.care_content === "string" && localeRow.care_content.trim() !== ""
+      ? localeRow.care_content
+      : null;
+  // Absent content_status is the legacy published default everywhere (SQLite
+  // column default and the Convex public filter both treat it as published).
+  const contentStatus = typeof localeRow.content_status === "string" ? localeRow.content_status : "";
+  if (contentStatus !== "" && contentStatus !== "published") {
+    return {
+      allowed: false,
+      reason: `CONTENT_NOT_APPROVED:${locale}:content_status=${contentStatus || "<absent>"}`,
+    };
+  }
+  if (!careContent) return { allowed: true };
+  const reviewStatus = typeof localeRow.review_status === "string" ? localeRow.review_status : "";
+  const reviewedBy = typeof localeRow.reviewed_by === "string" ? localeRow.reviewed_by.trim() : "";
+  const reviewedAt = typeof localeRow.reviewed_at === "string" ? localeRow.reviewed_at.trim() : "";
+  if (reviewStatus !== "reviewed") {
+    return {
+      allowed: false,
+      reason: `CONTENT_NOT_APPROVED:${locale}:review_status=${reviewStatus}`,
+    };
+  }
+  if (!reviewedBy) {
+    return { allowed: false, reason: `CONTENT_NOT_APPROVED:${locale}:reviewed_by_missing` };
+  }
+  if (!reviewedAt || !Number.isFinite(Date.parse(reviewedAt))) {
+    return { allowed: false, reason: `CONTENT_NOT_APPROVED:${locale}:reviewed_at_invalid` };
+  }
+  return { allowed: true };
+}
+
+/** Throwing form of the approval gate, used as the enqueue-time backstop. */
+export function assertPayloadApproved(payload: Record<string, unknown>): void {
+  const result = evaluatePayloadApproval(payload);
+  if (!result.allowed) {
+    throw new Error(result.reason ?? "CONTENT_NOT_APPROVED");
+  }
+}
+
+/**
  * Authoritative pre-send data-quality gate.  Only a blocked finding captured
  * at the current catalog revision and exact outbox watermark can block a
  * row; stale audit evidence is reported as no block and must be re-audited.
@@ -118,6 +191,7 @@ export function evaluateSyncOutboxGate(
 }
 
 export function enqueueSyncOutbox(db: SqliteDatabase, item: SyncOutboxItem): number {
+  assertPayloadApproved(item.payload);
   const dedupeKey = [item.operation, item.entityType, item.sourceSystem, item.sourceId, item.locale ?? ""]
     .join(":");
   db.prepare(`
@@ -187,7 +261,17 @@ export async function processSyncOutbox(
   let applied = 0;
   let failed = 0;
   let blocked = 0;
+  const items: Array<{
+    id: number;
+    operation: SyncOutboxOperation;
+    sourceId: string;
+    status: "applied" | "failed" | "blocked" | "superseded" | "skipped";
+    error?: string;
+  }> = [];
   for (const row of rows) {
+    const recordItem = (status: "applied" | "failed" | "blocked" | "superseded" | "skipped", error?: string) => {
+      items.push({ id: row.id, operation: row.operation, sourceId: row.source_id, status, error });
+    };
     const newerSnapshot = db.prepare(`
       SELECT id FROM sync_outbox
       WHERE source_system = ? AND source_id = ? AND id > ?
@@ -202,6 +286,7 @@ export async function processSyncOutbox(
             lease_expires_at = NULL
         WHERE id = ? AND status IN ('pending', 'failed', 'processing')
       `).run(newerSnapshot.id, row.id);
+      recordItem("superseded");
       continue;
     }
     const preClaimGate = evaluateSyncOutboxGate(db, row);
@@ -216,6 +301,22 @@ export async function processSyncOutbox(
         )
       `).run(preClaimGate.findingId ?? null, preClaimGate.reason ?? "blocked_by_data_quality", row.id);
       blocked++;
+      recordItem("blocked", preClaimGate.reason ?? "blocked_by_data_quality");
+      continue;
+    }
+    const preClaimApproval = evaluatePayloadApproval(parseJson(row.payload_json));
+    if (!preClaimApproval.allowed) {
+      db.prepare(`
+        UPDATE sync_outbox
+        SET status = 'blocked', blocked_finding_id = NULL, blocked_at = datetime('now'),
+            blocked_reason = ?, lease_expires_at = NULL, updated_at = datetime('now')
+        WHERE id = ? AND (
+          status IN ('pending', 'failed')
+          OR (status = 'processing' AND coalesce(lease_expires_at, datetime('now')) <= datetime('now'))
+        )
+      `).run(preClaimApproval.reason ?? "CONTENT_NOT_APPROVED", row.id);
+      blocked++;
+      recordItem("blocked", preClaimApproval.reason ?? "CONTENT_NOT_APPROVED");
       continue;
     }
     const claimed = db.prepare(`
@@ -242,6 +343,7 @@ export async function processSyncOutbox(
           WHERE id = ? AND status = 'processing'
         `).run(sendGate.findingId ?? null, sendGate.reason ?? "blocked_by_data_quality", row.id);
         blocked++;
+        recordItem("blocked", sendGate.reason ?? "blocked_by_data_quality");
         continue;
       }
       const newerBeforeSend = db.prepare(`
@@ -258,9 +360,25 @@ export async function processSyncOutbox(
               updated_at = datetime('now')
           WHERE id = ? AND status = 'processing'
         `).run(newerBeforeSend.id, row.id);
+        recordItem("superseded");
         continue;
       }
       const payload = JSON.parse(row.payload_json) as Record<string, unknown>;
+      // Delivery-time approval recheck: a row that was approved when queued
+      // can still be stale or manually altered; an unapproved care payload is
+      // never sent, mirroring the enqueue gate.
+      const sendApproval = evaluatePayloadApproval(payload);
+      if (!sendApproval.allowed) {
+        db.prepare(`
+          UPDATE sync_outbox
+          SET status = 'blocked', blocked_finding_id = NULL, blocked_at = datetime('now'),
+              blocked_reason = ?, lease_expires_at = NULL, updated_at = datetime('now')
+          WHERE id = ? AND status = 'processing'
+        `).run(sendApproval.reason ?? "CONTENT_NOT_APPROVED", row.id);
+        blocked++;
+        recordItem("blocked", sendApproval.reason ?? "CONTENT_NOT_APPROVED");
+        continue;
+      }
       if (row.operation === "delete_plant") {
         await syncService.syncDelete({
           id: typeof payload.id === "number" ? payload.id : undefined,
@@ -283,6 +401,7 @@ export async function processSyncOutbox(
         WHERE id = ?
       `).run(row.id);
       applied++;
+      recordItem("applied");
     } catch (error) {
       const attemptCount = row.attempt_count + 1;
       const status = attemptCount >= 10 ? "failed" : "pending";
@@ -295,10 +414,11 @@ export async function processSyncOutbox(
         WHERE id = ?
       `).run(status, attemptCount, `+${delay} seconds`, message.slice(0, 1000), row.id);
       failed++;
+      recordItem("failed", message.slice(0, 1000));
     }
   }
 
-  return { processed: rows.length, applied, failed, blocked, skipped: false };
+  return { processed: rows.length, applied, failed, blocked, skipped: false, items };
 }
 
 export function retryFailedSyncOutbox(db: SqliteDatabase): number {

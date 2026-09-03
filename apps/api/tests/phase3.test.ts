@@ -179,10 +179,44 @@ describe("Phase 3 master-data contract", () => {
       common_name: "Planta local",
       care_content: "## Riego\n\nRegar por la mañana.",
       content_origin: "authored",
+      // CAP-2026-08-31: only approved care content may be queued; the audit
+      // metadata below is what the approval gate requires.
+      content_status: "published",
+      review_status: "reviewed",
+      reviewed_by: "qa",
+      reviewed_at: "2026-08-05T00:00:00.000Z",
     });
     expect(translation.status).toBe(201);
-    expect(translation.body).toMatchObject({ queued: true, data: { locale: "es", care_content: "## Riego\n\nRegar por la mañana.", content_origin: "authored" } });
-    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'local-queue-1' AND operation = 'upsert_i18n' AND locale = 'es' AND status = 'pending'`).get() as { n: number }).n).toBe(1);
+    // Approval metadata from a generic authoring write is ignored. The
+    // dashboard review action is the only route allowed to stamp approval.
+    expect(translation.body).toMatchObject({
+      queued: false,
+      reason: expect.stringMatching(/^CONTENT_NOT_APPROVED:/),
+      data: {
+        locale: "es",
+        care_content: "## Riego\n\nRegar por la mañana.",
+        content_origin: "authored",
+        content_status: "needs_review",
+        review_status: "unreviewed",
+        reviewed_by: null,
+        reviewed_at: null,
+      },
+    });
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'local-queue-1' AND operation = 'upsert_i18n' AND locale = 'es' AND status = 'pending'`).get() as { n: number }).n).toBe(0);
+
+    // An unreviewed care save still persists as a draft but is never queued.
+    const draft = await request(app).post("/api/master-plants-i18n").set("Authorization", auth).send({
+      master_plant_id: created.body.data.id,
+      locale: "FR",
+      common_name: "Plante locale",
+      care_content: "## Arrosage\n\nArroser le matin.",
+      content_origin: "authored",
+    });
+    expect(draft.status).toBe(201);
+    expect(draft.body.queued).toBe(false);
+    expect(String(draft.body.reason)).toMatch(/^CONTENT_NOT_APPROVED:/);
+    expect((db.prepare(`SELECT care_content FROM master_plant_i18n WHERE master_plant_id = ? AND locale = 'fr'`).get(created.body.data.id) as { care_content: string }).care_content).toBe("## Arrosage\n\nArroser le matin.");
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'local-queue-1' AND operation = 'upsert_i18n' AND locale = 'fr'`).get() as { n: number }).n).toBe(0);
   });
 
   it("queue-local assigns stable legacy identities, dedupes, and never publishes", async () => {
@@ -210,18 +244,84 @@ describe("Phase 3 master-data contract", () => {
 
     const first = await request(app).post("/api/master-plants/sync-outbox/queue-local").set("Authorization", auth);
     expect(first.status).toBe(200);
-    expect(first.body).toEqual({ ok: true, scanned: 1, queued: 1, identitiesAssigned: 1, publishStarted: false });
+    expect(first.body).toEqual({ ok: true, scanned: 1, queued: 1, identitiesAssigned: 1, skippedNotApproved: 0, publishStarted: false });
     expect(publishCalls).toBe(0);
     const stableId = `sqlite-local-${created.body.data.id}`;
     expect((db.prepare(`SELECT source_id FROM master_plants WHERE id = ?`).get(created.body.data.id) as { source_id: string }).source_id).toBe(stableId);
 
     const second = await request(app).post("/api/master-plants/sync-outbox/queue-local").set("Authorization", auth);
-    expect(second.body).toMatchObject({ scanned: 1, queued: 1, identitiesAssigned: 0, publishStarted: false });
+    expect(second.body).toMatchObject({ scanned: 1, queued: 1, identitiesAssigned: 0, skippedNotApproved: 0, publishStarted: false });
     expect(publishCalls).toBe(0);
     const queued = db.prepare(`SELECT source_id, status, payload_json FROM sync_outbox`).all() as Array<{ source_id: string; status: string; payload_json: string }>;
     expect(queued).toHaveLength(1);
     expect(queued[0]).toMatchObject({ source_id: stableId, status: "pending" });
     expect(JSON.parse(queued[0].payload_json).source_id).toBe(stableId);
+  });
+
+  it("queue-local skips plants whose care content is not approved", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const auth = await login(app);
+    const withCare = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "LEGACY_CARE_1",
+      common_name: "Care draft",
+      scientific_name: "Careus draftus",
+      ...identityForScientific("Careus draftus"),
+      source_system: "sqlite",
+      source_id: "care-draft-1",
+      i18n: {
+        vi: { common_name: "Cây chăm sóc", care_content: "## Tưới\n\nGiữ ẩm." },
+        en: { common_name: "Care draft" },
+      },
+    });
+    expect(withCare.status).toBe(201);
+    expect(withCare.body.queued).toBe(false);
+
+    const plain = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "LEGACY_PLAIN_1",
+      common_name: "Plain local",
+      scientific_name: "Plains localis",
+      ...identityForScientific("Plains localis"),
+      source_system: "sqlite",
+      source_id: "plain-1",
+      i18n: { vi: { common_name: "Cây thường" }, en: { common_name: "Plain local" } },
+    });
+    expect(plain.status).toBe(201);
+    expect(plain.body.queued).toBe(true);
+    db.prepare(`DELETE FROM sync_outbox`).run();
+
+    const queued = await request(app).post("/api/master-plants/sync-outbox/queue-local").set("Authorization", auth);
+    expect(queued.status).toBe(200);
+    expect(queued.body).toMatchObject({ scanned: 2, queued: 1, skippedNotApproved: 1, publishStarted: false });
+    const outbox = db.prepare(`SELECT source_id FROM sync_outbox`).all() as Array<{ source_id: string }>;
+    expect(outbox).toEqual([{ source_id: "plain-1" }]);
+  });
+
+  it("bulk activation updates local state without publishing unapproved care", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const auth = await login(app);
+    const created = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: "BULK_CARE_1",
+      common_name: "Bulk care draft",
+      scientific_name: "Bulkus careus",
+      ...identityForScientific("Bulkus careus"),
+      source_system: "sqlite",
+      source_id: "bulk-care-1",
+      i18n: {
+        vi: { common_name: "Cây chăm sóc hàng loạt", care_content: "## Tưới\n\nGiữ ẩm." },
+        en: { common_name: "Bulk care draft" },
+      },
+    });
+    expect(created.status).toBe(201);
+    expect(created.body.queued).toBe(false);
+
+    const bulk = await request(app).post("/api/master-plants/bulk").set("Authorization", auth).send({
+      action: "activate",
+      ids: [created.body.data.id],
+    });
+    expect(bulk.status).toBe(200);
+    expect(bulk.body).toEqual({ affected: 1, queued: 0, skippedNotApproved: 1 });
+    expect((db.prepare(`SELECT is_active FROM master_plants WHERE id = ?`).get(created.body.data.id) as { is_active: number }).is_active).toBe(1);
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'bulk-care-1'`).get() as { n: number }).n).toBe(0);
   });
 
   it("maps i18n REST list, create, update, delete, and required-locale guard", async () => {
@@ -261,7 +361,11 @@ describe("Phase 3 master-data contract", () => {
       care_content: "## Lumière\n\nPlein soleil, arroser 2×.",
       content_origin: "authored",
     });
-    expect(updated.body).toMatchObject({ queued: true, data: { common_name: "Romarin officinal", care_content: "## Lumière\n\nPlein soleil, arroser 2×.", content_origin: "authored" } });
+    // CAP-2026-08-31: unreviewed care content saves as a draft (queued:false)
+    // instead of silently becoming publishable work.
+    expect(updated.body.queued).toBe(false);
+    expect(String(updated.body.reason)).toMatch(/^CONTENT_NOT_APPROVED:/);
+    expect(updated.body.data).toMatchObject({ common_name: "Romarin officinal", care_content: "## Lumière\n\nPlein soleil, arroser 2×.", content_origin: "authored" });
 
     const requiredVi = db.prepare(`SELECT id FROM master_plant_i18n WHERE master_plant_id = ? AND locale = 'vi'`).get(plant.body.data.id) as { id: number };
     const guarded = await request(app).delete(`/api/master-plants-i18n/${requiredVi.id}`).set("Authorization", auth);
@@ -631,10 +735,11 @@ describe("Phase 3 master-data contract", () => {
     expect(enRow.care_content).toBeNull();
   });
 
-  it("drains outbox to the newest full-i18n Markdown payload (upsert_i18n newest-wins)", async () => {
+  it("drains an approved snapshot and publishes the newest full-i18n Markdown payload", async () => {
     // Plan L196: upsert_plant and upsert_i18n have different dedupe keys and
     // may transiently publish different full-i18n snapshots; assert the final
-    // published state after the queue drains.
+    // published state after the queue drains. Under CAP-2026-08-31 the queue
+    // only ever receives approved care content.
     const published: Array<Record<string, unknown>> = [];
     const syncService = {
       isEnabled: () => true,
@@ -658,7 +763,10 @@ describe("Phase 3 master-data contract", () => {
       },
     });
     expect(created.status).toBe(201);
-    expect(created.body.queued).toBe(true);
+    // CAP: unreviewed care content is a draft — the snapshot is stored but
+    // nothing is queued.
+    expect(created.body.queued).toBe(false);
+    expect(String(created.body.reason)).toMatch(/^CONTENT_NOT_APPROVED:/);
 
     // PATCH overwrites the i18n payload with a newer Markdown snapshot.
     const patched = await request(app)
@@ -671,10 +779,37 @@ describe("Phase 3 master-data contract", () => {
         },
       });
     expect(patched.status).toBe(200);
-    expect(patched.body.queued).toBe(true);
+    expect(patched.body.queued).toBe(false);
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'outbox-md-1'`).get() as { n: number }).n).toBe(0);
+
+    // Approval requires provenance (CID provenance rule) before it can stamp
+    // the locale set and queue the approved snapshot.
+    db.prepare(`UPDATE master_plant_i18n SET source_refs_json = ? WHERE master_plant_id = ?`)
+      .run(JSON.stringify([{ sourceSystem: "editorial", sourceLocator: "phase3/outbox-md-1" }]), created.body.data.id);
+    const approved = await request(app)
+      .post("/api/content-review/locales/approve")
+      .set("Authorization", auth)
+      .send({ plantIds: [created.body.data.id], reason: "approve outbox-md-1 care content" });
+    expect(approved.status).toBe(200);
+    expect(approved.body.approved).toHaveLength(1);
+    expect(approved.body.failures).toEqual([]);
+    const stamped = db.prepare(`SELECT content_status, review_status, reviewed_by, reviewed_at FROM master_plant_i18n WHERE master_plant_id = ? ORDER BY locale`).all(created.body.data.id) as Array<Record<string, unknown>>;
+    expect(stamped).toHaveLength(2);
+    for (const row of stamped) {
+      expect(row).toMatchObject({ content_status: "published", review_status: "reviewed", reviewed_by: "1:admin@example.com" });
+      expect(row.reviewed_at).toEqual(expect.any(String));
+    }
+    expect(db.prepare(`SELECT content_status, review_status, reviewed_by, reviewed_at FROM master_plants WHERE id = ?`).get(created.body.data.id)).toMatchObject({
+      content_status: "published",
+      review_status: "reviewed",
+      reviewed_by: "1:admin@example.com",
+    });
+    expect((db.prepare(`SELECT COUNT(*) AS n FROM sync_outbox WHERE source_id = 'outbox-md-1' AND operation = 'upsert_plant' AND status = 'pending'`).get() as { n: number }).n).toBe(1);
 
     const drain = await request(app).post("/api/master-plants/sync-outbox/process?limit=100").set("Authorization", auth);
     expect(drain.status).toBe(200);
+    expect(drain.body.applied).toBe(1);
+    expect(drain.body.items).toEqual([expect.objectContaining({ status: "applied" })]);
 
     // Every published payload must carry Markdown strings, never JSON objects.
     for (const payload of published) {

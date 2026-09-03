@@ -9,6 +9,8 @@ import {
   type ContentFinding,
   type PestDiseaseCatalogEntry,
 } from "../content-manifests";
+import { buildMasterPlantPayload, fetchI18n, withSourceIdentity } from "../master-plants";
+import { enqueueSyncOutbox } from "../sync-outbox";
 import { CONTENT_SOURCE_ROOTS } from "./contract";
 import { classifyRelativeContentPath, type ContentSourcePathClassification } from "./paths";
 import {
@@ -245,6 +247,116 @@ export function dismissEvents(db: SqliteDatabase, options: DismissOptions): Dism
     dismissed.push({ eventId, ok: true });
   }
   return { dismissed, failures };
+}
+
+export interface ApproveContentLocalesOptions {
+  plantIds: readonly number[];
+  actor: ReviewActor;
+  reason: string;
+  now?: Date;
+}
+
+export interface ApproveContentLocaleItemResult {
+  plantId: number;
+  plantCode: string | null;
+  ok: boolean;
+  code?: string;
+  locales: string[];
+  outboxId?: number;
+}
+
+export interface ApproveContentLocalesResult {
+  approved: ApproveContentLocaleItemResult[];
+  failures: ApproveContentLocaleItemResult[];
+}
+
+/**
+ * CAP-2026-08-31 locale-level approval. Promotes every locale of the given
+ * plants to published/reviewed with the authenticated reviewer identity and a
+ * fresh timestamp, then queues exactly one full-snapshot outbox item per
+ * plant (upsert_plant). Stamping and enqueueing share one SQLite transaction
+ * per plant, so any failure rolls both back. Care-carrying locales must
+ * already carry source_refs provenance before approval is allowed, mirroring
+ * the manifest REVIEWED_WITHOUT_PROVENANCE rule.
+ */
+export function approveContentLocales(
+  db: SqliteDatabase,
+  options: ApproveContentLocalesOptions,
+): ApproveContentLocalesResult {
+  const nowIso = (options.now ?? new Date()).toISOString();
+  const approved: ApproveContentLocaleItemResult[] = [];
+  const failures: ApproveContentLocaleItemResult[] = [];
+
+  for (const plantId of options.plantIds) {
+    const plant = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(plantId) as
+      | Parameters<typeof buildMasterPlantPayload>[1]
+      | undefined;
+    const fail = (code: string, locales: string[] = []): void => {
+      failures.push({ plantId, plantCode: plant?.plant_code ?? null, ok: false, code, locales });
+    };
+    if (!plant) {
+      fail("PLANT_NOT_FOUND");
+      continue;
+    }
+    const locales = fetchI18n(db, plantId);
+    const localeKeys = Object.keys(locales).sort();
+    if (localeKeys.length === 0) {
+      fail("PLANT_NO_LOCALES");
+      continue;
+    }
+    const withoutProvenance = localeKeys.filter((locale) => {
+      const row = locales[locale];
+      const careContent =
+        typeof row.care_content === "string" && row.care_content.trim() !== ""
+          ? row.care_content
+          : null;
+      if (!careContent) return false;
+      return !Array.isArray(row.source_refs) || row.source_refs.length === 0;
+    });
+    if (withoutProvenance.length > 0) {
+      fail(`REVIEWED_WITHOUT_PROVENANCE:${withoutProvenance.join(",")}`);
+      continue;
+    }
+    try {
+      // Validate the existing snapshot before changing any release metadata.
+      // Besides making malformed legacy rows explicit failures, this keeps a
+      // failed approval from repairing/hiding an invalid parent as a side
+      // effect of the approval attempt.
+      withSourceIdentity(buildMasterPlantPayload(db, plant, locales));
+      const outboxId = db.transaction(() => {
+        const stampedLocales = db.prepare(`
+          UPDATE master_plant_i18n
+          SET content_status = 'published', review_status = 'reviewed',
+              reviewed_by = ?, reviewed_at = ?, updated_at = datetime('now')
+          WHERE master_plant_id = ?
+        `).run(options.actor.id, nowIso, plantId);
+        if (stampedLocales.changes === 0) throw new Error("CONTENT_APPROVE_NO_LOCALES");
+        const stampedPlant = db.prepare(`
+          UPDATE master_plants
+          SET content_status = 'published', review_status = 'reviewed',
+              reviewed_by = ?, reviewed_at = ?, updated_at = datetime('now')
+          WHERE id = ?
+        `).run(options.actor.id, nowIso, plantId);
+        if (stampedPlant.changes !== 1) throw new Error("CONTENT_APPROVE_PLANT_UPDATE_FAILED");
+        const approvedPlant = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(plantId) as
+          Parameters<typeof buildMasterPlantPayload>[1];
+        const payload = withSourceIdentity(buildMasterPlantPayload(db, approvedPlant, fetchI18n(db, plantId)));
+        const sourceId = String(payload.source_id ?? `sqlite-local-${plantId}`);
+        return enqueueSyncOutbox(db, {
+          entityType: "master_plant",
+          sourceSystem: String(payload.source_system ?? "sqlite"),
+          sourceId,
+          operation: "upsert_plant",
+          payload: payload as unknown as Record<string, unknown>,
+        });
+      })();
+      approved.push({ plantId, plantCode: plant.plant_code, ok: true, locales: localeKeys, outboxId });
+    } catch (error) {
+      fail(error instanceof Error ? error.message : "CONTENT_APPROVE_FAILED", localeKeys);
+    }
+  }
+
+  return { approved, failures };
 }
 
 export interface EventPreview {

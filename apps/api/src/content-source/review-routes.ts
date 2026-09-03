@@ -6,6 +6,7 @@ import type { SqliteDatabase } from "../db";
 import type { PestDiseaseCatalogEntry } from "../content-manifests";
 import {
   applyProposal,
+  approveContentLocales,
   approveEvents,
   buildEventPreview,
   dismissEvents,
@@ -86,6 +87,25 @@ export function createContentReviewRouter(deps: ContentReviewRouterDeps): Router
     const payload = eventIdsSchema.parse(req.body);
     const result = dismissEvents(deps.db, {
       eventIds: payload.eventIds,
+      actor: actorFrom(req),
+      reason: payload.reason,
+    });
+    res.json(result);
+  });
+
+  // CAP-2026-08-31: locale-level approval. Promotes the plant's locale set to
+  // published/reviewed with the authenticated reviewer and queues one
+  // full-snapshot outbox item per plant, atomically. Per-item results allow
+  // the dashboard to report partial success instead of an aggregate toast.
+  router.post("/locales/approve", (req: Request, res: Response) => {
+    const payload = z
+      .object({
+        plantIds: z.array(z.number().int().positive()).min(1).max(200),
+        reason: z.string().trim().min(3).max(500),
+      })
+      .parse(req.body);
+    const result = approveContentLocales(deps.db, {
+      plantIds: payload.plantIds,
       actor: actorFrom(req),
       reason: payload.reason,
     });

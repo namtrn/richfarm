@@ -97,6 +97,21 @@ describe("MCD-6 inbox contract helpers", () => {
   });
 });
 
+it("shows the CAP draft note after a successful apply", () => {
+    const inbox = {
+        ...emptyInboxBase,
+        events: eventsPage(),
+        total: 1,
+        lastApplyOutcome: { status: "applied" as const, proposalId: "prop-1", updatedLocales: 2, queuedOutbox: 0 },
+    };
+    const html = renderToStaticMarkup(
+        React.createElement(ContentInbox, { inbox, status: null, isAdmin: true }),
+    );
+    expect(html).toContain("Imported 2 locale(s) as drafts in SQLite.");
+    expect(html).toContain("Publish approved");
+    expect(html).not.toContain("Apply rejected");
+});
+
 describe("MCD-6 Content Inbox rendering", () => {
   it("renders pending events with badges and action controls for admins", () => {
     const inbox = {

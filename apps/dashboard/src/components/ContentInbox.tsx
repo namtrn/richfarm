@@ -178,6 +178,12 @@ export function ContentInbox({
             `Apply rejected: ${inbox.lastApplyOutcome?.code ?? "unknown"}${inbox.lastApplyOutcome?.detail ? ` — ${inbox.lastApplyOutcome.detail}` : ""}`}
         </p>
       )}
+      {inbox.lastApplyOutcome?.status === "applied" && (
+        <p className="muted-text" role="status" data-testid="apply-draft-note">
+          Imported {inbox.lastApplyOutcome.updatedLocales ?? 0} locale(s) as drafts in SQLite. Approve the locale set in
+          Plants → Translations, then use <strong>Publish approved</strong> to send it to Convex.
+        </p>
+      )}
       {inbox.activeProposalId && (
         <p className="muted-text" data-testid="active-proposal">
           Approved batch ready to apply: {inbox.activeProposalId}

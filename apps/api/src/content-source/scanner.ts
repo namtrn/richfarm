@@ -5,7 +5,6 @@ import path from "node:path";
 import type { SqliteDatabase } from "../db";
 import {
   CONTENT_SOURCE_ROOTS,
-  ownerStatusForMissingManifest,
   type ContentDetectorSource,
   type ContentOwnerStatus,
 } from "./contract";
@@ -20,6 +19,7 @@ import {
   correlateRenameEvents,
   findIndexedCaseFoldCollisions,
   getCheckpoint,
+  getLatestChangeEventForPath,
   getQuarantineEntry,
   getSourceFile,
   isBaselineSealed,
@@ -35,6 +35,7 @@ import {
   finishMonitorRun,
   upsertSourceFile,
   bumpContentSourceRevision,
+  supersedePendingManifestlessEvents,
 } from "./repository";
 
 export interface ScanCounts {
@@ -264,11 +265,28 @@ function observeFile(context: ScanContext, relPath: string): void {
   }
 
   const prior = getSourceFile(context.db, relPath);
+  const manifestExists = fs.existsSync(owningManifestAbsolute);
+  const expectedOwnerStatus: ContentOwnerStatus =
+    classification.fileKind === "markdown"
+      ? manifestExists
+        ? "manifest_ok"
+        : "missing_manifest"
+      : "manifest_ok";
+  // The one-time baseline uses a distinct legacy status. Treat it as
+  // equivalent to missing_manifest while the manifest is still absent so a
+  // normal reconcile does not turn every legacy row into a fresh event.
+  const ownerStatusMatches =
+    prior !== null &&
+    (prior.owner_status === expectedOwnerStatus ||
+      (classification.fileKind === "markdown" &&
+        !manifestExists &&
+        prior.owner_status === "legacy_missing_manifest"));
   const metadataEqual =
     prior !== null &&
     prior.deleted_at === null &&
     prior.observed_mtime_ms === Math.round(stat.mtimeMs) &&
-    prior.byte_size === stat.size;
+    prior.byte_size === stat.size &&
+    ownerStatusMatches;
 
   if (metadataEqual && prior) {
     context.counts.metadataComparisons += 1;
@@ -292,7 +310,6 @@ function observeFile(context: ScanContext, relPath: string): void {
   }
   context.counts.filesHashed += 1;
 
-  const manifestExists = fs.existsSync(owningManifestAbsolute);
   const manifestless = classification.fileKind === "markdown" && !manifestExists;
 
   const findings: Record<string, unknown> = {};
@@ -309,14 +326,7 @@ function observeFile(context: ScanContext, relPath: string): void {
     }
   }
 
-  let ownerStatus: ContentOwnerStatus;
-  if (!manifestless) {
-    ownerStatus = "manifest_ok";
-  } else {
-    // Only the explicitly marked baseline may assign legacy status; normal
-    // scans never suppress a manifestless discovery.
-    ownerStatus = "missing_manifest";
-  }
+  const ownerStatus = expectedOwnerStatus;
   if (manifestless) {
     findings["OWNER_STATUS_MISSING_MANIFEST"] = {
       severity: "blocked",
@@ -345,6 +355,31 @@ function observeFile(context: ScanContext, relPath: string): void {
       .run(result.fileId);
   }
 
+  const bindingOnlyGained =
+    prior !== null &&
+    prior.deleted_at === null &&
+    prior.sha256 === digest.sha256 &&
+    ownerStatus === "manifest_ok" &&
+    prior.owner_status !== "manifest_ok";
+  if (bindingOnlyGained) {
+    // The manifest event is the authoritative review item for its complete
+    // neighborhood. Do not create a duplicate Markdown event merely because
+    // the file moved from legacy/blocked ownership to a valid manifest.
+    const manifestEvent = getLatestChangeEventForPath(
+      context.db,
+      owningManifestRelative,
+      { reviewStates: ["pending", "blocked", "approved", "applied"] },
+    );
+    if (manifestEvent) {
+      supersedePendingManifestlessEvents(
+        context.db,
+        owningManifestRelative,
+        manifestEvent.event_id,
+      );
+    }
+    return;
+  }
+
   // Baseline-marked rows are indexed by sealLegacyBaseline, never here.
   const eventType =
     classification.fileKind === "manifest"
@@ -355,7 +390,7 @@ function observeFile(context: ScanContext, relPath: string): void {
         ? "modified"
         : "created";
 
-  emitEvent(context, {
+  const eventId = emitEvent(context, {
     relPath,
     rootKey: classification.rootKey,
     entityKind: classification.entityKind,
@@ -370,6 +405,9 @@ function observeFile(context: ScanContext, relPath: string): void {
     evidenceRevision: result.evidenceRevision,
     findings: Object.keys(findings).length > 0 ? findings : undefined,
   });
+  if (classification.fileKind === "manifest") {
+    supersedePendingManifestlessEvents(context.db, relPath, eventId);
+  }
 }
 
 function processVanishedPath(context: ScanContext, relPath: string): void {

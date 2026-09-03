@@ -329,7 +329,7 @@ describe("CID-6 Git Markdown content manifests", () => {
     expect(findingCodes(hashDrift)).toContain("CONTENT_HASH_MISMATCH");
   });
 
-  it("keeps dry-run byte-identical and applies content with pending outbox entries", () => {
+  it("keeps dry-run byte-identical and applies content as drafts without outbox rows", () => {
     const db = openDatabase();
     const root = temporaryDirectory();
     const directory = plantContentDirectory(root, "solanum-lycopersicum", { en: "apply en", vi: "apply vi" });
@@ -344,13 +344,45 @@ describe("CID-6 Git Markdown content manifests", () => {
     expect((db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox`).get() as { count: number }).count).toBe(beforeOutbox.count);
     expect(() => applyContentImport(db, report, { authorized: false, runId: "cid6-auth-required", manifestPaths: [manifestPath] })).toThrow("CONTENT_IMPORT_ADMIN_AUTH_REQUIRED");
 
+    // CAP-2026-08-31: importing is draft-only. It copies authored bytes into
+    // SQLite as needs_review/unreviewed and never creates a publishable
+    // outbox row; the dashboard/SQLite approval action queues publication.
     const applied = applyContentImport(db, report, { authorized: true, runId: "cid6-apply-test", manifestPaths: [manifestPath] });
-    expect(applied).toMatchObject({ status: "applied", updatedLocales: 2, queuedOutbox: 2 });
-    expect(db.prepare(`SELECT locale, care_content FROM master_plant_i18n ORDER BY locale`).all()).toEqual([
-      { locale: "en", care_content: "apply en" },
-      { locale: "vi", care_content: "apply vi" },
+    expect(applied).toMatchObject({ status: "applied", updatedLocales: 2, queuedOutbox: 0 });
+    expect(db.prepare(`SELECT locale, care_content, content_status, review_status FROM master_plant_i18n ORDER BY locale`).all()).toEqual([
+      { locale: "en", care_content: "apply en", content_status: "needs_review", review_status: "unreviewed" },
+      { locale: "vi", care_content: "apply vi", content_status: "needs_review", review_status: "unreviewed" },
     ]);
-    expect(db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox WHERE operation = 'upsert_i18n' AND status = 'pending'`).get()).toEqual({ count: 2 });
+    expect(db.prepare(`SELECT COUNT(*) AS count FROM sync_outbox`).get()).toEqual({ count: beforeOutbox.count });
+  });
+
+  it("re-importing a draft never reverts approved review metadata", () => {
+    const db = openDatabase();
+    const root = temporaryDirectory();
+    const directory = plantContentDirectory(root, "solanum-lycopersicum", { en: "same en", vi: "same vi" });
+    insertPlant(db, { plantCode: "SOLANUM_LYCOPERSICUM", genus: "Solanum", species: "lycopersicum" });
+    const manifestPath = path.join(directory, "content.json");
+    writeGeneratedPlantManifest(db, directory, "SOLANUM_LYCOPERSICUM");
+    const report = dryRunContentImport(db, { manifestPaths: [manifestPath] });
+    expect(report.status).toBe("ready");
+    applyContentImport(db, report, { authorized: true, runId: "cid6-first-import", manifestPaths: [manifestPath] });
+
+    // A previous dashboard approval stamped operational release metadata.
+    db.prepare(`
+      UPDATE master_plant_i18n
+      SET content_status = 'published', review_status = 'reviewed',
+          reviewed_by = 'admin:test', reviewed_at = '2026-08-31T00:00:00.000Z'
+      WHERE master_plant_id = (SELECT id FROM master_plants WHERE plant_code = 'SOLANUM_LYCOPERSICUM')
+    `).run();
+    const before = db.prepare(`SELECT reviewed_by, reviewed_at FROM master_plant_i18n ORDER BY locale`).all();
+
+    // A later import of the same draft manifest must not silently revert the
+    // approved release state: statuses come from the manifest, but the
+    // operational audit columns are owned by SQLite and survive untouched.
+    const secondReport = dryRunContentImport(db, { manifestPaths: [manifestPath] });
+    expect(secondReport.status).toBe("ready");
+    applyContentImport(db, secondReport, { authorized: true, runId: "cid6-second-import", manifestPaths: [manifestPath] });
+    expect(db.prepare(`SELECT reviewed_by, reviewed_at FROM master_plant_i18n ORDER BY locale`).all()).toEqual(before);
   });
 
   it("rolls back all locale and outbox writes when apply fails mid-transaction", () => {
@@ -455,7 +487,7 @@ describe("CID-6 Git Markdown content manifests", () => {
         .map((entry) => path.join(categoryRoot, entry.name, "content.json"))
         .filter((filePath) => fs.existsSync(filePath));
     }).sort();
-    expect(manifestPaths).toHaveLength(56);
+    expect(manifestPaths).toHaveLength(57);
     for (const manifestPath of manifestPaths) {
       const bytes = fs.readFileSync(manifestPath, "utf8");
       const parsed = JSON.parse(bytes) as unknown;

@@ -18,6 +18,12 @@ type BackendI18nRow = {
     reviewed_at?: string | null;
     reviewed_by?: string | null;
     content_origin?: "authored" | "inherited" | "imported";
+    source_refs?: Array<{
+        sourceSystem?: string | null;
+        sourceName?: string | null;
+        sourceUrl?: string | null;
+        sourceLocator?: string | null;
+    }>;
     plant_scientific_name?: string | null;
     plant_group?: string | null;
 };
@@ -39,6 +45,7 @@ function mapBackendI18n(row: BackendI18nRow): PlantI18nRow {
         reviewedAt: row.reviewed_at ?? undefined,
         reviewedBy: row.reviewed_by ?? undefined,
         contentOrigin: row.content_origin ?? "imported",
+        sourceRefs: (row.source_refs ?? []) as PlantI18nRow["sourceRefs"],
         plantScientificName: row.plant_scientific_name ?? undefined,
         plantGroup: row.plant_group ?? undefined,
     };
@@ -241,23 +248,27 @@ export function useI18n(authedFetch: AuthedFetch) {
                     method: "POST",
                     body: JSON.stringify(payload),
                 });
-                const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow; error?: string };
+                const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow; error?: string; queued?: boolean };
                 if (!response.ok || !body.data) throw new Error(body.error ?? "Cannot save i18n");
                 setSelectedId(String(body.data.id));
                 setMode("view");
                 void load();
-                return "Translation created locally";
+                return body.queued === false
+                    ? "Translation created locally (draft — approve before publish)"
+                    : "Translation created locally";
             } else if (saveTarget.mode === "edit") {
                 if (!/^\d+$/.test(saveTarget.row._id)) throw new Error("Translation does not have a numeric SQLite id.");
                 const response = await authedFetch(`/api/master-plants-i18n/${saveTarget.row._id}`, {
                     method: "PATCH",
                     body: JSON.stringify(payload),
                 });
-                const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow; error?: string };
+                const body = (await response.json().catch(() => ({}))) as { data?: BackendI18nRow; error?: string; queued?: boolean };
                 if (!response.ok || !body.data) throw new Error(body.error ?? "Cannot save i18n");
                 setMode("view");
                 void load();
-                return "Translation updated locally";
+                return body.queued === false
+                    ? "Translation updated locally (draft — approve before publish)"
+                    : "Translation updated locally";
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Cannot save i18n");
@@ -291,6 +302,47 @@ export function useI18n(authedFetch: AuthedFetch) {
             setSaving(false);
         }
         return null;
+    }
+
+    /**
+     * CAP-2026-08-31: dashboard/SQLite approval. Promotes the plant's locale
+     * set to published/reviewed with the authenticated reviewer identity and
+     * queues one approved snapshot per plant.
+     */
+    async function approvePlant(plantId: string, reason: string): Promise<{ ok: boolean; message: string }> {
+        setSaving(true);
+        setError("");
+        try {
+            if (!/^\d+$/.test(plantId)) throw new Error("Plant does not have a numeric SQLite id.");
+            const response = await authedFetch("/api/content-review/locales/approve", {
+                method: "POST",
+                body: JSON.stringify({ plantIds: [Number(plantId)], reason }),
+            });
+            const body = (await response.json().catch(() => ({}))) as {
+                approved?: Array<{ plantId: number; locales: string[]; outboxId?: number }>;
+                failures?: Array<{ plantId: number; code?: string }>;
+                error?: string;
+            };
+            if (!response.ok) throw new Error(body.error ?? "Cannot approve content");
+            const approvedCount = body.approved?.length ?? 0;
+            const failureMessages = (body.failures ?? [])
+                .map((failure) => `plant ${failure.plantId}: ${failure.code ?? "unknown"}`)
+                .join("; ");
+            void load();
+            if (approvedCount === 0) {
+                return { ok: false, message: `Approval failed — ${failureMessages || "no locales approved"}` };
+            }
+            return {
+                ok: true,
+                message: `Approved ${approvedCount} plant(s) and queued for publish${failureMessages ? `; failed: ${failureMessages}` : ""}`,
+            };
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Cannot approve content";
+            setError(message);
+            return { ok: false, message };
+        } finally {
+            setSaving(false);
+        }
     }
 
     async function createTranslation(input: {
@@ -351,6 +403,7 @@ export function useI18n(authedFetch: AuthedFetch) {
         cancel,
         save,
         remove,
+        approvePlant,
         createTranslation,
     };
 }

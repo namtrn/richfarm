@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { enqueueSyncOutbox } from "./sync-outbox";
 import type { SqliteDatabase } from "./db";
 import {
   CANONICAL_IDENTITY_VERSION,
@@ -1022,40 +1021,6 @@ export function dryRunContentImport(db: SqliteDatabase, options: ContentImportOp
   };
 }
 
-function syncPayload(db: SqliteDatabase, plant: DbPlantRow): Record<string, unknown> {
-  const rows = db.prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ? ORDER BY locale ASC`).all(plant.id) as DbI18nRow[];
-  const i18n = Object.fromEntries(rows.map((row) => [row.locale, {
-    common_name: row.common_name,
-    ...(row.description !== null ? { description: row.description } : {}),
-    ...(row.care_content !== null ? { care_content: row.care_content } : {}),
-    content_version: row.content_version,
-    content_status: row.content_status,
-    review_status: row.review_status,
-    content_origin: row.content_origin,
-    ...(row.source ? { source: row.source } : {}),
-    ...(row.source_url ? { source_url: row.source_url } : {}),
-    source_refs: parseSourceRefs(row.source_refs_json),
-  }]));
-  return {
-    plant_code: plant.plant_code,
-    common_name: plant.common_name,
-    scientific_name: plant.scientific_name,
-    source_system: plant.source_system ?? "sqlite",
-    source_id: plant.source_id ?? `sqlite-local-${plant.id}`,
-    canonical_identity_version: plant.canonical_identity_version,
-    canonical_key: plant.canonical_key,
-    genus: plant.genus,
-    species: plant.species,
-    infraspecific_rank: plant.infraspecific_rank,
-    infraspecific_name: plant.infraspecific_name,
-    cultivar: plant.cultivar,
-    identity_scope: plant.identity_scope,
-    parent_master_plant_id: plant.parent_master_plant_id,
-    parent_canonical_key: plant.parent_canonical_key,
-    i18n,
-  };
-}
-
 /**
  * Apply is deliberately separate from dry-run. Callers must pass the exact
  * report produced from the same database bytes and an authenticated admin
@@ -1109,20 +1074,14 @@ export function applyContentImport(
         `).run(markdown, localeManifest.content_version, localeManifest.content_status, localeManifest.review_status, localeManifest.content_origin, JSON.stringify(localeManifest.source_refs), target.row.id, locale);
         if (updated.changes !== 1) throw new Error(`CONTENT_IMPORT_DATABASE_LOCALE_MISSING:${target.row.id}:${locale}`);
         updatedLocales++;
-        const sourceId = target.row.source_id ?? `sqlite-local-${target.row.id}`;
-        enqueueSyncOutbox(db, {
-          entityType: "master_plant",
-          sourceSystem: target.row.source_system ?? "sqlite",
-          sourceId,
-          operation: "upsert_i18n",
-          locale,
-          payload: syncPayload(db, target.row),
-        });
-        queuedOutbox++;
+        // CAP-2026-08-31: importing is a draft-only operation. Publication
+        // eligibility is decided by the dashboard/SQLite approval action,
+        // which stamps review audit metadata and queues the approved snapshot
+        // in one transaction. No outbox row is created here.
       }
     }
   })();
-  return { mode: "apply", status: "applied", runId: options.runId, database_sha256_before: beforeHash, database_sha256_after: databaseDigest(db), updatedLocales, queuedOutbox };
+  return { mode: "apply", status: "applied", runId: options.runId, database_sha256_before: beforeHash, database_sha256_after: databaseDigest(db), updatedLocales, queuedOutbox: 0 };
 }
 
 export function generatePestDiseaseManifest(options: {

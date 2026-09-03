@@ -36,9 +36,12 @@ import {
 import { ADAPTATION_TERMS } from "../../../packages/shared/src/adaptationTerms";
 import {
   enqueueSyncOutbox,
+  evaluatePayloadApproval,
   processSyncOutbox,
   retryFailedSyncOutbox,
 } from "./sync-outbox";
+import { sanitizeAuthoringPlantPayload } from "./content-approval";
+import { listPendingCareApprovals } from "./care-approval-notifications";
 
 const growthStageSchema = z.enum(["seedling", "vegetative", "flowering", "harvest"]);
 const contentStatusSchema = z.enum(["draft", "published", "needs_review", "archived"]);
@@ -1198,7 +1201,7 @@ function queuePlantSync(
 export function queueLocalAuthoringPlantsForPublish(
   db: SqliteDatabase,
   limit = 5000,
-): { scanned: number; queued: number; identitiesAssigned: number } {
+): { scanned: number; queued: number; identitiesAssigned: number; skippedNotApproved: number } {
   return db.transaction(() => {
     const rows = db.prepare(`
       SELECT * FROM master_plants
@@ -1207,6 +1210,8 @@ export function queueLocalAuthoringPlantsForPublish(
       LIMIT ?
     `).all(Math.max(1, Math.min(5000, limit))) as MasterPlantRow[];
     let identitiesAssigned = 0;
+    let queued = 0;
+    let skippedNotApproved = 0;
     for (const row of rows) {
       const sourceId = row.source_id?.trim() || `sqlite-local-${row.id}`;
       if (!row.source_id?.trim()) {
@@ -1221,9 +1226,18 @@ export function queueLocalAuthoringPlantsForPublish(
         i18n: fetchI18n(db, row.id),
         sync_origin: "local",
       }));
+      // CAP-2026-08-31: only approved care content may be queued. Unapproved
+      // locales stay in SQLite as drafts; the dashboard approval action
+      // queues them explicitly.
+      const approval = evaluatePayloadApproval(payload as unknown as Record<string, unknown>);
+      if (!approval.allowed) {
+        skippedNotApproved++;
+        continue;
+      }
       queuePlantSync(db, payload);
+      queued++;
     }
-    return { scanned: rows.length, queued: rows.length, identitiesAssigned };
+    return { scanned: rows.length, queued, identitiesAssigned, skippedNotApproved };
   })();
 }
 
@@ -2092,6 +2106,18 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
     }
   });
 
+  // Keep this explicit collection route before the generic `/:id` route below.
+  // Stage 2 of the local-first flow: Markdown has already been imported into
+  // SQLite, but care content still needs approval in Plant Detail before the
+  // resulting snapshot can enter the publication outbox.
+  router.get("/care-approvals", (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.json(listPendingCareApprovals(db));
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.post("/sync-convex-to-sqlite", async (_req: Request, res: Response, next: NextFunction) => {
     let reconciliationId: number | undefined;
     try {
@@ -2207,8 +2233,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       const placeholders = payload.ids.map(() => "?").join(",");
 
       if (payload.action === "activate") {
-        const changed = db.transaction(() => {
+        const result = db.transaction(() => {
           const rows = db.prepare(`SELECT * FROM master_plants WHERE id IN (${placeholders})`).all(...payload.ids) as MasterPlantRow[];
+          let queued = 0;
+          let skippedNotApproved = 0;
           for (const row of rows) {
             const merged = withSourceIdentity(createMasterPlantSchema.parse({
               ...normalizeMasterPlant(db, row),
@@ -2216,14 +2244,21 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
               is_active: true,
             }));
             upsertMasterPlantRow(db, { ...merged, sync_origin: "local" });
-            queuePlantSync(db, merged);
+            if (evaluatePayloadApproval(merged as unknown as Record<string, unknown>).allowed) {
+              queuePlantSync(db, merged);
+              queued++;
+            } else {
+              skippedNotApproved++;
+            }
           }
-          return rows.length;
+          return { affected: rows.length, queued, skippedNotApproved };
         })();
-        res.json({ affected: changed, queued: true });
+        res.json(result);
       } else if (payload.action === "deactivate") {
-        const changed = db.transaction(() => {
+        const result = db.transaction(() => {
           const rows = db.prepare(`SELECT * FROM master_plants WHERE id IN (${placeholders})`).all(...payload.ids) as MasterPlantRow[];
+          let queued = 0;
+          let skippedNotApproved = 0;
           for (const row of rows) {
             const merged = withSourceIdentity(createMasterPlantSchema.parse({
               ...normalizeMasterPlant(db, row),
@@ -2231,11 +2266,16 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
               is_active: false,
             }));
             upsertMasterPlantRow(db, { ...merged, sync_origin: "local" });
-            queuePlantSync(db, merged);
+            if (evaluatePayloadApproval(merged as unknown as Record<string, unknown>).allowed) {
+              queuePlantSync(db, merged);
+              queued++;
+            } else {
+              skippedNotApproved++;
+            }
           }
-          return rows.length;
+          return { affected: rows.length, queued, skippedNotApproved };
         })();
-        res.json({ affected: changed, queued: true });
+        res.json(result);
       } else if (payload.action === "delete") {
         if (req.authUser?.role !== "admin") {
           res.status(403).json({ error: "Forbidden: bulk delete is admin-only" });
@@ -2574,7 +2614,10 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       // Never infer a new identity from scientific_name, common_name, or
       // metadata.  Existing-row PATCH compatibility is handled below.
       assertStructuredCanonicalIdentity(req.body);
-      const payload = withSourceIdentity(createMasterPlantSchema.parse(req.body));
+      const authoredPayload = createMasterPlantSchema.parse(
+        sanitizeAuthoringPlantPayload(createMasterPlantSchema.parse(req.body) as unknown as Record<string, unknown>).payload,
+      );
+      const payload = withSourceIdentity(authoredPayload);
       const preview = previewCanonicalIdentityMatch(db, payload as unknown as Record<string, unknown>);
       if (preview.exact) {
         res.status(409).json({
@@ -2591,7 +2634,8 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return;
       }
 
-      const queued = true;
+      const approval = evaluatePayloadApproval(payload as unknown as Record<string, unknown>);
+      const queued = approval.allowed;
       const rowId = db.transaction(() => {
         const localPayload = { ...payload, sync_origin: "local" as const };
         const id = upsertMasterPlantRow(db, localPayload);
@@ -2603,6 +2647,7 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       res.status(201).json({
         data: { ...normalizeMasterPlant(db, row), i18n: fetchI18n(db, row.id) },
         queued,
+        ...(approval.allowed ? {} : { reason: approval.reason }),
       });
     } catch (error) {
       next(error);
@@ -2624,21 +2669,29 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
       }
 
       const currentI18n = fetchI18n(db, currentRow.id);
-      const mergedPayload = withSourceIdentity(createMasterPlantSchema.parse({
+      const previousPayload = buildMasterPlantPayload(db, currentRow, currentI18n);
+      const authoredPayload = createMasterPlantSchema.parse({
         ...normalizeMasterPlant(db, currentRow),
         i18n: currentI18n,
         ...payload,
         // Clearing the UI field must not silently rotate the stable upstream
         // identity. An explicit source-id change is still supported.
         source_id: payload.source_id == null ? currentRow.source_id : payload.source_id,
-      }));
+      });
+      const mergedPayload = withSourceIdentity(createMasterPlantSchema.parse(
+        sanitizeAuthoringPlantPayload(
+          authoredPayload as unknown as Record<string, unknown>,
+          previousPayload as unknown as Record<string, unknown>,
+        ).payload,
+      ));
       const conflict = sourceConflict(db, mergedPayload, currentRow.id);
       if (conflict) {
         res.status(409).json({ error: "A master plant with this identity already exists" });
         return;
       }
 
-      const queued = true;
+      const approval = evaluatePayloadApproval(mergedPayload as unknown as Record<string, unknown>);
+      const queued = approval.allowed;
       const rowId = db.transaction(() => {
         const id = upsertMasterPlantRow(db, {
           ...mergedPayload,
@@ -2648,7 +2701,11 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
         return id;
       })();
       const updatedRow = db.prepare(`SELECT * FROM master_plants WHERE id = ?`).get(rowId) as MasterPlantRow;
-      res.json({ data: { ...normalizeMasterPlant(db, updatedRow), i18n: fetchI18n(db, rowId) }, queued });
+      res.json({
+        data: { ...normalizeMasterPlant(db, updatedRow), i18n: fetchI18n(db, rowId) },
+        queued,
+        ...(approval.allowed ? {} : { reason: approval.reason }),
+      });
     } catch (error) {
       next(error);
     }
@@ -2739,6 +2796,11 @@ export function handleMasterPlantsError(error: unknown, res: Response): boolean 
 
   if (error instanceof Error && error.message === "Convex admin read sync is not configured") {
     res.status(503).json({ error: error.message, retryable: true });
+    return true;
+  }
+
+  if (error instanceof Error && error.message.startsWith("CONTENT_NOT_APPROVED")) {
+    res.status(409).json({ error: "CONTENT_NOT_APPROVED", details: error.message });
     return true;
   }
 

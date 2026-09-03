@@ -113,6 +113,16 @@ const backendRowValidator = v.object({
   // taxonomy compatibility path.
   genus: nullableString,
   species: nullableString,
+  // Structured canonical identity fields are part of the SQLite authoring
+  // snapshot. The current Convex writer still derives its lookup taxonomy
+  // from genus/species, but it must accept these additive fields so a complete
+  // backend snapshot is not rejected before the mutation can run.
+  infraspecific_rank: nullableString,
+  infraspecific_name: nullableString,
+  cultivar: nullableString,
+  identity_scope: nullableString,
+  parent_master_plant_id: nullableNumber,
+  parent_canonical_key: nullableString,
   taxonomy_parse_status: v.optional(v.union(v.literal("ok"), v.literal("manual_review"))),
   source_system: v.optional(v.string()),
   source_id: nullableString,

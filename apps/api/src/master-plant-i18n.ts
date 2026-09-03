@@ -13,7 +13,8 @@ import {
   upsertMasterPlantRow,
   withSourceIdentity,
 } from "./master-plants";
-import { enqueueSyncOutbox } from "./sync-outbox";
+import { sanitizeAuthoringLocale } from "./content-approval";
+import { enqueueSyncOutbox, evaluatePayloadApproval } from "./sync-outbox";
 
 const localeContentSchema = z.object({
   common_name: z.string().trim().min(1).max(120),
@@ -187,14 +188,20 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
         return;
       }
       const i18n = ensureRequiredLocales(db, current.id, canonicalI18nPayload(db, current.id), current.common_name);
-      i18n[payload.locale] = {
+      const previousLocale = i18n[payload.locale];
+      const authoredLocale = {
         ...i18n[payload.locale],
         ...payload,
         content_version: payload.content_version ?? (i18n[payload.locale]?.content_version ?? 0) + 1,
       };
+      i18n[payload.locale] = sanitizeAuthoringLocale(authoredLocale, previousLocale).payload;
       const fullPayload = withSourceIdentity(buildMasterPlantPayload(db, current, i18n));
 
-      const queued = true;
+      // CAP-2026-08-31: saving is local-first. An unapproved care payload
+      // still saves as a draft, but is not queued for publication; the
+      // dashboard/SQLite approval action queues it later.
+      const approval = evaluatePayloadApproval(fullPayload as unknown as Record<string, unknown>);
+      const queued = approval.allowed;
       const rowId = db.transaction(() => {
         const id = upsertMasterPlantRow(db, { ...fullPayload, sync_origin: "local" });
         if (queued) {
@@ -210,7 +217,11 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
         return id;
       })();
       const saved = db.prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ? AND locale = ?`).get(rowId, payload.locale) as I18nRow;
-      res.status(201).json({ data: normalizeI18n(saved), queued });
+      res.status(201).json({
+        data: normalizeI18n(saved),
+        queued,
+        ...(approval.allowed ? {} : { reason: approval.reason }),
+      });
     } catch (error) {
       next(error);
     }
@@ -231,14 +242,17 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
         return;
       }
       const i18n = ensureRequiredLocales(db, current.id, canonicalI18nPayload(db, current.id), current.common_name);
-      i18n[existing.locale] = {
+      const previousLocale = i18n[existing.locale];
+      const authoredLocale = {
         ...i18n[existing.locale],
         ...payload,
         content_version: payload.content_version ?? (existing.content_version ?? 0) + 1,
       };
+      i18n[existing.locale] = sanitizeAuthoringLocale(authoredLocale, previousLocale).payload;
       const fullPayload = withSourceIdentity(buildMasterPlantPayload(db, current, i18n));
 
-      const queued = true;
+      const approval = evaluatePayloadApproval(fullPayload as unknown as Record<string, unknown>);
+      const queued = approval.allowed;
       const rowId = db.transaction(() => {
         const id = upsertMasterPlantRow(db, {
           ...fullPayload,
@@ -257,7 +271,11 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
         return id;
       })();
       const updated = db.prepare(`SELECT * FROM master_plant_i18n WHERE master_plant_id = ? AND locale = ?`).get(rowId, existing.locale) as I18nRow;
-      res.json({ data: normalizeI18n(updated), queued });
+      res.json({
+        data: normalizeI18n(updated),
+        queued,
+        ...(approval.allowed ? {} : { reason: approval.reason }),
+      });
     } catch (error) {
       next(error);
     }
@@ -281,7 +299,8 @@ export function createMasterPlantI18nRouter(db: SqliteDatabase, syncService?: Co
       delete i18n[existing.locale];
       const fullPayload = withSourceIdentity(buildMasterPlantPayload(db, current, ensureRequiredLocales(db, current.id, i18n, current.common_name)));
 
-      const queued = true;
+      const approval = evaluatePayloadApproval(fullPayload as unknown as Record<string, unknown>);
+      const queued = approval.allowed;
       db.transaction(() => {
         upsertMasterPlantRow(db, {
           ...fullPayload,

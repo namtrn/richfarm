@@ -29,7 +29,13 @@ export function useContentInbox(authedFetch: AuthedFetch, enabled: boolean) {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [activeProposalId, setActiveProposalId] = useState<string | null>(null);
   const [reason, setReason] = useState("");
-  const [lastApplyOutcome, setLastApplyOutcome] = useState<{ status: string; code?: string; detail?: string } | null>(null);
+  const [lastApplyOutcome, setLastApplyOutcome] = useState<{
+    status: string;
+    code?: string;
+    detail?: string;
+    updatedLocales?: number;
+    queuedOutbox?: number;
+  } | null>(null);
 
   const loadSequence = useRef(0);
   const filtersRef = useRef(filters);
@@ -127,6 +133,8 @@ export function useContentInbox(authedFetch: AuthedFetch, enabled: boolean) {
       status: String(body.status ?? (response.ok ? "applied" : "rejected")),
       code: typeof body.code === "string" ? body.code : undefined,
       detail: typeof body.detail === "string" ? body.detail : undefined,
+      updatedLocales: typeof body.updatedLocales === "number" ? body.updatedLocales : undefined,
+      queuedOutbox: typeof body.queuedOutbox === "number" ? body.queuedOutbox : undefined,
     };
     setLastApplyOutcome(outcome);
     if (outcome.status === "applied") {

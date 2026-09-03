@@ -477,6 +477,52 @@ export interface ChangeEventRow {
   last_detected_at: string;
 }
 
+/**
+ * A newly discovered owning manifest makes an earlier manifestless Markdown
+ * event redundant: the manifest event reviews and applies the complete
+ * locale neighborhood. Retire only the blocking missing-manifest events so a
+ * real Markdown edit remains an independent review item.
+ */
+export function supersedePendingManifestlessEvents(
+  db: SqliteDatabase,
+  owningManifestPath: string,
+  supersededByEventId: string,
+): number {
+  return db.transaction(() => {
+    const candidates = db
+      .prepare(
+        `SELECT id, findings_json
+         FROM content_change_events
+         WHERE owning_manifest_path = ?
+           AND event_id <> ?
+           AND review_state IN ('pending', 'blocked')`,
+      )
+      .all(owningManifestPath, supersededByEventId) as Array<{
+      id: number;
+      findings_json: string;
+    }>;
+    const update = db.prepare(
+      `UPDATE content_change_events
+       SET review_state = 'superseded', superseded_by_event_id = ?
+       WHERE id = ? AND review_state IN ('pending', 'blocked')`,
+    );
+    let superseded = 0;
+    for (const candidate of candidates) {
+      let findings: Record<string, unknown>;
+      try {
+        findings = JSON.parse(candidate.findings_json ?? "{}") as Record<string, unknown>;
+      } catch {
+        continue;
+      }
+      if (!findings["OWNER_STATUS_MISSING_MANIFEST"]) {
+        continue;
+      }
+      superseded += Number(update.run(supersededByEventId, candidate.id).changes);
+    }
+    return superseded;
+  })();
+}
+
 export function getChangeEvent(
   db: SqliteDatabase,
   eventId: string,
@@ -484,6 +530,26 @@ export function getChangeEvent(
   const row = db
     .prepare(`SELECT * FROM content_change_events WHERE event_id = ?`)
     .get(eventId);
+  return row ? (row as ChangeEventRow) : null;
+}
+
+export function getLatestChangeEventForPath(
+  db: SqliteDatabase,
+  relPath: string,
+  options: { reviewStates?: readonly ContentReviewState[] } = {},
+): ChangeEventRow | null {
+  const states = options.reviewStates ?? [];
+  const stateClause = states.length
+    ? ` AND review_state IN (${states.map(() => "?").join(", ")})`
+    : "";
+  const row = db
+    .prepare(
+      `SELECT * FROM content_change_events
+       WHERE path = ?${stateClause}
+       ORDER BY first_detected_at DESC, id DESC
+       LIMIT 1`,
+    )
+    .get(relPath, ...states);
   return row ? (row as ChangeEventRow) : null;
 }
 

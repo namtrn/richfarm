@@ -542,7 +542,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         setMode("view");
     }
 
-    async function openExactCanonicalMatch(id: number | string): Promise<boolean> {
+    async function openExactCanonicalMatch(id: number | string, targetMode: "view" | "edit" = "edit"): Promise<boolean> {
         const requestId = ++requestSequence.current;
         try {
             const hydrated = await fetchBackendPlantById(authedFetch, id);
@@ -550,7 +550,7 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             setPlants((current) => mergeHydratedPlant(current, hydrated));
             setSelectedId(hydrated._id);
             setForm(toFormState(hydrated));
-            setMode("edit");
+            setMode(targetMode);
             return true;
         } catch (err) {
             if (requestId === requestSequence.current) {
@@ -558,6 +558,10 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
             }
             return false;
         }
+    }
+
+    async function openPlantDetail(id: number | string): Promise<boolean> {
+        return openExactCanonicalMatch(id, "view");
     }
 
     async function save(): Promise<string | null> {
@@ -895,6 +899,8 @@ export function usePlants(authedFetch: AuthedFetch, enabled = true) {
         load,
         retry: load,
         select,
+        openExactCanonicalMatch,
+        openPlantDetail,
         startCreate,
         startEdit,
         cancel,

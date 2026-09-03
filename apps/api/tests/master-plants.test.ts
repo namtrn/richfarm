@@ -395,4 +395,68 @@ describe("master plants API", () => {
     });
     expect(response.status).toBe(401);
   });
+
+  it("lists exact plants and locales waiting for second-stage care approval", async () => {
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
+    const authHeader = await authHeaderFor(app);
+    const insertPlant = db.prepare(`
+      INSERT INTO master_plants (
+        plant_code, common_name, scientific_name,
+        canonical_identity_version, canonical_key, genus, species, identity_scope
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertI18n = db.prepare(`
+      INSERT INTO master_plant_i18n (
+        master_plant_id, locale, common_name, care_content,
+        content_status, review_status, reviewed_at, reviewed_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const createDirectPlant = (plantCode: string, commonName: string, scientificName: string): number => {
+      const [genus, species] = scientificName.split(/\s+/, 2);
+      return Number(insertPlant.run(
+        plantCode,
+        commonName,
+        scientificName,
+        "canonical_identity_v1",
+        JSON.stringify(["v1", genus.toLowerCase(), species.toLowerCase(), "", "", ""]),
+        genus,
+        species,
+        "base",
+      ).lastInsertRowid);
+    };
+
+    const pendingId = createDirectPlant("CARE_PENDING", "Imported plant", "Ocimum basilicum");
+    insertI18n.run(pendingId, "en", "Basil", "## Watering", "needs_review", "unreviewed", null, null);
+    insertI18n.run(pendingId, "vi", "Húng quế", "## Tưới nước", "needs_review", "unreviewed", null, null);
+
+    const invalidAuditId = createDirectPlant("CARE_INVALID_AUDIT", "Invalid audit", "Mentha spicata");
+    insertI18n.run(invalidAuditId, "en", "Mint", "## Watering", "published", "reviewed", "not-a-date", "1:admin");
+
+    const approvedId = createDirectPlant("CARE_APPROVED", "Approved plant", "Rosmarinus officinalis");
+    insertI18n.run(approvedId, "en", "Rosemary", "## Watering", "published", "reviewed", "2026-09-01T00:00:00.000Z", "1:admin");
+
+    const response = await request(app)
+      .get("/api/master-plants/care-approvals")
+      .set("Authorization", authHeader);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ count: 2, pendingLocaleCount: 3 });
+    expect(response.body.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        plantId: pendingId,
+        plantCode: "CARE_PENDING",
+        displayName: "Húng quế",
+        scientificName: "Ocimum basilicum",
+        locales: ["en", "vi"],
+      }),
+      expect.objectContaining({
+        plantId: invalidAuditId,
+        plantCode: "CARE_INVALID_AUDIT",
+        locales: ["en"],
+      }),
+    ]));
+    expect(response.body.items).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ plantId: approvedId }),
+    ]));
+  });
 });

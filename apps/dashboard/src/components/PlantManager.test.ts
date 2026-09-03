@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CareContent } from "./PlantManager";
+import { CareContent, ApprovePlantPanel, localeSetIsApproved, localeApprovalDetail } from "./PlantManager";
 import { CareGuideModal } from "./CareGuideModal";
 import { buildCareContentPayload, resolveI18nSaveTarget } from "../hooks/useI18n";
 import { fetchBackendPlantById, mergeHydratedPlant, validateDashboardCanonicalIdentity } from "../hooks/usePlants";
@@ -208,6 +208,82 @@ describe("i18n save target resolution", () => {
         expect(resolveI18nSaveTarget("create", null)).toEqual({ mode: "create", row: null });
         expect(resolveI18nSaveTarget("edit", selectedRow)).toEqual({ mode: "edit", row: selectedRow });
         expect(resolveI18nSaveTarget("view", null)).toEqual({ mode: "none", row: null });
+    });
+});
+
+describe("CAP approve panel", () => {
+    const approvedPlant = {
+        _id: "921",
+        scientificName: "Bougainvillea glabra",
+        group: "other",
+        i18nRows: [
+            { locale: "en", commonName: "Bougainvillea", careContent: "en care", reviewStatus: "reviewed", contentStatus: "published", reviewedBy: "1:admin", reviewedAt: "2026-08-31T08:00:00.000Z" },
+            { locale: "vi", commonName: "Hoa giấy", careContent: "vi care", reviewStatus: "reviewed", contentStatus: "published", reviewedBy: "1:admin", reviewedAt: "2026-08-31T08:00:00.000Z" },
+        ],
+    };
+    const draftPlant = {
+        ...approvedPlant,
+        i18nRows: [
+            { locale: "en", commonName: "Bougainvillea", careContent: "en care", reviewStatus: "unreviewed", contentStatus: "needs_review" },
+            { locale: "vi", commonName: "Hoa giấy", careContent: "vi care", reviewStatus: "unreviewed", contentStatus: "needs_review" },
+        ],
+    };
+
+    it("treats a locale set as approved only when every care locale carries full audit metadata", () => {
+        expect(localeSetIsApproved(approvedPlant.i18nRows)).toBe(true);
+        expect(localeSetIsApproved(draftPlant.i18nRows)).toBe(false);
+        expect(localeSetIsApproved([{ careContent: undefined }, { careContent: undefined }])).toBe(true);
+        expect(localeSetIsApproved([{ ...draftPlant.i18nRows[0], reviewedAt: undefined }])).toBe(false);
+    });
+
+    it("shows the approved state instead of the approve action when everything is reviewed", () => {
+        const html = renderToStaticMarkup(
+            React.createElement(ApprovePlantPanel, {
+                plant: approvedPlant as Plant,
+                i18n: { approvePlant: async () => ({ ok: true, message: "" }) } as never,
+                reload: async () => undefined,
+                onToast: () => undefined,
+            }),
+        );
+        expect(html).toContain("Approved ✓");
+        expect(html).not.toContain("Approve &amp; queue");
+    });
+
+    it("offers the approve action and blocks approval when care locales lack provenance", () => {
+        const html = renderToStaticMarkup(
+            React.createElement(ApprovePlantPanel, {
+                plant: draftPlant as Plant,
+                i18n: { approvePlant: async () => ({ ok: false, message: "" }) } as never,
+                reload: async () => undefined,
+                onToast: () => undefined,
+            }),
+        );
+        expect(html).toContain("Approve &amp; queue");
+        expect(html).toContain("Care locales without source references cannot be approved");
+        expect(html).toContain("en, vi");
+    });
+
+    it("lists care byte counts and source references before approval", () => {
+        expect(localeApprovalDetail({ locale: "vi", careContent: "vi care", sourceRefs: [{ sourceLocator: "plans/priority.md" }] }))
+            .toBe("care 7 bytes · refs: plans/priority.md");
+        expect(localeApprovalDetail({ locale: "en", careContent: "" })).toBe("no care · no source refs");
+        const withRefs = {
+            ...draftPlant,
+            i18nRows: [
+                { locale: "en", commonName: "Bougainvillea", careContent: "en care", reviewStatus: "unreviewed", contentStatus: "needs_review", sourceRefs: [{ sourceLocator: "plans/priority.md" }] },
+                { locale: "vi", commonName: "Hoa giấy", careContent: "vi care", reviewStatus: "unreviewed", contentStatus: "needs_review", sourceRefs: [{ sourceLocator: "plans/priority.md" }] },
+            ],
+        };
+        const html = renderToStaticMarkup(
+            React.createElement(ApprovePlantPanel, {
+                plant: withRefs as Plant,
+                i18n: { approvePlant: async () => ({ ok: true, message: "" }) } as never,
+                reload: async () => undefined,
+                onToast: () => undefined,
+            }),
+        );
+        expect(html).toContain("Approve &amp; queue");
+        expect(html).not.toContain("cannot be approved");
     });
 });
 
