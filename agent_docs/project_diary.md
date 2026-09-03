@@ -1,5 +1,21 @@
 # Project Diary
 
+## 2026-09-03 — Dashboard developer experience, review notifications, and taxonomy sync
+
+The dashboard dev server now supervises the Express API process via a dedicated Vite lifecycle plugin (`dashboardApiSupervisor.ts`), automatically restarting the API on abnormal exits and gracefully shutting it down when Vite terminates. This eliminates manual multi-terminal bootstrapping while keeping standalone execution available.
+
+A two-stage notification system was added to the dashboard shell: `ContentSourceNotification` alerts operators to incoming Markdown changes detected by the content watcher awaiting import, while `CareApprovalNotification` alerts reviewers to plants in SQLite with unapproved care content. Both link directly to their respective review interfaces.
+
+Convex plant groups were updated with canonical Vietnamese diacritics in `plantsMasterSeed.ts`, supported by an idempotent `syncPlantGroupNames` mutation with unit test coverage (`plantGroups.test.ts`) that preserves custom translations across non-primary locales. TaxonomyManager was refactored to dynamically render arbitrary translation locales, accompanied by responsive layout improvements across the dashboard stats and action headers. Mobile iOS Hermes and CocoaPods configurations were synchronized with the Xcode project.
+
+## 2026-08-31 — Care content approval and Convex publication semantics (CAP-2026-08-31)
+
+CAP-1–CAP-6 resolved the architectural reversal where the dashboard's **Publish pending** action previously allowed `needs_review` care content into Convex, which the mobile app then concealed. SQLite and the dashboard are now the definitive review and approval boundary; Convex is strictly an application-serving projection that accepts approved content.
+
+Import and approval are explicitly bifurcated: `applyContentImport` writes authored bytes and manifest statuses to SQLite as drafts and enqueues zero outbox rows. A new `approveContentLocales` service and endpoint (`POST /api/content-review/locales/approve`) stamps all locales of a plant to `published / reviewed` with authenticated reviewer identity and timestamp, atomically enqueuing one `upsert_plant` snapshot per plant. Care locales require verifiable `source_refs` provenance (`REVIEWED_WITHOUT_PROVENANCE` check).
+
+The outbox pipeline enforces approval gates at pre-claim and pre-send (`CONTENT_NOT_APPROVED`). Unapproved rows are permanently blocked. Convex contracts (`careApprovalPublish.test.ts`) verify that public queries expose only approved care content while preserving audit metadata. The end-to-end flow was verified against dev deployment `fantastic-beagle-190` using Bougainvillea glabra, matching authored care bytes byte-for-byte in both English and Vietnamese.
+
 ## 2026-08-25 — Canonical identity and content-integrity closeout
 
 CID-1–CID-9 is implemented and verified locally. The shared `canonical_identity_v1` contract now supplies deterministic structured identity to API, SQLite, content tooling, Convex writers, and tests. New API/dashboard creates require complete structured identity, preview exact canonical matches, return `CANONICAL_PLANT_EXISTS` for duplicates, and keep near matches as suggestions.
