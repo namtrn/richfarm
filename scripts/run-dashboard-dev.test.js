@@ -65,6 +65,10 @@ test("starts API and dashboard without shell-specific background syntax", async 
   assert.equal(harness.calls[0].spawnOptions.shell, false);
   assert.equal(harness.calls[1].spawnOptions.shell, false);
   assert.equal(harness.calls[0].spawnOptions.detached, true);
+  assert.equal(
+    harness.calls[1].spawnOptions.env.RICHFARM_DASHBOARD_API_AUTOSTART,
+    "false",
+  );
 
   harness.children[1].emit("exit", 0, null);
   assert.equal(await completion, 0);

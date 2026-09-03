@@ -14,6 +14,9 @@ const services = [
   {
     name: "dashboard",
     args: ["--prefix", "apps/dashboard", "run", "dev"],
+    // The dashboard's Vite plugin owns the API lifecycle when it is started
+    // directly. This combined launcher already owns the API child itself.
+    env: { RICHFARM_DASHBOARD_API_AUTOSTART: "false" },
   },
 ];
 
@@ -150,7 +153,7 @@ function createDevOrchestrator({
     const command = npmCommand;
     const options = {
       cwd,
-      env: { ...process.env },
+      env: { ...process.env, ...(service.env ?? {}) },
       stdio: "inherit",
       shell: false,
       // On Unix this gives us a process group for descendant cleanup. The

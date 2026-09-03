@@ -1,16 +1,41 @@
-import { defineConfig } from "vite";
+import { defineConfig, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import dotenv from "dotenv";
+import { createDashboardApiSupervisor } from "./src/dev/dashboardApiSupervisor";
 
 dotenv.config({ path: resolve(__dirname, "../../.env.local") });
 dotenv.config({ path: resolve(__dirname, "../../.env") });
 dotenv.config({ path: resolve(__dirname, ".env"), override: true });
 
-export default defineConfig({
+function dashboardApiLifecyclePlugin() {
+  let supervisor: ReturnType<typeof createDashboardApiSupervisor> | null = null;
+
+  return {
+    name: "richfarm-dashboard-api-lifecycle",
+    configureServer(server: ViteDevServer) {
+      supervisor = createDashboardApiSupervisor({
+        cwd: resolve(__dirname, "../.."),
+      });
+      supervisor.start();
+      server.httpServer?.once("close", () => {
+        supervisor?.stop();
+        supervisor = null;
+      });
+    },
+  };
+}
+
+export default defineConfig(({ command, mode }) => {
+  const shouldOwnApiLifecycle =
+    command === "serve" &&
+    mode === "development" &&
+    process.env.RICHFARM_DASHBOARD_API_AUTOSTART !== "false";
+
+  return {
   root: resolve(__dirname),
   base: "/",
-  plugins: [react()],
+  plugins: [react(), ...(shouldOwnApiLifecycle ? [dashboardApiLifecyclePlugin()] : [])],
   resolve: {
     alias: {
       react: resolve(__dirname, "node_modules/react"),
@@ -49,9 +74,9 @@ export default defineConfig({
             });
             res.end(
               JSON.stringify({
-                error: "Backend unavailable",
+                error: "Dashboard is reconnecting",
                 message:
-                  "RichFarm API is not running. Start both services with npm run dashboard:dev.",
+                  "Some dashboard data is temporarily unavailable. It will reconnect automatically.",
               }),
             );
           });
@@ -63,4 +88,5 @@ export default defineConfig({
     outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
   },
+  };
 });

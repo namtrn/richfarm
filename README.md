@@ -76,17 +76,18 @@ npm run api:dev
 
 ### Start the dashboard and API together
 
-Use the root runner for local dashboard development. It owns both processes,
-forwards Ctrl-C, and stops the sibling if either service fails:
+The dashboard dev server owns the API and content watcher lifecycle. Starting
+either option below brings up the dashboard and keeps its data service running:
 
 ```bash
 npm run dashboard:dev
+# or, from apps/dashboard:
+npm run dev
 ```
 
-The dashboard's `/api` proxy reports a JSON `503 Backend unavailable` response
-until the API is listening on port `4000`. The standalone workspace commands
-(`npm --prefix apps/dashboard run dev` and `npm run api:dev`) remain available
-when each service is needed separately.
+The dashboard automatically starts the API when it is not already running,
+restarts it after an unexpected exit, and stops it when the dashboard closes.
+`npm run api:dev` remains available for API-only development.
 
 ## Plant Taxonomy Workflow
 
