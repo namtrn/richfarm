@@ -16,7 +16,7 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		D09E58F56A90392CB0266310 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01101B14411500315010DB1E /* ExpoModulesProvider.swift */; };
 		D416DB545FA247C79ABA8421 /* WidgetBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF43453A8DC4C02BFEC18BC /* WidgetBridge.swift */; };
-		E7B9AC4625E5F1B62ECBD7F6 /* libPods-RichFarm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0708F10D79E5CB251E8D0E06 /* libPods-RichFarm.a */; };
+		EF27F505598A9D40415B609F /* libPods-RichFarm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F0FE7B4C2263234FF717090F /* libPods-RichFarm.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 		F2BA5545315D43468148704B /* RichFarmWidget.appex in Copy Files */ = {isa = PBXBuildFile; fileRef = 2C9D87A26F6D479F98658BAE /* RichFarmWidget.appex */; };
 /* End PBXBuildFile section */
@@ -37,22 +37,22 @@
 
 /* Begin PBXFileReference section */
 		01101B14411500315010DB1E /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-RichFarm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		0708F10D79E5CB251E8D0E06 /* libPods-RichFarm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RichFarm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* RichFarm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RichFarm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RichFarm/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RichFarm/Info.plist; sourceTree = "<group>"; };
+		15272DD04B9B299B242B26A3 /* Pods-RichFarm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RichFarm.release.xcconfig"; path = "Target Support Files/Pods-RichFarm/Pods-RichFarm.release.xcconfig"; sourceTree = "<group>"; };
 		2C9D87A26F6D479F98658BAE /* RichFarmWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = RichFarmWidget.appex; path = RichFarmWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		30A7DD8727E828CE837AAA7A /* Pods-RichFarm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RichFarm.debug.xcconfig"; path = "Target Support Files/Pods-RichFarm/Pods-RichFarm.debug.xcconfig"; sourceTree = "<group>"; };
+		45ECE7FD78578EE5DBD25150 /* Pods-RichFarm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RichFarm.debug.xcconfig"; path = "Target Support Files/Pods-RichFarm/Pods-RichFarm.debug.xcconfig"; sourceTree = "<group>"; };
 		713C6D44A4084CCE976C3BF3 /* RichFarmWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RichFarmWidget.swift; path = RichFarmWidget.swift; sourceTree = "<group>"; };
 		A524A0C99158470097C41D4B /* RichFarmWidgetBundle.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RichFarmWidgetBundle.swift; path = RichFarmWidgetBundle.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = RichFarm/SplashScreen.storyboard; sourceTree = "<group>"; };
 		ADBDFA3DCC7348DEA2D0998F /* RichFarmWidget.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = RichFarmWidget.entitlements; path = RichFarmWidget.entitlements; sourceTree = "<group>"; };
-		B651B72F3F2DDC79CDB49570 /* Pods-RichFarm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RichFarm.release.xcconfig"; path = "Target Support Files/Pods-RichFarm/Pods-RichFarm.release.xcconfig"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		D830D880DBB9417787AE7F2F /* WidgetBridge.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = WidgetBridge.m; path = RichFarm/WidgetBridge.m; sourceTree = "<group>"; };
 		DEF43453A8DC4C02BFEC18BC /* WidgetBridge.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = WidgetBridge.swift; path = RichFarm/WidgetBridge.swift; sourceTree = "<group>"; };
 		E4727244342048F2B12A3A02 /* RichFarmWidget-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "RichFarmWidget-Info.plist"; path = "RichFarmWidget-Info.plist"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F0FE7B4C2263234FF717090F /* libPods-RichFarm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RichFarm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = RichFarm/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* RichFarm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "RichFarm-Bridging-Header.h"; path = "RichFarm/RichFarm-Bridging-Header.h"; sourceTree = "<group>"; };
 		F3AAB2663247783954A9AEDC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = RichFarm/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -63,13 +63,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E7B9AC4625E5F1B62ECBD7F6 /* libPods-RichFarm.a in Frameworks */,
+				EF27F505598A9D40415B609F /* libPods-RichFarm.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1043D0A250B26A22EA314A98 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				45ECE7FD78578EE5DBD25150 /* Pods-RichFarm.debug.xcconfig */,
+				15272DD04B9B299B242B26A3 /* Pods-RichFarm.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* RichFarm */ = {
 			isa = PBXGroup;
 			children = (
@@ -90,7 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				0708F10D79E5CB251E8D0E06 /* libPods-RichFarm.a */,
+				F0FE7B4C2263234FF717090F /* libPods-RichFarm.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -115,16 +125,6 @@
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
-		3C570CF0ADD79122E47FB82A /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				30A7DD8727E828CE837AAA7A /* Pods-RichFarm.debug.xcconfig */,
-				B651B72F3F2DDC79CDB49570 /* Pods-RichFarm.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -140,8 +140,8 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				31E6A72E036C42AAA1319B99 /* RichFarmWidget */,
-				3C570CF0ADD79122E47FB82A /* Pods */,
 				3BD9ADBC729D3228AF0087FC /* ExpoModulesProviders */,
+				1043D0A250B26A22EA314A98 /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -181,15 +181,15 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "RichFarm" */;
 			buildPhases = (
-				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
+				0C551F46CF5FD7756817757F /* [CP] Check Pods Manifest.lock */,
 				FD201DEE589CE659B6A3F8F3 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
 				90519E27F0834679AE05DF96 /* Copy Files */,
-				8319C7911FC9052E8CD05C5E /* [CP] Embed Pods Frameworks */,
+				CF6C7ED88506C1D19A515174 /* [CP] Embed Pods Frameworks */,
+				92F6C564819CA0266CF8A46D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -279,7 +279,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\nif [[ \"$CONFIGURATION\" = *Debug* ]]; then\n  export SKIP_BUNDLING=1\nfi\nif [[ -z \"$ENTRY_FILE\" ]]; then\n  # Set the entry JS file using the bundler's entry resolution.\n  export ENTRY_FILE=\"$(\"$NODE_BINARY\" -e \"require('expo/scripts/resolveAppEntry')\" \"$PROJECT_ROOT\" ios absolute | tail -n 1)\"\nfi\n\nif [[ -z \"$CLI_PATH\" ]]; then\n  # Use Expo CLI\n  export CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })\")\"\nfi\nif [[ -z \"$BUNDLE_COMMAND\" ]]; then\n  # Default Expo CLI command for bundling\n  export BUNDLE_COMMAND=\"export:embed\"\nfi\n\n# Source .xcode.env.updates if it exists to allow\n# SKIP_BUNDLING to be unset if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.updates\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.updates\"\nfi\n# Source local changes to allow overrides\n# if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n`\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n\n";
 		};
-		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
+		0C551F46CF5FD7756817757F /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -301,7 +301,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
+		92F6C564819CA0266CF8A46D /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -347,22 +347,22 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RichFarm/Pods-RichFarm-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8319C7911FC9052E8CD05C5E /* [CP] Embed Pods Frameworks */ = {
+		CF6C7ED88506C1D19A515174 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RichFarm/Pods-RichFarm-frameworks.sh",
+				"${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/ios/hermes.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -421,7 +421,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 30A7DD8727E828CE837AAA7A /* Pods-RichFarm.debug.xcconfig */;
+			baseConfigurationReference = 45ECE7FD78578EE5DBD25150 /* Pods-RichFarm.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -457,7 +457,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B651B72F3F2DDC79CDB49570 /* Pods-RichFarm.release.xcconfig */;
+			baseConfigurationReference = 15272DD04B9B299B242B26A3 /* Pods-RichFarm.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
