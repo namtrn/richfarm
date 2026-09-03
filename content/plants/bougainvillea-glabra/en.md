@@ -1,4 +1,4 @@
-Bougainvillea colors its bracts most heavily with strong sun and a moderate dry interval between waterings. Constantly wet soil produces leaves at the expense of flowers, while thorny branches need safe support and pruning. Choose a permanent site, keep the base draining, and prune after a flowering flush.
+Bougainvillea colors the bracts surrounding its small true flowers most heavily with strong sun and a moderate dry interval between waterings. Constantly wet soil produces leaves at the expense of colorful bracts, while thorny branches need safe support and pruning. Choose a permanent site, keep the base draining, and prune after a flowering flush.
 
 ## Give it strong sun and a mild dry period
 

@@ -14,6 +14,8 @@ In the cold season or in low light, the plant needs very little water, sometimes
 
 Use a very well-draining mix made for succulents, or potting soil amended with coarse sand, perlite, or pumice. The pot needs clear drainage holes and should never be left standing in water after watering. Soil that holds water for long is the main cause of root rot.
 
+Indoors, place the pot near a bright window and rotate it weekly so all sides receive more even light.
+
 ## Feeding
 
 Aloe needs little fertilizer. A diluted liquid fertilizer applied as directed every few months during the growing season is enough; stop feeding in the cold season. Do not feed while the soil is dry, and avoid concentrated doses, since succulent roots are easily damaged.

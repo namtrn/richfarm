@@ -14,6 +14,8 @@ Vào mùa lạnh hoặc nơi thiếu sáng, cây cần rất ít nước, có kh
 
 Dùng giá thể thoát nước rất tốt, chuyên cho cây mọng nước hoặc đất trồng chậu trộn cát thô, perlite hoặc đá pumice. Chậu cần có lỗ thoát nước thông thoáng; không để đáy chậu ngâm trong nước sau khi tưới. Đất giữ nước lâu là nguyên nhân chính gây thối rễ.
 
+Trong nhà, đặt chậu gần cửa sổ sáng và xoay chậu mỗi tuần để các mặt lá nhận ánh sáng đều hơn.
+
 ## Bón phân
 
 Nha đam không cần bón nhiều. Bón phân dạng lỏng pha loãng theo hướng dẫn sản phẩm mỗi vài tháng trong mùa sinh trưởng là đủ; ngừng bón vào mùa lạnh. Không bón khi đất đang khô và không bón nồng độ đậm đặc vì rễ mọng nước dễ bị tổn thương.

@@ -8,24 +8,48 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3993,
+      "bytes": 4036,
+      "conflict_resolution": {
+        "reason": "Replace the stale 3080-byte VI snapshot and the unreviewed EN bytes with the current approved care guide; bytes and hashes are unchanged from the files on disk",
+        "resolution": "replace_database",
+        "reviewedAt": "2026-08-31T09:00:00.000Z",
+        "reviewedBy": "1:nmtr@proton.me"
+      },
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
-      "review_status": "unreviewed",
-      "sha256": "9b83c45a48315c4e4c93dd837ebb3ecc0cb23e501da3f169ed600f4fe8119b48",
-      "source_refs": []
+      "review_status": "reviewed",
+      "sha256": "a88de143cdfd79ff6a6b7d5387879c96faa4f18f8bfc0f2ea9306fca263768df",
+      "source_refs": [
+        {
+          "sourceLocator": "content/plans/2026-08-14-us-vn-care-guide-priority.md",
+          "sourceName": "US-VN care guide priority plan",
+          "sourceSystem": "editorial"
+        }
+      ]
     },
     "vi": {
-      "bytes": 4003,
+      "bytes": 4042,
+      "conflict_resolution": {
+        "reason": "Replace the stale 3080-byte VI snapshot and the unreviewed EN bytes with the current approved care guide; bytes and hashes are unchanged from the files on disk",
+        "resolution": "replace_database",
+        "reviewedAt": "2026-08-31T09:00:00.000Z",
+        "reviewedBy": "1:nmtr@proton.me"
+      },
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
-      "review_status": "unreviewed",
-      "sha256": "359f5bfc442fe516d2a29e35f9f3d4a2eedac87d39b9b50cfd5a03eed1de7f99",
-      "source_refs": []
+      "review_status": "reviewed",
+      "sha256": "fc8e64d4e2d74ce61bace6bbc0ea76ffda76e44caafae3cf75d93bbbd7347dc5",
+      "source_refs": [
+        {
+          "sourceLocator": "content/plans/2026-08-14-us-vn-care-guide-priority.md",
+          "sourceName": "US-VN care guide priority plan",
+          "sourceSystem": "editorial"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,

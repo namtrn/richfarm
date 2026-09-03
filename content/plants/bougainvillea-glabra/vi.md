@@ -1,4 +1,4 @@
-Hoa giấy ra nhiều màu ở phần lá bắc khi có nắng và một khoảng khô vừa phải giữa các lần tưới. Đất luôn ướt làm cây nhiều lá nhưng ít hoa, còn cành có gai cần được buộc và tỉa ở vị trí an toàn. Chọn nơi lâu dài, giữ gốc thoát nước và cắt sau đợt hoa.
+Hoa giấy lên màu ở các lá bắc bao quanh những bông hoa thật nhỏ khi có nắng và một khoảng khô vừa phải giữa các lần tưới. Đất luôn ướt làm cây nhiều lá nhưng ít lá bắc, còn cành có gai cần được buộc và tỉa ở vị trí an toàn. Chọn nơi lâu dài, giữ gốc thoát nước và cắt sau đợt hoa.
 
 ## Nắng nhiều và mùa khô nhẹ giúp cây ra hoa
 

@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"abelmoschus\",\"esculentus\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "abelmoschus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 5224,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "45fdd01b9a3e9777b166444e010ad1c28aea8c212b4511159300212d458dc1c8",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 5480,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "b908e29ab875886b59170a4ad108a4091d5e4d4796de44715824c07910b09877",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ABELMOSCHUS_ESCULENTUS_YAPH82F4DV",
+  "schema_version": 1,
+  "scientific_name": "Abelmoschus esculentus",
+  "scope": "base",
+  "species": "esculentus",
+  "target_status": "active"
+}
