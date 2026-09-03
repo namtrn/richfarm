@@ -10,6 +10,8 @@ import { PhotoManager } from "./components/PhotoManager";
 import { LoginPage } from "./components/LoginPage";
 import { DataHealth } from "./components/DataHealth";
 import { ContentInbox, ContentSourceHealthBadge } from "./components/ContentInbox";
+import { ContentSourceNotification } from "./components/ContentSourceNotification";
+import { CareApprovalNotification } from "./components/CareApprovalNotification";
 import { ToastContainer, useToast } from "./components/Toast";
 
 import { usePlants } from "./hooks/usePlants";
@@ -34,17 +36,27 @@ export default function App() {
   const i18n = useI18n(auth.authedFetch);
   const backend = useBackendPlants(auth.authedFetch, auth.isLoggedIn);
   const dataHealth = useDataHealth(auth.authedFetch, auth.isLoggedIn && activePage === "data-health");
-  const contentInbox = useContentInbox(auth.authedFetch, auth.isLoggedIn && activePage === "content-inbox");
+  // Keep the source-event poll alive on every authenticated page so a new
+  // Markdown change is visible in the global notification, not only after
+  // navigating to Content Inbox.
+  const contentInbox = useContentInbox(auth.authedFetch, auth.isLoggedIn);
   const monitorStatus = useContentMonitorStatus(
     auth.authedFetch,
     auth.isLoggedIn && (activePage === "content-inbox" || activePage === "data-health"),
   );
 
-  // Load backend stats once auth is available.
+  // Load global backend status once auth is available. The care-approval list
+  // is also refreshed periodically so a Markdown apply or another reviewer
+  // action becomes visible without a page-specific refresh.
   useEffect(() => {
     if (!auth.isLoggedIn) return;
     void backend.loadStats();
-  }, [auth.isLoggedIn, backend.loadStats]);
+    void backend.loadPendingCareApprovals();
+    const refreshTimer = window.setInterval(() => {
+      void backend.loadPendingCareApprovals();
+    }, 15_000);
+    return () => window.clearInterval(refreshTimer);
+  }, [auth.isLoggedIn, backend.loadStats, backend.loadPendingCareApprovals]);
 
   // Lazy-load other data on tab switch
   useEffect(() => {
@@ -90,6 +102,16 @@ export default function App() {
     );
   }
 
+  function openPendingCarePlant(plantId: number) {
+    setActivePage("plants");
+    void plants.openPlantDetail(plantId);
+  }
+
+  function openPendingContentEvent(eventId: string) {
+    setActivePage("content-inbox");
+    void contentInbox.select(eventId);
+  }
+
   return (
     <div className="app-shell">
       <Sidebar
@@ -104,6 +126,14 @@ export default function App() {
           stats={plants.stats}
           groupCount={groups.groups.length}
           backendStats={backend.stats}
+        />
+        <ContentSourceNotification
+          events={contentInbox.events}
+          onOpenEvent={openPendingContentEvent}
+        />
+        <CareApprovalNotification
+          approvals={backend.pendingCareApprovals}
+          onOpenPlant={openPendingCarePlant}
         />
 
         {activePage === "plants" && (

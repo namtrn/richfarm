@@ -164,6 +164,15 @@ export type BackendPlantStats = {
   missingImage: number;
 };
 
+export type PendingCareApproval = {
+  plantId: number;
+  plantCode: string;
+  displayName: string;
+  scientificName: string | null;
+  locales: string[];
+  updatedAt: string | null;
+};
+
 // ──────────────────────────────────────────────
 // Form state types
 // ──────────────────────────────────────────────

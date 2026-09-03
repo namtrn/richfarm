@@ -1,9 +1,30 @@
 import { useState, useCallback } from "react";
-import type { BackendPlantStats } from "../types";
+import type { BackendPlantStats, PendingCareApproval } from "../types";
 import { downloadBlob } from "../constants";
 import { validateCanonicalPlantIdentity } from "../../../../packages/shared/src/canonicalPlantIdentity";
 
 type AuthedFetch = (path: string, options?: RequestInit) => Promise<Response>;
+
+export type PublishOutboxItem = {
+    id: number;
+    sourceId: string;
+    operation: string;
+    status: "applied" | "failed" | "blocked" | "superseded" | "skipped";
+    error?: string;
+};
+
+export type PendingOutboxRow = {
+    id: number;
+    sourceId: string;
+    operation: string;
+    locale: string | null;
+    status: string;
+    payload?: Record<string, unknown>;
+};
+
+export type PublishSyncOutboxResult =
+    | { ok: true; retried: number; applied: number; failed: number; blocked: number; items: PublishOutboxItem[] }
+    | { ok: false; error: string };
 
 /** Import is create-only: scientific_name/common_name never infer identity. */
 export function validateImportCanonicalIdentity(value: unknown): string | null {
@@ -74,6 +95,10 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
     const [syncJsonLoading, setSyncJsonLoading] = useState(false);
     const [syncSqliteLoading, setSyncSqliteLoading] = useState(false);
     const [queueLocalLoading, setQueueLocalLoading] = useState(false);
+    const [publishLoading, setPublishLoading] = useState(false);
+    const [pendingOutbox, setPendingOutbox] = useState<PendingOutboxRow[] | null>(null);
+    const [pendingCareApprovals, setPendingCareApprovals] = useState<PendingCareApproval[] | null>(null);
+    const [publishItems, setPublishItems] = useState<PublishOutboxItem[] | null>(null);
     const [error, setError] = useState("");
 
     const loadStats = useCallback(async () => {
@@ -219,7 +244,8 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         }
     }, [authedFetch, loadStats]);
 
-    const publishSyncOutbox = useCallback(async (): Promise<string | null> => {
+    const publishSyncOutbox = useCallback(async (): Promise<PublishSyncOutboxResult> => {
+        setPublishLoading(true);
         setError("");
         try {
             const retryResponse = await authedFetch("/api/master-plants/sync-outbox/retry-failed", {
@@ -233,10 +259,23 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
             const processBody = await processResponse.json().catch(() => ({}));
             if (!processResponse.ok) throw new Error(processBody.error ?? "Cannot process sync outbox");
             await loadStats();
-            return `Retried ${retryBody.retried ?? 0}; applied ${processBody.applied ?? 0}`;
+            await loadPendingOutbox();
+            const result: PublishSyncOutboxResult = {
+                ok: true,
+                retried: retryBody.retried ?? 0,
+                applied: processBody.applied ?? 0,
+                failed: processBody.failed ?? 0,
+                blocked: processBody.blocked ?? 0,
+                items: processBody.items ?? [],
+            };
+            setPublishItems(result.items);
+            return result;
         } catch (e) {
-            setError(e instanceof Error ? e.message : "Cannot retry sync outbox");
-            return null;
+            const error = e instanceof Error ? e.message : "Cannot retry sync outbox";
+            setError(error);
+            return { ok: false, error };
+        } finally {
+            setPublishLoading(false);
         }
     }, [authedFetch, loadStats]);
 
@@ -249,7 +288,10 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
             });
             const body = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(body.error ?? "Cannot queue local authoring rows");
-            return `Queued ${body.queued ?? 0} local rows for publish (not published)`;
+            const skipped = body.skippedNotApproved ?? 0;
+            return skipped > 0
+                ? `Queued ${body.queued ?? 0} approved rows for publish; ${skipped} drafts skipped (approve them first)`
+                : `Queued ${body.queued ?? 0} approved local rows for publish (not published)`;
         } catch (e) {
             setError(e instanceof Error ? e.message : "Cannot queue local authoring rows");
             return null;
@@ -257,6 +299,43 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
             setQueueLocalLoading(false);
         }
     }, [authedFetch]);
+
+    // CAP-2026-08-31: the dashboard shows the exact approved rows before
+    // publication. Pending outbox rows are the approved snapshots waiting for
+    // the explicit publish action.
+    const loadPendingOutbox = useCallback(async () => {
+        try {
+            const response = await authedFetch("/api/sync-reconciliation/status?outbox_status=pending&outbox_limit=200");
+            if (!response.ok) return;
+            const body = await response.json().catch(() => ({})) as { state?: { outbox?: { items?: PendingOutboxRow[] } } };
+            setPendingOutbox(body.state?.outbox?.items ?? []);
+        } catch {
+            setPendingOutbox(null);
+        }
+    }, [authedFetch]);
+
+    // Stage 2 of the local-first content flow. This is a single grouped read
+    // so the dashboard can notify about the exact plant and locale without
+    // fetching every plant detail page first.
+    const loadPendingCareApprovals = useCallback(async () => {
+        if (!enabled) {
+            setPendingCareApprovals(null);
+            return;
+        }
+        try {
+            const response = await authedFetch("/api/master-plants/care-approvals");
+            const body = await response.json().catch(() => ({})) as { items?: PendingCareApproval[] };
+            if (!response.ok || !Array.isArray(body.items)) {
+                setPendingCareApprovals(null);
+                return;
+            }
+            setPendingCareApprovals(body.items);
+        } catch {
+            // null distinguishes unavailable/loading from a confirmed empty
+            // list, so the dashboard does not show a false "all clear" state.
+            setPendingCareApprovals(null);
+        }
+    }, [authedFetch, enabled]);
 
     // Backwards-compatible label used by the existing retry banner. Both
     // actions execute the same explicit outbox publication path.
@@ -270,7 +349,11 @@ export function useBackendPlants(authedFetch: AuthedFetch, enabled = true) {
         syncJsonLoading, syncConvexToJson,
         syncSqliteLoading, syncConvexToSqlite,
         queueLocalLoading, queueLocalAuthoring,
-        publishSyncOutbox, retrySyncOutbox,
+        publishLoading, publishSyncOutbox,
+        pendingOutbox, loadPendingOutbox,
+        pendingCareApprovals, loadPendingCareApprovals,
+        publishItems,
+        retrySyncOutbox: publishSyncOutbox,
         error, setError,
     };
 }
