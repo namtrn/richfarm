@@ -1,5 +1,65 @@
 # Project Progress
 
+## Active package: CAP-2026-08-31 — Care content approval and Convex publication semantics
+
+Status: **CAP-1–CAP-6 complete and verified** — implementation, dashboard,
+Convex contract, migration, and manual E2E done on dev `fantastic-beagle-190`
+(Medium route, no worker subagents, 2026-08-31)
+
+Goal: make the dashboard and SQLite the sole care-content review/approval
+boundary, and make Convex a serving projection that receives only approved
+content. Full plan + verified result:
+`docs/tasks/2026-08-31-care-content-approval-publish-flow-plan.md`.
+
+Problem (confirmed during the Hoa giấy manual E2E): the dashboard's **Publish
+pending** action could apply an outbox row to Convex while its locale remained
+`needs_review / unreviewed`; public app queries then correctly hid the care
+content. This violated the meaning of "publish" in the SQLite-first authoring
+workflow.
+
+Implemented (verified):
+
+- Import is draft-only: `applyContentImport` writes authored bytes with
+  manifest statuses and creates zero outbox rows.
+- `approveContentLocales` (review-service.ts) + `POST
+  /api/content-review/locales/approve`: stamps every locale of the plant to
+  `published / reviewed` with the authenticated reviewer + `reviewed_at` and
+  enqueues exactly one `upsert_plant` snapshot per plant, atomically
+  (rollback-verified). Care locales require `source_refs` provenance.
+- Outbox approval gate (`evaluatePayloadApproval`/`assertPayloadApproved` in
+  sync-outbox.ts): enqueue throws `CONTENT_NOT_APPROVED`; delivery rechecks at
+  pre-claim and pre-send and blocks unapproved rows (`CONTENT_NOT_APPROVED`).
+  i18n/plant routes and queue-local save drafts locally but queue only
+  approved content (`queued:false` + reason, `skippedNotApproved`).
+- Dashboard: "Publish approved" (disabled with no eligible rows), exact
+  pending-row list before publish, per-item results ("Applied to Convex"),
+  Approve & queue control in Translations with care byte counts + source refs,
+  draft-aware save messages, Content Inbox post-apply draft note.
+- Convex: `careApprovalPublish.test.ts` — approved payload accepted, review
+  metadata preserved, EN 4,036 / VI 4,042 bytes byte-for-byte, public queries
+  expose published care only.
+
+Migration + E2E (dev `fantastic-beagle-190`): bougainvillea-glabra manifest
+regenerated as CID-6 reviewed replacement (provenance `editorial` →
+`content/plans/2026-08-14-us-vn-care-guide-priority.md`, hashes unchanged);
+live flow monitor → previews (4,036/4,042) → event approval → apply (drafts,
+0 outbox) → locale approval (reviewer `2:nmtrn@proton.me`,
+2026-08-31T09:21:51Z) → outbox 173 applied → Convex readback: base
+Bougainvillea serves care at EN 4,036 / VI 4,042 bytes byte-for-byte.
+
+Verification: API full 189 passed / 15 failed (exact pre-existing baseline);
+dashboard 36/36 + tsc + build PASS; Convex 130/130 + typecheck PASS; mobile
+typecheck PASS; `git diff --check` PASS.
+
+Remaining gates:
+
+- Legacy cultivar duplicates (Barbara Karst, California Gold, Imperial Thai,
+  Rosenka, Torch Glow) — separate canonical-identity reconciliation task.
+- Production Convex deployment/data mutation — separate authorization; this
+  session touched only dev.
+- Unrelated pre-existing dirty files (dashboard taxonomy/geography UI,
+  content-source hook files, `masterSync.ts`) preserved untouched.
+
 ## Active package: MCD-2026-08-25 — Markdown content change detection and review inbox
 
 Status: MCD-1–MCD-7 complete — full plan implemented, measured on the real

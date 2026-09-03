@@ -1,5 +1,58 @@
 # Latest Session Work
 
+## 2026-08-31 — CAP-2026-08-31 implemented end to end (Medium route)
+
+Full plan: `docs/tasks/2026-08-31-care-content-approval-publish-flow-plan.md`
+(plan + implementation result section). All CAP-1–CAP-6 done; dev Convex
+`fantastic-beagle-190` used for the live E2E; production untouched.
+
+- CAP-2 import/approval split: `applyContentImport` is draft-only (zero outbox
+  rows; removed `syncPayload` + enqueue). New `approveContentLocales` in
+  `content-source/review-service.ts` + `POST /api/content-review/locales/
+  approve`: stamps the plant's locale set to published/reviewed with the
+  authenticated reviewer + timestamp and enqueues one `upsert_plant` snapshot
+  per plant in one transaction (rollback verified); care locales need
+  `source_refs` (REVIEWED_WITHOUT_PROVENANCE).
+- CAP-3 gate: `evaluatePayloadApproval`/`assertPayloadApproved` in
+  sync-outbox.ts (care locales need published+reviewed+audit; others need
+  published/absent). Enqueue throws CONTENT_NOT_APPROVED; delivery rechecks at
+  pre-claim and pre-send and blocks (`blocked_reason=CONTENT_NOT_APPROVED`);
+  per-row `items` in the process response. i18n/plant routes save drafts with
+  `queued:false`+reason; queue-local reports `skippedNotApproved`;
+  handleMasterPlantsError maps to 409. Fixed gate quirk: absent
+  content_status = legacy published.
+- CAP-4 dashboard: "Publish approved" button (disabled with no eligible
+  pending rows), pending-row panel before publish, per-item results with
+  "Applied to Convex", Approve & queue control in Translations (care bytes,
+  source refs, reason required, provenance blocking), draft-aware save
+  messages, Content Inbox post-apply draft note. Extracted testable helpers
+  `localeSetIsApproved`/`localeApprovalDetail`.
+- CAP-6 Convex: new `careApprovalPublish.test.ts` (3 tests) — payload +
+  metadata preservation, byte-for-byte EN 4,036/VI 4,042, public published-only
+  visibility. Two fixture pitfalls discovered: `listCanonical` drops plants
+  without a usable description (line ~403 filter), and a draft fixture sharing
+  the base scientific name overwrote the approved plant via the canonical
+  upsert (fixed with a distinct identity).
+- CAP-5 migration/E2E: bougainvillea-glabra `content.json` regenerated as
+  CID-6 reviewed replacement (source_refs editorial → priority plan doc,
+  conflict_resolution, hashes unchanged); local API on :4000; monitor
+  catch-up produced 3 events; previews 4,036/4,042; event approval → apply
+  (drafts, 0 outbox) → locale approval (reviewer `2:nmtrn@proton.me`,
+  09:21:51Z, outbox 173) → applied → `npx convex run plantLibrary:listCanonical`
+  readback: base Bougainvillea care at EN 4,036 / VI 4,042 bytes
+  byte-for-byte. Five legacy cultivars remain as the separate duplicate
+  canonical-identity task.
+- Verification: API full 189 pass / 15 fail (exact pre-existing baseline;
+  stash-verified phase3 trio); dashboard 36/36 + tsc + build; Convex 130/130 +
+  typecheck; mobile typecheck; `git diff --check`. API build PASS.
+- Notes: `/api/convex-admin/query` allowlist excludes `plantLibrary:
+  listCanonical` (expected 403 — CLI used for readback). Unrelated pre-existing
+  dirty files (StatsBar/TaxonomyManager/useContentInbox/styles.css/
+  masterSync.ts) untouched.
+- Next: commit/PR scoping review; separate canonical-identity cleanup for the
+  five Bougainvillea cultivars; production rollout remains a separate
+  authorization.
+
 ## 2026-08-30 — MCD packaging verification
 
 - Re-ran the focused package gates before commit: all six content-source API
