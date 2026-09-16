@@ -8,65 +8,33 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 7264,
+      "bytes": 4040,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "cb365f6f7e042b0a97b252b50fd2f77a2bfd51d4f9f3a56783bf1c2a2baacc79",
+      "sha256": "8d8ca276d86a4a47f4095b42596da46eb81d4359de7b27743439b5896dd9ddec",
       "source_refs": [
-        {
-          "sourceLocator": "content/guidelines/plant-information-guideline.md",
-          "sourceName": "Plant Information Guideline v2.0",
-          "sourceSystem": "editorial"
-        },
-        {
-          "sourceLocator": "https://extension.umn.edu/vegetables/growing-zucchini-and-summer-squash",
-          "sourceName": "Growing zucchini and summer squash in home gardens - University of Minnesota Extension",
-          "sourceSystem": "extension"
-        },
-        {
-          "sourceLocator": "https://extension.usu.edu/yardandgarden/research/summer-squash-in-the-garden",
-          "sourceName": "Summer Squash in the Garden - Utah State University Extension",
-          "sourceSystem": "extension"
-        },
-        {
-          "sourceLocator": "https://www.rhs.org.uk/vegetables/courgettes/grow-your-own",
-          "sourceName": "Courgettes: how to grow - Royal Horticultural Society",
-          "sourceSystem": "rhs"
-        }
+        {"sourceLocator":"content/guidelines/plant-information-guideline.md","sourceName":"Plant Information Guideline v2.0","sourceSystem":"editorial"},
+        {"sourceLocator":"https://extension.umn.edu/vegetables/growing-zucchini-and-summer-squash","sourceName":"Growing zucchini and summer squash in home gardens - University of Minnesota Extension","sourceSystem":"extension"},
+        {"sourceLocator":"https://extension.usu.edu/yardandgarden/research/summer-squash-in-the-garden","sourceName":"Summer Squash in the Garden - Utah State University Extension","sourceSystem":"extension"},
+        {"sourceLocator":"https://www.rhs.org.uk/vegetables/courgettes/grow-your-own","sourceName":"Courgettes: how to grow - Royal Horticultural Society","sourceSystem":"rhs"}
       ]
     },
     "vi": {
-      "bytes": 9055,
+      "bytes": 4989,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "34540425f8634f269637fdeb4327aa005bdf070bdcec4e206e283393084e2823",
+      "sha256": "3121477d24b8f955b4de21d96470a8af01494198c0d6378d330f6d90932cadf0",
       "source_refs": [
-        {
-          "sourceLocator": "content/guidelines/plant-information-guideline.md",
-          "sourceName": "Plant Information Guideline v2.0",
-          "sourceSystem": "editorial"
-        },
-        {
-          "sourceLocator": "https://extension.umn.edu/vegetables/growing-zucchini-and-summer-squash",
-          "sourceName": "Growing zucchini and summer squash in home gardens - University of Minnesota Extension",
-          "sourceSystem": "extension"
-        },
-        {
-          "sourceLocator": "https://extension.usu.edu/yardandgarden/research/summer-squash-in-the-garden",
-          "sourceName": "Summer Squash in the Garden - Utah State University Extension",
-          "sourceSystem": "extension"
-        },
-        {
-          "sourceLocator": "https://www.rhs.org.uk/vegetables/courgettes/grow-your-own",
-          "sourceName": "Courgettes: how to grow - Royal Horticultural Society",
-          "sourceSystem": "rhs"
-        }
+        {"sourceLocator":"content/guidelines/plant-information-guideline.md","sourceName":"Plant Information Guideline v2.0","sourceSystem":"editorial"},
+        {"sourceLocator":"https://extension.umn.edu/vegetables/growing-zucchini-and-summer-squash","sourceName":"Growing zucchini and summer squash in home gardens - University of Minnesota Extension","sourceSystem":"extension"},
+        {"sourceLocator":"https://extension.usu.edu/yardandgarden/research/summer-squash-in-the-garden","sourceName":"Summer Squash in the Garden - Utah State University Extension","sourceSystem":"extension"},
+        {"sourceLocator":"https://www.rhs.org.uk/vegetables/courgettes/grow-your-own","sourceName":"Courgettes: how to grow - Royal Horticultural Society","sourceSystem":"rhs"}
       ]
     }
   },
