@@ -8,13 +8,13 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 7742,
+      "bytes": 4935,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "5755d53ef40bb66b967763752e8bd86be3cc348a2f91e05228cafe3e43325469",
+      "sha256": "ae74f97d476ad0dbeeb6ba436e7e91a34277ae10c35e12fe2b998922c06981af",
       "source_refs": [
         {
           "sourceLocator": "content/guidelines/plant-information-guideline.md",
@@ -29,13 +29,13 @@
       ]
     },
     "vi": {
-      "bytes": 8326,
+      "bytes": 6098,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "c21df8b8fc10b7c7c9b1bcde992be0cbd57614c63f28fde0d38437978a6b4392",
+      "sha256": "a8e9b2fdb1f647408011c5ef03451000899f99cfbf9917f3ed7293fa6a8196dc",
       "source_refs": [
         {
           "sourceLocator": "content/guidelines/plant-information-guideline.md",
