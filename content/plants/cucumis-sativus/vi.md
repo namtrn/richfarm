@@ -1,39 +1,43 @@
-## Ánh sáng và vị trí
+Dưa leo phát triển nhanh trong thời tiết ấm nhưng khá nhạy với việc đất lúc quá khô, lúc quá ướt, tán dây quá rậm và quả bị để quá già trên cây. Ưu tiên chính là cho cây đủ sáng và chỗ phát triển, giữ ẩm tương đối ổn định quanh rễ, đồng thời thu hoạch đều khi cây bắt đầu cho quả.
 
-Dưa leo là cây ưa nắng, cần ít nhất 6 giờ nắng trực tiếp mỗi ngày để ra hoa và nuôi quả. Nơi nhiều nắng giúp dây khỏe, lá mau khô sau mưa và hạn chế bệnh nấm. Trong bóng râm, cây thường vươn dài nhưng ít quả.
+## Cho dây đủ chỗ leo hoặc bò
 
-Đây là cây dây leo thật sự, nên làm giàn hoặc lưới leo từ đầu vụ. Giàn giúp dây vươn thẳng, quả sạch và dễ hái hơn so với để bò trên mặt đất. Khi dây bắt đầu bám, nhẹ nhàng hướng ngọn vào giàn; thân và tua cuốn còn non nên tránh làm gãy khi uốn.
+Trồng dưa leo ở nơi có nhiều nắng trực tiếp. Với giống dây leo, giàn hoặc lưới giúp nâng tán khỏi mặt đất, giữ quả sạch hơn và dễ kiểm tra lá cũng như thu hoạch. Một số giống bụi có thể trồng mà không cần giàn cao, vì vậy nên bố trí theo đặc tính của giống thay vì mặc định mọi cây dưa leo đều cần cùng một kiểu giàn.
 
-## Tưới nước
+Khi dây non bắt đầu chạm giàn, nhẹ nhàng hướng chúng vào điểm tựa. Tránh kéo mạnh hoặc bẻ gập thân và tua cuốn.
 
-Giữ đất ẩm đều, đặc biệt từ khi ra hoa đến khi quả đạt kích thước. Đất khô hạn giữa chừng làm quả đắng và méo. Tưới khi lớp đất mặt bắt đầu se khô, tưới đẫm quanh gốc; nếu đất vẫn ẩm sau mưa thì chờ thêm.
+## Giữ ẩm ổn định khi cây đang nuôi quả
 
-Lá dưa leo rộng và thoát hơi nước mạnh, vì vậy cây cần nước đều hơn nhiều loại rau khác vào ngày nóng. Tưới xuống gốc thay vì làm ướt lá, nhất là vào cuối ngày, để hạn chế bệnh. Một lớp phủ gốc mỏng giúp đất giữ ẩm ổn định hơn.
+Kiểm tra đất thường xuyên và tưới khi lớp đất phía trên bắt đầu khô. Dưa leo dùng nước nhanh trong thời tiết nóng, nhất là lúc ra hoa và mang quả, nhưng đất vẫn cần thoát nước tốt.
 
-## Đất trồng
+Để đất khô nhiều lần rồi tưới quá đẫm có thể làm cây bị stress và giảm chất lượng quả. Phủ gốc giúp làm chậm mất nước và hạn chế đất bắn lên lá. Khi có thể, tưới sát mặt đất để tán lá không bị ướt trong thời gian dài.
 
-Chọn đất tơi, giàu hữu cơ và thoát nước tốt. Trộn compost hoặc phân chuồng đã hoai trước khi trồng. Trong chậu, cần chậu lớn vì bộ rễ lan rộng và cây thoát hơi nước nhanh; lỗ thoát nước cần thông thoáng.
+## Chuẩn bị đất màu mỡ nhưng không bí nước
 
-## Bón phân
+Dùng đất tơi, giữ được ẩm nhưng không sũng nước. Có thể trộn compost hoặc vật liệu hữu cơ đã hoai vào đất trước khi trồng.
 
-Bón lót trước khi trồng rồi bón thúc nhẹ khi cây bắt đầu leo và ra hoa. Giai đoạn nuôi quả, ưu tiên phân có kali cao hơn đạm để quả chắc và giảm vị đắng. Quan sát lá trước khi bón thêm: lá nhạt màu và dây chậm phát triển dù đủ nước có thể cần bổ sung dinh dưỡng.
+Nếu dây phát triển yếu dù đã đủ nước và ánh sáng, có thể bón bổ sung nhẹ bằng loại phân dùng cho rau. Không nên tăng mạnh lượng phân chỉ để thúc dây lớn nhanh vì tán quá rậm sẽ khó quản lý hơn. Ưu tiên dùng theo hướng dẫn sản phẩm thay vì theo một lịch bón cố định.
 
-Không bón đậm đặc sát gốc và không bón khi đất khô. Nếu dùng phân dạng lỏng, pha theo hướng dẫn sản phẩm.
+## Gieo khi điều kiện đã đủ ấm
 
-## Gieo trồng và nhân giống
+Dưa leo thường được gieo thẳng khi đất đã đủ ấm để cây phát triển liên tục. Nếu ươm cây con trước, cần chuyển nhẹ tay và hạn chế làm xáo trộn bộ rễ.
 
-Dưa leo mọc nhanh từ hạt và thường được gieo thẳng tại chỗ trồng. Gieo khi đất đã ấm và không còn sương giá; hạt nảy mầm nhanh trong đất ấm. Gieo 2-3 hạt mỗi hốc rồi tỉa bớt, giữ lại cây khỏe nhất, hoặc gieo theo hàng dưới chân giàn.
+Khi cây mọc quá dày, tỉa bớt để các cây còn lại có đủ không gian và thông gió. Khoảng cách cụ thể phụ thuộc vào giống bụi, giống bò lan hoặc giống được dẫn lên giàn.
 
-Với cây con ươm trước, cần tránh làm tổn thương rễ khi chuyển chậu vì dưa leo không thích bị quấy rầy rễ. Trồng cây con nông bằng độ sâu trong bầu, tưới đẫm sau khi trồng.
+## Thu quả trước khi quá già
 
-## Chăm sóc và thu hoạch
+Thu dưa khi quả đã đạt kích thước và độ non phù hợp với giống, trước khi quả phình quá lớn hoặc bắt đầu ngả vàng. Thu hoạch đều giúp cây tiếp tục dành nguồn lực cho các quả non phía sau.
 
-Khi dây vươn dài, buộc nhẹ vào giàn bằng dây mềm và hướng ngọn theo giàn. Với giàn đứng, có thể để dây bám lưới tự nhiên; tỉa bớt lá già sát gốc giúp tán thông thoáng và dễ hái quả. Các dây phụ mọc quá rậm có thể cắt bớt để cây tập trung nuôi quả.
+Dùng kéo hoặc dao sạch để cắt cuống thay vì giật mạnh vào dây. Khi thu, tranh thủ kiểm tra lá hư, thân gãy và những quả bị che khuất trong tán.
 
-Quả thường đạt độ dài phù hợp để hái chỉ vài ngày sau khi hoa thụ phấn, tùy giống. Hái quả khi còn non, vỏ căng và chưa chuyển vàng; để già quá làm cây ngừng ra quả mới. Dùng kéo cắt cuống sát dây để không làm tổn thương thân.
+## Kiểm tra sâu hại và bệnh riêng biệt
 
-## Sâu hại và bệnh thường gặp
+### Sâu hại
 
-[Rệp mềm](richfarm://pests-diseases/aphids) thường tụ tập ở ngọn non và mặt dưới lá, làm lá xoăn và dây chậm phát triển. Kiểm tra ngọn và lá khi tưới; nếu chỉ có ít, rửa nhẹ bằng nước hoặc loại bỏ bằng tay.
+[Rệp mềm](richfarm://pests-diseases/aphids) thường tập trung ở đọt non và mặt dưới lá. Lá non quăn hoặc bề mặt có lớp mật dính là những dấu hiệu nên kiểm tra sớm. Khi mật độ còn thấp, có thể rửa bằng nước hoặc loại bỏ phần bị hại nặng.
 
-[Bệnh phấn trắng](richfarm://pests-diseases/powdery_mildew) tạo lớp phấn trắng trên mặt lá, thường xuất hiện khi lá ẩm lâu và tán rậm. Loại bỏ lá bệnh, giữ tán thông thoáng và tránh làm ướt lá khi tưới. Trong thời tiết mát ẩm, [bệnh sương mai](richfarm://pests-diseases/downy_mildew) có thể làm lá vàng và khô nhanh từ mép; khi vừa thấy dấu hiệu, cắt bỏ lá bệnh và theo dõi các dây còn lại trước khi quyết định xử lý.
+### Bệnh
+
+[Bệnh phấn trắng](richfarm://pests-diseases/powdery_mildew) tạo các mảng nhạt như phủ bột trên lá. Giữ tán thông thoáng, bỏ lá bị nặng và tránh để cây quá chen chúc.
+
+[Bệnh sương mai](richfarm://pests-diseases/downy_mildew) có thể làm lá vàng rồi suy nhanh trong điều kiện mát và ẩm. Khi thấy dấu hiệu nghi ngờ, loại bỏ lá bị nặng và giữ tán khô nhất có thể trong lúc xác định đúng bệnh trước khi xử lý.
