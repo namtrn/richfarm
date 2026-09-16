@@ -1,39 +1,43 @@
-## Light and location
+Carrots are easiest to grow when the soil lets the root develop straight down without obstruction. Compacted soil, stones, crowding, and uneven moisture can all produce short, forked, or cracked roots even when the foliage looks healthy. The main priorities are to sow directly into loose soil, keep the seedbed consistently moist during germination, and thin seedlings before the roots begin competing for space.
 
-Carrots grow well in full sun to light sun, about 6 hours a day. They prefer mild conditions to intense heat; in hot climates, grow them in the cool season. Long spells of scorching sun push the plant into leaf growth instead of root development.
+## Prepare the root zone before sowing
 
-This is a root crop, with the root growing underground, so it needs no trellis or stakes. What matters is the soil: it must be loose and deep, since the root grows down to its full length. Shallow or stony soil produces short, forked, or misshapen roots.
+Choose a sunny to lightly shaded position and loosen the soil deeply enough for the variety you are growing. Break up compacted clods and remove stones or other hard obstacles that could deflect the developing root.
 
-## Watering
+Well-rotted compost can improve soil structure, but avoid fresh manure or very heavy feeding. The goal is loose, even soil rather than extremely rich soil.
 
-Keep the soil evenly moist from sowing until the roots reach size. Carrot seed germinates slowly and needs the soil to stay moist throughout that period; dry soil gives patchy germination. Once the plants are up, water when the top layer begins to dry.
+## Keep the seedbed moist during germination
 
-Soil that swings between dry and wet makes roots crack or turn woody. Water deeply and less often rather than shallowly every day; shallow watering encourages roots to stay near the surface instead of growing down. Avoid wetting the foliage heavily to limit leaf spot.
+Carrot seed is small and can be slow to emerge. During this stage, the top layer of soil should not repeatedly dry out. Water gently enough that the surface stays moist without washing the seed away or forming a hard crust.
 
-## Soil
+Once seedlings are established, water more deeply and allow the upper surface to dry slightly between waterings. Repeated swings from very dry to very wet soil can contribute to cracked or poor-quality roots.
 
-Choose loose, deep, well-drained soil free of stones and large clumps. Before sowing, dig deeply and break the soil up thoroughly; well-rotted compost can be mixed in, but avoid fresh manure, which makes roots fork and distort. On heavy or shallow soil, growing in a deep container or raised bed filled with loose mix works well.
+## Direct-sow and thin early
 
-## Feeding
+Carrots should be sown where they will finish growing because transplanting can damage or bend the developing taproot.
 
-Carrots need less nutrition than fruiting vegetables. Working well-rotted compost into the bed before sowing is enough for most crops. Avoid fresh manure or heavy nitrogen, which encourage hairy, woody, forked roots.
+When seedlings become crowded, thin them so the remaining plants have enough room to expand. Exact spacing depends on the variety and the root size you want. Work carefully around the row because young roots are easy to disturb.
 
-If growth is slow and the leaves look pale, feed lightly with a diluted liquid fertilizer as directed. Keep fertilizer away from the crown and do not feed while the soil is dry.
+## Feed lightly if the soil needs it
 
-## Sowing and propagation
+A bed prepared with compost often needs little additional feeding. Too much nitrogen can encourage excessive top growth instead of balanced root development.
 
-Carrots are always sown directly where they will grow, since the taproot cannot handle transplanting. The seed is small; sow it shallowly on moist soil, cover with a thin layer, and keep the surface damp until germination. Stagger the sowings a few weeks apart to harvest continuously.
+If plants are pale and weak despite suitable moisture and light, use a modest fertilizer according to the label. Avoid adding fertilizer simply because the roots are not yet large; root size also depends on variety, spacing, soil structure, and time.
 
-When the seedlings are crowded, thin them so each plant has room; spacing depends on the variety and the root size you want. Thin while the soil is moist and handle gently so the roots of the remaining plants are not disturbed.
+## Harvest by checking root size
 
-## Ongoing care and harvest
+Carrots can be harvested whenever they have reached a useful size for the variety. Brush soil away from the shoulder of one root or lift a test carrot before harvesting the whole row.
 
-Weed around the young plants, since weeds compete harder than the seedlings for water and nutrients. Once the foliage fills in, it shades the ground and suppresses weeds on its own. Keep the soil evenly moist while the roots develop.
+If the soil is firm or dry, loosen it first so the root does not snap during harvest. In warm, humid conditions, harvest mature roots rather than leaving them in the ground indefinitely.
 
-Roots can be harvested as soon as they reach eating size, usually when the shoulder (the top of the root) shows above the soil and reaches the diameter you want. Pull one to check before harvesting the whole row. Lift the roots when the soil is moist so they come out easily without breaking; if the soil is dry, water lightly first. Carrots left in the ground keep well in cool weather, but in hot, humid conditions harvest them once they reach size.
+## Check pests and diseases separately
 
-## Common pests and diseases
+### Pests
 
-[Aphids](richfarm://pests-diseases/aphids) may gather on young shoots and leaf undersides, curling leaves and slowing growth. Check the foliage while watering; a light infestation can be washed off or removed by hand.
+[Aphids](richfarm://pests-diseases/aphids) may gather on young foliage and slow top growth. Check curled or distorted leaves and remove small colonies with water or by hand.
 
-In damp conditions, [leaf spot](richfarm://pests-diseases/leaf_spot) can cause brown spots that spread on the leaves; remove affected leaves, avoid wetting the foliage, and keep the planting area open. If the leaves take on a white powdery coating, this may be [powdery mildew](richfarm://pests-diseases/powdery_mildew); cut out the affected parts and watch the remaining plants. On a root crop, identify the exact cause before using any product and follow the labeled waiting period.
+### Diseases
+
+[Leaf spot](richfarm://pests-diseases/leaf_spot) can produce spreading brown lesions on the foliage. Remove badly affected leaves and avoid keeping the canopy wet for long periods.
+
+[Powdery mildew](richfarm://pests-diseases/powdery_mildew) may form a pale powdery coating on leaves. Improve airflow and remove heavily affected foliage. If the roots themselves become soft, discolored, or foul-smelling, confirm the cause before treating because several soil and storage problems can produce similar symptoms.
