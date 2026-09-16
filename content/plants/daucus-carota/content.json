@@ -8,24 +8,46 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3807,
+      "bytes": 3296,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "dad52f66102722b913ee25fc88f4a8aa81ee198454ec146bdb26b568c8220278",
-      "source_refs": []
+      "sha256": "9d215a24dabeacf9b2a2f9b4877cd80e25b4137f51940577502b652963c887e3",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-carrots-and-parsnips",
+          "sourceName": "Growing carrots and parsnips in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     },
     "vi": {
-      "bytes": 4519,
+      "bytes": 4139,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "83564f31619b8df55b364cbe0db2d3c1a7fbec6783d3596e9249947293d75780",
-      "source_refs": []
+      "sha256": "30c4a8898570ae12d8e085b7d64549ef68ff54c9691cf2b2c855a8bc266639fa",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-carrots-and-parsnips",
+          "sourceName": "Growing carrots and parsnips in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,
