@@ -8,13 +8,13 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 7062,
+      "bytes": 4779,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "b016c6816469f18c9abfacb119266d73e3dfbeedf343bc771be304fcc13cd868",
+      "sha256": "4cf7faf4eefb8daf7ec53a570a64bbbebc1c95c262224fcead0388bc72c11ae8",
       "source_refs": [
         {
           "sourceLocator": "content/guidelines/plant-information-guideline.md",
@@ -22,30 +22,30 @@
           "sourceSystem": "editorial"
         },
         {
-          "sourceLocator": "https://anrcatalog.ucanr.edu/pdf/7266.pdf",
-          "sourceName": "Bell Pepper Production in California (UC ANR Pub 7266)",
-          "sourceSystem": "ucanr"
-        },
-        {
-          "sourceLocator": "https://extension.umn.edu/vegetables/growing-peppers",
-          "sourceName": "Growing peppers in home gardens - University of Minnesota Extension",
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-peppers",
+          "sourceName": "Growing peppers - University of Minnesota Extension",
           "sourceSystem": "extension"
         },
         {
-          "sourceLocator": "https://www.rhs.org.uk/vegetables/sweet-peppers/grow-your-own",
-          "sourceName": "Sweet peppers: how to grow - Royal Horticultural Society",
+          "sourceLocator": "https://www.rhs.org.uk/vegetables/peppers/grow-your-own",
+          "sourceName": "How to grow sweet peppers - Royal Horticultural Society",
           "sourceSystem": "rhs"
+        },
+        {
+          "sourceLocator": "https://extension.umd.edu/resource/tough-season-blossom-end-rot",
+          "sourceName": "Tough season for blossom end rot - University of Maryland Extension",
+          "sourceSystem": "extension"
         }
       ]
     },
     "vi": {
-      "bytes": 8136,
+      "bytes": 5783,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "5660dc76ee5736b5ce94d1dcb5f3e5c6312b521692d9705697291347dfcc1b80",
+      "sha256": "6c3b6eeac29f57aa58073e988938f3b9e1a9d695a056daba2231bb86c250a2d9",
       "source_refs": [
         {
           "sourceLocator": "content/guidelines/plant-information-guideline.md",
@@ -53,19 +53,19 @@
           "sourceSystem": "editorial"
         },
         {
-          "sourceLocator": "https://anrcatalog.ucanr.edu/pdf/7266.pdf",
-          "sourceName": "Bell Pepper Production in California (UC ANR Pub 7266)",
-          "sourceSystem": "ucanr"
-        },
-        {
-          "sourceLocator": "https://extension.umn.edu/vegetables/growing-peppers",
-          "sourceName": "Growing peppers in home gardens - University of Minnesota Extension",
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-peppers",
+          "sourceName": "Growing peppers - University of Minnesota Extension",
           "sourceSystem": "extension"
         },
         {
-          "sourceLocator": "https://www.rhs.org.uk/vegetables/sweet-peppers/grow-your-own",
-          "sourceName": "Sweet peppers: how to grow - Royal Horticultural Society",
+          "sourceLocator": "https://www.rhs.org.uk/vegetables/peppers/grow-your-own",
+          "sourceName": "How to grow sweet peppers - Royal Horticultural Society",
           "sourceSystem": "rhs"
+        },
+        {
+          "sourceLocator": "https://extension.umd.edu/resource/tough-season-blossom-end-rot",
+          "sourceName": "Tough season for blossom end rot - University of Maryland Extension",
+          "sourceSystem": "extension"
         }
       ]
     }
