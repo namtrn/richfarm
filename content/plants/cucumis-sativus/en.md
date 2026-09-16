@@ -1,39 +1,43 @@
-## Light and location
+Cucumbers grow quickly in warm weather, but they are sensitive to uneven moisture, crowded vines, and fruit being left on the plant too long. The most useful priorities are to give the vines enough light and support, keep the root zone consistently moist without waterlogging it, and harvest often once fruit begins to size up.
 
-Cucumbers are sun-loving plants that need at least 6 hours of direct sunlight a day to flower and size their fruit. A sunny spot keeps the vines strong and helps leaves dry quickly after rain, which limits fungal disease. In shade, plants grow long but set few fruit.
+## Give vines room to climb or spread
 
-This is a true climbing vine, so set up a trellis, netting, or support at the start of the season. Growing upward keeps the vines tidy, the fruit clean, and picking easier than letting the plant sprawl on the ground. As the vine reaches the support, guide the tip gently onto it; the young stems and tendrils are soft, so avoid bending them sharply.
+Grow cucumbers where they receive plenty of direct sun. Vining types benefit from a trellis or netting because lifting the canopy off the ground improves access, keeps fruit cleaner, and makes it easier to inspect leaves. Bush types can be grown without a tall support, so match the setup to the variety rather than assuming every cucumber needs the same structure.
 
-## Watering
+Guide young vines gently as they reach the support. Avoid pulling or sharply bending stems and tendrils.
 
-Keep the soil evenly moist, especially from flowering until the fruit reaches full size. A dry spell mid-growth makes fruit bitter and misshapen. Water when the top layer begins to dry, soaking around the base; after rain, check the soil and wait if it is still wet.
+## Keep moisture steady while fruit is forming
 
-Cucumber leaves are broad and lose water quickly, so the plant needs steadier moisture than many vegetables on hot days. Water at the base rather than over the leaves, especially late in the day, to limit disease. A thin mulch layer helps the soil hold moisture more evenly.
+Check the soil regularly and water when the upper layer begins to dry. Cucumbers use water quickly in warm weather, especially when flowering and carrying fruit, but the soil should still drain freely.
 
-## Soil
+Repeated drying followed by heavy watering can stress the plant and reduce fruit quality. Mulch can help slow moisture loss and reduce soil splash. Water at soil level where practical so the foliage does not remain wet for long periods.
 
-Choose loose, fertile soil with good drainage. Work mature compost or well-rotted manure into the bed before planting. In containers, use a large pot, since the roots spread widely and the plant loses water fast; keep the drainage holes clear.
+## Start with fertile, well-drained soil
 
-## Feeding
+Use loose soil that holds moisture but does not stay saturated. Compost or well-rotted organic matter can be mixed into the bed before planting.
 
-Prepare the bed before planting, then feed lightly once the vine starts climbing and flowering. During fruit development, favor a fertilizer with more potassium than nitrogen for firm fruit with less bitterness. Watch the leaves before adding more: pale leaves and slow growth despite enough water may signal a nutrient shortage.
+If growth is weak despite adequate water and light, a light feeding with a vegetable fertilizer may help. Avoid using a high dose simply to force rapid vine growth; too much vegetative growth can make the canopy harder to manage. Follow the product label rather than relying on a fixed feeding schedule.
 
-Keep concentrated fertilizer away from the stem and do not feed while the soil is dry. With liquid products, dilute as directed.
+## Sow when conditions are warm enough
 
-## Sowing and propagation
+Cucumbers are usually direct-sown once the soil is warm enough for steady growth. If seedlings are started in containers, move them carefully and disturb the roots as little as possible.
 
-Cucumbers grow quickly from seed and are usually sown directly where they will grow. Sow once the soil has warmed and frost is no longer a risk; seed germinates fast in warm soil. Plant 2-3 seeds per spot and thin to the strongest seedling, or sow in rows at the base of the trellis.
+Thin crowded seedlings so the remaining plants have enough space and airflow. Exact spacing depends on whether the variety is compact, sprawling, or trained vertically.
 
-If you start seedlings indoors, disturb the roots as little as possible when transplanting, since cucumbers dislike root disruption. Set transplants at the same depth as their pot and water them in well.
+## Harvest before fruit becomes overmature
 
-## Ongoing care and harvest
+Pick cucumbers when they have reached the size and stage you want for the variety, before they become oversized or begin yellowing. Harvesting regularly encourages the plant to keep directing resources toward younger fruit.
 
-As the vine lengthens, tie it loosely to the trellis with soft ties and guide the tip along the support. On a vertical trellis, the vine will grip the netting on its own; remove old leaves near the base to keep the canopy open and make picking easier. If side shoots crowd the plant, trim a few so energy goes into the fruit.
+Use clean shears or a knife rather than pulling hard on the vine. While harvesting, check for damaged leaves, broken stems, and fruit hidden deep in the canopy.
 
-Fruit usually reaches picking size only a few days after the flower is pollinated, depending on the variety. Pick while young, with tight skin, before the color turns yellow; leaving fruit on the vine too long signals the plant to stop producing new fruit. Cut the stem with scissors close to the vine to avoid injuring it.
+## Check pests and diseases separately
 
-## Common pests and diseases
+### Pests
 
-[Aphids](richfarm://pests-diseases/aphids) gather on young shoots and leaf undersides, curling leaves and slowing the vine. Check the tips and leaves when you water; a light infestation can be washed off or removed by hand.
+[Aphids](richfarm://pests-diseases/aphids) often gather on tender shoots and leaf undersides. Curled young growth or sticky honeydew are useful early signs. Small infestations can often be reduced with water or by removing heavily affected growth.
 
-[Powdery mildew](richfarm://pests-diseases/powdery_mildew) appears as a white powdery coating on the upper leaf surface, often when leaves stay damp and the canopy is dense. Remove affected leaves, open up the canopy, and avoid wetting the foliage. In cool, damp weather, [downy mildew](richfarm://pests-diseases/downy_mildew) can make leaves yellow and dry quickly from the edges; at the first sign, remove the affected leaves and watch the remaining vines before deciding on treatment.
+### Diseases
+
+[Powdery mildew](richfarm://pests-diseases/powdery_mildew) appears as pale, powdery patches on leaves. Improve airflow, remove badly affected leaves, and avoid crowding the canopy.
+
+[Downy mildew](richfarm://pests-diseases/downy_mildew) can cause yellowing and rapidly declining leaf tissue in cool, humid conditions. If symptoms appear, remove severely affected leaves and keep the foliage as dry as practical while confirming the diagnosis before treatment.
