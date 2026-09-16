@@ -4,6 +4,12 @@ Date: 2026-07-17
 Scope: `apps/mobile` current working tree, including uncommitted changes
 Review mode: Read-only architecture and correctness review
 
+> Historical review note (2026-09-06): this document preserves the findings as
+> observed on 2026-07-17. The projection scope-race and related remediation were
+> subsequently addressed by PCR-2026-09-06. Verify current status and remaining
+> external gates in `agent_docs/project_progress.md`; do not treat this dated
+> verdict as the current implementation status.
+
 ## Verdict
 
 **PARTIAL — strong sync foundation, state ownership consolidation required.**

@@ -4,6 +4,11 @@ Date: 2026-07-14
 Repository: `/Users/n/Documents/GitHub/richfarm`
 Authoritative plan: `docs/tasks/2026-07-14-user-plant-care-log-and-library-plan.md`
 
+> Historical audit: this verdict describes the 2026-07-14 code state. Later
+> scoped lifecycle, durable sync, coordinator, and regression-test work changed
+> several premises; use current `agent_docs/project_progress.md` for present
+> implementation status. This record is retained as dated evidence.
+
 ## Verdict: FAIL
 
 The backend foundation is mostly present and all requested type, test, build, and diff checks pass. The real app flow still has correctness failures that make the Phase 1 foundation unsafe for Phase 2:
