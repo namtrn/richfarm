@@ -27,6 +27,7 @@ import { api } from '../../../../../packages/convex/convex/_generated/api';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantSync } from '../../../hooks/usePlantSync';
 import { useFavorites } from '../../../hooks/useFavorites';
+import { getPlantInstanceName } from '../../../lib/plantNames';
 import {
   loadPlantLocalData,
   savePlantLocalData,
@@ -134,7 +135,7 @@ export default function PlantDetailScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { removePendingActivity, removePendingHarvest, removePendingPhoto } = usePlantSync();
   const contentCommands = usePlantContentCommands();
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites, toggleFavorite, isFavoritePending } = useFavorites();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const navigateBackOrGrowing = () => {
     if (fromParam === 'bed') {
@@ -718,12 +719,10 @@ export default function PlantDetailScreen() {
   const plantMasterId = plant?.plantMasterId;
   const canFavorite = !!plantMasterId;
   const isFavorite = plantMasterId ? favoriteIds.has(String(plantMasterId)) : false;
-  const plantTitle =
-    nickname.trim() ||
-    plant.nickname?.trim?.() ||
-    plant.displayName ||
-    plant.scientificName ||
-    t('plant.unnamed');
+  const plantTitle = nickname.trim() || getPlantInstanceName(plant, {
+    locale: i18n.language,
+    fallback: t('plant.unnamed'),
+  });
   const plantSubtitle =
     plantTitle === plant.displayName
       ? (latinName ?? statusLabel)
@@ -781,10 +780,10 @@ export default function PlantDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               if (!plantMasterId) return;
-              void toggleFavorite(plantMasterId).catch(() => undefined);
+              void toggleFavorite(plantMasterId);
             }}
-            disabled={!plantMasterId}
-            style={{ opacity: plantMasterId ? 1 : 0.5 }}
+            disabled={!plantMasterId || (plantMasterId ? isFavoritePending(plantMasterId) : false)}
+            style={{ opacity: plantMasterId && !isFavoritePending(plantMasterId) ? 1 : 0.5 }}
           >
             <Animated.View
               style={{

@@ -15,7 +15,14 @@
     "beds": "beds",
     "confirm": "Confirm",
     "confirm_delete": "Are you sure you want to delete this?",
-    "view_details": "View details"
+    "view_details": "View details",
+    "retry": "Retry"
+  },
+  "favorites": {
+    "account_required": "Sign in to update favorites.",
+    "write_failed": "Could not update this favorite. Please try again.",
+    "offline_title": "Favorites need a connection",
+    "offline_message": "Connect to the internet and try again."
   },
   "tabs": {
     "home": "Home",

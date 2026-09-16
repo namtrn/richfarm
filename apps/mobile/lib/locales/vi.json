@@ -15,7 +15,14 @@
     "beds": "luống",
     "confirm": "Xác nhận",
     "confirm_delete": "Bạn có chắc muốn xóa mục này không?",
-    "view_details": "Xem chi tiết"
+    "view_details": "Xem chi tiết",
+    "retry": "Thử lại"
+  },
+  "favorites": {
+    "account_required": "Đăng nhập để cập nhật mục yêu thích.",
+    "write_failed": "Không thể cập nhật mục yêu thích này. Vui lòng thử lại.",
+    "offline_title": "Cần kết nối mạng để dùng mục yêu thích",
+    "offline_message": "Hãy kết nối Internet rồi thử lại."
   },
   "tabs": {
     "home": "Trang chủ",

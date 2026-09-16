@@ -29,6 +29,7 @@ import { getE2ENow } from '../../lib/e2eTime';
 import { InputSheet } from '../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 import { toast } from '../../lib/toast';
+import { getPlantInstanceName } from '../../lib/plantNames';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 const TEST_REMINDER_TRIGGER_ENABLED =
@@ -400,7 +401,7 @@ function ReminderFormModal({
     waterLiters?: number;
   }) => Promise<void>;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const unitSystem = useUnitSystem();
   const [title, setTitle] = useState(reminder?.title ?? '');
@@ -692,7 +693,7 @@ function ReminderFormModal({
                         onPress={() => setSelectedPlant(p._id)}
                         style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: active ? theme.primary : theme.accent, borderWidth: 1, borderColor: active ? theme.primary : theme.border }}
                       >
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{p.displayName ?? p.scientificName ?? t('reminder.unnamed_plant')}</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : theme.textSecondary }}>{getPlantInstanceName(p, { locale: i18n.language, fallback: t('reminder.unnamed_plant') })}</Text>
                       </TouchableOpacity>
                     );
                   })}
@@ -857,7 +858,7 @@ export default function ReminderScreen() {
   const buildBedLabelForGardener = (bedId: string) => {
     const plantsInBed = plantsByBed.get(String(bedId)) ?? [];
     const names = plantsInBed
-      .map((p) => p.displayName ?? p.scientificName)
+      .map((p) => getPlantInstanceName(p, { locale: i18n.language, fallback: t('reminder.unnamed_plant') }))
       .filter(Boolean) as string[];
     if (names.length === 0) return t('reminder.target_bed_empty');
     if (names.length <= 2) return names.join(', ');
@@ -866,9 +867,10 @@ export default function ReminderScreen() {
 
   const getTargetLabel = (reminder: any) => {
     if (reminder.userPlantId) {
-      return plantMap.get(reminder.userPlantId)?.displayName
-        ?? plantMap.get(reminder.userPlantId)?.scientificName
-        ?? t('reminder.target_plant');
+      const linkedPlant = plantMap.get(reminder.userPlantId);
+      return linkedPlant
+        ? getPlantInstanceName(linkedPlant, { locale: i18n.language, fallback: t('reminder.target_plant') })
+        : t('reminder.target_plant');
     }
     if (reminder.bedId) {
       if (isGardener) {
@@ -915,7 +917,7 @@ export default function ReminderScreen() {
     if (plant) {
       return {
         key: `plant:${String(plant._id)}`,
-        label: plant.nickname ?? plant.displayName ?? plant.scientificName ?? t('reminder.target_plant'),
+        label: getPlantInstanceName(plant, { locale: i18n.language, fallback: t('reminder.target_plant') }),
       };
     }
 

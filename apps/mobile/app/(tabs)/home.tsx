@@ -17,6 +17,7 @@ import { useAuth } from '../../lib/auth';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { useAppMode } from '../../hooks/useAppMode';
+import { getPlantInstanceName } from '../../lib/plantNames';
 
 import { WeatherCard } from '../../components/ui/WeatherCard';
 
@@ -73,7 +74,7 @@ export default function HomeScreen() {
   const getPlantName = (reminder: any) => {
     if (!reminder?.userPlantId) return '';
     const linkedPlant = plantMap.get(String(reminder.userPlantId));
-    return linkedPlant?.displayName ?? linkedPlant?.scientificName ?? '';
+    return linkedPlant ? getPlantInstanceName(linkedPlant, { locale: i18n.language, fallback: '' }) : '';
   };
 
   const getDisplayTitle = (reminder: any) => {

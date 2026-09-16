@@ -31,6 +31,7 @@ import {
 import { useUnitSystem } from '../../../hooks/useUnitSystem';
 import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
 import { InputSheet } from '../../../components/ui/InputSheet';
+import { getPlantInstanceName } from '../../../lib/plantNames';
 import { usePlants } from '../../../hooks/usePlants';
 import { useReminders } from '../../../hooks/useReminders';
 import { useAuth } from '../../../lib/auth';
@@ -501,7 +502,7 @@ function GardenTabContent({
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }} numberOfLines={1}>
-                                        {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
+                                        {getPlantInstanceName(plant, { fallback: t('growing.unnamed') })}
                                     </Text>
                                     <Text style={{ fontSize: 11, color: theme.textMuted }}>{plant.status ?? 'planning'}</Text>
                                 </View>
@@ -879,7 +880,7 @@ function PlanningTabContent({
                                 <Leaf size={22} stroke={theme.primary} />
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.displayName ?? plant.scientificName ?? t('planning.unnamed')}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{getPlantInstanceName(plant, { locale: i18n.language, fallback: t('planning.unnamed') })}</Text>
                                 <Text style={{ fontSize: 12, color: theme.textMuted }}>{t('planning.status_planning')}</Text>
                             </View>
                             <ChevronRight size={16} stroke={theme.textMuted} />
@@ -1186,7 +1187,7 @@ function GrowingTabContent() {
                                             <Sprout size={22} stroke={theme.primary} />
                                         </View>
                                         <View style={{ flex: 1 }}>
-                                            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}</Text>
+                                            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{getPlantInstanceName(plant, { locale: i18n.language, fallback: t('growing.unnamed') })}</Text>
                                             <Text style={{ fontSize: 12, color: theme.textMuted }} numberOfLines={2}>{locationLabel}</Text>
                                             <Text style={{ fontSize: 11, color: theme.textMuted, textTransform: 'uppercase', marginTop: 2 }}>{t('plant.status_growing')}</Text>
                                         </View>
@@ -1230,7 +1231,7 @@ function GrowingTabContent() {
                                             <Leaf size={20} stroke={theme.textMuted} />
                                         </View>
                                         <View style={{ flex: 1 }}>
-                                            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}</Text>
+                                            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.text }}>{getPlantInstanceName(plant, { locale: i18n.language, fallback: t('growing.unnamed') })}</Text>
                                             <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
                                                 {t('plant.status_archived')} • {formatArchiveDate(plant.actualHarvestDate ?? plant.archivedAt)}
                                             </Text>

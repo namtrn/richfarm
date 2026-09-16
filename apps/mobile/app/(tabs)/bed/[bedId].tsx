@@ -18,6 +18,7 @@ import { matchesSearch } from '../../../lib/search';
 import { useAppMode } from '../../../hooks/useAppMode';
 import { InputSheet } from '../../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../../hooks/useInputModalLifecycle';
+import { getPlantInstanceName } from '../../../lib/plantNames';
 
 const BED_LAYOUTS: Record<string, { cols: number; rows: number; borderRadius: number; borderWidth: number; borderStyle?: 'solid' | 'dashed'; mask?: 'circle' }> = {
   in_ground: { cols: 8, rows: 6, borderRadius: 12, borderWidth: 1 },
@@ -304,7 +305,7 @@ export default function BedDetailScreen() {
     }
 
     Alert.alert(
-      plantEntry.plant.displayName ?? plantEntry.plant.scientificName ?? t('bed.plant_in_cell'),
+      getPlantInstanceName(plantEntry.plant, { locale: i18n.language, fallback: t('bed.plant_in_cell') }),
       t('bed.choose_action'),
       [
         {

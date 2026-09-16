@@ -20,6 +20,7 @@ import { useTheme } from '../../lib/theme';
 import type { ThemeColors } from '../../lib/theme';
 import { useThemeContext } from '../../lib/ThemeContext';
 import { useAppMode } from '../../hooks/useAppMode';
+import { getPlantInstanceName } from '../../lib/plantNames';
 
 const RESULT_LIMIT = 4;
 
@@ -328,7 +329,12 @@ export default function ExplorerScreen() {
                         >
                             {myPlantMatches.map((plant: any) => {
                                 const master = plant.plantMasterId ? libraryById.get(plant.plantMasterId) : undefined;
-                                const title = plant.displayName ?? master?.displayName ?? plant.scientificName ?? master?.scientificName ?? t('plant.unnamed');
+                                const title = getPlantInstanceName({
+                                    ...master,
+                                    ...plant,
+                                    displayName: plant.displayName ?? master?.displayName,
+                                    scientificName: plant.scientificName ?? master?.scientificName,
+                                }, { locale: i18n.language, fallback: t('plant.unnamed') });
                                 const subtitle = t('plant.status_label', { status: t(`plant.status_${plant.status}`) });
                                 const imageUri = plant.photoUrl ?? master?.imageUrl ?? null;
                                 return (

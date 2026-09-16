@@ -1420,7 +1420,7 @@ export default function LibraryScreen() {
     const { addPlant, updatePlant } = usePlants();
     const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
-    const { favorites, toggleFavorite } = useFavorites();
+    const { favorites, toggleFavorite, isFavoritePending } = useFavorites();
     const familyRows = useQuery(
         api.plantLibrary.listFamilies,
         activeTab === 'plants' && plantBrowseMode === 'families'
@@ -1749,9 +1749,10 @@ export default function LibraryScreen() {
     const handleTogglePlantFavorite = useCallback(
         (plant: any) => {
             if (isSeedPlant(plant)) return;
-            void toggleFavorite(plant._id).catch(() => undefined);
+            if (isFavoritePending(plant._id)) return;
+            void toggleFavorite(plant._id);
         },
-        [isSeedPlant, toggleFavorite]
+        [isFavoritePending, isSeedPlant, toggleFavorite]
     );
 
     const renderPlantItem = useCallback(
@@ -2085,10 +2086,10 @@ export default function LibraryScreen() {
                         void handleAddSelectedPlant();
                     }}
                     isFavorite={selectedPlantIsSeed ? false : favoriteIds.has(String(selectedPlant._id))}
-                    canFavorite={!selectedPlantIsSeed}
+                    canFavorite={!selectedPlantIsSeed && !isFavoritePending(selectedPlant._id)}
                     onToggleFavorite={() => {
                         if (selectedPlantIsSeed) return;
-                        void toggleFavorite(selectedPlant._id).catch(() => undefined);
+                        void toggleFavorite(selectedPlant._id);
                     }}
                 />
             )}

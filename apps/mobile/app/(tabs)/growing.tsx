@@ -13,6 +13,7 @@ import { api } from '../../../../packages/convex/convex/_generated/api';
 
 import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
+import { getPlantInstanceName } from '../../lib/plantNames';
 
 export default function GrowingScreen() {
   const { t, i18n } = useTranslation();
@@ -154,7 +155,7 @@ export default function GrowingScreen() {
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 17, fontWeight: '800', color: theme.text }}>
-                          {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
+                          {getPlantInstanceName(plant, { locale: i18n.language, fallback: t('growing.unnamed') })}
                         </Text>
                         <Text style={{ fontSize: 12, color: theme.textSecondary, marginTop: 2 }} numberOfLines={2}>
                           {locationLabel}
@@ -209,7 +210,7 @@ export default function GrowingScreen() {
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontSize: 14, fontWeight: '700', color: theme.text }}>
-                          {plant.displayName ?? plant.scientificName ?? t('growing.unnamed')}
+                          {getPlantInstanceName(plant, { locale: i18n.language, fallback: t('growing.unnamed') })}
                         </Text>
                         <Text style={{ fontSize: 12, color: theme.textMuted, marginTop: 2 }}>
                           {t('plant.status_archived')} • {formatArchiveDate(plant.actualHarvestDate ?? plant.archivedAt)}
