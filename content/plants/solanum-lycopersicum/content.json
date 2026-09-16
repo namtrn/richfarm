@@ -8,24 +8,46 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 4710,
+      "bytes": 7742,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "f978d3610f28588d66e0fcd0d3f212329effdf12c5a757b48a2d617130f521b9",
-      "source_refs": []
+      "sha256": "5755d53ef40bb66b967763752e8bd86be3cc348a2f91e05228cafe3e43325469",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://anrcatalog.ucanr.edu/pdf/8159.pdf",
+          "sourceName": "Growing Tomatoes in the Home Garden (UC ANR Pub 8159)",
+          "sourceSystem": "ucanr"
+        }
+      ]
     },
     "vi": {
-      "bytes": 5305,
+      "bytes": 8326,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "9f827f414e6dabecaf50cdfb96239835e070bccc2e76505d387ccb99c3ecc9b9",
-      "source_refs": []
+      "sha256": "c21df8b8fc10b7c7c9b1bcde992be0cbd57614c63f28fde0d38437978a6b4392",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://anrcatalog.ucanr.edu/pdf/8159.pdf",
+          "sourceName": "Growing Tomatoes in the Home Garden (UC ANR Pub 8159)",
+          "sourceSystem": "ucanr"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,
