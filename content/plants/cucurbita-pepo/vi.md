@@ -1,65 +1,41 @@
-Bí ngòi là cây ăn quả mùa ấm có tốc độ sinh trưởng vũ bão và năng suất vượt trội, có thể cung cấp quả tươi liên tục suốt nhiều tuần chỉ từ vài bụi cây. Tuy nhiên, loài cây này rất dễ khiến người mới trồng bối rối: hoa cái nở rộ nhưng không đậu quả do thiếu thụ phấn khiến quả non teo vàng thối rụng, tán lá to bản dễ bị nấm phấn trắng tàn phá khi gặp ẩm, và quả lớn nhanh đến mức nếu chậm hái vài ngày thì quả sẽ hóa xơ và cây ngừng đẻ lứa mới. Để thu hoạch được nhiều lứa bí ngòi non giòn ngọt, việc hỗ trợ thụ phấn vào sáng sớm, tỉa thoáng tầng lá dưới và hái quả non đều đặn mỗi ngày là những việc quan trọng nhất.
+Bí ngòi sinh trưởng rất nhanh trong thời tiết ấm và có thể cho nhiều quả khi bước vào giai đoạn ra hoa, nhưng tán lá lớn và quả phát triển nhanh đòi hỏi phải kiểm tra thường xuyên. Thụ phấn kém có thể làm quả non vàng rồi teo, tán quá rậm dễ giữ ẩm và phát sinh nấm, còn quả quá lứa thường bị khuất dưới lá. Vì vậy, ưu tiên chính là đủ nắng, đủ khoảng trống, giữ ẩm đều và quan sát cây thường xuyên khi bắt đầu thu hoạch.
 
-## Đủ nắng, đất giàu hữu cơ và tạo khoảng cách thoáng
+## Cho cây đủ nắng, đủ chỗ và đất màu mỡ
 
-Bí ngòi cần ít nhất 6-8 giờ nắng trực tiếp mỗi ngày để nở hoa liên tục và nuôi quả chắc thịt. Đủ nắng giúp thân mập, tán lá cứng cáp và hạn chế đáng kể các bào tử nấm bám trên bề mặt lá.
+Trồng bí ngòi ở vị trí có khoảng 6-8 giờ nắng trực tiếp mỗi ngày khi điều kiện cho phép. Phần lớn giống bí ngòi trồng trong vườn phát triển thành bụi rộng, nên cần chừa đủ khoảng trống để các lá trưởng thành không chồng kín lên nhau.
 
-Cây mọc thành dạng bụi tròn có tán lá xòe rộng từ 90-120 cm, không leo giàn như mướp hay dưa leo. Cần chừa khoảng cách tối thiểu 60-90 cm giữa các cây; trồng quá chen chúc khiến các phiến lá khổng lồ che kín nhau, cản trở ánh sáng, ngăn ong tìm thấy hoa và giữ ẩm ứ làm mầm bệnh lây lan cực nhanh.
+Dùng đất tơi xốp, thoát nước tốt và có bổ sung compost hoặc vật liệu hữu cơ đã hoai mục. Nếu trồng chậu, nên dùng chậu lớn có lỗ thoát nước tốt thay vì chậu nhỏ dễ khô nhanh. Không nên thúc quá nhiều đạm để cây chỉ phát triển lá; khi cây bắt đầu ra hoa và nuôi quả, dùng loại phân phù hợp cho rau ăn quả theo đúng hướng dẫn của sản phẩm.
 
-Nếu trồng trong chậu hoặc thùng xốp, cần chọn chậu có dung tích từ 25-40 lít cho mỗi cây và kiểm tra các lỗ thoát nước dưới đáy.
+## Quan sát hoa trước khi cho rằng cây có vấn đề
 
-Về dinh dưỡng, bí ngòi là loài cây ăn phân rất khỏe:
+Bí ngòi có hoa đực và hoa cái riêng trên cùng một cây. Hoa đực thường xuất hiện trước, và hiện tượng này không có nghĩa là cây đang thiếu phân.
 
-- Trước khi trồng, trộn nhiều phân chuồng hoai mục hoặc phân compost vào đất để tạo độ mùn tơi xốp và nguồn dinh dưỡng nền dồi dào.
-- Khi cây bắt đầu ra hoa và đậu quả rộ, bón thúc định kỳ bằng phân hữu cơ hoặc phân bón giàu lân và kali để nuôi quả đanh chắc.
-- Hạn chế bón thừa phân đạm hóa học, vì đạm dư thừa chỉ kích thích cây bung lá khổng lồ rậm rạp nhưng lại ức chế ra hoa cái và khiến cây mẫn cảm hơn với nấm bệnh.
+Nếu hoa cái nở nhưng quả non phía sau liên tục vàng rồi ngừng lớn, nguyên nhân có thể liên quan đến thụ phấn kém. Ở nơi ít côn trùng thụ phấn, có thể hỗ trợ bằng tay: lấy phấn từ một hoa đực đang nở và nhẹ nhàng chuyển phấn vào phần giữa của hoa cái đang mở vào buổi sáng. Chỉ thực hiện khi cả hai hoa còn tươi và đang nở.
 
-## Thụ phấn nhân tạo vào sáng sớm để quả không bị thối non
+## Giữ ẩm ổn định và hạn chế để lá ướt lâu
 
-Bí ngòi mang cả hoa đực và hoa cái riêng biệt trên cùng một bụi:
+Bí ngòi cần độ ẩm tương đối ổn định, nhất là khi tán lá lớn và cây đang nuôi nhiều quả. Kiểm tra đất rồi tưới đẫm quanh vùng rễ khi đất bắt đầu khô thay vì tưới theo một lịch cố định.
 
-- Hoa đực mọc trên một cuống dài mảnh, bên trong chỉ có nhị mang hạt phấn vàng.
-- Hoa cái mọc trên cuống ngắn, ngay sát gốc hoa đã có sẵn một bầu quả non nhỏ xíu hình quả bí ngòi.
+Khi có thể, tưới trực tiếp xuống mặt đất. Cách này giúp giảm thời gian lá bị ướt và hạn chế đất bắn lên tán. Một lớp phủ gốc mỏng có thể làm chậm mất nước, nhưng nên chừa phần cổ cây thông thoáng và bảo đảm đất vẫn thoát nước tốt.
 
-Trong 1-2 tuần đầu tiên của giai đoạn ra hoa, cây thường chỉ nở toàn hoa đực. Đây là tập tính sinh học hoàn toàn tự nhiên nhằm thu hút côn trùng thụ phấn đến vườn trước khi hoa cái xuất hiện, bạn không nên lo lắng hay vội vã bón thêm phân.
+Không cần cắt lá khỏe theo một lịch cứng. Chỉ nên loại bỏ lá bị hư nặng, nhiễm bệnh hoặc nằm sát mặt đất khi việc cắt bỏ giúp tăng độ thông thoáng mà không làm cây mất quá nhiều lá hữu dụng.
 
-Hoa bí ngòi chỉ nở trong vài giờ ngắn ngủi vào buổi sáng (thường từ 6 giờ đến 9-10 giờ sáng rồi khép cánh vĩnh viễn). Tại các vườn ban công, sân thượng hoặc trong những ngày mưa ẩm thiếu vắng ong bướm, hạt phấn không được truyền sang hoa cái sẽ khiến quả non bắt đầu teo tóp, ngả màu vàng và thối nhũn từ chóp đáy quả.
+## Hái khi quả còn non và mềm
 
-Để đảm bảo tỷ lệ đậu quả tối đa, bạn nên thụ phấn bổ sung bằng tay vào sáng sớm khi hoa vừa nở bung: ngắt một bông hoa đực, nhẹ nhàng tước bỏ các cánh hoa màu vàng để trơ lại phần nhụy mang phấn, sau đó chấm nhẹ đầu nhụy đực vào phần nhụy hoa cái (một hoa đực có thể dùng để chấm cho 2-3 hoa cái). Quả cái sau khi thụ phấn thành công sẽ lớn nhanh trông thấy từng ngày.
+Bí ngòi thường ngon hơn khi được thu lúc còn non, trước khi vỏ và hạt trở nên cứng. Trong thời tiết ấm, quả có thể lớn rất nhanh, vì vậy nên kiểm tra cây thường xuyên vào giai đoạn thu rộ thay vì dựa vào một số ngày cố định sau khi hoa nở.
 
-## Tưới đẫm vào gốc sáng sớm và tỉa lá già phòng bệnh
+Dùng dao hoặc kéo sạch để cắt cuống quả. Thu hoạch đều giúp hạn chế quả quá lứa bị khuất dưới tán và cũng tạo cơ hội kiểm tra lá hư hoặc sâu hại mới xuất hiện.
 
-Phiến lá bí ngòi to bản như những chiếc quạt nên thoát hơi nước rất mạnh vào ban ngày. Đất trồng cần được duy trì độ ẩm ổn định liên tục; nếu đất bị khô hạn gián đoạn, lá sẽ héo rũ rượi và cây sẽ tự rụng các quả non đang lớn.
+## Phân biệt vân lá tự nhiên với bệnh
 
-Bạn nên tưới đẫm và chậm quanh vùng gốc vào buổi sáng sớm để cây tích trữ đủ nước cho cả ngày. Đưa vòi nước sát mặt đất; tuyệt đối tránh tưới xối thẳng lên bề mặt tán lá và hoa, vì nước đọng lâu trên lá to là điều kiện lý tưởng cho nấm bệnh phát triển và làm ướt hạt phấn.
+Một số giống bí ngòi có các mảng bạc hoặc nhạt màu tự nhiên trên lá. Đây là màu nằm trong mô lá và không nên tự động xem là dấu hiệu của nấm bệnh.
 
-Rải một lớp rơm khô hoặc mùn cỏ dày khoảng 3-5 cm quanh gốc giúp giữ ẩm đất, làm mát rễ và ngăn không cho quả non tiếp xúc trực tiếp với bùn đất ẩm.
+[Bệnh phấn trắng](richfarm://pests-diseases/powdery_mildew) thường tạo lớp trắng như bột phủ trên bề mặt lá và lan rộng dần. Tăng độ thông thoáng, loại bỏ lá bị hại nặng và tránh để tán lá ướt kéo dài.
 
-Kỹ thuật tỉa cành định kỳ: Cứ sau mỗi lần cắt thu hoạch một quả bí ngòi, hãy dùng kéo sắc cắt bỏ luôn chiếc lá già mọc ngay phía dưới cuống quả đó. Thao tác này vừa giúp gốc cây luôn thông thoáng đón gió, rọi nắng vào tận mắt hoa bên trong, vừa cắt đứt con đường xâm nhập của các loại nấm đất ẩm lên tán lá non phía trên.
+[Bệnh sương mai](richfarm://pests-diseases/downy_mildew) có thể tạo các mảng vàng góc cạnh nằm giữa gân lá, đôi khi kèm lớp phát triển sẫm màu ở mặt dưới trong điều kiện ẩm. Loại bỏ phần bị hại nặng và giữ tán khô, thoáng trong khả năng có thể.
 
-## Hái quả non đều tay để cây liên tục ra lứa mới
+## Kiểm tra sâu hại dưới tán
 
-Sau khi thụ phấn thành công, quả bí ngòi lớn thần tốc và có thể thu hoạch chỉ sau 4-7 ngày:
+[Rệp mềm](richfarm://pests-diseases/aphids) có thể tập trung ở đọt non và mặt dưới lá, làm lá quăn và tạo lớp mật dính. Khi số lượng còn ít, có thể dùng nước hoặc thao tác thủ công để giảm mật độ.
 
-- Tiêu chuẩn hái ngon nhất: Khi quả đạt chiều dài khoảng 15-20 cm và đường kính khoảng 4-5 cm. Lúc này vỏ quả bóng mịn, thịt quả giòn ngọt và phần hạt non bên trong chưa phát triển xơ.
-- Cảnh báo để quả quá lứa: Nếu bỏ quên vài ngày, quả sẽ phình to vượt mức, vỏ dày cứng, ruột xốp rỗng và hạt già hóa gỗ. Nguy hiểm hơn, việc dồn tinh bột nuôi một quả già sẽ kích hoạt tín hiệu sinh học khiến toàn bộ cây ngừng nở hoa cái và ngưng đậu lứa quả mới.
-
-Trong giai đoạn rộ mùa hè, bạn nên kiểm tra bụi cây mỗi 1-2 ngày một lần để hái quả kịp thời. Khi hái, dùng dao hoặc kéo sắc cắt ngang cuống quả, chừa lại một đoạn cuống ngắn khoảng 2-3 cm trên đầu quả; không dùng tay vặn bẻ quả vì thân bí ngòi rỗng xốp, rất dễ làm toác rách cả cụm ngọn non bên cạnh.
-
-## Phân biệt phấn trắng với vân lá và nhận diện sâu hại
-
-Tán lá bí ngòi sát mặt đất và đọt non mọng nước là nơi cần quan sát thường xuyên:
-
-### Bệnh hại
-
-[Bệnh phấn trắng](richfarm://pests-diseases/powdery_mildew) là bệnh nấm phổ biến nhất trên bí ngòi vào giữa và cuối vụ. Bệnh tạo thành các đốm bột màu trắng như rắc phấn trên bề mặt lá, sau đó lan rộng làm lá vàng khô giòn và tàn sớm. **Lưu ý quan trọng**: Rất nhiều giống bí ngòi có các vệt hoa văn màu trắng bạc tự nhiên nằm chìm dọc theo các đường gân lá. Vết bạc tự nhiên nhẵn bóng, chìm trong phiến lá và không thể cạo ra, trong khi nấm phấn trắng là lớp mốc bột sần sùi bám nổi trên mặt lá và có thể lấy ngón tay miết sạch. Khi phát hiện nấm phấn trắng thật sự, hãy cắt bỏ ngay các lá già nhiễm bệnh đem tiêu hủy xa vườn để ngăn phát tán bào tử.
-
-[Bệnh sương mai](richfarm://pests-diseases/downy_mildew) biểu hiện bằng các đốm màu vàng nhạt có hình góc cạnh bị giới hạn bởi các gân lá trong thời tiết mưa ẩm kéo dài, mặt dưới lá có lớp mốc màu xám tím. Luôn giữ khoảng cách trồng thông thoáng và tưới sát gốc để giảm thiểu nguy cơ mắc bệnh.
-
-### Sâu hại
-
-[Rệp mềm](richfarm://pests-diseases/aphids) tụ tập thành từng đàn ở mặt dưới các phiến lá và quanh cuống nụ hoa, chích hút nhựa làm lá quăn queo và hoa rụng sớm. Khi mật độ còn thấp, bạn có thể lấy tay gạt bỏ hoặc xịt tia nước nhẹ để rửa trôi.
-
-[Ốc sên](richfarm://pests-diseases/slugs_snails) thường bò ra vào ban đêm gặm nham nhở các cây con mới trồng và khoét thủng vỏ quả non nằm sát mặt đất ẩm. Hãy kiểm tra dưới các phiến lá to vào sáng sớm hoặc chiều tối để bắt ốc thủ công, đồng thời dọn sạch cỏ dại quanh gốc để loại bỏ nơi trú ẩn của chúng.
-
-[Bọ phấn trắng](richfarm://pests-diseases/whiteflies) là những con bọ nhỏ màu trắng bay lên khi rung lá, hút nhựa và tiết mật ngọt tạo nấm muội đen. Bạn có thể treo bẫy dính màu vàng sát mặt tán lá để theo dõi và bắt bọ trưởng thành từ sớm.
+[Ốc sên](richfarm://pests-diseases/slugs_snails) có thể gây hại cho cây con và các quả nằm thấp, nhất là ở nơi đất ẩm và có nhiều vật che phủ. Kiểm tra dưới lá và quanh gốc vào chiều tối hoặc sáng sớm, đồng thời dọn bớt các vị trí ẩn nấp sát cây.
