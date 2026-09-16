@@ -1,37 +1,39 @@
-## Light and location
+Cilantro grows best while the weather is cool enough for steady leaf growth. Heat and longer days can push the plant toward flowering quickly, so the main goal is to establish seedlings without stress, keep moisture reasonably even, and harvest leaves before the plant shifts strongly into seed production.
 
-Cilantro prefers cool weather and grows well in gentle or morning sun. In warm climates it bolts quickly in high temperatures, so grow it in the cool season or choose a spot with afternoon shade. Intense sun reduces leaf growth and speeds up flowering.
+## Match the crop to the cooler part of your season
 
-This is a low-growing plant that does not climb, so it needs no support. It grows well in containers or beds; sow densely enough for the plants to support one another while still leaving room for air to move.
+Choose a sunny position during cool weather. In climates where temperatures rise quickly, growing cilantro during the cooler season or giving it some afternoon protection can extend the useful leaf-harvest period.
 
-## Watering
+Bolting is a normal part of the plant's life cycle, not always a sign that something is wrong. Once the central stem begins to elongate and fine, feathery leaves appear near the top, the plant is moving toward flowering.
 
-Keep the soil evenly moist, especially while the plants are young. Cilantro has fine roots, and dry soil slows growth and encourages early bolting. Water when the top layer begins to dry; on hot days the soil dries faster and needs checking more often.
+## Sow directly and thin for the harvest you want
 
-Avoid waterlogging, which damages the roots. Water at the base and limit wetting the leaves so they stay free of moisture-related spots.
+Cilantro is commonly direct-sown because it develops a taproot and does not always respond well to transplant disturbance. Sow into loose, well-drained soil and keep the seedbed evenly moist while seedlings establish.
 
-## Soil
+Thin crowded seedlings once they are easy to handle. Plants grown mainly for leaves can remain closer together than plants being kept for coriander seed, which need more room to branch and flower.
 
-Choose loose, fertile soil with good drainage. Work compost into the bed before sowing to keep the soil soft and nourished for the short cycle. In containers, use a well-draining vegetable mix with clear drainage holes.
+For a longer supply of leaves, sow another small batch before the previous planting has finished. The useful interval depends on weather: in warm conditions, later sowings may bolt sooner.
 
-## Feeding
+## Keep moisture steady without keeping the bed soggy
 
-Because harvests follow one another over a short period, cilantro usually gets enough nutrition when the soil is enriched with compost before sowing. If the leaves look pale and growth is slow, feed lightly with a diluted liquid fertilizer as directed. Keep concentrated fertilizer away from the stem and do not feed while the soil is dry.
+Check the soil regularly while seedlings are small. Water when the surface begins to dry, then let excess water drain. Repeated drought stress can shorten the leaf-producing period, while persistently wet soil can weaken roots.
 
-## Sowing and propagation
+Compost incorporated before planting is often enough for a short leaf crop. If growth is pale or weak despite suitable moisture and temperature, a light fertilizer application may help. Avoid heavy feeding, which is not a substitute for cool growing conditions.
 
-Cilantro is usually sown directly where it will grow, since the taproot dislikes transplanting. The seed has a tough coat; soaking it in warm water for a few hours or gently crushing it can speed germination. Sow shallowly on moist soil and keep the surface damp until the seedlings appear.
+## Harvest leaves or let selected plants make seed
 
-Stagger the sowing by a few weeks at a time to keep a steady supply. When the seedlings are crowded, thin them so each plant has room; the thinnings can be used in the kitchen.
+Harvest the outer leaves and tender stems once plants are large enough to spare them, or cut a portion of the plant while leaving enough healthy growth to continue. Flavor and leaf texture change as the flowering stem develops, so harvest more heavily once bolting begins if your goal is fresh cilantro.
 
-## Ongoing care and harvest
+If you want coriander seed, leave selected plants uncut after they flower. Allow seed heads to mature and dry before collecting them. Keeping seed plants separate from the main leaf-harvest batch makes it easier to manage both uses.
 
-The key to growing cilantro is controlling how fast it bolts. As the weather warms or the days lengthen, the plant stretches upward and flowers quickly, and the leaves lose flavor. Keeping the soil cool and harvesting early extends the leaf season.
+## Watch for pests and leaf diseases
 
-Pick leaves and young stems once the plant is about 10-15 cm tall, cutting near the base or taking outer leaves so the center keeps growing. If you do not need seed, pinch off the flower stalks as soon as they appear so the plant keeps producing leaves. If you want coriander seed, let a few plants flower, wait until the seed heads turn brown, then cut them, dry them, and rub out the seed.
+### Pests
 
-## Common pests and diseases
+[Aphids](richfarm://pests-diseases/aphids) may gather on tender shoots and leaf undersides. Check distorted new growth or clusters of small insects and remove light infestations with water or by hand.
 
-[Aphids](richfarm://pests-diseases/aphids) may gather on young shoots and leaf undersides, curling leaves and slowing growth. Check while watering; a light infestation can be washed off or removed by hand.
+### Diseases
 
-In damp conditions, cilantro can develop [leaf spot](richfarm://pests-diseases/leaf_spot), showing unusual spots on the leaves. Remove affected leaves, avoid wetting the foliage, and keep the planting open. If the leaves take on a white powdery coating, this may be [powdery mildew](richfarm://pests-diseases/powdery_mildew); cut out the affected parts and watch the remaining plants. On leafy greens, do not apply a pesticide until the problem has been identified and you have appropriate safety instructions.
+[Leaf spot](richfarm://pests-diseases/leaf_spot) can produce expanding spots when foliage stays wet or humid for long periods. Remove badly affected leaves, improve spacing, and water at soil level where practical.
+
+[Powdery mildew](richfarm://pests-diseases/powdery_mildew) appears as a pale, powdery coating on foliage. If it develops, remove severely affected growth and improve airflow. Because cilantro is harvested for fresh leaves, identify the problem before applying any treatment and follow the product label and harvest interval where applicable.
