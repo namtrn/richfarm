@@ -80,4 +80,28 @@ describe('scoped projection loader', () => {
     expect(await pendingFirst).toBe(false);
     expect(committed.map((value) => value.generation)).toEqual(['new']);
   });
+
+  it('publishes an error only for the latest active read', async () => {
+    let rejectFirst!: (error: unknown) => void;
+    let rejectSecond!: (error: unknown) => void;
+    const reads = [
+      new Promise<ProjectionEnvelope | null>((_, reject) => { rejectFirst = reject; }),
+      new Promise<ProjectionEnvelope | null>((_, reject) => { rejectSecond = reject; }),
+    ];
+    const errors: string[] = [];
+    const loader = createScopedProjectionLoader(
+      'account-a',
+      () => reads.shift()!,
+      () => undefined,
+      { onError: (error) => errors.push((error as Error).message) },
+    );
+
+    const first = loader.reload();
+    const second = loader.reload();
+    rejectFirst(new Error('stale'));
+    expect(await first).toBe(false);
+    rejectSecond(new Error('latest'));
+    expect(await second).toBe(false);
+    expect(errors).toEqual(['latest']);
+  });
 });
