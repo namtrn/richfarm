@@ -1,39 +1,43 @@
-## Ánh sáng và vị trí
+Xà lách cho lá đẹp nhất khi cây phát triển đều mà không bị nóng hoặc thiếu nước kéo dài. Thời tiết nóng dễ đẩy cây lên ngồng, còn đất khô lặp lại làm lá cứng và đắng hơn. Vì vậy, nên ưu tiên trồng vào phần mát hơn của mùa vụ, giữ vùng rễ nông ẩm tương đối ổn định và thu hoạch trước khi cây bắt đầu vươn thân hoa.
 
-Xà lách là cây ưa mát và phát triển tốt nhất trong điều kiện trời dịu, nhiệt độ ban ngày không quá nóng. Cây chịu được nắng sáng hoặc bóng nhẹ, nhưng nắng gắt kéo dài dễ làm cây lên ngồng và lá đắng. Ở vùng khí hậu nóng, trồng vào mùa mát hoặc chọn nơi có bóng râm buổi chiều.
+## Trồng vào phần mát hơn của mùa vụ
 
-Đây là cây thân thấp, tán lá gần mặt đất nên không cần giàn hay cọc đỡ. Khi trồng nhiều cây, chừa khoảng cách vừa đủ để lá không che lẫn nhau; tán thông thoáng giúp lá mau khô sau mưa và ít bệnh.
+Cho xà lách đủ sáng khi thời tiết còn dịu. Ở nơi nóng, bóng râm nhẹ buổi chiều có thể giảm bớt stress nhiệt, nhưng không thể hoàn toàn bù cho một mùa vụ quá nóng.
 
-## Tưới nước
+Quan sát phần giữa cây. Khi thân giữa bắt đầu kéo dài và cả cây vươn cao thay vì giữ dạng thấp, cây đang chuyển dần sang giai đoạn ra hoa. Từ thời điểm này, chất lượng lá thường giảm.
 
-Xà lách có bộ rễ nông và lá mọng nước, vì vậy cần đất ẩm đều để lá phát triển mềm, không đắng. Tưới khi lớp đất mặt bắt đầu se khô; trong thời tiết nóng, đất có thể khô nhanh hơn và cần kiểm tra thường xuyên hơn.
+## Giữ vùng rễ nông ẩm tương đối đều
 
-Tránh để đất khô lâu vì cây sẽ chậm lớn và dễ lên ngồng. Ngược lại, không tưới quá nhiều làm đất sũng vì rễ nông dễ bị hư. Tưới xuống gốc và hạn chế làm ướt lá vào cuối ngày.
+Xà lách có nhiều rễ nằm gần mặt đất nên luống có thể khô nhanh hơn tưởng tượng. Kiểm tra đất thường xuyên và tưới khi lớp phía trên bắt đầu khô.
 
-## Đất trồng
+Tránh để đất khô lâu rồi tưới quá đẫm. Phủ gốc có thể giúp giảm bốc hơi, nhất là với chậu và luống cao. Khi có thể, tưới sát mặt đất và không để vùng rễ sũng nước kéo dài.
 
-Xà lách thích đất tơi, giàu hữu cơ và giữ ẩm tốt nhưng vẫn thoát nước. Trộn compost trước khi trồng giúp đất mềm và đủ dinh dưỡng cho chu kỳ ngắn. Trồng chậu cần đất trồng rau thoát nước tốt, không để đáy chậu ngâm nước.
+## Chuẩn bị đất tơi và giàu hữu cơ
 
-## Bón phân
+Xà lách phù hợp với đất giàu hữu cơ, giữ được ẩm nhưng vẫn thoát nước. Compost trộn trước khi trồng thường đã đủ làm nguồn dinh dưỡng nền cho một lứa rau ngắn ngày.
 
-Do chu kỳ ngắn, xà lách thường đủ dinh dưỡng nếu đất đã được trộn compost trước khi trồng. Nếu cây lớn chậm và lá nhạt màu, có thể bón thúc nhẹ bằng phân tan chậm hoặc phân dạng lỏng pha loãng theo hướng dẫn sản phẩm.
+Nếu cây vẫn nhạt màu hoặc lớn chậm dù nhiệt độ và nước đã phù hợp, có thể bón nhẹ theo hướng dẫn sản phẩm. Không nên bón mạnh chỉ để ép cây lớn nhanh.
 
-Không cần bón nhiều; đất quá giàu đạm làm lá non mọng nước dễ sâu bệnh hơn. Không bón sát gốc và không bón khi đất đang khô.
+## Gieo thành nhiều lứa nhỏ
 
-## Gieo trồng và nhân giống
+Có thể gieo trực tiếp hoặc ươm cây con rồi chuyển ra vị trí trồng. Giữ mặt giá thể ẩm trong giai đoạn nảy mầm và tỉa bớt khi cây mọc quá dày.
 
-Xà lách thường được gieo hạt trực tiếp hoặc ươm cây con rồi chuyển ra vị trí trồng. Hạt rất nhỏ, nên gieo nông trên mặt đất ẩm và giữ ẩm đến khi nảy mầm. Nên gieo rải vụ, mỗi đợt cách nhau vài tuần, để có lá thu hoạch liên tục thay vì thu một lần rồi hết.
+Muốn kéo dài thời gian thu hoạch, nên gieo nhiều lứa nhỏ thay vì gieo toàn bộ cùng lúc. Khoảng cách giữa các lứa nên thay đổi theo thời tiết và tốc độ phát triển của lứa hiện tại, không cần bám vào một lịch cố định.
 
-Khi cây con có vài lá thật, tỉa bớt hoặc chuyển sang vị trí trồng chính với khoảng cách phù hợp từng loại. Cây con cần được tưới đẫm sau khi chuyển chỗ; tránh làm đứt rễ vì rễ xà lách khá mảnh.
+## Thu lá hoặc thu cả cây
 
-## Chăm sóc và thu hoạch
+Với xà lách lá rời, có thể cắt các lá ngoài đã đủ lớn và chừa phần giữa để cây tiếp tục phát triển. Các dạng khác có thể thu cả cây khi đạt kích thước và độ chắc mong muốn.
 
-Khi trời nóng hoặc ngày dài, xà lách có xu hướng vươn cao và lên ngồng. Cây lên ngồng thường lá đắng và không còn ngon; để hạn chế, chọn giống chịu nhiệt, giữ đất mát và thu hoạch sớm hơn trong mùa nóng.
+Khi thời tiết bắt đầu nóng lên, nên thu sớm hơn thay vì cố giữ cây trưởng thành quá lâu. Khi quá trình lên ngồng đã bắt đầu, lá thường đắng hơn và kém mềm.
 
-Có thể thu hoạch theo hai cách: cắt cả cây sát gốc khi đạt kích thước, hoặc cắt dần lá ngoài và để phần trong tiếp tục phát triển. Cắt vào lúc sáng sớm khi lá còn giòn; dùng kéo sạch và rửa lá trước khi dùng. Sau khi cắt, cây có thể ra lá mới nếu còn giữ phần gốc và đủ nước.
+## Kiểm tra sâu hại và bệnh riêng biệt
 
-## Sâu hại và bệnh thường gặp
+### Sâu hại
 
-[Ốc sên](richfarm://pests-diseases/slugs_snails) thường ăn lá non, đặc biệt ở nơi ẩm và rậm. Kiểm tra quanh gốc, dưới chậu và mặt dưới lá vào sáng sớm hoặc chiều tối; dọn lá rụng và giữ khu vực trồng thông thoáng để giảm chỗ trú của chúng. Nếu chỉ có một số ít, có thể bắt bằng tay thay vì dùng thuốc.
+[Ốc sên](richfarm://pests-diseases/slugs_snails) thường gây hại các lá non sát đất. Kiểm tra dưới lá, dưới chậu và quanh các vật liệu ẩm vào sáng sớm hoặc chiều tối, đồng thời giảm những chỗ trú ẩn ẩm quanh luống.
 
-[Rệp mềm](richfarm://pests-diseases/aphids) có thể tụ tập ở mặt dưới lá và kẽ lá non, làm lá xoăn và dính. Rửa nhẹ bằng nước khi phát hiện sớm thường đủ với mức độ ít. Nếu lá xuất hiện nhiều đốm hoặc phần bệnh lan rộng, cần xác định đúng nguyên nhân trước khi xử lý; trên rau ăn lá, không tự dùng thuốc bảo vệ thực vật khi chưa biết rõ loại sâu bệnh và thời gian an toàn.
+[Rệp mềm](richfarm://pests-diseases/aphids) có thể tụ trong các lá non phía giữa và mặt dưới lá. Khi ổ rệp còn nhỏ, có thể rửa bằng nước trước khi chúng lan sâu vào tán.
+
+### Bệnh
+
+Nếu xuất hiện các đốm lan rộng hoặc phần lá bị thối mềm, trước tiên hãy kiểm tra xem tán có bị ướt quá lâu, cây có trồng quá dày hoặc đất có bị sũng hay không. Loại bỏ lá bị nặng và tăng thông thoáng. Vì xà lách được ăn trực tiếp phần lá, cần xác định đúng vấn đề trước khi dùng bất kỳ chế phẩm nào và tuân thủ thời gian cách ly nếu sản phẩm có yêu cầu.
