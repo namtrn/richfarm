@@ -1,39 +1,59 @@
-## Ánh sáng và vị trí
+Ớt chuông nổi bật với những quả giòn ngọt dày cùi và màu sắc bắt mắt, nhưng lại là loài cây đòi hỏi sự tinh tế bậc nhất trong vườn nhà. Cây rất nhạy cảm với sự thay đổi nhiệt độ: hoa dễ rụng hàng loạt khi gặp những ngày nắng nóng gay gắt, chạc cành giòn dễ toác đôi khi mang quả nặng, và quả non rất dễ bị cháy nám vỏ nếu thiếu bóng mát của tán lá. Để cây đậu trái sai và quả to đanh, việc giữ cho vùng rễ mát mẻ, bấm tỉa chạc cành đúng cách và cắm cọc nâng đỡ kịp thời là những ưu tiên hàng đầu.
 
-Ớt chuông là cây ưa nắng, cần khoảng 6 giờ nắng trực tiếp mỗi ngày để ra hoa và nuôi quả. Nơi quá râm làm cây cao vóng, ít hoa và quả chín chậm. Nếu trồng chậu trên ban công, nên chọn vị trí đón nắng buổi sáng và chiều.
+## Giữ nhiệt độ mát mẻ và bảo vệ tán lá che quả
 
-Cây mọc thành bụi đứng, không cần giàn leo. Khi quả lớn, cành có thể bị cong do sức nặng; cắm một cọc nhỏ và buộc lỏng thân chính giúp cây đứng vững hơn. Chừa khoảng cách giữa các cây để tán thông thoáng, lá không che khuất nhau.
+Ớt chuông cần ánh nắng đầy đủ (khoảng 6-8 giờ mỗi ngày) nhưng chỉ ưa tiết trời ấm áp trong khoảng 20-28°C. Khi nhiệt độ ban ngày vượt quá 32-35°C hoặc ban đêm oi bức trên 24°C, hạt phấn sẽ mất sức sống khiến hoa rụng hàng loạt dù thân lá vẫn mọc xanh tốt. Ngược lại, nếu nhiệt độ xuống dưới 15°C, cây sẽ ngừng lớn và rụng nụ. Vào các đợt nắng gắt mùa hè, nên giăng lưới đen che bớt 30-50% ánh nắng trưa hoặc dời chậu vào nơi có bóng râm nhẹ đầu giờ chiều.
 
-## Tưới nước
+Khác với nhiều loại cây ăn quả cần đón nắng để quả lên màu, quả ớt chuông có lớp vỏ bóng nhẵn mọng nước nên rất sợ bị phơi trực tiếp dưới nắng gắt. Khi thiếu lá che chắn, bề mặt quả non sẽ bị cháy nám (vết rám trắng bợt, mỏng và dai như giấy da rồi dẫn đến thối mềm). Luôn giữ gìn tán lá xòe rộng phía trên như một chiếc ô che mát tự nhiên cho từng lứa quả.
 
-Giữ đất ẩm đều nhưng không sũng. Tưới khi lớp đất mặt bắt đầu se khô, tưới đẫm quanh gốc rồi để đất ráo bớt trước lần sau. Đất khô lâu làm hoa rụng và quả non ngừng lớn; ngược lại, đất quá ẩm dễ làm thối rễ, nhất là trong chậu.
+## Bấm nụ hoa vương và cắm cọc giữ chạc cành
 
-Vào ngày nắng nóng, đất trong chậu khô nhanh hơn đất vườn và cần kiểm tra thường xuyên hơn. Khi tưới, đưa nước xuống gốc thay vì làm ướt lá, và tránh tưới vào cuối ngày để lá không giữ ẩm qua đêm.
+Cây có kiểu phân nhánh hình chữ Y đặc trưng. Khi thân chính vươn cao khoảng 20-30 cm, cây sẽ tách làm hai cành chính đầu tiên và nhú lên một nụ hoa duy nhất ngay tại điểm giao nhau này (thường gọi là hoa vương).
 
-## Đất trồng
+Hãy dùng móng tay bấm bỏ nụ hoa vương này ngay khi vừa xuất hiện. Nếu giữ lại nụ hoa này, quả phát triển sớm sẽ hút cạn dinh dưỡng của cây con, làm cây bị còi cọc và không thể bung các tầng cành bên trên. Ngắt bỏ hoa vương giúp cây dồn toàn lực phát triển khung thân lực lưỡng, tạo tiền đề để nuôi hàng chục lứa quả ở các chạc cành phía trên.
 
-Ớt chuông phát triển tốt trên đất tơi, giàu hữu cơ và thoát nước tốt. Trộn compost hoặc phân chuồng đã hoai trước khi trồng. Trong chậu, dùng đất trồng rau thoát nước tốt, có lỗ thoát nước thông thoáng và không để đáy chậu ngâm trong nước.
+Đồng thời, tỉa sạch các chồi nách và lá già mọc sát đất phía dưới chạc chữ Y đầu tiên để gốc cây luôn thông thoáng.
 
-## Bón phân
+Mỗi quả ớt chuông khi lớn có thể nặng từ 150-300 gam. Do các khớp chạc chữ Y rất giòn, sức nặng của quả cộng với gió mạnh có thể làm toác gãy cả nhánh lớn. Cần cắm cọc tre cạnh thân chính từ sớm và dùng dây vải mềm buộc nâng đỡ các nhánh mang quả nặng vào cọc; không đợi cành oằn xuống đất mới xử lý.
 
-Bón lót trước khi trồng rồi bón thúc nhẹ khi cây bắt đầu ra hoa. Giai đoạn nuôi quả, ưu tiên phân có tỷ lệ kali cao hơn đạm để quả dày và chắc. Quan sát lá trước khi bón thêm: lá nhạt màu và cây chậm lớn dù đủ nước có thể cần bổ sung dinh dưỡng, còn lá xanh đậm và thân mập thì chưa cần.
+## Trồng ngang mặt bầu và duy trì độ ẩm liên tục
 
-Không bón phân đậm đặc sát gốc và không bón khi đất đang khô. Nếu dùng phân dạng lỏng, pha theo hướng dẫn sản phẩm thay vì tự tăng liều.
+Rễ ớt chuông ăn nông ở tầng đất mặt từ 15-25 cm và phân bố khá gọn. Cổ rễ của cây rất mẫn cảm với tình trạng ứ nước và các loại nấm lở cổ rễ. Khi chuyển cây con ra vườn hoặc chậu lớn, giữ mặt bầu đất ngang bằng hoặc hơi nhô cao hơn mặt luống 1 cm; tuyệt đối không vùi sâu thân cây dưới lớp đất ẩm.
 
-## Gieo trồng và nhân giống
+Đất trồng cần tơi xốp, thoát nước tốt và giàu mùn hữu cơ. Nếu trồng chậu, chọn chậu có dung tích tối thiểu 15-20 lít cho mỗi cây và kiểm tra các lỗ thoát nước dưới đáy.
 
-Ớt chuông nảy mầm và lớn chậm hơn nhiều loại rau khác, vì vậy nên gieo sớm, khoảng 8-10 tuần trước khi trồng ra vườn ở vùng có mùa lạnh. Hạt cần đất ấm để nảy mầm; giữ giá thể ẩm đều nhưng không sũng. Ở vùng khí hậu ấm, có thể gieo thẳng khi thời tiết đã ấm hẳn.
+Nhu cầu nước của cây đòi hỏi sự ổn định liên tục, đất luôn cần giữ ẩm nhẹ như một miếng bọt biển vắt ráo. Nếu đất bị khô hạn gián đoạn rồi bất ngờ tưới sũng nước, cây sẽ bị gián đoạn dòng vận chuyển canxi lên mô quả, gây ra hiện tượng thối sườn quả hoặc thối đáy quả (xuất hiện mảng thâm đen lõm vào ở sườn hoặc chóp quả).
 
-Khi cây con có vài lá thật, chuyển ra chậu hoặc luống đã chuẩn bị sẵn. Không trồng quá dày vì tán rộng và cần thông thoáng. Sau khi trồng, tưới đẫm và che nắng gắt vài ngày đầu nếu trời nóng.
+Phủ một lớp rơm khô, cỏ khô hoặc mùn hoai mục dày khoảng 3-5 cm quanh gốc để giữ ẩm đất và làm mát vùng rễ nông trong những ngày hè. Khi tưới, đưa vòi nước sát gốc; tránh xối mạnh lên hoa đang nở để không làm trôi hạt phấn.
 
-## Chăm sóc và thu hoạch
+## Tiết chế phân đạm và chọn thời điểm thu hái
 
-Khi nhiệt độ vượt quá ngưỡng nóng, ớt chuông có thể rụng hoa dù cây vẫn khỏe. Giữ đất ẩm đều và che bớt nắng gắt lúc giữa trưa có thể giúp hạn chế tình trạng này. Quả non bị rám hoặc cháy nắng nếu nắng quá gắt kéo dài.
+Khi bón phân, cần đặc biệt lưu ý kiểm soát lượng phân đạm:
 
-Có thể hái quả khi còn xanh hoặc chờ chuyển sang màu đặc trưng của giống như đỏ, vàng hoặc cam. Quả chín màu thường ngọt hơn nhưng cây cần thêm thời gian nuôi. Dùng kéo cắt cuống thay vì bứt tay để không làm gãy cành. Thu hoạch đều đặn giúp cây tiếp tục ra hoa và cho đợt quả sau.
+- Bón thừa đạm sẽ khiến cây tốt lá sum sê nhưng cành lại giòn mềm, nụ hoa teo vàng và rụng sạch trước khi kịp đậu quả.
+- Sau khi cây đã tạo khung cành vững chắc và bước vào giai đoạn trổ hoa, chuyển sang bón bổ sung lân, kali và canxi để nuôi thành quả dày cùi, giòn mọng và vỏ bóng đẹp.
 
-## Sâu hại và bệnh thường gặp
+Thời điểm thu hoạch mang lại hai trải nghiệm hương vị khác nhau:
 
-[Rệp mềm](richfarm://pests-diseases/aphids) tụ tập ở ngọn non và mặt dưới lá, làm lá xoăn và cây chậm phát triển. Khi trời nóng khô, [nhện đỏ](richfarm://pests-diseases/spider_mites) có thể xuất hiện, tạo các chấm nhỏ trên lá và mạng nhện mỏng ở mặt dưới. Kiểm tra mặt dưới lá thường xuyên; nếu chỉ có ít, rửa nhẹ bằng nước hoặc loại bỏ bằng tay.
+- Quả xanh đạt kích cỡ thương phẩm sau khoảng 35-45 ngày kể từ lúc đậu quả, khi ấn vào thấy chắc đanh và vỏ căng bóng. Hái quả xanh giúp cây liên tục bung các đợt hoa quả tiếp theo.
+- Nếu để quả chín trên cây thêm 2-4 tuần, quả sẽ chuyển màu hoàn toàn sang đỏ, vàng hoặc cam. Quả chín màu có vị ngọt dịu, hầu như không còn vị hăng và hàm lượng vitamin C tăng gấp đôi quả xanh; tuy nhiên việc nuôi quả chín sẽ khiến cây tạm ngừng ra hoa mới.
 
-[Bệnh đốm lá](richfarm://pests-diseases/leaf_spot) có thể tạo các đốm bất thường trên lá và lan rộng trong thời tiết ẩm. Loại bỏ lá bệnh, tránh làm ướt tán lá khi tưới và giữ khu vực trồng thông thoáng. Nếu quả có đốm đen ở phần dưới trong khi đất khô rồi ướt thất thường, đó có thể là hiện tượng thối đáy do thiếu canxi liên quan đến độ ẩm đất không ổn định; cần giữ ẩm đều thay vì vội dùng thuốc.
+Luôn dùng kéo sắc cắt ngang cuống quả, chừa lại một đoạn cuống 2-3 cm trên đầu quả. Không dùng tay vặn bẻ hoặc giật mạnh vì các chạc cành rất giòn và sẽ gãy rách ngay lập tức.
+
+## Nhận diện sớm sâu hại và bệnh phổ biến
+
+Tán lá thấp và các chạc cành dày là nơi sâu bọ và mầm bệnh dễ phát sinh:
+
+### Sâu hại
+
+[Bọ trĩ](richfarm://pests-diseases/thrips) là mối đe dọa lớn nhất trên ớt chuông. Chúng chích hút nhựa ở đọt non và cánh hoa, làm mép lá xoăn ngược lên như lòng chảo, ngọn chùn lại và cuống hoa thâm đen rồi rụng; quả non bị hại sẽ mang các vết sẹo sần sùi màu nâu xám làm mất hoàn toàn độ bóng. Có thể treo bẫy dính màu vàng hoặc xanh quanh cây để phát hiện sớm.
+
+[Nhện đỏ](richfarm://pests-diseases/spider_mites) phát triển mạnh vào mùa khô nóng, tụ ở mặt dưới lá và giăng các màng tơ mỏng. Vết chích của nhện làm mặt trên lá lấm tấm vàng bụi và khô xác. Phun tia nước ướt đẫm mặt dưới lá vào sáng sớm giúp giảm bớt mật độ nhện.
+
+[Rệp mềm](richfarm://pests-diseases/aphids) tụ thành từng đám ở cuống hoa và chồi non, tiết chất dính nhờn làm đen lá và có thể truyền virus gây xoăn ngọn rụt lá. Dùng tay vuốt bỏ hoặc xịt nước xà phòng loãng khi rệp mới chớm xuất hiện.
+
+### Bệnh hại
+
+[Bệnh héo rũ vi khuẩn](richfarm://pests-diseases/bacterial_wilt) làm cây đang phát triển khỏe mạnh bỗng héo rũ nhanh chóng vào ban ngày khi trời nắng dù đất vẫn đủ ẩm, ban đêm cây có thể tươi lại nhưng chỉ sau 2-3 ngày là chết khô trong khi lá vẫn giữ nguyên màu xanh. Cần nhổ bỏ ngay cả gốc cây bệnh đem tiêu hủy và rắc vôi bột vào đất trồng để tránh lây sang cây khác.
+
+[Bệnh đốm lá](richfarm://pests-diseases/leaf_spot) tạo thành các đốm tròn màu nâu có viền sẫm trên lá già trong mùa mưa ẩm. Cắt tỉa bỏ sớm các lá bệnh phía dưới gốc và tưới nước sát mặt đất để bùn đất không bắn lên tán lá.

@@ -8,24 +8,66 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3953,
+      "bytes": 7062,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "441ce1ecd036b7b3629bbae44ba8cbc68e5a9f6c663c648cdf3d36cd30674ff4",
-      "source_refs": []
+      "sha256": "b016c6816469f18c9abfacb119266d73e3dfbeedf343bc771be304fcc13cd868",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://anrcatalog.ucanr.edu/pdf/7266.pdf",
+          "sourceName": "Bell Pepper Production in California (UC ANR Pub 7266)",
+          "sourceSystem": "ucanr"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/vegetables/growing-peppers",
+          "sourceName": "Growing peppers in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://www.rhs.org.uk/vegetables/sweet-peppers/grow-your-own",
+          "sourceName": "Sweet peppers: how to grow - Royal Horticultural Society",
+          "sourceSystem": "rhs"
+        }
+      ]
     },
     "vi": {
-      "bytes": 4503,
+      "bytes": 8136,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "49b00917d73bd0f8eaec8a234c34c89ce7d0c92a1450c514293af039ce229454",
-      "source_refs": []
+      "sha256": "5660dc76ee5736b5ce94d1dcb5f3e5c6312b521692d9705697291347dfcc1b80",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://anrcatalog.ucanr.edu/pdf/7266.pdf",
+          "sourceName": "Bell Pepper Production in California (UC ANR Pub 7266)",
+          "sourceSystem": "ucanr"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/vegetables/growing-peppers",
+          "sourceName": "Growing peppers in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://www.rhs.org.uk/vegetables/sweet-peppers/grow-your-own",
+          "sourceName": "Sweet peppers: how to grow - Royal Horticultural Society",
+          "sourceSystem": "rhs"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,
