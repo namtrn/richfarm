@@ -8,24 +8,56 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3392,
+      "bytes": 3417,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "a0ac21853d01b475803aba1e084deb5bf434d99c8050e0dcc44f4c831f90cb23",
-      "source_refs": []
+      "sha256": "8fee0bb18fa4c081f4a50e9e4047d7846daa981f39a95aa0ab520c6fe27f3483",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.usu.edu/yardandgarden/research/cilantro-coriander-in-the-garden",
+          "sourceName": "Cilantro/Coriander in the Garden - Utah State University Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-herbs",
+          "sourceName": "Growing herbs in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     },
     "vi": {
-      "bytes": 3845,
+      "bytes": 4356,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "248548be3360c6bdd6c79a7d6822eca15844defd6f3d56ce0d993a96248e698f",
-      "source_refs": []
+      "sha256": "536b2b5981fd8c684b723076f77dad38541245bc73cf91ab76f2be4136d0aeaa",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.usu.edu/yardandgarden/research/cilantro-coriander-in-the-garden",
+          "sourceName": "Cilantro/Coriander in the Garden - Utah State University Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-herbs",
+          "sourceName": "Growing herbs in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,
