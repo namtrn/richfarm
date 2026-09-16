@@ -1116,7 +1116,11 @@ function sqliteSpeciesKey(row: MasterPlantRow) {
   return `${tokens[0]}|${tokens[speciesIndex]}`;
 }
 
-export function sqliteDeleteGuard(db: SqliteDatabase, row: MasterPlantRow): string | undefined {
+export function sqliteDeleteGuard(
+  db: SqliteDatabase,
+  row: MasterPlantRow,
+  options: { allowUnreferencedLegacyMirrorReconciliation?: boolean } = {},
+): string | undefined {
   if (row.canonical_identity_version || row.canonical_key) {
     return "Cannot hard-delete a canonical plant; archive or deactivate it instead";
   }
@@ -1150,6 +1154,14 @@ export function sqliteDeleteGuard(db: SqliteDatabase, row: MasterPlantRow): stri
   `).get(row.id) as { count: number };
   if (references.count > 0) {
     return "Cannot delete a plant while SQLite measurements still reference it; deactivate it instead";
+  }
+
+  // Convex-to-SQLite reconciliation is the reviewed remediation path for old
+  // mirror rows that predate canonical identity. It may remove only a fully
+  // unreferenced, alias-free, noncanonical row; normal API deletes remain
+  // fail-closed below.
+  if (options.allowUnreferencedLegacyMirrorReconciliation && row.sync_origin === "mirror") {
+    return undefined;
   }
 
   // CID-3 is fail-closed: hard deletion is never a normal SQLite operation.
@@ -2146,7 +2158,9 @@ export function createMasterPlantsRouter(db: SqliteDatabase, syncService?: Conve
           upserted++;
         }
         for (const stale of staleRows) {
-          const guardError = sqliteDeleteGuard(db, stale);
+          const guardError = sqliteDeleteGuard(db, stale, {
+            allowUnreferencedLegacyMirrorReconciliation: true,
+          });
           if (guardError) {
             throw new Error(`Cannot remove stale canonical plant ${stale.id}: ${guardError}`);
           }

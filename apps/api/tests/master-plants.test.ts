@@ -5,20 +5,18 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { createDatabase, type SqliteDatabase } from "../src/db";
 import type { ConvexSyncService } from "../src/convex-sync";
+import {
+  buildCanonicalConvexPlant,
+  canonicalBaseIdentity,
+  canonicalCultivarIdentity,
+  insertCanonicalPlant,
+} from "./fixtures/master-plant";
 
 function baseIdentity(genus: string, species: string, cultivar: string | null = null) {
-  return {
-    genus,
-    species,
-    infraspecific_rank: null,
-    infraspecific_name: null,
-    cultivar,
-    identity_scope: cultivar ? "cultivar" as const : "base" as const,
-    parent_master_plant_id: null,
-    parent_canonical_key: cultivar
-      ? JSON.stringify(["v1", genus.toLowerCase(), species.toLowerCase(), "", "", ""])
-      : null,
-  };
+  const base = canonicalBaseIdentity(genus, species);
+  const identity = cultivar ? canonicalCultivarIdentity(base, cultivar) : base;
+  const { canonical_identity_version: _version, canonical_key: _key, ...fields } = identity;
+  return fields;
 }
 
 describe("master plants API", () => {
@@ -190,6 +188,7 @@ describe("master plants API", () => {
     const response = await request(app).post("/api/master-plants").set("Authorization", authHeader).send({
       plant_code: "PEPPER_001",
       common_name: "Pepper",
+      ...baseIdentity("Capsicum", "annuum"),
       soil_ph_min: 7,
       soil_ph_max: 6,
       i18n: {
@@ -339,26 +338,34 @@ describe("master plants API", () => {
   });
 
   it("syncs Convex plants into editable SQLite rows", async () => {
+    const remote = buildCanonicalConvexPlant({
+      _id: "jx123abc",
+      scientificName: "Solanum lycopersicum",
+      displayName: "Tomato",
+      cultivar: "Roma VF",
+      cultivarNormalized: "roma vf",
+      group: "nightshades",
+      family: "Solanaceae",
+      imageUrl: "https://example.com/tomato.jpg",
+      source: "seed",
+      purposes: ["food"],
+      i18nRows: [
+        { locale: "vi", commonName: "Cà chua Roma" },
+        { locale: "en", commonName: "Roma tomato" },
+      ],
+    });
+    // A cultivar snapshot must resolve to one existing canonical base row
+    // before the mirror writer can insert it.
+    insertCanonicalPlant(db, {
+      plantCode: "TOMATO_BASE_PARENT",
+      commonName: "Tomato base",
+      scientificName: "Solanum lycopersicum",
+      genus: "Solanum",
+      species: "lycopersicum",
+    });
     const syncService = {
       canReadFromConvex: () => true,
-      fetchMasterPlants: async () => [
-        {
-          _id: "jx123abc",
-          scientificName: "Solanum lycopersicum",
-          displayName: "Tomato",
-          cultivar: "Roma VF",
-          cultivarNormalized: "roma vf",
-          group: "nightshades",
-          family: "Solanaceae",
-          imageUrl: "https://example.com/tomato.jpg",
-          source: "seed",
-          purposes: ["food"],
-          i18nRows: [
-            { locale: "vi", commonName: "Cà chua Roma" },
-            { locale: "en", commonName: "Roma tomato" },
-          ],
-        },
-      ],
+      fetchMasterPlants: async () => [remote],
     } as unknown as ConvexSyncService;
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
     const loginResponse = await request(app).post("/api/auth/login").send({
@@ -370,17 +377,19 @@ describe("master plants API", () => {
     const syncResponse = await request(app)
       .post("/api/master-plants/sync-convex-to-sqlite")
       .set("Authorization", authHeader);
-    expect(syncResponse.status).toBe(200);
+    expect(syncResponse.status, JSON.stringify(syncResponse.body)).toBe(200);
     expect(syncResponse.body.upserted).toBe(1);
 
     const sqliteList = await request(app)
       .get("/api/master-plants?source=sqlite")
       .set("Authorization", authHeader);
     expect(sqliteList.status).toBe(200);
-    expect(sqliteList.body.pagination.total).toBe(1);
-    expect(sqliteList.body.data[0].id).toBe(1);
-    expect(sqliteList.body.data[0].plant_code).toMatch(/^SOLANUM_LYCOPERSICUM_ROMA_VF_/);
-    expect(sqliteList.body.data[0].metadata_json.cultivar).toBe("Roma VF");
+    expect(sqliteList.body.pagination.total).toBe(2);
+    const synced = sqliteList.body.data.find((row: { source_id: string }) => row.source_id === "jx123abc");
+    expect(synced).toBeDefined();
+    expect(synced.id).toBe(2);
+    expect(synced.plant_code).toMatch(/^SOLANUM_LYCOPERSICUM_ROMA_VF_/);
+    expect(synced.metadata_json.cultivar).toBe("Roma VF");
   });
 
   it("blocks unauthenticated write access", async () => {
@@ -399,12 +408,6 @@ describe("master plants API", () => {
   it("lists exact plants and locales waiting for second-stage care approval", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const authHeader = await authHeaderFor(app);
-    const insertPlant = db.prepare(`
-      INSERT INTO master_plants (
-        plant_code, common_name, scientific_name,
-        canonical_identity_version, canonical_key, genus, species, identity_scope
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
     const insertI18n = db.prepare(`
       INSERT INTO master_plant_i18n (
         master_plant_id, locale, common_name, care_content,
@@ -413,16 +416,7 @@ describe("master plants API", () => {
     `);
     const createDirectPlant = (plantCode: string, commonName: string, scientificName: string): number => {
       const [genus, species] = scientificName.split(/\s+/, 2);
-      return Number(insertPlant.run(
-        plantCode,
-        commonName,
-        scientificName,
-        "canonical_identity_v1",
-        JSON.stringify(["v1", genus.toLowerCase(), species.toLowerCase(), "", "", ""]),
-        genus,
-        species,
-        "base",
-      ).lastInsertRowid);
+      return insertCanonicalPlant(db, { plantCode, commonName, scientificName, genus, species });
     };
 
     const pendingId = createDirectPlant("CARE_PENDING", "Imported plant", "Ocimum basilicum");

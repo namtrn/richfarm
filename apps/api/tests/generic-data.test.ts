@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createApp } from "../src/app";
 import { createDatabase, type SqliteDatabase } from "../src/db";
+import { insertCanonicalPlant } from "./fixtures/master-plant";
 
 describe("generic data API", () => {
   let db: SqliteDatabase;
@@ -16,10 +17,17 @@ describe("generic data API", () => {
       "admin@example.com",
       hash,
     );
-    db.prepare(
-      `INSERT INTO master_plants (plant_code, common_name, category, "group", purposes_json, growth_stage, is_active, metadata_json)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run("GENERIC_001", "Generic Plant", "general", "other", "[]", "seedling", 1, "{}");
+    insertCanonicalPlant(db, {
+      plantCode: "GENERIC_001",
+      commonName: "Generic Plant",
+      genus: "Genericus",
+      species: "plantus",
+      category: "general",
+      group: "other",
+      growthStage: "seedling",
+      isActive: true,
+      metadataJson: {},
+    });
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const loginResponse = await request(app).post("/api/auth/login").send({
       email: "admin@example.com",

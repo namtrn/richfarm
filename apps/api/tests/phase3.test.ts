@@ -9,6 +9,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { createDatabase, type SqliteDatabase } from "../src/db";
 import type { ConvexSyncService } from "../src/convex-sync";
+import {
+  canonicalBaseIdentity,
+  canonicalCultivarIdentity,
+  insertCanonicalPlant,
+} from "./fixtures/master-plant";
 
 async function login(app: ReturnType<typeof createApp>) {
   return loginAs(app, "admin@example.com", "password123");
@@ -23,18 +28,10 @@ async function loginAs(app: ReturnType<typeof createApp>, email: string, passwor
 }
 
 function baseIdentity(genus: string, species: string, cultivar: string | null = null) {
-  return {
-    genus,
-    species,
-    infraspecific_rank: null,
-    infraspecific_name: null,
-    cultivar,
-    identity_scope: cultivar ? "cultivar" as const : "base" as const,
-    parent_master_plant_id: null,
-    parent_canonical_key: cultivar
-      ? JSON.stringify(["v1", genus.toLowerCase(), species.toLowerCase(), "", "", ""])
-      : null,
-  };
+  const base = canonicalBaseIdentity(genus, species);
+  const identity = cultivar ? canonicalCultivarIdentity(base, cultivar) : base;
+  const { canonical_identity_version: _version, canonical_key: _key, ...fields } = identity;
+  return fields;
 }
 
 function identityForScientific(scientificName: string, cultivar: string | null = null) {
@@ -533,7 +530,8 @@ describe("Phase 3 master-data contract", () => {
 
     // Admin: the same delete paths succeed.
     const adminDelete = await request(app).delete(`/api/master-plants/${plantId}`).set("Authorization", adminAuth);
-    expect(adminDelete.status).toBe(204);
+    expect(adminDelete.status).toBe(409);
+    expect(adminDelete.body.error).toMatch(/Cannot hard-delete a canonical plant/i);
     const adminMutation = await request(proxied)
       .post("/api/convex-admin/mutation")
       .set("Authorization", proxiedAdminAuth)
@@ -604,7 +602,7 @@ describe("Phase 3 master-data contract", () => {
     }
   });
 
-  it("refuses SQLite base/variant and referenced-row deletes", async () => {
+  it("refuses canonical and legacy base/variant and referenced-row deletes", async () => {
     const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" } });
     const auth = await login(app);
     const create = async (code: string, sourceId: string, metadata_json: Record<string, unknown> = {}) => {
@@ -633,7 +631,17 @@ describe("Phase 3 master-data contract", () => {
       .delete(`/api/master-plants/${base.body.data.id}`)
       .set("Authorization", auth);
     expect(singleDelete.status).toBe(409);
-    expect(singleDelete.body.error).toMatch(/base plant while variants/i);
+    expect(singleDelete.body.error).toMatch(/Cannot hard-delete a canonical plant/i);
+
+    // Canonical identity protection is intentionally evaluated first. Demote
+    // these fixtures to explicit quarantine rows to retain coverage of the
+    // legacy base/variant and reference-specific delete guards.
+    db.prepare(`
+      UPDATE master_plants
+      SET canonical_status = 'quarantined', canonical_identity_version = NULL,
+          canonical_key = NULL
+      WHERE id = ?
+    `).run(base.body.data.id);
 
     const bulkDelete = await request(app)
       .post("/api/master-plants/bulk")
@@ -644,6 +652,12 @@ describe("Phase 3 master-data contract", () => {
       expect.objectContaining({ id: base.body.data.id }),
     ]));
 
+    db.prepare(`
+      UPDATE master_plants
+      SET canonical_status = 'quarantined', canonical_identity_version = NULL,
+          canonical_key = NULL
+      WHERE id = ?
+    `).run(variant.body.data.id);
     db.prepare(`INSERT INTO plant_measurements (master_plant_id, note) VALUES (?, ?)`)
       .run(variant.body.data.id, "active garden measurement");
     const referencedDelete = await request(app)
@@ -653,16 +667,26 @@ describe("Phase 3 master-data contract", () => {
     expect(referencedDelete.body.error).toMatch(/measurements still reference/i);
   });
 
-  it("reconciliation removes stale mirror rows and records zero drift", async () => {
-    db.prepare(`INSERT INTO master_plants (plant_code, common_name, source_system, source_id, sync_origin) VALUES (?, ?, ?, ?, ?)`).run(
-      "STALE", "Stale", "convex", "stale-1", "mirror",
-    );
+  it("reconciles matching canonical mirror identity to zero drift", async () => {
+    insertCanonicalPlant(db, {
+      plantCode: "MINT_MIRROR",
+      commonName: "Old mint",
+      scientificName: "Mentha spicata",
+      genus: "Mentha",
+      species: "spicata",
+      sourceSystem: "convex",
+      sourceId: "new-1",
+      syncOrigin: "mirror",
+    });
     const syncService = {
       isEnabled: () => true,
       canReadFromConvex: () => true,
       fetchAdminMasterPlants: async () => [{
         _id: "new-1",
         scientificName: "Mentha spicata",
+        genus: "Mentha",
+        species: "spicata",
+        taxonomyParseStatus: "ok",
         displayName: "Mint",
         sourceSystem: "convex",
         sourceId: "new-1",
@@ -683,9 +707,87 @@ describe("Phase 3 master-data contract", () => {
     const auth = await login(app);
     const response = await request(app).post("/api/master-plants/sync-convex-to-sqlite").set("Authorization", auth);
     expect(response.status).toBe(200);
-    expect(response.body.removed).toBe(1);
-    expect(response.body.drift).toBe(0);
-    expect((db.prepare(`SELECT status, drift_after FROM sync_reconciliation_runs ORDER BY id DESC LIMIT 1`).get() as { status: string; drift_after: number })).toMatchObject({ status: "completed", drift_after: 0 });
+    expect(response.body).toMatchObject({ ok: true, upserted: 1, removed: 0, drift: 0 });
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE source_id = 'new-1'`).get() as { count: number }).count).toBe(1);
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants`).get() as { count: number }).count).toBe(1);
+    expect((db.prepare(`SELECT common_name FROM master_plants WHERE source_id = 'new-1'`).get() as { common_name: string }).common_name).toBe("Mint");
+    expect((db.prepare(`SELECT status, drift_after FROM sync_reconciliation_runs ORDER BY id DESC LIMIT 1`).get() as { status: string; drift_after: number })).toEqual({ status: "completed", drift_after: 0 });
+  });
+
+  it("fails closed and rolls back remote upserts when a stale canonical mirror cannot be deleted", async () => {
+    insertCanonicalPlant(db, {
+      plantCode: "STALE_CANONICAL",
+      commonName: "Stale canonical",
+      scientificName: "Staleus canonicalis",
+      genus: "Staleus",
+      species: "canonicalis",
+      sourceSystem: "convex",
+      sourceId: "stale-canonical",
+      syncOrigin: "mirror",
+    });
+    const syncService = {
+      isEnabled: () => true,
+      canReadFromConvex: () => true,
+      fetchAdminMasterPlants: async () => [{
+        _id: "new-remote",
+        scientificName: "Mentha spicata",
+        genus: "Mentha",
+        species: "spicata",
+        taxonomyParseStatus: "ok",
+        displayName: "Mint",
+        sourceSystem: "convex",
+        sourceId: "new-remote",
+        group: "herbs",
+        family: "Lamiaceae",
+        imageUrl: null,
+        isActive: true,
+        i18nRows: [{ locale: "en", commonName: "Mint" }],
+      }],
+      fetchMasterPlants: async () => [],
+      syncUpsert: async () => undefined,
+      syncDelete: async () => undefined,
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const auth = await login(app);
+    const response = await request(app).post("/api/master-plants/sync-convex-to-sqlite").set("Authorization", auth);
+    expect(response.status).toBe(500);
+    expect(response.body.error).toMatch(/Cannot remove stale canonical plant/);
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE source_id = 'stale-canonical'`).get() as { count: number }).count).toBe(1);
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE source_id = 'new-remote'`).get() as { count: number }).count).toBe(0);
+    expect((db.prepare(`SELECT status FROM sync_reconciliation_runs ORDER BY id DESC LIMIT 1`).get() as { status: string }).status).toBe("failed");
+  });
+
+  it("removes a stale unreferenced noncanonical legacy mirror", async () => {
+    const legacyId = insertCanonicalPlant(db, {
+      plantCode: "STALE_LEGACY",
+      commonName: "Stale legacy",
+      scientificName: "Legacy stale plant",
+      genus: "Legacy",
+      species: "stale",
+      sourceSystem: "convex",
+      sourceId: "stale-legacy",
+      syncOrigin: "mirror",
+    });
+    db.prepare(`
+      UPDATE master_plants
+      SET canonical_status = 'quarantined', canonical_identity_version = NULL,
+          canonical_key = NULL, identity_scope = NULL
+      WHERE id = ?
+    `).run(legacyId);
+    const syncService = {
+      isEnabled: () => true,
+      canReadFromConvex: () => true,
+      fetchAdminMasterPlants: async () => [],
+      fetchMasterPlants: async () => [],
+      syncUpsert: async () => undefined,
+      syncDelete: async () => undefined,
+    } as unknown as ConvexSyncService;
+    const app = createApp(db, { auth: { jwtSecret: "test-secret", jwtExpiresIn: "1h" }, syncService });
+    const auth = await login(app);
+    const response = await request(app).post("/api/master-plants/sync-convex-to-sqlite").set("Authorization", auth);
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ ok: true, upserted: 0, removed: 1, drift: 0 });
+    expect((db.prepare(`SELECT COUNT(*) AS count FROM master_plants WHERE id = ?`).get(legacyId) as { count: number }).count).toBe(0);
   });
 
   it("mirrors Convex Markdown care byte-for-byte into SQLite (no JSON envelope)", async () => {
@@ -699,6 +801,9 @@ describe("Phase 3 master-data contract", () => {
       fetchAdminMasterPlants: async () => [{
         _id: "md-1",
         scientificName: "Ocimum basilicum",
+        genus: "Ocimum",
+        species: "basilicum",
+        taxonomyParseStatus: "ok",
         displayName: "Húng quế",
         sourceSystem: "convex",
         sourceId: "md-1",

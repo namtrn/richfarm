@@ -6,6 +6,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { createDatabase, type SqliteDatabase } from "../src/db";
 import type { ConvexSyncService } from "../src/convex-sync";
+import {
+  canonicalBaseIdentity,
+  canonicalCultivarIdentity,
+  insertCanonicalPlant,
+} from "./fixtures/master-plant";
 
 async function loginAs(app: ReturnType<typeof createApp>, email: string) {
   const response = await request(app).post("/api/auth/login").send({ email, password: "password123" });
@@ -32,21 +37,38 @@ describe("Plant geography adaptation (Release 1, design doc §2.3/§3)", () => {
   }
 
   function createPlant(app: ReturnType<typeof createApp>, auth: string, overrides: Record<string, unknown> = {}) {
-    const cultivar = typeof (overrides.metadata_json as Record<string, unknown> | undefined)?.cultivar === "string"
-      ? String((overrides.metadata_json as Record<string, unknown>).cultivar)
-      : null;
-    return request(app).post("/api/master-plants").set("Authorization", auth).send({
-      plant_code: "GEO_TEST",
-      common_name: "Geography test",
-      scientific_name: "Solanum lycopersicum",
+    const plantCode = typeof overrides.plant_code === "string" ? overrides.plant_code : "GEO_TEST";
+    const baseIdentity = canonicalBaseIdentity("Solanum", "lycopersicum");
+    const existingBase = db.prepare(`
+      SELECT id FROM master_plants
+      WHERE canonical_status = 'active' AND canonical_key = ?
+    `).get(baseIdentity.canonical_key) as { id: number } | undefined;
+    const parentId = existingBase?.id ?? insertCanonicalPlant(db, {
+      plantCode: "GEO_TOMATO_BASE",
+      commonName: "Tomato base",
+      scientificName: "Solanum lycopersicum",
       genus: "Solanum",
       species: "lycopersicum",
-      infraspecific_rank: null,
-      infraspecific_name: null,
-      cultivar,
-      identity_scope: cultivar ? "cultivar" : "base",
-      parent_master_plant_id: null,
-      parent_canonical_key: cultivar ? '["v1","solanum","lycopersicum","","",""]' : null,
+      sourceId: "geo-tomato-base",
+    });
+    const metadataCultivar = typeof (overrides.metadata_json as Record<string, unknown> | undefined)?.cultivar === "string"
+      ? String((overrides.metadata_json as Record<string, unknown>).cultivar)
+      : null;
+    const requestedCultivar = typeof overrides.cultivar === "string"
+      ? overrides.cultivar
+      : metadataCultivar ?? plantCode.replace(/^GEO_/, "").replace(/_/g, " ");
+    const defaultIdentity = canonicalCultivarIdentity(baseIdentity, requestedCultivar, parentId);
+    const {
+      canonical_identity_version: _version,
+      canonical_key: _key,
+      ...identityFields
+    } = defaultIdentity;
+    return request(app).post("/api/master-plants").set("Authorization", auth).send({
+      plant_code: plantCode,
+      common_name: "Geography test",
+      scientific_name: `Solanum lycopersicum '${requestedCultivar}'`,
+      ...identityFields,
+      cultivar: requestedCultivar,
       source_system: "sqlite",
       source_id: "geo-test-1",
       i18n: {
@@ -454,23 +476,13 @@ describe("Plant geography adaptation (Release 1, design doc §2.3/§3)", () => {
     ];
 
     for (const fixture of fixtures) {
-      const response = await request(app).post("/api/master-plants").set("Authorization", auth).send({
+      const response = await createPlant(app, auth, {
+        ...fixture,
         common_name: `Tomato ${fixture.source_id}`,
-        scientific_name: "Solanum lycopersicum",
-        genus: "Solanum",
-        species: "lycopersicum",
-        infraspecific_rank: null,
-        infraspecific_name: null,
-        cultivar: null,
-        identity_scope: "base",
-        parent_master_plant_id: null,
-        parent_canonical_key: null,
-        source_system: "sqlite",
         i18n: {
           vi: { common_name: `Cà chua ${fixture.source_id}` },
           en: { common_name: `Tomato ${fixture.source_id}` },
         },
-        ...fixture,
       });
       expect(response.status).toBe(201);
       const geo = response.body.data.resolved_geography;

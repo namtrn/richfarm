@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createDatabase, migrateCareContentJsonToMarkdown, type SqliteDatabase } from "../src/db";
 import { legacyCareJsonToMarkdown } from "../../../packages/shared/src/careContentLegacy";
+import { insertCanonicalPlant } from "./fixtures/master-plant";
 
 /** Build a legacy-shaped DB (care_content_json column, full 16-column layout). */
 function buildLegacyDatabase(dbPath: string): Database.Database {
@@ -68,8 +69,20 @@ describe("Phase 2 care content migration", () => {
   it("backfills deterministic display dates by stable plant code", () => {
     const dbPath = path.join(dir, "care-dates.db");
     const seeded = createDatabase(dbPath);
-    seeded.prepare(`INSERT INTO master_plants (plant_code, common_name) VALUES (?, ?)`).run("BASELLA_ALBA_09A582HJFJ", "mutable");
-    seeded.prepare(`INSERT INTO master_plants (plant_code, common_name) VALUES (?, ?)`).run("OTHER_STABLE_CODE", "other");
+    insertCanonicalPlant(seeded, {
+      plantCode: "BASELLA_ALBA_09A582HJFJ",
+      commonName: "mutable",
+      scientificName: "Basella alba",
+      genus: "Basella",
+      species: "alba",
+    });
+    insertCanonicalPlant(seeded, {
+      plantCode: "OTHER_STABLE_CODE",
+      commonName: "other",
+      scientificName: "Otherus stableus",
+      genus: "Otherus",
+      species: "stableus",
+    });
     seeded.prepare(`INSERT INTO master_plant_i18n (master_plant_id, locale, common_name, care_content, content_status) VALUES (1, 'vi', 'x', '# Guide', 'published')`).run();
     seeded.prepare(`INSERT INTO master_plant_i18n (master_plant_id, locale, common_name, care_content, content_status) VALUES (2, 'en', 'y', '# Guide', 'published')`).run();
     seeded.close();
