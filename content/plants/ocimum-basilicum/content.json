@@ -8,24 +8,66 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 6670,
+      "bytes": 7687,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "8c3a75e5a92e50a7ee829b1fab5f8c7e718fe463384bd41f891c8be8ca77bf5c",
-      "source_refs": []
+      "sha256": "972ed87933b8c526bcd8335c8ee1f45dbf3e0f9437c4406932fa9422c0cc66ee",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/vegetables/growing-basil",
+          "sourceName": "Growing basil in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://hgic.clemson.edu/factsheet/basil/",
+          "sourceName": "Basil - Clemson University Cooperative Extension HGIC 1327",
+          "sourceSystem": "clemson"
+        },
+        {
+          "sourceLocator": "https://www.rhs.org.uk/herbs/basil/grow-your-own",
+          "sourceName": "Basil: how to grow - Royal Horticultural Society",
+          "sourceSystem": "rhs"
+        }
+      ]
     },
     "vi": {
-      "bytes": 7734,
+      "bytes": 9139,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "f9e6f75eef6b3788c386d6818daf9c616408520c4f0d08f919e838a1af043233",
-      "source_refs": []
+      "sha256": "b39dd773bf5ade2b0745ed3e3642e663392bf3a359fd73a03f329f9ffaf703ab",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/vegetables/growing-basil",
+          "sourceName": "Growing basil in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://hgic.clemson.edu/factsheet/basil/",
+          "sourceName": "Basil - Clemson University Cooperative Extension HGIC 1327",
+          "sourceSystem": "clemson"
+        },
+        {
+          "sourceLocator": "https://www.rhs.org.uk/herbs/basil/grow-your-own",
+          "sourceName": "Basil: how to grow - Royal Horticultural Society",
+          "sourceSystem": "rhs"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,

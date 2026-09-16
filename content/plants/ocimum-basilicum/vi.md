@@ -1,59 +1,69 @@
-Húng quế lớn khá nhanh và thường có thể bắt đầu hái lá sau một thời gian ngắn. Tuy nhiên, nếu thiếu nắng, cây dễ vươn cao, thân mảnh và ít nhánh. Không bấm ngọn thường xuyên cũng có thể khiến cây tiếp tục cao lên thay vì mọc thành bụi. Vì vậy, bạn nên đặt cây ở nơi có đủ nắng, tưới vừa phải và thường xuyên hái hoặc bấm ngọn để cây ra nhiều nhánh và có lá non dùng được lâu hơn.
+Húng quế là loại rau gia vị mùa ấm phát triển nhanh và mang hương thơm nồng nàn đặc trưng, nhưng lại rất dễ thoái hóa nếu người trồng không can thiệp kịp thời. Cây dễ bị vống cao thân mảnh khi thiếu nắng, rất nhạy cảm với tình trạng úng rễ trong chậu đọng nước, và lá sẽ nhanh chóng xơ đắng nếu để ngồng hoa nở rộ. Để bụi cây luôn xòe tán tròn đầy và liên tục cho đọt lá non thơm ngọt suốt mùa vụ, việc duy trì đủ nắng, tưới sát gốc thoát nước tốt, bấm ngọn định kỳ và chủ động ngắt hoa là những ưu tiên chăm sóc quan trọng nhất.
 
-## Chọn nơi có nắng, tránh nóng gắt
+## Chọn nơi đón đủ nắng và tránh sốc nhiệt trưa hè
 
-Húng quế cần khoảng 6 giờ nắng trực tiếp mỗi ngày. Đủ nắng giúp cây mọc chắc, không bị vươn dài và lá có mùi thơm rõ hơn. Nếu chỗ trồng thường rất nóng, bạn nên ưu tiên nơi có nắng chiếu vào buổi sáng và được che nhẹ trong những giờ nắng gắt buổi chiều.
+Húng quế cần từ 6-8 giờ nắng trực tiếp mỗi ngày để kích hoạt các tuyến tinh dầu trong lá và giữ thân cây cứng cáp. Thiếu nắng sẽ khiến các lóng thân vươn dài khẳng khiu, lá nhạt màu và mùi thơm giảm đi rõ rệt. Cây phát triển lý tưởng trong nền nhiệt ấm từ 20-30°C và ngừng sinh trưởng hoặc rụng lá nếu nhiệt độ ban đêm hạ xuống dưới 10-12°C.
 
-Khi thấy lá rũ, bạn đừng vội tưới thêm. Hãy sờ thử đất trước; nếu đất quanh gốc vẫn còn ẩm, cây có thể đang phản ứng với nhiệt độ cao thay vì thiếu nước.
+Vào những đợt nắng gắt mùa hè khi nhiệt độ vượt quá 32-35°C, tán lá rộng mỏng thoát hơi nước rất nhanh khiến các đọt non héo rũ vào giữa trưa. Trước khi tưới, hãy dùng ngón tay ấn sâu 2-3 cm vào đất:
 
-Nên chừa đủ khoảng trống quanh bụi cây để lá không chen chúc. Không khí lưu thông tốt cũng giúp lá nhanh khô hơn sau mưa.
+- Nếu đất dưới gốc vẫn mát và ẩm nhẹ, đây chỉ là hiện tượng mất nước tạm thời do bốc thoát hơi qua lá khi gặp nhiệt cao; chỉ cần che lưới nhẹ vào đầu giờ chiều hoặc dời chậu vào bóng râm mát, cây sẽ tự căng cứng trở lại khi trời dịu.
+- Không vội vàng tưới đẫm khi đất còn ướt giữa trưa nắng gay gắt, vì nước nóng đọng trong đất sẽ làm hấp chín rễ non và tạo điều kiện cho nấm bệnh xâm nhập.
 
-## Tưới theo độ ẩm của đất
+Trồng cây cách nhau tối thiểu 20-25 cm để gió lưu thông tốt quanh bụi, giúp tán lá nhanh khô ráo sau các cơn mưa rào.
 
-Không cần tưới húng quế theo một lịch cố định. Bạn nên sờ thử lớp đất mặt trước khi tưới. Khi lớp đất phía trên bắt đầu khô, tưới chậm và đều quanh gốc cho đến khi đất ẩm sâu xuống vùng rễ. Nếu trồng trong chậu, có thể tưới đến khi một ít nước bắt đầu chảy ra ở lỗ thoát nước, sau đó đổ phần nước còn lại trong đĩa hứng.
+## Tưới sâu sát gốc và duy trì độ thoát nước tốt
 
-Nếu đất vẫn mát và ẩm thì chưa cần tưới thêm. Cây trồng trong chậu thường khô nhanh hơn cây trồng dưới đất, nhưng vào những ngày mát hoặc có mưa, tưới quá thường xuyên lại dễ làm đất luôn ướt.
+Bộ rễ húng quế ăn cạn và tập trung chủ yếu ở tầng đất mặt 15-20 cm. Rễ rất háo khí và không thể chịu được tình trạng ngập úng kéo dài.
 
-Khi tưới, nên đưa nước xuống quanh gốc thay vì phun lên lá. Lá ướt lâu, nhất là trong bụi cây mọc dày, dễ bị đốm và tạo điều kiện cho bệnh phát triển.
+Kiểm tra bề mặt đất trước mỗi lần tưới; khi lớp đất mặt sâu khoảng 2 cm bắt đầu se khô, hãy tưới nước từ từ và đều quanh gốc cho đến khi nước ngấm sâu và bắt đầu rỉ ra ở đáy chậu. Nếu dùng đĩa lót chậu, đổ sạch phần nước thừa sau 15-20 phút; không bao giờ để đáy chậu ngâm liên tục trong nước tù đọng.
 
-## Chọn đất phù hợp và bón phân vừa đủ
+Khi tưới, luôn hướng vòi nước trực tiếp xuống mặt đất quanh gốc thay vì xịt từ trên ngọn xuống. Tán lá húng quế rậm rạp nếu bị ướt sũng vào chiều muộn hoặc đọng nước qua đêm sẽ tạo môi trường lý tưởng cho bào tử nấm mốc nảy mầm.
 
-Húng quế thích đất tơi, có nhiều chất hữu cơ và thoát nước tốt. Trước khi trồng, bạn có thể trộn thêm compost đã hoai vào đất. Nếu trồng trong chậu, nên chọn chậu có lỗ thoát nước và không để chậu ngâm trong đĩa nước sau khi tưới.
+Chọn đất trồng tơi xốp, giàu mùn hữu cơ và thoát nước nhanh với độ pH thích hợp từ 6.0-7.0. Nếu trồng trong chậu, chọn chậu có đường kính tối thiểu 15-20 cm cho mỗi bụi cây và kiểm tra kỹ các lỗ thoát nước dưới đáy.
 
-Vì thường xuyên được hái lá, cây sẽ cần thêm dinh dưỡng trong suốt mùa sinh trưởng. Nếu sau vài lần hái, lá bắt đầu nhạt màu hoặc cây chậm ra nhánh, bạn có thể bổ sung phân cho cây với lượng vừa phải.
+## Bấm ngọn tạo bụi và ngắt ngồng hoa để giữ vị thơm ngon
 
-Nếu dùng phân nước, hãy pha loãng theo đúng hướng dẫn của loại phân đang có. Nếu không có hướng dẫn cụ thể, nên dùng dung dịch loãng hơn thay vì pha quá đậm và bón một lượng nhỏ quanh vùng đất cách gốc một đoạn. Với cây trồng trong chậu, có thể tưới phân vào đất sau khi đất đã hơi ẩm, tránh đổ trực tiếp lên thân. Sau đó, theo dõi cây trong những lần bón tiếp theo thay vì tăng lượng phân ngay khi chưa thấy thay đổi.
+Bấm ngọn là kỹ thuật cốt lõi quyết định hình dáng và năng suất lá của cây húng quế:
 
-Nếu không có phân nước hoặc không rõ liều dùng, có thể dùng compost hoặc phân chuồng đã hoai: rải một lớp mỏng quanh gốc rồi xới nhẹ vào lớp đất mặt, tránh để phân chạm trực tiếp vào thân. Cách này cung cấp dinh dưỡng từ từ mà không cần áp dụng một lịch bón cứng cho mọi chậu cây.
+- Khi cây con cao khoảng 15 cm và đã phát triển 3-4 cặp lá thật đầu tiên, dùng móng tay hoặc kéo sạch bấm bỏ phần ngọn non ngay sát phía trên cặp lá trên cùng. Thao tác này sẽ đánh thức hai chồi nách ngủ yên tại nách lá, thúc đẩy cây đâm ra hai nhánh mới thay vì chỉ phát triển một thân chính đơn độc.
+- Cứ sau 2-3 tuần khi các nhánh mới dài thêm 15-20 cm, tiếp tục bấm ngọn các nhánh này để nhân đôi số lượng đầu cành. Nhờ bấm ngọn đều đặn, cây sẽ phát triển thành bụi tròn xòe rộng với hàng trăm đọt non tươi tốt.
 
-Không nên bón quá nhiều đạm. Cây có thể lớn lá rất nhanh nhưng lá dễ mềm, mùi thơm nhạt hơn và cây cũng có thể dễ bị sâu hại hơn.
+Khi cây cảm nhận ngày dài và nhiệt độ tăng cao, cây sẽ bắt đầu đâm ngồng hoa ở đầu cành:
 
-## Gieo lứa mới khi cây cũ bắt đầu già
+- Cần ngắt bỏ toàn bộ các chùm nụ hoa ngay khi chúng vừa chớm nhú.
+- Nếu để hoa nở và tạo hạt, toàn bộ dinh dưỡng sẽ chuyển từ việc nuôi lá sang nuôi hạt; các lá già phía dưới sẽ nhanh chóng ngả vàng, xơ cứng và chuyển sang vị đắng gắt khó ăn, đồng thời cây ngừng ra chồi mới và bắt đầu quá trình già cỗi tự nhiên.
 
-Húng quế có thể gieo từ hạt khi thời tiết đã ấm. Bạn nên gieo hạt nông trên đất ẩm rồi giữ cho đất có độ ẩm đều trong những ngày đầu. Đất nên ẩm khi chạm vào nhưng không được nhão hoặc có nước đọng trên bề mặt. Nếu mặt đất bắt đầu khô, tưới nhẹ bằng bình có tia nước nhỏ để làm ẩm lại mà không xói hạt.
+Khi thu hoạch, cắt cả đoạn ngọn dài khoảng 5-10 cm ngay sát trên một mắt lá để cây tiếp tục đâm nhánh mới; tránh vặt từng lá đơn lẻ vì sẽ để lại cành trơ trụi hóa gỗ.
 
-Khi cây con đã có vài cặp lá thật, có thể chuyển sang chậu riêng hoặc tỉa bớt, chỉ giữ lại những cây khỏe.
+## Bón phân hữu cơ nhẹ và nhân giống gối vụ
 
-Nếu muốn có cây mới nhanh hơn, bạn có thể giâm cành. Chọn một ngọn khỏe, cắt ngay dưới mắt lá rồi bỏ bớt những lá ở phần dưới. Cắm cành vào một cốc nước hoặc đất trồng ẩm. Nếu giâm trong đất, giữ cho giá thể luôn hơi ẩm nhưng không sũng nước. Khi cành đã ra rễ, chuyển sang chậu và tránh đưa cây mới giâm ra nắng gắt ngay.
+Húng quế cho thu hoạch lá liên tục nên cần nguồn dinh dưỡng bổ sung đều đặn, nhưng nhu cầu phân bón của cây chỉ ở mức vừa phải:
 
-Bạn nên gieo thêm một lứa mới trước khi bụi cũ bắt đầu già và cho ít lá hơn. Nhờ vậy, khi cây cũ không còn cho nhiều lá như trước, bạn đã có lứa cây mới sẵn sàng để tiếp tục thu hái.
+- Tránh bón các loại phân hóa học có hàm lượng đạm quá cao. Thừa đạm kích thích thân lá mọc dài nhanh và mọng nước nhưng làm loãng nồng độ tinh dầu thơm, khiến lá nhạt vị và cây trở nên mẫn cảm hơn với sâu bệnh.
+- Ưu tiên bón các loại phân hữu cơ loãng như phân cá, rong biển hoặc rải một lớp phân trùn quế, phân compost hoai mục mỏng 1-2 cm quanh gốc mỗi 3-4 tuần một lần. Tưới nhẹ sau khi bón để dinh dưỡng thấm dần xuống rễ.
 
-## Bấm ngọn để cây ra nhiều nhánh
+Húng quế là loài cây thân thảo ngắn ngày; sau 4-6 tháng thu hoạch liên tục, gốc cây sẽ già hóa gỗ và năng suất ra lá giảm rõ rệt:
 
-Khi cây đã có vài cặp lá thật, bạn nên bấm phần ngọn ngay phía trên một mắt lá. Sau đó, các nhánh bên sẽ bắt đầu mọc ra từ vị trí này, giúp cây rộng và nhiều nhánh hơn thay vì chỉ cao lên một thân.
+- Trước khi bụi cây cũ già cỗi, gieo thêm lứa mới từ hạt hoặc giâm cành gối vụ sau mỗi 4-6 tuần để luôn có lá tươi sử dụng quanh năm.
+- Gieo hạt: Rải hạt nông khoảng 0.5 cm trên giá thể ẩm, giữ ẩm đều ở nhiệt độ 21-25°C; hạt sẽ nảy mầm sau 5-10 ngày.
+- Giâm cành: Cắt các đoạn ngọn bánh tẻ khỏe mạnh dài 8-10 cm chưa ra hoa, tỉa bớt lá ở nửa dưới rồi cắm vào cốc nước sạch hoặc đất ẩm tơi xốp. Cành giâm sẽ mọc rễ khỏe sau 7-14 ngày và sẵn sàng chuyển sang chậu mới.
 
-Khi các nhánh mới mọc dài, tiếp tục bấm hoặc hái ngọn. Cách này vừa có thêm lá để dùng, vừa giúp bụi húng quế giữ được dáng gọn và tiếp tục ra chồi mới.
+## Nhận diện sớm sâu hại và bệnh lá
 
-Nếu muốn cây tập trung cho lá, bạn nên ngắt chùm hoa ngay khi vừa nhú. Khi bắt đầu ra hoa, cây sẽ dành nhiều sức hơn cho việc tạo hạt, vì vậy lượng lá non có thể giảm. Những lá già cũng có thể trở nên đắng và không còn ngon như trước.
+Kiểm tra ngọn non, mặt dưới lá và gốc cây mỗi tuần giúp phát hiện sớm các tác nhân gây hại trước khi chúng bùng phát:
 
-Khi hái, bạn có thể dùng tay ngắt từng ngọn hoặc dùng kéo sạch. Nên hái ngay phía trên một mắt lá để phần còn lại tiếp tục mọc nhánh mới.
+### Sâu hại
 
-## Kiểm tra sớm để phát hiện sâu bệnh
+[Rệp mềm](richfarm://pests-diseases/aphids) thường bám thành cụm ở các chồi ngọn non và mặt dưới phiến lá, chích hút nhựa làm đọt non xoăn tít biến dạng và tiết mật ngọt dẫn dụ nấm muội đen. Xịt tia nước mạnh rửa sạch ổ rệp vào sáng sớm hoặc dùng khăn ẩm lau sạch khi rệp mới xuất hiện.
 
-Nên kiểm tra các ngọn non, mặt dưới lá và khu vực quanh gốc vì đây là những nơi sâu hại thường ẩn hoặc bắt đầu gây hại. Kiểm tra thường xuyên giúp phát hiện vấn đề khi mới xuất hiện, lúc này việc xử lý thường đơn giản hơn.
+[Ốc sên](richfarm://pests-diseases/slugs_snails) hoạt động mạnh về đêm, cắn phá các đọt non và khoét thủng các mảng lá lớn nham nhở. Thu gom ốc thủ công vào lúc chập tối và dọn sạch lá rụng, vật liệu ẩm mục xung quanh gốc để triệt tiêu nơi trú ẩn của chúng.
 
-[Rệp mềm](richfarm://pests-diseases/aphids) thường tập trung ở ngọn non và mặt dưới lá. Chúng có thể làm lá xoăn lại, biến dạng hoặc khiến ngọn chậm lớn. [Ốc sên](richfarm://pests-diseases/slugs_snails) cũng dễ ăn lá non, nhất là ở những chỗ ẩm và có nhiều lá rụng hoặc vật liệu nằm sát đất. Khi mới phát hiện, bạn có thể bắt bỏ bằng tay hoặc rửa nhẹ bằng nước.
+### Bệnh hại
 
-Nếu mặt dưới lá xuất hiện lớp mốc xám, sau đó lá vàng và rụng nhanh, cây có thể đang bị [bệnh sương mai](richfarm://pests-diseases/downy_mildew). Bạn nên bỏ những lá bị bệnh, tỉa bớt những phần quá dày để bụi cây thoáng hơn và hạn chế làm ướt lá khi tưới.
+[Bệnh sương mai](richfarm://pests-diseases/downy_mildew) là bệnh nguy hiểm hàng đầu trên húng quế, biểu hiện bằng các mảng vàng loang lổ trên mặt lá bị chặn bởi các gân lá, trong khi mặt dưới phủ một lớp mốc xám đen như bụi đất. Vặt bỏ ngay các lá nhiễm bệnh đem tiêu hủy, tỉa thưa tán lá để tăng độ thông thoáng và tuyệt đối không tưới ướt tán lá.
 
-Với cây trồng để ăn lá, không nên dùng thuốc khi chưa biết chính xác cây đang gặp vấn đề gì. Nếu cần xử lý, bạn nên xác định đúng nguyên nhân và đọc kỹ hướng dẫn trên sản phẩm, đặc biệt là thời gian cần chờ trước khi hái và sử dụng.
+[Bệnh thối rễ](richfarm://pests-diseases/root_rot) xuất hiện khi giá thể bí nước hoặc tưới quá nhiều. Rễ cây bị thối đen nhũn, mất khả năng hút nước khiến toàn bộ cây héo rũ từ dưới lên dù đất vẫn ướt sũng. Cần nhấc bầu cây ra kiểm tra, cắt bỏ rễ hỏng, thay đất tơi xốp mới và giảm tần suất tưới.
+
+[Bệnh đốm lá](richfarm://pests-diseases/leaf_spot) tạo thành các đốm nâu sẫm trên lá già khi thời tiết mưa ẩm kéo dài hoặc nước bắn lên từ đất bẩn. Cắt tỉa bỏ các lá già sát gốc và tưới sát mặt đất để ngăn mầm bệnh lây lan lên tầng lá trên.
+
+Vì húng quế là loại rau gia vị dùng ăn sống trực tiếp, không sử dụng thuốc bảo vệ thực vật hóa học độc hại. Luôn ưu tiên các biện pháp cơ học, giữ vệ sinh chậu trồng và tuân thủ thời gian cách ly an toàn nếu sử dụng các chế phẩm sinh học.
