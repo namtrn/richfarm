@@ -409,3 +409,38 @@ Full plan: `docs/tasks/2026-08-31-care-content-approval-publish-flow-plan.md`
   base-only prefilter bug. Focused mobile tests 13/13, mobile typecheck, and
   diff-check pass. Completion plan status is `RELEASE 1 DEV COMPLETE`;
   production remains a separate rollout.
+
+## 2026-09-06 — Project completeness remediation (Heavy route)
+
+- Local remediation completed against baseline `12d82f9`: mobile typecheck
+  ownership, canonical API fixtures, repository verification/CI, projection
+  ordering, plant naming, and favorites Phase A.
+- Initial local gate passed before the follow-up independent review; the final
+  post-review verification counts are recorded below.
+- CI now separates secret-free `Required Verification` from credential-dependent
+  `Live Taxonomy Verification`; branch ruleset configuration and a real failing
+  PR enforcement exercise remain external evidence, not locally claimed.
+- Projection coordinator publishes only the newest accepted complete
+  `{projection,outbox}` snapshot; stale/disposed success/error and cleanup paths
+  are regression-tested.
+- Instance naming is nickname-first across verified user-plant workflows;
+  catalog naming remains nickname-independent.
+- Favorites use idempotent desired-state writes with shared scoped serialization,
+  visible online/error/retry behavior, and no silent catches. Follow-up race
+  hardening invalidates queued/late Account A work after scope changes and
+  releases acknowledged intent so later server updates are authoritative.
+  Durable offline favorites remain deferred until the Phase B integration/
+  ordering design is explicitly approved.
+- Follow-up independent-review fixes added production lifecycle coverage for
+  projection/queue subscriptions and AppState transitions, plus reconciliation
+  regression branches for protected stale canonical rollback and deletion of
+  only unreferenced noncanonical legacy mirror rows.
+- Final favorites follow-up derives concurrent toggles from the newest shared
+  intent (rather than the unchanged server snapshot) and adds reachable EN/VI
+  account-required copy. Its regression reproduces two consumers producing
+  ordered `[true, false]` writes.
+- Final local gate after those fixes: `npm run verify` PASS — 67 files / 343
+  combined tests and API 17 files / 212 tests; all owned typechecks, API build,
+  and dashboard production build pass.
+- No commit, push, deployment, device/provider run, staging readback, production
+  mutation, terminology decision, or GitHub ruleset mutation was performed.

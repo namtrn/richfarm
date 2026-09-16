@@ -1,5 +1,78 @@
 # Project Progress
 
+## Active package: PCR-2026-09-06 — Project completeness remediation
+
+Status: **local remediation complete; release evidence open** — Heavy route,
+baseline `12d82f9`, verified 2026-09-06
+
+Goal: execute the locally actionable packages in
+`docs/tasks/2026-09-06-project-completeness-remediation-plan.md` without
+expanding product scope or claiming external release readiness.
+
+Ordered work packages:
+
+1. PCR-1: restore mobile typecheck ownership boundaries.
+2. PCR-2: repair the 15-failure API baseline through canonical fixtures and
+   current contract assertions without weakening authorization, deletion,
+   geography, migration, or CRUD coverage.
+3. PCR-3: add a secret-free canonical verification entrypoint and CI aggregate;
+   repository ruleset enforcement remains a separately evidenced external gate.
+4. PCR-4: guard complete projection/outbox snapshots, errors, and cleanup across
+   subscription and foreground refresh paths with bounded listener/load counts.
+5. PCR-5: centralize instance/catalog plant naming and migrate existing
+   user-plant consumers.
+6. PCR-6A: add desired-state favorite writes, shared pending/error state,
+   online-only feedback, and safe retry. Durable offline favorites (PCR-6B)
+   remain conditional on a separate approved integration design.
+7. PCR-7: reconcile current documentation with verified implementation evidence.
+
+Acceptance: baseline tests plus new regressions pass; mobile/dashboard/API/shared/
+Convex checks are reproducible; no silent favorite failures; stale projection
+requests cannot publish any part of a snapshot or cleanup; local remediation and
+release evidence remain separate completion states.
+
+Verified result:
+
+- PCR-1: mobile TypeScript keeps broad owned-source inclusion and excludes only
+  generated native/build/coverage directories; resolved owned-file inventory and
+  typecheck pass.
+- PCR-2: canonical fixture builders replace invalid legacy identities without
+  weakening authorization, delete, geography, migration, or CRUD assertions.
+  Reconciliation coverage includes zero-drift identity matching, transactional
+  rollback when a stale canonical row is protected, and deletion of only
+  unreferenced noncanonical legacy mirrors. Full API 212/212 passes; API build
+  passes.
+- PCR-3: root `typecheck`, `test`, and secret-free `verify` commands exist;
+  dashboard has explicit typecheck/test; modular GitHub jobs feed an
+  `if: always()` aggregate that rejects every non-success result. Live taxonomy
+  is a separate credential-requiring workflow. Repository ruleset enforcement
+  remains open until the exact `Required Verification` status is configured and
+  exercised on a real PR.
+- PCR-4: initial, projection/queue subscription, and foreground refreshes use one
+  latest-request guard carrying `{ projection, outbox }`; stale errors/results
+  and disposed loads cannot publish or clean photos. The production component
+  delegates scope and AppState changes through the tested lifecycle boundary;
+  focused projection/coordinator coverage is 9/9.
+- PCR-5: pure instance/catalog naming contracts are separated; verified
+  user-plant screens use nickname-first semantics while catalog naming ignores
+  nickname. Focused 3/3 pass.
+- PCR-6A: Convex exposes idempotent validated `setFavorite(desired)` while
+  retaining `toggle`; mobile writes are serialized per account/plant, retry the
+  captured desired value, show online/error feedback, and no longer swallow
+  failures. Account/token invalidation suppresses queued and late cross-scope
+  work, and successful intent is released so later authoritative changes can
+  win. Concurrent hook consumers derive each toggle from the newest shared
+  intent instead of a stale server snapshot, and guest feedback is localized.
+  Focused favorite coverage is 7/7. Durable offline favorites remain
+  deferred pending the separate Phase B design gate.
+- Canonical `npm run verify` passes: 67 files / 343 shared-mobile-dashboard-
+  Convex tests, API 17 files / 212 tests, all owned typechecks/API build, and
+  dashboard production build. `git diff --check` passes.
+
+Out of scope without a separate decision or authorization: durable favorite
+outbox integration, propagation terminology approval, device/provider/staging/
+production verification, deployment, and production data mutation.
+
 ## Active package: CAP-2026-08-31 — Care content approval and Convex publication semantics
 
 Status: **CAP-1–CAP-6 complete and verified** — implementation, dashboard,
@@ -203,9 +276,9 @@ Remaining operational notes: reconcile floor is now a full-tree walk
 future optimization if trees grow far beyond 10k entities. SQLite freelist
 after compaction is reclaimed by the documented VACUUM step in maintenance.
 
-Next: package the completed MCD-1–MCD-7 implementation into a clean commit/PR.
-Before publishing or deploying, review the scoped diff and keep production
-Convex/data mutation behind a separate explicit authorization.
+Historical note: MCD-1–MCD-7 was subsequently packaged in implementation commit
+`4c67f16`; the older “next: package” instruction is superseded. PR/deployment
+and production Convex/data mutation evidence remain separate gates.
 
 ## Active package: GEOGRAPHY-R1-2026-08-12 — Plant geography/adaptation Release 1
 
@@ -224,7 +297,9 @@ Scope and constraints:
   `tomato-tommy-toe`).
 - Geography changes kept separate from unrelated in-flight work
   (propagation methods, care Markdown rollout).
-- Mobile is boundary typecheck only (detail display is Release 2).
+- Historical scope at plan start: mobile was boundary-typecheck only. This was
+  superseded by the verified dev closeout: Plant Detail now renders localized
+  origin/adaptation metadata; production rollout remains separate.
 
 Verified completion:
 
