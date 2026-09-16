@@ -8,24 +8,46 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3682,
+      "bytes": 3231,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "0d8ecc545cb5c4462d6595ca8e16a2ea8dc8f43e3697c6c9e04adfabf6b79e37",
-      "source_refs": []
+      "sha256": "fbdf121f767850293d8e1c575e0ee7f7370f47f8cb2f85c6096690b0a558b58c",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-lettuce-endive-and-radicchio",
+          "sourceName": "Growing lettuce, endive and radicchio in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     },
     "vi": {
-      "bytes": 4243,
+      "bytes": 3951,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "d4bb931a3a561a3df94da7cee595ee957d104d55e05d6f9f00162fc6aa66f99d",
-      "source_refs": []
+      "sha256": "81dd79bbb69449e7939e0ad95c69ea19c50f2f22ed71d4033f3517e5aa84b470",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-lettuce-endive-and-radicchio",
+          "sourceName": "Growing lettuce, endive and radicchio in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,
