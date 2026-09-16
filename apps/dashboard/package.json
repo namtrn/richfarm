@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "build": "vite build",
     "preview": "vite preview"
   },

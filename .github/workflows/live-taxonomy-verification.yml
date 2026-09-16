@@ -1,0 +1,35 @@
+name: Live Taxonomy Verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  live-taxonomy:
+    name: Live Taxonomy Verification
+    runs-on: ubuntu-latest
+    environment: taxonomy-verification
+    env:
+      CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+      CONVEX_DEPLOYMENT: ${{ secrets.CONVEX_DEPLOYMENT }}
+      CONVEX_ADMIN_FUNCTION_KEY: ${{ secrets.CONVEX_ADMIN_FUNCTION_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Require live verification credentials
+        run: |
+          for name in CONVEX_DEPLOY_KEY CONVEX_DEPLOYMENT CONVEX_ADMIN_FUNCTION_KEY; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required secret: $name"
+              exit 1
+            fi
+          done
+      - run: npm run verify:integration

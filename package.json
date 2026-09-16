@@ -15,6 +15,11 @@
     "packages/*"
   ],
   "scripts": {
+    "typecheck": "npm --prefix apps/mobile run typecheck && npm --prefix apps/dashboard run typecheck && npm --prefix apps/api run build && npm --prefix packages/shared run typecheck && npm --prefix packages/convex run typecheck",
+    "test": "npx vitest run apps/mobile apps/dashboard packages/shared packages/convex/convex && npm --prefix apps/api test",
+    "verify": "npm run typecheck && npm run test && npm --prefix apps/dashboard run build",
+    "verify:integration": "npm run check:taxonomy",
+    "check:taxonomy:local": "npx vitest run packages/shared/src/adaptationTerms.test.ts packages/shared/src/countries.test.ts packages/convex/convex/plantGeography.test.ts packages/convex/convex/plantGroups.test.ts",
     "start": "npm --prefix apps/mobile start",
     "android": "npm --prefix apps/mobile run android",
     "ios": "npm --prefix apps/mobile run ios",

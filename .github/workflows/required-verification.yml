@@ -1,0 +1,88 @@
+name: Required Verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix apps/mobile run typecheck
+      - run: npx vitest run apps/mobile
+
+  dashboard:
+    name: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix apps/dashboard run typecheck
+      - run: npm --prefix apps/dashboard run test
+      - run: npm --prefix apps/dashboard run build
+
+  api:
+    name: API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix apps/api run build
+      - run: npm --prefix apps/api test
+
+  shared-convex:
+    name: Shared and Convex
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix packages/shared run typecheck
+      - run: npx vitest run packages/shared
+      - run: npm --prefix packages/convex run typecheck
+      - run: npm --prefix packages/convex test
+      - name: Check local taxonomy invariants
+        run: npm run check:taxonomy:local
+
+  required-verification:
+    name: Required Verification
+    if: always()
+    needs: [mobile, dashboard, api, shared-convex]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every core job to succeed
+        env:
+          MOBILE_RESULT: ${{ needs.mobile.result }}
+          DASHBOARD_RESULT: ${{ needs.dashboard.result }}
+          API_RESULT: ${{ needs.api.result }}
+          SHARED_CONVEX_RESULT: ${{ needs.shared-convex.result }}
+        run: |
+          for result in "$MOBILE_RESULT" "$DASHBOARD_RESULT" "$API_RESULT" "$SHARED_CONVEX_RESULT"; do
+            if [ "$result" != "success" ]; then
+              echo "A required job did not succeed: $result"
+              exit 1
+            fi
+          done
