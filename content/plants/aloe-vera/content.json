@@ -8,23 +8,23 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3579,
+      "bytes": 3683,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "8d917981f9aca2aea1571c52f91d625f2cac11e055dc6bcb88563a4d087b849f",
+      "sha256": "6ffa25b879f9493b7da1d485376c7b9d0a777ac7e0d529534e8d79dc93cea640",
       "source_refs": []
     },
     "vi": {
-      "bytes": 3975,
+      "bytes": 4106,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "e21bfcea6c99f4669690fa862b6de61ecbdbf8bc8e64d516f1beb9903eaabe21",
+      "sha256": "de29d4db9c178e96adda460b11bc6d38a07eedf9754b4b4e787676633d27c42d",
       "source_refs": []
     }
   },
