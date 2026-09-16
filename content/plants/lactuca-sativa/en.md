@@ -1,39 +1,43 @@
-## Light and location
+Lettuce grows best when it can make steady leaf growth without heat or moisture stress. Hot weather can push the plant to bolt, while repeated drying makes leaves tougher and more bitter. The main priorities are to grow it during the milder part of the season, keep the shallow root zone evenly moist, and harvest before the plant begins to stretch upward.
 
-Lettuce is a cool-season crop that grows best in mild conditions with day temperatures that are not too hot. It tolerates morning sun or light shade, but long spells of intense sun make it bolt and turn bitter. In warm climates, grow it in the cool season or choose a spot with afternoon shade.
+## Use the cooler part of the season
 
-This is a low-growing plant with foliage close to the ground, so it needs no trellis or stakes. When planting several plants, leave enough space so the leaves do not shade one another; an open canopy dries faster after rain and stays healthier.
+Give lettuce good light in mild weather. In hot climates, afternoon shade can help reduce heat stress, but shade cannot fully compensate for a season that is simply too warm.
 
-## Watering
+Watch the center of the plant. When the stem begins to elongate and the plant starts lifting upward instead of staying compact, it is moving toward flowering. At that stage, leaf quality usually declines.
 
-Lettuce has shallow roots and juicy leaves, so it needs evenly moist soil to grow soft, mild leaves. Water when the top layer begins to dry; in hot weather the soil can dry faster and needs checking more often.
+## Keep the shallow roots evenly moist
 
-Avoid long dry spells, which slow growth and encourage bolting. At the same time, do not overwater to the point of sogginess, since the shallow roots are easily damaged. Water at the base and limit wetting the leaves late in the day.
+Lettuce has many roots near the soil surface, so the bed can dry faster than expected. Check the soil frequently and water when the upper layer begins to dry.
 
-## Soil
+Avoid long dry periods followed by heavy soaking. Mulch can help slow evaporation, especially in containers and raised beds. Water at soil level where practical and avoid leaving the root zone waterlogged.
 
-Lettuce prefers loose, fertile soil that holds moisture well while still draining. Work compost into the bed before planting to keep the soil soft and nourished for the short cycle. In containers, use a well-draining vegetable mix and never leave the pot standing in water.
+## Prepare loose, fertile soil
 
-## Feeding
+Lettuce grows well in soil that is rich in organic matter, holds moisture, and still drains freely. Compost added before planting is often enough to support a short crop.
 
-Because the cycle is short, lettuce usually has enough nutrition when the soil is prepared with compost before planting. If growth is slow and the leaves look pale, a light feed with slow-release fertilizer or a diluted liquid product, used as directed, can help.
+If plants remain pale or grow slowly even when temperature and water are suitable, use a light fertilizer according to the label. Avoid heavy feeding just to force rapid growth.
 
-Keep feeding modest; soil that is overly rich in nitrogen produces soft, watery leaves that attract pests and disease. Keep fertilizer away from the stem and do not feed while the soil is dry.
+## Sow small batches instead of one large batch
 
-## Sowing and propagation
+Lettuce can be direct-sown or transplanted as young seedlings. Keep the seedbed moist during germination and thin crowded seedlings once they are large enough to handle.
 
-Lettuce is usually sown directly or started as seedlings and moved to the final spot. The seed is very small, so sow it shallowly on moist soil and keep the surface damp until germination. Stagger the sowing by a few weeks at a time so you harvest leaves continuously instead of all at once.
+For a longer harvest window, sow smaller batches over time rather than planting everything at once. The interval between sowings should follow the weather and how quickly the current crop is developing, not a fixed calendar.
 
-Once seedlings have a few true leaves, thin them or transplant them to their final spacing. Water well after moving; the roots are delicate, so handle them gently and avoid breaking them.
+## Harvest leaves or the whole plant
 
-## Ongoing care and harvest
+For loose-leaf types, harvest usable outer leaves while leaving the center to continue growing. Other types can be cut as a whole plant once they reach the size and density you want.
 
-When the weather turns hot or the days lengthen, lettuce tends to stretch upward and bolt. Bolted plants turn bitter and are no longer enjoyable; to slow this, choose heat-tolerant varieties, keep the soil cool, and harvest earlier in the warm season.
+As warm weather approaches, harvest earlier rather than trying to hold mature plants indefinitely. Once bolting begins, the leaves often become more bitter and less tender.
 
-There are two ways to harvest: cut the whole plant at the base once it reaches size, or pick the outer leaves and let the center keep growing. Harvest in the early morning when the leaves are crisp, using clean scissors, and rinse the leaves before use. If the base is left in place with enough water, the plant can produce new leaves after cutting.
+## Check pests and diseases separately
 
-## Common pests and diseases
+### Pests
 
-[Snails and slugs](richfarm://pests-diseases/slugs_snails) often feed on young leaves, especially in damp, sheltered areas. Check around the base, beneath containers, and under the leaves in the early morning or evening; clear fallen leaves and keep the area open to reduce their hiding places. A few can be picked off by hand instead of using bait.
+[Slugs and snails](richfarm://pests-diseases/slugs_snails) often damage tender leaves near the soil. Check under leaves, containers, and debris in the early morning or evening and reduce damp hiding places around the bed.
 
-[Aphids](richfarm://pests-diseases/aphids) may gather on leaf undersides and among the young inner leaves, curling and coating them. Washing gently with water early on usually handles a light infestation. If spots spread widely or growth stops, identify the cause before treating; on leafy greens, do not apply a pesticide until you know the exact problem and the safe interval.
+[Aphids](richfarm://pests-diseases/aphids) can gather among young inner leaves and on leaf undersides. Small colonies can often be washed away with water before they spread deeper into the plant.
+
+### Diseases
+
+If spreading spots or soft decay appear, first check whether leaves are staying wet, plants are crowded, or the soil is remaining saturated. Remove badly affected leaves and improve airflow. Because lettuce is eaten as foliage, identify the problem before using any treatment and follow the product's harvest interval when one applies.
