@@ -1,13 +1,14 @@
 import { useQuery, useMutation } from 'convex/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useDeviceId } from '../lib/deviceId';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
-import { useSyncProjectionEntities } from './useSyncProjection';
+import { useSyncProjectionEntities, useSyncProjectionMeta } from './useSyncProjection';
 import { useEntitySync } from './useEntitySync';
+import { filterDeletedPlantReminders, isReminderSnoozed, selectReminderRows } from './reminderProjection';
 import {
     getTestDueAt,
     selectTestTriggerableCareReminder,
@@ -33,6 +34,8 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const shouldBypassRemote = isKnown && isOffline;
     const hasSession = useHasAuthSession();
     const projectedReminders = useSyncProjectionEntities('reminder') as any[];
+    const projectedPlants = useSyncProjectionEntities('plant') as any[];
+    const { hasProjection, isComplete: projectionComplete } = useSyncProjectionMeta();
     const { queueOperation } = useEntitySync();
 
     const remoteReminders = useQuery(api.reminders.getReminders, hasSession && deviceId ? {
@@ -54,14 +57,41 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
     const { cached: cachedToday } =
         useQueryCache(todayCacheKey, remoteTodayReminders);
 
-    const projectedForPlant = projectedReminders.filter((reminder) =>
+    const deletedPlantIdentities = useMemo(() => new Set(
+        projectedPlants
+            .filter((plant) => plant?.isDeleted === true)
+            .flatMap((plant) => [plant._id, plant.entityUuid])
+            .filter((identity): identity is string => typeof identity === 'string' && identity.length > 0)
+            .map(String),
+    ), [projectedPlants]);
+    const visibleProjectedReminders = filterDeletedPlantReminders(
+        projectedReminders,
+        deletedPlantIdentities,
+    ) ?? [];
+    const projectedForPlant = visibleProjectedReminders.filter((reminder) =>
         !userPlantId || String(reminder.userPlantId) === String(userPlantId)
+    );
+    const fallbackReminders = filterDeletedPlantReminders(
+        remoteReminders ?? cachedReminders,
+        deletedPlantIdentities,
+    );
+    const renderedReminders = filterDeletedPlantReminders(
+        selectReminderRows(projectedForPlant, fallbackReminders, hasProjection && projectionComplete),
+        deletedPlantIdentities,
+    );
+    const now = Date.now();
+    const endOfDay = new Date(now).setHours(23, 59, 59, 999);
+    const fallbackTodayReminders = filterDeletedPlantReminders(
+        remoteTodayReminders ?? cachedToday,
+        deletedPlantIdentities,
+    );
+    const renderedTodayReminders = filterDeletedPlantReminders(
+        selectReminderRows(visibleProjectedReminders, fallbackTodayReminders, hasProjection && projectionComplete),
+        deletedPlantIdentities,
     );
     const reminders = E2E_REMINDER_MODE
         ? e2eReminders
-        : projectedForPlant.length > 0
-          ? projectedForPlant
-          : !hasSession ? [] : remoteReminders ?? cachedReminders;
+        : !hasSession ? [] : renderedReminders;
     const todayReminders = E2E_REMINDER_MODE
         ? e2eReminders.filter((reminder) => {
             const date = new Date(reminder.nextRunAt);
@@ -70,13 +100,12 @@ export function useReminders(userPlantId?: Id<'userPlants'>) {
                 && date.getMonth() === now.getMonth()
                 && date.getDate() === now.getDate();
         })
-        : projectedReminders.length > 0
-          ? projectedReminders.filter((reminder) =>
-              reminder.enabled
-              && !reminder._pendingOutcome
-              && reminder.nextRunAt <= new Date().setHours(23, 59, 59, 999)
-            )
-          : !hasSession ? [] : remoteTodayReminders ?? cachedToday;
+        : !hasSession ? [] : renderedTodayReminders?.filter((reminder) => (
+            reminder.enabled
+            && !reminder._pendingOutcome
+            && !isReminderSnoozed(reminder, now)
+            && reminder.nextRunAt <= endOfDay
+        ));
 
     const queueOutcome = async (
         reminder: any,

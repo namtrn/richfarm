@@ -1,5 +1,6 @@
 appId: com.richfarm.app
 ---
+# Run on a simulator signed into the isolated E2E/staging account.
 - openLink:
     link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
 - runFlow:
@@ -27,13 +28,21 @@ appId: com.richfarm.app
     text: Quick actions
 - extendedWaitUntil:
     visible:
-      id: e2e-quick-actions-modal
+      id: e2e-action-scan
+    timeout: 10000
+- tapOn:
+    id: e2e-action-scan
+- extendedWaitUntil:
+    visible:
+      id: e2e-scanner-source-modal
     timeout: 10000
 - assertVisible:
-    id: e2e-action-scan
+    id: e2e-scanner-source-camera
+- assertVisible:
+    id: e2e-scanner-source-library
 - tapOn:
-    id: e2e-quick-actions-backdrop
+    id: e2e-scanner-source-cancel
 - extendedWaitUntil:
     notVisible:
-      id: e2e-quick-actions-modal
+      id: e2e-scanner-source-modal
     timeout: 10000

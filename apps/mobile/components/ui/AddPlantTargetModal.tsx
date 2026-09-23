@@ -53,6 +53,7 @@ export function AddPlantTargetModal({
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }} onPress={onClose} />
       <View
+        testID="e2e-library-add-target-modal"
         style={{
           backgroundColor: theme.card,
           borderTopLeftRadius: 12,
@@ -87,6 +88,7 @@ export function AddPlantTargetModal({
               return (
                 <TouchableOpacity
                   key={option.key}
+                  testID={`e2e-library-add-mode-${option.key}`}
                   onPress={() => setMode(option.key)}
                   style={{
                     flex: 1,
@@ -155,6 +157,7 @@ export function AddPlantTargetModal({
 
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <TouchableOpacity
+            testID="e2e-library-add-target-cancel"
             onPress={onClose}
             style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}
           >
@@ -163,6 +166,7 @@ export function AddPlantTargetModal({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
+            testID="e2e-library-add-target-confirm"
             disabled={!canConfirm || loading}
             onPress={() => void onConfirm({ mode, bedId: !isGardener && mode === 'growing' ? selectedBedId : undefined })}
             style={{

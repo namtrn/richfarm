@@ -32,8 +32,51 @@ export function getFavoriteWriteState(scope: string, plantId: string): FavoriteW
   return states.get(keyFor(scope, plantId)) ?? { pending: false };
 }
 
+export function getFavoriteWriteStates(scope: string): Record<string, FavoriteWriteState> {
+  const prefix = `${scope}:`;
+  const scoped: Record<string, FavoriteWriteState> = {};
+  for (const [key, state] of states) {
+    if (key.startsWith(prefix)) scoped[key.slice(prefix.length)] = state;
+  }
+  return scoped;
+}
+
+export function applyFavoriteWrites<T extends { plantMasterId: unknown }>(
+  favorites: readonly T[] | undefined,
+  writes: Record<string, FavoriteWriteState>,
+): T[] {
+  const byPlantId = new Map<string, T>();
+  for (const favorite of favorites ?? []) {
+    byPlantId.set(String(favorite.plantMasterId), favorite);
+  }
+  for (const [plantId, state] of Object.entries(writes)) {
+    if (state.error || state.desired === undefined) continue;
+    if (state.desired) {
+      byPlantId.set(plantId, byPlantId.get(plantId) ?? { plantMasterId: plantId } as T);
+    } else {
+      byPlantId.delete(plantId);
+    }
+  }
+  return Array.from(byPlantId.values());
+}
+
+export function reconcileFavoriteWrites(scope: string, serverFavoriteIds: ReadonlySet<string>) {
+  const prefix = `${scope}:`;
+  let changed = false;
+  for (const [key, state] of states) {
+    if (!key.startsWith(prefix) || state.pending || state.error || state.desired === undefined) continue;
+    const plantId = key.slice(prefix.length);
+    if (serverFavoriteIds.has(plantId) === state.desired) {
+      states.delete(key);
+      changed = true;
+    }
+  }
+  if (changed) publish();
+}
+
 export function getNextFavoriteDesired(scope: string, plantId: string, serverValue: boolean) {
-  const latestIntent = getFavoriteWriteState(scope, plantId).desired;
+  const state = getFavoriteWriteState(scope, plantId);
+  const latestIntent = state.error ? undefined : state.desired;
   return !(latestIntent ?? serverValue);
 }
 
@@ -66,7 +109,7 @@ export async function submitFavoriteDesired(input: {
       return 'stale';
     }
     if (sequences.get(key) === sequence) {
-      states.delete(key);
+      states.set(key, { pending: false, desired: input.desired });
       chains.delete(key);
       publish();
     }

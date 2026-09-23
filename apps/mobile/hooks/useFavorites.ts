@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from 'convex/react';
 import { Alert } from 'react-native';
-import { useSyncExternalStore } from 'react';
+import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../packages/convex/convex/_generated/api';
 import { useDeviceId } from '../lib/deviceId';
@@ -8,7 +8,7 @@ import { Id } from '../../../packages/convex/convex/_generated/dataModel';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useQueryCache } from '../lib/queryCache';
 import { useHasAuthSession, useSessionScopedCacheKey } from '../lib/sessionCache';
-import { getFavoriteWriteState, getFavoriteWritesRevision, getNextFavoriteDesired, submitFavoriteDesired, subscribeFavoriteWrites } from '../lib/favoriteWrites';
+import { applyFavoriteWrites, getFavoriteWriteState, getFavoriteWriteStates, getFavoriteWritesRevision, getNextFavoriteDesired, reconcileFavoriteWrites, submitFavoriteDesired, subscribeFavoriteWrites } from '../lib/favoriteWrites';
 import { mobileRuntimeStore } from '../lib/state/mobileRuntimeStore';
 
 export function useFavorites() {
@@ -25,7 +25,12 @@ export function useFavorites() {
     const favorites = !hasSession ? [] : remoteFavorites ?? cached;
 
     const setFavoriteMutation = useMutation(api.favorites.setFavorite);
-    useSyncExternalStore(subscribeFavoriteWrites, getFavoriteWritesRevision, getFavoriteWritesRevision);
+    const writeRevision = useSyncExternalStore(subscribeFavoriteWrites, getFavoriteWritesRevision, getFavoriteWritesRevision);
+
+    const setFavoriteRef = useRef<(
+        plantMasterId: Id<'plantsMaster'>,
+        desired: boolean,
+    ) => Promise<boolean>>(async () => false);
 
     const isScopeActive = (expectedCacheKey: string, expectedToken: string) => {
         const runtime = mobileRuntimeStore.getState();
@@ -45,7 +50,9 @@ export function useFavorites() {
                 {
                     text: t('common.retry'),
                     onPress: () => {
-                        if (isScopeActive(expectedCacheKey, expectedToken)) void setFavorite(plantMasterId, desired);
+                        if (isScopeActive(expectedCacheKey, expectedToken)) {
+                            void setFavoriteRef.current(plantMasterId, desired);
+                        }
                     },
                 },
             ],
@@ -75,6 +82,7 @@ export function useFavorites() {
         }
         return result === 'succeeded';
     };
+    setFavoriteRef.current = setFavorite;
 
     const toggleFavorite = async (plantMasterId: Id<'plantsMaster'>) => {
         const serverValue = (favorites ?? []).some((favorite) => String(favorite.plantMasterId) === String(plantMasterId));
@@ -90,8 +98,18 @@ export function useFavorites() {
         return desired === undefined ? false : await setFavorite(plantMasterId, desired);
     };
 
+    const favoriteWriteStates = cacheKey ? getFavoriteWriteStates(cacheKey) : {};
+    useEffect(() => {
+        if (!cacheKey || remoteFavorites === undefined) return;
+        reconcileFavoriteWrites(
+            cacheKey,
+            new Set(remoteFavorites.map((favorite) => String(favorite.plantMasterId))),
+        );
+    }, [cacheKey, remoteFavorites, writeRevision]);
+    const visibleFavorites = applyFavoriteWrites(favorites, favoriteWriteStates);
+
     return {
-        favorites: favorites ?? [],
+        favorites: visibleFavorites,
         isLoading: favorites === undefined && !cacheLoaded && !shouldBypassRemote,
         toggleFavorite,
         setFavorite,

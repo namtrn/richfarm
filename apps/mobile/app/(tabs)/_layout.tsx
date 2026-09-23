@@ -386,10 +386,11 @@ export default function TabLayout() {
         statusBarTranslucent
         onRequestClose={() => setActionsOpen(false)}
       >
-        <View style={styles.actionModal}>
+        <View style={styles.actionModal} testID="e2e-quick-actions-modal">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('common.cancel')}
+            testID="e2e-quick-actions-backdrop"
             style={styles.actionBackdrop}
             onPress={() => setActionsOpen(false)}
           />
@@ -412,6 +413,7 @@ export default function TabLayout() {
                   key={key}
                   onPress={() => runAction(key)}
                   accessibilityRole="button"
+                  testID={`e2e-action-${key}`}
                   style={({ pressed }) => [
                     styles.actionRow,
                     { backgroundColor: pressed ? theme.accent : theme.card },
@@ -440,6 +442,7 @@ export default function TabLayout() {
                 key={key}
                 onPress={() => runAction(key)}
                 accessibilityRole="button"
+                testID={`e2e-action-${key}`}
                 style={({ pressed }) => [
                   styles.actionRow,
                   { backgroundColor: pressed ? theme.accent : theme.card },

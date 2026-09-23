@@ -30,6 +30,7 @@ import { InputSheet } from '../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 import { toast } from '../../lib/toast';
 import { getPlantInstanceName } from '../../lib/plantNames';
+import { isReminderOverdue, isReminderSnoozed } from '../../hooks/reminderProjection';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 const TEST_REMINDER_TRIGGER_ENABLED =
@@ -937,7 +938,7 @@ export default function ReminderScreen() {
       const nextReminder = { ...reminder, displayTarget };
       if (existing) {
         existing.reminders.push(nextReminder);
-        existing.overdueCount += reminder.nextRunAt < now ? 1 : 0;
+        existing.overdueCount += isReminderOverdue(reminder, now) ? 1 : 0;
         existing.nextRunAt = Math.min(existing.nextRunAt, reminder.nextRunAt);
         continue;
       }
@@ -946,7 +947,7 @@ export default function ReminderScreen() {
         title: `${typeLabel} • ${target.label}`,
         subtitle: t('reminder.batch_subtitle_one', { date: day }),
         reminders: [nextReminder],
-        overdueCount: reminder.nextRunAt < now ? 1 : 0,
+        overdueCount: isReminderOverdue(reminder, now) ? 1 : 0,
         nextRunAt: reminder.nextRunAt,
       });
     }
@@ -1021,11 +1022,15 @@ export default function ReminderScreen() {
   const now = getE2ENow();
   const { start: startOfDay, end: endOfDay } = getDayBounds(now);
   const overdueReminders = useMemo(
-    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt < now),
+    () => activeReminders.filter((reminder: any) => isReminderOverdue(reminder, now)),
     [activeReminders, now]
   );
   const todayActiveReminders = useMemo(
-    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt >= startOfDay && r.nextRunAt <= endOfDay),
+    () => activeReminders.filter((reminder: any) =>
+      reminder.nextRunAt >= startOfDay
+      && reminder.nextRunAt <= endOfDay
+      && !isReminderSnoozed(reminder, now)
+    ),
     [activeReminders, startOfDay, endOfDay]
   );
   const upcomingReminders = useMemo(
@@ -1203,7 +1208,7 @@ export default function ReminderScreen() {
         : null;
     const stageColor = stage === 'planning' ? theme.warning : theme.success;
     const stageBg = stage === 'planning' ? theme.warningBg : theme.successBg;
-    const isOverdue = r.nextRunAt < now;
+    const isOverdue = isReminderOverdue(r, now);
 
     return (
       <View

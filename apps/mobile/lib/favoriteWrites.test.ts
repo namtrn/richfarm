@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getFavoriteWriteState, getNextFavoriteDesired, resetFavoriteWritesForTests, submitFavoriteDesired } from './favoriteWrites';
+import {
+  applyFavoriteWrites,
+  getFavoriteWriteState,
+  getFavoriteWriteStates,
+  getNextFavoriteDesired,
+  reconcileFavoriteWrites,
+  resetFavoriteWritesForTests,
+  submitFavoriteDesired,
+} from './favoriteWrites';
 
 describe('favorite desired-state writes', () => {
   beforeEach(resetFavoriteWritesForTests);
@@ -28,7 +36,7 @@ describe('favorite desired-state writes', () => {
     await first;
     expect(await second).toBe('succeeded');
     expect(calls).toEqual([true, false]);
-    expect(getFavoriteWriteState('a', 'p')).toEqual({ pending: false });
+    expect(getFavoriteWriteState('a', 'p')).toMatchObject({ pending: false, desired: false });
   });
 
   it('derives a concurrent toggle from the newest shared intent, not a stale server snapshot', async () => {
@@ -70,8 +78,31 @@ describe('favorite desired-state writes', () => {
     expect(getFavoriteWriteState('a', 'p')).toEqual({ pending: false });
   });
 
-  it('releases acknowledged intent so an external update becomes authoritative', async () => {
+  it('keeps the acknowledged intent visible until the server query confirms it', async () => {
     await submitFavoriteDesired({ scope: 'a', plantId: 'p', desired: true, write: async () => undefined });
+    expect(applyFavoriteWrites([], getFavoriteWriteStates('a'))).toEqual([{ plantMasterId: 'p' }]);
+    reconcileFavoriteWrites('a', new Set());
+    expect(getFavoriteWriteState('a', 'p')).toMatchObject({ desired: true });
+    reconcileFavoriteWrites('a', new Set(['p']));
     expect(getFavoriteWriteState('a', 'p')).toEqual({ pending: false });
+  });
+
+  it('applies desired-state overlays and rolls errors back to the server snapshot', () => {
+    expect(applyFavoriteWrites(
+      [{ plantMasterId: 'keep' }, { plantMasterId: 'remove' }],
+      {
+        add: { pending: true, desired: true },
+        remove: { pending: true, desired: false },
+        failed: { pending: false, desired: true, error: new Error('offline') },
+      },
+    )).toEqual([{ plantMasterId: 'keep' }, { plantMasterId: 'add' }]);
+  });
+
+  it('derives a new toggle from server state after a failed write', async () => {
+    await submitFavoriteDesired({
+      scope: 'a', plantId: 'p', desired: true,
+      write: async () => { throw new Error('offline'); },
+    });
+    expect(getNextFavoriteDesired('a', 'p', false)).toBe(true);
   });
 });

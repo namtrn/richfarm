@@ -396,7 +396,7 @@ export function usePlantScanner(): UsePlantScannerResult {
     >
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'center', alignItems: 'center' }}>
         <Pressable style={StyleSheet.absoluteFill} onPress={() => setScanSourceOpen(false)} />
-        <View style={{ width: '70%', borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.85)' }}>
+        <View testID="e2e-scanner-source-modal" style={{ width: '70%', borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.85)' }}>
           <View style={[StyleSheet.absoluteFill, { borderRadius: 12, overflow: 'hidden' }]} pointerEvents="none">
             {BlurView ? (
               <BlurView style={StyleSheet.absoluteFill} intensity={90} tint={isDark ? 'dark' : 'light'} />
@@ -409,7 +409,7 @@ export function usePlantScanner(): UsePlantScannerResult {
             <View style={[styles.glassBottomRim, { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.30)' }]} />
           </View>
           <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18, gap: 12 }}>
-            <Text style={{ fontSize: 18, fontWeight: '500', color: theme.text, letterSpacing: -0.3, textAlign: 'center' }}>
+            <Text testID="e2e-scanner-source-title" style={{ fontSize: 18, fontWeight: '500', color: theme.text, letterSpacing: -0.3, textAlign: 'center' }}>
               {t('planning.scan_source_title')}
             </Text>
             {!!aiLimitError && (
@@ -418,18 +418,21 @@ export function usePlantScanner(): UsePlantScannerResult {
               </View>
             )}
             <TouchableOpacity
+              testID="e2e-scanner-source-camera"
               style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary }}
               onPress={() => { void handleCaptureFromCamera(); }}
             >
               <Text style={{ color: '#fff', fontWeight: '500', fontSize: 15 }}>{t('planning.scan_source_camera')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              testID="e2e-scanner-source-library"
               style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
               onPress={() => { void handlePickFromLibrary(); }}
             >
               <Text style={{ color: theme.textAccent, fontWeight: '500', fontSize: 15 }}>{t('planning.scan_source_library')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              testID="e2e-scanner-source-cancel"
               style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
               onPress={() => setScanSourceOpen(false)}
             >
