@@ -2,7 +2,7 @@ import { httpAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { REVENUECAT_ENTITLEMENT_ID } from "../lib/revenuecat";
 
-type RevenueCatEvent = {
+export type RevenueCatEvent = {
   app_user_id?: string;
   original_app_user_id?: string;
   aliases?: string[];
@@ -11,6 +11,22 @@ type RevenueCatEvent = {
   entitlements?: Record<string, unknown>;
   expiration_at_ms?: number;
   type?: string;
+};
+
+const ACTIVE_UNTIL_EXPIRATION_EVENTS = new Set([
+  "CANCELLATION",
+  "BILLING_ISSUE",
+  "SUBSCRIPTION_PAUSED",
+]);
+
+const REVOKED_EVENTS = new Set(["EXPIRATION", "REFUND"]);
+
+export type RevenueCatSubscriptionUpdate = {
+  entitlementIds: string[];
+  shouldUpdate: boolean;
+  tier: "free" | "premium";
+  expiresAt?: number;
+  preserveExistingExpiration: boolean;
 };
 
 function extractEntitlementIds(event: RevenueCatEvent): string[] {
@@ -43,6 +59,29 @@ function extractAppUserIds(event: RevenueCatEvent): string[] {
     }
   }
   return Array.from(ids);
+}
+
+export function buildSubscriptionUpdate(event: RevenueCatEvent): RevenueCatSubscriptionUpdate {
+  const entitlementIds = extractEntitlementIds(event);
+  const hasPremium = entitlementIds.includes(REVENUECAT_ENTITLEMENT_ID);
+  const expiresAt = typeof event.expiration_at_ms === "number" ? event.expiration_at_ms : undefined;
+  const keepsAccessUntilExpiration = ACTIVE_UNTIL_EXPIRATION_EVENTS.has(event.type ?? "");
+  const shouldUpdate =
+    entitlementIds.length > 0 ||
+    event.type === "EXPIRATION" ||
+    event.type === "CANCELLATION" ||
+    event.type === "REFUND" ||
+    keepsAccessUntilExpiration;
+
+  return {
+    entitlementIds,
+    shouldUpdate,
+    tier: REVOKED_EVENTS.has(event.type ?? "") || (!hasPremium && !keepsAccessUntilExpiration)
+      ? "free"
+      : "premium",
+    expiresAt,
+    preserveExistingExpiration: keepsAccessUntilExpiration,
+  };
 }
 
 function isAuthorized(request: Request) {
@@ -80,17 +119,9 @@ export const revenuecatWebhook = httpAction(async (ctx, request) => {
     return new Response("OK", { status: 200 });
   }
 
-  const entitlementIds = extractEntitlementIds(event);
-  const hasPremium = entitlementIds.includes(REVENUECAT_ENTITLEMENT_ID);
-  const expirationAtMs = typeof event.expiration_at_ms === "number" ? event.expiration_at_ms : undefined;
+  const subscriptionUpdate = buildSubscriptionUpdate(event);
 
-  const shouldUpdate =
-    entitlementIds.length > 0 ||
-    event.type === "EXPIRATION" ||
-    event.type === "CANCELLATION" ||
-    event.type === "REFUND";
-
-  if (!shouldUpdate) {
+  if (!subscriptionUpdate.shouldUpdate) {
     return new Response("Ignored", { status: 200 });
   }
 
@@ -99,15 +130,19 @@ export const revenuecatWebhook = httpAction(async (ctx, request) => {
     return new Response("Missing app_user_id", { status: 400 });
   }
 
-  const tier = hasPremium ? "premium" : "free";
+  // Cancellation and billing issues do not revoke an entitlement immediately;
+  // RevenueCat keeps access until expiration. Preserve the existing expiry when
+  // those events omit expiration_at_ms so a transient webhook cannot downgrade
+  // a paying user early.
   let updated = 0;
   for (const appUserId of appUserIds) {
     const result = await ctx.runMutation(
       internal.subscriptions.upsertSubscriptionFromRevenueCat,
       {
         appUserId,
-        tier,
-        expiresAt: expirationAtMs,
+        tier: subscriptionUpdate.tier,
+        expiresAt: subscriptionUpdate.expiresAt,
+        preserveExistingExpiration: subscriptionUpdate.preserveExistingExpiration,
       }
     );
     if (result.ok) {

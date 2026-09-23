@@ -1,5 +1,5 @@
 declare module 'react-native-purchases-ui' {
-  import type { Offering } from 'react-native-purchases';
+  import type { PurchasesOffering } from 'react-native-purchases';
 
   export enum PAYWALL_RESULT {
     PURCHASED = 'PURCHASED',
@@ -10,17 +10,18 @@ declare module 'react-native-purchases-ui' {
   }
 
   export type PresentPaywallParams = {
-    offering?: Offering;
+    offering?: PurchasesOffering;
   };
 
   export type PresentPaywallIfNeededParams = {
     requiredEntitlementIdentifier: string;
-    offering?: Offering;
+    offering?: PurchasesOffering;
   };
 
   const RevenueCatUI: {
     presentPaywall: (params?: PresentPaywallParams) => Promise<PAYWALL_RESULT>;
     presentPaywallIfNeeded: (params: PresentPaywallIfNeededParams) => Promise<PAYWALL_RESULT>;
+    presentCustomerCenter: () => Promise<void>;
   };
 
   export default RevenueCatUI;

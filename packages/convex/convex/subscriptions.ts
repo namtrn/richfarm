@@ -6,6 +6,7 @@ export const upsertSubscriptionFromRevenueCat = internalMutation({
         appUserId: v.string(),
         tier: v.union(v.literal("free"), v.literal("premium")),
         expiresAt: v.optional(v.number()),
+        preserveExistingExpiration: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         const user = await ctx.db
@@ -19,10 +20,14 @@ export const upsertSubscriptionFromRevenueCat = internalMutation({
             return { ok: false, reason: "user_not_found" as const };
         }
 
+        const expiresAt = args.preserveExistingExpiration && args.expiresAt === undefined
+            ? user.subscription?.expiresAt
+            : args.expiresAt;
+
         await ctx.db.patch(user._id, {
             subscription: {
                 tier: args.tier,
-                ...(args.expiresAt !== undefined && { expiresAt: args.expiresAt }),
+                ...(expiresAt !== undefined && { expiresAt }),
                 source: "revenuecat",
             },
         });

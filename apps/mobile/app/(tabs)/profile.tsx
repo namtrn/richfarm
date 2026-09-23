@@ -400,6 +400,9 @@ export default function ProfileScreen() {
       toast.success(t('profile.sub_active'));
       return;
     }
+    if (result.status === 'managed') {
+      return;
+    }
     if (result.status === 'cancelled') {
       toast.info(t('profile.sub_cancelled'));
       return;

@@ -1,4 +1,4 @@
-import Purchases, { CustomerInfo } from 'react-native-purchases';
+import Purchases, { type CustomerInfo } from 'react-native-purchases';
 import {
   createContext,
   useCallback,
@@ -27,11 +27,7 @@ type SubscriptionContextValue = {
   restorePurchases: () => Promise<void>;
 };
 
-type PurchasesWithListeners = typeof Purchases & {
-  removeCustomerInfoUpdateListener?: (listener: (info: CustomerInfo) => void) => void;
-};
-
-const purchases = Purchases as PurchasesWithListeners;
+const purchases = Purchases;
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null);
 
@@ -42,6 +38,8 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const configuredRef = useRef(false);
   const lastUserIdRef = useRef<string | null>(null);
+  const identitySyncRef = useRef<Promise<void>>(Promise.resolve());
+  const identityGenerationRef = useRef(0);
 
   const appUserId = useMemo(
     () =>
@@ -50,6 +48,32 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       }),
     [currentUser?.revenueCatAppUserId]
   );
+
+  const refresh = useCallback(async () => {
+    if (!configuredRef.current) return;
+    setIsLoading(true);
+    try {
+      const info = await purchases.getCustomerInfo();
+      setCustomerInfo(info);
+    } catch {
+      // Keep app functional if RevenueCat request fails (e.g. bad key/network).
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const restorePurchases = useCallback(async () => {
+    if (!configuredRef.current) {
+      throw new Error('RevenueCat is not configured.');
+    }
+    setIsLoading(true);
+    try {
+      const info = await purchases.restorePurchases();
+      setCustomerInfo(info);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isReady) return;
@@ -69,76 +93,70 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return;
     }
-    const validatedApiKey = (apiKey ?? '').trim();
-
-    if (configuredRef.current) return;
-
-    if (__DEV__) {
-      purchases.setLogLevel(purchases.LOG_LEVEL.DEBUG);
-    }
-
-    purchases.configure({
-      apiKey: validatedApiKey,
-    });
-
-    configuredRef.current = true;
-    lastUserIdRef.current = null;
-    setIsConfigured(true);
-  }, [appUserId, isReady]);
-
-  useEffect(() => {
-    if (!configuredRef.current) return;
 
     const nextUserId = appUserId ?? null;
-    const prevUserId = lastUserIdRef.current;
+    const generation = identityGenerationRef.current + 1;
+    identityGenerationRef.current = generation;
+    let cancelled = false;
 
-    if (!nextUserId || nextUserId === prevUserId) return;
+    const syncIdentity = async () => {
+      if (!configuredRef.current) {
+        if (__DEV__) {
+          void purchases.setLogLevel(purchases.LOG_LEVEL.DEBUG);
+        }
 
-    if (__DEV__) {
-      console.log('[RevenueCat] logIn candidate', {
-        nextUserId,
-        rawRevenueCatAppUserId: currentUser?.revenueCatAppUserId,
-      });
-    }
-
-    purchases
-      .logIn(nextUserId)
-      .then(() => {
+        purchases.configure({
+          apiKey: (apiKey ?? '').trim(),
+          ...(nextUserId ? { appUserID: nextUserId } : {}),
+        });
+        configuredRef.current = true;
         lastUserIdRef.current = nextUserId;
-      })
-      .catch(() => {
-        // No-op: keep local state, app continues in anonymous mode.
-      });
-  }, [appUserId, currentUser?.revenueCatAppUserId]);
+        setIsConfigured(true);
+      } else if (nextUserId !== lastUserIdRef.current) {
+        setCustomerInfo(null);
+        if (nextUserId) {
+          if (__DEV__) {
+            console.log('[RevenueCat] logIn', { nextUserId });
+          }
+          const result = await purchases.logIn(nextUserId);
+          lastUserIdRef.current = nextUserId;
+          if (!cancelled && generation === identityGenerationRef.current) {
+            setCustomerInfo(result.customerInfo);
+          }
+        } else {
+          await purchases.logOut();
+          lastUserIdRef.current = null;
+        }
+      }
 
-  const refresh = useCallback(async () => {
-    if (!configuredRef.current) return;
-    setIsLoading(true);
-    try {
       const info = await purchases.getCustomerInfo();
-      setCustomerInfo(info);
-    } catch {
-      // Keep app functional if RevenueCat request fails (e.g. bad key/network).
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      if (!cancelled && generation === identityGenerationRef.current) {
+        setCustomerInfo(info);
+      }
+    };
 
-  const restorePurchases = useCallback(async () => {
-    if (!configuredRef.current) return;
     setIsLoading(true);
-    try {
-      const info = await purchases.restorePurchases();
-      setCustomerInfo(info);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    identitySyncRef.current = identitySyncRef.current
+      .catch(() => undefined)
+      .then(syncIdentity)
+      .catch((error) => {
+        if (__DEV__) {
+          console.warn('[RevenueCat] identity sync failed', error);
+        }
+      })
+      .finally(() => {
+        if (!cancelled && generation === identityGenerationRef.current) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appUserId, currentUser?.revenueCatAppUserId, isReady]);
 
   useEffect(() => {
     if (!isConfigured) return;
-
-    void refresh();
 
     const listener = (info: CustomerInfo) => {
       setCustomerInfo(info);
@@ -147,7 +165,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     purchases.addCustomerInfoUpdateListener(listener);
 
     return () => {
-      purchases.removeCustomerInfoUpdateListener?.(listener);
+      purchases.removeCustomerInfoUpdateListener(listener);
     };
   }, [isConfigured, refresh]);
 

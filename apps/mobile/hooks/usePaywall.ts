@@ -5,7 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { REVENUECAT_ENTITLEMENT_ID } from '../lib/revenuecat';
 import { useSubscription } from './useSubscription';
 
-type PaywallStatus = 'purchased' | 'restored' | 'cancelled' | 'not_presented' | 'error';
+export type PaywallStatus =
+  | 'purchased'
+  | 'restored'
+  | 'managed'
+  | 'cancelled'
+  | 'not_presented'
+  | 'error';
 
 type PaywallResponse = {
   status: PaywallStatus;
@@ -23,7 +29,7 @@ async function getDefaultOffering() {
 
 export function usePaywall() {
   const { t } = useTranslation();
-  const { isConfigured, refresh } = useSubscription();
+  const { isConfigured, isPremium, refresh } = useSubscription();
   const [isPresenting, setIsPresenting] = useState(false);
 
   const presentPaywall = useCallback(async (opts?: { onlyIfNeeded?: boolean }): Promise<PaywallResponse> => {
@@ -33,6 +39,12 @@ export function usePaywall() {
 
     setIsPresenting(true);
     try {
+      if (isPremium) {
+        await RevenueCatUI.presentCustomerCenter();
+        await refresh();
+        return { status: 'managed' };
+      }
+
       const offering = await getDefaultOffering();
       const hasOffering = Boolean(offering);
 
@@ -63,14 +75,14 @@ export function usePaywall() {
           return { status: 'not_presented' };
         case PAYWALL_RESULT.ERROR:
         default:
-          return { status: 'error', errorMessage: 'Failed to present paywall.' };
+          return { status: 'error', errorMessage: t('profile.sub_paywall_error') };
       }
     } catch (error) {
       return { status: 'error', errorMessage: error instanceof Error ? error.message : 'Unexpected error.' };
     } finally {
       setIsPresenting(false);
     }
-  }, [isConfigured, refresh, t]);
+  }, [isConfigured, isPremium, refresh, t]);
 
   return {
     presentPaywall,
