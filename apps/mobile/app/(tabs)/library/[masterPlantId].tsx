@@ -901,6 +901,7 @@ export default function LibraryPlantDetailScreen() {
                         </TouchableOpacity>
                     ) : isGardener ? (
                         <TouchableOpacity
+                            testID="e2e-library-detail-add-gardener"
                             onPress={handleAddMyPlants}
                             style={{
                                 flex: 1,
@@ -919,6 +920,7 @@ export default function LibraryPlantDetailScreen() {
                     ) : isSelectMode ? (
                         <>
                             <TouchableOpacity
+                                testID="e2e-library-detail-add-planning"
                                 onPress={handleAddPlanning}
                                 style={{
                                     flex: 1,
@@ -935,6 +937,7 @@ export default function LibraryPlantDetailScreen() {
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity
+                                testID="e2e-library-detail-add-growing"
                                 onPress={handleAddGrowing}
                                 style={{
                                     flex: 1,

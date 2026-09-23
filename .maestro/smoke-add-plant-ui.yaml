@@ -1,0 +1,51 @@
+appId: com.richfarm.app
+---
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+- openLink:
+    link: com.richfarm.app://library?q=tomato
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-search-input
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-plant-card
+    timeout: 30000
+- tapOn:
+    id: e2e-library-plant-card
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-detail-add-gardener
+    timeout: 30000
+- tapOn:
+    id: e2e-library-detail-add-gardener
+- extendedWaitUntil:
+    visible:
+      id: e2e-library-gardener-details-close
+    timeout: 10000
+- assertVisible:
+    id: e2e-library-gardener-nickname
+- tapOn:
+    id: e2e-library-gardener-details-close
+- extendedWaitUntil:
+    notVisible:
+      id: e2e-library-gardener-details-close
+    timeout: 10000
