@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 
 export const REVENUECAT_ENTITLEMENT_ID = 'premium';
+export const REVENUECAT_OFFERING_ID = 'default';
 
 type RevenueCatEnv = 'test' | 'production';
 

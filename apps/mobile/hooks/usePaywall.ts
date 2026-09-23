@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import Purchases, { type PurchasesOffering } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import { useTranslation } from 'react-i18next';
-import { REVENUECAT_ENTITLEMENT_ID } from '../lib/revenuecat';
+import { REVENUECAT_ENTITLEMENT_ID, REVENUECAT_OFFERING_ID } from '../lib/revenuecat';
 import { useSubscription } from './useSubscription';
 
 export type PaywallStatus =
@@ -21,7 +21,7 @@ type PaywallResponse = {
 async function getDefaultOffering() {
   try {
     const offerings = await Purchases.getOfferings();
-    return offerings.current ?? null;
+    return offerings.all[REVENUECAT_OFFERING_ID] ?? offerings.current ?? null;
   } catch {
     return null;
   }
