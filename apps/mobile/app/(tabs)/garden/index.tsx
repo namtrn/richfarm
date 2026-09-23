@@ -608,6 +608,7 @@ function PlanningTabContent({
             const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
             if (reached) {
                 setAiLimitError(t('planning.detect_limit_free'));
+                router.push('/premium');
                 return false;
             }
         }
@@ -621,6 +622,7 @@ function PlanningTabContent({
             const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
             if (!consumption.allowed) {
                 setAiLimitError(t('planning.detect_limit_free'));
+                router.push('/premium');
                 return;
             }
         }
@@ -681,6 +683,7 @@ function PlanningTabContent({
         } catch (err) {
             if ((err as any)?.data?.code === 'AI_DETECTION_LIMIT_REACHED') {
                 setAiLimitError(t('planning.detect_limit_free'));
+                router.push('/premium');
             }
             console.error('Detection failed:', err);
         } finally {
@@ -1252,6 +1255,7 @@ function FarmerGardenScreen() {
     const { t } = useTranslation();
     const theme = useTheme();
     const params = useLocalSearchParams<{ tab?: string | string[]; scanner?: string | string[]; create?: string | string[] }>();
+    const router = useRouter();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
     const { gardens } = useGardens();
@@ -1275,6 +1279,7 @@ function FarmerGardenScreen() {
     const handleOpenCreateGarden = () => {
         if (!canCreateGarden) {
             setGardenLimitError(t('garden.error_limit_free'));
+            router.push('/premium');
             return;
         }
         setGardenLimitError('');
@@ -1317,8 +1322,9 @@ function FarmerGardenScreen() {
             setShowCreate(true);
         } else {
             setGardenLimitError(t('garden.error_limit_free'));
+            router.push('/premium');
         }
-    }, [params.create, canCreateGarden, t]);
+    }, [params.create, canCreateGarden, router, t]);
 
     useEffect(() => {
         const scannerParam = Array.isArray(params.scanner) ? params.scanner[0] : params.scanner;
@@ -1398,6 +1404,7 @@ function GardenerGardenScreen() {
     const { t } = useTranslation();
     const theme = useTheme();
     const params = useLocalSearchParams<{ tab?: string | string[]; create?: string | string[] }>();
+    const router = useRouter();
     const { deviceId } = useDeviceId();
     const { user, isLoading: isAuthLoading } = useAuth();
     const { gardens } = useGardens();
@@ -1416,6 +1423,7 @@ function GardenerGardenScreen() {
     const handleOpenCreateGarden = () => {
         if (!canCreateGarden) {
             setGardenLimitError(t('garden.error_limit_free'));
+            router.push('/premium');
             return;
         }
         setGardenLimitError('');
@@ -1441,8 +1449,9 @@ function GardenerGardenScreen() {
             setShowCreate(true);
         } else {
             setGardenLimitError(t('garden.error_limit_free'));
+            router.push('/premium');
         }
-    }, [params.create, canCreateGarden, t]);
+    }, [params.create, canCreateGarden, router, t]);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.background }}>

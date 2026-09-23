@@ -84,7 +84,7 @@ export default function OnboardingFinalScreen() {
       </View>
 
       <TouchableOpacity
-        onPress={() => router.replace('/(tabs)/home')}
+        onPress={() => router.replace({ pathname: '/premium', params: { afterClose: 'home' } })}
         style={{
           paddingVertical: 16,
           borderRadius: 14,

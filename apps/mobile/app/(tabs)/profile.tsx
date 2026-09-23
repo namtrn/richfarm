@@ -9,7 +9,6 @@ import { clearSyncNamespace, loadSyncQueue } from '../../lib/sync/queue';
 import { useSyncExecutor } from '../../lib/sync/useSyncExecutor';
 import { useUserSettings } from '../../hooks/useUserSettings';
 import { useSubscription } from '../../hooks/useSubscription';
-import { usePaywall } from '../../hooks/usePaywall';
 import { resolveUnitSystem, UnitSystem } from '../../lib/units';
 import { getLocales } from 'expo-localization';
 import { getAuthClient } from '../../lib/auth-client';
@@ -53,7 +52,6 @@ export default function ProfileScreen() {
   const { settings, updateSettings, isLoading: isSettingsLoading } = useUserSettings();
   const { appMode, switchMode, isLoading: isAppModeLoading } = useAppMode();
   const { isPremium, isConfigured: isSubConfigured, isLoading: isSubLoading, restorePurchases } = useSubscription();
-  const { presentPaywall, isPresenting } = usePaywall();
   const deleteAccountMutation = useMutation((api as any).users.deleteAccount);
   const deactivateDeviceTokensMutation = useMutation(api.notifications.deactivateDeviceTokens);
   const router = useRouter();
@@ -394,26 +392,8 @@ export default function ProfileScreen() {
     );
   };
 
-  const handlePaywall = async () => {
-    const result = await presentPaywall();
-    if (result.status === 'purchased' || result.status === 'restored') {
-      toast.success(t('profile.sub_active'));
-      return;
-    }
-    if (result.status === 'managed') {
-      return;
-    }
-    if (result.status === 'cancelled') {
-      toast.info(t('profile.sub_cancelled'));
-      return;
-    }
-    if (result.status === 'not_presented') {
-      toast.warning(t('profile.sub_paywall_unavailable'));
-      return;
-    }
-    if (result.status === 'error') {
-      toast.error(t('profile.sub_paywall_error'), { message: result.errorMessage });
-    }
+  const handlePaywall = () => {
+    router.push('/premium');
   };
 
   const handleSwitchMode = (nextMode: AppMode) => {
@@ -440,6 +420,10 @@ export default function ProfileScreen() {
   };
 
   const handleRestorePurchases = async () => {
+    if (!isAuthenticated) {
+      router.push({ pathname: '/auth', params: { returnTo: pathname } });
+      return;
+    }
     try {
       await restorePurchases();
       toast.success(t('profile.sub_restored'));
@@ -545,15 +529,15 @@ export default function ProfileScreen() {
           </Text>
           <TouchableOpacity
             onPress={handlePaywall}
-            disabled={!isSubConfigured || isPresenting || isSubLoading}
-            style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isPresenting || isSubLoading ? 0.5 : 1 }}
+            disabled={!isSubConfigured || isSubLoading}
+            style={{ backgroundColor: theme.primary, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isSubLoading ? 0.5 : 1 }}
           >
             <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{isPremium ? t('profile.sub_manage') : t('profile.sub_upgrade')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleRestorePurchases}
-            disabled={!isSubConfigured || isPresenting || isSubLoading}
-            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isPresenting || isSubLoading ? 0.5 : 1 }}
+            disabled={!isSubConfigured || isSubLoading}
+            style={{ backgroundColor: theme.accent, borderRadius: 14, paddingVertical: 12, alignItems: 'center', opacity: !isSubConfigured || isSubLoading ? 0.5 : 1 }}
           >
             <Text style={{ color: theme.textSecondary, fontWeight: '700', fontSize: 14 }}>{t('profile.sub_restore')}</Text>
           </TouchableOpacity>

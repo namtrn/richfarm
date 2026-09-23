@@ -535,6 +535,7 @@ export default function GardenDetailScreen() {
   const handleOpenCreateBed = () => {
     if (hasReachedBedLimit) {
       setBedLimitError(t('garden.error_limit_free_beds'));
+      router.push('/premium');
       return;
     }
     setBedLimitError('');
@@ -550,7 +551,7 @@ export default function GardenDetailScreen() {
     if (addBedHandledRef.current || !garden) return;
     addBedHandledRef.current = true;
     handleOpenCreateBed();
-  }, [addBed, garden, hasReachedBedLimit]);
+  }, [addBed, garden, hasReachedBedLimit, router]);
 
   useEffect(() => {
     if (!hasReachedBedLimit) {
@@ -726,6 +727,7 @@ export default function GardenDetailScreen() {
           if (hasReachedBedLimit) {
             setShowBedForm(false);
             setBedLimitError(t('garden.error_limit_free_beds'));
+            router.push('/premium');
             return;
           }
           await createBed({ ...payload, gardenId: garden._id });

@@ -192,6 +192,7 @@ export function usePlantScanner(): UsePlantScannerResult {
       const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
       if (reached) {
         setAiLimitError(t('planning.detect_limit_free'));
+        router.push('/premium');
         return false;
       }
     }
@@ -205,6 +206,7 @@ export function usePlantScanner(): UsePlantScannerResult {
       const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
       if (!consumption.allowed) {
         setAiLimitError(t('planning.detect_limit_free'));
+        router.push('/premium');
         return;
       }
     }
