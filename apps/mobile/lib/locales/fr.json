@@ -291,7 +291,21 @@
     "unit_metric": "Metric",
     "unit_imperial": "Imperial",
     "unit_current": "Current: {{label}}",
-    "temperature_unit_label": "Unité de température"
+    "temperature_unit_label": "Unité de température",
+    "sub_active": "Abonnement actif.",
+    "sub_cancelled": "Achat annulé.",
+    "sub_paywall_unavailable": "Le mur de paiement n'est pas disponible.",
+    "sub_paywall_error": "Erreur du mur de paiement.",
+    "sub_restored": "Premium restauré.",
+    "sub_restore_none": "Aucun abonnement actif trouvé pour ce compte.",
+    "sub_restore_failed": "Échec de la restauration.",
+    "sub_not_configured": "RevenueCat n'est pas configuré.",
+    "sub_checking": "Vérification du statut...",
+    "sub_premium_active": "Premium actif.",
+    "sub_free_plan": "Plan gratuit.",
+    "sub_manage": "Gérer l'abonnement",
+    "sub_upgrade": "Passer à Premium",
+    "sub_restore": "Restaurer les achats"
   },
   "offline": {
     "title": "Offline Mode",

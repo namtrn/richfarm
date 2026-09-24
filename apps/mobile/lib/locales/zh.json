@@ -291,7 +291,21 @@
     "unit_metric": "Metric",
     "unit_imperial": "Imperial",
     "unit_current": "Current: {{label}}",
-    "temperature_unit_label": "温度单位"
+    "temperature_unit_label": "温度单位",
+    "sub_active": "订阅已激活。",
+    "sub_cancelled": "购买已取消。",
+    "sub_paywall_unavailable": "付费墙不可用。",
+    "sub_paywall_error": "付费墙出错。",
+    "sub_restored": "高级版已恢复。",
+    "sub_restore_none": "未找到该账户的有效订阅。",
+    "sub_restore_failed": "恢复失败。",
+    "sub_not_configured": "RevenueCat 未配置。",
+    "sub_checking": "正在检查状态...",
+    "sub_premium_active": "高级版已激活。",
+    "sub_free_plan": "免费版。",
+    "sub_manage": "管理订阅",
+    "sub_upgrade": "升级到高级版",
+    "sub_restore": "恢复购买"
   },
   "offline": {
     "title": "Offline Mode",

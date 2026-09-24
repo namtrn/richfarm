@@ -13,6 +13,18 @@ All notable changes to the **RichFarm** project will be documented in this file.
   observability, safe notification routing, retry, and duplicate prevention.
 - No application version change.
 
+### Deploy notes
+
+- Deploy the Convex backend so the new `aiScanUsage` table exists in the target
+  deployment.
+- Run `npx convex dev` or `npx convex codegen` against that deployment to
+  regenerate `packages/convex/convex/_generated/` (the `api.d.ts` entries for
+  `aiScanQuota` and `lib/aiScanLimit` were hand-edited in this change and should
+  be verified/regenerated).
+- In the RevenueCat dashboard, set Restore Behavior to "Keep with original App
+  User ID" (no transfer) so restoring purchases does not move entitlements
+  between accounts.
+
 ## [2026-07-29] — Phase 2 care and release hardening
 
 - Added versioned per-plant care plans, deterministic reminders, explicit
