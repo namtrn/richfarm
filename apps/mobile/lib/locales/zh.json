@@ -154,7 +154,9 @@
     "detect_save": "Save plant",
     "detect_not_found": "No confident match found. You can retake, choose from library, or save as unknown.",
     "detect_save_unknown": "Save as unknown",
-    "detect_limit_free": "免费用户每天只能使用一次 AI 植物识别。升级到 Premium 可无限使用。",
+    "detect_limit_free": "今天的 {{limit}} 次免费 AI 识别已用完。升级 Premium 获取更多次数，或明天再来。",
+    "detect_limit_premium": "今天的 {{limit}} 次 AI 识别已用完，明天会重置。",
+    "detect_quota_remaining": "今天剩余 {{remaining}}/{{limit}} 次 AI 识别",
     "unknown_plant": "Unknown plant",
     "unnamed": "Unnamed plant"
   },
@@ -289,7 +291,21 @@
     "unit_metric": "Metric",
     "unit_imperial": "Imperial",
     "unit_current": "Current: {{label}}",
-    "temperature_unit_label": "温度单位"
+    "temperature_unit_label": "温度单位",
+    "sub_active": "订阅已激活。",
+    "sub_cancelled": "购买已取消。",
+    "sub_paywall_unavailable": "付费墙不可用。",
+    "sub_paywall_error": "付费墙出错。",
+    "sub_restored": "高级版已恢复。",
+    "sub_restore_none": "未找到该账户的有效订阅。",
+    "sub_restore_failed": "恢复失败。",
+    "sub_not_configured": "RevenueCat 未配置。",
+    "sub_checking": "正在检查状态...",
+    "sub_premium_active": "高级版已激活。",
+    "sub_free_plan": "免费版。",
+    "sub_manage": "管理订阅",
+    "sub_upgrade": "升级到高级版",
+    "sub_restore": "恢复购买"
   },
   "offline": {
     "title": "Offline Mode",

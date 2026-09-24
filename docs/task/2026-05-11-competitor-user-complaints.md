@@ -310,7 +310,7 @@ Reference:
 ## Open Questions For Product
 
 - Which features belong in free vs premium?
-- How many free AI scans per day/week are acceptable?
+- ~~How many free AI scans per day/week are acceptable?~~ Decided: free tier gets 3 AI scans/day, premium gets 10 scans/day, both enforced server-side (UTC-day reset, sign-in required, failed scans not counted). See `docs/specs/PLANT_SCAN_RESEARCH.md` §6.2.
 - Should reminders default to "check" wording globally, or only for watering?
 - Should RichFarm add a household/shared-garden MVP now, or only preserve data-model room for it?
 - What source of truth should RichFarm use for plant safety/toxicity metadata?

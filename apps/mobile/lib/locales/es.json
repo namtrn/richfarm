@@ -154,7 +154,9 @@
     "detect_save": "Save plant",
     "detect_not_found": "No confident match found. You can retake, choose from library, or save as unknown.",
     "detect_save_unknown": "Save as unknown",
-    "detect_limit_free": "Los usuarios gratuitos solo pueden usar la detección de plantas con IA una vez al día. Mejora a Premium para usarla sin límites.",
+    "detect_limit_free": "Has usado las {{limit}} detecciones de IA gratuitas de hoy. Mejora a Premium para tener más, o vuelve mañana.",
+    "detect_limit_premium": "Has usado las {{limit}} detecciones de IA de hoy. Se renuevan mañana.",
+    "detect_quota_remaining": "Te quedan {{remaining}}/{{limit}} detecciones de IA hoy",
     "unknown_plant": "Unknown plant",
     "unnamed": "Unnamed plant"
   },
@@ -289,7 +291,21 @@
     "unit_metric": "Metric",
     "unit_imperial": "Imperial",
     "unit_current": "Current: {{label}}",
-    "temperature_unit_label": "Unidad de temperatura"
+    "temperature_unit_label": "Unidad de temperatura",
+    "sub_active": "Suscripción activa.",
+    "sub_cancelled": "Compra cancelada.",
+    "sub_paywall_unavailable": "Muro de pago no disponible.",
+    "sub_paywall_error": "Error en el muro de pago.",
+    "sub_restored": "Premium restaurado.",
+    "sub_restore_none": "No se encontró ninguna suscripción activa para esta cuenta.",
+    "sub_restore_failed": "Error al restaurar.",
+    "sub_not_configured": "RevenueCat no está configurado.",
+    "sub_checking": "Comprobando estado...",
+    "sub_premium_active": "Premium activo.",
+    "sub_free_plan": "Plan gratuito.",
+    "sub_manage": "Gestionar suscripción",
+    "sub_upgrade": "Actualizar a Premium",
+    "sub_restore": "Restaurar compras"
   },
   "offline": {
     "title": "Offline Mode",
