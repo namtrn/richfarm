@@ -63,16 +63,16 @@ export function GardenOverviewSummary({
                 borderRadius: 12,
                 paddingHorizontal: 12,
                 paddingVertical: 12,
-                gap: 10,
+                gap: 6,
               }}
             >
-              <View style={{ width: 34, height: 34, borderRadius: 12, backgroundColor: theme.card, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon size={16} stroke={metric.tone} />
-              </View>
-              <View>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <View style={{ width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon size={16} stroke={metric.tone} />
+                </View>
                 <Text style={{ fontSize: 21, fontWeight: '500', color: theme.text }}>{metric.value}</Text>
-                <Text style={{ fontSize: 12, color: theme.textSecondary }}>{metric.label}</Text>
               </View>
+              <Text style={{ fontSize: 12, color: theme.textSecondary }}>{metric.label}</Text>
             </View>
           );
         })}
