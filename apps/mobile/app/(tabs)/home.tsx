@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Alert, Dimensions } from 'react-native';
 import { Bell, Droplets, Scissors, Sprout, ChevronRight, Settings } from '../../lib/icons';
 import { useQuery } from 'convex/react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import { useAppMode } from '../../hooks/useAppMode';
 import { getPlantInstanceName } from '../../lib/plantNames';
 
 import { WeatherCard } from '../../components/ui/WeatherCard';
+import { AnimatedPlantMascot } from '../../components/ui/AnimatedPlantMascot';
 
 const REMINDER_ICONS: Record<string, any> = {
   watering: Droplets,
@@ -122,6 +123,15 @@ export default function HomeScreen() {
     }).length;
   }, [plants]);
 
+  const mascotSize = 124;
+  const windowSize = Dimensions.get('window');
+  const mascotDragBounds = {
+    minX: -(windowSize.width - mascotSize - 28),
+    maxX: 12,
+    minY: -(windowSize.height - mascotSize - safeBottom - 120),
+    maxY: 34,
+  };
+
   const handleOpenReminder = (reminder: any) => {
     if (reminder?.userPlantId) {
       router.push({
@@ -147,11 +157,12 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.background }}
-      contentContainerStyle={{ padding: 16, paddingBottom: bottomNavClearance, gap: 16 }}
-      scrollIndicatorInsets={{ bottom: bottomNavClearance }}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: theme.background }}
+        contentContainerStyle={{ padding: 16, paddingBottom: bottomNavClearance, gap: 16 }}
+        scrollIndicatorInsets={{ bottom: bottomNavClearance }}
+      >
       {/* Welcome header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 4 }}>
         {/* Avatar with yellow ring */}
@@ -308,6 +319,15 @@ export default function HomeScreen() {
         </View>
       </View>
 
-    </ScrollView>
+      </ScrollView>
+
+      <AnimatedPlantMascot
+        size={mascotSize}
+        draggable
+        dragBounds={mascotDragBounds}
+        accessibilityLabel={t('home.plant_mascot', { defaultValue: 'Plant mascot. Drag to move.' })}
+        style={{ position: 'absolute', right: 14, bottom: safeBottom + 108 }}
+      />
+    </View>
   );
 }
