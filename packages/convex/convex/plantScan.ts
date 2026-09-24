@@ -1,8 +1,6 @@
-import { action, internalMutation } from "./_generated/server";
+import { action } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import { api, internal } from "./_generated/api";
-import { requireUser } from "./lib/user";
-import { isPremiumActive } from "./lib/subscription";
 
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
@@ -201,6 +199,8 @@ export const detectPlant = action({
             return { match: null, alternatives: [] };
         }
 
+        const { dateKey } = await ctx.runMutation(internal.aiScanQuota.reserveScan, {});
+
         const prompt = buildPrompt(locale);
         const imageBase64 = args.images[0];
         const mimeType = guessMimeType(imageBase64);
@@ -282,6 +282,7 @@ export const detectPlant = action({
             };
         } catch (error) {
             console.error("Error in detectPlant action:", error);
+            await ctx.runMutation(internal.aiScanQuota.releaseScan, { dateKey });
             throw error instanceof Error ? error : new Error("Failed to detect plant");
         }
     },
@@ -399,7 +400,9 @@ export const detectPlantVision = action({
         locale: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        await requireAiDetectionQuota(ctx);
+        if (!(await ctx.auth.getUserIdentity())) {
+            throw new ConvexError({ code: "AUTH_REQUIRED", message: "Sign in to use AI scan" });
+        }
         const apiKey = process.env.GOOGLE_CLOUD_VISION_API_KEY;
         const locale = normalizeLocale(args.locale);
         if (!apiKey) {

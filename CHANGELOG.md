@@ -4,54 +4,26 @@ All notable changes to the **RichFarm** project will be documented in this file.
 
 ## [Unreleased]
 
+- AI plant scan now requires sign-in and is limited server-side to 3 scans/day
+  (free) and 10 scans/day (premium); failed scans are not counted.
+- Purchase restore now reports when no active subscription is found, and signing
+  out resets the RevenueCat identity.
+- Consolidated duplicated scanner and sign-in prompt logic in the mobile app.
+- Documented the Phase 2.5 plan for real-device push delivery, token and receipt
+  observability, safe notification routing, retry, and duplicate prevention.
 - No application version change.
 
-## [2026-09-03] — Dashboard DX, review notifications, and plant group diacritics
+### Deploy notes
 
-- Added a Vite dev server supervisor plugin that automatically manages the RichFarm API process lifecycle during dashboard development.
-- Added two-stage global dashboard notification banners for incoming Markdown source changes and pending plant care approvals.
-- Added Vietnamese diacritics to plant group master seed data and introduced an idempotent seed sync mutation (`syncPlantGroupNames`).
-- Enhanced TaxonomyManager with dynamic translation locale columns and responsive table/stats layouts.
-- Updated plant care guides and manifests for Aloe vera, Bougainvillea, and Abelmoschus esculentus (okra).
-- Aligned iOS project configurations and CocoaPods dependencies for Hermes.
-
-## [2026-08-31] — Care content approval and Convex publication semantics
-
-- Implemented strict separation of draft import and content publication: Markdown import creates drafts without generating outbox records.
-- Added `approveContentLocales` service and endpoint to stamp plant locales to published/reviewed with reviewer identity and source provenance (`source_refs`).
-- Implemented outbox approval gate (`CONTENT_NOT_APPROVED`) to prevent unapproved care content from being queued or delivered to Convex.
-- Updated the dashboard with "Publish approved" controls, pending publication inspection, and Translations approval actions.
-- Verified care content approval and public serving contract end-to-end with Bougainvillea glabra on dev Convex deployment.
-
-## [2026-08-25] — Canonical identity and markdown content change detection
-
-- Implemented `canonical_identity_v1` across API, SQLite, content tooling, and Convex writers to guarantee deterministic plant identities.
-- Enforced duplicate prevention (`CANONICAL_PLANT_EXISTS`) and quarantine/redirect mechanisms for ambiguous taxonomy entries.
-- Built Markdown content change detection scanner and dashboard Content Inbox for inspecting incoming diffs before import.
-- Standardized git-backed Markdown content manifests binding directories to stable identities, hashes, and review states.
-- Implemented smart reconciliation engine to detect drift, verify invariants, and protect Convex synchronization.
-
-## [2026-08-12] — Plant geography adaptation and structured propagation
-
-- Added plant geography adaptation models including climate zones, soil types, sunlight requirements, and hardiness ranges.
-- Added structured plant propagation methods and step-by-step guidance.
-- Standardized localized plant descriptions and care markdown for mobile and dashboard displays.
-- Expanded plant curation for key cultivars with honest care status and Vietnamese diacritics.
-
-## [2026-08-09] — Phase 3 SQLite-local authoring and Convex sync outbox
-
-- Established SQLite as the local authoring source of truth with master plant CRUD and stable source identity `(sourceSystem, sourceId)`.
-- Implemented retryable, deduplicated sync outbox with exponential backoff to mirror SQLite mutations to Convex.
-- Added Convex server service-token authentication and role-separated write guards (`admin` vs `editor`).
-- Built canonical plant library projection (`listCanonical`, `getCanonical`) and variant resolution for mobile queries.
-- Defined care status contracts (`needs_review`, `reviewed`, `published`) and content tier derivations.
-
-## [2026-08-03] — Phase 2.5 push reliability and global feedback
-
-- Replaced transient in-screen banners with a theme-aware global toast overlay for iOS and Android (`RichToastHost`, `SyncToastCoordinator`).
-- Moved guest claiming, profile actions, and plant Activity, Harvest, and Photo feedback into the toast overlay.
-- Hardened push notification delivery: device token registration routing, delivery receipts, and logout feedback alignment.
-- Enforced care-plan lifecycle rules, reminder occurrences, and safe offline retry for reminder outcomes.
+- Deploy the Convex backend so the new `aiScanUsage` table exists in the target
+  deployment.
+- Run `npx convex dev` or `npx convex codegen` against that deployment to
+  regenerate `packages/convex/convex/_generated/` (the `api.d.ts` entries for
+  `aiScanQuota` and `lib/aiScanLimit` were hand-edited in this change and should
+  be verified/regenerated).
+- In the RevenueCat dashboard, set Restore Behavior to "Keep with original App
+  User ID" (no transfer) so restoring purchases does not move entitlements
+  between accounts.
 
 ## [2026-07-29] — Phase 2 care and release hardening
 

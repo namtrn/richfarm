@@ -1212,6 +1212,13 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_bucket_dimensions", ["bucket", "appVersion", "entityType", "status"]),
 
+  // AI plant scan quota — one row per user per UTC day
+  aiScanUsage: defineTable({
+    userId: v.id("users"),
+    dateKey: v.string(), // YYYY-MM-DD (UTC)
+    count: v.number(),
+  }).index("by_user_date", ["userId", "dateKey"]),
+
   syncUploadReservations: defineTable({
     userId: v.id("users"),
     operationId: v.string(),

@@ -38,7 +38,10 @@ import { useAuth } from '../../../lib/auth';
 import { useBeds } from '../../../hooks/useBeds';
 import { useGardens } from '../../../hooks/useGardens';
 import { isPremiumActive } from '../../../lib/access';
-import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../../lib/aiDetectorLimit';
+import { useAiScanQuota } from '../../../hooks/useAiScanQuota';
+import { useAuthPrompt } from '../../../hooks/useAuthPrompt';
+import { usePaywall } from '../../../hooks/usePaywall';
+import { AiScanLimitNotice } from '../../../components/scan/AiScanLimitNotice';
 import * as ImagePicker from 'expo-image-picker';
 import { usePlantLibrary } from '../../../hooks/usePlantLibrary';
 import { normalizeCustomPlantNickname, useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
@@ -531,7 +534,10 @@ function PlanningTabContent({
     const { plants, isLoading, addPlant } = usePlants();
     const { createUserPlant, openLibrarySelect, openLibraryMatch } = useAddPlantFlow({ addPlant });
     const { beds, isLoading: isBedsLoading } = useBeds();
-    const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const promptSignIn = useAuthPrompt();
+    const { presentPaywall } = usePaywall();
+    const { quota: scanQuota, isPremium, limitReached: aiLimitReached, canStartScan, handleScanError, resetLimit } = useAiScanQuota();
     const { gardens, isLoading: isGardensLoading } = useGardens();
     const { deviceId } = useDeviceId();
 
@@ -542,8 +548,6 @@ function PlanningTabContent({
     const [photoUri, setPhotoUri] = useState<string | null>(null);
     const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
     const [photoSaving, setPhotoSaving] = useState(false);
-    const [aiLimitError, setAiLimitError] = useState('');
-    const [aiSessionActive, setAiSessionActive] = useState(false);
     const [scanSourceOpen, setScanSourceOpen] = useState(false);
     const [detectNoMatch, setDetectNoMatch] = useState(false);
 
@@ -552,8 +556,6 @@ function PlanningTabContent({
     const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
     const canCreatePlant = canEdit;
     const isSetupRequired = false;
-    const isPremium = isPremiumActive(user);
-    const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
     const locale = i18n.language?.split('-')[0] ?? i18n.language;
     const { plants: libraryPlants } = usePlantLibrary(locale);
     const plannedPlants = useMemo(
@@ -584,49 +586,10 @@ function PlanningTabContent({
         finally { setSaving(false); }
     };
 
-    const canStartAiScan = async () => {
-        if (isAuthLoading) return false;
-        if (!isAuthenticated) {
-            Alert.alert(
-                t('profile.auth_sign_in'),
-                t('planning.scanner_signin_required'),
-                [
-                    { text: t('common.cancel'), style: 'cancel' },
-                    {
-                        text: t('profile.auth_sign_in'),
-                        onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }),
-                    },
-                ]
-            );
-            return false;
-        }
-        if (!isPremium && !aiSessionActive) {
-            if (!aiDetectorKey) {
-                setAiLimitError(t('common.error'));
-                return false;
-            }
-            const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
-            if (reached) {
-                setAiLimitError(t('planning.detect_limit_free'));
-                router.push('/premium');
-                return false;
-            }
-        }
-        setAiLimitError('');
-        return true;
-    };
+    const canStartAiScan = () => canCreatePlant && canStartScan();
 
     const applyPickedImage = async (result: ImagePicker.ImagePickerResult) => {
         if (result.canceled || !result.assets?.[0]?.uri) return;
-        if (!isPremium && !aiSessionActive) {
-            const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
-            if (!consumption.allowed) {
-                setAiLimitError(t('planning.detect_limit_free'));
-                router.push('/premium');
-                return;
-            }
-        }
-        setAiSessionActive(true);
         setPhotoUri(result.assets[0].uri);
         setDetectedName(t('planning.unknown_plant'));
         setDetectNoMatch(false);
@@ -659,8 +622,6 @@ function PlanningTabContent({
         setDetectedName(t('planning.unknown_plant'));
         setDetectNoMatch(false);
         setDetectionResults(null);
-        setAiSessionActive(false);
-        setAiLimitError('');
     }, [t]);
     const {
         activeInputRef: detectedNameInputRef,
@@ -681,9 +642,12 @@ function PlanningTabContent({
                 setDetectedName(res.match.name);
             }
         } catch (err) {
-            if ((err as any)?.data?.code === 'AI_DETECTION_LIMIT_REACHED') {
-                setAiLimitError(t('planning.detect_limit_free'));
-                router.push('/premium');
+            const handled = handleScanError(err);
+            if (handled) {
+                // Not a real scan: drop the draft and show the reason on the source picker.
+                closePhotoSheet();
+                if (handled === 'limit') setScanSourceOpen(true);
+                return;
             }
             console.error('Detection failed:', err);
         } finally {
@@ -692,8 +656,7 @@ function PlanningTabContent({
     };
 
     const handleCaptureFromCamera = async () => {
-        const canStart = await canStartAiScan();
-        if (!canStart) return;
+        if (!canStartAiScan()) return;
         setScanSourceOpen(false);
 
         const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -730,8 +693,7 @@ function PlanningTabContent({
     };
 
     const handlePickFromLibrary = async () => {
-        const canStart = await canStartAiScan();
-        if (!canStart) return;
+        if (!canStartAiScan()) return;
         setScanSourceOpen(false);
         const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!mediaPermission.granted) {
@@ -751,10 +713,13 @@ function PlanningTabContent({
         await applyPickedImage(result);
     };
 
-    const handleCapture = async () => {
-        const canStart = await canStartAiScan();
-        if (!canStart) return;
-        setAiLimitError('');
+    const handleCapture = () => {
+        if (!canCreatePlant || isAuthLoading) return;
+        if (!isAuthenticated) {
+            promptSignIn(t('planning.scanner_signin_required'));
+            return;
+        }
+        resetLimit();
         if (photoOpen) closePhotoSheet();
         if (sheetOpen) closeQuickSheet();
         setScanSourceOpen(true);
@@ -795,29 +760,15 @@ function PlanningTabContent({
             closePhotoSheet();
         }
         finally {
-            setAiSessionActive(false);
-            setAiLimitError('');
+            resetLimit();
             setDetectNoMatch(false);
             setPhotoSaving(false);
         }
     };
 
     useEffect(() => {
-        if (!sheetOpen) {
-            setAiLimitError('');
-        }
-    }, [sheetOpen]);
-
-    useEffect(() => {
-        if (!photoOpen) {
-            setAiSessionActive(false);
-        }
-    }, [photoOpen]);
-
-    useEffect(() => {
         if (openAddSheetSignal <= 0) return;
         if (!canCreatePlant) return;
-        setAiLimitError('');
         setSheetOpen(true);
     }, [openAddSheetSignal, canCreatePlant]);
 
@@ -830,13 +781,12 @@ function PlanningTabContent({
 
     useFocusEffect(
         useCallback(() => {
-            setAiLimitError('');
+            resetLimit();
             return () => {
-                setAiLimitError('');
+                resetLimit();
                 setScanSourceOpen(false);
-                setAiSessionActive(false);
             };
-        }, [])
+        }, [resetLimit])
     );
 
     return (
@@ -932,11 +882,6 @@ function PlanningTabContent({
                             <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_camera_desc')}</Text>
                         </TouchableOpacity>
                     </View>
-                    {!!aiLimitError && (
-                        <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
-                            <Text style={{ color: theme.danger, fontSize: 12 }}>{aiLimitError}</Text>
-                        </View>
-                    )}
                     <View style={{ gap: 8, marginTop: 4 }}>
                         <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 1 }}>{t('planning.quick_input_label')}</Text>
                         <TextInput
@@ -958,7 +903,19 @@ function PlanningTabContent({
                 onRequestClose={() => setScanSourceOpen(false)}
             >
                 <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.15)' }} onPress={() => setScanSourceOpen(false)} />
-                <View style={{ position: 'absolute', top: 120, left: '33.5%', width: '33%', backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' }}>
+                <View style={{ position: 'absolute', top: 120, left: aiLimitReached ? '15%' : '33.5%', width: aiLimitReached ? '70%' : '33%', backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' }}>
+                    {aiLimitReached && (
+                        <View style={{ padding: 10 }}>
+                            <AiScanLimitNotice
+                                isPremium={isPremium}
+                                limit={scanQuota?.limit}
+                                onUpgrade={() => {
+                                    setScanSourceOpen(false);
+                                    void presentPaywall();
+                                }}
+                            />
+                        </View>
+                    )}
                     <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.border }} onPress={() => { void handleCaptureFromCamera(); }}>
                         <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{t('planning.scan_source_camera')}</Text>
                     </TouchableOpacity>

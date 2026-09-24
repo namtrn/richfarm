@@ -471,12 +471,12 @@ Accuracy claims are **highly sensitive** to dataset, geography, and scoring rule
 
 | # | Edge Case | Impact | Solution | Implementation |
 |---|---|---|---|---|
-| 24 | **User scans exactly at midnight** | Daily count resets; could squeeze extra scans | Use UTC-based day boundary for consistency; minor issue | `scannedAt >= todayUTCStart && scannedAt < tomorrowUTCStart` |
-| 25 | **User has multiple devices** | Could bypass per-device limit | Rate limit is per-USER (not per-device) — enforced server-side via userId | Query `plantScans` by `userId` not device |
+| 24 | **User scans exactly at midnight** | Daily count resets; could squeeze extra scans | Implemented: UTC-based day boundary (`YYYY-MM-DD` UTC date key) | `packages/convex/convex/lib/aiScanLimit.ts` (`getAiScanDateKey`) |
+| 25 | **User has multiple devices** | Could bypass per-device limit | Implemented: rate limit is per-USER (not per-device), enforced server-side via `userId`; scanning also requires sign-in | `aiScanUsage` table keyed by `userId` + date |
 | 26 | **User deletes and recreates account** | Could reset scan count | Rate limit tied to user record; new account = new limits (acceptable) | Minor abuse vector; not worth blocking |
-| 27 | **Concurrent scan requests** | User taps button twice quickly; two API calls | Debounce on client (5s cooldown); server-side check for recent pending scan | Client: disable button after tap. Server: check `status === "processing"` for this user in last 10s |
-| 28 | **Failed scans counting toward limit** | Unfair to user | Only count scans with `status === "completed"` toward daily limit | Filter: `plantScans.where(s => s.status === "completed" && s.scannedAt >= todayStart)` |
-| 29 | **Admin/tester needs unlimited scans** | Can't test with 5/day limit | Add admin bypass: if `users.subscription.tier === "admin"`, skip rate check | Special tier check in action |
+| 27 | **Concurrent scan requests** | User taps button twice quickly; two API calls | Debounce on client; server-side quota check on each scan request | Client: disable button after tap. Server: `aiScanQuota.ts` checks/reserves quota before calling Gemini |
+| 28 | **Failed scans counting toward limit** | Unfair to user | Implemented: scans that fail on the Gemini side are refunded and are not counted against the daily limit | See refund logic in `plantScan.ts` |
+| 29 | **Admin/tester needs unlimited scans** | Can't test with a 3/day limit | Not implemented — no admin/tester bypass exists today | N/A |
 
 ### 5.5 Data & Integration
 
@@ -514,13 +514,15 @@ Accuracy claims are **highly sensitive** to dataset, geography, and scoring rule
 3. **Fair usage**: Ensure all users can benefit, not just heavy users
 4. **API provider limits**: plant.id may rate-limit our API key if we over-request
 
-### 6.2 Proposed Limits
+### 6.2 Implemented Limits
+
+> **Status: implemented.** AI plant scan requires sign-in. Limits are enforced server-side (in `packages/convex/convex/aiScanQuota.ts` and `packages/convex/convex/lib/aiScanLimit.ts`), not just in the client UI, and the daily window resets at UTC midnight (`YYYY-MM-DD` UTC date key). Usage is tracked in the `aiScanUsage` table. Scans that fail on the Gemini side are refunded and do not count against the daily limit.
 
 | User Tier | Daily Limit | Monthly Limit | Cost/User/Day (max) |
 |---|---|---|---|
-| Free | 5 scans | ~150/month | €0.50 |
-| Premium | 20 scans | ~600/month | €2.00 |
-| Admin/Tester | Unlimited | Unlimited | Variable |
+| Free (signed in) | 3 scans | ~90/month | €0.30 |
+| Premium | 10 scans | ~300/month | €1.00 |
+| Admin/Tester | No special bypass implemented | — | — |
 
 _Assumption_: 2 credits/scan (ID + health) at €0.05/credit tier. Adjust if pricing or credit usage changes.  
 Sources:  
@@ -543,10 +545,10 @@ Sources:
 ```
 
 **Client-side UX**:
-- Show remaining scans counter: "3/5 scans remaining today"
+- Show remaining scans counter: "1/3 scans remaining today"
 - Disable scan button when limit reached
-- Show countdown to reset: "Resets in 6 hours"
-- Premium upsell: "Upgrade for 20 daily scans"
+- Show countdown to reset: "Resets in 6 hours" (reset is at UTC midnight)
+- Premium upsell: "Upgrade for 10 daily scans"
 
 **Anti-abuse measures**:
 | Measure | Purpose | Implementation |
@@ -632,7 +634,7 @@ This pattern:
 
 Based on competitor failures and Reddit feedback:
 
-1. **Don't lock scan behind paywall** — offer free tier (5/day) to build trust
+1. **Don't lock scan entirely behind paywall** — offer a free tier (3/day, sign-in required) to build trust
 2. **Show confidence clearly** — "95% match" is more trustworthy than just a name
 3. **Always offer alternatives** — show top 3 results, not just top 1
 4. **Disease detection is a killer feature** — competitors either don't have it or do it poorly
@@ -641,12 +643,12 @@ Based on competitor failures and Reddit feedback:
 
 ### 8.4 Open Decisions (Need User Input)
 
-| Decision | Options | Recommendation |
-|---|---|---|
-| API choice | plant.id (€0.05/credit, as of 2026-02-23) vs PlantNet (free up to 500/day non‑commercial) | plant.id primary + PlantNet fallback |
-| Daily scan limit (free) | 3, 5, or 10 | 5/day (balanced) |
-| Daily scan limit (premium) | 10, 20, or unlimited | 20/day |
-| Where to put scan tab | Bottom nav tab / Floating button / Inside Health screen | New bottom nav tab |
+| Decision | Options | Recommendation | Status |
+|---|---|---|---|
+| API choice | plant.id (€0.05/credit, as of 2026-02-23) vs PlantNet (free up to 500/day non‑commercial) | plant.id primary + PlantNet fallback | Not yet implemented (current implementation uses Gemini; see `plantScan.ts`) |
+| Daily scan limit (free) | 3, 5, or 10 | 5/day (balanced) | **Decided/implemented: 3/day, sign-in required** |
+| Daily scan limit (premium) | 10, 20, or unlimited | 20/day | **Decided/implemented: 10/day** |
+| Where to put scan tab | Bottom nav tab / Floating button / Inside Health screen | New bottom nav tab | Open |
 | Image compression target | 512KB / 1MB / 2MB | 1MB (good quality + fast upload) |
 | Scan both ID + health by default | Always both (2 credits) / User chooses / ID only default | Always both (best user value) |
 

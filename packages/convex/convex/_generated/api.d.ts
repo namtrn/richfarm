@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as aiScanQuota from "../aiScanQuota.js";
 import type * as auth from "../auth.js";
 import type * as authCleanup from "../authCleanup.js";
 import type * as beds from "../beds.js";
@@ -31,7 +32,7 @@ import type * as favorites from "../favorites.js";
 import type * as gardens from "../gardens.js";
 import type * as harvestRecords from "../harvestRecords.js";
 import type * as http from "../http.js";
-import type * as lib_adminAuth from "../lib/adminAuth.js";
+import type * as lib_aiScanLimit from "../lib/aiScanLimit.js";
 import type * as lib_appMode from "../lib/appMode.js";
 import type * as lib_canonicalPlantIdentity from "../lib/canonicalPlantIdentity.js";
 import type * as lib_canonicalPlantLibrary from "../lib/canonicalPlantLibrary.js";
@@ -91,6 +92,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  aiScanQuota: typeof aiScanQuota;
   auth: typeof auth;
   authCleanup: typeof authCleanup;
   beds: typeof beds;
@@ -114,7 +116,7 @@ declare const fullApi: ApiFromModules<{
   gardens: typeof gardens;
   harvestRecords: typeof harvestRecords;
   http: typeof http;
-  "lib/adminAuth": typeof lib_adminAuth;
+  "lib/aiScanLimit": typeof lib_aiScanLimit;
   "lib/appMode": typeof lib_appMode;
   "lib/canonicalPlantIdentity": typeof lib_canonicalPlantIdentity;
   "lib/canonicalPlantLibrary": typeof lib_canonicalPlantLibrary;

@@ -5,13 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { REVENUECAT_ENTITLEMENT_ID, REVENUECAT_OFFERING_ID } from '../lib/revenuecat';
 import { useSubscription } from './useSubscription';
 
-export type PaywallStatus =
-  | 'purchased'
-  | 'restored'
-  | 'managed'
-  | 'cancelled'
-  | 'not_presented'
-  | 'error';
+/** `no_entitlement`: the flow finished but premium is still not active (e.g. restore found nothing). */
+type PaywallStatus = 'purchased' | 'restored' | 'no_entitlement' | 'cancelled' | 'not_presented' | 'error';
 
 type PaywallResponse = {
   status: PaywallStatus;
@@ -64,11 +59,9 @@ export function usePaywall() {
 
       switch (result) {
         case PAYWALL_RESULT.PURCHASED:
-          await refresh();
-          return { status: 'purchased' };
+          return { status: (await refresh()) ? 'purchased' : 'no_entitlement' };
         case PAYWALL_RESULT.RESTORED:
-          await refresh();
-          return { status: 'restored' };
+          return { status: (await refresh()) ? 'restored' : 'no_entitlement' };
         case PAYWALL_RESULT.CANCELLED:
           return { status: 'cancelled' };
         case PAYWALL_RESULT.NOT_PRESENTED:

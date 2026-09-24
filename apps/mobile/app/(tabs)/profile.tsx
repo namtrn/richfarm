@@ -392,8 +392,28 @@ export default function ProfileScreen() {
     );
   };
 
-  const handlePaywall = () => {
-    router.push('/premium');
+  const handlePaywall = async () => {
+    setPaywallMessage(null);
+    const result = await presentPaywall();
+    if (result.status === 'purchased' || result.status === 'restored') {
+      setPaywallMessage(t('profile.sub_active'));
+      return;
+    }
+    if (result.status === 'no_entitlement') {
+      setPaywallMessage(t('profile.sub_restore_none'));
+      return;
+    }
+    if (result.status === 'cancelled') {
+      setPaywallMessage(t('profile.sub_cancelled'));
+      return;
+    }
+    if (result.status === 'not_presented') {
+      setPaywallMessage(t('profile.sub_paywall_unavailable'));
+      return;
+    }
+    if (result.status === 'error') {
+      setPaywallMessage(result.errorMessage ?? t('profile.sub_paywall_error'));
+    }
   };
 
   const handleSwitchMode = (nextMode: AppMode) => {
@@ -425,8 +445,8 @@ export default function ProfileScreen() {
       return;
     }
     try {
-      await restorePurchases();
-      toast.success(t('profile.sub_restored'));
+      const hasPremium = await restorePurchases();
+      setPaywallMessage(t(hasPremium ? 'profile.sub_restored' : 'profile.sub_restore_none'));
     } catch (error) {
       const message = error instanceof Error ? error.message : t('profile.sub_restore_failed');
       toast.error(t('profile.sub_restore_failed'), { message });
