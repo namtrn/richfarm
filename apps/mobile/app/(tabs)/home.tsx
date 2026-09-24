@@ -17,6 +17,7 @@ import { useAuth } from '../../lib/auth';
 import { useWeatherCard } from '../../hooks/useWeatherCard';
 import { useWeatherCardPreference } from '../../hooks/useWeatherCardPreference';
 import { useAppMode } from '../../hooks/useAppMode';
+import { resolveHomeDisplayName } from '../../lib/homeDisplayName';
 
 import { WeatherCard } from '../../components/ui/WeatherCard';
 
@@ -57,7 +58,12 @@ export default function HomeScreen() {
   } = useWeatherCardPreference();
   const { gardens } = useGardens();
 
-  const displayName = user?.name || t('home.welcome_default');
+  const displayName = resolveHomeDisplayName(
+    user?.name,
+    appMode,
+    t('home.welcome_default'),
+    t('home.welcome_farmer'),
+  );
   const initials = displayName
     .split(' ')
     .slice(0, 2)

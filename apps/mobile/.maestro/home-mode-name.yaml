@@ -1,0 +1,71 @@
+appId: com.richfarm.app
+---
+- stopApp
+- openLink:
+    link: richfarm://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- runFlow:
+    when:
+      visible:
+        id: e2e-onboarding-skip-button
+    commands:
+      - tapOn:
+          id: e2e-onboarding-skip-button
+- extendedWaitUntil:
+    visible:
+      id: e2e-tab-home
+    timeout: 60000
+
+- openLink:
+    link: richfarm://profile
+- tapOn: Garden & App
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-mode-farmer
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-mode-farmer
+- runFlow:
+    when:
+      visible: "Confirm"
+    commands:
+      - tapOn: "Confirm"
+- openLink:
+    link: richfarm://home
+- extendedWaitUntil:
+    visible:
+      id: e2e-home-title
+    timeout: 10000
+- assertVisible:
+    id: e2e-home-title
+    text: Farmer
+
+- openLink:
+    link: richfarm://profile
+- tapOn: Garden & App
+- scrollUntilVisible:
+    element:
+      id: e2e-profile-mode-gardener
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: e2e-profile-mode-gardener
+- runFlow:
+    when:
+      visible: "Confirm"
+    commands:
+      - tapOn: "Confirm"
+- openLink:
+    link: richfarm://home
+- extendedWaitUntil:
+    visible:
+      id: e2e-home-title
+    timeout: 10000
+- assertVisible:
+    id: e2e-home-title
+    text: Gardener
