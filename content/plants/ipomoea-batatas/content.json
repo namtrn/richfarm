@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"ipomoea\",\"batatas\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "ipomoea",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2921,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "d6e8b4420dcec92d3c1ec350cf891eb34011af1677ae407c2a25cdb95a89696a",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3773,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "028997733a4f819785e5a90bbe802d14ebc3f000a8917dc786b986bbf42bccee",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "IPOMOEA_BATATAS_EWG182EKBY",
+  "schema_version": 1,
+  "scientific_name": "Ipomoea batatas",
+  "scope": "base",
+  "species": "batatas",
+  "target_status": "active"
+}

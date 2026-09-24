@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"allium\",\"porrum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "allium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2788,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "e828bf34870449a0c7b9dfeee25a1cc8aa002edff7bcfe643dd80f09ab1de4ee",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3512,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "d98d336bee296b7151874d467d71cb3cc075a703c99f2d701e3a87ba759ecd6d",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ALLIUM_PORRUM_7M9582E8B8",
+  "schema_version": 1,
+  "scientific_name": "Allium porrum",
+  "scope": "base",
+  "species": "porrum",
+  "target_status": "active"
+}

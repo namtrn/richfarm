@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"cucurbita\",\"moschata\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "cucurbita",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3070,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "d333cdaba5448efe552d69562a8e46d3eaa48c487124ecf477f2d0e6fe2024ba",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3834,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "7ce4a653705436913f2bd8023c469c74c306dbac37b0942f721c94ed73f309e7",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CUCURBITA_MOSCHATA_Z64181CJRG",
+  "schema_version": 1,
+  "scientific_name": "Cucurbita moschata",
+  "scope": "base",
+  "species": "moschata",
+  "target_status": "active"
+}

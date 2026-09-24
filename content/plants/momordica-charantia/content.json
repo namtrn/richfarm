@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"momordica\",\"charantia\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "momordica",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2961,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "501a515882f2e2d5b8a45307e41abfc18207cff1bd3dbc15f218507d6a5e837e",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3655,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "938fcd16de676a9a764f069a1a0ff20f7c7e2057c26838b8e2e7538099ba86f7",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "MOMORDICA_CHARANTIA_EV2981DHGJ",
+  "schema_version": 1,
+  "scientific_name": "Momordica charantia",
+  "scope": "base",
+  "species": "charantia",
+  "target_status": "active"
+}

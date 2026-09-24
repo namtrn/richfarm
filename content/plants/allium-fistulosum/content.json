@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"allium\",\"fistulosum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "allium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2826,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "74590708cc72960f2e9354beda7485d3e5db6eeab41b200754d026fae8685f43",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3490,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "dec85f6e146a1f4e9838c3b30dec5d309abc5ef9ecbb720fadc68a2dae9d91cd",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ALLIUM_FISTULOSUM_JK8H81C0AK",
+  "schema_version": 1,
+  "scientific_name": "Allium fistulosum",
+  "scope": "base",
+  "species": "fistulosum",
+  "target_status": "active"
+}

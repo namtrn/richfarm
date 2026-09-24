@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"solanum\",\"tuberosum\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "solanum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3182,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "ca5ae02414f348900a14ca96ee32fced36ca73f1760cb805d679838236e5454d",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3910,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "9382be5ed0bee6fe4b69bd0445ab017ce52adfa7d49cc8b3f334712da7dd2a53",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SOLANUM_TUBEROSUM_6KV982H99J",
+  "schema_version": 1,
+  "scientific_name": "Solanum tuberosum",
+  "scope": "base",
+  "species": "tuberosum",
+  "target_status": "active"
+}

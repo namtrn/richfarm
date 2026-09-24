@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"zea\",\"mays\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "zea",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2863,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "9685b600ddaa6c9c48a9276ebf8b781a90857af3082a9556307d6da9cc632381",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3585,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "52d0c8b96295522317ffc883ed35c8684a01865b69ce33d5ecc59c1d15eaa707",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ZEA_MAYS_CONVAR_SACCHARATA_GRJD82H1V0",
+  "schema_version": 1,
+  "scientific_name": "Zea mays convar. saccharata",
+  "scope": "base",
+  "species": "mays",
+  "target_status": "active"
+}

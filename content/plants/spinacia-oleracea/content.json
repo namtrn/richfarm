@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"spinacia\",\"oleracea\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "spinacia",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2884,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "96b06cffc21817ac2509c953a529d91edfb518e8a967ed19b235de4194bc7595",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3690,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "709a25ef9d1d4afc7c246274653b33958757e0c8bca764d8eadfac2c5d56387d",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SPINACIA_OLERACEA_QKMN81DXBC",
+  "schema_version": 1,
+  "scientific_name": "Spinacia oleracea",
+  "scope": "base",
+  "species": "oleracea",
+  "target_status": "active"
+}

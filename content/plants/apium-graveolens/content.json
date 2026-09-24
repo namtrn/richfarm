@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"apium\",\"graveolens\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "apium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2894,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "76d2727e416b2b9c5ecb3b7cf9473a9c0dacb99fc75abec261621108d8b7fe36",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3633,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "dee0d06a236d17ce746d2bc65ec36dcad4a16f55b8ebd01a7f710f7fc675781e",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "APIUM_GRAVEOLENS_X2Y182FMDV",
+  "schema_version": 1,
+  "scientific_name": "Apium graveolens",
+  "scope": "base",
+  "species": "graveolens",
+  "target_status": "active"
+}

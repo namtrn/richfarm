@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"capsicum\",\"frutescens\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "capsicum",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3338,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "5ccf2a9439653eef1520f8adaa96fa83d3afa6e3223e437c85ccf5bd146cffd8",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 4124,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "b3c17fae2dfbeb757964d81f387f1d5753d9d86973ec3a719fce05f431319ef7",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "CAPSICUM_FRUTESCENS_EXRS81D11R",
+  "schema_version": 1,
+  "scientific_name": "Capsicum frutescens",
+  "scope": "base",
+  "species": "frutescens",
+  "target_status": "active"
+}

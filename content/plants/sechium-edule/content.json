@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"sechium\",\"edule\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "sechium",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 3086,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "3e3bba261f0f7e788993bd4d40efee6f422f855ab4014794a1f216ce58fa87fe",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3608,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "2313e4db6f0485039afefc1d47a2ac17ccd82947f910d95b4263137b8c87cff0",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "SECHIUM_EDULE_GG6S82G1BP",
+  "schema_version": 1,
+  "scientific_name": "Sechium edule",
+  "scope": "base",
+  "species": "edule",
+  "target_status": "active"
+}

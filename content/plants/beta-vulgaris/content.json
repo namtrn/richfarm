@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"beta\",\"vulgaris\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "beta",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2820,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "68808662920bb0fc95ee2d97d4ce2eadfe454f882fdb4d8c1defdf4544804b8a",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3675,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "6a882578b11c63e7b51b705d9afa71faaeaaa3da397e5145a63696c0c8361ea0",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "BETA_VULGARIS_974X81C4DE",
+  "schema_version": 1,
+  "scientific_name": "Beta vulgaris",
+  "scope": "base",
+  "species": "vulgaris",
+  "target_status": "active"
+}

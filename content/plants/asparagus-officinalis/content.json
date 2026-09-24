@@ -1,0 +1,39 @@
+{
+  "canonical_identity_version": "canonical_identity_v1",
+  "canonical_key": "[\"v1\",\"asparagus\",\"officinalis\",\"\",\"\",\"\"]",
+  "cultivar": null,
+  "genus": "asparagus",
+  "infraspecific_name": null,
+  "infraspecific_rank": null,
+  "kind": "plant",
+  "locales": {
+    "en": {
+      "bytes": 2928,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "en.md",
+      "review_status": "unreviewed",
+      "sha256": "08dc5f3effa8485cfa869c1bb322f607243bf1acb27048e87f58d6526922548e",
+      "source_refs": []
+    },
+    "vi": {
+      "bytes": 3827,
+      "content_origin": "authored",
+      "content_status": "needs_review",
+      "content_version": 1,
+      "file": "vi.md",
+      "review_status": "unreviewed",
+      "sha256": "521110faa656984097e5c0340880c49a2523094ff9ac8af50e254fc74cc117bf",
+      "source_refs": []
+    }
+  },
+  "parent_canonical_key": null,
+  "parent_plant_code": null,
+  "plant_code": "ASPARAGUS_OFFICINALIS_J4KD82G4Y6",
+  "schema_version": 1,
+  "scientific_name": "Asparagus officinalis",
+  "scope": "base",
+  "species": "officinalis",
+  "target_status": "active"
+}
