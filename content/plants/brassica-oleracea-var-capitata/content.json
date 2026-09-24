@@ -8,24 +8,56 @@
   "kind": "plant",
   "locales": {
     "en": {
-      "bytes": 3682,
+      "bytes": 4119,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "en.md",
       "review_status": "unreviewed",
-      "sha256": "2165b51c9f6185a65726af05d51da498a3609ec11c36b4476256e0e259d507d7",
-      "source_refs": []
+      "sha256": "b6576f4ba707293cfe2623e3e611655ea64749aec171f3259598f64d21c095af",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-cabbage",
+          "sourceName": "Growing cabbage in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://extension.usu.edu/yardandgarden/research/cabbage-in-the-garden",
+          "sourceName": "How to Grow Cabbage in Your Garden - Utah State University Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     },
     "vi": {
-      "bytes": 4263,
+      "bytes": 5424,
       "content_origin": "authored",
       "content_status": "needs_review",
       "content_version": 1,
       "file": "vi.md",
       "review_status": "unreviewed",
-      "sha256": "ee54b1a7fee33ffdc9769d7e612c59c78bbde5de579d2a50a7b6ad908ca9295a",
-      "source_refs": []
+      "sha256": "af4a77faf734264f338239d02c0f29a9a2de5ef4870cb9fc586780b4483b5789",
+      "source_refs": [
+        {
+          "sourceLocator": "content/guidelines/plant-information-guideline.md",
+          "sourceName": "Plant Information Guideline v2.0",
+          "sourceSystem": "editorial"
+        },
+        {
+          "sourceLocator": "https://extension.umn.edu/garden-and-home/yard-and-garden/gardening-in-minnesota/growing-cabbage",
+          "sourceName": "Growing cabbage in home gardens - University of Minnesota Extension",
+          "sourceSystem": "extension"
+        },
+        {
+          "sourceLocator": "https://extension.usu.edu/yardandgarden/research/cabbage-in-the-garden",
+          "sourceName": "How to Grow Cabbage in Your Garden - Utah State University Extension",
+          "sourceSystem": "extension"
+        }
+      ]
     }
   },
   "parent_canonical_key": null,

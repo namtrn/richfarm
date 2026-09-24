@@ -1,39 +1,49 @@
-## Ánh sáng và vị trí
+Bắp cải cần phát triển đều trong thời tiết mát để tạo được bắp chắc. Nắng nóng kéo dài, tưới nước thất thường, tổn thương rễ và sâu ăn lá đều có thể làm quá trình cuốn bắp chậm lại hoặc khiến phần giữa lỏng, vì vậy ưu tiên chính là chọn đúng mùa vụ, chuẩn bị đất màu mỡ, giữ ẩm ổn định và kiểm tra thường xuyên các lá non bên trong.
 
-Bắp cải là cây vụ mát, phát triển tốt nhất trong điều kiện trời dịu với nắng sáng hoặc nắng nhẹ. Cây cần khoảng 6 giờ nắng mỗi ngày để cuộn bắp chắc. Ở vùng khí hậu nóng, trồng vào mùa mát hoặc chọn nơi có bóng râm buổi chiều; nắng gắt kéo dài làm cây ra lá lỏng và dễ lên ngồng.
+## Trồng vào phần mát hơn của mùa vụ
 
-Đây là cây thân thấp, lá cuộn thành bắp sát mặt đất nên không cần giàn hay cọc. Chừa khoảng cách giữa các cây vừa đủ để lá phát triển và tán thông thoáng, giúp hạn chế bệnh ẩm.
+Bắp cải phát triển tốt nhất trong thời tiết mát và nơi có nhiều nắng. Ở vùng có mùa hè nóng, nên sắp xếp vụ trồng để phần lớn giai đoạn cuốn bắp diễn ra khi thời tiết dịu hơn, thay vì cố bù cho nắng nóng kéo dài bằng cách tưới hoặc bón thật nhiều.
 
-## Tưới nước
+Chừa đủ khoảng cách để các lá ngoài xòe ra mà không bị ép chặt vào cây bên cạnh. Khoảng trống này cũng giúp bạn dễ kiểm tra phần giữa của cây, nơi một số sâu hại thường ẩn nấp.
 
-Giữ đất ẩm đều, nhất là khi bắp đang cuộn. Tưới khi lớp đất mặt bắt đầu se khô; đất khô lâu làm lá cứng, bắp kém và cây dễ lên ngồng. Ngược lại, đất quá ẩm làm rễ yếu và dễ bệnh.
+## Giữ ẩm đều để cây phát triển liên tục
 
-Tưới xuống gốc và hạn chế làm ướt lá, nhất là vào cuối ngày. Lá bắp cải giữ ẩm lâu dễ sinh bệnh thối; tưới vào buổi sáng để lá kịp khô trong ngày giúp hạn chế vấn đề này.
+Bắp cải cần được cung cấp nước ổn định trong giai đoạn tạo tán lá và cuốn bắp. Đừng chỉ nhìn lớp đất khô trên bề mặt; hãy kiểm tra sâu hơn một chút rồi tưới đủ để vùng rễ được làm ẩm.
 
-## Đất trồng
+Tránh để đất khô kiệt rồi tưới thật nhiều lặp đi lặp lại. Khi bắp đã gần trưởng thành, thay đổi độ ẩm đột ngột có thể góp phần làm bắp nứt. Phủ gốc giúp giảm bốc hơi và hạn chế cỏ dại, nhưng không nên xới sâu quanh cây vì có thể làm tổn thương rễ.
 
-Chọn đất tơi, giàu hữu cơ, giữ ẩm tốt nhưng vẫn thoát nước. Trộn compost hoặc phân chuồng đã hoai trước khi trồng. Trồng chậu cần chậu đủ rộng vì tán lá lớn; lỗ thoát nước cần thông thoáng.
+## Chuẩn bị đất màu mỡ và thoát nước tốt
 
-## Bón phân
+Trồng bắp cải trong đất màu mỡ, giữ ẩm được nhưng vẫn thoát nước tốt. Compost hoặc vật liệu hữu cơ đã hoai có thể được trộn vào đất trước khi trồng để cải thiện cấu trúc và dinh dưỡng nền.
 
-Bắp cải là cây ăn nhiều dinh dưỡng, cần đất màu mỡ từ đầu. Bón lót kỹ trước khi trồng rồi bón thúc nhẹ khi bắp bắt đầu cuộn. Giai đoạn này cây cần dinh dưỡng đều để bắp chắc và đều lá.
+Bắp cải sử dụng khá nhiều dinh dưỡng khi xây dựng tán lá lớn. Nếu cần bón bổ sung, dinh dưỡng thường có ích hơn trong giai đoạn cây đang phát triển thân lá so với khi bắp đã bắt đầu cuốn rõ. Không nên tăng mạnh phân đạm chỉ vì thấy bắp lớn chậm; bón quá nhiều vào giai đoạn muộn có thể làm phần lá bên trong lỏng và tăng nguy cơ nứt bắp.
 
-Quan sát lá trước khi bón thêm. Lá nhạt màu và cây chậm phát triển có thể cần bổ sung dinh dưỡng; lá xanh đậm và cây mập thì chưa cần. Không bón đậm đặc sát gốc và không bón khi đất đang khô.
+## Chuyển cây nhẹ tay và bảo vệ điểm sinh trưởng
 
-## Gieo trồng và nhân giống
+Có thể gieo thẳng hoặc ươm cây con rồi chuyển ra luống tùy mùa vụ và khí hậu. Cây con được ươm trong môi trường che chắn nên được làm quen dần với điều kiện ngoài trời trước khi trồng cố định.
 
-Có thể gieo hạt trực tiếp hoặc ươm cây con rồi chuyển ra vị trí trồng. Ở vùng có mùa lạnh, gieo trong nhà trước vài tuần rồi đem cây con ra ngoài khi thời tiết phù hợp; ở vùng khí hậu ấm, gieo thẳng vào mùa mát trong năm.
+Khi trồng, giữ cây ở độ sâu tương tự lúc còn trong bầu và tưới kỹ sau khi chuyển. Cần tránh làm tổn thương phần ngọn non ở giữa cây; điểm sinh trưởng bị hư do thao tác mạnh, lạnh hoặc côn trùng có thể khiến cây không tạo được bắp bình thường.
 
-Khi cây con có vài lá thật, chuyển ra luống đã chuẩn bị sẵn với khoảng cách phù hợp. Trồng cây ngang mức đất trong bầu, tưới đẫm sau khi trồng. Cây con cần được làm quen dần với nắng nếu được ươm trong nhà.
+## Thu khi bắp đã chắc
 
-## Chăm sóc và thu hoạch
+Bắp cải có thể thu khi đã đạt kích thước phù hợp với giống và cảm giác chắc khi ấn nhẹ. Dùng dao sạch cắt phần bắp phía trên các lá bao ngoài.
 
-Giữ đất ẩm đều trong suốt thời gian bắp cuộn. Nhổ cỏ quanh gốc vì cỏ cạnh tranh nước và dinh dưỡng. Khi bắp bắt đầu cuộn, tránh làm xê dịch gốc và hạn chế đụng vào cây khi lá còn ướt.
+Khi bắp đã trưởng thành và chắc, nên theo dõi sát sau các đợt mưa lớn hoặc tưới nhiều vì một số bắp có thể bị nứt. Thu hoạch kịp thời thường đơn giản hơn việc cố giữ bắp trưởng thành quá lâu trên luống.
 
-Bắp sẵn sàng thu hoạch khi chạm vào thấy chắc, đều và đạt kích thước giống. Dùng dao cắt sát gốc, chừa vài lá ngoài để giữ bắp sạch khi vận chuyển. Nếu bắp để quá lâu có thể nứt, nhất là sau mưa hoặc tưới nhiều sau thời kỳ khô; thu hoạch kịp thời khi bắp đã chắc.
+## Kiểm tra sâu hại và bệnh ở cả phần lá trong
 
-## Sâu hại và bệnh thường gặp
+### Sâu hại
 
-[Ốc sên](richfarm://pests-diseases/slugs_snails) thường ăn lá non, đặc biệt ở nơi ẩm và rậm. Kiểm tra quanh gốc và dưới lá vào sáng sớm hoặc chiều tối; dọn lá rụng và giữ khu vực trồng thông thoáng để giảm chỗ trú của chúng. [Rệp mềm](richfarm://pests-diseases/aphids) có thể tụ tập ở mặt dưới lá và trong kẽ bắp non, làm lá xoăn và cây chậm phát triển.
+[Rệp mềm](richfarm://pests-diseases/aphids) có thể tập trung ở mặt dưới lá và sâu trong các lá non phía giữa. Khi thấy lá quăn hoặc biến dạng, nên kiểm tra sớm và xử lý các ổ nhỏ trước khi bắp cuốn chặt.
 
-Các loại [sâu ăn lá](richfarm://pests-diseases/caterpillars) có thể gặm lá và chui vào trong bắp; khi thấy lá bị khuyết hoặc có phân sâu, cần tìm và loại bỏ sâu bằng tay. Trong điều kiện ẩm, [bệnh đốm lá](richfarm://pests-diseases/leaf_spot) có thể lan rộng trên lá; loại bỏ lá bệnh và tránh làm ướt lá khi tưới. Với cây ăn lá thu hoạch cả bắp, cần xác định đúng nguyên nhân trước khi dùng thuốc và tuân thủ thời gian cách ly theo hướng dẫn sản phẩm.
+[Sâu ăn lá](richfarm://pests-diseases/caterpillars) gặm thủng lá và có thể ẩn bên trong bắp đang hình thành. Mép lá bị ăn nham nhở, phân sâu sẫm màu hoặc lỗ mới xuất hiện là dấu hiệu nên nhẹ nhàng tách các lá ngoài để kiểm tra.
+
+[Ốc sên](richfarm://pests-diseases/slugs_snails) hoạt động nhiều ở nơi ẩm và kín, thường gây hại cây con hoặc các lá sát đất. Dọn bớt nơi trú ẩn quanh luống và kiểm tra cây vào chiều tối hoặc sáng sớm.
+
+### Bệnh
+
+[Bệnh sương mai](richfarm://pests-diseases/downy_mildew) có thể phát triển trong điều kiện mát và ẩm, tạo các mảng nhạt hoặc vàng trên lá kèm lớp mốc sẫm ở mặt dưới. Tăng thông thoáng, hạn chế để lá ướt lâu và loại bỏ phần bị hại nặng.
+
+[Bệnh thối rễ](richfarm://pests-diseases/root_rot) dễ xuất hiện hơn khi đất liên tục sũng nước và thiếu không khí. Nếu cây héo hoặc suy dù đất vẫn ướt, hãy kiểm tra khả năng thoát nước và rễ trước khi tưới thêm.
+
+Vì phần thu hoạch là một bắp gồm nhiều lớp lá xếp sát nhau, cần xác định đúng sâu hại hoặc bệnh trước khi dùng bất kỳ chế phẩm nào và tuân thủ đầy đủ hướng dẫn cũng như thời gian cách ly trên nhãn.

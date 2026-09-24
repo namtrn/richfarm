@@ -1,37 +1,39 @@
-## Ánh sáng và vị trí
+Ngò rí cho lá tốt nhất khi thời tiết còn đủ mát để cây phát triển ổn định. Nhiệt độ tăng và ngày dài hơn có thể khiến cây chuyển sang ra hoa rất nhanh, vì vậy ưu tiên chính là giúp cây con bén rễ ít bị stress, giữ ẩm tương đối đều và thu lá trước khi cây chuyển mạnh sang giai đoạn tạo hạt.
 
-Ngò rí thích trời mát và phát triển tốt ở nơi có nắng dịu hoặc nắng sáng. Ở vùng khí hậu nóng, cây nhanh lên ngồng khi gặp nhiệt độ cao, vì vậy nên trồng vào mùa mát hoặc chọn nơi có bóng râm buổi chiều. Nắng quá gắt làm cây ra lá kém và đẩy nhanh việc ra hoa.
+## Trồng vào phần mát hơn của mùa vụ
 
-Đây là cây thân thấp, không leo nên không cần giàn. Trồng trong chậu hoặc luống đều tốt; gieo dày vừa phải để cây nâng đỡ lẫn nhau nhưng vẫn đủ thông thoáng.
+Trong thời tiết mát, ngò rí có thể trồng ở vị trí nhiều nắng. Ở nơi nhiệt độ tăng nhanh, trồng vào mùa mát hoặc giảm bớt nắng gắt buổi chiều có thể giúp kéo dài thời gian thu lá.
 
-## Tưới nước
+Lên ngồng là một phần tự nhiên trong vòng đời của cây, không phải lúc nào cũng là dấu hiệu chăm sóc sai. Khi thân giữa bắt đầu vươn cao và các lá phía trên trở nên mảnh hơn, cây đang chuyển dần sang giai đoạn ra hoa.
 
-Giữ đất ẩm đều, đặc biệt trong giai đoạn cây con. Ngò rí có rễ mảnh, đất khô nhanh làm cây chậm lớn và dễ lên ngồng sớm. Tưới khi lớp đất mặt bắt đầu se khô; trong ngày nóng, đất khô nhanh hơn và cần kiểm tra thường xuyên.
+## Gieo thẳng và tỉa cây theo mục đích thu hoạch
 
-Tránh để đất sũng nước vì rễ dễ bị hư. Tưới xuống gốc và hạn chế làm ướt lá để lá không bị đốm do giữ ẩm lâu.
+Ngò rí thường được gieo trực tiếp tại vị trí trồng vì cây tạo rễ cọc và có thể bị chững khi bộ rễ bị xáo trộn lúc chuyển cây. Gieo vào đất tơi, thoát nước tốt và giữ mặt đất ẩm đều trong thời gian cây con đang hình thành.
 
-## Đất trồng
+Khi cây mọc quá dày và đã đủ lớn để thao tác, tỉa bớt những cây chen chúc. Cây trồng chủ yếu để lấy lá có thể để gần nhau hơn cây được giữ lại để ra hoa và lấy hạt, vì cây lấy hạt cần thêm không gian để phân nhánh.
 
-Chọn đất tơi, giàu hữu cơ và thoát nước tốt. Trộn compost trước khi gieo giúp đất mềm và đủ dinh dưỡng cho chu kỳ ngắn. Trồng chậu cần đất trồng rau thoát nước tốt và lỗ thoát nước thông thoáng.
+Muốn có lá lâu hơn, gieo thêm một lứa nhỏ trước khi lứa trước kết thúc. Khoảng cách giữa các lần gieo nên linh hoạt theo thời tiết; trong điều kiện nóng, lứa sau vẫn có thể lên ngồng nhanh.
 
-## Bón phân
+## Giữ ẩm ổn định nhưng không để đất sũng nước
 
-Do thu hoạch liên tục trong thời gian ngắn, ngò rí thường đủ dinh dưỡng nếu đất được trộn compost trước khi gieo. Nếu lá nhạt màu và cây chậm lớn, bón thúc nhẹ bằng phân dạng lỏng pha loãng theo hướng dẫn sản phẩm. Không bón đậm đặc sát gốc và không bón khi đất đang khô.
+Kiểm tra đất thường xuyên khi cây còn nhỏ. Tưới khi lớp mặt bắt đầu khô, sau đó để nước thừa thoát đi. Đất khô lặp lại nhiều lần có thể làm thời gian thu lá ngắn hơn, còn đất ướt liên tục dễ làm rễ suy.
 
-## Gieo trồng và nhân giống
+Nếu đất đã được bổ sung compost trước khi gieo, một lứa ngò rí thu lá ngắn ngày thường không cần bón nhiều. Khi cây nhạt màu hoặc phát triển yếu dù nước và thời tiết phù hợp, có thể bón nhẹ theo hướng dẫn của sản phẩm. Không nên dùng lượng phân cao để cố bù cho điều kiện trồng quá nóng.
 
-Ngò rí thường được gieo thẳng tại chỗ trồng vì rễ cọc khó chịu khi chuyển chậu. Hạt có vỏ cứng, có thể ngâm nước ấm vài giờ hoặc đập nhẹ để nảy mầm nhanh hơn. Gieo hạt nông trên đất ẩm, giữ ẩm đến khi cây mọc.
+## Thu lá hoặc giữ một số cây để lấy hạt
 
-Nên gieo rải vụ, mỗi đợt cách nhau vài tuần, để có rau liên tục. Khi cây mọc dày, tỉa bớt để mỗi cây có chỗ phát triển; phần tỉa có thể dùng làm rau.
+Khi cây đã đủ lớn, có thể thu các lá ngoài và thân non, hoặc cắt một phần cây nhưng vẫn chừa lại đủ tán khỏe để tiếp tục phát triển. Khi thân hoa bắt đầu vươn, mùi vị và cấu trúc lá sẽ thay đổi; nếu mục tiêu là dùng lá tươi, đây là lúc nên thu mạnh hơn.
 
-## Chăm sóc và thu hoạch
+Nếu muốn lấy hạt ngò, giữ lại một số cây sau khi chúng ra hoa và hạn chế cắt lá. Chờ cụm hạt phát triển và khô dần trước khi thu. Tách riêng cây để lấy hạt khỏi lứa đang thu lá sẽ giúp việc chăm sóc hai mục đích rõ ràng hơn.
 
-Điểm quan trọng nhất khi trồng ngò rí là kiểm soát tốc độ lên ngồng. Khi thời tiết ấm lên hoặc ngày dài ra, cây vươn cao và ra hoa nhanh; lá lúc này nhạt mùi. Giữ đất mát và thu hoạch sớm giúp kéo dài thời gian dùng lá.
+## Theo dõi sâu hại và bệnh trên lá
 
-Có thể hái lá và cành non khi cây cao khoảng 10-15 cm, cắt sát gốc hoặc ngắt lá ngoài để phần trong tiếp tục lớn. Nếu không cần lấy hạt, ngắt bỏ chùm hoa khi vừa nhú để cây tập trung ra lá. Ngược lại, nếu muốn có hạt ngò, để vài cây ra hoa và chờ hạt chuyển màu nâu rồi thu cả chùm, phơi khô và tách hạt.
+### Sâu hại
 
-## Sâu hại và bệnh thường gặp
+[Rệp mềm](richfarm://pests-diseases/aphids) có thể tập trung ở đọt non và mặt dưới lá. Kiểm tra khi thấy lá non biến dạng hoặc xuất hiện các cụm côn trùng nhỏ; khi mật độ còn thấp, có thể rửa bằng nước hoặc loại bỏ bằng tay.
 
-[Rệp mềm](richfarm://pests-diseases/aphids) có thể tụ tập ở ngọn non và mặt dưới lá, làm lá xoăn và chậm phát triển. Kiểm tra khi tưới; nếu chỉ có ít, rửa nhẹ bằng nước hoặc loại bỏ bằng tay.
+### Bệnh
 
-Trong điều kiện ẩm, ngò rí có thể xuất hiện [bệnh đốm lá](richfarm://pests-diseases/leaf_spot), tạo các đốm bất thường trên lá. Loại bỏ lá bệnh, tránh làm ướt lá khi tưới và giữ tán thông thoáng. Nếu lá phủ lớp phấn trắng, có thể là [bệnh phấn trắng](richfarm://pests-diseases/powdery_mildew); cắt bỏ phần bệnh và theo dõi các cây còn lại. Trên rau ăn lá, không tự dùng thuốc bảo vệ thực vật khi chưa xác định đúng vấn đề và chưa có hướng dẫn an toàn phù hợp.
+[Bệnh đốm lá](richfarm://pests-diseases/leaf_spot) có thể tạo các vết lan rộng khi tán lá ẩm trong thời gian dài. Loại bỏ lá bị hại nặng, giữ khoảng cách thông thoáng và tưới sát mặt đất khi có thể.
+
+[Bệnh phấn trắng](richfarm://pests-diseases/powdery_mildew) tạo lớp phủ nhạt như bột trên lá. Khi bệnh xuất hiện, loại bỏ phần bị nặng và tăng lưu thông không khí. Vì ngò rí thường được thu để ăn tươi, cần xác định đúng vấn đề trước khi dùng bất kỳ chế phẩm nào và tuân thủ hướng dẫn cũng như thời gian cách ly nếu sản phẩm có yêu cầu.

@@ -1,39 +1,49 @@
-## Light and location
+Cabbage needs steady growth through cool conditions to form a dense, usable head. Heat stress, interrupted watering, root damage, and leaf-feeding pests can all slow heading or leave the center loose, so the main priorities are a suitable season, fertile soil, even moisture, and regular inspection of the inner leaves.
 
-Cabbage is a cool-season crop that grows best in mild conditions with morning sun or light sun. It needs about 6 hours of sun a day to form firm heads. In hot climates, grow it in the cool season or choose a spot with afternoon shade; long spells of intense sun give loose heads and encourage bolting.
+## Grow it in the cooler part of the season
 
-This is a low plant with leaves that form a head close to the ground, so it needs no trellis or stakes. Leave enough space between plants for the leaves to develop and the canopy to stay open, which limits moisture-related disease.
+Cabbage performs best in cool weather and full sun. In regions with hot summers, schedule the crop so most head development happens during milder weather rather than trying to compensate for prolonged heat with extra water or fertilizer.
 
-## Watering
+Give each plant enough room for its outer leaves to spread without being pressed tightly against neighboring plants. Good spacing also makes it easier to inspect the center of the plant for pests.
 
-Keep the soil evenly moist, especially while the head is forming. Water when the top layer begins to dry; dry soil makes the leaves tough, the head loose, and the plant prone to bolting. On the other hand, overly wet soil weakens the roots and invites disease.
+## Keep growth steady with even moisture
 
-Water at the base and limit wetting the leaves, especially late in the day. Cabbage leaves hold moisture for long and rot easily; watering in the morning so the foliage dries during the day helps.
+Cabbage needs consistent access to water while it is building leaves and forming a head. Check below the soil surface rather than judging only by the top crust, then water deeply enough to moisten the root zone.
 
-## Soil
+Avoid repeated cycles of severe drying followed by heavy watering. Moisture swings once a head is mature can contribute to splitting. Mulch can help slow evaporation and suppress weeds, but avoid disturbing the shallow roots with deep cultivation.
 
-Choose loose, fertile soil that holds moisture well while still draining. Work mature compost or well-rotted manure into the bed before planting. In containers, use a pot wide enough for the large leaves, with clear drainage holes.
+## Start with fertile, well-drained soil
 
-## Feeding
+Grow cabbage in fertile soil that holds moisture but still drains freely. Compost or well-rotted organic matter can improve the bed before planting.
 
-Cabbage is a heavy feeder and needs fertile soil from the start. Prepare the bed well before planting, then feed lightly once the head begins to form. Steady nutrition at this stage produces a firm, even head.
+Cabbage uses substantial nutrients while developing its large leaf canopy. If additional fertilizer is needed, it is generally more useful during vegetative growth than after the head is already forming. Avoid applying extra nitrogen simply because the head seems slow; excessive late feeding can produce loose growth and may increase splitting risk.
 
-Watch the leaves before adding more. Pale leaves and slow growth may call for extra nutrition; dark green, vigorous plants need none. Keep concentrated fertilizer away from the stem and do not feed while the soil is dry.
+## Transplant carefully and protect the growing point
 
-## Sowing and propagation
+Cabbage can be direct-sown or transplanted, depending on season and climate. Seedlings raised under protection should be hardened gradually before going into the garden.
 
-Cabbage can be sown directly or started as seedlings and transplanted. In cool regions, start seed indoors a few weeks early and move the seedlings out when the weather suits; in warm climates, sow directly in the cool season.
+Set transplants at the same depth they were growing in their containers and water them in well. Handle the center carefully: damage to the young growing point from rough handling, cold injury, or insects can prevent a normal head from forming.
 
-Once the seedlings have several true leaves, transplant them into the prepared bed at the right spacing. Set them at the depth they grew in their pot and water them in well. Seedlings started indoors need to be hardened off gradually.
+## Harvest when the head is firm
 
-## Ongoing care and harvest
+A cabbage head is ready when it has reached a useful size for the variety and feels firm when gently pressed. Cut the head above the outer wrapper leaves with a clean knife.
 
-Keep the soil evenly moist while the head forms. Weed around the base, since weeds compete for water and nutrients. Once the head begins to firm, avoid disturbing the roots and limit handling the plant while the leaves are wet.
+Once a mature head is firm, monitor it closely after heavy rain or irrigation because some heads may split. Harvesting promptly is usually simpler than trying to hold a mature head in the garden for too long.
 
-The head is ready when it feels firm and even and reaches the variety's size. Cut it at the base with a knife, leaving a few outer leaves to keep the head clean during transport. Heads left too long can crack, especially after rain or heavy watering following a dry spell; harvest promptly once the head is firm.
+## Inspect the inner leaves for pests and disease
 
-## Common pests and diseases
+### Pests
 
-[Snails and slugs](richfarm://pests-diseases/slugs_snails) often feed on young leaves in damp, sheltered spots. Check around the base and under the leaves in the early morning or evening; clear fallen leaves and keep the area open to reduce their hiding places. [Aphids](richfarm://pests-diseases/aphids) may gather on leaf undersides and among the young inner leaves, curling leaves and slowing growth.
+[Aphids](richfarm://pests-diseases/aphids) can gather on leaf undersides and deep among young inner leaves. Check curled or distorted growth and deal with small colonies before the head becomes tight.
 
-[Caterpillars](richfarm://pests-diseases/caterpillars) can chew the leaves and work their way into the head; ragged damage or droppings are a sign to search and remove them by hand. In damp conditions, [leaf spot](richfarm://pests-diseases/leaf_spot) can spread over the leaves; remove affected leaves and avoid wetting the foliage. On a leafy crop harvested as a whole head, identify the exact cause before using any product and follow the labeled waiting period.
+[Caterpillars](richfarm://pests-diseases/caterpillars) chew holes in leaves and may hide inside the developing head. Ragged feeding, dark droppings, or fresh holes are good reasons to separate leaves gently and inspect by hand.
+
+[Slugs and snails](richfarm://pests-diseases/slugs_snails) are most active in damp, sheltered conditions and often damage seedlings or lower leaves. Remove nearby hiding places and check around plants in the evening or early morning.
+
+### Diseases
+
+[Downy mildew](richfarm://pests-diseases/downy_mildew) can develop during cool, humid conditions and cause pale or yellow patches with darker growth beneath leaves. Improve airflow, avoid prolonged leaf wetness, and remove badly affected material.
+
+[Root rot](richfarm://pests-diseases/root_rot) becomes more likely where soil remains saturated and poorly aerated. If plants wilt or decline despite wet soil, inspect drainage and roots before adding more water.
+
+Because the harvested head is made of overlapping leaves, identify the exact pest or disease before using a treatment and follow all label directions and harvest intervals.
