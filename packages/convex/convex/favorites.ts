@@ -45,3 +45,34 @@ export const toggle = mutation({
     return { favorited: true };
   },
 });
+
+// Idempotent desired-state write used by mobile retry UI. Unlike toggle, a
+// repeated request after a lost response cannot invert the user's choice.
+export const setFavorite = mutation({
+  args: {
+    plantMasterId: v.id("plantsMaster"),
+    desired: v.boolean(),
+    deviceId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.deviceId);
+    const existing = await ctx.db
+      .query("userFavorites")
+      .withIndex("by_user_plant", (q) =>
+        q.eq("userId", user._id).eq("plantMasterId", args.plantMasterId)
+      )
+      .unique();
+
+    if (args.desired && !existing) {
+      await ctx.db.insert("userFavorites", {
+        userId: user._id,
+        plantMasterId: args.plantMasterId,
+        createdAt: Date.now(),
+      });
+    } else if (!args.desired && existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    return { favorited: args.desired };
+  },
+});

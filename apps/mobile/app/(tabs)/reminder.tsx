@@ -28,6 +28,7 @@ import { api } from '../../../../packages/convex/convex/_generated/api';
 import { getE2ENow } from '../../lib/e2eTime';
 import { InputSheet } from '../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
+import { isReminderOverdue, isReminderSnoozed } from '../../hooks/reminderProjection';
 
 const E2E_REMINDER_MODE = process.env.EXPO_PUBLIC_E2E_REMINDER_MODE === 'mock';
 const TEST_REMINDER_TRIGGER_ENABLED =
@@ -1016,12 +1017,17 @@ export default function ReminderScreen() {
   const now = getE2ENow();
   const { start: startOfDay, end: endOfDay } = getDayBounds(now);
   const overdueReminders = useMemo(
-    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt < now),
+    () => activeReminders.filter((r: any) => isReminderOverdue(r, now)),
     [activeReminders, now]
   );
   const todayActiveReminders = useMemo(
-    () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt >= startOfDay && r.nextRunAt <= endOfDay),
-    [activeReminders, startOfDay, endOfDay]
+    () => activeReminders.filter((r: any) =>
+      r.enabled
+      && !isReminderSnoozed(r, now)
+      && r.nextRunAt >= startOfDay
+      && r.nextRunAt <= endOfDay
+    ),
+    [activeReminders, now, startOfDay, endOfDay]
   );
   const upcomingReminders = useMemo(
     () => activeReminders.filter((r: any) => r.enabled && r.nextRunAt > endOfDay),

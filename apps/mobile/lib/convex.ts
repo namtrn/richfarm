@@ -7,7 +7,7 @@ if (!convexUrl) {
 }
 
 export function createConvexClient() {
-  return new ConvexReactClient(convexUrl, { logger: false });
+  return new ConvexReactClient(convexUrl!, { logger: false });
 }
 
 export const convex = createConvexClient();

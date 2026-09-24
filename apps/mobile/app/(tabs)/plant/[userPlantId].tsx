@@ -8,6 +8,7 @@ import {
   Pressable,
   Image,
   Animated,
+  ActivityIndicator,
   useWindowDimensions,
   Alert,
   PanResponder,
@@ -124,7 +125,7 @@ export default function PlantDetailScreen() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { removePendingActivity, removePendingHarvest, removePendingPhoto } = usePlantSync();
   const contentCommands = usePlantContentCommands();
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites, toggleFavorite, isFavoritePending } = useFavorites();
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
   const navigateBackOrGrowing = () => {
     if (fromParam === 'bed') {
@@ -761,10 +762,10 @@ export default function PlantDetailScreen() {
           <TouchableOpacity
             onPress={() => {
               if (!plantMasterId) return;
-              void toggleFavorite(plantMasterId).catch(() => undefined);
+              void toggleFavorite(plantMasterId);
             }}
-            disabled={!plantMasterId}
-            style={{ opacity: plantMasterId ? 1 : 0.5 }}
+            disabled={!plantMasterId || isFavoritePending(plantMasterId)}
+            style={{ opacity: plantMasterId && !isFavoritePending(plantMasterId) ? 1 : 0.5 }}
           >
             <Animated.View
               style={{
@@ -783,7 +784,9 @@ export default function PlantDetailScreen() {
               }}
             >
               <Animated.View style={{ transform: [{ scale: iconScale }] }}>
-                <Heart size={20} stroke={isFavorite ? '#ef4444' : theme.textSecondary} fill={isFavorite ? '#ef4444' : 'none'} />
+                {plantMasterId && isFavoritePending(plantMasterId)
+                  ? <ActivityIndicator size="small" color={theme.primary} />
+                  : <Heart size={20} stroke={isFavorite ? '#ef4444' : theme.textSecondary} fill={isFavorite ? '#ef4444' : 'none'} />}
               </Animated.View>
             </Animated.View>
           </TouchableOpacity>

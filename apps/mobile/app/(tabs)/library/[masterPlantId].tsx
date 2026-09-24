@@ -446,7 +446,7 @@ export default function LibraryPlantDetailScreen() {
 
     const unitSystem = useUnitSystem();
 
-    const { favorites, toggleFavorite } = useFavorites();
+    const { favorites, toggleFavorite, isFavoritePending } = useFavorites();
     const { addPlant, updatePlant } = usePlants();
     const contentCommands = usePlantContentCommands();
     const { completeLibraryAdd, createUserPlant } = useAddPlantFlow({ addPlant, updatePlant });
@@ -883,8 +883,9 @@ export default function LibraryPlantDetailScreen() {
                     <TouchableOpacity
                         onPress={() => {
                             if (!resolvedId) return;
-                            void toggleFavorite(resolvedId as any).catch(() => undefined);
+                            void toggleFavorite(resolvedId as any);
                         }}
+                        disabled={!!resolvedId && isFavoritePending(resolvedId as any)}
                         style={{
                             width: 40,
                             height: 40,
@@ -896,7 +897,9 @@ export default function LibraryPlantDetailScreen() {
                             borderColor: theme.border,
                         }}
                     >
-                        <Heart size={20} stroke={isFavorite ? '#ef4444' : '#94a3b8'} fill={isFavorite ? '#ef4444' : 'none'} />
+                        {!!resolvedId && isFavoritePending(resolvedId as any)
+                            ? <ActivityIndicator size="small" color={theme.primary} />
+                            : <Heart size={20} stroke={isFavorite ? '#ef4444' : '#94a3b8'} fill={isFavorite ? '#ef4444' : 'none'} />}
                     </TouchableOpacity>
                 )}
             </View>

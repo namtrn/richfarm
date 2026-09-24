@@ -158,6 +158,7 @@ function PlantDetailModal({
     addLabel,
     onAdd,
     isFavorite,
+    isFavoritePending,
     onToggleFavorite,
     canFavorite,
 }: {
@@ -168,6 +169,7 @@ function PlantDetailModal({
     addLabel?: string;
     onAdd: () => void;
     isFavorite: boolean;
+    isFavoritePending: boolean;
     onToggleFavorite: () => void;
     canFavorite: boolean;
 }) {
@@ -234,10 +236,11 @@ function PlantDetailModal({
                                 {canFavorite && (
                                     <TouchableOpacity
                                         onPress={onToggleFavorite}
+                                        disabled={isFavoritePending}
                                         testID="e2e-library-modal-favorite"
                                         style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.background, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}
                                     >
-                                        <Heart size={17} stroke={isFavorite ? '#ef4444' : '#a3a3a3'} fill={isFavorite ? '#ef4444' : 'none'} />
+                                        {isFavoritePending ? <ActivityIndicator size="small" color={theme.primary} /> : <Heart size={17} stroke={isFavorite ? '#ef4444' : '#a3a3a3'} fill={isFavorite ? '#ef4444' : 'none'} />}
                                     </TouchableOpacity>
                                 )}
                                 <TouchableOpacity onPress={onClose} testID="e2e-library-modal-close" style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: theme.background, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
@@ -383,12 +386,14 @@ function PlantCard({
     onPress,
     onToggleFavorite,
     isFavorite,
+    isFavoritePending,
     testID,
 }: {
     plant: any;
     onPress: () => void;
     onToggleFavorite: () => void;
     isFavorite: boolean;
+    isFavoritePending: boolean;
     testID?: string;
 }) {
     const theme = useTheme();
@@ -428,14 +433,15 @@ function PlantCard({
                     event.stopPropagation?.();
                     onToggleFavorite();
                 }}
+                disabled={isFavoritePending}
                 hitSlop={8}
                 testID="e2e-library-favorite-toggle"
             >
-                <Heart
+                {isFavoritePending ? <ActivityIndicator size="small" color={theme.primary} /> : <Heart
                     size={18}
                     stroke={isFavorite ? '#ef4444' : '#a3a3a3'}
                     fill={isFavorite ? '#ef4444' : 'none'}
-                />
+                />}
             </Pressable>
         </TouchableOpacity>
     );
@@ -446,12 +452,14 @@ function PlantGridCard({
     onPress,
     onToggleFavorite,
     isFavorite,
+    isFavoritePending,
     testID,
 }: {
     plant: any;
     onPress: () => void;
     onToggleFavorite: () => void;
     isFavorite: boolean;
+    isFavoritePending: boolean;
     testID?: string;
 }) {
     const theme = useTheme();
@@ -483,6 +491,7 @@ function PlantGridCard({
                         event.stopPropagation?.();
                         onToggleFavorite();
                     }}
+                    disabled={isFavoritePending}
                     hitSlop={12}
                     style={{
                         position: 'absolute',
@@ -496,11 +505,11 @@ function PlantGridCard({
                         justifyContent: 'center',
                     }}
                 >
-                    <Heart
+                    {isFavoritePending ? <ActivityIndicator size="small" color="#fff" /> : <Heart
                         size={16}
                         stroke={isFavorite ? '#ef4444' : '#fff'}
                         fill={isFavorite ? '#ef4444' : 'none'}
-                    />
+                    />}
                 </Pressable>
             </View>
             <View style={{ padding: 12, gap: 2 }}>
@@ -1349,7 +1358,7 @@ export default function LibraryScreen() {
     const { addPlant, updatePlant } = usePlants();
     const { completeLibraryAdd } = useAddPlantFlow({ addPlant, updatePlant });
     const { beds } = useBeds();
-    const { favorites, toggleFavorite } = useFavorites();
+    const { favorites, toggleFavorite, isFavoritePending } = useFavorites();
     const familyRows = useQuery(
         api.plantLibrary.listFamilies,
         activeTab === 'plants' && plantBrowseMode === 'families'
@@ -1652,7 +1661,7 @@ export default function LibraryScreen() {
     const handleTogglePlantFavorite = useCallback(
         (plant: any) => {
             if (isSeedPlant(plant)) return;
-            void toggleFavorite(plant._id).catch(() => undefined);
+            void toggleFavorite(plant._id);
         },
         [isSeedPlant, toggleFavorite]
     );
@@ -1673,6 +1682,7 @@ export default function LibraryScreen() {
                         onPress={() => openPlantDetail(plant)}
                         onToggleFavorite={() => handleTogglePlantFavorite(plant)}
                         isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
+                        isFavoritePending={!isSeedPlant(plant) && isFavoritePending(plant._id)}
                         testID="e2e-library-plant-card"
                     />
                 );
@@ -1684,6 +1694,7 @@ export default function LibraryScreen() {
                     onPress={() => openPlantDetail(plant)}
                     onToggleFavorite={() => handleTogglePlantFavorite(plant)}
                     isFavorite={!isSeedPlant(plant) && favoriteIds.has(String(plant._id))}
+                    isFavoritePending={!isSeedPlant(plant) && isFavoritePending(plant._id)}
                     testID="e2e-library-plant-card"
                 />
             );
@@ -1984,10 +1995,11 @@ export default function LibraryScreen() {
                         void handleAddSelectedPlant();
                     }}
                     isFavorite={selectedPlantIsSeed ? false : favoriteIds.has(String(selectedPlant._id))}
+                    isFavoritePending={!selectedPlantIsSeed && isFavoritePending(selectedPlant._id)}
                     canFavorite={!selectedPlantIsSeed}
                     onToggleFavorite={() => {
                         if (selectedPlantIsSeed) return;
-                        void toggleFavorite(selectedPlant._id).catch(() => undefined);
+                        void toggleFavorite(selectedPlant._id);
                     }}
                 />
             )}
