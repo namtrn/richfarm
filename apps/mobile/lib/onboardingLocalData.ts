@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ONBOARDING_VERSION,
   normalizeOnboardingRole,
+  type OnboardingRole,
   type OnboardingData,
   type OnboardingWeights,
 } from '../../../packages/shared/src/onboardingProfile';
@@ -9,7 +10,15 @@ import {
 export type { OnboardingData };
 
 const STORAGE_KEY = 'onboarding_profile_v1';
+const DRAFT_STORAGE_KEY = 'onboarding_draft_v1';
 const CURRENT_VERSION = ONBOARDING_VERSION;
+
+export type OnboardingDraft = {
+  role: OnboardingRole | null;
+  goals: string[];
+  scaleEnvironment: string[];
+  stepIndex: number;
+};
 
 function normalizeArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item) => typeof item === 'string') as string[] : [];
@@ -67,6 +76,41 @@ export async function saveOnboardingData(payload: Omit<OnboardingData, 'version'
 
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
   return normalized;
+}
+
+export async function loadOnboardingDraft(): Promise<OnboardingDraft | null> {
+  const raw = await AsyncStorage.getItem(DRAFT_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<OnboardingDraft>;
+    return {
+      role: parsed.role == null ? null : normalizeOnboardingRole(parsed.role),
+      goals: normalizeArray(parsed.goals),
+      scaleEnvironment: normalizeArray(parsed.scaleEnvironment),
+      stepIndex:
+        typeof parsed.stepIndex === 'number' && Number.isFinite(parsed.stepIndex)
+          ? Math.max(0, Math.floor(parsed.stepIndex))
+          : 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function saveOnboardingDraft(draft: OnboardingDraft) {
+  const normalized: OnboardingDraft = {
+    role: draft.role == null ? null : normalizeOnboardingRole(draft.role),
+    goals: normalizeArray(draft.goals),
+    scaleEnvironment: normalizeArray(draft.scaleEnvironment),
+    stepIndex: Math.max(0, Math.floor(draft.stepIndex)),
+  };
+
+  await AsyncStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(normalized));
+}
+
+export async function clearOnboardingDraft() {
+  await AsyncStorage.removeItem(DRAFT_STORAGE_KEY);
 }
 
 export async function clearOnboardingData() {

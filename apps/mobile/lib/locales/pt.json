@@ -353,8 +353,8 @@
   "onboarding": {
     "progress": "Step {{current}} of {{total}}",
     "finish": "Finish",
-    "role_title": "What best describes you?",
-    "role_subtitle": "We will keep onboarding to 3 steps and tune the app around this role.",
+    "role_title": "Com o que você quer que {{appName}} ajude primeiro?",
+    "role_subtitle": "Escolha um ponto de partida. As próximas perguntas serão adaptadas à sua escolha.",
     "role_gardener": "Gardener",
     "role_gardener_desc": "Simple setup for hobby growing, home plants, and a lighter UI.",
     "role_farmer": "Farmer",
@@ -404,8 +404,9 @@
     "environment_shared_plot": "Shared plot / club garden",
     "environment_lab_bench": "Lab bench / test setup",
     "final_title": "Tudo pronto",
-    "final_subtitle": "Personalizamos o app com base no seu onboarding.",
-    "final_role_line": "Você usará o app como {{role}}.",
+    "final_subtitle": "Sua configuração está pronta. {{appName}} usará essas informações para personalizar sua experiência.",
+    "final_role_line": "{{appName}} vai priorizar o que importa para um {{role}}.",
+    "final_ai_line": "Conheça {{aiName}}, seu companheiro de cultivo.",
     "final_switch_hint": "Para mudar de papel, vá em Ajustes e altere o papel.",
     "final_cta": "Começar"
   },

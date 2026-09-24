@@ -4,8 +4,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle } from '../../lib/icons';
 import { useTheme } from '../../lib/theme';
+import { AI_NAME, APP_NAME } from '../../lib/appVersion';
 import { loadOnboardingData } from '../../lib/onboardingLocalData';
 import { normalizeOnboardingRole, type OnboardingRole } from '../../../../packages/shared/src/onboardingProfile';
+import { AnimatedPlantMascot } from '../../components/ui/AnimatedPlantMascot';
 
 const ROLE_LABEL_KEYS: Record<OnboardingRole, string> = {
   gardener: 'onboarding.role_gardener',
@@ -22,14 +24,15 @@ export default function OnboardingFinalScreen() {
   const [role, setRole] = useState<OnboardingRole>('gardener');
 
   useEffect(() => {
+    let isMounted = true;
+
     if (params.role) {
       setRole(normalizeOnboardingRole(params.role));
-      return;
     }
-    let isMounted = true;
+
     loadOnboardingData().then((data) => {
-      if (!isMounted || !data?.role) return;
-      setRole(data.role);
+      if (!isMounted || !data) return;
+      if (!params.role && data.role) setRole(data.role);
     });
     return () => {
       isMounted = false;
@@ -41,6 +44,11 @@ export default function OnboardingFinalScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.background, paddingHorizontal: 22, paddingTop: 72, paddingBottom: 40 }}>
       <View style={{ flex: 1, justifyContent: 'center', gap: 18 }}>
+        <AnimatedPlantMascot
+          size={176}
+          accessibilityLabel={t('onboarding.plant_mascot', { defaultValue: 'Plant mascot' })}
+          style={{ alignSelf: 'center' }}
+        />
         <View
           style={{
             alignSelf: 'center',
@@ -61,7 +69,7 @@ export default function OnboardingFinalScreen() {
             {t('onboarding.final_title')}
           </Text>
           <Text style={{ textAlign: 'center', fontSize: 15, color: theme.textSecondary }}>
-            {t('onboarding.final_subtitle')}
+            {t('onboarding.final_subtitle', { appName: APP_NAME, aiName: AI_NAME })}
           </Text>
         </View>
         <View
@@ -75,7 +83,10 @@ export default function OnboardingFinalScreen() {
           }}
         >
           <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>
-            {t('onboarding.final_role_line', { role: roleLabel })}
+            {t('onboarding.final_role_line', { appName: APP_NAME, aiName: AI_NAME, role: roleLabel })}
+          </Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: theme.text }}>
+            {t('onboarding.final_ai_line', { aiName: AI_NAME })}
           </Text>
           <Text style={{ fontSize: 14, color: theme.textSecondary }}>
             {t('onboarding.final_switch_hint')}

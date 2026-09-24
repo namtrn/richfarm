@@ -19,7 +19,7 @@ const USER_SCOPED_KEY_PREFIXES = [
   'rf_show_weather_card_v2_',
 ];
 
-const USER_SCOPED_EXACT_KEYS = ['onboarding_profile_v1'];
+const USER_SCOPED_EXACT_KEYS = ['onboarding_profile_v1', 'onboarding_draft_v1'];
 
 export async function clearCachedCurrentUser(
   deviceId?: string | null,

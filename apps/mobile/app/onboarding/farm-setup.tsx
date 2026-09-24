@@ -1,4 +1,4 @@
-import { startTransition, useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Pressable, Modal } from 'react-native';
 import {
   ArrowLeft,
@@ -25,7 +25,13 @@ import { useMutation } from 'convex/react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../../packages/convex/convex/_generated/api';
 import { useAuth } from '../../lib/auth';
-import { saveOnboardingData } from '../../lib/onboardingLocalData';
+import { AI_NAME, APP_NAME } from '../../lib/appVersion';
+import {
+  clearOnboardingDraft,
+  loadOnboardingDraft,
+  saveOnboardingData,
+  saveOnboardingDraft,
+} from '../../lib/onboardingLocalData';
 import { useTheme } from '../../lib/theme';
 import {
   buildOnboardingData,
@@ -43,6 +49,7 @@ const LANGUAGES = [
 ];
 
 type StepKey = 'role' | 'goals' | 'scaleEnvironment';
+const ONBOARDING_STEP_COUNT = 3;
 
 type Option = {
   id: string;
@@ -234,6 +241,7 @@ export default function FarmSetupScreen() {
   const { user, deviceId } = useAuth();
   const upsertUserSettings = useMutation(api.userSettings.upsertUserSettings);
   const [stepIndex, setStepIndex] = useState(0);
+  const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [answers, setAnswers] = useState<{
     role: OnboardingRole | null;
@@ -247,6 +255,47 @@ export default function FarmSetupScreen() {
 
   const activeRole = answers.role ?? 'gardener';
   const flow = ROLE_FLOW[activeRole];
+
+  useEffect(() => {
+    let isMounted = true;
+
+    loadOnboardingDraft()
+      .then((draft) => {
+        if (!isMounted) return;
+        if (draft) {
+          setStepIndex(Math.min(draft.stepIndex, ONBOARDING_STEP_COUNT - 1));
+          setAnswers({
+            role: draft.role,
+            goals: draft.goals,
+            scaleEnvironment: draft.scaleEnvironment,
+          });
+        }
+        setIsDraftLoaded(true);
+      })
+      .catch(() => {
+        if (isMounted) setIsDraftLoaded(true);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isDraftLoaded) return;
+
+    const timeoutId = setTimeout(() => {
+      void saveOnboardingDraft({
+        role: answers.role,
+        goals: answers.goals,
+        scaleEnvironment: answers.scaleEnvironment,
+        stepIndex,
+      }).catch(() => undefined);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [answers, isDraftLoaded, stepIndex]);
+
   const steps = useMemo(
     () => [
       {
@@ -281,7 +330,7 @@ export default function FarmSetupScreen() {
         ? [answers.role]
         : []
       : answers[step.key];
-  const canContinue = selections.length > 0;
+  const canContinue = isDraftLoaded && selections.length > 0;
 
   const toggleOption = (id: string) => {
     startTransition(() => {
@@ -290,6 +339,7 @@ export default function FarmSetupScreen() {
           const nextRole = id as OnboardingRole;
           const nextFlow = ROLE_FLOW[nextRole];
           return {
+            ...prev,
             role: nextRole,
             goals: prev.goals.filter((goal) => nextFlow.purposeIds.includes(goal)),
             scaleEnvironment: prev.scaleEnvironment.filter((environment) =>
@@ -298,10 +348,12 @@ export default function FarmSetupScreen() {
           };
         }
 
-        const current = prev[step.key];
+        const current = step.key === 'goals' ? prev.goals : prev.scaleEnvironment;
         const isActive = current.includes(id);
         const nextValues = isActive ? current.filter((item) => item !== id) : [...current, id];
-        return { ...prev, [step.key]: nextValues };
+        return step.key === 'goals'
+          ? { ...prev, goals: nextValues }
+          : { ...prev, scaleEnvironment: nextValues };
       });
     });
   };
@@ -315,6 +367,7 @@ export default function FarmSetupScreen() {
     });
 
     const saved = await saveOnboardingData(payload);
+    await clearOnboardingDraft();
 
     if (user && !user.isAnonymous) {
       await upsertUserSettings({
@@ -326,7 +379,14 @@ export default function FarmSetupScreen() {
   };
 
   const handleNext = async () => {
+    if (!isDraftLoaded) return;
     if (stepIndex < steps.length - 1) {
+      await saveOnboardingDraft({
+        role: answers.role,
+        goals: answers.goals,
+        scaleEnvironment: answers.scaleEnvironment,
+        stepIndex: stepIndex + 1,
+      }).catch(() => undefined);
       setStepIndex((current) => current + 1);
       return;
     }
@@ -336,6 +396,7 @@ export default function FarmSetupScreen() {
   };
 
   const handleSkip = async () => {
+    if (!isDraftLoaded) return;
     await persistOnboarding();
     router.replace('/(tabs)/home');
   };
@@ -419,14 +480,17 @@ export default function FarmSetupScreen() {
         </View>
 
         <View style={{ gap: 10 }}>
-          <Text style={{ fontSize: 28, fontWeight: '800', color: theme.text }}>{t(step.titleKey)}</Text>
-          <Text style={{ fontSize: 15, color: theme.textSecondary }}>{t(step.subtitleKey)}</Text>
+          <Text style={{ fontSize: 28, fontWeight: '800', color: theme.text }}>
+            {t(step.titleKey, { appName: APP_NAME, aiName: AI_NAME })}
+          </Text>
+          <Text style={{ fontSize: 15, color: theme.textSecondary }}>
+            {t(step.subtitleKey, { appName: APP_NAME, aiName: AI_NAME })}
+          </Text>
         </View>
 
         <View style={{ gap: 12 }}>
           {step.options.map((option) => {
             const isActive = selections.includes(option.id);
-            const Icon = option.icon;
 
             return (
               <Pressable
