@@ -40,6 +40,7 @@
   },
   "home": {
     "welcome_default": "Người làm vườn",
+    "welcome_farmer": "Nông dân",
     "welcome_back": "Mừng bạn quay lại",
     "section_today": "Hôm nay",
     "section_today_desc": "Nhắc tưới nước, thu hoạch và chăm sóc.",

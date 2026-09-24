@@ -44,6 +44,7 @@ import { useAppMode } from '../../../hooks/useAppMode';
 import { useDeviceId } from '../../../lib/deviceId';
 import { useSyncProjection } from '../../../hooks/useSyncProjection';
 import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
+import { selectPlantContent } from '../../../lib/plantContentProjection';
 import { migratePlantLocalData } from '../../../lib/commands/migratePlantLocalData';
 import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
 import { PlantMetadataRows } from '../../../components/plant/PlantMetadataRows';
@@ -129,9 +130,29 @@ export default function PlantDetailScreen() {
   const belongsToPlant = (entry: any) =>
     String(entry.userPlantId) === String(plant?._id)
     || entry.plantUuid === plant?.entityUuid;
-  const backendActivities = projection?.complete ? projectedActivities?.filter(belongsToPlant) : remoteActivities;
-  const backendHarvests = projection?.complete ? projectedHarvests?.filter(belongsToPlant) : remoteHarvests;
-  const backendPhotos = projection?.complete ? projectedPhotos?.filter(belongsToPlant) : undefined;
+  const backendActivities = selectPlantContent({
+    identityKind: syncIdentity?.kind,
+    hasProjection: Boolean(projection),
+    projectionComplete: projection?.complete === true,
+    projected: projectedActivities,
+    fallback: remoteActivities,
+    belongsToPlant,
+  });
+  const backendHarvests = selectPlantContent({
+    identityKind: syncIdentity?.kind,
+    hasProjection: Boolean(projection),
+    projectionComplete: projection?.complete === true,
+    projected: projectedHarvests,
+    fallback: remoteHarvests,
+    belongsToPlant,
+  });
+  const backendPhotos = selectPlantContent({
+    identityKind: syncIdentity?.kind,
+    hasProjection: Boolean(projection),
+    projectionComplete: projection?.complete === true,
+    projected: projectedPhotos,
+    belongsToPlant,
+  });
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { removePendingActivity, removePendingHarvest, removePendingPhoto } = usePlantSync();
   const contentCommands = usePlantContentCommands();

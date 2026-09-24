@@ -40,6 +40,7 @@
   },
   "home": {
     "welcome_default": "Gardener",
+    "welcome_farmer": "Farmer",
     "welcome_back": "Welcome back",
     "section_today": "Today",
     "section_today_desc": "Watering, harvest, and care reminders.",
