@@ -166,5 +166,9 @@ export async function deleteAppUserData(ctx: any, user: Doc<"users">) {
     await ctx.db.delete(row._id);
   }
 
+  const aiScanUsage = await ctx.db.query("aiScanUsage")
+    .withIndex("by_user_date", (q: any) => q.eq("userId", user._id)).collect();
+  for (const row of aiScanUsage) await ctx.db.delete(row._id);
+
   await ctx.db.delete(user._id);
 }

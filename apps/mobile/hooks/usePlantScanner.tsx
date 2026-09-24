@@ -1,21 +1,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Alert, Image, Modal, NativeModules, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter, usePathname } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAction } from 'convex/react';
 import { useAuth } from '../lib/auth';
 import { useDeviceId } from '../lib/deviceId';
 import { palette, useTheme } from '../lib/theme';
-import { isPremiumActive } from '../lib/access';
-import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../lib/aiDetectorLimit';
 import { addScanEntry, updateScanEntry } from '../lib/scanHistory';
 import { usePlantLibrary } from './usePlantLibrary';
 import { usePlants } from './usePlants';
 import { normalizeCustomPlantNickname, useAddPlantFlow } from './useAddPlantFlow';
 import { useInputModalLifecycle } from './useInputModalLifecycle';
 import { InputSheet } from '../components/ui/InputSheet';
+import { useAuthPrompt } from './useAuthPrompt';
+import { usePaywall } from './usePaywall';
+import { useAiScanQuota } from './useAiScanQuota';
+import { AiScanLimitNotice } from '../components/scan/AiScanLimitNotice';
 import { api } from '../../../packages/convex/convex/_generated/api';
 
 let BlurView: React.ComponentType<{ style?: any; intensity?: number; tint?: string }> | null = null;
@@ -48,15 +49,16 @@ export function usePlantScanner(): UsePlantScannerResult {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const isDark = theme.background === palette.dark.background;
-  const router = useRouter();
-  const pathname = usePathname();
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const promptSignIn = useAuthPrompt();
+  const { presentPaywall } = usePaywall();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
   const { addPlant, plants: userPlants } = usePlants();
   const { createUserPlant, openLibraryMatch, openLibrarySelect } = useAddPlantFlow({ addPlant });
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const { plants: libraryPlants } = usePlantLibrary(locale);
-  const detectPlantAction = useAction((api as any).plantScan.detectPlant);
+  const detectPlantAction = useAction(api.plantScan.detectPlant);
+  const { quota: scanQuota, isPremium, limitReached: aiLimitReached, canStartScan: canStartAiScan, handleScanError, resetLimit } = useAiScanQuota();
 
   const [scanSourceOpen, setScanSourceOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
@@ -64,8 +66,6 @@ export function usePlantScanner(): UsePlantScannerResult {
   const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
   const [detectedPlantMasterId, setDetectedPlantMasterId] = useState<string | null>(null);
   const [photoSaving, setPhotoSaving] = useState(false);
-  const [aiLimitError, setAiLimitError] = useState('');
-  const [aiSessionActive, setAiSessionActive] = useState(false);
   const [detectNoMatch, setDetectNoMatch] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
 
@@ -82,8 +82,6 @@ export function usePlantScanner(): UsePlantScannerResult {
   // Tracks the most-recently created scan history entry id so we can update it later
   const currentScanIdRef = useRef<string | null>(null);
 
-  const isPremium = isPremiumActive(user);
-  const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
 
   const resetPhotoDraft = useCallback(() => {
@@ -92,7 +90,6 @@ export function usePlantScanner(): UsePlantScannerResult {
     setDetectedPlantMasterId(null);
     setDetectNoMatch(false);
     setIsDetecting(false);
-    setAiSessionActive(false);
   }, [t]);
   const {
     activeInputRef: detectedNameInputRef,
@@ -162,53 +159,17 @@ export function usePlantScanner(): UsePlantScannerResult {
   const navigateToMatchedLibraryPlant = useCallback((matchedPlant: any) => {
     if (!matchedPlant) return;
     closePhotoSheet();
-    setAiLimitError('');
+    resetLimit();
     openLibraryMatch(String(matchedPlant._id), {
       mode: 'select',
       from: 'scanner',
       scannedPhotoUri: photoUri ?? undefined,
       scanHistoryId: currentScanIdRef.current ?? undefined,
     });
-  }, [closePhotoSheet, openLibraryMatch, photoUri]);
-
-  const canStartAiScan = useCallback(async () => {
-    if (isAuthLoading) return false;
-    if (!isAuthenticated) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.scanner_signin_required'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-        ]
-      );
-      return false;
-    }
-    if (!isPremium && !aiSessionActive) {
-      if (!aiDetectorKey) {
-        setAiLimitError(t('common.error'));
-        return false;
-      }
-      const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
-      if (reached) {
-        setAiLimitError(t('planning.detect_limit_free'));
-        return false;
-      }
-    }
-    setAiLimitError('');
-    return true;
-  }, [aiDetectorKey, aiSessionActive, isAuthLoading, isAuthenticated, isPremium, router, t]);
+  }, [closePhotoSheet, openLibraryMatch, photoUri, resetLimit]);
 
   const applyPickedImage = useCallback(async (result: ImagePicker.ImagePickerResult) => {
     if (result.canceled || !result.assets?.[0]?.uri) return;
-    if (!isPremium && !aiSessionActive) {
-      const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
-      if (!consumption.allowed) {
-        setAiLimitError(t('planning.detect_limit_free'));
-        return;
-      }
-    }
-    setAiSessionActive(true);
     const uri = result.assets[0].uri;
     setPhotoUri(uri);
     const unknownLabel = t('planning.unknown_plant');
@@ -231,6 +192,13 @@ export function usePlantScanner(): UsePlantScannerResult {
         finalMasterId = detected?.match?.plantMasterId ? String(detected.match.plantMasterId) : null;
         setDetectedPlantMasterId(finalMasterId);
       } catch (error) {
+        const handled = handleScanError(error);
+        if (handled) {
+          // Not a real scan: drop the draft and show the reason on the source picker.
+          closePhotoSheet();
+          if (handled === 'limit') setScanSourceOpen(true);
+          return;
+        }
         console.error('AI detection failed:', error);
       } finally {
         setIsDetecting(false);
@@ -252,11 +220,10 @@ export function usePlantScanner(): UsePlantScannerResult {
     } catch (err) {
       console.error('Failed to save scan history entry:', err);
     }
-  }, [aiDetectorKey, aiSessionActive, detectPlantAction, i18n.language, isPremium, notifyScanSaved, t]);
+  }, [closePhotoSheet, detectPlantAction, handleScanError, i18n.language, notifyScanSaved, t]);
 
   const handleCaptureFromCamera = useCallback(async () => {
-    const canStart = await canStartAiScan();
-    if (!canStart) return;
+    if (!canStartAiScan()) return;
     setScanSourceOpen(false);
 
     const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -288,8 +255,7 @@ export function usePlantScanner(): UsePlantScannerResult {
   }, [applyPickedImage, canStartAiScan, t]);
 
   const handlePickFromLibrary = useCallback(async () => {
-    const canStart = await canStartAiScan();
-    if (!canStart) return;
+    if (!canStartAiScan()) return;
     setScanSourceOpen(false);
     const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!mediaPermission.granted) {
@@ -339,34 +305,32 @@ export function usePlantScanner(): UsePlantScannerResult {
         currentScanIdRef.current = null;
       }
       closePhotoSheet();
-      setAiLimitError('');
+      resetLimit();
       setDetectNoMatch(false);
     } finally {
       setPhotoSaving(false);
     }
-  }, [canEdit, closePhotoSheet, createUserPlant, detectedName, notifyScanSaved, photoUri, t]);
+  }, [canEdit, closePhotoSheet, createUserPlant, detectedName, notifyScanSaved, photoUri, resetLimit, t]);
 
   const openScanner = useCallback(() => {
     if (isAuthLoading) return;
     if (!isAuthenticated) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.scanner_signin_required'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-        ]
-      );
+      promptSignIn(t('planning.scanner_signin_required'));
       return;
     }
-    setAiLimitError('');
+    resetLimit();
     if (photoOpen) closePhotoSheet();
     setScanSourceOpen(true);
-  }, [closePhotoSheet, isAuthLoading, isAuthenticated, photoOpen, router, t]);
+  }, [closePhotoSheet, isAuthLoading, isAuthenticated, photoOpen, promptSignIn, resetLimit, t]);
+
+  const handleUpgrade = useCallback(() => {
+    setScanSourceOpen(false);
+    closePhotoSheet();
+    void presentPaywall();
+  }, [closePhotoSheet, presentPaywall]);
 
   useEffect(() => {
     if (!photoOpen) {
-      setAiSessionActive(false);
       setIsDetecting(false);
       setDetectedPlantMasterId(null);
     }
@@ -374,15 +338,18 @@ export function usePlantScanner(): UsePlantScannerResult {
 
   useFocusEffect(
     useCallback(() => {
-      setAiLimitError('');
+      resetLimit();
       return () => {
-        setAiLimitError('');
+        resetLimit();
         setScanSourceOpen(false);
-        setAiSessionActive(false);
         setPhotoOpen(false);
       };
-    }, [])
+    }, [resetLimit])
   );
+
+  const limitNotice = aiLimitReached ? (
+    <AiScanLimitNotice isPremium={isPremium} limit={scanQuota?.limit} onUpgrade={handleUpgrade} />
+  ) : null;
 
   const scanSourceModal = (
     <Modal
@@ -409,11 +376,12 @@ export function usePlantScanner(): UsePlantScannerResult {
             <Text style={{ fontSize: 18, fontWeight: '500', color: theme.text, letterSpacing: -0.3, textAlign: 'center' }}>
               {t('planning.scan_source_title')}
             </Text>
-            {!!aiLimitError && (
-              <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
-                <Text style={{ color: theme.danger, fontSize: 12, textAlign: 'center' }}>{aiLimitError}</Text>
-              </View>
+            {!!scanQuota && !aiLimitReached && (
+              <Text style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center' }}>
+                {t('planning.detect_quota_remaining', { remaining: scanQuota.remaining, limit: scanQuota.limit })}
+              </Text>
             )}
+            {limitNotice}
             <TouchableOpacity
               style={{ borderRadius: 10, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary }}
               onPress={() => { void handleCaptureFromCamera(); }}

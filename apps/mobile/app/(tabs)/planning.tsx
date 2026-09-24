@@ -1,22 +1,17 @@
-﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Modal, Pressable, Image, Alert } from 'react-native';
+﻿import { View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { Plus, Calendar, Leaf } from '../../lib/icons';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useQuery, useAction } from 'convex/react';
 import { usePlants } from '../../hooks/usePlants';
 import { useBeds } from '../../hooks/useBeds';
 import { useGardens } from '../../hooks/useGardens';
 import { useAuth } from '../../lib/auth';
-import { usePathname, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
-import * as ImagePicker from 'expo-image-picker';
 import { useTranslation } from 'react-i18next';
 import { useDeviceId } from '../../lib/deviceId';
-import { api } from '../../../../packages/convex/convex/_generated/api';
-import { isPremiumActive } from '../../lib/access';
-import { buildAiDetectorKey, consumeAiDetectorUsage, isAiDetectorLimitReached } from '../../lib/aiDetectorLimit';
-import { usePlantLibrary } from '../../hooks/usePlantLibrary';
-import { normalizeCustomPlantNickname, useAddPlantFlow } from '../../hooks/useAddPlantFlow';
+import { useAddPlantFlow } from '../../hooks/useAddPlantFlow';
+import { useAuthPrompt } from '../../hooks/useAuthPrompt';
+import { usePlantScanner } from '../../hooks/usePlantScanner';
 
 import { useTheme } from '../../lib/theme';
 import { useAppMode } from '../../hooks/useAppMode';
@@ -24,17 +19,18 @@ import { InputSheet } from '../../components/ui/InputSheet';
 import { useInputModalLifecycle } from '../../hooks/useInputModalLifecycle';
 
 export default function PlanningScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { appMode } = useAppMode();
   const { plants, isLoading, addPlant } = usePlants();
-  const { createUserPlant, openLibrarySelect, openLibraryMatch } = useAddPlantFlow({ addPlant });
+  const { createUserPlant, openLibrarySelect } = useAddPlantFlow({ addPlant });
   const { beds, isLoading: isBedsLoading } = useBeds();
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { deviceId } = useDeviceId();
   const { gardens: gardensQuery } = useGardens();
   const router = useRouter();
-  const pathname = usePathname();
+  const promptSignIn = useAuthPrompt();
+  const { openScanner, scannerModals } = usePlantScanner();
   const params = useLocalSearchParams<{ scanner?: string | string[] }>();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [nickname, setNickname] = useState('');
@@ -42,32 +38,18 @@ export default function PlanningScreen() {
   // Guests (not authenticated but having a deviceId) are allowed to edit.
   // isAuthenticated refers to a "signed in" user (Google/Apple).
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
-  const [photoOpen, setPhotoOpen] = useState(false);
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
 
   useEffect(() => {
     if (appMode === 'gardener') {
       router.replace('/(tabs)/garden');
     }
   }, [appMode, router]);
-  const [photoSaving, setPhotoSaving] = useState(false);
-  const [aiLimitError, setAiLimitError] = useState('');
-  const [aiSessionActive, setAiSessionActive] = useState(false);
-  const [scanSourceOpen, setScanSourceOpen] = useState(false);
-  const [detectNoMatch, setDetectNoMatch] = useState(false);
-  const [isDetecting, setIsDetecting] = useState(false);
   const scannerTriggeredRef = useRef(false);
   const gardens = gardensQuery ?? [];
   const isSetupLoading = gardensQuery === undefined || isBedsLoading;
   const hasGardenOrBed = gardens.length > 0 || beds.length > 0;
   const canCreatePlant = canEdit;
   const isSetupRequired = false;
-  const isPremium = isPremiumActive(user);
-  const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
-  const locale = i18n.language?.split('-')[0] ?? i18n.language;
-  const { plants: libraryPlants } = usePlantLibrary(locale);
-  const detectPlantAction = useAction((api as any).plantScan.detectPlant);
 
   const plannedPlants = useMemo(
     () => plants.filter((p) => p.status === 'planning' || p.status === 'planting'),
@@ -80,34 +62,6 @@ export default function PlanningScreen() {
     onClose: () => setSheetOpen(false),
     onDiscard: resetQuickDraft,
   });
-  const resetPhotoDraft = useCallback(() => {
-    setPhotoUri(null);
-    setDetectedName(t('planning.unknown_plant'));
-    setDetectNoMatch(false);
-  }, [t]);
-  const { activeInputRef: detectedNameInputRef, close: closePhotoSheet } = useInputModalLifecycle({
-    visible: photoOpen,
-    onClose: () => setPhotoOpen(false),
-    onDiscard: resetPhotoDraft,
-  });
-
-  const normalize = (value: string) =>
-    value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-
-  const findLibraryMatchByName = (name: string) => {
-    const query = normalize(name);
-    if (!query) return null;
-    return (
-      libraryPlants.find((plant: any) => normalize(plant.displayName ?? '') === query || normalize(plant.scientificName ?? '') === query) ??
-      libraryPlants.find((plant: any) => normalize(plant.displayName ?? '').includes(query) || normalize(plant.scientificName ?? '').includes(query)) ??
-      null
-    );
-  };
-
   const handleAddPlant = async () => {
     if (!canCreatePlant || !nickname.trim()) return;
     setSaving(true);
@@ -122,14 +76,7 @@ export default function PlanningScreen() {
   const handleOpenAddPlant = () => {
     if (isAuthLoading) return;
     if (!canEdit) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.auth_warning'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-        ]
-      );
+      promptSignIn(t('planning.auth_warning'));
       return;
     }
     setSheetOpen(true);
@@ -141,223 +88,17 @@ export default function PlanningScreen() {
     openLibrarySelect({ mode: 'select', from: 'planning' });
   };
 
-  const canStartAiScan = async () => {
-    if (isAuthLoading) return false;
-    if (!isAuthenticated) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.scanner_signin_required'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-        ]
-      );
-      return false;
-    }
-    if (!isPremium && !aiSessionActive) {
-      if (!aiDetectorKey) {
-        setAiLimitError(t('common.error'));
-        return false;
-      }
-      const reached = await isAiDetectorLimitReached(aiDetectorKey, 1);
-      if (reached) {
-        setAiLimitError(t('planning.detect_limit_free'));
-        return false;
-      }
-    }
-    setAiLimitError('');
-    return true;
-  };
-
-  const applyPickedImage = async (result: ImagePicker.ImagePickerResult) => {
-    if (result.canceled || !result.assets?.[0]?.uri) return;
-    if (!isPremium && !aiSessionActive) {
-      const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
-      if (!consumption.allowed) {
-        setAiLimitError(t('planning.detect_limit_free'));
-        return;
-      }
-    }
-    setAiSessionActive(true);
-    setPhotoUri(result.assets[0].uri);
-    setDetectedName(t('planning.unknown_plant'));
-    setDetectNoMatch(false);
-    setPhotoOpen(true);
-    if (result.assets[0].base64) {
-      setIsDetecting(true);
-      try {
-        const detected = await detectPlantAction({ images: [result.assets[0].base64], locale: i18n.language });
-        if (detected?.match?.name) {
-          setDetectedName(detected.match.name);
-        }
-      } catch (error) {
-        console.error('AI detection failed:', error);
-      } finally {
-        setIsDetecting(false);
-      }
-    }
-  };
-
   const handleOpenScanSource = () => {
-    if (isAuthLoading) return;
-    if (!isAuthenticated) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.scanner_signin_required'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-        ]
-      );
-      return;
-    }
-    setAiLimitError('');
     closeQuickSheet();
-    setScanSourceOpen(true);
+    openScanner();
   };
-
-  const handleCaptureFromCamera = async () => {
-    const canStart = await canStartAiScan();
-    if (!canStart) return;
-    setScanSourceOpen(false);
-
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permission.granted) {
-      if (permission.canAskAgain) {
-        Alert.alert(
-          t('planning.camera_permission_title'),
-          t('planning.camera_permission_desc')
-        );
-      } else {
-        Alert.alert(
-          t('planning.camera_permission_title'),
-          t('planning.camera_permission_settings_desc')
-        );
-      }
-      return;
-    }
-
-    try {
-      const result = await ImagePicker.launchCameraAsync({
-        quality: 0.7,
-        allowsEditing: true,
-        base64: true,
-      });
-      await applyPickedImage(result);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : '';
-      const simulatorCameraUnavailable = /camera not available on simulator/i.test(message);
-      if (!simulatorCameraUnavailable) {
-        Alert.alert(t('planning.camera_open_failed_title'), t('planning.camera_open_failed_desc'));
-        return;
-      }
-      Alert.alert(t('planning.camera_unavailable_title'), t('planning.camera_unavailable_desc'));
-    }
-  };
-
-  const handlePickFromLibrary = async () => {
-    const canStart = await canStartAiScan();
-    if (!canStart) return;
-    setScanSourceOpen(false);
-    const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!mediaPermission.granted) {
-      if (mediaPermission.canAskAgain) {
-        Alert.alert(t('planning.photo_permission_title'), t('planning.photo_permission_desc'));
-      } else {
-        Alert.alert(t('planning.photo_permission_title'), t('planning.photo_permission_settings_desc'));
-      }
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      quality: 0.7,
-      allowsEditing: true,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      base64: true,
-    });
-    await applyPickedImage(result);
-  };
-
-  const handleSavePhotoPlant = async () => {
-    if (!canEdit) return;
-    const detected = detectedName.trim();
-    const unknown = t('planning.unknown_plant');
-    const hasDetectedName = detected.length > 0 && normalize(detected) !== normalize(unknown);
-    if (hasDetectedName) {
-      const matchedPlant = findLibraryMatchByName(detected);
-      if (matchedPlant) {
-        closePhotoSheet();
-        setAiSessionActive(false);
-        setAiLimitError('');
-        openLibraryMatch(String(matchedPlant._id), {
-          mode: 'select',
-          from: 'scanner',
-          scannedPhotoUri: photoUri ?? undefined,
-        });
-        return;
-      }
-    }
-
-    setDetectNoMatch(true);
-  };
-
-  const handleSaveAsUnknown = async () => {
-    if (!canCreatePlant) return;
-    setPhotoSaving(true);
-    try {
-      await createUserPlant({
-        nickname: normalizeCustomPlantNickname(detectedName, t('planning.unknown_plant')),
-      });
-      closePhotoSheet();
-      setAiSessionActive(false);
-      setAiLimitError('');
-      setDetectNoMatch(false);
-    } finally {
-      setPhotoSaving(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!sheetOpen) {
-      setAiLimitError('');
-    }
-  }, [sheetOpen]);
-
-  useEffect(() => {
-    if (!photoOpen) {
-      setAiSessionActive(false);
-      setIsDetecting(false);
-    }
-  }, [photoOpen]);
 
   useEffect(() => {
     const scannerParam = Array.isArray(params.scanner) ? params.scanner[0] : params.scanner;
-    if (scannerParam !== '1' || scannerTriggeredRef.current) return;
+    if (scannerParam !== '1' || scannerTriggeredRef.current || isAuthLoading) return;
     scannerTriggeredRef.current = true;
-    if (isAuthLoading) return;
-    if (!isAuthenticated) {
-      Alert.alert(
-        t('profile.auth_sign_in'),
-        t('planning.scanner_signin_required'),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-        ]
-      );
-      return;
-    }
-    handleOpenScanSource();
-  }, [params.scanner, canCreatePlant, canEdit, hasGardenOrBed, isAuthLoading, isAuthenticated]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setAiLimitError('');
-      return () => {
-        setAiLimitError('');
-        setScanSourceOpen(false);
-        setAiSessionActive(false);
-      };
-    }, [])
-  );
+    openScanner();
+  }, [params.scanner, isAuthLoading, openScanner]);
 
   return (
     <>
@@ -526,11 +267,6 @@ export default function PlanningScreen() {
                 <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4, fontWeight: '500' }}>{t('planning.option_camera_desc')}</Text>
               </TouchableOpacity>
 
-              {!!aiLimitError && (
-                <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
-                  <Text style={{ color: theme.danger, fontSize: 12 }}>{aiLimitError}</Text>
-                </View>
-              )}
             </View>
 
             <View style={{ gap: 8, marginTop: 4 }}>
@@ -548,110 +284,7 @@ export default function PlanningScreen() {
 
       </InputSheet>
 
-      <Modal
-        visible={scanSourceOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setScanSourceOpen(false)}
-      >
-        <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.15)' }} onPress={() => setScanSourceOpen(false)} />
-        <View style={{ position: 'absolute', top: 120, left: '33.5%', width: '33%', backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' }}>
-          <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.border }} onPress={() => { void handleCaptureFromCamera(); }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{t('planning.scan_source_camera')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{ paddingHorizontal: 10, paddingVertical: 10 }} onPress={() => { void handlePickFromLibrary(); }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>{t('planning.scan_source_library')}</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-
-      <InputSheet
-        visible={photoOpen}
-        title={t('planning.detect_title')}
-        onClose={closePhotoSheet}
-        closeTestID="e2e-planning-photo-close"
-        contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
-      >
-            {photoUri && (
-              <Image
-                source={{ uri: photoUri }}
-                style={{ width: '100%', height: 220, borderRadius: 20, borderWidth: 1, borderColor: theme.border }}
-                resizeMode="cover"
-              />
-            )}
-            <View style={{ gap: 12 }}>
-              <Text style={{ fontSize: 13, color: theme.textSecondary, fontWeight: '500', textAlign: 'center' }}>{t('planning.detect_hint')}</Text>
-              <TextInput
-                ref={detectedNameInputRef}
-                style={{ backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15, color: theme.text }}
-                placeholder={t('planning.detect_name_placeholder')}
-                placeholderTextColor={theme.textMuted}
-                value={detectedName}
-                onChangeText={(value) => {
-                  setDetectedName(value);
-                  if (detectNoMatch) setDetectNoMatch(false);
-                }}
-                testID="e2e-planning-detected-name-input"
-              />
-            </View>
-            {detectNoMatch && (
-              <View style={{ gap: 8 }}>
-                <Text style={{ fontSize: 12, color: theme.warning, textAlign: 'center' }}>{t('planning.detect_not_found')}</Text>
-                <TouchableOpacity
-                  style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
-                  onPress={handleOpenScanSource}
-                >
-                  <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 14 }}>{t('planning.detect_retake')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.background }}
-                  onPress={() => {
-                    closePhotoSheet();
-                    openLibrarySelect({
-                      mode: 'select',
-                      from: 'scanner',
-                      searchQuery: detectedName.trim(),
-                      tab: 'plants',
-                    });
-                  }}
-                >
-                  <Text style={{ color: theme.text, fontWeight: '700', fontSize: 14 }}>{t('planning.scan_source_library')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ borderRadius: 12, paddingVertical: 12, alignItems: 'center', backgroundColor: theme.primary, opacity: photoSaving ? 0.6 : 1 }}
-                  disabled={photoSaving}
-                  onPress={handleSaveAsUnknown}
-                >
-                  {photoSaving ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>{t('planning.detect_save_unknown')}</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            )}
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
-              <TouchableOpacity
-                style={{ flex: 1, borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: theme.border, backgroundColor: theme.accent }}
-                onPress={canCreatePlant ? handleOpenScanSource : undefined}
-                disabled={!canCreatePlant}
-              >
-                <Text style={{ color: theme.textAccent, fontWeight: '700', fontSize: 15 }}>{t('planning.detect_retake')}</Text>
-              </TouchableOpacity>
-            <TouchableOpacity
-              style={{ flex: 1, backgroundColor: theme.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', opacity: (!canCreatePlant || photoSaving || isDetecting) ? 0.6 : 1 }}
-              disabled={!canCreatePlant || photoSaving || isDetecting}
-              onPress={handleSavePhotoPlant}
-            >
-              {(photoSaving || isDetecting) ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={{ color: '#fff', fontWeight: '800', fontSize: 15 }}>{t('planning.detect_save')}</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-      </InputSheet>
-
+      {scannerModals}
     </>
   );
 }

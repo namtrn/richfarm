@@ -17,15 +17,22 @@ import {
   REVENUECAT_ENTITLEMENT_ID,
 } from '../lib/revenuecat';
 import { useAppReady } from './useAppReady';
+import { useAuth } from '../lib/auth';
 
 type SubscriptionContextValue = {
   isConfigured: boolean;
   isLoading: boolean;
   isPremium: boolean;
   customerInfo: CustomerInfo | null;
-  refresh: () => Promise<void>;
-  restorePurchases: () => Promise<void>;
+  /** Re-fetches customer info; resolves to whether the premium entitlement is active. */
+  refresh: () => Promise<boolean>;
+  /** Restores store purchases for the current app user; resolves to whether premium is now active. */
+  restorePurchases: () => Promise<boolean>;
 };
+
+function hasPremiumEntitlement(info: CustomerInfo | null | undefined) {
+  return Boolean(info?.entitlements.active[REVENUECAT_ENTITLEMENT_ID]);
+}
 
 type PurchasesWithListeners = typeof Purchases & {
   removeCustomerInfoUpdateListener?: (listener: (info: CustomerInfo) => void) => void;
@@ -37,6 +44,7 @@ const SubscriptionContext = createContext<SubscriptionContextValue | null>(null)
 
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const { currentUser, isReady } = useAppReady();
+  const { isAuthenticated } = useAuth();
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isConfigured, setIsConfigured] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,7 +100,21 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     const nextUserId = appUserId ?? null;
     const prevUserId = lastUserIdRef.current;
 
-    if (!nextUserId || nextUserId === prevUserId) return;
+    if (nextUserId === prevUserId) return;
+
+    if (!nextUserId) {
+      // Only act on a real sign-out, not while the user doc is still loading.
+      if (!isReady || isAuthenticated) return;
+      // Drop the previous account's identity so its entitlements don't stay on this device.
+      lastUserIdRef.current = null;
+      purchases
+        .logOut()
+        .then(setCustomerInfo)
+        .catch(() => {
+          // No-op: RevenueCat throws if the current user is already anonymous.
+        });
+      return;
+    }
 
     if (__DEV__) {
       console.log('[RevenueCat] logIn candidate', {
@@ -109,27 +131,30 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         // No-op: keep local state, app continues in anonymous mode.
       });
-  }, [appUserId, currentUser?.revenueCatAppUserId]);
+  }, [appUserId, currentUser?.revenueCatAppUserId, isAuthenticated, isReady]);
 
   const refresh = useCallback(async () => {
-    if (!configuredRef.current) return;
+    if (!configuredRef.current) return false;
     setIsLoading(true);
     try {
       const info = await purchases.getCustomerInfo();
       setCustomerInfo(info);
+      return hasPremiumEntitlement(info);
     } catch {
       // Keep app functional if RevenueCat request fails (e.g. bad key/network).
+      return false;
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   const restorePurchases = useCallback(async () => {
-    if (!configuredRef.current) return;
+    if (!configuredRef.current) return false;
     setIsLoading(true);
     try {
       const info = await purchases.restorePurchases();
       setCustomerInfo(info);
+      return hasPremiumEntitlement(info);
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +176,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     };
   }, [isConfigured, refresh]);
 
-  const isPremium = Boolean(customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENT_ID]);
+  const isPremium = hasPremiumEntitlement(customerInfo);
 
   const value = useMemo(
     () => ({

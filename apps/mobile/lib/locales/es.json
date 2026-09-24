@@ -154,7 +154,9 @@
     "detect_save": "Save plant",
     "detect_not_found": "No confident match found. You can retake, choose from library, or save as unknown.",
     "detect_save_unknown": "Save as unknown",
-    "detect_limit_free": "Los usuarios gratuitos solo pueden usar la detección de plantas con IA una vez al día. Mejora a Premium para usarla sin límites.",
+    "detect_limit_free": "Has usado las {{limit}} detecciones de IA gratuitas de hoy. Mejora a Premium para tener más, o vuelve mañana.",
+    "detect_limit_premium": "Has usado las {{limit}} detecciones de IA de hoy. Se renuevan mañana.",
+    "detect_quota_remaining": "Te quedan {{remaining}}/{{limit}} detecciones de IA hoy",
     "unknown_plant": "Unknown plant",
     "unnamed": "Unnamed plant"
   },

@@ -371,6 +371,10 @@ export default function ProfileScreen() {
       setPaywallMessage(t('profile.sub_active'));
       return;
     }
+    if (result.status === 'no_entitlement') {
+      setPaywallMessage(t('profile.sub_restore_none'));
+      return;
+    }
     if (result.status === 'cancelled') {
       setPaywallMessage(t('profile.sub_cancelled'));
       return;
@@ -410,8 +414,8 @@ export default function ProfileScreen() {
   const handleRestorePurchases = async () => {
     setPaywallMessage(null);
     try {
-      await restorePurchases();
-      setPaywallMessage(t('profile.sub_restored'));
+      const hasPremium = await restorePurchases();
+      setPaywallMessage(t(hasPremium ? 'profile.sub_restored' : 'profile.sub_restore_none'));
     } catch (error) {
       const message = error instanceof Error ? error.message : t('profile.sub_restore_failed');
       setPaywallMessage(message);

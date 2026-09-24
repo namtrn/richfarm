@@ -11,7 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import { Bell, Check, ChevronRight, Clock3, Droplets, Scissors, Sprout, Plus, Pencil, Trash2, Power, X } from '../../lib/icons';
-import { usePathname, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useAuthPrompt } from '../../hooks/useAuthPrompt';
 import { useQuery } from 'convex/react';
 import { useReminders } from '../../hooks/useReminders';
 import { usePlants } from '../../hooks/usePlants';
@@ -736,7 +737,7 @@ export default function ReminderScreen() {
   const { appMode } = useAppMode();
   const isGardener = appMode === 'gardener';
   const router = useRouter();
-  const pathname = usePathname();
+  const promptSignIn = useAuthPrompt();
   const {
     reminders,
     todayReminders,
@@ -987,14 +988,7 @@ export default function ReminderScreen() {
 
   const handleAuthRequired = () => {
     if (canEdit) return true;
-    Alert.alert(
-      t('profile.auth_sign_in'),
-      t('reminder.auth_warning'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-      ]
-    );
+    promptSignIn(t('reminder.auth_warning'));
     return false;
   };
 

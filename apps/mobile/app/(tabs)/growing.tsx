@@ -1,7 +1,8 @@
 ﻿import { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Sprout, Leaf, Fence } from '../../lib/icons';
-import { usePathname, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
+import { useAuthPrompt } from '../../hooks/useAuthPrompt';
 import { usePlants } from '../../hooks/usePlants';
 import { useAuth } from '../../lib/auth';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +19,7 @@ export default function GrowingScreen() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const pathname = usePathname();
+  const promptSignIn = useAuthPrompt();
   const { appMode } = useAppMode();
   const { plants, isLoading, updateStatus } = usePlants();
   const { beds } = useBeds();
@@ -61,14 +62,7 @@ export default function GrowingScreen() {
 
   const handleAuthRequired = () => {
     if (canEdit) return true;
-    Alert.alert(
-      t('profile.auth_sign_in'),
-      t('growing.auth_warning'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('profile.auth_sign_in'), onPress: () => router.push({ pathname: '/auth', params: { returnTo: pathname } }) },
-      ]
-    );
+    promptSignIn(t('growing.auth_warning'));
     return false;
   };
 
