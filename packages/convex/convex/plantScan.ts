@@ -24,6 +24,16 @@ type DetectResult = {
     alternatives: DetectSuggestion[];
 };
 
+type DiagnosisResult = {
+    plantName: string | null;
+    assessment: "healthy" | "pest" | "disease" | "stress" | "unknown";
+    confidence: number;
+    diagnosis: string;
+    causes: string[];
+    recommendedActions: string[];
+    prevention: string[];
+};
+
 export const consumeAiDetectionQuota = internalMutation({
     args: {},
     handler: async (ctx) => {
@@ -134,6 +144,31 @@ Rules:
 - probability must be a number from 0 to 1.
 - alternatives length max 3.
 - No markdown, no explanation, JSON only.
+`.trim();
+
+const buildDiagnosisPrompt = (locale: string) => `
+You are a cautious plant health assistant. Analyze the supplied plant photos together.
+The first image is a whole-plant context photo. The second image is a close-up of the
+damaged or symptomatic part. Return ONLY strict JSON in ${locale}.
+
+Schema:
+{
+  "plantName": "string or null",
+  "assessment": "healthy | pest | disease | stress | unknown",
+  "confidence": 0.0,
+  "diagnosis": "short explanation",
+  "causes": ["possible cause"],
+  "recommendedActions": ["safe next action"],
+  "prevention": ["prevention step"]
+}
+
+Rules:
+- Use both images and connect the close-up symptom to the whole-plant context.
+- Do not claim certainty. If the photos are insufficient, use assessment "unknown" and
+  explain what additional evidence is needed.
+- confidence must be a number from 0 to 1.
+- Keep each list concise (maximum 4 items).
+- No markdown, no explanation outside the JSON object.
 `.trim();
 
 const toSuggestion = (item: ParsedGeminiSuggestion, plantMasterId: string | null): DetectSuggestion => ({
@@ -248,6 +283,108 @@ export const detectPlant = action({
         } catch (error) {
             console.error("Error in detectPlant action:", error);
             throw error instanceof Error ? error : new Error("Failed to detect plant");
+        }
+    },
+});
+
+export const diagnosePlant = action({
+    args: {
+        images: v.array(v.string()),
+        locale: v.optional(v.string()),
+    },
+    handler: async (ctx, args): Promise<DiagnosisResult> => {
+        await requireAiDetectionQuota(ctx);
+        const apiKey = process.env.GEMINI_API_KEY;
+        const locale = normalizeLocale(args.locale);
+        const images = args.images.filter((image) => image.trim().length > 0).slice(0, 2);
+        const unknownResult: DiagnosisResult = {
+            plantName: null,
+            assessment: "unknown",
+            confidence: 0,
+            diagnosis: "There is not enough image information to assess the plant.",
+            causes: [],
+            recommendedActions: [],
+            prevention: [],
+        };
+
+        if (!apiKey) {
+            console.error("GEMINI_API_KEY is not set in environment variables");
+            throw new Error("AI diagnosis service is temporarily unavailable (missing Gemini API key)");
+        }
+        if (images.length === 0) return unknownResult;
+
+        try {
+            const response = await fetch(GEMINI_API_URL, {
+                method: "POST",
+                headers: {
+                    "x-goog-api-key": apiKey,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                { text: buildDiagnosisPrompt(locale) },
+                                ...images.map((imageBase64) => ({
+                                    inline_data: {
+                                        mime_type: guessMimeType(imageBase64),
+                                        data: imageBase64,
+                                    },
+                                })),
+                            ],
+                        },
+                    ],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        temperature: 0.1,
+                    },
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Gemini diagnosis API error:", response.status, errorText);
+                throw new Error(`AI diagnosis service error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const rawText = (data.candidates?.[0]?.content?.parts ?? [])
+                .map((part: { text?: string }) => part.text ?? "")
+                .join("\n")
+                .trim();
+            const jsonText = extractJson(rawText);
+            if (!jsonText) return unknownResult;
+
+            const parsed = JSON.parse(jsonText) as Partial<DiagnosisResult>;
+            const validAssessments = new Set<DiagnosisResult["assessment"]>([
+                "healthy", "pest", "disease", "stress", "unknown",
+            ]);
+            const assessment = validAssessments.has(parsed.assessment as DiagnosisResult["assessment"])
+                ? parsed.assessment as DiagnosisResult["assessment"]
+                : "unknown";
+
+            return {
+                plantName: typeof parsed.plantName === "string" && parsed.plantName.trim()
+                    ? parsed.plantName.trim()
+                    : null,
+                assessment,
+                confidence: clamp01(typeof parsed.confidence === "number" ? parsed.confidence : 0),
+                diagnosis: typeof parsed.diagnosis === "string" && parsed.diagnosis.trim()
+                    ? parsed.diagnosis.trim()
+                    : unknownResult.diagnosis,
+                causes: Array.isArray(parsed.causes)
+                    ? parsed.causes.filter((item): item is string => typeof item === "string").slice(0, 4)
+                    : [],
+                recommendedActions: Array.isArray(parsed.recommendedActions)
+                    ? parsed.recommendedActions.filter((item): item is string => typeof item === "string").slice(0, 4)
+                    : [],
+                prevention: Array.isArray(parsed.prevention)
+                    ? parsed.prevention.filter((item): item is string => typeof item === "string").slice(0, 4)
+                    : [],
+            };
+        } catch (error) {
+            console.error("Error in diagnosePlant action:", error);
+            throw error instanceof Error ? error : new Error("Failed to diagnose plant");
         }
     },
 });

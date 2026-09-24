@@ -3,6 +3,9 @@
     "name": "RichFarm",
     "slug": "richfarm",
     "version": "1.0.0",
+    "extra": {
+      "aiName": "Sprout"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "richfarm",
@@ -47,6 +50,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow access to the camera to identify and diagnose your plants."
+        }
+      ],
       [
         "expo-build-properties",
         {

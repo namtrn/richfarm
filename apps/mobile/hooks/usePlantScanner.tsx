@@ -16,6 +16,7 @@ import { usePlants } from './usePlants';
 import { normalizeCustomPlantNickname, useAddPlantFlow } from './useAddPlantFlow';
 import { useInputModalLifecycle } from './useInputModalLifecycle';
 import { InputSheet } from '../components/ui/InputSheet';
+import { MultiStepCamera, type MultiStepCameraPhoto } from '../components/ui/MultiStepCamera';
 import { api } from '../../../packages/convex/convex/_generated/api';
 
 let BlurView: React.ComponentType<{ style?: any; intensity?: number; tint?: string }> | null = null;
@@ -35,11 +36,23 @@ type UsePlantScannerResult = {
   onScanSaved: (cb: () => void) => () => void;
 };
 
+export type ScanMode = 'identify' | 'diagnose';
+
 type DetectPlantResponse = {
   match?: {
     name?: string;
     plantMasterId?: string | null;
   } | null;
+};
+
+type DiagnosePlantResponse = {
+  plantName?: string | null;
+  assessment?: 'healthy' | 'pest' | 'disease' | 'stress' | 'unknown';
+  confidence?: number;
+  diagnosis?: string;
+  causes?: string[];
+  recommendedActions?: string[];
+  prevention?: string[];
 };
 
 export function usePlantScanner(): UsePlantScannerResult {
@@ -57,8 +70,10 @@ export function usePlantScanner(): UsePlantScannerResult {
   const locale = i18n.language?.split('-')[0] ?? i18n.language;
   const { plants: libraryPlants } = usePlantLibrary(locale);
   const detectPlantAction = useAction((api as any).plantScan.detectPlant);
+  const diagnosePlantAction = useAction((api as any).plantScan.diagnosePlant);
 
   const [scanSourceOpen, setScanSourceOpen] = useState(false);
+  const [scanMode, setScanMode] = useState<ScanMode>('identify');
   const [photoOpen, setPhotoOpen] = useState(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [detectedName, setDetectedName] = useState(t('planning.unknown_plant'));
@@ -68,6 +83,11 @@ export function usePlantScanner(): UsePlantScannerResult {
   const [aiSessionActive, setAiSessionActive] = useState(false);
   const [detectNoMatch, setDetectNoMatch] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [diagnosisCameraOpen, setDiagnosisCameraOpen] = useState(false);
+  const [diagnosisPhotos, setDiagnosisPhotos] = useState<MultiStepCameraPhoto[]>([]);
+  const [diagnosisResultOpen, setDiagnosisResultOpen] = useState(false);
+  const [diagnosisResult, setDiagnosisResult] = useState<DiagnosePlantResponse | null>(null);
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
 
   // Listeners that want to be notified when a scan entry is saved
   const scanSavedListeners = useRef<Set<() => void>>(new Set());
@@ -85,6 +105,24 @@ export function usePlantScanner(): UsePlantScannerResult {
   const isPremium = isPremiumActive(user);
   const aiDetectorKey = buildAiDetectorKey(user?._id ? String(user._id) : null, deviceId);
   const canEdit = !isAuthLoading && (isAuthenticated || !!deviceId);
+  const diagnosisSteps = useMemo(() => [
+    { id: 'whole-plant', instruction: t('planning.diagnose_step_whole_plant') },
+    { id: 'damaged-part', instruction: t('planning.diagnose_step_damaged_part') },
+  ], [t]);
+  const cameraLabels = useMemo(() => ({
+    cameraPermissionTitle: t('planning.camera_permission_title'),
+    cameraPermissionDescription: t('planning.camera_permission_desc'),
+    allowCamera: t('planning.camera_allow'),
+    close: t('common.cancel'),
+    closeCamera: t('common.cancel'),
+    turnFlashOn: t('planning.camera_flash_on'),
+    turnFlashOff: t('planning.camera_flash_off'),
+    photo: t('planning.camera_photo'),
+    continue: t('planning.camera_continue'),
+    next: t('planning.camera_continue'),
+    retakePhoto: t('planning.detect_retake'),
+    takePhoto: t('planning.scan_source_camera'),
+  }), [t]);
 
   const resetPhotoDraft = useCallback(() => {
     setPhotoUri(null);
@@ -257,12 +295,56 @@ export function usePlantScanner(): UsePlantScannerResult {
     } catch (err) {
       console.error('Failed to save scan history entry:', err);
     }
-  }, [aiDetectorKey, aiSessionActive, detectPlantAction, i18n.language, isPremium, notifyScanSaved, t]);
+  }, [aiDetectorKey, aiSessionActive, detectPlantAction, i18n.language, isPremium, notifyScanSaved, router, t]);
+
+  const applyDiagnosisPhotos = useCallback(async (photos: MultiStepCameraPhoto[]) => {
+    const images = photos
+      .map((photo) => photo.base64)
+      .filter((base64): base64 is string => !!base64);
+    if (images.length !== diagnosisSteps.length) {
+      setAiLimitError(t('planning.diagnose_missing_photos'));
+      return;
+    }
+    if (!isPremium && !aiSessionActive) {
+      const consumption = await consumeAiDetectorUsage(aiDetectorKey, 1);
+      if (!consumption.allowed) {
+        setAiLimitError(t('planning.detect_limit_free'));
+        router.push('/premium');
+        return;
+      }
+    }
+
+    setAiSessionActive(true);
+    setDiagnosisCameraOpen(false);
+    setDiagnosisPhotos(photos);
+    setDiagnosisResult(null);
+    setDiagnosisResultOpen(false);
+    setIsDiagnosing(true);
+    try {
+      const result = await diagnosePlantAction({ images, locale: i18n.language }) as DiagnosePlantResponse;
+      setDiagnosisResult(result);
+      setDiagnosisResultOpen(true);
+    } catch (error) {
+      if ((error as any)?.data?.code === 'AI_DETECTION_LIMIT_REACHED') {
+        setAiLimitError(t('planning.detect_limit_free'));
+      } else {
+        setAiLimitError(t('planning.diagnose_failed'));
+      }
+      console.error('AI diagnosis failed:', error);
+    } finally {
+      setIsDiagnosing(false);
+    }
+  }, [aiDetectorKey, aiSessionActive, diagnosePlantAction, diagnosisSteps.length, i18n.language, isPremium, router, t]);
 
   const handleCaptureFromCamera = useCallback(async () => {
     const canStart = await canStartAiScan();
     if (!canStart) return;
     setScanSourceOpen(false);
+
+    if (scanMode === 'diagnose') {
+      setDiagnosisCameraOpen(true);
+      return;
+    }
 
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
@@ -290,7 +372,7 @@ export function usePlantScanner(): UsePlantScannerResult {
       }
       Alert.alert(t('planning.camera_unavailable_title'), t('planning.camera_unavailable_desc'));
     }
-  }, [applyPickedImage, canStartAiScan, t]);
+  }, [applyPickedImage, canStartAiScan, scanMode, t]);
 
   const handlePickFromLibrary = useCallback(async () => {
     const canStart = await canStartAiScan();
@@ -305,6 +387,26 @@ export function usePlantScanner(): UsePlantScannerResult {
       }
       return;
     }
+    if (scanMode === 'diagnose') {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        quality: 0.7,
+        allowsEditing: false,
+        allowsMultipleSelection: true,
+        selectionLimit: diagnosisSteps.length,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        base64: true,
+      });
+      if (result.canceled || !result.assets || result.assets.length !== diagnosisSteps.length) {
+        if (!result.canceled) setAiLimitError(t('planning.diagnose_missing_photos'));
+        return;
+      }
+      await applyDiagnosisPhotos(result.assets.map((asset, index) => ({
+        stepId: diagnosisSteps[index].id,
+        uri: asset.uri,
+        base64: asset.base64 ?? null,
+      })));
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       quality: 0.7,
       allowsEditing: true,
@@ -312,7 +414,7 @@ export function usePlantScanner(): UsePlantScannerResult {
       base64: true,
     });
     await applyPickedImage(result);
-  }, [applyPickedImage, canStartAiScan, t]);
+  }, [applyDiagnosisPhotos, applyPickedImage, canStartAiScan, diagnosisSteps, scanMode, t]);
 
   const handleSavePhotoPlant = useCallback(async () => {
     if (!canEdit) return;
@@ -365,9 +467,14 @@ export function usePlantScanner(): UsePlantScannerResult {
       return;
     }
     setAiLimitError('');
+    setScanMode('identify');
     if (photoOpen) closePhotoSheet();
     setScanSourceOpen(true);
   }, [closePhotoSheet, isAuthLoading, isAuthenticated, photoOpen, router, t]);
+
+  const handleDiagnosisComplete = useCallback((photos: MultiStepCameraPhoto[]) => {
+    void applyDiagnosisPhotos(photos);
+  }, [applyDiagnosisPhotos]);
 
   useEffect(() => {
     if (!photoOpen) {
@@ -383,6 +490,8 @@ export function usePlantScanner(): UsePlantScannerResult {
       return () => {
         setAiLimitError('');
         setScanSourceOpen(false);
+        setDiagnosisCameraOpen(false);
+        setDiagnosisResultOpen(false);
         setAiSessionActive(false);
         setPhotoOpen(false);
       };
@@ -413,6 +522,23 @@ export function usePlantScanner(): UsePlantScannerResult {
           <View style={{ paddingHorizontal: 18, paddingTop: 16, paddingBottom: 18, gap: 12 }}>
             <Text testID="e2e-scanner-source-title" style={{ fontSize: 18, fontWeight: '500', color: theme.text, letterSpacing: -0.3, textAlign: 'center' }}>
               {t('planning.scan_source_title')}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 6, padding: 4, borderRadius: 12, backgroundColor: theme.accent }}>
+              {(['identify', 'diagnose'] as const).map((mode) => (
+                <TouchableOpacity
+                  key={mode}
+                  testID={`e2e-scanner-mode-${mode}`}
+                  onPress={() => setScanMode(mode)}
+                  style={{ flex: 1, borderRadius: 9, paddingVertical: 9, alignItems: 'center', backgroundColor: scanMode === mode ? theme.card : 'transparent' }}
+                >
+                  <Text style={{ color: scanMode === mode ? theme.text : theme.textSecondary, fontSize: 13, fontWeight: '700' }}>
+                    {t(mode === 'identify' ? 'planning.scan_mode_identify' : 'planning.scan_mode_diagnose')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={{ color: theme.textSecondary, fontSize: 12, lineHeight: 17, textAlign: 'center' }}>
+              {t(scanMode === 'identify' ? 'planning.scan_mode_identify_desc' : 'planning.scan_mode_diagnose_desc')}
             </Text>
             {!!aiLimitError && (
               <View style={{ backgroundColor: theme.dangerBg, borderWidth: 1, borderColor: theme.danger, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10 }}>
@@ -558,12 +684,98 @@ export function usePlantScanner(): UsePlantScannerResult {
     </InputSheet>
   );
 
+  const diagnosisResultModal = (
+    <InputSheet
+      visible={diagnosisResultOpen}
+      title={t('planning.diagnose_result_title')}
+      onClose={() => {
+        setDiagnosisResultOpen(false);
+        setDiagnosisPhotos([]);
+        setAiSessionActive(false);
+      }}
+      contentContainerStyle={{ gap: 16 }}
+    >
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        {diagnosisPhotos.map((photo) => (
+          <Image
+            key={photo.stepId}
+            source={{ uri: photo.uri }}
+            style={{ flex: 1, height: 130, borderRadius: 12, borderWidth: 1, borderColor: theme.border }}
+            resizeMode="cover"
+          />
+        ))}
+      </View>
+      {isDiagnosing ? (
+        <ActivityIndicator color={theme.primary} />
+      ) : diagnosisResult ? (
+        <>
+          {!!diagnosisResult.plantName && (
+            <Text style={{ color: theme.text, fontSize: 18, fontWeight: '700', textAlign: 'center' }}>
+              {diagnosisResult.plantName}
+            </Text>
+          )}
+          <View style={{ borderRadius: 12, padding: 14, backgroundColor: theme.accent, gap: 8 }}>
+            <Text style={{ color: theme.textSecondary, fontSize: 12, fontWeight: '700', textTransform: 'uppercase' }}>
+              {t('planning.diagnose_assessment')}: {diagnosisResult.assessment ?? 'unknown'}
+            </Text>
+            <Text style={{ color: theme.text, fontSize: 15, lineHeight: 22 }}>
+              {diagnosisResult.diagnosis ?? t('planning.diagnose_no_result')}
+            </Text>
+            {typeof diagnosisResult.confidence === 'number' ? (
+              <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
+                {t('planning.diagnose_confidence', { percent: Math.round(diagnosisResult.confidence * 100) })}
+              </Text>
+            ) : null}
+          </View>
+          {diagnosisResult.causes?.length ? (
+            <View style={{ gap: 6 }}>
+              <Text style={{ color: theme.text, fontWeight: '700' }}>{t('planning.diagnose_causes')}</Text>
+              {diagnosisResult.causes.map((item) => (
+                <Text key={item} style={{ color: theme.textSecondary, fontSize: 14, lineHeight: 20 }}>• {item}</Text>
+              ))}
+            </View>
+          ) : null}
+          {diagnosisResult.recommendedActions?.length ? (
+            <View style={{ gap: 6 }}>
+              <Text style={{ color: theme.text, fontWeight: '700' }}>{t('planning.diagnose_actions')}</Text>
+              {diagnosisResult.recommendedActions.map((item) => (
+                <Text key={item} style={{ color: theme.textSecondary, fontSize: 14, lineHeight: 20 }}>• {item}</Text>
+              ))}
+            </View>
+          ) : null}
+          {diagnosisResult.prevention?.length ? (
+            <View style={{ gap: 6 }}>
+              <Text style={{ color: theme.text, fontWeight: '700' }}>{t('planning.diagnose_prevention')}</Text>
+              {diagnosisResult.prevention.map((item) => (
+                <Text key={item} style={{ color: theme.textSecondary, fontSize: 14, lineHeight: 20 }}>• {item}</Text>
+              ))}
+            </View>
+          ) : null}
+          <Text style={{ color: theme.textMuted, fontSize: 12, lineHeight: 17 }}>
+            {t('planning.diagnose_disclaimer')}
+          </Text>
+        </>
+      ) : null}
+    </InputSheet>
+  );
+
   const scannerModals = useMemo(() => (
     <>
       {mounted && scanSourceModal}
       {mounted && photoModal}
+      {mounted && (
+        <MultiStepCamera
+          visible={diagnosisCameraOpen}
+          steps={diagnosisSteps}
+          title={t('planning.scan_mode_diagnose')}
+          labels={cameraLabels}
+          onClose={() => setDiagnosisCameraOpen(false)}
+          onComplete={handleDiagnosisComplete}
+        />
+      )}
+      {mounted && diagnosisResultModal}
     </>
-  ), [mounted, scanSourceModal, photoModal]);
+  ), [diagnosisCameraOpen, diagnosisResultModal, diagnosisSteps, handleDiagnosisComplete, mounted, photoModal, scanSourceModal, t]);
 
   return { openScanner, scannerModals, onScanSaved };
 }
