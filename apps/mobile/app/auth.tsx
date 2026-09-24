@@ -97,6 +97,15 @@ export default function AuthScreen() {
     }
   };
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace('/(tabs)/home');
+  };
+
   const handleSignUp = async () => {
     if (!passwordsMatch) {
       setError(t('profile.auth_password_mismatch'));
@@ -301,7 +310,7 @@ export default function AuthScreen() {
       >
         <View style={{ gap: 24 }}>
           <TouchableOpacity
-            onPress={() => (returnTo ? router.replace(returnTo as any) : router.back())}
+            onPress={handleBack}
             accessibilityLabel={t('profile.auth_back_to_sign_in')}
             style={{ width: 40, height: 40, marginLeft: -8, alignItems: 'center', justifyContent: 'center' }}
           >
