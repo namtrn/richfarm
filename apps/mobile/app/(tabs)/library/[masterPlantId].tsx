@@ -58,6 +58,7 @@ import { InputSheet } from '../../../components/ui/InputSheet';
 import { usePlantContentCommands } from '../../../hooks/usePlantContentCommands';
 import { normalizePropagationMethods } from '../../../../../packages/shared/src/plantPropagation';
 import { PlantMetadataRows } from '../../../components/plant/PlantMetadataRows';
+import { CARE_CONTENT_ENABLED } from '../../../../../packages/shared/src/productFeatures';
 
 if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental?.(true);
@@ -395,6 +396,7 @@ export default function LibraryPlantDetailScreen() {
         // Reset synchronously whenever the route key changes so a detail
         // screen never carries one plant's Markdown into another plant.
         setCareContent(null);
+        if (!CARE_CONTENT_ENABLED) return;
         if (!resolvedId) return;
 
         let cancelled = false;
@@ -825,23 +827,27 @@ export default function LibraryPlantDetailScreen() {
                             </View>
                         )}
 
-                        {/* Care guide — canonical Markdown rendered directly */}
-                        <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
-                            {t('library.section_care', { defaultValue: 'Care Guide' })}
-                        </Text>
-                        {careContent ? (
+                        {/* Care content is staged for a later product phase. */}
+                        {CARE_CONTENT_ENABLED && (
                             <>
-                                <MarkdownText style={{ marginBottom: 8 }}>{careContent}</MarkdownText>
-                                {formatCareContentUpdatedAt(currentPlant.contentUpdatedAt, locale) ? (
-                                    <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 16 }}>
-                                        {t('library.care_last_updated', { date: formatCareContentUpdatedAt(currentPlant.contentUpdatedAt, locale) })}
+                                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>
+                                    {t('library.section_care', { defaultValue: 'Care Guide' })}
+                                </Text>
+                                {careContent ? (
+                                    <>
+                                        <MarkdownText style={{ marginBottom: 8 }}>{careContent}</MarkdownText>
+                                        {formatCareContentUpdatedAt(currentPlant.contentUpdatedAt, locale) ? (
+                                            <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 16 }}>
+                                                {t('library.care_last_updated', { date: formatCareContentUpdatedAt(currentPlant.contentUpdatedAt, locale) })}
+                                            </Text>
+                                        ) : null}
+                                    </>
+                                ) : (
+                                    <Text style={{ color: theme.textMuted, fontSize: 13, marginVertical: 20 }}>
+                                        {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
                                     </Text>
-                                ) : null}
+                                )}
                             </>
-                        ) : (
-                            <Text style={{ color: theme.textMuted, fontSize: 13, marginVertical: 20 }}>
-                                {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
-                            </Text>
                         )}
 
                         {/* Detailed stats */}

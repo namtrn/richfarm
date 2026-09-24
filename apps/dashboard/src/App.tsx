@@ -23,6 +23,7 @@ import { useAuth } from "./hooks/useAuth";
 import { useBackendPlants } from "./hooks/useBackendPlants";
 import { useDataHealth } from "./hooks/useDataHealth";
 import { useContentInbox, useContentMonitorStatus } from "./hooks/useContentInbox";
+import { CARE_CONTENT_ENABLED } from "../../../packages/shared/src/productFeatures";
 
 export default function App() {
   const [activePage, setActivePage] = useState<PageKey>("plants");
@@ -45,12 +46,12 @@ export default function App() {
     auth.isLoggedIn && (activePage === "content-inbox" || activePage === "data-health"),
   );
 
-  // Load global backend status once auth is available. The care-approval list
-  // is also refreshed periodically so a Markdown apply or another reviewer
-  // action becomes visible without a page-specific refresh.
+  // Load global backend status once auth is available. Care approval polling is
+  // staged with the care-content UI and can be re-enabled with the shared flag.
   useEffect(() => {
     if (!auth.isLoggedIn) return;
     void backend.loadStats();
+    if (!CARE_CONTENT_ENABLED) return;
     void backend.loadPendingCareApprovals();
     const refreshTimer = window.setInterval(() => {
       void backend.loadPendingCareApprovals();
@@ -131,10 +132,12 @@ export default function App() {
           events={contentInbox.events}
           onOpenEvent={openPendingContentEvent}
         />
-        <CareApprovalNotification
-          approvals={backend.pendingCareApprovals}
-          onOpenPlant={openPendingCarePlant}
-        />
+        {CARE_CONTENT_ENABLED && (
+          <CareApprovalNotification
+            approvals={backend.pendingCareApprovals}
+            onOpenPlant={openPendingCarePlant}
+          />
+        )}
 
         {activePage === "plants" && (
           <PlantManager p={plants} i18n={i18n} backend={backend} isAdmin={auth.isAdmin} onToast={addToast} authedFetch={auth.authedFetch} />

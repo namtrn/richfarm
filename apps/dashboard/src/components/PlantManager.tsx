@@ -8,6 +8,7 @@ import { isDisplayBasePlant } from "../../../../packages/shared/src/plantBase";
 import { PROPAGATION_METHODS, type PropagationMethod } from "../../../../packages/shared/src/plantPropagation";
 import { GeographyEditor } from "./GeographyEditor";
 import { CareGuideModal } from "./CareGuideModal";
+import { CARE_CONTENT_ENABLED } from "../../../../packages/shared/src/productFeatures";
 import {
     getDisplayName,
     getLocaleRow,
@@ -348,9 +349,11 @@ export function PlantManager({
                     </div>
                     {backend.pendingOutbox !== null && backend.pendingOutbox.length === 0 && !backend.publishItems && (
                         <p className="muted small">
-                            {backend.pendingCareApprovals && backend.pendingCareApprovals.length > 0
-                                ? `Nothing is ready to publish yet. Markdown has been imported into SQLite, but ${backend.pendingCareApprovals.length} plant${backend.pendingCareApprovals.length === 1 ? "" : "s"} still need${backend.pendingCareApprovals.length === 1 ? "s" : ""} care-content approval in Plant Detail → Translations. Open each plant from the notification above, approve it, then return here and click Publish approved to sync the approved rows to Convex.`
-                                : "Nothing is ready to publish yet. Approve the care content in Plant Detail → Translations first, then return here and click Publish approved to sync the approved rows to Convex."}
+                            {CARE_CONTENT_ENABLED
+                                ? backend.pendingCareApprovals && backend.pendingCareApprovals.length > 0
+                                    ? `Nothing is ready to publish yet. Markdown has been imported into SQLite, but ${backend.pendingCareApprovals.length} plant${backend.pendingCareApprovals.length === 1 ? "" : "s"} still need${backend.pendingCareApprovals.length === 1 ? "s" : ""} care-content approval in Plant Detail → Translations. Open each plant from the notification above, approve it, then return here and click Publish approved to sync the approved rows to Convex.`
+                                    : "Nothing is ready to publish yet. Approve the care content in Plant Detail → Translations first, then return here and click Publish approved to sync the approved rows to Convex."
+                                : "Nothing is ready to publish yet."}
                         </p>
                     )}
                     {backend.pendingOutbox !== null && backend.pendingOutbox.length > 0 && (
@@ -702,7 +705,7 @@ function PlantDetail({
                     <p className="muted">Purposes: {(plant.purposes ?? []).join(", ") || "—"}</p>
                     <p className="muted">Source: {plant.source ?? "—"} · {plant.sourceSystem ?? "—"}/{plant.sourceId ?? "—"}</p>
                     <p className="muted">Content: {plant.contentStatus ?? "published"} · review {plant.reviewStatus ?? "unreviewed"} · version {plant.contentVersion ?? 1}</p>
-                    <p className="muted">Care status: {plant.careStatus ?? "missing"} · tier {plant.contentTier ?? "taxonomy_only"}</p>
+                    {CARE_CONTENT_ENABLED && <p className="muted">Care status: {plant.careStatus ?? "missing"} · tier {plant.contentTier ?? "taxonomy_only"}</p>}
                     <p className="muted">Growth stage: {plant.growthStage ?? "—"} · reviewed by {plant.reviewedBy ?? "—"}</p>
                     {plant.sourceUrl && <p className="muted">Source URL: {plant.sourceUrl}</p>}
                     {plant.notes && <p className="muted">Notes: {plant.notes}</p>}
@@ -731,13 +734,15 @@ function PlantDetail({
             <div className="i18n-inline">
                 <div className="i18n-inline-header">
                     <h4>🌐 Translations</h4>
-                    <ApprovePlantPanel
-                        plant={plant}
-                        i18n={i18n}
-                        reload={reload}
-                        onToast={onToast}
-                        onApprovalChange={onApprovalChange}
-                    />
+                    {CARE_CONTENT_ENABLED && (
+                        <ApprovePlantPanel
+                            plant={plant}
+                            i18n={i18n}
+                            reload={reload}
+                            onToast={onToast}
+                            onApprovalChange={onApprovalChange}
+                        />
+                    )}
                     <AddLanguageButton
                         plant={plant}
                         reload={reload}
@@ -759,16 +764,18 @@ function PlantDetail({
                                     </div>
                                     <p className="i18n-common-name">{row.commonName}</p>
                                     <div className="markdown-body i18n-desc"><ReactMarkdown>{row.description ?? "No description"}</ReactMarkdown></div>
-                                    <CareContent content={row.careContent} />
-                                    <div className="care-editor-actions">
-                                        <button
-                                            className="btn secondary small"
-                                            onClick={() => setCareModalLocale(row.locale)}
-                                            type="button"
-                                        >
-                                            Edit care guide
-                                        </button>
-                                    </div>
+                                    {CARE_CONTENT_ENABLED && <CareContent content={row.careContent} />}
+                                    {CARE_CONTENT_ENABLED && (
+                                        <div className="care-editor-actions">
+                                            <button
+                                                className="btn secondary small"
+                                                onClick={() => setCareModalLocale(row.locale)}
+                                                type="button"
+                                            >
+                                                Edit care guide
+                                            </button>
+                                        </div>
+                                    )}
                                     <p className="muted small">v{row.contentVersion ?? 1} · {row.contentStatus ?? "published"} · review {row.reviewStatus ?? "unreviewed"}{row.reviewedBy ? ` · by ${row.reviewedBy}` : ""}{row.reviewedAt ? ` · ${formatReviewDate(row.reviewedAt)}` : ""} · origin {row.contentOrigin ?? "imported"} · {row.source ?? "no source"}</p>
                                 </div>
                             );
@@ -776,7 +783,7 @@ function PlantDetail({
                 </div>
             </div>
 
-            {careModalLocale && (
+            {CARE_CONTENT_ENABLED && careModalLocale && (
                 <CareGuideModal
                     locales={plant.i18nRows.map((row) => ({
                         locale: row.locale,
@@ -1444,15 +1451,17 @@ function PlantForm({
                             <option value="reviewed">Reviewed</option>
                         </select>
                     </label>
-                    <label>
-                        Care status
-                        <select value={f.careStatus} onChange={(e) => set({ careStatus: e.target.value as PlantHook["form"]["careStatus"] })}>
-                            <option value="missing">Missing</option>
-                            <option value="awaiting_review">Awaiting review</option>
-                            <option value="verified">Verified</option>
-                            <option value="not_applicable">Not applicable</option>
-                        </select>
-                    </label>
+                    {CARE_CONTENT_ENABLED && (
+                        <label>
+                            Care status
+                            <select value={f.careStatus} onChange={(e) => set({ careStatus: e.target.value as PlantHook["form"]["careStatus"] })}>
+                                <option value="missing">Missing</option>
+                                <option value="awaiting_review">Awaiting review</option>
+                                <option value="verified">Verified</option>
+                                <option value="not_applicable">Not applicable</option>
+                            </select>
+                        </label>
+                    )}
                     <label>
                         Reviewed by
                         <input value={f.reviewedBy} onChange={(e) => set({ reviewedBy: e.target.value })} />

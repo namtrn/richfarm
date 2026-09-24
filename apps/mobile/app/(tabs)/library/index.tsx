@@ -51,12 +51,15 @@ import { useAppMode } from '../../../hooks/useAppMode';
 import { useAddPlantFlow } from '../../../hooks/useAddPlantFlow';
 import { useUserSettings } from '../../../hooks/useUserSettings';
 import { PlantMetadataRows } from '../../../components/plant/PlantMetadataRows';
+import { CARE_CONTENT_ENABLED } from '../../../../../packages/shared/src/productFeatures';
 
 type LibraryTab = 'plants' | 'pests' | 'guide';
 type PlantBrowseMode = 'common' | 'families';
 type LayoutMode = 'list' | 'grid';
 
-const LIBRARY_TABS: LibraryTab[] = ['plants', 'pests', 'guide'];
+const LIBRARY_TABS: LibraryTab[] = CARE_CONTENT_ENABLED
+    ? ['plants', 'pests', 'guide']
+    : ['plants', 'pests'];
 const PLANT_BROWSE_MODES: PlantBrowseMode[] = ['common', 'families'];
 
 const GROUP_ICONS: Record<string, string> = {
@@ -75,6 +78,7 @@ const GROUP_ICONS: Record<string, string> = {
 function normalizeTab(value?: string): LibraryTab {
     if (!value) return 'plants';
     if (value === 'diseases') return 'pests';
+    if (value === 'guide' && !CARE_CONTENT_ENABLED) return 'plants';
     return LIBRARY_TABS.includes(value as LibraryTab) ? (value as LibraryTab) : 'plants';
 }
 
@@ -361,33 +365,35 @@ function PlantDetailModal({
                                 <Text style={{ fontSize: 14, fontWeight: '500', color: theme.text }}>{formatYieldPerArea(plant.yieldKgPerM2, unitSystem)}</Text>
                             </View>
                         )}
-                        <View style={{ marginTop: 20, gap: 12 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
-                                {t('library.section_care', { defaultValue: 'Care Guide' })}
-                            </Text>
-                            {careContent ? (
-                                <View
-                                    style={{
-                                        backgroundColor: theme.background,
-                                        borderRadius: 10,
-                                        padding: 12,
-                                        borderWidth: 1,
-                                        borderColor: theme.border,
-                                    }}
-                                >
-                                    <MarkdownText>{careContent}</MarkdownText>
-                                    {formatCareContentUpdatedAt(plant.contentUpdatedAt, locale) ? (
-                                        <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 8 }}>
-                                            {t('library.care_last_updated', { date: formatCareContentUpdatedAt(plant.contentUpdatedAt, locale) })}
-                                        </Text>
-                                    ) : null}
-                                </View>
-                            ) : (
-                                <Text style={{ color: theme.textMuted, fontSize: 13 }}>
-                                    {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
+                        {CARE_CONTENT_ENABLED && (
+                            <View style={{ marginTop: 20, gap: 12 }}>
+                                <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>
+                                    {t('library.section_care', { defaultValue: 'Care Guide' })}
                                 </Text>
-                            )}
-                        </View>
+                                {careContent ? (
+                                    <View
+                                        style={{
+                                            backgroundColor: theme.background,
+                                            borderRadius: 10,
+                                            padding: 12,
+                                            borderWidth: 1,
+                                            borderColor: theme.border,
+                                        }}
+                                    >
+                                        <MarkdownText>{careContent}</MarkdownText>
+                                        {formatCareContentUpdatedAt(plant.contentUpdatedAt, locale) ? (
+                                            <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 8 }}>
+                                                {t('library.care_last_updated', { date: formatCareContentUpdatedAt(plant.contentUpdatedAt, locale) })}
+                                            </Text>
+                                        ) : null}
+                                    </View>
+                                ) : (
+                                    <Text style={{ color: theme.textMuted, fontSize: 13 }}>
+                                        {t('library.care_unavailable', { defaultValue: 'No care guide yet.' })}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
                     </ScrollView>
                 </Animated.View>
             </View>
@@ -1535,6 +1541,11 @@ export default function LibraryScreen() {
         }
 
         let cancelled = false;
+        if (!CARE_CONTENT_ENABLED) {
+            setSelectedPlantCareContent(null);
+            return;
+        }
+
         const plantId = String(selectedPlant._id);
         const serverVersion =
             typeof selectedPlant.contentVersion === 'number'
@@ -1857,7 +1868,9 @@ export default function LibraryScreen() {
                     tabs={[
                         { key: 'plants', label: t('library.tab_plants'), flex: 3 },
                         { key: 'pests', label: t('library.tab_pests'), flex: 4 },
-                        { key: 'guide', label: t('library.tab_guide'), flex: 3 },
+                        ...(CARE_CONTENT_ENABLED
+                            ? [{ key: 'guide', label: t('library.tab_guide'), flex: 3 }]
+                            : []),
                     ]}
                     activeTab={activeTab}
                     onTabChange={(key: string) => { setActiveTab(key as LibraryTab); setSearch(''); }}
@@ -2072,7 +2085,7 @@ export default function LibraryScreen() {
             )}
 
             {/* ── Guide Tab ── */}
-            {activeTab === 'guide' && <GuideTab />}
+            {CARE_CONTENT_ENABLED && activeTab === 'guide' && <GuideTab />}
 
             {/* Plant detail modal */}
             {selectedPlant && (
